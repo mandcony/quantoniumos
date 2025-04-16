@@ -13,9 +13,10 @@ from typing import Optional, List
 
 logger = logging.getLogger(__name__)
 
-def generate_entropy(amount: int = 32, entropy_source: Optional[str] = None) -> dict:
+def generate_entropy(amount: int = 32, entropy_source: Optional[str] = None) -> str:
     """
     Generate entropy using quantum-inspired random number generation.
+    Returns a base64-encoded string as required by the protected module.
     """
     # First try to use the provided entropy source if available
     if entropy_source and os.path.exists(entropy_source):
@@ -36,10 +37,7 @@ def generate_entropy(amount: int = 32, entropy_source: Optional[str] = None) -> 
     # Encode as base64 for API response
     entropy_b64 = base64.b64encode(entropy).decode()
     
-    return {
-        "entropy": entropy_b64,
-        "timestamp": int(time.time())
-    }
+    return entropy_b64
 
 def calculate_symbolic_entropy(data: List[float]) -> float:
     """
