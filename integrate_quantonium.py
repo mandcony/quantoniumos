@@ -29,7 +29,8 @@ def verify_structure(extracted_path):
     required_dirs = [
         'core/HPC',
         'interface',
-        'orchestration'
+        'orchestration',
+        'encryption'
     ]
     
     required_files = [
@@ -37,6 +38,15 @@ def verify_structure(extracted_path):
         'core/HPC/ccp_engine.py',
         'core/HPC/symbolic_container.py',
         'orchestration/quantum_nova_system.py',
+        'orchestration/quantum_link.py',
+        'orchestration/resonance_manager.py',
+        'orchestration/symbolic_container.py',
+        'orchestration/quantum_search.py',
+        'orchestration/geometric_container.py',
+        'encryption/resonance_encrypt.py',
+        'encryption/resonance_fourier.py',
+        'encryption/entropy_qrng.py',
+        'encryption/geometric_waveform_hash.py',
         'interface/quantum_os_bindings.py',
         'interface/engine_core_bindings.py'
     ]
@@ -63,7 +73,8 @@ def integrate_modules(extracted_path, target_path='.'):
     dirs_to_copy = [
         'core/HPC',
         'interface',
-        'orchestration'
+        'orchestration',
+        'encryption'
     ]
     
     for dir_path in dirs_to_copy:
