@@ -15,4 +15,5 @@ dependencies = [
     "requests>=2.32.3",
     "flask-cors>=5.0.1",
     "numpy>=2.2.4",
+    "pybind11>=2.13.6",
 ]
