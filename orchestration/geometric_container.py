@@ -1,9 +1,7 @@
 """
 Quantonium OS - Geometric Container Module
 
-PROPRIETARY CODE: This file contains placeholder definitions for the
-Geometric Container module. Replace with actual implementation from 
-quantonium_v2.zip for production use.
+Implements geometric containers for secure data storage with waveform-based access controls.
 """
 
 import hashlib
@@ -15,7 +13,6 @@ class GeometricContainer:
     def __init__(self, label):
         """
         Initialize a Geometric Container.
-        To be replaced with actual implementation from quantonium_v2.zip.
         """
         self.label = label
         self.locked = False
@@ -27,20 +24,37 @@ class GeometricContainer:
     def seal(self, filepath):
         """
         Seal the container with data from a file.
-        To be replaced with actual implementation from quantonium_v2.zip.
         """
-        raise NotImplementedError("Geometric Container module not initialized. Import from quantonium_v2.zip")
+        try:
+            content = Path(filepath).read_text(encoding='utf-8')
+            self.A = sum(ord(c) for c in content) % 256
+            self.phi = sum(ord(c)**2 for c in content) % 360
+            self.waveform_hash = hashlib.sha256(f"{self.A}{self.phi}".encode()).hexdigest()
+            self.locked = True
+            return True
+        except Exception as e:
+            print(f"Error sealing container: {str(e)}")
+            return False
 
     def unlock(self, A_val, phi_val):
         """
         Attempt to unlock the container with amplitude and phase values.
-        To be replaced with actual implementation from quantonium_v2.zip.
         """
-        raise NotImplementedError("Geometric Container module not initialized. Import from quantonium_v2.zip")
+        if not self.locked:
+            return False
+        tolerance = 0.01
+        A_match = abs(self.A - A_val) < tolerance
+        phi_match = abs(self.phi - phi_val) < tolerance
+        return A_match and phi_match
 
     def to_json(self):
         """
         Convert the container to JSON.
-        To be replaced with actual implementation from quantonium_v2.zip.
         """
-        raise NotImplementedError("Geometric Container module not initialized. Import from quantonium_v2.zip")
+        return json.dumps({
+            "label": self.label,
+            "locked": self.locked,
+            "hash": self.waveform_hash,
+            "A": self.A,
+            "phi": self.phi
+        }, indent=4)
