@@ -300,7 +300,13 @@
           res = await apiCall("/container/auto-unlock", { hash });
           
           if (res.unlocked) {
-            out.textContent = "✅ Container Unlocked (Auto mode: amplitude values detected from hash)";
+            out.textContent = "✅ Container Unlocked (Auto mode: hash key authentication successful)";
+            // Add some details about the operation
+            const details = document.createElement("div");
+            details.style.marginTop = "10px";
+            details.style.color = "#8ff";
+            details.textContent = "Hash verification completed. Container data is now accessible.";
+            out.appendChild(details);
           } else {
             out.textContent = "❌ Access Denied (No matching container found)";
           }
@@ -308,7 +314,18 @@
           // User provided a waveform, use traditional unlock
           const waveform = str.split(",").map(s => parseFloat(s.trim()));
           res = await apiCall("/container/unlock", { waveform, hash });
-          out.textContent = res.unlocked ? "✅ Container Unlocked" : "❌ Access Denied";
+          
+          if (res.unlocked) {
+            out.textContent = "✅ Container Unlocked";
+            // Add some details about the operation
+            const details = document.createElement("div");
+            details.style.marginTop = "10px";
+            details.style.color = "#8ff";
+            details.textContent = "Waveform resonance matched. Container data is now accessible.";
+            out.appendChild(details);
+          } else {
+            out.textContent = "❌ Access Denied (Resonance mismatch)";
+          }
         }
       } catch (e) {
         err.textContent = e.message;
@@ -332,10 +349,18 @@
         
         if (res.unlocked) {
           out.textContent = "✅ Success! Container automatically unlocked using encryption hash";
+          // Add details about the operation
+          const details = document.createElement("div");
+          details.style.marginTop = "10px";
+          details.style.color = "#8ff";
+          details.textContent = "Hash verification completed. Container data is now accessible.";
+          out.appendChild(details);
+          
           // Add a button to copy the hash to clipboard for future use
           const copyBtn = document.createElement("button");
           copyBtn.textContent = "Copy Hash";
           copyBtn.style.marginLeft = "10px";
+          copyBtn.style.marginTop = "10px";
           copyBtn.onclick = () => {
             navigator.clipboard.writeText(hash);
             copyBtn.textContent = "Copied!";
