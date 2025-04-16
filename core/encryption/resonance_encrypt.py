@@ -10,6 +10,7 @@ import time
 import base64
 import hashlib
 import logging
+from core.encryption.geometric_waveform_hash import generate_waveform_hash, verify_waveform_hash
 
 # Configure logger
 logger = logging.getLogger("resonance_encrypt_encryption")
@@ -18,9 +19,14 @@ logger.setLevel(logging.INFO)
 def resonance_encrypt(plaintext, A, phi):
     """
     Encrypt plaintext using resonance parameters A (amplitude) and phi (phase).
+    Uses geometric waveform hash for signature validation.
     """
     if not isinstance(plaintext, str):
         plaintext = str(plaintext)
+    
+    # Generate the waveform hash for signature validation
+    waveform_hash = generate_waveform_hash(A, phi)
+    signature = hashlib.sha256(waveform_hash.encode()).digest()[:4]
     
     # Generate key from amplitude and phase
     key = f"{A:.4f}_{phi:.4f}"
@@ -35,8 +41,7 @@ def resonance_encrypt(plaintext, A, phi):
     # XOR encryption
     ciphertext_bytes = bytearray([(ord(char) ^ keystream[i]) for i, char in enumerate(plaintext)])
     
-    # Add resonance signature
-    signature = hashlib.sha256(key.encode()).digest()[:4]
+    # Add resonance signature based on waveform hash
     ciphertext_bytes = signature + ciphertext_bytes
     
     return bytes(ciphertext_bytes)
@@ -44,16 +49,20 @@ def resonance_encrypt(plaintext, A, phi):
 def resonance_decrypt(encrypted_data, A, phi):
     """
     Decrypt data using resonance parameters A (amplitude) and phi (phase).
+    Uses geometric waveform hash for signature validation.
     """
-    # Generate key from amplitude and phase
-    key = f"{A:.4f}_{phi:.4f}"
+    # Generate the waveform hash for verification
+    waveform_hash = generate_waveform_hash(A, phi)
     
     # Verify signature (first 4 bytes)
     signature = encrypted_data[:4]
-    expected_sig = hashlib.sha256(key.encode()).digest()[:4]
+    expected_sig = hashlib.sha256(waveform_hash.encode()).digest()[:4]
     
     if signature != expected_sig:
-        raise ValueError("Invalid resonance signature")
+        raise ValueError("Invalid resonance signature - waveform parameters do not match")
+    
+    # Generate key from amplitude and phase
+    key = f"{A:.4f}_{phi:.4f}"
     
     # Extract ciphertext
     ciphertext = encrypted_data[4:]
@@ -86,14 +95,25 @@ def _perform_resonance_encryption(plaintext: str, key: str) -> str:
 def encrypt(plaintext: str, key: str) -> dict:
     """
     Encrypt plaintext using the resonance encryption algorithm with a string key.
-    Returns a dict with ciphertext, timestamp, and processing metrics.
+    Returns a dict with ciphertext, waveform_hash, timestamp, and processing metrics.
     """
     start_time = time.time()
+    
+    # Extract amplitude and phase from key
+    key_hash = hashlib.sha256(key.encode()).hexdigest()
+    A = float(int(key_hash[:8], 16) % 1000) / 1000
+    phi = float(int(key_hash[8:16], 16) % 1000) / 1000
+    
+    # Generate the waveform hash
+    waveform_hash = generate_waveform_hash(A, phi)
+    
+    # Encrypt the data
     encrypted = _perform_resonance_encryption(plaintext, key)
     elapsed = round((time.time() - start_time) * 1000, 2)
     
     return {
         "ciphertext": encrypted,
+        "waveform_hash": waveform_hash,
         "timestamp": int(time.time()),
         "elapsed_ms": elapsed
     }
