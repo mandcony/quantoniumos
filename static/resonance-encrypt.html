@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resonance Encryption GUI</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            background: #111; 
+            color: #eee; 
+            padding: 2em; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        input, textarea { 
+            width: 100%; 
+            padding: 1em; 
+            margin: 0.5em 0; 
+            background: #222; 
+            color: #fff; 
+            border: 1px solid #444; 
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        button { 
+            padding: 1em 2em; 
+            background: #28a; 
+            color: #fff; 
+            border: none; 
+            cursor: pointer; 
+            margin-top: 1em;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #39b;
+        }
+        .output { 
+            background: #222; 
+            padding: 1em; 
+            margin-top: 1em; 
+            white-space: pre-wrap; 
+            border-radius: 4px;
+            min-height: 5em;
+        }
+        .loader {
+            display: none;
+            border: 3px solid #222;
+            border-radius: 50%;
+            border-top: 3px solid #28a;
+            width: 20px;
+            height: 20px;
+            margin: 1em auto;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #f55;
+            margin-top: 0.5em;
+            display: none;
+        }
+        h1 {
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+        h1::before {
+            content: "🧠";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        p {
+            opacity: 0.8;
+            margin-top: 0.5em;
+        }
+        .footer {
+            margin-top: 2em;
+            font-size: 0.8em;
+            opacity: 0.6;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Resonance Encryption API</h1>
+    <p>Enter your plaintext and key below to generate symbolic ciphertext using quantum-inspired resonance technology.</p>
+
+    <textarea id="plaintext" placeholder="Enter plaintext to encrypt..."></textarea>
+    <input id="key" type="text" placeholder="Enter encryption key..." />
+
+    <button id="encrypt-btn" onclick="encrypt()">Encrypt</button>
+    
+    <div class="loader" id="loader"></div>
+    <div class="error" id="error"></div>
+    <div class="output" id="output">// Encrypted output will appear here</div>
+    
+    <div class="footer">
+        Powered by Quantonium OS Cloud Runtime
+    </div>
+
+    <script>
+        // API configuration
+        const API_URL = 'https://{YOUR-REPLIT-URL}.replit.app';
+        const API_KEY = 'default_dev_key';  // In production, use your secure API key
+        
+        async function encrypt() {
+            const plaintext = document.getElementById('plaintext').value;
+            const key = document.getElementById('key').value;
+            const outputEl = document.getElementById('output');
+            const loaderEl = document.getElementById('loader');
+            const errorEl = document.getElementById('error');
+            const buttonEl = document.getElementById('encrypt-btn');
+            
+            // Validation
+            if (!plaintext || !key) {
+                errorEl.textContent = 'Please provide both plaintext and key';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            // Reset and show loading
+            errorEl.style.display = 'none';
+            outputEl.textContent = '';
+            loaderEl.style.display = 'block';
+            buttonEl.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/encrypt`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify({ plaintext, key })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                outputEl.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                errorEl.textContent = `Error: ${error.message}`;
+                errorEl.style.display = 'block';
+                outputEl.textContent = '// Error occurred during encryption';
+            } finally {
+                loaderEl.style.display = 'none';
+                buttonEl.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
