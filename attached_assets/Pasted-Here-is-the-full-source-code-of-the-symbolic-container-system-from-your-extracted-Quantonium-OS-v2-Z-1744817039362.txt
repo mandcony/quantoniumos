@@ -1,0 +1,93 @@
+Here is the full source code of the symbolic container system from your extracted Quantonium OS v2 ZIP:
+
+📄 symbolic_container.py
+Path: quantonium_v2/orchestration/symbolic_container.py
+
+python
+Copy
+Edit
+# File: symbolic_container.py
+# Purpose: Symbolic payload container sealed via A/φ waveform and entropy
+
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import base64
+import time
+import json
+from encryption.resonance_encrypt import resonance_encrypt, resonance_decrypt
+from encryption.entropy_qrng import calculate_symbolic_entropy
+from encryption.geometric_waveform_hash import hash_file
+
+class SymbolicContainer:
+    def __init__(self, payload: str, key_waveform: tuple, validation_file: str = "example.txt"):
+        self.payload = payload
+        self.key_id, self.A, self.phi = key_waveform
+        self.entropy = None
+        self.timestamp = time.time()
+        self.encrypted = None
+        self.validation_file = validation_file
+
+    def seal(self):
+        encrypted = resonance_encrypt(self.payload, self.A, self.phi)
+        self.encrypted = base64.b64encode(encrypted).decode("utf-8")
+        entropy_sample = [self.A * i for i in range(1, 9)]
+        self.entropy = round(calculate_symbolic_entropy(entropy_sample), 4)
+
+    def unlock(self, A_in: float, phi_in: float) -> str:
+        expected = hash_file(self.validation_file)
+        if expected is None:
+            raise FileNotFoundError(f"⚠️ Cannot unlock: '{self.validation_file}' not found or invalid.")
+
+        _, A_expected, phi_expected = expected
+
+        amp_check = abs(A_in - A_expected) <= 0.01
+        phi_check = abs(phi_in - phi_expected) <= 0.01
+
+        if not (amp_check and phi_check):
+            raise ValueError("⚠️ Resonance mismatch. Unlock denied.")
+
+        raw = base64.b64decode(self.encrypted.encode("utf-8"))
+        return resonance_decrypt(raw, A_in, phi_in)
+
+    def export(self) -> dict:
+        return {
+            "resonance_key": self.key_id,
+            "entropy_score": self.entropy,
+            "timestamp": self.timestamp,
+            "sealed": self.encrypted,
+            "validation_file": self.validation_file
+        }
+
+    @staticmethod
+    def load(data: dict):
+        obj = SymbolicContainer(payload="", key_waveform=("manual", 0.0, 0.0), validation_file=data.get("validation_file", "example.txt"))
+        obj.key_id = data["resonance_key"]
+        obj.entropy = data["entropy_score"]
+        obj.timestamp = data["timestamp"]
+        obj.encrypted = data["sealed"]
+        return obj
+
+# -----------------------------------------------------------------------------
+# Test Block
+# -----------------------------------------------------------------------------
+if __name__ == "__main__":
+    print("🔐 Sealing symbolic container from file...")
+
+    validation_file = "example.txt"
+    key = hash_file(validation_file)
+    if key is None:
+        print(f"❌ ERROR: Cannot seal. File '{validation_file}' missing or unreadable.")
+        sys.exit(1)
+
+    container = SymbolicContainer("ResonantSymbolicPayload", key, validation_file)
+    container.seal()
+
+    print("📦 Container Export:")
+    print(json.dumps(container.export(), indent=2))
+
+    try:
+        unlocked = container.unlock(key[1], key[2])
+        print("✅ Decrypted Payload:", unlocked)
+    except Exception as e:
+        print(f"❌ Unlock Error: {str(e)}")
