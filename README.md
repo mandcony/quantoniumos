@@ -1,160 +1,103 @@
-# 🧠 Quantonium OS – Cloud Runtime API
+# Quantonium OS Cloud Runtime
 
-*Quantonium OS Cloud Runtime* is a secure API gateway to the Quantonium symbolic computing platform. This API provides access to quantum-inspired encryption, resonance-based calculations, and secure container operations through authenticated endpoints.
+A secure, high-performance quantum-inspired API for symbolic computing with advanced HPC modules.
 
-## 🔐 Authentication
+## Overview
 
-All API endpoints require token-based authentication using the `X-API-Key` header:
+Quantonium OS Cloud Runtime provides a Flask-based API for accessing quantum-inspired computational resources. The system leverages advanced authentication, protected modules, and resonance-based computational techniques to deliver secure, high-performance symbolic computing.
 
-```
-X-API-Key: your_api_key_here
-```
+## Key Features
 
-The API key should be stored in the `QUANTONIUM_API_KEY` environment variable.
+- **Secure Authentication**: API key validation for all protected endpoints
+- **Resonance Encryption**: Quantum-inspired encryption using symbolic waveform technology
+- **Resonance Fourier Transform**: Advanced signal analysis with CCP expansion
+- **Quantum Entropy**: High-quality random number generation
+- **Symbolic Containers**: Secure data containers with resonance-based access control
+- **Squarespace Integration**: Embeddable frontend for Squarespace websites
 
-## 📦 API Endpoints
+## Architecture
 
-### Status Check
-```
-GET /
-```
+The system is designed with a layered architecture to protect intellectual property:
 
-Returns the current status of the Quantonium OS Cloud Runtime.
+1. **API Layer**: Flask endpoints with authentication and request validation
+2. **Symbolic Interface**: Bridges the API with protected modules
+3. **Protected Modules**: Implements the core algorithms with fallback mechanisms
+4. **HPC Core**: High-Performance Computing modules (proprietary)
 
-**Response:**
-```json
-{
-  "name": "Quantonium OS Cloud Runtime",
-  "status": "operational",
-  "version": "1.0.0"
-}
-```
+## Installation & Setup
 
-### Symbolic Encryption
-```
-POST /encrypt
-```
+### Requirements
 
-Encrypt plaintext using symbolic waveform-based XOR encryption.
+- Python 3.11+
+- Required packages (see `pyproject.toml`)
+- Quantonium HPC modules (from `quantonium_v2.zip`)
 
-**Request:**
-```json
-{
-  "plaintext": "hello world",
-  "key": "symbolic-key"
-}
-```
+### Basic Setup
 
-**Response:**
-```json
-{
-  "ciphertext": "MgDA7hq6XlUjIEY=",
-  "timestamp": 1744809076,
-  "sha256": "0757509ce39adda09ad0bc80ece82e81923dade35d8331af857e7dd425137e5b"
-}
-```
+1. Clone this repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Set environment variables:
+   ```
+   export QUANTONIUM_API_KEY=your_secure_api_key
+   export SESSION_SECRET=your_secure_session_secret
+   ```
+4. Start the server: `gunicorn --bind 0.0.0.0:5000 main:app`
 
-### Resonance Fourier Transform
-```
-POST /simulate/rft
-```
+### Integrating Proprietary HPC Modules
 
-Perform a Resonance Fourier Transform (RFT) on an input waveform.
+To integrate the proprietary high-performance modules:
 
-**Request:**
-```json
-{
-  "waveform": [0.1, 0.5, 0.9, 0.5, 0.1, 0.5, 0.9, 0.5]
-}
-```
+1. Run the integration script:
+   ```
+   python integrate_quantonium.py path/to/quantonium_v2.zip
+   ```
+2. Restart the server for changes to take effect
 
-**Response:**
-```json
-{
-  "frequencies": {
-    "freq_0": 0.5,
-    "freq_2": 0.2,
-    "freq_6": 0.2
-  },
-  "timestamp": 1744809081,
-  "sha256": "be633ade79421b43d86e9d0c1e6fad56f1e968eb00f4b93422ad35b7daac2bfc"
-}
-```
+## API Endpoints
 
-### Quantum Entropy Generation
-```
-POST /entropy/sample
+All protected endpoints require the `X-API-Key` header.
+
+- **GET /api/** - API status check
+- **POST /api/encrypt** - Encrypt data using resonance techniques
+- **POST /api/simulate/rft** - Perform Resonance Fourier Transform
+- **POST /api/entropy/sample** - Generate quantum-inspired entropy
+- **POST /api/container/unlock** - Unlock symbolic containers
+
+## Frontend Integration
+
+### Embedding in Squarespace
+
+To embed the Quantonium OS frontend in your Squarespace site:
+
+1. Add an HTML block to your Squarespace page
+2. Insert the following iframe code:
+
+```html
+<iframe 
+  src="https://{YOUR-REPLIT-URL}.replit.app/frontend" 
+  width="100%" 
+  height="650px" 
+  frameborder="0" 
+  scrolling="auto">
+</iframe>
 ```
 
-Generate quantum-inspired entropy for cryptographic operations.
+3. Replace `{YOUR-REPLIT-URL}` with your actual Replit deployment URL
 
-**Request:**
-```json
-{
-  "amount": 64
-}
+## Development & Testing
+
+Run the test script to verify API functionality:
+
+```
+python test_api.py
 ```
 
-**Response:**
-```json
-{
-  "entropy": "y85WF5PcX/fwa2MwZFuUEL8T8OU/KMkShiKRGnCVT4mtEJp2J2JVq9yGc6TZ63U/gad+UVr5mc1lPAJ/tlcUqA==",
-  "timestamp": 1744809085,
-  "sha256": "03a8378ca4b81401d87378785abe487dfd65f03cf83534e8821c5ac87ab26ec7"
-}
-```
+## Security Considerations
 
-### Symbolic Container Unlocking
-```
-POST /container/unlock
-```
+- Set a strong `QUANTONIUM_API_KEY` for production
+- Limit CORS to trusted domains in production
+- All responses include a timestamp and SHA-256 signature
 
-Unlock a symbolic container using a waveform key and verification hash.
+## License
 
-**Request:**
-```json
-{
-  "waveform": [0.2, 0.7, 0.3],
-  "hash": "d6a88f4f..."
-}
-```
-
-**Response:**
-```json
-{
-  "unlocked": false,
-  "timestamp": 1744809089,
-  "sha256": "9717c88ed04cf2cf96525f296374ae42e9560908ea38338cb669ebfd54fb708d"
-}
-```
-
-## 🛠️ Running the Server
-
-Start the server with `gunicorn`:
-
-```bash
-gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
-```
-
-Or use the provided shell script:
-
-```bash
-./start.sh
-```
-
-## 🔒 Security 
-
-All API responses include:
-1. A Unix timestamp (`timestamp`)
-2. A SHA-256 hash signature (`sha256`)
-
-This allows verification of response integrity and prevention of replay attacks.
-
-## ⚡ Symbolic Stack Layers
-
-| Layer       | Purpose                         | Endpoint           |
-|-------------|----------------------------------|-------------------|
-| Encryption  | Waveform-driven XOR              | `/encrypt`        |
-| Analysis    | Resonance Fourier Transform      | `/simulate/rft`   |
-| Randomness  | QRNG-style entropy for keys      | `/entropy/sample` |
-| Containers  | Secure container access control  | `/container/unlock` |
+Proprietary - All rights reserved
