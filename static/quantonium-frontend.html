@@ -301,12 +301,45 @@
           
           if (res.unlocked) {
             out.textContent = "✅ Container Unlocked (Auto mode: hash key authentication successful)";
+            
             // Add some details about the operation
             const details = document.createElement("div");
             details.style.marginTop = "10px";
             details.style.color = "#8ff";
             details.textContent = "Hash verification completed. Container data is now accessible.";
             out.appendChild(details);
+            
+            // Display container information if available
+            if (res.container) {
+              const containerInfo = document.createElement("div");
+              containerInfo.style.marginTop = "15px";
+              containerInfo.style.backgroundColor = "rgba(0,30,60,0.5)";
+              containerInfo.style.padding = "10px";
+              containerInfo.style.borderRadius = "5px";
+              containerInfo.style.border = "1px solid #4af";
+              
+              // Create a table for container metadata
+              let infoHTML = `<div style="color: #aff; font-weight: bold; margin-bottom: 8px">Container Details:</div>`;
+              infoHTML += `<table style="width: 100%; border-collapse: collapse;">`;
+              
+              // Add each piece of container metadata
+              if (res.container.created) {
+                infoHTML += `<tr><td style="color: #8af; padding: 3px;">Created:</td><td style="color: #fff; padding: 3px;">${res.container.created}</td></tr>`;
+              }
+              if (res.container.access_count) {
+                infoHTML += `<tr><td style="color: #8af; padding: 3px;">Access Count:</td><td style="color: #fff; padding: 3px;">${res.container.access_count}</td></tr>`;
+              }
+              if (res.container.last_accessed) {
+                infoHTML += `<tr><td style="color: #8af; padding: 3px;">Last Accessed:</td><td style="color: #fff; padding: 3px;">${res.container.last_accessed}</td></tr>`;
+              }
+              if (res.container.content_preview) {
+                infoHTML += `<tr><td style="color: #8af; padding: 3px;">Content:</td><td style="color: #fff; padding: 3px;">${res.container.content_preview}</td></tr>`;
+              }
+              
+              infoHTML += `</table>`;
+              containerInfo.innerHTML = infoHTML;
+              out.appendChild(containerInfo);
+            }
           } else {
             out.textContent = "❌ Access Denied (No matching container found)";
           }
@@ -323,6 +356,38 @@
             details.style.color = "#8ff";
             details.textContent = "Waveform resonance matched. Container data is now accessible.";
             out.appendChild(details);
+            
+            // Display container information if available
+            if (res.container) {
+              const containerInfo = document.createElement("div");
+              containerInfo.style.marginTop = "15px";
+              containerInfo.style.backgroundColor = "rgba(0,30,60,0.5)";
+              containerInfo.style.padding = "10px";
+              containerInfo.style.borderRadius = "5px";
+              containerInfo.style.border = "1px solid #4af";
+              
+              // Create a table for container metadata
+              let infoHTML = `<div style="color: #aff; font-weight: bold; margin-bottom: 8px">Container Details:</div>`;
+              infoHTML += `<table style="width: 100%; border-collapse: collapse;">`;
+              
+              // Add each piece of container metadata
+              if (res.container.created) {
+                infoHTML += `<tr><td style="color: #8af; padding: 3px;">Created:</td><td style="color: #fff; padding: 3px;">${res.container.created}</td></tr>`;
+              }
+              if (res.container.access_count) {
+                infoHTML += `<tr><td style="color: #8af; padding: 3px;">Access Count:</td><td style="color: #fff; padding: 3px;">${res.container.access_count}</td></tr>`;
+              }
+              if (res.container.last_accessed) {
+                infoHTML += `<tr><td style="color: #8af; padding: 3px;">Last Accessed:</td><td style="color: #fff; padding: 3px;">${res.container.last_accessed}</td></tr>`;
+              }
+              if (res.container.content_preview) {
+                infoHTML += `<tr><td style="color: #8af; padding: 3px;">Content:</td><td style="color: #fff; padding: 3px;">${res.container.content_preview}</td></tr>`;
+              }
+              
+              infoHTML += `</table>`;
+              containerInfo.innerHTML = infoHTML;
+              out.appendChild(containerInfo);
+            }
           } else {
             out.textContent = "❌ Access Denied (Resonance mismatch)";
           }
@@ -355,6 +420,38 @@
           details.style.color = "#8ff";
           details.textContent = "Hash verification completed. Container data is now accessible.";
           out.appendChild(details);
+          
+          // Display container information if available
+          if (res.container) {
+            const containerInfo = document.createElement("div");
+            containerInfo.style.marginTop = "15px";
+            containerInfo.style.backgroundColor = "rgba(0,30,60,0.5)";
+            containerInfo.style.padding = "10px";
+            containerInfo.style.borderRadius = "5px";
+            containerInfo.style.border = "1px solid #4af";
+            
+            // Create a table for container metadata
+            let infoHTML = `<div style="color: #aff; font-weight: bold; margin-bottom: 8px">Container Details:</div>`;
+            infoHTML += `<table style="width: 100%; border-collapse: collapse;">`;
+            
+            // Add each piece of container metadata
+            if (res.container.created) {
+              infoHTML += `<tr><td style="color: #8af; padding: 3px;">Created:</td><td style="color: #fff; padding: 3px;">${res.container.created}</td></tr>`;
+            }
+            if (res.container.access_count) {
+              infoHTML += `<tr><td style="color: #8af; padding: 3px;">Access Count:</td><td style="color: #fff; padding: 3px;">${res.container.access_count}</td></tr>`;
+            }
+            if (res.container.last_accessed) {
+              infoHTML += `<tr><td style="color: #8af; padding: 3px;">Last Accessed:</td><td style="color: #fff; padding: 3px;">${res.container.last_accessed}</td></tr>`;
+            }
+            if (res.container.content_preview) {
+              infoHTML += `<tr><td style="color: #8af; padding: 3px;">Content:</td><td style="color: #fff; padding: 3px;">${res.container.content_preview}</td></tr>`;
+            }
+            
+            infoHTML += `</table>`;
+            containerInfo.innerHTML = infoHTML;
+            out.appendChild(containerInfo);
+          }
           
           // Add a button to copy the hash to clipboard for future use
           const copyBtn = document.createElement("button");
