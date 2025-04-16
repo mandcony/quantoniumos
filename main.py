@@ -36,10 +36,15 @@ def create_app():
     def embed_demo():
         return send_from_directory('static', 'embed-demo.html')
     
-    # Simplified Resonance Encryption page (for Squarespace embedding)
+    # Simplified Resonance Encryption page 
     @app.route('/resonance-encrypt')
     def resonance_encrypt():
         return send_from_directory('static', 'resonance-encrypt.html')
+        
+    # Comprehensive frontend for Squarespace embedding
+    @app.route('/frontend')
+    def frontend():
+        return send_from_directory('static', 'quantonium-frontend.html')
         
     # Root route redirects to demo
     @app.route('/')
