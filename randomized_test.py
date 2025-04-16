@@ -180,13 +180,22 @@ def full_randomized_test():
     print("=====================================")
     
     # Status check
-    response = requests.get(f"{BASE_URL}/api")
+    response = requests.get(f"{BASE_URL}/status")
     if response.status_code == 200:
         print("\n✅ API Status Check: Operational")
     else:
-        print("\n❌ API Status Check: Not responding properly")
-        print("Stopping tests.")
-        return
+        print(f"\n❌ API Status Check: Not responding properly (Status {response.status_code})")
+        print(f"Response: {response.text[:100]}")
+        print("Trying alternate endpoint...")
+        
+        # Try the API root endpoint instead
+        alt_response = requests.get(f"{BASE_URL}/api")
+        if alt_response.status_code == 200:
+            print("✅ API Status Check (alternate endpoint): Operational")
+        else:
+            print(f"❌ API Status Check (alternate endpoint): Not responding properly (Status {alt_response.status_code})")
+            print("Stopping tests.")
+            return
     
     # Run all randomized tests
     test_encryption_decryption_cycle()
