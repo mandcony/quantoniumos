@@ -133,6 +133,15 @@
       <div class="result" id="container-result"></div>
       <div class="error" id="container-error"></div>
     </div>
+    
+    <div class="panel" id="auto-unlock">
+      <h2>Auto Unlock Container</h2>
+      <p>Paste the hash output from encryption to automatically find and unlock matching containers.</p>
+      <input id="auto-unlock-hash" placeholder="Hash from encryption (e.g., L0WNtMhMrSJohxzDw+PK)" />
+      <button onclick="doAutoUnlock()">Auto Unlock</button>
+      <div class="result" id="auto-unlock-result"></div>
+      <div class="error" id="auto-unlock-error"></div>
+    </div>
   </div>
 
   <script>
@@ -173,9 +182,31 @@
       const err = document.getElementById("encrypt-error");
       out.textContent = "";
       err.textContent = "";
+      
       try {
         const res = await apiCall("/encrypt", { plaintext: pt, key });
         out.textContent = res.ciphertext;
+        
+        // Add a button to try auto-unlocking with this hash output
+        const autoUnlockBtn = document.createElement("button");
+        autoUnlockBtn.textContent = "Try Auto Unlock";
+        autoUnlockBtn.style.marginTop = "10px";
+        autoUnlockBtn.style.display = "block";
+        autoUnlockBtn.onclick = () => {
+          // Switch to the auto-unlock tab
+          tabs.forEach(t => t.classList.remove("active"));
+          panels.forEach(p => p.classList.remove("active"));
+          document.querySelector('[data-panel="auto-unlock"]').classList.add("active");
+          document.getElementById("auto-unlock").classList.add("active");
+          
+          // Pre-fill the hash value in the auto-unlock input
+          document.getElementById("auto-unlock-hash").value = res.ciphertext;
+          
+          // Trigger auto-unlock
+          doAutoUnlock();
+        };
+        out.appendChild(document.createElement("br"));
+        out.appendChild(autoUnlockBtn);
       } catch (e) {
         err.textContent = e.message;
       }
@@ -236,6 +267,41 @@
         const waveform = str.split(",").map(s => parseFloat(s.trim()));
         const res = await apiCall("/container/unlock", { waveform, hash });
         out.textContent = res.unlocked ? "✅ Container Unlocked" : "❌ Access Denied";
+      } catch (e) {
+        err.textContent = e.message;
+      }
+    }
+    
+    async function doAutoUnlock() {
+      const hash = document.getElementById("auto-unlock-hash").value;
+      const out = document.getElementById("auto-unlock-result");
+      const err = document.getElementById("auto-unlock-error");
+      out.textContent = "";
+      err.textContent = "";
+      
+      if (!hash) {
+        err.textContent = "Please enter a hash value from encryption output";
+        return;
+      }
+      
+      try {
+        const res = await apiCall("/container/auto-unlock", { hash });
+        
+        if (res.unlocked) {
+          out.textContent = "✅ Success! Container automatically unlocked using encryption hash";
+          // Add a button to copy the hash to clipboard for future use
+          const copyBtn = document.createElement("button");
+          copyBtn.textContent = "Copy Hash";
+          copyBtn.style.marginLeft = "10px";
+          copyBtn.onclick = () => {
+            navigator.clipboard.writeText(hash);
+            copyBtn.textContent = "Copied!";
+            setTimeout(() => copyBtn.textContent = "Copy Hash", 2000);
+          };
+          out.appendChild(copyBtn);
+        } else {
+          out.textContent = "❌ No matching container found for this hash";
+        }
       } catch (e) {
         err.textContent = e.message;
       }
