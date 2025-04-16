@@ -84,6 +84,7 @@
     <h1>🧠 Quantonium OS Cloud Runtime</h1>
     <div class="tabs">
       <div class="tab active" data-panel="encrypt">Encrypt</div>
+      <div class="tab" data-panel="decrypt">Decrypt</div>
       <div class="tab" data-panel="rft">RFT</div>
       <div class="tab" data-panel="entropy">Entropy</div>
       <div class="tab" data-panel="container">Container</div>
@@ -96,6 +97,15 @@
       <button onclick="doEncrypt()">Encrypt</button>
       <div class="result" id="encrypt-result"></div>
       <div class="error" id="encrypt-error"></div>
+    </div>
+    
+    <div class="panel" id="decrypt">
+      <h2>Decryption</h2>
+      <textarea id="decrypt-ciphertext" placeholder="Enter ciphertext (base64 encoded)..."></textarea>
+      <input id="decrypt-key" placeholder="Enter key..." />
+      <button onclick="doDecrypt()">Decrypt</button>
+      <div class="result" id="decrypt-result"></div>
+      <div class="error" id="decrypt-error"></div>
     </div>
 
     <div class="panel" id="rft">
@@ -125,8 +135,8 @@
   </div>
 
   <script>
-    // Use relative URL to ensure it works no matter where it's hosted
-    const API_URL = "";
+    // Use the API's server URL when embedded in Squarespace
+    const API_URL = "https://quantum-shield-luisminier79.replit.app";
     const API_KEY = "default_dev_key";
 
     const headers = {
@@ -165,6 +175,21 @@
       try {
         const res = await apiCall("/encrypt", { plaintext: pt, key });
         out.textContent = res.ciphertext;
+      } catch (e) {
+        err.textContent = e.message;
+      }
+    }
+    
+    async function doDecrypt() {
+      const ct = document.getElementById("decrypt-ciphertext").value;
+      const key = document.getElementById("decrypt-key").value;
+      const out = document.getElementById("decrypt-result");
+      const err = document.getElementById("decrypt-error");
+      out.textContent = "";
+      err.textContent = "";
+      try {
+        const res = await apiCall("/decrypt", { ciphertext: ct, key });
+        out.textContent = res.plaintext;
       } catch (e) {
         err.textContent = e.message;
       }
