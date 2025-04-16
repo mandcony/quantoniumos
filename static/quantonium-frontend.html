@@ -77,6 +77,21 @@
     .error {
       color: #f55;
     }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #28a;
+      font-weight: bold;
+    }
+    .input-group small {
+      display: block;
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -88,7 +103,6 @@
       <div class="tab" data-panel="rft">RFT</div>
       <div class="tab" data-panel="entropy">Entropy</div>
       <div class="tab" data-panel="container">Container</div>
-      <div class="tab" data-panel="auto-unlock">Auto Unlock</div>
     </div>
 
     <div class="panel active" id="encrypt">
@@ -127,20 +141,19 @@
 
     <div class="panel" id="container">
       <h2>Container Unlock</h2>
-      <input id="container-waveform" placeholder="0.3,0.7,0.2" />
-      <input id="container-hash" placeholder="Verification hash..." />
+      <div class="input-group">
+        <label>Waveform (optional):</label>
+        <input id="container-waveform" placeholder="0.3,0.7,0.2" />
+        <small>If left empty, amplitude values will be automatically detected from the hash</small>
+      </div>
+      <div class="input-group">
+        <label>Hash:</label>
+        <input id="container-hash" placeholder="Verification hash..." />
+        <small>Paste hash from encryption output</small>
+      </div>
       <button onclick="doUnlock()">Unlock</button>
       <div class="result" id="container-result"></div>
       <div class="error" id="container-error"></div>
-    </div>
-    
-    <div class="panel" id="auto-unlock">
-      <h2>Auto Unlock Container</h2>
-      <p>Paste the hash output from encryption to automatically find and unlock matching containers.</p>
-      <input id="auto-unlock-hash" placeholder="Hash from encryption (e.g., L0WNtMhMrSJohxzDw+PK)" />
-      <button onclick="doAutoUnlock()">Auto Unlock</button>
-      <div class="result" id="auto-unlock-result"></div>
-      <div class="error" id="auto-unlock-error"></div>
     </div>
   </div>
 
@@ -187,26 +200,28 @@
         const res = await apiCall("/encrypt", { plaintext: pt, key });
         out.textContent = res.ciphertext;
         
-        // Add a button to try auto-unlocking with this hash output
-        const autoUnlockBtn = document.createElement("button");
-        autoUnlockBtn.textContent = "Try Auto Unlock";
-        autoUnlockBtn.style.marginTop = "10px";
-        autoUnlockBtn.style.display = "block";
-        autoUnlockBtn.onclick = () => {
-          // Switch to the auto-unlock tab
+        // Add a button to try unlocking a container with this hash output
+        const containerUnlockBtn = document.createElement("button");
+        containerUnlockBtn.textContent = "Unlock Container with Hash";
+        containerUnlockBtn.style.marginTop = "10px";
+        containerUnlockBtn.style.display = "block";
+        containerUnlockBtn.onclick = () => {
+          // Switch to the container tab
           tabs.forEach(t => t.classList.remove("active"));
           panels.forEach(p => p.classList.remove("active"));
-          document.querySelector('[data-panel="auto-unlock"]').classList.add("active");
-          document.getElementById("auto-unlock").classList.add("active");
+          document.querySelector('[data-panel="container"]').classList.add("active");
+          document.getElementById("container").classList.add("active");
           
-          // Pre-fill the hash value in the auto-unlock input
-          document.getElementById("auto-unlock-hash").value = res.ciphertext;
+          // Pre-fill the hash value in the container hash input
+          document.getElementById("container-hash").value = res.ciphertext;
+          // Leave the waveform empty to use auto detection of amplitude values
+          document.getElementById("container-waveform").value = "";
           
-          // Trigger auto-unlock
-          doAutoUnlock();
+          // Trigger unlock with the hash (auto mode)
+          doUnlock();
         };
         out.appendChild(document.createElement("br"));
-        out.appendChild(autoUnlockBtn);
+        out.appendChild(containerUnlockBtn);
       } catch (e) {
         err.textContent = e.message;
       }
@@ -263,10 +278,31 @@
       const err = document.getElementById("container-error");
       out.textContent = "";
       err.textContent = "";
+      
+      if (!hash) {
+        err.textContent = "Please enter a hash value";
+        return;
+      }
+      
       try {
-        const waveform = str.split(",").map(s => parseFloat(s.trim()));
-        const res = await apiCall("/container/unlock", { waveform, hash });
-        out.textContent = res.unlocked ? "✅ Container Unlocked" : "❌ Access Denied";
+        let res;
+        
+        // If waveform is empty, use auto-unlock with just the hash
+        if (!str || str.trim() === "") {
+          // Call the auto-unlock endpoint that will extract amplitude values from the hash
+          res = await apiCall("/container/auto-unlock", { hash });
+          
+          if (res.unlocked) {
+            out.textContent = "✅ Container Unlocked (Auto mode: amplitude values detected from hash)";
+          } else {
+            out.textContent = "❌ Access Denied (No matching container found)";
+          }
+        } else {
+          // User provided a waveform, use traditional unlock
+          const waveform = str.split(",").map(s => parseFloat(s.trim()));
+          res = await apiCall("/container/unlock", { waveform, hash });
+          out.textContent = res.unlocked ? "✅ Container Unlocked" : "❌ Access Denied";
+        }
       } catch (e) {
         err.textContent = e.message;
       }
