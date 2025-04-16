@@ -13,4 +13,5 @@ dependencies = [
     "pydantic>=2.11.3",
     "flask-wtf>=1.2.2",
     "requests>=2.32.3",
+    "flask-cors>=5.0.1",
 ]

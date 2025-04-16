@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantonium OS Widget</title>
+    <style>
+        .quantonium-container {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .quantonium-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .quantonium-logo {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #58a6ff;
+        }
+
+        .quantonium-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .quantonium-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .quantonium-tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .quantonium-tab.active {
+            border-bottom: 2px solid #58a6ff;
+            color: #58a6ff;
+        }
+
+        .quantonium-content {
+            display: none;
+        }
+
+        .quantonium-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .input-group input, .input-group textarea {
+            width: calc(100% - 16px);
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #30363d;
+            background-color: #161b22;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .input-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .quantonium-button {
+            background-color: #1f6feb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .quantonium-button:hover {
+            background-color: #388bfd;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            background-color: #161b22;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 3px solid #58a6ff;
+            overflow-wrap: break-word;
+        }
+
+        .loader {
+            display: none;
+            border: 3px solid #161b22;
+            border-radius: 50%;
+            border-top: 3px solid #58a6ff;
+            width: 20px;
+            height: 20px;
+            margin: 20px auto;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #f85149;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="quantonium-container">
+        <div class="quantonium-header">
+            <div class="quantonium-logo">🧠</div>
+            <h2 class="quantonium-title">Quantonium OS Cloud Runtime</h2>
+        </div>
+
+        <div class="quantonium-tabs">
+            <div class="quantonium-tab active" data-tab="encrypt">Encrypt</div>
+            <div class="quantonium-tab" data-tab="rft">RFT</div>
+            <div class="quantonium-tab" data-tab="entropy">Entropy</div>
+            <div class="quantonium-tab" data-tab="container">Container</div>
+        </div>
+
+        <!-- Encrypt Tab -->
+        <div class="quantonium-content active" id="encrypt-tab">
+            <div class="input-group">
+                <label for="encrypt-plaintext">Plaintext</label>
+                <textarea id="encrypt-plaintext" placeholder="Enter text to encrypt"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="encrypt-key">Key</label>
+                <input type="text" id="encrypt-key" placeholder="Enter encryption key">
+            </div>
+            <button class="quantonium-button" id="encrypt-submit">Encrypt</button>
+            <div class="loader" id="encrypt-loader"></div>
+            <div class="error-message" id="encrypt-error"></div>
+            <div class="result-container" id="encrypt-result" style="display: none;"></div>
+        </div>
+
+        <!-- RFT Tab -->
+        <div class="quantonium-content" id="rft-tab">
+            <div class="input-group">
+                <label for="rft-waveform">Waveform (comma-separated values)</label>
+                <input type="text" id="rft-waveform" placeholder="e.g. 0.1,0.5,0.9,0.5,0.1,0.5,0.9,0.5">
+            </div>
+            <button class="quantonium-button" id="rft-submit">Analyze</button>
+            <div class="loader" id="rft-loader"></div>
+            <div class="error-message" id="rft-error"></div>
+            <div class="result-container" id="rft-result" style="display: none;"></div>
+        </div>
+
+        <!-- Entropy Tab -->
+        <div class="quantonium-content" id="entropy-tab">
+            <div class="input-group">
+                <label for="entropy-amount">Amount (1-1024)</label>
+                <input type="number" id="entropy-amount" min="1" max="1024" value="32">
+            </div>
+            <button class="quantonium-button" id="entropy-submit">Generate</button>
+            <div class="loader" id="entropy-loader"></div>
+            <div class="error-message" id="entropy-error"></div>
+            <div class="result-container" id="entropy-result" style="display: none;"></div>
+        </div>
+
+        <!-- Container Tab -->
+        <div class="quantonium-content" id="container-tab">
+            <div class="input-group">
+                <label for="container-waveform">Waveform (comma-separated values)</label>
+                <input type="text" id="container-waveform" placeholder="e.g. 0.2,0.7,0.3">
+            </div>
+            <div class="input-group">
+                <label for="container-hash">Hash</label>
+                <input type="text" id="container-hash" placeholder="Enter verification hash">
+            </div>
+            <button class="quantonium-button" id="container-submit">Unlock</button>
+            <div class="loader" id="container-loader"></div>
+            <div class="error-message" id="container-error"></div>
+            <div class="result-container" id="container-result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Change this to your actual deployed API endpoint URL
+        const API_URL = 'https://{YOUR-REPLIT-URL}.replit.app';
+        
+        // API key - this should match the one on your server
+        const API_KEY = 'default_dev_key';
+
+        // TAB NAVIGATION
+        document.querySelectorAll('.quantonium-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.quantonium-tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Hide all content sections
+                document.querySelectorAll('.quantonium-content').forEach(c => {
+                    c.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                const tabName = tab.getAttribute('data-tab');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+
+        // HELPER FUNCTIONS
+        function showLoader(id) {
+            document.getElementById(`${id}-loader`).style.display = 'block';
+            document.getElementById(`${id}-result`).style.display = 'none';
+            document.getElementById(`${id}-error`).innerText = '';
+        }
+
+        function hideLoader(id) {
+            document.getElementById(`${id}-loader`).style.display = 'none';
+        }
+
+        function showResult(id, data) {
+            const resultElement = document.getElementById(`${id}-result`);
+            resultElement.style.display = 'block';
+            resultElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        function showError(id, message) {
+            document.getElementById(`${id}-error`).innerText = message;
+        }
+
+        async function apiCall(endpoint, data) {
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': API_KEY
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // ENCRYPT
+        document.getElementById('encrypt-submit').addEventListener('click', async () => {
+            const plaintext = document.getElementById('encrypt-plaintext').value;
+            const key = document.getElementById('encrypt-key').value;
+            
+            if (!plaintext || !key) {
+                showError('encrypt', 'Please fill in all fields');
+                return;
+            }
+
+            showLoader('encrypt');
+            
+            try {
+                const result = await apiCall('/encrypt', {
+                    plaintext,
+                    key
+                });
+                
+                hideLoader('encrypt');
+                showResult('encrypt', result);
+            } catch (error) {
+                hideLoader('encrypt');
+                showError('encrypt', `Error: ${error.message}`);
+            }
+        });
+
+        // RFT
+        document.getElementById('rft-submit').addEventListener('click', async () => {
+            const waveformStr = document.getElementById('rft-waveform').value;
+            
+            if (!waveformStr) {
+                showError('rft', 'Please enter a waveform');
+                return;
+            }
+
+            // Parse comma-separated values
+            const waveform = waveformStr.split(',').map(v => parseFloat(v.trim()));
+            if (waveform.some(isNaN)) {
+                showError('rft', 'Invalid waveform format. Please use comma-separated numbers');
+                return;
+            }
+
+            showLoader('rft');
+            
+            try {
+                const result = await apiCall('/simulate/rft', {
+                    waveform
+                });
+                
+                hideLoader('rft');
+                showResult('rft', result);
+            } catch (error) {
+                hideLoader('rft');
+                showError('rft', `Error: ${error.message}`);
+            }
+        });
+
+        // ENTROPY
+        document.getElementById('entropy-submit').addEventListener('click', async () => {
+            const amount = parseInt(document.getElementById('entropy-amount').value);
+            
+            if (isNaN(amount) || amount < 1 || amount > 1024) {
+                showError('entropy', 'Please enter a valid amount (1-1024)');
+                return;
+            }
+
+            showLoader('entropy');
+            
+            try {
+                const result = await apiCall('/entropy/sample', {
+                    amount
+                });
+                
+                hideLoader('entropy');
+                showResult('entropy', result);
+            } catch (error) {
+                hideLoader('entropy');
+                showError('entropy', `Error: ${error.message}`);
+            }
+        });
+
+        // CONTAINER
+        document.getElementById('container-submit').addEventListener('click', async () => {
+            const waveformStr = document.getElementById('container-waveform').value;
+            const hash = document.getElementById('container-hash').value;
+            
+            if (!waveformStr || !hash) {
+                showError('container', 'Please fill in all fields');
+                return;
+            }
+
+            // Parse comma-separated values
+            const waveform = waveformStr.split(',').map(v => parseFloat(v.trim()));
+            if (waveform.some(isNaN)) {
+                showError('container', 'Invalid waveform format. Please use comma-separated numbers');
+                return;
+            }
+
+            showLoader('container');
+            
+            try {
+                const result = await apiCall('/container/unlock', {
+                    waveform,
+                    hash
+                });
+                
+                hideLoader('container');
+                showResult('container', result);
+            } catch (error) {
+                hideLoader('container');
+                showError('container', `Error: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantonium OS Embed Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+        }
+        code {
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+            color: #333;
+        }
+        .note {
+            background-color: #ffffd8;
+            padding: 15px;
+            border-left: 4px solid #ffcc00;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quantonium OS Widget Embed Instructions</h1>
+    
+    <p>This page provides instructions on how to embed the Quantonium OS Cloud Runtime widget into your Squarespace website.</p>
+    
+    <h2>Option 1: Using an Iframe (Easiest)</h2>
+    
+    <p>Insert the following HTML code into a "Code" block in your Squarespace editor:</p>
+    
+    <pre><code>&lt;iframe src="https://{YOUR-REPLIT-URL}.replit.app/embed" 
+       width="100%" 
+       height="650" 
+       frameborder="0" 
+       scrolling="no" 
+       allowtransparency="true"&gt;
+&lt;/iframe&gt;</code></pre>
+    
+    <div class="note">
+        <strong>Note:</strong> Replace <code>{YOUR-REPLIT-URL}</code> with your actual Replit app URL.
+    </div>
+    
+    <h2>Option 2: Direct HTML/JS Embed (Advanced)</h2>
+    
+    <p>For more control, you can copy the entire HTML/JS content from <a href="/embed">the widget page</a> and paste it into a "Code" block in Squarespace.</p>
+    
+    <p>When using this method, you'll need to:</p>
+    <ol>
+        <li>Update the <code>API_URL</code> variable in the JavaScript to point to your deployed Replit app</li>
+        <li>Ensure the <code>API_KEY</code> matches the one configured on your server</li>
+    </ol>
+    
+    <pre><code>// In your embedded JavaScript
+const API_URL = 'https://{YOUR-REPLIT-URL}.replit.app';
+const API_KEY = 'default_dev_key'; // Change this to match your server</code></pre>
+    
+    <h2>Security Considerations</h2>
+    
+    <p>When embedding the widget in production:</p>
+    <ol>
+        <li>Set a strong, unique API key on your server using the QUANTONIUM_API_KEY environment variable</li>
+        <li>Update the API_KEY in the widget code to match</li>
+        <li>Consider restricting CORS to only your Squarespace domain for added security</li>
+    </ol>
+    
+    <div class="note">
+        <strong>Important:</strong> Remember that the API key in your JavaScript will be visible to visitors. For high-security applications, consider implementing a more secure authentication method.
+    </div>
+    
+    <h2>Testing Your Embed</h2>
+    
+    <p>To test the widget before embedding it in Squarespace:</p>
+    <ol>
+        <li>Visit <a href="/embed">the widget page directly</a></li>
+        <li>Try each tab's functionality to ensure everything works</li>
+        <li>Check the browser's developer console for any errors</li>
+    </ol>
+    
+    <p>If you have any questions or encounter issues, please contact support.</p>
+</body>
+</html>
