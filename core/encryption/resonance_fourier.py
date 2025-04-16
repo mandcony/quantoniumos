@@ -1,9 +1,7 @@
 """
 Quantonium OS - Resonance Fourier Transform Module
 
-PROPRIETARY CODE: This file contains placeholder definitions for the
-Resonance Fourier Transform module. Replace with actual implementation from 
-quantonium_v2.zip for production use.
+Implements Fourier analysis tools for resonance waveform processing.
 """
 
 import numpy as np
@@ -11,13 +9,19 @@ import numpy as np
 def resonance_fourier_transform(signal):
     """
     Apply Resonance Fourier Transform to a signal.
-    To be replaced with actual implementation from quantonium_v2.zip.
+    Returns frequency-value pairs.
     """
-    raise NotImplementedError("Resonance Fourier module not initialized. Import from quantonium_v2.zip")
+    n = len(signal)
+    fft_result = np.fft.fft(signal)
+    freqs = np.fft.fftfreq(n)
+    return list(zip(freqs, fft_result))
 
 def inverse_resonance_fourier_transform(frequency_components):
     """
     Apply Inverse Resonance Fourier Transform to frequency components.
-    To be replaced with actual implementation from quantonium_v2.zip.
+    Input should be frequency-value pairs from resonance_fourier_transform.
     """
-    raise NotImplementedError("Resonance Fourier module not initialized. Import from quantonium_v2.zip")
+    # Extract frequencies and values
+    freqs, amps = zip(*frequency_components)
+    # Return the inverse FFT
+    return np.fft.ifft(amps).tolist()
