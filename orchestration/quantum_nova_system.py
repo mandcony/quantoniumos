@@ -27,7 +27,10 @@ class QuantumNovaSystem:
 
     def initialize_container(self, name: str, waveform_data: List[float]):
         logger.info(f"Initializing container: {name}")
-        container = SymbolicContainer(name, (name, waveform_data[0], waveform_data[1]))
+        # Create a key_waveform tuple
+        key_waveform = (name, waveform_data[0], waveform_data[1])
+        # Create container using the waveform data
+        container = SymbolicContainer(name, key_waveform)
         container.seal()
         self.containers[name] = container
         self.symbolic_state[name] = self._calculate_initial_phase(waveform_data)
@@ -42,7 +45,8 @@ class QuantumNovaSystem:
             raise ValueError(f"Container {name} not found.")
 
         container = self.containers[name]
-        current_state = [container.key_waveform[1], container.key_waveform[2]]
+        # Use container's state properties, not key_waveform
+        current_state = [container.A, container.phi]
         transformed = resonance_fourier_transform(current_state)
         projected = project_symbolic_state(transformed)
 
@@ -60,7 +64,9 @@ class QuantumNovaSystem:
         success = True
         try:
             container = self.containers[name]
-            container.key_waveform = (name, new_waveform[0], new_waveform[1])
+            # Update the container's A and phi values directly
+            container.A = new_waveform[0]
+            container.phi = new_waveform[1]
             container.seal()
             self.symbolic_state[name] = self._calculate_initial_phase(new_waveform)
         except Exception as e:

@@ -70,14 +70,17 @@ def calculate_symbolic_entropy(data: List[float]) -> float:
         counts[bin_idx] += 1
     
     # Calculate entropy
-    entropy = 0
+    entropy_sum = 0.0
     for count in counts:
         if count > 0:
             p = count / n
-            entropy -= p * (hashlib.md5(str(p).encode()).hexdigest()[0:8])
+            hash_val = hashlib.md5(str(p).encode()).hexdigest()[0:2]
+            # Convert hash to float value
+            hash_float = int(hash_val, 16) / 255.0
+            entropy_sum -= p * hash_float
             
     # Normalize to 0-1
-    return min(1.0, abs(float.fromhex(entropy) / (16**8)))
+    return min(1.0, abs(entropy_sum))
 
 def generate_symbolic_qrng_sequence(length: int = 8) -> List[float]:
     """
