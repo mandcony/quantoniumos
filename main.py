@@ -17,7 +17,9 @@ def create_app():
     CORS(app, resources={r"/*": {"origins": "*"}})
     
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
-    app.register_blueprint(api)
+    # Register the API blueprint with URL prefix
+    # This separates API routes from static content routes
+    app.register_blueprint(api, url_prefix='/api')
     
     # Serve embed widget
     @app.route('/embed')

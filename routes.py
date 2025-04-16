@@ -14,6 +14,11 @@ symbolic = get_interface()
 
 @api.before_request
 def require_auth():
+    # Skip API key validation for the root endpoint
+    if request.endpoint == "api.root_status" and request.method == "GET":
+        return None
+        
+    # Require API key for all other API endpoints
     if not validate_api_key(request):
         return reject_unauthorized()
 

@@ -23,7 +23,8 @@ headers = {
 
 def test_root_endpoint():
     """Test the root endpoint for API status."""
-    response = requests.get(f"{BASE_URL}/", headers=headers)
+    # Using the /status endpoint which is accessible without API key
+    response = requests.get(f"{BASE_URL}/status")
     print("\n=== API Status ===")
     print(f"Status Code: {response.status_code}")
     print(json.dumps(response.json(), indent=2))
