@@ -9,6 +9,11 @@ import string
 import time
 import base64
 import hashlib
+import logging
+
+# Configure logger
+logger = logging.getLogger("resonance_encrypt_encryption")
+logger.setLevel(logging.INFO)
 
 def resonance_encrypt(plaintext, A, phi):
     """
@@ -99,3 +104,23 @@ def encrypt_data(plaintext: str, key: str) -> str:
     Returns just the encrypted string (for use by protected module).
     """
     return _perform_resonance_encryption(plaintext, key)
+
+def decrypt_data(ciphertext: str, key: str) -> str:
+    """
+    Decrypt ciphertext using the resonance encryption algorithm.
+    Returns the original plaintext (for use by protected module).
+    """
+    try:
+        # Decode the base64 ciphertext
+        encrypted_bytes = base64.b64decode(ciphertext)
+        
+        # Extract amplitude and phase from key
+        key_hash = hashlib.sha256(key.encode()).hexdigest()
+        A = float(int(key_hash[:8], 16) % 1000) / 1000
+        phi = float(int(key_hash[8:16], 16) % 1000) / 1000
+        
+        # Decrypt using resonance parameters
+        return resonance_decrypt(encrypted_bytes, A, phi)
+    except Exception as e:
+        logger.error(f"Decryption error: {str(e)}")
+        return f"Decryption failed: {str(e)}"

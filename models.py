@@ -17,6 +17,10 @@ class RFTRequest(BaseModel):
 class EntropyRequest(BaseModel):
     amount: int = Field(32, ge=1, le=1024, example=64)
 
+class DecryptRequest(BaseModel):
+    ciphertext: str = Field(..., example="base64_encoded_ciphertext_string")
+    key: str = Field(..., example="symbolic-key")
+
 class ContainerUnlockRequest(BaseModel):
     waveform: List[float] = Field(..., example=[0.2, 0.7, 0.3])
     hash: str = Field(..., example="d6a88f4f...")
