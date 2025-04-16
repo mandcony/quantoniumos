@@ -163,6 +163,29 @@ class SymbolicContainer:
         return False
 
     @staticmethod
+    def extract_amplitude_from_hash(hash_value: str):
+        """
+        Extract amplitude and phase values directly from a hash.
+        This method allows automatic unlocking using just the hash.
+        """
+        if not hash_value or len(hash_value) < 8:
+            return None
+            
+        try:
+            # Use the first 8 characters for A value and next 8 for phi value
+            hash_bytes = hash_value.encode('utf-8')
+            hash_digest = hashlib.sha256(hash_bytes).hexdigest()
+            
+            # Calculate amplitude and phase from hash
+            A = float(int(hash_digest[:8], 16) % 1000) / 1000
+            phi = float(int(hash_digest[8:16], 16) % 1000) / 1000
+            
+            return (A, phi)
+        except Exception as e:
+            logger.error(f"Error extracting amplitude from hash: {str(e)}")
+            return None
+    
+    @staticmethod
     def load(data: dict):
         """
         Load a container from a dictionary.
