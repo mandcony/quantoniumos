@@ -125,8 +125,15 @@
 
     <div class="panel" id="rft">
       <h2>Resonance Fourier Transform</h2>
-      <input id="rft-waveform" placeholder="0.1,0.5,0.9,0.5,0.1,0.5,0.9" />
-      <button onclick="doRFT()">Run RFT</button>
+      <div class="input-group">
+        <label>Waveform:</label>
+        <input id="rft-waveform" placeholder="0.1,0.5,0.9,0.5,0.1,0.5,0.9" />
+        <small>Enter a comma-separated list of amplitude values</small>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button onclick="doRFT()">Run RFT</button>
+        <button onclick="generateRandomRFT()">Generate Random Waveform</button>
+      </div>
       <div class="result" id="rft-result"></div>
       <div class="error" id="rft-error"></div>
     </div>
@@ -341,6 +348,25 @@
       } catch (e) {
         err.textContent = e.message;
       }
+    }
+    
+    // Function to generate a random waveform and immediately run RFT analysis
+    function generateRandomRFT() {
+      // Generate 7-10 random amplitude values (between 0 and 1)
+      const length = Math.floor(Math.random() * 4) + 7; // Random length between 7-10 
+      const waveform = [];
+      
+      for (let i = 0; i < length; i++) {
+        // Generate values with 1-4 decimal places for more "quantum-like" precision
+        const value = parseFloat((Math.random()).toFixed(4));
+        waveform.push(value);
+      }
+      
+      // Set the random waveform in the input field
+      document.getElementById("rft-waveform").value = waveform.join(",");
+      
+      // Automatically run the RFT on the generated waveform
+      doRFT();
     }
   </script>
 </body>
