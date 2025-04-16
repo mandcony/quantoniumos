@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantonium OS Embedding Guide</title>
+    <title>Quantonium OS - Restricted Access Playground</title>
     <style>
         :root {
             --primary-color: #28a;
@@ -13,8 +13,9 @@
             --border-color: #333;
             --text-color: #eee;
             --text-secondary: #aaa;
+            --warning-color: #f55;
         }
-        
+
         body {
             font-family: 'Segoe UI', 'Arial', sans-serif;
             background: var(--dark-bg);
@@ -23,21 +24,17 @@
             margin: 0;
             line-height: 1.6;
         }
-        
+
         .container {
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         h1, h2, h3 {
             color: var(--primary-color);
         }
-        
-        .demo-section {
-            margin-bottom: 40px;
-        }
-        
+
         .card {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
@@ -45,20 +42,17 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        
-        code {
-            background: #000;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-family: 'Consolas', monospace;
-            display: block;
-            overflow-x: auto;
+
+        .notice {
+            background: #2a0000;
+            border: 1px solid var(--warning-color);
             padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            white-space: pre-wrap;
+            color: var(--warning-color);
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
         }
-        
+
         .btn {
             display: inline-block;
             padding: 10px 15px;
@@ -70,62 +64,59 @@
             border: none;
             cursor: pointer;
         }
-        
+
         .btn:hover {
             background: var(--primary-hover);
         }
-        
-        .preview {
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            height: 300px;
-            margin: 20px 0;
+
+        code {
+            background: #000;
+            padding: 15px;
+            border-radius: 3px;
+            display: block;
+            white-space: pre-wrap;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧠 Quantonium OS Cloud Runtime</h1>
-        <h2>Embedding Guide</h2>
-        
-        <div class="demo-section">
-            <div class="card">
-                <h3>How to Embed Quantonium OS in Squarespace</h3>
-                <p>Follow these simple steps to embed the Quantonium OS frontend in your Squarespace website:</p>
-                
-                <ol>
-                    <li>Open your Squarespace editor</li>
-                    <li>Add an HTML Code Block to your page</li>
-                    <li>Copy and paste the following code:</li>
-                </ol>
-                
-                <code>&lt;iframe 
-  src="https://${window.location.host}/frontend" 
-  width="100%" 
-  height="650px" 
-  frameborder="0" 
-  scrolling="auto"&gt;
-&lt;/iframe&gt;</code>
-                
-                <p>The iframe above will embed the full Quantonium OS interface shown below with all functionality.</p>
-            </div>
-            
-            <h3>Live Preview</h3>
-            <p>Here's how it will look on your site:</p>
-            <iframe src="/frontend" width="100%" height="600px" frameborder="0" class="preview"></iframe>
-            
-            <div class="card">
-                <h3>API Documentation</h3>
-                <p>For developers who want to use the API directly:</p>
-                <ul>
-                    <li>All API endpoints are accessible at <code style="display: inline;">/api/...</code></li>
-                    <li>Authentication requires the <code style="display: inline;">X-API-Key</code> header</li>
-                    <li>Default development key: <code style="display: inline;">default_dev_key</code></li>
-                </ul>
-                
-                <p>For complete API documentation, refer to the README or test script.</p>
-                <a href="/frontend" class="btn">Open Full Interface</a>
-            </div>
+        <h1>🔒 Quantonium OS Cloud Runtime</h1>
+        <h2>⚠️ Restricted Playground Access</h2>
+
+        <div class="notice">
+            This environment is provided for demonstration and private testing purposes only. The encryption logic, resonance transforms, and symbolic architecture are proprietary and protected.
+        </div>
+
+        <div class="card">
+            <h3>Usage Instructions</h3>
+            <p>
+                This tool demonstrates Quantonium OS's symbolic encryption and resonance-based logic using a custom backend and Pybind11-powered quantum-inspired core. 
+            </p>
+            <p>
+                You may interact with the frontend only via direct URL and under the condition that you do not attempt to reverse engineer, clone, embed, or mirror any part of the interface.
+            </p>
+            <p>
+                To test the interface, visit:
+                <a href="https://quantum-shield-luisminier79.replit.app/frontend" target="_blank" class="btn">Open Secure Playground</a>
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>Disclaimer</h3>
+            <p>This sandbox is for evaluation and validation only. No sensitive data should be entered. By continuing, you agree not to copy, embed, or commercialize this environment in any way.</p>
+            <p>All internal computations are powered by a proprietary symbolic resonance engine. No source code is exposed in this environment.</p>
+        </div>
+
+        <div class="card">
+            <h3>API Information</h3>
+            <p>Developers with authorized access may use:</p>
+            <ul>
+                <li><code>POST /api/encrypt</code> – Symbolic encryption</li>
+                <li><code>POST /api/entropy</code> – Quantum-inspired random generation</li>
+                <li><code>POST /api/ccp</code> – CCP vector expansions</li>
+            </ul>
+            <p>Include your <code>X-API-Key</code> header to authenticate. Unauthorized access will be blocked.</p>
         </div>
     </div>
 </body>
