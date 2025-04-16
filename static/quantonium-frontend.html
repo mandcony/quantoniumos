@@ -1,653 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Quantonium OS Interface</title>
-    <style>
-        :root {
-            --primary-color: #28a;
-            --primary-hover: #39b;
-            --dark-bg: #111;
-            --panel-bg: #1a1a1a;
-            --border-color: #333;
-            --text-color: #eee;
-            --text-secondary: #aaa;
-            --error-color: #f55;
-            --success-color: #5c5;
-        }
-        
-        body { 
-            font-family: 'Segoe UI', 'Arial', sans-serif; 
-            background: var(--dark-bg); 
-            color: var(--text-color); 
-            padding: 0;
-            margin: 0;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo-icon {
-            font-size: 24px;
-            margin-right: 10px;
-        }
-        
-        .logo-text {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            opacity: 0.7;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        
-        .tab.active {
-            opacity: 1;
-            color: var(--primary-color);
-        }
-        
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--primary-color);
-        }
-        
-        .tab-content {
-            display: none;
-            background: var(--panel-bg);
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        input, textarea, select {
-            width: 100%;
-            padding: 10px;
-            background: #222;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        button {
-            padding: 10px 20px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.3s;
-        }
-        
-        button:hover {
-            background: var(--primary-hover);
-        }
-        
-        button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
-        .result {
-            margin-top: 20px;
-            background: #222;
-            padding: 15px;
-            border-radius: 4px;
-            border-left: 3px solid var(--primary-color);
-            white-space: pre-wrap;
-            overflow-x: auto;
-            font-family: 'Consolas', monospace;
-        }
-        
-        .loader {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--panel-bg);
-            border-top: 2px solid var(--primary-color);
-            border-radius: 50%;
-            margin: 15px auto;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .error-message {
-            color: var(--error-color);
-            margin-top: 10px;
-            display: none;
-        }
-        
-        .success-message {
-            color: var(--success-color);
-            margin-top: 10px;
-            display: none;
-        }
-        
-        .footer {
-            margin-top: 40px;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 13px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 15px;
-        }
-        
-        /* For the waveform input */
-        .waveform-input {
-            display: flex;
-            align-items: center;
-        }
-        
-        .waveform-input input {
-            flex-grow: 1;
-        }
-        
-        .waveform-input button {
-            margin-left: 10px;
-            white-space: nowrap;
-        }
-        
-        /* For the sliders in waveform generator */
-        .slider-container {
-            margin-bottom: 20px;
-        }
-        
-        .slider-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .slider-row label {
-            width: 120px;
-            margin-bottom: 0;
-        }
-        
-        .slider-row input[type="range"] {
-            flex-grow: 1;
-        }
-        
-        .slider-row .value {
-            width: 50px;
-            text-align: right;
-            margin-left: 10px;
-        }
-        
-        /* For the entropy visualization */
-        .entropy-display {
-            margin-top: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        
-        .entropy-bit {
-            width: 20px;
-            height: 20px;
-            background-color: #222;
-            display: inline-block;
-            transition: background-color 0.3s;
-            border-radius: 2px;
-        }
-        
-        /* Responsive styles */
-        @media (max-width: 600px) {
-            .tabs {
-                flex-wrap: wrap;
-            }
-            
-            .tab {
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-            
-            .slider-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .slider-row label {
-                width: auto;
-                margin-bottom: 5px;
-            }
-            
-            .slider-row .value {
-                text-align: left;
-                margin-left: 0;
-                margin-top: 5px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quantonium OS Cloud Runtime</title>
+  <style>
+    body {
+      font-family: Segoe UI, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      cursor: pointer;
+      padding: 10px 20px;
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #aaa;
+    }
+    .tab.active {
+      background: #28a;
+      color: white;
+    }
+    .panel {
+      display: none;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 20px;
+    }
+    .panel.active {
+      display: block;
+    }
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      background: #222;
+      color: white;
+    }
+    button {
+      padding: 10px 20px;
+      background: #28a;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+    .result, .error {
+      margin-top: 15px;
+      white-space: pre-wrap;
+      background: #222;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .error {
+      color: #f55;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <div class="logo-icon">🧠</div>
-                <h1 class="logo-text">Quantonium OS</h1>
-            </div>
-        </div>
-        
-        <div class="tabs">
-            <div class="tab active" data-tab="encrypt">Encryption</div>
-            <div class="tab" data-tab="rft">Resonance FT</div>
-            <div class="tab" data-tab="entropy">Quantum Entropy</div>
-            <div class="tab" data-tab="container">Symbolic Container</div>
-        </div>
-        
-        <!-- Encryption Tab -->
-        <div class="tab-content active" id="encrypt-tab">
-            <h2>Resonance Encryption</h2>
-            <p>Secure your data using quantum-inspired resonance encryption technology.</p>
-            
-            <div class="form-group">
-                <label for="encrypt-plaintext">Plaintext</label>
-                <textarea id="encrypt-plaintext" placeholder="Enter text to encrypt..."></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="encrypt-key">Encryption Key</label>
-                <input type="text" id="encrypt-key" placeholder="Enter symbolic key...">
-            </div>
-            
-            <button id="encrypt-button">Encrypt Data</button>
-            
-            <div class="loader" id="encrypt-loader"></div>
-            <div class="error-message" id="encrypt-error"></div>
-            
-            <div class="result" id="encrypt-result">// Encrypted output will appear here</div>
-        </div>
-        
-        <!-- RFT Tab -->
-        <div class="tab-content" id="rft-tab">
-            <h2>Resonance Fourier Transform</h2>
-            <p>Analyze quantum-inspired waveforms using advanced resonance techniques.</p>
-            
-            <div class="form-group">
-                <label for="rft-waveform">Waveform (comma-separated values)</label>
-                <div class="waveform-input">
-                    <input type="text" id="rft-waveform" placeholder="e.g., 0.1,0.5,0.9,0.5,0.1,0.5,0.9,0.5">
-                    <button id="rft-generate">Generate</button>
-                </div>
-            </div>
-            
-            <div class="slider-container" id="rft-generator" style="display: none;">
-                <h3>Waveform Generator</h3>
-                
-                <div class="slider-row">
-                    <label for="rft-amplitude">Amplitude</label>
-                    <input type="range" id="rft-amplitude" min="0.1" max="1" step="0.1" value="0.5">
-                    <span class="value" id="rft-amplitude-value">0.5</span>
-                </div>
-                
-                <div class="slider-row">
-                    <label for="rft-frequency">Frequency</label>
-                    <input type="range" id="rft-frequency" min="1" max="10" step="1" value="4">
-                    <span class="value" id="rft-frequency-value">4</span>
-                </div>
-                
-                <div class="slider-row">
-                    <label for="rft-samples">Samples</label>
-                    <input type="range" id="rft-samples" min="8" max="32" step="8" value="16">
-                    <span class="value" id="rft-samples-value">16</span>
-                </div>
-                
-                <button id="rft-apply">Apply to Input</button>
-            </div>
-            
-            <button id="rft-button">Analyze Waveform</button>
-            
-            <div class="loader" id="rft-loader"></div>
-            <div class="error-message" id="rft-error"></div>
-            
-            <div class="result" id="rft-result">// Analysis results will appear here</div>
-        </div>
-        
-        <!-- Entropy Tab -->
-        <div class="tab-content" id="entropy-tab">
-            <h2>Quantum-Inspired Entropy</h2>
-            <p>Generate high-quality random data using quantum resonance principles.</p>
-            
-            <div class="form-group">
-                <label for="entropy-amount">Amount of Entropy (1-1024 bytes)</label>
-                <input type="number" id="entropy-amount" min="1" max="1024" value="32">
-            </div>
-            
-            <button id="entropy-button">Generate Entropy</button>
-            
-            <div class="loader" id="entropy-loader"></div>
-            <div class="error-message" id="entropy-error"></div>
-            
-            <div class="entropy-display" id="entropy-visual"></div>
-            
-            <div class="result" id="entropy-result">// Entropy data will appear here</div>
-        </div>
-        
-        <!-- Container Tab -->
-        <div class="tab-content" id="container-tab">
-            <h2>Symbolic Container</h2>
-            <p>Unlock quantum-secured symbolic containers with resonance waveforms.</p>
-            
-            <div class="form-group">
-                <label for="container-waveform">Access Waveform (comma-separated values)</label>
-                <input type="text" id="container-waveform" placeholder="e.g., 0.2,0.7,0.3">
-            </div>
-            
-            <div class="form-group">
-                <label for="container-hash">Verification Hash</label>
-                <input type="text" id="container-hash" placeholder="Enter verification hash...">
-            </div>
-            
-            <button id="container-button">Unlock Container</button>
-            
-            <div class="loader" id="container-loader"></div>
-            <div class="error-message" id="container-error"></div>
-            <div class="success-message" id="container-success"></div>
-            
-            <div class="result" id="container-result">// Container access results will appear here</div>
-        </div>
-        
-        <div class="footer">
-            Powered by Quantonium OS Cloud Runtime | Symbolic computation technology
-        </div>
+  <div class="container">
+    <h1>🧠 Quantonium OS Cloud Runtime</h1>
+    <div class="tabs">
+      <div class="tab active" data-panel="encrypt">Encrypt</div>
+      <div class="tab" data-panel="rft">RFT</div>
+      <div class="tab" data-panel="entropy">Entropy</div>
+      <div class="tab" data-panel="container">Container</div>
     </div>
 
-    <script>
-        // API Configuration
-        const API_URL = 'https://{YOUR-REPLIT-URL}.replit.app'; // Change to your deployment URL
-        const API_KEY = 'default_dev_key'; // Change to your production API key
-        
-        // Tab Navigation
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs and content
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab
-                tab.classList.add('active');
-                
-                // Show corresponding content
-                const tabId = tab.getAttribute('data-tab');
-                document.getElementById(`${tabId}-tab`).classList.add('active');
-            });
-        });
-        
-        // Helper Functions
-        function showLoader(id) {
-            document.getElementById(`${id}-loader`).style.display = 'block';
-        }
-        
-        function hideLoader(id) {
-            document.getElementById(`${id}-loader`).style.display = 'none';
-        }
-        
-        function showError(id, message) {
-            const errorEl = document.getElementById(`${id}-error`);
-            errorEl.textContent = message;
-            errorEl.style.display = 'block';
-        }
-        
-        function hideError(id) {
-            document.getElementById(`${id}-error`).style.display = 'none';
-        }
-        
-        function showSuccess(id, message) {
-            const successEl = document.getElementById(`${id}-success`);
-            if (successEl) {
-                successEl.textContent = message;
-                successEl.style.display = 'block';
-            }
-        }
-        
-        function hideSuccess(id) {
-            const successEl = document.getElementById(`${id}-success`);
-            if (successEl) {
-                successEl.style.display = 'none';
-            }
-        }
-        
-        function setResult(id, data) {
-            document.getElementById(`${id}-result`).textContent = typeof data === 'string' 
-                ? data 
-                : JSON.stringify(data, null, 2);
-        }
-        
-        async function apiCall(endpoint, data) {
-            try {
-                const response = await fetch(`${API_URL}/api${endpoint}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-API-Key': API_KEY
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
-                }
-                
-                return await response.json();
-            } catch (error) {
-                throw error;
-            }
-        }
-        
-        // ENCRYPTION MODULE
-        document.getElementById('encrypt-button').addEventListener('click', async () => {
-            const plaintext = document.getElementById('encrypt-plaintext').value;
-            const key = document.getElementById('encrypt-key').value;
-            
-            if (!plaintext || !key) {
-                showError('encrypt', 'Please enter both plaintext and key');
-                return;
-            }
-            
-            hideError('encrypt');
-            showLoader('encrypt');
-            
-            try {
-                const result = await apiCall('/encrypt', { plaintext, key });
-                setResult('encrypt', result);
-            } catch (error) {
-                showError('encrypt', `Error: ${error.message}`);
-            } finally {
-                hideLoader('encrypt');
-            }
-        });
-        
-        // RFT MODULE
-        document.getElementById('rft-button').addEventListener('click', async () => {
-            const waveformStr = document.getElementById('rft-waveform').value;
-            
-            if (!waveformStr) {
-                showError('rft', 'Please enter a waveform');
-                return;
-            }
-            
-            // Parse comma-separated values
-            const waveform = waveformStr.split(',').map(v => parseFloat(v.trim()));
-            
-            if (waveform.some(isNaN)) {
-                showError('rft', 'Invalid waveform format. Please use comma-separated numbers.');
-                return;
-            }
-            
-            hideError('rft');
-            showLoader('rft');
-            
-            try {
-                const result = await apiCall('/simulate/rft', { waveform });
-                setResult('rft', result);
-            } catch (error) {
-                showError('rft', `Error: ${error.message}`);
-            } finally {
-                hideLoader('rft');
-            }
-        });
-        
-        // RFT Generator
-        document.getElementById('rft-generate').addEventListener('click', () => {
-            const generatorEl = document.getElementById('rft-generator');
-            generatorEl.style.display = generatorEl.style.display === 'none' ? 'block' : 'none';
-        });
-        
-        // Update slider values in real-time
-        document.querySelectorAll('#rft-generator input[type="range"]').forEach(slider => {
-            const valueEl = document.getElementById(`${slider.id}-value`);
-            slider.addEventListener('input', () => {
-                valueEl.textContent = slider.value;
-            });
-        });
-        
-        // Generate waveform based on sliders
-        document.getElementById('rft-apply').addEventListener('click', () => {
-            const amplitude = parseFloat(document.getElementById('rft-amplitude').value);
-            const frequency = parseFloat(document.getElementById('rft-frequency').value);
-            const samples = parseInt(document.getElementById('rft-samples').value);
-            
-            // Generate a sine wave with the specified parameters
-            const waveform = [];
-            for (let i = 0; i < samples; i++) {
-                const x = (i / samples) * 2 * Math.PI * frequency;
-                waveform.push((Math.sin(x) * amplitude).toFixed(2));
-            }
-            
-            document.getElementById('rft-waveform').value = waveform.join(',');
-            document.getElementById('rft-generator').style.display = 'none';
-        });
-        
-        // ENTROPY MODULE
-        document.getElementById('entropy-button').addEventListener('click', async () => {
-            const amount = parseInt(document.getElementById('entropy-amount').value);
-            
-            if (isNaN(amount) || amount < 1 || amount > 1024) {
-                showError('entropy', 'Please enter a valid amount between 1 and 1024');
-                return;
-            }
-            
-            hideError('entropy');
-            showLoader('entropy');
-            document.getElementById('entropy-visual').innerHTML = ''; // Clear previous visualization
-            
-            try {
-                const result = await apiCall('/entropy/sample', { amount });
-                setResult('entropy', result);
-                
-                // Visualize the entropy (first 120 bytes max)
-                const visualEl = document.getElementById('entropy-visual');
-                const entropy = result.entropy || [];
-                const displayCount = Math.min(entropy.length, 120);
-                
-                for (let i = 0; i < displayCount; i++) {
-                    const bit = document.createElement('div');
-                    bit.className = 'entropy-bit';
-                    bit.style.backgroundColor = `hsl(${entropy[i] % 255}, 70%, 50%)`;
-                    visualEl.appendChild(bit);
-                }
-            } catch (error) {
-                showError('entropy', `Error: ${error.message}`);
-            } finally {
-                hideLoader('entropy');
-            }
-        });
-        
-        // CONTAINER MODULE
-        document.getElementById('container-button').addEventListener('click', async () => {
-            const waveformStr = document.getElementById('container-waveform').value;
-            const hash = document.getElementById('container-hash').value;
-            
-            if (!waveformStr || !hash) {
-                showError('container', 'Please enter both waveform and hash values');
-                return;
-            }
-            
-            // Parse comma-separated values
-            const waveform = waveformStr.split(',').map(v => parseFloat(v.trim()));
-            
-            if (waveform.some(isNaN)) {
-                showError('container', 'Invalid waveform format. Please use comma-separated numbers.');
-                return;
-            }
-            
-            hideError('container');
-            hideSuccess('container');
-            showLoader('container');
-            
-            try {
-                const result = await apiCall('/container/unlock', { waveform, hash });
-                setResult('container', result);
-                
-                if (result.unlocked) {
-                    showSuccess('container', 'Container successfully unlocked!');
-                }
-            } catch (error) {
-                showError('container', `Error: ${error.message}`);
-            } finally {
-                hideLoader('container');
-            }
-        });
-    </script>
+    <div class="panel active" id="encrypt">
+      <h2>Encryption</h2>
+      <textarea id="encrypt-plaintext" placeholder="Enter plaintext..."></textarea>
+      <input id="encrypt-key" placeholder="Enter key..." />
+      <button onclick="doEncrypt()">Encrypt</button>
+      <div class="result" id="encrypt-result"></div>
+      <div class="error" id="encrypt-error"></div>
+    </div>
+
+    <div class="panel" id="rft">
+      <h2>Resonance Fourier Transform</h2>
+      <input id="rft-waveform" placeholder="0.1,0.5,0.9,0.5,0.1,0.5,0.9" />
+      <button onclick="doRFT()">Run RFT</button>
+      <div class="result" id="rft-result"></div>
+      <div class="error" id="rft-error"></div>
+    </div>
+
+    <div class="panel" id="entropy">
+      <h2>Entropy Generator</h2>
+      <input type="number" id="entropy-amount" value="32" min="1" max="1024" />
+      <button onclick="doEntropy()">Generate</button>
+      <div class="result" id="entropy-result"></div>
+      <div class="error" id="entropy-error"></div>
+    </div>
+
+    <div class="panel" id="container">
+      <h2>Container Unlock</h2>
+      <input id="container-waveform" placeholder="0.3,0.7,0.2" />
+      <input id="container-hash" placeholder="Verification hash..." />
+      <button onclick="doUnlock()">Unlock</button>
+      <div class="result" id="container-result"></div>
+      <div class="error" id="container-error"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://quantum-shield-luisminier79.replit.app";
+    const API_KEY = "default_dev_key";
+
+    const headers = {
+      "Content-Type": "application/json",
+      "x-api-key": API_KEY
+    };
+
+    const tabs = document.querySelectorAll(".tab");
+    const panels = document.querySelectorAll(".panel");
+    tabs.forEach(tab => {
+      tab.onclick = () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        panels.forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(tab.dataset.panel).classList.add("active");
+      };
+    });
+
+    async function apiCall(endpoint, data) {
+      const res = await fetch(`${API_URL}/api${endpoint}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      return await res.json();
+    }
+
+    async function doEncrypt() {
+      const pt = document.getElementById("encrypt-plaintext").value;
+      const key = document.getElementById("encrypt-key").value;
+      const out = document.getElementById("encrypt-result");
+      const err = document.getElementById("encrypt-error");
+      out.textContent = "";
+      err.textContent = "";
+      try {
+        const res = await apiCall("/encrypt", { plaintext: pt, key });
+        out.textContent = res.ciphertext;
+      } catch (e) {
+        err.textContent = e.message;
+      }
+    }
+
+    async function doRFT() {
+      const str = document.getElementById("rft-waveform").value;
+      const out = document.getElementById("rft-result");
+      const err = document.getElementById("rft-error");
+      out.textContent = "";
+      err.textContent = "";
+      try {
+        const waveform = str.split(",").map(s => parseFloat(s.trim()));
+        const res = await apiCall("/simulate/rft", { waveform });
+        out.textContent = JSON.stringify(res.frequencies, null, 2);
+      } catch (e) {
+        err.textContent = e.message;
+      }
+    }
+
+    async function doEntropy() {
+      const amount = parseInt(document.getElementById("entropy-amount").value);
+      const out = document.getElementById("entropy-result");
+      const err = document.getElementById("entropy-error");
+      out.textContent = "";
+      err.textContent = "";
+      try {
+        const res = await apiCall("/entropy/sample", { amount });
+        out.textContent = res.entropy;
+      } catch (e) {
+        err.textContent = e.message;
+      }
+    }
+
+    async function doUnlock() {
+      const str = document.getElementById("container-waveform").value;
+      const hash = document.getElementById("container-hash").value;
+      const out = document.getElementById("container-result");
+      const err = document.getElementById("container-error");
+      out.textContent = "";
+      err.textContent = "";
+      try {
+        const waveform = str.split(",").map(s => parseFloat(s.trim()));
+        const res = await apiCall("/container/unlock", { waveform, hash });
+        out.textContent = res.unlocked ? "✅ Container Unlocked" : "❌ Access Denied";
+      } catch (e) {
+        err.textContent = e.message;
+      }
+    }
+  </script>
 </body>
 </html>

@@ -14,7 +14,11 @@ def create_app():
     
     # Enable CORS for all routes to allow cross-origin requests
     # This allows embedding in Squarespace
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(app, resources={r"/*": {"origins": [
+        "https://grapefruit-trombone-pncx.squarespace.com",
+        "https://www.quantoniumos.com"
+    ]}})
+
     
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
     # Register the API blueprint with URL prefix

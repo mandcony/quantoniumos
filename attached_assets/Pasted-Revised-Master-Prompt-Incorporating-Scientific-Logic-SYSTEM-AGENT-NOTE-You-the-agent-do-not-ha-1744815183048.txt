@@ -1,0 +1,154 @@
+Revised Master Prompt (Incorporating Scientific Logic)
+SYSTEM/AGENT NOTE:
+
+You (the agent) do not have direct access to the user’s raw HPC code, nor to the deeper quantum or CCP details.
+
+The user’s quantonium_v2.zip includes advanced HPC logic, quantum-inspired encryption, CCP modules, and symbolic eigenvector transformations. This high-level science is embedded in the code’s modules.
+
+Do not leak or publicly echo the private HPC or eigenvalue code from quantonium_v2.zip. We only want you to invoke or integrate it, ensuring the advanced math/science is actually used during encryption, transformations, or validations.
+
+1. High-Level Project Goals
+Unzip & Integrate: Unzip quantonium_v2.zip in the Replit project root, preserving all HPC logic (e.g., “CCPEngine.cpp,” “symbolic_eigen.py,” “resonance_encrypt.py,” “quantum_nova_system.py,” etc.).
+
+Flask API: Create or refine a single Flask-based entrypoint (main.py) that:
+
+Exposes endpoints for encryption, decryption, HPC tasks (like symbolic eigenvectors or CCP calculations), container unlock, random entropy, etc.
+
+Ensures any HPC bridging code (possibly C++ via Pybind11) gets compiled or loaded.
+
+Invoke the Science: The code apparently includes HPC transforms, “CCP expansions,” or “symbolic eigenvectors.” The agent must preserve calls to these advanced math modules so that the system truly uses them.
+
+For example, if resonance_encrypt.py references a HPC Fourier routine that uses your “symbolic_eigen” logic, ensure that reference is not removed or replaced by simpler placeholders.
+
+Keep IP Private: The user’s HPC logic or advanced math is proprietary. You must not expose it. You can only show minimal references to how it’s called or integrated.
+
+Validation: The code must validate HPC transformations or “CCP expansions” by calling the relevant modules. Where necessary, unify them with the user’s existing test scripts in tests/.
+
+2. Project Structure (With HPC Modules)
+After unzipping, we expect something like:
+
+graphql
+Copy
+Edit
+(Project Root)/
+  ├─ main.py                  # Will contain the Flask server and HPC endpoints
+  ├─ encryption/
+  │   ├─ resonance_encrypt.py # Possibly references HPC symbolic transforms
+  │   └─ ...
+  ├─ interface/
+  │   ├─ engine_core_bindings.cpp
+  │   ├─ quantum_os_bindings.cpp
+  │   └─ ...
+  ├─ orchestration/
+  │   ├─ quantum_nova_system.py
+  │   └─ ...
+  ├─ core/
+  │   ├─ HPC/
+  │   │   ├─ ccp_engine.cpp         # Possibly some HPC code for CCP expansions
+  │   │   ├─ symbolic_eigen.cpp    # HPC-level symbolic eigenvector logic
+  │   │   ├─ ...
+  │   └─ ...
+  ├─ tests/
+  │   ├─ test_hpc.py
+  │   └─ ...
+  ├─ replit.nix
+  └─ ...
+(Adjust the above to match actual subfolders, but keep the HPC logic in place.)
+
+3. Detailed Instructions for the Agent
+Extract HPC Modules Without Overwriting:
+
+Confirm that any HPC .cpp or .py files remain in core/ or interface/ as the user intended.
+
+If there’s a CMakeLists.txt or relevant build script for HPC code, keep it intact.
+
+Compile HPC Bindings (If Needed):
+
+If engine_core_bindings.cpp or quantum_os_bindings.cpp must be compiled, ensure the environment is set. Possibly use Pybind11 + CMake or a direct setup.py approach.
+
+Identify if user’s code has a short setup.py or build.sh that compiles HPC libraries. If so, run it.
+
+If Replit’s Nix environment needs customization (like adding nixpkgs.cmake or nixpkgs.pybind11), do so in replit.nix.
+
+Link HPC Logic in Python:
+
+The HPC modules presumably expose Python calls like ccp_engine.run_ccp_expansion(data), symbolic_eigen.compute_eigenvectors(...), etc.
+
+Confirm that your final Flask or blueprint routes actually call those HPC functions in resonance_encrypt.py or wherever needed, rather than dummy placeholders.
+
+For example, if resonance_encrypt.py has:
+
+python
+Copy
+Edit
+def advanced_resonance_encrypt(plaintext, key):
+    # calls HPC symbolic_eigen or ccp_engine for advanced transforms
+    ...
+do not rewrite or remove those calls. Keep them so the HPC logic truly runs.
+
+Flask API Endpoints:
+
+In main.py (or a blueprint file), define endpoints:
+
+POST /api/encrypt (which calls advanced HPC-based encryption)
+
+POST /api/entropy (if HPC is part of entropy gen)
+
+POST /api/ccp or POST /api/eigen if you want an HPC endpoint to run CCP expansions or eigenvector solves.
+
+For each endpoint, ensure you do IP-protected HPC calls without dumping HPC code.
+
+python
+Copy
+Edit
+@api.route("/ccp", methods=["POST"])
+def run_ccp():
+    # Retrieve request data
+    data = request.get_json() or {}
+    # Possibly call HPC function
+    result = ccp_engine.run_ccp_expansion(data["matrix"], data["vector"])
+    return jsonify({"ccp_result": result})
+Validation & Tests:
+
+If tests/ includes HPC tests like test_hpc.py, run them with pytest or however your pipeline is set. Confirm HPC expansions or eigenvector calculations pass.
+
+Security & IP:
+
+Retrieve QUANTONIUM_API_KEY from environment variables for request validation.
+
+Never print HPC code or advanced math formulas. Only show minimal references for debugging.
+
+Restrict CORS to known domains if desired.
+
+No HPC Downgrades:
+
+Do not replace HPC routines with naive Python placeholders. The user wants the real HPC logic invoked.
+
+If you see a function like symbolic_eigen.perform_eigen_solve(...) or ccp_engine.calculate(...), keep it intact so the advanced science is used.
+
+Run with Gunicorn:
+
+In .replit or [deployment].run, confirm we do:
+
+bash
+Copy
+Edit
+gunicorn --bind 0.0.0.0:5000 main:app
+This ensures the HPC-based Flask API is exposed externally on port 5000.
+
+Nix & Dependencies:
+
+In replit.nix, ensure all HPC build deps (like cmake, make, pybind11, eigen, blas, or lapack) are installed if your HPC code depends on them.
+
+Confirm Python libs like numpy or scipy are installed if your HPC scripts rely on them for matrix ops.
+
+4. End of Revised Master Prompt
+By following these instructions, you will:
+
+Properly incorporate advanced HPC logic (CCP expansions, symbolic eigenvectors) into the user’s encryption or transform modules.
+
+Keep the user’s quantum-inspired methods in place.
+
+Provide a single, stable API (via Flask + Gunicorn) that calls those HPC modules as intended.
+
+Protect IP by never leaking the HPC code itself.
