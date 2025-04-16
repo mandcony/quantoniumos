@@ -6,7 +6,7 @@ Defines all token-protected endpoints to access symbolic stack modules.
 
 from flask import Blueprint, request, jsonify
 from core.protected.symbolic_interface import get_interface
-from models import EncryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
+from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
 from utils import validate_api_key, reject_unauthorized, sign_response
 
 api = Blueprint("api", __name__)
@@ -26,6 +26,12 @@ def encrypt():
     data = EncryptRequest(**request.get_json())
     result = symbolic.encrypt(data.plaintext, data.key)
     return jsonify(sign_response({"ciphertext": result}))
+
+@api.route("/decrypt", methods=["POST"])
+def decrypt():
+    data = DecryptRequest(**request.get_json())
+    result = symbolic.decrypt(data.ciphertext, data.key)
+    return jsonify(sign_response({"plaintext": result}))
 
 @api.route("/simulate/rft", methods=["POST"])
 def simulate_rft():

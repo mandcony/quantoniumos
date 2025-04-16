@@ -44,6 +44,32 @@ def test_encrypt():
     print(f"Status Code: {response.status_code}")
     try:
         print(json.dumps(response.json(), indent=2))
+        # Return the ciphertext for use in decrypt test
+        if response.status_code == 200:
+            return response.json().get("ciphertext")
+    except json.JSONDecodeError:
+        print(f"Response text: {response.text}")
+    return None
+
+def test_decrypt(ciphertext=None):
+    """Test the decryption endpoint."""
+    if ciphertext is None:
+        # Use a placeholder if no ciphertext is provided
+        ciphertext = "dO7kLB0s/zNeZ3ZtVUPLHw=="
+        
+    payload = {
+        "ciphertext": ciphertext,
+        "key": "symbolic-key"
+    }
+    response = requests.post(
+        f"{BASE_URL}/api/decrypt", 
+        headers=headers, 
+        json=payload
+    )
+    print("\n=== Decryption Test ===")
+    print(f"Status Code: {response.status_code}")
+    try:
+        print(json.dumps(response.json(), indent=2))
     except json.JSONDecodeError:
         print(f"Response text: {response.text}")
 
@@ -118,7 +144,11 @@ if __name__ == "__main__":
     
     # Run all tests
     test_root_endpoint()
-    test_encrypt()
+    
+    # Run encrypt and decrypt in sequence to test roundtrip functionality
+    ciphertext = test_encrypt()
+    test_decrypt(ciphertext)
+    
     test_rft()
     test_entropy()
     test_container()

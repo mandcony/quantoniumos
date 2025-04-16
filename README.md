@@ -59,6 +59,7 @@ All protected endpoints require the `X-API-Key` header.
 
 - **GET /api/** - API status check
 - **POST /api/encrypt** - Encrypt data using resonance techniques
+- **POST /api/decrypt** - Decrypt data using resonance techniques
 - **POST /api/simulate/rft** - Perform Resonance Fourier Transform
 - **POST /api/entropy/sample** - Generate quantum-inspired entropy
 - **POST /api/container/unlock** - Unlock symbolic containers
@@ -86,11 +87,23 @@ To embed the Quantonium OS frontend in your Squarespace site:
 
 ## Development & Testing
 
-Run the test script to verify API functionality:
+### Basic API Testing
+
+Run the basic test script to verify API functionality:
 
 ```
 python test_api.py
 ```
+
+### Randomized Architecture Testing
+
+For security-conscious testing that demonstrates the architecture's capabilities without exposing sensitive data:
+
+```
+python randomized_test.py
+```
+
+The randomized test script uses randomly generated inputs to test the API endpoints, ensuring the system works without exposing real user data or revealing implementation details. This helps protect the proprietary algorithms while still demonstrating the system's functionality.
 
 ## Security Considerations
 
