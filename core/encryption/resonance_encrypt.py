@@ -92,3 +92,10 @@ def encrypt(plaintext: str, key: str) -> dict:
         "timestamp": int(time.time()),
         "elapsed_ms": elapsed
     }
+
+def encrypt_data(plaintext: str, key: str) -> str:
+    """
+    Encrypt plaintext using the resonance encryption algorithm.
+    Returns just the encrypted string (for use by protected module).
+    """
+    return _perform_resonance_encryption(plaintext, key)
