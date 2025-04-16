@@ -13,11 +13,8 @@ def create_app():
     app = Flask(__name__, static_folder='static')
     
     # Enable CORS for all routes to allow cross-origin requests
-    # This allows embedding in Squarespace
-    CORS(app, resources={r"/*": {"origins": [
-        "https://grapefruit-trombone-pncx.squarespace.com",
-        "https://www.quantoniumos.com"
-    ]}})
+    # This allows embedding in Squarespace and testing from any domain
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
