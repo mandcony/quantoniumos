@@ -6,7 +6,7 @@ Defines all token-protected endpoints to access symbolic stack modules.
 
 from flask import Blueprint, request, jsonify
 from core.protected.symbolic_interface import get_interface
-from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
+from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest, AutoUnlockRequest
 from utils import validate_api_key, reject_unauthorized, sign_response
 
 api = Blueprint("api", __name__)
@@ -50,3 +50,13 @@ def unlock():
     data = ContainerUnlockRequest(**request.get_json())
     result = symbolic.verify_container(data.waveform, data.hash)
     return jsonify(sign_response({"unlocked": result}))
+
+@api.route("/container/auto-unlock", methods=["POST"])
+def auto_unlock():
+    """Automatically unlock containers using just the hash from encryption"""
+    data = AutoUnlockRequest(**request.get_json())
+    result = symbolic.auto_unlock_container(data.hash)
+    return jsonify(sign_response({
+        "unlocked": result,
+        "message": "Container unlocked automatically with encryption hash" if result else "No matching container found for this hash"
+    }))
