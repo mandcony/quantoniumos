@@ -42,7 +42,10 @@ def test_encrypt():
     )
     print("\n=== Encryption Test ===")
     print(f"Status Code: {response.status_code}")
-    print(json.dumps(response.json(), indent=2))
+    try:
+        print(json.dumps(response.json(), indent=2))
+    except json.JSONDecodeError:
+        print(f"Response text: {response.text}")
 
 def test_rft():
     """Test the Resonance Fourier Transform endpoint."""
@@ -56,7 +59,10 @@ def test_rft():
     )
     print("\n=== RFT Test ===")
     print(f"Status Code: {response.status_code}")
-    print(json.dumps(response.json(), indent=2))
+    try:
+        print(json.dumps(response.json(), indent=2))
+    except json.JSONDecodeError:
+        print(f"Response text: {response.text}")
 
 def test_entropy():
     """Test the entropy generation endpoint."""
@@ -70,7 +76,10 @@ def test_entropy():
     )
     print("\n=== Entropy Test ===")
     print(f"Status Code: {response.status_code}")
-    print(json.dumps(response.json(), indent=2))
+    try:
+        print(json.dumps(response.json(), indent=2))
+    except json.JSONDecodeError:
+        print(f"Response text: {response.text}")
 
 def test_container():
     """Test the container unlock endpoint."""
@@ -85,7 +94,10 @@ def test_container():
     )
     print("\n=== Container Test ===")
     print(f"Status Code: {response.status_code}")
-    print(json.dumps(response.json(), indent=2))
+    try:
+        print(json.dumps(response.json(), indent=2))
+    except json.JSONDecodeError:
+        print(f"Response text: {response.text}")
 
 def test_without_auth():
     """Test what happens with no authentication."""
@@ -95,7 +107,10 @@ def test_without_auth():
     response = requests.get(f"{BASE_URL}/api/encrypt", headers=no_auth_headers)
     print("\n=== No Authentication Test ===")
     print(f"Status Code: {response.status_code}")
-    print(json.dumps(response.json(), indent=2))
+    try:
+        print(json.dumps(response.json(), indent=2))
+    except json.JSONDecodeError:
+        print(f"Response text: {response.text}")
 
 if __name__ == "__main__":
     print("🧠 Quantonium OS API Test Suite")
