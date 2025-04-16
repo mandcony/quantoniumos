@@ -4,7 +4,6 @@ Quantonium OS - API Route Definitions
 Defines all token-protected endpoints to access symbolic stack modules.
 """
 
-import time
 from flask import Blueprint, request, jsonify
 from core.protected.symbolic_interface import get_interface
 from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest, AutoUnlockRequest
@@ -48,16 +47,6 @@ def simulate_rft():
     data = RFTRequest(**request.get_json())
     result = symbolic.analyze_waveform(data.waveform)
     return jsonify(sign_response({"frequencies": result}))
-
-@api.route("/ccp", methods=["POST"])
-def ccp_endpoint():
-    """CCP vector expansions endpoint"""
-    # Just return a basic response for now
-    return jsonify(sign_response({
-        "status": "success",
-        "message": "CCP vector expansion completed",
-        "timestamp": int(time.time())
-    }))
 
 @api.route("/entropy/sample", methods=["POST"])
 def sample_entropy():
