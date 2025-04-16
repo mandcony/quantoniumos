@@ -1,33 +1,48 @@
-import time
+"""
+Quantonium OS - API Utility Functions
+
+Includes:
+- API key validation
+- SHA-256 response signing
+- Timestamp injection
+"""
+
 import hashlib
-import json
-import logging
+import time
+import os
+from flask import request, jsonify
 
-# Configure logger
-logger = logging.getLogger(__name__)
+API_KEY_HEADER = "X-API-Key"
+API_SECRET = os.environ.get("QUANTONIUM_API_KEY", "default_dev_key")  # Replit Secrets
 
-def sign_response(data: dict) -> dict:
+def validate_api_key(req: request) -> bool:
     """
-    Signs the response payload with a timestamp and SHA-256 hash.
-    
-    Args:
-        data: The response data dictionary
-        
+    Check if the API key in the request headers matches the expected secret.
+
     Returns:
-        Modified dictionary with timestamp and signature
+        True if valid, False otherwise.
     """
-    # Add timestamp if not present
-    if 'timestamp' not in data:
-        data['timestamp'] = int(time.time())
-    
-    # Create a copy without the signature field (in case it exists)
-    payload_to_sign = {k: v for k, v in data.items() if k != 'signature'}
-    
-    # Convert to a canonical string representation
-    canonical_payload = json.dumps(payload_to_sign, sort_keys=True)
-    
-    # Generate SHA-256 hash
-    hash_obj = hashlib.sha256(canonical_payload.encode('utf-8'))
-    data['signature'] = hash_obj.hexdigest()
-    
-    return data
+    key = req.headers.get(API_KEY_HEADER)
+    return key == API_SECRET
+
+def sign_response(payload: dict) -> dict:
+    """
+    Add timestamp and SHA-256 hash to the response payload.
+
+    Args:
+        payload: JSON-compatible dictionary
+
+    Returns:
+        Signed dictionary with timestamp and hash
+    """
+    timestamp = int(time.time())
+    payload["timestamp"] = timestamp
+
+    raw = str(sorted(payload.items())).encode()
+    hash_digest = hashlib.sha256(raw).hexdigest()
+
+    payload["sha256"] = hash_digest
+    return payload
+
+def reject_unauthorized():
+    return jsonify({"error": "Unauthorized", "code": 403}), 403

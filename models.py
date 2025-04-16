@@ -1,44 +1,22 @@
-from typing import Dict, List, Optional, Any, Union
+"""
+Quantonium OS - API Data Models
+
+Defines Pydantic-style request schemas for symbolic endpoints.
+"""
+
 from pydantic import BaseModel, Field
+from typing import List
 
-# Request and Response Models for /encrypt endpoint
 class EncryptRequest(BaseModel):
-    plaintext: str = Field(..., description="Text to be encrypted")
-    key: str = Field(..., description="Encryption key")
+    plaintext: str = Field(..., example="hello world")
+    key: str = Field(..., example="symbolic-key")
 
-class EncryptResponse(BaseModel):
-    ciphertext: str = Field(..., description="Encrypted text")
-    status: str = Field("success", description="Response status")
-    timestamp: Optional[int] = None
-    signature: Optional[str] = None
-
-# Request and Response Models for /simulate/rft endpoint
 class RFTRequest(BaseModel):
-    waveform: List[float] = Field(..., description="Input waveform for Resonance Fourier Transform")
+    waveform: List[float] = Field(..., example=[0.1, 0.5, 0.9])
 
-class RFTResponse(BaseModel):
-    frequency_data: Dict[str, float] = Field(..., description="Frequency domain data from RFT")
-    status: str = Field("success", description="Response status")
-    timestamp: Optional[int] = None
-    signature: Optional[str] = None
+class EntropyRequest(BaseModel):
+    amount: int = Field(32, ge=1, le=1024, example=64)
 
-# Request and Response Models for /entropy/sample endpoint
-class EntropySampleRequest(BaseModel):
-    amount: int = Field(32, description="Amount of entropy bytes to generate", ge=1, le=1024)
-
-class EntropySampleResponse(BaseModel):
-    entropy: str = Field(..., description="Base64 encoded entropy data")
-    status: str = Field("success", description="Response status")
-    timestamp: Optional[int] = None
-    signature: Optional[str] = None
-
-# Request and Response Models for /container/unlock endpoint
 class ContainerUnlockRequest(BaseModel):
-    waveform: List[float] = Field(..., description="Symbolic waveform for container unlock")
-    hash: str = Field(..., description="Hash value for verification")
-
-class ContainerUnlockResponse(BaseModel):
-    unlocked: bool = Field(..., description="Whether the container was successfully unlocked")
-    status: str = Field("success", description="Response status")
-    timestamp: Optional[int] = None
-    signature: Optional[str] = None
+    waveform: List[float] = Field(..., example=[0.2, 0.7, 0.3])
+    hash: str = Field(..., example="d6a88f4f...")
