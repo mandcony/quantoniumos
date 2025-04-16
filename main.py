@@ -5,7 +5,7 @@ Initializes the Flask app and registers symbolic API routes.
 """
 
 import os
-from flask import Flask, send_from_directory, redirect
+from flask import Flask, send_from_directory, redirect, jsonify
 from flask_cors import CORS
 from routes import api
 
@@ -40,6 +40,15 @@ def create_app():
     @app.route('/')
     def root():
         return redirect('/embed-demo')
+        
+    # Status endpoint without auth
+    @app.route('/status')
+    def status():
+        return jsonify({
+            "name": "Quantonium OS Cloud Runtime", 
+            "status": "operational", 
+            "version": "1.0.0"
+        })
     
     return app
 

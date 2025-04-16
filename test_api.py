@@ -36,7 +36,7 @@ def test_encrypt():
         "key": "symbolic-key"
     }
     response = requests.post(
-        f"{BASE_URL}/encrypt", 
+        f"{BASE_URL}/api/encrypt", 
         headers=headers, 
         json=payload
     )
@@ -50,7 +50,7 @@ def test_rft():
         "waveform": [0.1, 0.5, 0.9, 0.5, 0.1, 0.5, 0.9, 0.5]
     }
     response = requests.post(
-        f"{BASE_URL}/simulate/rft", 
+        f"{BASE_URL}/api/simulate/rft", 
         headers=headers, 
         json=payload
     )
@@ -64,7 +64,7 @@ def test_entropy():
         "amount": 32
     }
     response = requests.post(
-        f"{BASE_URL}/entropy/sample", 
+        f"{BASE_URL}/api/entropy/sample", 
         headers=headers, 
         json=payload
     )
@@ -79,7 +79,7 @@ def test_container():
         "hash": "d6a88f4f..."
     }
     response = requests.post(
-        f"{BASE_URL}/container/unlock", 
+        f"{BASE_URL}/api/container/unlock", 
         headers=headers, 
         json=payload
     )
@@ -91,7 +91,8 @@ def test_without_auth():
     """Test what happens with no authentication."""
     # Headers without API key
     no_auth_headers = {"Content-Type": "application/json"}
-    response = requests.get(f"{BASE_URL}/", headers=no_auth_headers)
+    # Try to access a protected API endpoint without auth
+    response = requests.get(f"{BASE_URL}/api/encrypt", headers=no_auth_headers)
     print("\n=== No Authentication Test ===")
     print(f"Status Code: {response.status_code}")
     print(json.dumps(response.json(), indent=2))
