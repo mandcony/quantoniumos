@@ -7,8 +7,9 @@ BUILD_DIR="$ROOT_DIR/bin"
 CORE_DIR="$ROOT_DIR/core"
 EIGEN_DIR="$ROOT_DIR/Eigen/eigen-3.4.0"
 PYTHON_INCLUDE=$(python -c "from sysconfig import get_paths as gp; print(gp()['include'])")
-# Use a simpler approach for Python lib flags since python3-config is not available
-PYTHON_LIB="-lpython$(python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")"
+PYTHON_LIBDIR=$(python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
+PYTHON_VERSION=$(python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+PYTHON_LIB="-L$PYTHON_LIBDIR -lpython$PYTHON_VERSION"
 PYBIND_INCLUDE=$(python -m pybind11 --includes)
 CXX="g++"
 
