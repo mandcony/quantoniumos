@@ -117,8 +117,11 @@ Full API documentation is available at the following endpoints:
 
 - **OpenAPI Specification**: `/openapi.json` - Machine-readable API specification
 - **API Documentation UI**: `/docs` - Interactive Swagger UI for exploring the API
+- **Release Notes**: [Changelog](CHANGELOG.md#030---2025-04-17) - Detailed version history with permalinks
 
 The API documentation includes request/response schemas, authentication requirements, and endpoint descriptions. Use the Swagger UI to test API endpoints directly from your browser.
+
+All endpoints return rate-limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) and return appropriate status codes for authentication and authorization failures (401 for invalid API keys, 403 for revoked keys, and 498 for expired JWT tokens).
 
 ## Frontend Integration
 
@@ -212,6 +215,54 @@ The smoke test script tests:
 - Metrics endpoint
 
 These tests ensure that all critical API functionality is working correctly after deployment. The smoke tests also run as part of the CI/CD pipeline for each release.
+
+## Security Quick-Start
+
+### Generate → Rotate → Revoke Keys in Three Commands
+```bash
+# 1. Generate an API key
+curl -X POST https://api.quantonium.io/api/auth/keys \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${ADMIN_TOKEN}" \
+  -d '{"name":"Production API Key","permissions":"api:read api:write","expires_in_days":90}'
+
+# 2. Rotate an API key (generates new key with same permissions)
+curl -X POST https://api.quantonium.io/api/auth/keys/${KEY_ID}/rotate \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${ADMIN_TOKEN}"
+
+# 3. Revoke a compromised key
+curl -X POST https://api.quantonium.io/api/auth/keys/${KEY_ID}/revoke \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${ADMIN_TOKEN}" \
+  -d '{"reason":"Security incident #123"}'
+```
+
+### Demo vs. Production Rate Limits
+**⚠️ Public demo key is rate-limited to 60 requests per hour and may be revoked without notice**
+
+Production API keys have the following rate limits:
+- Standard tier: 3,600 requests per hour
+- Enterprise tier: 36,000 requests per hour
+
+All endpoints return rate limit headers:
+```
+X-RateLimit-Limit: 3600
+X-RateLimit-Remaining: 3599
+X-RateLimit-Reset: 3600
+```
+
+### Supported Cryptographic Primitives
+
+| Category | Algorithm | Purpose |
+|----------|-----------|---------|
+| Hashing | SHA-256 | Message digests, API response signatures |
+| HMAC | HMAC-SHA-256 | JWT token signing |
+| CSPRNG | secrets-based | Secure random generation for keys |
+| Container Signing | Cosign | Container image verification |
+
+### Runtime Isolation
+[![Seccomp Enforced](https://img.shields.io/badge/Seccomp-Enforced-brightgreen)](seccomp.json) [![Dockle Scan](https://img.shields.io/badge/Dockle-No%20Critical%20Findings-brightgreen)](docs/security_scan_results.md)
 
 ## Security Considerations
 

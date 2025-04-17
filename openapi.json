@@ -184,6 +184,26 @@
                   "$ref": "#/components/schemas/EncryptResponse"
                 }
               }
+            },
+            "headers": {
+              "X-RateLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The maximum number of requests allowed in the current period"
+              },
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The number of remaining requests in the current period"
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The seconds until the rate limit resets"
+              }
             }
           },
           "400": {
@@ -192,6 +212,15 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "missing_field": {
+                    "value": {
+                      "error": "invalid_request",
+                      "message": "Missing required field: key",
+                      "timestamp": "2025-04-17T14:22:33Z"
+                    }
+                  }
                 }
               }
             }
@@ -202,6 +231,34 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalid_key": {
+                    "value": {
+                      "error": "authentication_failed",
+                      "message": "Invalid API key",
+                      "timestamp": "2025-04-17T14:22:33Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "revoked_key": {
+                    "value": {
+                      "error": "key_revoked",
+                      "message": "This API key has been revoked",
+                      "timestamp": "2025-04-17T14:22:33Z"
+                    }
+                  }
                 }
               }
             }
@@ -212,6 +269,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "rate_limited": {
+                    "value": {
+                      "error": "rate_limit_exceeded",
+                      "message": "Rate limit exceeded. Try again later.",
+                      "timestamp": "2025-04-17T14:22:33Z"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying the request"
+              },
+              "X-RateLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The maximum number of requests allowed in the current period"
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "The seconds until the rate limit resets"
+              }
+            }
+          },
+          "498": {
+            "description": "Token expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "expired_token": {
+                    "value": {
+                      "error": "token_expired",
+                      "message": "JWT token has expired, please request a new token",
+                      "timestamp": "2025-04-17T14:22:33Z"
+                    }
+                  }
                 }
               }
             }
@@ -1383,17 +1488,50 @@
         "type": "object",
         "properties": {
           "error": {
-            "type": "string"
+            "type": "string",
+            "description": "Error code identifier",
+            "example": "authentication_failed"
           },
           "code": {
-            "type": "string"
+            "type": "string",
+            "description": "Internal error reference code",
+            "example": "AUTH_ERR_101"
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Human-readable error description",
+            "example": "API key has been revoked"
           },
           "timestamp": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the error occurred"
+          }
+        },
+        "required": ["error", "message", "timestamp"]
+      },
+      "RateLimitHeaders": {
+        "type": "object",
+        "properties": {
+          "X-RateLimit-Limit": {
+            "type": "integer",
+            "description": "The total rate limit for your API key",
+            "example": 3600
+          },
+          "X-RateLimit-Remaining": {
+            "type": "integer",
+            "description": "Remaining requests in the current time window",
+            "example": 3245
+          },
+          "X-RateLimit-Reset": {
+            "type": "integer",
+            "description": "Seconds until the rate limit resets",
+            "example": 1234
+          },
+          "Retry-After": {
+            "type": "integer",
+            "description": "Seconds to wait before retrying (only present in 429 responses)",
+            "example": 60
           }
         }
       }
