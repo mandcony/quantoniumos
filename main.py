@@ -38,9 +38,18 @@ if 'FLASK_ENV' not in os.environ:
 def create_app():
     app = Flask(__name__, static_folder='static')
     
-    # Configure PostgreSQL database
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+    # Configure PostgreSQL database with fallback for SQLite
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        logger.warning("DATABASE_URL not found. Falling back to SQLite in-memory database for development.")
+        database_url = "sqlite:///quantonium.db"
+    
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
     
     # Initialize database
     db.init_app(app)
@@ -106,6 +115,11 @@ def create_app():
     @app.route('/frontend')
     def frontend():
         return send_from_directory('static', 'quantonium-frontend.html')
+        
+    # Live Waveform Visualization UI
+    @app.route('/wave')
+    def wave_ui():
+        return send_from_directory('static/wave_ui', 'index.html')
         
     # Root route redirects to demo
     @app.route('/')
