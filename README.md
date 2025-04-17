@@ -43,6 +43,39 @@ The system is designed with a layered architecture to protect intellectual prope
    ```
 4. Start the server: `gunicorn --bind 0.0.0.0:5000 main:app`
 
+### Docker Deployment
+
+We provide pre-built Docker images with all dependencies and security hardening:
+
+```bash
+# Login to GitHub Container Registry
+docker login ghcr.io -u USERNAME -p TOKEN
+
+# Pull the latest image
+docker pull ghcr.io/quantonium/quantonium:0.2.0
+
+# Run with required environment variables
+docker run -d --name quantonium-runtime \
+  -p 5000:5000 \
+  -e QUANTONIUM_API_KEY=your_secure_api_key \
+  -e SESSION_SECRET=your_secure_session_secret \
+  -e DATABASE_URL=postgresql://user:pass@host:5432/db \
+  ghcr.io/quantonium/quantonium:0.2.0
+```
+
+For advanced deployment with all security features enabled, use docker-compose:
+
+```bash
+# Set environment variables in .env file
+echo "QUANTONIUM_API_KEY=your_secure_api_key" > .env
+echo "SESSION_SECRET=your_secure_session_secret" >> .env
+
+# Start with docker-compose
+docker-compose up -d
+```
+
+The container runs with a read-only filesystem, no privilege escalation, and minimal capabilities for maximum security.
+
 ### Integrating Proprietary HPC Modules
 
 To integrate the proprietary high-performance modules:
@@ -110,6 +143,11 @@ The randomized test script uses randomly generated inputs to test the API endpoi
 - Set a strong `QUANTONIUM_API_KEY` for production
 - Limit CORS to trusted domains in production
 - All responses include a timestamp and SHA-256 signature
+- Use the provided Docker container for enhanced security (read-only filesystem, non-root user)
+- Verify container signature: `cosign verify ghcr.io/quantonium/quantonium:latest`
+- Review our [Security Policy](SECURITY.md) for vulnerability disclosure process
+- All dependencies are pinned to exact versions to prevent supply chain attacks
+- Security audit is performed in CI/CD pipeline before each release
 
 ## License
 
