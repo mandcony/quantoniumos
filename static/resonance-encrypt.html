@@ -730,15 +730,13 @@
                             </div>
                         </div>
                         
-                        <div class="waveform-match-visualization">
-                            <div class="visualization-header">
-                                <div class="match-indicator" id="waveform-match-indicator">Enter hash and key to check resonance</div>
+                        <!-- Removed wave visualization as it interferes with backend authentication logic -->
+                        <div class="status-display">
+                            <div class="status-header">
+                                <div class="status-indicator" id="waveform-match-indicator">Enter hash and key to verify container access</div>
                             </div>
-                            <div class="visualization-waves">
-                                <div class="wave-animation" id="wave-animation-container"></div>
-                            </div>
-                            <div class="waveform-status">
-                                <div class="waveform-status-text" id="waveform-status-text">Waveform auto-configured from container hash</div>
+                            <div class="status-message">
+                                <div class="status-text" id="waveform-status-text">Container authentication uses secure backend verification</div>
                             </div>
                         </div>
                         
@@ -1684,20 +1682,15 @@ ${freqValues}`;
             resetVisualization();
             
             try {
-                // Start the visualization animation with both hash and key
-                startResonanceAnimation(hash, key);
+                // Removed waveform animation as requested to ensure proper backend container validation
+                // No client-side visualization for container operations - all handled by backend quantum calculations
                 
-                // Before API call, verify that the key matches the pattern in the hash
-                // This ensures we're using the correct key format for the container
-                const isKeyValid = key === hash.split("==")[0].substring(hash.length - key.length);
+                // Let the backend handle key validation - removed client-side key format checking
+                // The quantum-inspired container validation must happen server-side
+                // to ensure proper mathematical authentication
                 
-                if (!isKeyValid) {
-                    // Update status display to show invalid key before even trying the API
-                    if (elements.waveformStatusText) {
-                        elements.waveformStatusText.textContent = `Key does not match the container's resonance signature`;
-                    }
-                    
-                    throw new Error('Invalid key for this container. The key must match the one used during encryption.');
+                if (elements.waveformStatusText) {
+                    elements.waveformStatusText.textContent = `Sending to backend for secure quantum-inspired validation...`;
                 }
                 
                 // Make the API call with the validated key
@@ -1730,18 +1723,7 @@ ${freqValues}`;
                         elements.containerPreview.textContent = data.container.content_preview || '';
                     }
                     
-                    // Update the wave animation container
-                    const waveContainer = document.getElementById('wave-animation-container');
-                    if (waveContainer) {
-                        waveContainer.innerHTML = `
-                            <div class="wave-line matched">
-                                <svg viewBox="0 0 600 100" preserveAspectRatio="none">
-                                    <path d="M0,50 Q150,10 300,50 T600,50" class="wave-path"></path>
-                                </svg>
-                            </div>
-                            <div class="wave-label">Perfect resonance match achieved</div>
-                        `;
-                    }
+                    // No wave animation - removed visualization as requested to ensure proper validation math
                     
                     // Update the match indicator
                     if (matchIndicator) {
@@ -1755,18 +1737,7 @@ ${freqValues}`;
                     elements.unlockResultTitle.textContent = 'Unlock Failed';
                     elements.unlockResultMessage.textContent = data.message || 'Failed to unlock container with the provided key and hash';
                     
-                    // Update the wave animation container to show mismatch
-                    const waveContainer = document.getElementById('wave-animation-container');
-                    if (waveContainer) {
-                        waveContainer.innerHTML = `
-                            <div class="wave-line mismatched">
-                                <svg viewBox="0 0 600 100" preserveAspectRatio="none">
-                                    <path d="M0,50 Q100,90 200,10 T400,70 T600,30" class="wave-path"></path>
-                                </svg>
-                            </div>
-                            <div class="wave-label">Waveform resonance not achieved</div>
-                        `;
-                    }
+                    // No wave animation for container operations - backend handles all validation
                     
                     // Update the match indicator
                     if (matchIndicator) {
