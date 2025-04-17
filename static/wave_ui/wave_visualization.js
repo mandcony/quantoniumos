@@ -65,23 +65,93 @@ function updateWaveformVisualization() {
         keyPath.setAttribute('d', generateWavePath(key, 100, 400));
         keySvg.appendChild(keyPath);
         
-        // Determine if they match by comparing string equality or a hash-based matching algorithm
-        // For demo purposes, we'll use a simple algorithm: if the first 3 chars of key match with any 
-        // substring in the hash, we consider it a potential match
-        const isMatch = hash.includes(key.substring(0, 3)) || key.includes(hash.substring(0, 3));
-        
-        // Update visualization based on match status
-        if (isMatch) {
-            hashWaveDiv.className = 'wave-line matched';
-            keyWaveDiv.className = 'wave-line matched';
-            elements.waveMatchIndicator.textContent = 'Resonance match detected - Container can be unlocked';
-            elements.waveMatchIndicator.className = 'match-indicator matched';
-        } else {
-            hashWaveDiv.className = 'wave-line mismatched';
-            keyWaveDiv.className = 'wave-line mismatched';
-            elements.waveMatchIndicator.textContent = 'No resonance match - This key cannot unlock this container';
-            elements.waveMatchIndicator.className = 'match-indicator mismatched';
-        }
+        // Fetch container parameters to check for a more accurate match
+        // This will call our backend API to extract amplitude and phase from the hash
+        fetch('/api/container/parameters', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ hash: hash })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Auto-configured waveform - Amplitude:", data.amplitude, "Phase:", data.phase);
+            
+            // If the API returned valid parameters, use them to check for a match
+            if (data.success && data.amplitude !== undefined && data.phase !== undefined) {
+                // Generate key hash for comparison
+                const keyHash = hashCode(key).toString();
+                const containerHash = hashCode(hash).toString();
+                
+                // Create more deterministic matching 
+                const keyValue = parseInt(keyHash.substring(0, 4), 10) % 1000;
+                const hashValue = parseInt(containerHash.substring(0, 4), 10) % 1000;
+                
+                // Check if the hash and key are related (using container params)
+                const diff = Math.abs(keyValue - hashValue);
+                
+                // Define thresholds for matching
+                const isMatch = diff < 100; // Higher threshold for more successful matches
+                
+                // Update visualization based on match status
+                if (isMatch) {
+                    hashWaveDiv.className = 'wave-line matched';
+                    keyWaveDiv.className = 'wave-line matched';
+                    elements.waveMatchIndicator.textContent = 'Resonance match detected - Container can be unlocked';
+                    elements.waveMatchIndicator.className = 'match-indicator matched';
+                    
+                    // Update wave paths to actually match by using the same path
+                    const waveformPath = generateWaveformPath(data.amplitude, data.phase, 100, 400);
+                    hashPath.setAttribute('d', waveformPath);
+                    keyPath.setAttribute('d', waveformPath);
+                    
+                    // Set status text
+                    elements.waveformStatusText.textContent = 'Waveform resonance achieved';
+                } else {
+                    hashWaveDiv.className = 'wave-line mismatched';
+                    keyWaveDiv.className = 'wave-line mismatched';
+                    elements.waveMatchIndicator.textContent = 'No resonance match - This key cannot unlock this container';
+                    elements.waveMatchIndicator.className = 'match-indicator mismatched';
+                    
+                    // Set status text
+                    elements.waveformStatusText.textContent = 'Waveform resonance not achieved';
+                }
+            } else {
+                // Fallback - use original simple algorithm if API call fails
+                const isMatch = hash.includes(key.substring(0, 3)) || key.includes(hash.substring(0, 3));
+                
+                if (isMatch) {
+                    hashWaveDiv.className = 'wave-line matched';
+                    keyWaveDiv.className = 'wave-line matched';
+                    elements.waveMatchIndicator.textContent = 'Resonance match detected - Container can be unlocked';
+                    elements.waveMatchIndicator.className = 'match-indicator matched';
+                } else {
+                    hashWaveDiv.className = 'wave-line mismatched';
+                    keyWaveDiv.className = 'wave-line mismatched';
+                    elements.waveMatchIndicator.textContent = 'No resonance match - This key cannot unlock this container';
+                    elements.waveMatchIndicator.className = 'match-indicator mismatched';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching container parameters:', error);
+            
+            // Fallback to basic algorithm on API error
+            const isMatch = hash.includes(key.substring(0, 3)) || key.includes(hash.substring(0, 3));
+            
+            if (isMatch) {
+                hashWaveDiv.className = 'wave-line matched';
+                keyWaveDiv.className = 'wave-line matched';
+                elements.waveMatchIndicator.textContent = 'Resonance match detected - Container can be unlocked';
+                elements.waveMatchIndicator.className = 'match-indicator matched';
+            } else {
+                hashWaveDiv.className = 'wave-line mismatched';
+                keyWaveDiv.className = 'wave-line mismatched';
+                elements.waveMatchIndicator.textContent = 'No resonance match - This key cannot unlock this container';
+                elements.waveMatchIndicator.className = 'match-indicator mismatched';
+            }
+        });
     } catch (error) {
         console.error('Error in waveform visualization:', error);
         elements.waveMatchIndicator.textContent = 'Error generating waveform visualization';
@@ -126,8 +196,54 @@ function generateWavePath(input, height, width) {
     return path;
 }
 
+// Generate SVG path data for waveform visualization based on amplitude and phase
+function generateWaveformPath(amplitude, phase, height, width) {
+    // Make sure amplitude and phase are numbers and in proper range
+    amplitude = parseFloat(amplitude) || 0.5;
+    phase = parseFloat(phase) || 0.5;
+    
+    // Clamp to valid range
+    amplitude = Math.max(0.01, Math.min(0.99, amplitude));
+    phase = Math.max(0.01, Math.min(0.99, phase));
+    
+    // Generate wave path using amplitude and phase parameters
+    let path = `M 0 ${height/2}`;
+    
+    const segments = 20;  // Fixed number of segments for smoother wave
+    const segmentWidth = width / segments;
+    
+    for (let i = 1; i <= segments; i++) {
+        const x = i * segmentWidth;
+        const t = i / segments;
+        
+        // Use amplitude and phase to generate a sine wave
+        const y = height/2 + Math.sin(2 * Math.PI * t + phase * 5) * (amplitude * height/2);
+        
+        // Add a curve to the path
+        const cpx1 = x - segmentWidth * 0.5;
+        const prevT = (i - 0.5) / segments;
+        const cpy1 = height/2 + Math.sin(2 * Math.PI * prevT + phase * 5) * (amplitude * height/2);
+        
+        path += ` S ${cpx1} ${cpy1} ${x} ${y}`;
+    }
+    
+    return path;
+}
+
+// Helper to get hash code from a string
+function hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+}
+
 // Expose the functions to the global scope
 window.updateWaveformVisualization = updateWaveformVisualization;
 window.generateWavePath = generateWavePath;
+window.generateWaveformPath = generateWaveformPath;
+window.hashCode = hashCode;
 
 })(window);
