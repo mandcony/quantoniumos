@@ -4,6 +4,10 @@
  * This module implements the waveform matching visualization for container unlocking
  */
 
+// Make sure we're in the global scope
+(function(window) {
+    "use strict";
+    
 // Function to update the waveform visualization based on hash and key
 function updateWaveformVisualization() {
     const hash = elements.unlockHashInput.value.trim();
@@ -121,3 +125,9 @@ function generateWavePath(input, height, width) {
     
     return path;
 }
+
+// Expose the functions to the global scope
+window.updateWaveformVisualization = updateWaveformVisualization;
+window.generateWavePath = generateWavePath;
+
+})(window);
