@@ -2,58 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quantonium Wave Resonance Visualization</title>
     <style>
+        /* Base reset for all elements */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             margin: 0;
             padding: 0;
             font-family: 'Arial', sans-serif;
             background-color: #0a0a14;
             color: #eee;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
         }
         
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
         
         h2 {
             text-align: center;
             color: #00e5ff;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
         }
         
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 20px;
+            width: 100%;
         }
         
         .input-group {
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
         
         label {
             margin-bottom: 5px;
             font-weight: bold;
             color: #aaa;
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
         
         input[type="text"] {
+            width: 100%;
             padding: 10px;
             border-radius: 4px;
             border: 1px solid #444;
             background-color: #111;
             color: #fff;
             font-family: monospace;
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
         
         button {
+            width: 100%;
             padding: 12px 20px;
             background-color: #00b3e5;
             color: #fff;
@@ -62,18 +79,26 @@
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.3s;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            -webkit-tap-highlight-color: transparent;
         }
         
-        button:hover {
+        button:hover, button:active {
             background-color: #00c8ff;
         }
         
+        /* Remove focus outline for better mobile appearance */
+        button:focus, input:focus {
+            outline: none;
+        }
+        
         .waveform-match-visualization {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 15px;
+            padding: 12px;
             background-color: rgba(0, 0, 0, 0.3);
             border-radius: 8px;
             border: 1px solid #333;
+            width: 100%;
         }
         
         .visualization-header {
@@ -83,11 +108,14 @@
         
         .match-indicator {
             display: inline-block;
-            padding: 8px 16px;
+            padding: 8px 12px;
             border-radius: 4px;
             font-weight: bold;
             background-color: #333;
             color: #fff;
+            font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+            width: 100%;
+            text-align: center;
         }
         
         .match-indicator.checking {
@@ -105,24 +133,26 @@
         
         .visualization-waves {
             margin-top: 15px;
+            width: 100%;
         }
         
         .wave-animation {
-            min-height: 200px;
+            min-height: 180px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
+            width: 100%;
         }
         
         .wave-line {
-            height: 60px;
+            height: 50px;
             width: 100%;
             position: relative;
             overflow: hidden;
             background-color: rgba(0, 0, 0, 0.5);
             border-radius: 4px;
             border: 1px solid #444;
-            padding: 5px;
+            padding: 3px;
         }
         
         .wave-line svg {
@@ -158,8 +188,8 @@
         
         .wave-label {
             color: #aaa;
-            font-size: 12px;
-            margin: 4px 0 10px 0;
+            font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+            margin: 3px 0 8px 0;
             text-align: center;
         }
         
@@ -174,7 +204,39 @@
             50% { opacity: 0.7; }
             100% { opacity: 1; }
         }
+        
+        /* Media queries for different screen sizes */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 700px;
+                padding: 20px;
+            }
+            
+            button {
+                max-width: 300px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* Prevent iOS zoom on input focus */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            select,
+            textarea,
+            input[type="text"] {
+                font-size: 16px;
+            }
+        }
+        
+        /* Fix for iOS devices height */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                min-height: -webkit-fill-available;
+            }
+        }
     </style>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a14">
 </head>
 <body>
     <div class="container">
@@ -183,12 +245,12 @@
         <div class="controls">
             <div class="input-group">
                 <label for="hash-input">Container Hash:</label>
-                <input type="text" id="hash-input" placeholder="Enter container hash...">
+                <input type="text" id="hash-input" placeholder="Enter container hash..." autocomplete="off" autocapitalize="off">
             </div>
             
             <div class="input-group">
                 <label for="key-input">Encryption Key:</label>
-                <input type="text" id="key-input" placeholder="Enter encryption key...">
+                <input type="text" id="key-input" placeholder="Enter encryption key..." autocomplete="off" autocapitalize="off">
             </div>
             
             <button id="check-resonance">Check Resonance</button>
