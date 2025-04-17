@@ -1,26 +1,38 @@
 """
 Quantonium OS - Flask App Entrypoint
 
-Initializes the Flask app and registers symbolic API routes.
+Initializes the Flask app and registers symbolic API routes with security middleware.
 """
 
 import os
+import logging
 from flask import Flask, send_from_directory, redirect, jsonify
-from flask_cors import CORS
 from routes import api
+from security import configure_security
+
+# Configure global logging
+logging.basicConfig(level=logging.INFO,
+                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("quantonium_app")
 
 def create_app():
     app = Flask(__name__, static_folder='static')
     
-    # Enable CORS for all routes to allow cross-origin requests
-    # This allows embedding in Squarespace and testing from any domain
-    CORS(app, resources={r"/*": {"origins": "*"}})
-
+    # Configure security middleware (replaces permissive CORS)
+    talisman, limiter = configure_security(app)
     
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
+    app.config["DEBUG"] = False  # Disable debug mode for security
+    
     # Register the API blueprint with URL prefix
     # This separates API routes from static content routes
     app.register_blueprint(api, url_prefix='/api')
+    
+    # API health check endpoint (not rate limited)
+    @app.route('/api/health')
+    @limiter.exempt
+    def health_check():
+        return jsonify({"status": "ok"})
     
     # Serve embed widget
     @app.route('/embed')
@@ -66,6 +78,8 @@ def create_app():
 # ✅ Gunicorn uses this
 app = create_app()
 
-# ✅ Replit manual run fallback
+# ✅ Development mode only - disabled in production
 if __name__ == "__main__":
+    # Note: This is for development only, should use gunicorn in production
+    logger.warning("Running in development mode. Use gunicorn for production.")
     app.run(host="0.0.0.0", port=8080)
