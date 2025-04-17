@@ -1,42 +1,87 @@
 """
-Quantonium OS - Geometric Waveform Hash
+Quantonium OS - Geometric Waveform Hash Module
 
-Generates symbolic hash values based on waveform parameters (Amplitude, Phase),
-used for encryption validation, container sealing, and symbolic resonance binding.
+Implements waveform-based hash generation and verification for resonance encryption.
 """
 
 import hashlib
 import math
-import base64
+import hmac
 
-def generate_waveform_hash(A: float, phi: float) -> str:
+def generate_waveform_hash(A, phi, precision=6):
     """
-    Creates a deterministic hash based on amplitude and phase.
-    This acts as a geometric key for symbolic validation.
-    """
-    # Normalize and serialize inputs
-    raw_string = f"{A:.5f}:{phi:.5f}"
-    encoded = raw_string.encode("utf-8")
-
-    # SHA-256 hash
-    hash_obj = hashlib.sha256(encoded)
-    hex_digest = hash_obj.hexdigest()
-
-    # Encode result as base64 for compact transmission
-    b64_hash = base64.b64encode(hex_digest.encode("utf-8")).decode("utf-8")
-    return b64_hash
-
-def verify_waveform_hash(A: float, phi: float, expected_hash: str) -> bool:
-    """
-    Verify a waveform hash against expected parameters (amplitude and phase).
+    Generate a unique hash from amplitude and phase values.
     
     Args:
-        A: Amplitude value to verify
-        phi: Phase value to verify
-        expected_hash: The hash value to compare against
+        A (float): Amplitude value (0.0-1.0)
+        phi (float): Phase value (0.0-1.0)
+        precision (int): Precision for hash generation
         
     Returns:
-        True if the hash matches, False otherwise
+        str: A unique hash representing the waveform parameters
     """
-    computed_hash = generate_waveform_hash(A, phi)
-    return computed_hash == expected_hash
+    # Normalize inputs to ensure they're within range
+    A = max(0.0, min(1.0, float(A)))
+    phi = max(0.0, min(1.0, float(phi)))
+    
+    # Generate wave pattern samples based on A and phi
+    samples = []
+    for i in range(64):
+        # Calculate sample point using sine wave with phase and amplitude
+        t = i / 64.0
+        value = A * math.sin(2 * math.pi * t + phi * 2 * math.pi)
+        # Round to precision to ensure consistent results
+        value = round(value, precision)
+        samples.append(value)
+    
+    # Create a unique representation from the samples
+    sample_str = "_".join([str(sample) for sample in samples])
+    
+    # Create a SHA-256 hash of the sample pattern
+    wave_hash = hashlib.sha256(sample_str.encode()).hexdigest()
+    
+    # Add the parameters as a prefix for better traceability
+    param_prefix = f"A{A:.4f}_P{phi:.4f}_"
+    
+    return param_prefix + wave_hash
+
+def verify_waveform_hash(wave_hash, A, phi):
+    """
+    Verify that a waveform hash was generated from the given A and phi values.
+    
+    Args:
+        wave_hash (str): Hash to verify
+        A (float): Amplitude value to check against
+        phi (float): Phase value to check against
+        
+    Returns:
+        bool: True if the hash matches the parameters, False otherwise
+    """
+    # Generate a new hash with the provided parameters
+    expected_hash = generate_waveform_hash(A, phi)
+    
+    # Use constant-time comparison to prevent timing attacks
+    return hmac.compare_digest(wave_hash, expected_hash)
+
+def extract_parameters_from_hash(wave_hash):
+    """
+    Extract amplitude and phase values from a geometric hash.
+    
+    Args:
+        wave_hash (str): Hash containing amplitude and phase info
+        
+    Returns:
+        tuple: (amplitude, phase) extracted from the hash, or (None, None) if invalid
+    """
+    try:
+        # Hash format: A{amplitude}_P{phase}_{hash}
+        parts = wave_hash.split('_')
+        if len(parts) < 3 or not parts[0].startswith('A') or not parts[1].startswith('P'):
+            return None, None
+        
+        amplitude = float(parts[0][1:])
+        phase = float(parts[1][1:])
+        
+        return amplitude, phase
+    except (ValueError, IndexError):
+        return None, None

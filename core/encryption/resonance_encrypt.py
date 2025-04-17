@@ -93,7 +93,7 @@ def resonance_decrypt(encrypted_data, A, phi):
     keystream = keystream[:len(ciphertext)]
     
     # XOR decryption
-    plaintext = ''.join([chr(byte ^ keystream[i]) for i, char in enumerate(ciphertext)])
+    plaintext = ''.join([chr(byte ^ keystream[i]) for i, byte in enumerate(ciphertext)])
     
     return plaintext
 
