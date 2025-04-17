@@ -110,6 +110,7 @@ All protected endpoints require the `X-API-Key` header or a JWT token.
 - **POST /api/entropy/sample** - Generate quantum-inspired entropy
 - **POST /api/container/unlock** - Unlock symbolic containers
 - **POST /api/auth/token** - Generate a JWT token using your API key
+- **GET /api/stream/wave** - Stream real-time resonance data (SSE)
 
 ### API Documentation
 

@@ -49,6 +49,10 @@
       "description": "Quantum-inspired entropy generation"
     },
     {
+      "name": "streaming",
+      "description": "Real-time resonance data streaming via SSE"
+    },
+    {
       "name": "container",
       "description": "Symbolic container operations"
     },
@@ -58,6 +62,77 @@
     }
   ],
   "paths": {
+    "/stream/wave": {
+      "get": {
+        "tags": ["streaming"],
+        "summary": "Stream resonance waveform data",
+        "description": "Server-Sent Events (SSE) endpoint that streams real-time resonance data including amplitude and phase information. Returns a continuous stream of data at approximately 100ms intervals.",
+        "operationId": "streamWaveData",
+        "security": [
+          {
+            "bearerAuth": ["api:read"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Streaming waveform data",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "SSE-formatted stream of waveform data"
+                },
+                "example": "data: {\"t\": 1618592435123, \"amp\": [0.1, 0.2, 0.3, 0.4], \"phase\": [0.2, 0.4, 0.6, 0.8]}\n\n"
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "no-cache"
+              },
+              "Connection": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "keep-alive"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": ["system"],
