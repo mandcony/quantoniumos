@@ -25,5 +25,4 @@ class ContainerUnlockRequest(BaseModel):
     waveform: List[float] = Field(..., example=[0.2, 0.7, 0.3])
     hash: str = Field(..., example="d6a88f4f...")
 
-class AutoUnlockRequest(BaseModel):
-    hash: str = Field(..., example="L0WNtMhMrSJohxzDw+PK", description="Hash output from encryption to find and unlock matching container")
+# Auto-unlock request model removed as requested - proper security model enforces both hash and key requirement

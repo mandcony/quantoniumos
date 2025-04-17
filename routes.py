@@ -6,7 +6,7 @@ Defines all token-protected endpoints to access symbolic stack modules.
 
 from flask import Blueprint, request, jsonify, g, Response, stream_with_context
 from core.protected.symbolic_interface import get_interface
-from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest, AutoUnlockRequest
+from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
 from utils import sign_response
 from auth.jwt_auth import require_jwt_auth
 from backend.stream import get_stream, update_encrypt_data
@@ -181,76 +181,7 @@ def unlock():
         
         return jsonify(sign_response(response))
 
-@api.route("/container/auto-unlock", methods=["POST"])
-def auto_unlock():
-    """Automatically unlock containers using just the hash from encryption"""
-    data = AutoUnlockRequest(**request.get_json())
-    
-    # Look up the container using the hash key
-    from orchestration.resonance_manager import check_container_access, get_container_by_hash
-    
-    # Get the container using the hash key
-    result = check_container_access(data.hash)
-    container = get_container_by_hash(data.hash)
-    
-    # Log the attempt (with API key ID if available)
-    api_key_id = g.api_key.key_id if hasattr(g, 'api_key') and g.api_key else "unknown"
-    print(f"Auto-unlock requested by key {api_key_id} with hash: {data.hash}, success: {result}")
-    
-    # Update the wave visualization data with this unlocking operation
-    update_encrypt_data(ciphertext=data.hash, key="auto-unlock")
-    
-    if result and container:
-        # Extract container metadata for the response
-        metadata = {
-            "created": container.get("created", "Unknown"),
-            "access_count": container.get("access_count", 1),
-            "last_accessed": container.get("last_accessed", "Now"),
-            "content_preview": container.get("plaintext", "")[:20] + "..." if len(container.get("plaintext", "")) > 20 else container.get("plaintext", "")
-        }
-        
-        response = {
-            "unlocked": True,
-            "message": "Container unlocked successfully with encryption hash",
-            "container": metadata
-        }
-        
-        # Add key_id if available
-        if hasattr(g, 'api_key') and g.api_key:
-            response["key_id"] = g.api_key.key_id
-        
-        return jsonify(sign_response(response))
-    else:
-        # For specific test hash, force success
-        if data.hash == "2NQiADyQV6f0i4D3TpLM":
-            print(f"Special handling for test hash: {data.hash}")
-            
-            response = {
-                "unlocked": True,
-                "message": "Test container unlocked successfully with encryption hash",
-                "container": {
-                    "created": "2025-04-16",
-                    "access_count": 1,
-                    "content_preview": "Test container content"
-                }
-            }
-            
-            # Add key_id if available
-            if hasattr(g, 'api_key') and g.api_key:
-                response["key_id"] = g.api_key.key_id
-            
-            return jsonify(sign_response(response))
-        
-        response = {
-            "unlocked": False,
-            "message": "No matching container found for this hash"
-        }
-        
-        # Add key_id if available
-        if hasattr(g, 'api_key') and g.api_key:
-            response["key_id"] = g.api_key.key_id
-        
-        return jsonify(sign_response(response))
+# Auto-unlock endpoint removed as requested - proper security model enforces both hash and key requirement
 
 @api.route("/stream/wave", methods=["GET"])
 def stream_wave():
