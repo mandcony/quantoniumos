@@ -585,7 +585,6 @@
             <div class="panel">
                 <div class="tabs">
                     <div class="tab active" data-tab="unlock">Unlock Container</div>
-                    <div class="tab" data-tab="auto-unlock">Auto-Unlock</div>
                 </div>
                 
                 <div class="tab-content active" id="unlock-tab">
@@ -634,28 +633,7 @@
                     </div>
                 </div>
                 
-                <div class="tab-content" id="auto-unlock-tab">
-                    <p>Automatically unlock a container using only the hash key from encryption.</p>
-                    
-                    <div class="form-group">
-                        <label for="auto-unlock-hash">Encryption Hash:</label>
-                        <input type="text" id="auto-unlock-hash" placeholder="Enter hash from encryption...">
-                    </div>
-                    
-                    <button id="auto-unlock-btn" class="action-btn">Auto-Unlock Container</button>
-                    <div class="loader" id="auto-unlock-loader"></div>
-                    <div class="error" id="auto-unlock-error"></div>
-                    
-                    <div id="auto-unlock-result" class="unlock-result">
-                        <h3 id="auto-unlock-result-title">Container Auto-Unlocked</h3>
-                        <p id="auto-unlock-result-message"></p>
-                        <div id="auto-container-info" class="container-info">
-                            <p><strong>Created:</strong> <span id="auto-container-created"></span></p>
-                            <p><strong>Access Count:</strong> <span id="auto-container-access-count"></span></p>
-                            <p><strong>Content Preview:</strong> <span id="auto-container-preview"></span></p>
-                        </div>
-                    </div>
-                </div>
+                <!-- Auto-unlock tab removed as requested - proper security requires both hash and key -->
             </div>
         </div>
         
@@ -1533,77 +1511,7 @@ ${entropyValue}`;
             }
         }
         
-        async function handleAutoUnlock() {
-            const hash = elements.autoUnlockHashInput.value.trim();
-            
-            // Validation
-            if (!hash) {
-                showError(elements.autoUnlockError, 'Please enter encryption hash');
-                return;
-            }
-            
-            // Reset and show loading
-            hideError(elements.autoUnlockError);
-            elements.autoUnlockResult.style.display = 'none';
-            elements.autoUnlockLoader.style.display = 'block';
-            elements.autoUnlockButton.disabled = true;
-            
-            // Start the auto-unlock process
-            updateStatus('Attempting container auto-unlock...', 'info');
-            isProcessing = true;
-            resetVisualization();
-            
-            try {
-                // Make the API call
-                const response = await fetch(`${API_URL}/api/container/auto-unlock`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        hash
-                    })
-                });
-                
-                const data = await response.json();
-                
-                // Start the visualization animation for the auto-unlock operation
-                startResonanceAnimation(hash, 'auto-unlock');
-                
-                // Update the auto-unlock result
-                elements.autoUnlockResult.style.display = 'block';
-                
-                if (data.unlocked) {
-                    elements.autoUnlockResult.className = 'unlock-result success';
-                    elements.autoUnlockResultTitle.textContent = 'Container Auto-Unlocked';
-                    elements.autoUnlockResultMessage.textContent = data.message;
-                    
-                    // Update container info
-                    if (data.container) {
-                        elements.autoContainerCreated.textContent = data.container.created || 'Unknown';
-                        elements.autoContainerAccessCount.textContent = data.container.access_count || '1';
-                        elements.autoContainerPreview.textContent = data.container.content_preview || '';
-                    }
-                    
-                    updateStatus('Container auto-unlocked successfully', 'success');
-                } else {
-                    elements.autoUnlockResult.className = 'unlock-result error';
-                    elements.autoUnlockResultTitle.textContent = 'Auto-Unlock Failed';
-                    elements.autoUnlockResultMessage.textContent = data.message;
-                    updateStatus('Container auto-unlock failed', 'error');
-                }
-                
-            } catch (error) {
-                console.error('Auto-unlock error:', error);
-                showError(elements.autoUnlockError, `Error: ${error.message}`);
-                elements.autoUnlockResult.style.display = 'none';
-                updateStatus(`Error: ${error.message}`, 'error');
-                isProcessing = false;
-            } finally {
-                elements.autoUnlockLoader.style.display = 'none';
-                elements.autoUnlockButton.disabled = false;
-            }
-        }
+        // Auto-unlock feature removed as requested - proper security requires both hash and key
         
         function startResonanceAnimation(ciphertext, key) {
             // Generate deterministic waveform based on the ciphertext and key
