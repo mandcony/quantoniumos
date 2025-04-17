@@ -1,44 +1,48 @@
 #!/bin/bash
+# Trivy Security Scanner for Quantonium OS
+# This script runs Trivy to scan the quantonium container for vulnerabilities
+# Fails on HIGH and CRITICAL severity issues
+
 set -e
 
-# Trivy Scanner Script for Quantonium OS Cloud Runtime
-# This script runs a security scan on the container image using Trivy
+CONTAINER_NAME="quantonium:latest"
 
-echo "===== Quantonium OS Trivy Security Scan ====="
+echo "🔍 Running Trivy vulnerability scan on $CONTAINER_NAME"
+echo "======================================================"
 
-# Check if Docker is available
-if ! command -v docker &> /dev/null; then
-    echo "ERROR: Docker is not available. Please install Docker before running this scan."
-    exit 1
+# Ensure container is built
+if [[ "$(docker images -q $CONTAINER_NAME 2> /dev/null)" == "" ]]; then
+  echo "Error: Container $CONTAINER_NAME not found"
+  echo "Run 'docker-compose build' first"
+  exit 1
 fi
 
-# Build the container if not already built
-if ! docker image inspect quantonium:latest >/dev/null 2>&1; then
-    echo "Building container from Dockerfile..."
-    docker build -t quantonium:latest .
-fi
+# Create the report directory if it doesn't exist
+mkdir -p ./security-reports
 
-# Create a container to run Trivy
-echo "Running Trivy vulnerability scanner..."
+# Run Trivy with JSON output and fail on HIGH and CRITICAL severity issues
 docker run --rm \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v $PWD/trivy-reports:/reports \
-    aquasec/trivy:latest image \
-    --format table \
-    --exit-code 1 \
-    --severity HIGH,CRITICAL \
-    --output /reports/trivy-report.txt \
-    quantonium:latest
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v "$(pwd)/security-reports:/tmp/security-reports" \
+  aquasec/trivy:latest \
+  image \
+  --exit-code 1 \
+  --severity HIGH,CRITICAL \
+  --format json \
+  --output /tmp/security-reports/trivy-report.json \
+  $CONTAINER_NAME
 
-SCAN_EXIT_CODE=$?
+RESULT=$?
 
-# Check exit code
-if [ $SCAN_EXIT_CODE -eq 0 ]; then
-    echo "✅ SUCCESS: No HIGH or CRITICAL vulnerabilities found!"
+# Check the result
+if [ $RESULT -eq 0 ]; then
+  echo "✅ Trivy scan passed successfully!"
 else
-    echo "❌ FAILURE: Vulnerabilities found. See trivy-reports/trivy-report.txt for details."
-    cat trivy-reports/trivy-report.txt
-    exit 1
+  echo "❌ Trivy scan failed with exit code $RESULT"
+  echo "Please check the report at ./security-reports/trivy-report.json"
+  # Extract the issues to present them in the terminal
+  echo "Top issues found:"
+  grep -o '"VulnerabilityID":"[^"]*' ./security-reports/trivy-report.json | cut -d'"' -f4 | sort | uniq | head -10
 fi
 
-echo "===== Scan Complete ====="
+exit $RESULT

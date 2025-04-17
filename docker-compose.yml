@@ -11,10 +11,12 @@ services:
     read_only: true  # Run container in read-only mode
     security_opt:
       - no-new-privileges:true  # Prevent privilege escalation
+      - seccomp:./seccomp.json  # Apply seccomp profile
     cap_drop:
       - ALL  # Drop all capabilities
-    cap_add:
-      - NET_BIND_SERVICE  # Only add capability to bind to port 5000
+    cap_add: []  # Don't add any capabilities back
+    pid: "container"  # Isolate the process namespace
+    user: "quant:1001"  # Run as non-root user
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
@@ -24,7 +26,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./logs:/tmp/logs:rw  # Mount logs directory with read-write permissions
+      - tmpfs_logs:/app/logs:rw  # Mount logs as tmpfs volume
+      - tmpfs_tmp:/tmp:rw  # Mount tmp as tmpfs volume
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
@@ -59,6 +62,16 @@ services:
 volumes:
   postgres_data:
     driver: local
+  tmpfs_logs:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  tmpfs_tmp:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 
 networks:
   quantonium-network:

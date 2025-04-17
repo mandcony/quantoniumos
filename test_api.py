@@ -170,7 +170,7 @@ def test_container():
     }
     response = requests.post(
         f"{BASE_URL}/api/container/unlock", 
-        headers=headers, 
+        headers=get_headers(), 
         json=payload
     )
     print("\n=== Container Test ===")
