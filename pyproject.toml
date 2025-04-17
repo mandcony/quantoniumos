@@ -19,4 +19,5 @@ dependencies = [
     "pytest>=8.3.5",
     "flask-talisman>=1.1.0",
     "flask-limiter>=3.12",
+    "psutil>=7.0.0",
 ]

@@ -5,15 +5,23 @@ Initializes the Flask app and registers symbolic API routes with security middle
 """
 
 import os
+import time
 import logging
-from flask import Flask, send_from_directory, redirect, jsonify
+import platform
+from datetime import datetime
+from flask import Flask, send_from_directory, redirect, jsonify, g, request
 from routes import api
 from security import configure_security
+from utils.json_logger import setup_json_logger
 
 # Configure global logging
 logging.basicConfig(level=logging.INFO,
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("quantonium_app")
+
+# Track application start time for uptime reporting
+APP_START_TIME = time.time()
+APP_VERSION = "1.0.0"  # Version tracking for API
 
 def create_app():
     app = Flask(__name__, static_folder='static')
@@ -24,6 +32,9 @@ def create_app():
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
     app.config["DEBUG"] = False  # Disable debug mode for security
     
+    # Set up structured JSON logging
+    setup_json_logger(app, log_dir="logs", log_level=logging.INFO)
+    
     # Register the API blueprint with URL prefix
     # This separates API routes from static content routes
     app.register_blueprint(api, url_prefix='/api')
@@ -32,7 +43,14 @@ def create_app():
     @app.route('/api/health')
     @limiter.exempt
     def health_check():
-        return jsonify({"status": "ok"})
+        uptime_seconds = int(time.time() - APP_START_TIME)
+        return jsonify({
+            "status": "ok",
+            "version": APP_VERSION,
+            "uptime_s": uptime_seconds,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "host": platform.node()
+        })
     
     # Serve embed widget
     @app.route('/embed')
@@ -67,11 +85,47 @@ def create_app():
     # Status endpoint without auth
     @app.route('/status')
     def status():
+        uptime_seconds = int(time.time() - APP_START_TIME)
         return jsonify({
             "name": "Quantonium OS Cloud Runtime", 
             "status": "operational", 
-            "version": "1.0.0"
+            "version": APP_VERSION,
+            "uptime_s": uptime_seconds
         })
+    
+    # Metrics endpoint - protected by API key
+    @app.route('/api/metrics')
+    def metrics():
+        import os
+        import psutil
+        
+        # Get process information
+        process = psutil.Process(os.getpid())
+        memory_info = process.memory_info()
+        
+        # Get rate limiter stats (if available from the limiter implementation)
+        limiter_stats = {}
+        if hasattr(limiter, 'limiter'):
+            limiter_stats = {
+                "limit": "60 per minute",
+                "endpoints": len(limiter.limiter.get_application_limits()),
+                "exempt_routes": len(limiter.exempt_routes)
+            }
+        
+        # Build metrics response
+        metrics_data = {
+            "process": {
+                "memory_rss_bytes": memory_info.rss,
+                "cpu_percent": process.cpu_percent(),
+                "open_files": len(process.open_files()),
+                "threads": process.num_threads()
+            },
+            "uptime_s": int(time.time() - APP_START_TIME),
+            "rate_limiter": limiter_stats,
+            "version": APP_VERSION
+        }
+        
+        return jsonify(metrics_data)
     
     return app
 
