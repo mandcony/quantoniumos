@@ -8,13 +8,19 @@ import os
 import time
 import logging
 import platform
+import json
 from datetime import datetime
-from flask import Flask, send_from_directory, redirect, jsonify, g, request
+from flask import Flask, send_from_directory, redirect, jsonify, g, request, render_template_string
 from routes import api
 from auth.routes import auth_api
 from security import configure_security
 from utils.json_logger import setup_json_logger
 from auth.models import db, APIKey, APIKeyAuditLog
+
+try:
+    from __init__ import __version__ as app_version
+except ImportError:
+    app_version = "0.3.0-rc1"
 
 # Configure global logging
 logging.basicConfig(level=logging.INFO,
@@ -23,7 +29,7 @@ logger = logging.getLogger("quantonium_app")
 
 # Track application start time for uptime reporting
 APP_START_TIME = time.time()
-APP_VERSION = "1.1.0"  # Version tracking for API
+APP_VERSION = app_version  # Version tracking for API
 
 def create_app():
     app = Flask(__name__, static_folder='static')
@@ -143,6 +149,67 @@ def create_app():
         }
         
         return jsonify(metrics_data)
+        
+    # Serve OpenAPI spec as JSON
+    @app.route('/openapi.json')
+    @limiter.exempt
+    def openapi_spec():
+        try:
+            with open('openapi.json', 'r') as f:
+                spec = json.load(f)
+                # Update the version from app version
+                if 'info' in spec:
+                    spec['info']['version'] = APP_VERSION
+                return jsonify(spec)
+        except Exception as e:
+            logger.error(f"Error serving OpenAPI spec: {str(e)}")
+            return jsonify({"error": "OpenAPI spec not available"}), 500
+    
+    # Serve API documentation UI
+    @app.route('/docs')
+    @limiter.exempt
+    def api_docs():
+        # Simple Swagger UI page that loads the OpenAPI spec
+        swagger_html = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Quantonium OS API Documentation</title>
+            <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+            <style>
+                html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+                *, *:before, *:after { box-sizing: inherit; }
+                body { margin: 0; background: #fafafa; }
+                .topbar { display: none; }
+                .swagger-ui .info .title { color: #3b4151; }
+                .swagger-ui .info { margin: 30px 0; }
+                .swagger-ui .scheme-container { box-shadow: none; border-radius: 4px; }
+            </style>
+        </head>
+        <body>
+            <div id="swagger-ui"></div>
+            <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js"></script>
+            <script>
+                window.onload = function() {
+                    window.ui = SwaggerUIBundle({
+                        url: "/openapi.json",
+                        dom_id: '#swagger-ui',
+                        deepLinking: true,
+                        presets: [
+                            SwaggerUIBundle.presets.apis,
+                            SwaggerUIBundle.SwaggerUIStandalonePreset
+                        ],
+                        layout: "BaseLayout",
+                        validatorUrl: null,
+                        supportedSubmitMethods: ['get', 'post'],
+                    });
+                };
+            </script>
+        </body>
+        </html>
+        """
+        return render_template_string(swagger_html)
     
     return app
 

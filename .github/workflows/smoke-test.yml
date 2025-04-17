@@ -1,0 +1,90 @@
+name: API Smoke Tests
+
+on:
+  push:
+    branches: [ main, release/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: quantonium_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install requests
+          
+      - name: Create API key for testing
+        run: |
+          # Start the server in the background
+          export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/quantonium_test"
+          export SESSION_SECRET="smoke_test_secret"
+          gunicorn --bind 0.0.0.0:5000 main:app --daemon
+          
+          # Wait for the server to start
+          sleep 5
+          
+          # Create an API key using the CLI tool
+          python -m auth.cli create --name "Smoke Test Key" --admin
+          
+          # Extract the key from output (this is a simplified approach)
+          QUANTONIUM_API_KEY=$(python -m auth.cli list | grep -oP 'key_[a-zA-Z0-9]+' | head -1)
+          echo "QUANTONIUM_API_KEY=$QUANTONIUM_API_KEY" >> $GITHUB_ENV
+          
+      - name: Run smoke tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
+        run: |
+          # Run the smoke tests
+          python scripts/smoke_test.py --url http://localhost:5000 --verbose
+          
+      - name: Run OpenAPI validation
+        run: |
+          # Install openapi-validator
+          npm install -g @apidevtools/swagger-cli
+          
+          # Validate the OpenAPI spec
+          swagger-cli validate openapi.json
+          
+      - name: Test API docs accessibility
+        run: |
+          # Check that the docs endpoint returns 200
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/docs | grep 200
+          
+      - name: Check server logs for errors
+        if: always()
+        run: |
+          # Check server logs for errors (specific to your logging setup)
+          echo "Server Logs:"
+          if [ -d "logs" ]; then
+            cat logs/*.log || echo "No log files found"
+          else
+            echo "No logs directory found"
+          fi
