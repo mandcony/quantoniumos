@@ -32,6 +32,9 @@ def create_app():
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
     app.config["DEBUG"] = False  # Disable debug mode for security
     
+    # Disable strict trailing slashes to prevent redirect loops
+    app.url_map.strict_slashes = False
+    
     # Set up structured JSON logging
     setup_json_logger(app, log_dir="logs", log_level=logging.INFO)
     

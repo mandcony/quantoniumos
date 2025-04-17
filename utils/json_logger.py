@@ -70,6 +70,9 @@ def setup_json_logger(app, log_dir="logs", log_level=logging.INFO):
         log_dir: Directory to store log files
         log_level: Logging level to use
     """
+    # Use /tmp/logs for better permission handling in containerized environments
+    log_dir = "/tmp/logs" if log_dir == "logs" else log_dir
+    
     # Create log directory if it doesn't exist
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
@@ -81,7 +84,7 @@ def setup_json_logger(app, log_dir="logs", log_level=logging.INFO):
     log_file_path = os.path.join(log_dir, 'quantonium_api.log')
     file_handler = TimedRotatingFileHandler(
         log_file_path,
-        when='midnight',
+        when='D',  # Daily rotation
         interval=1,
         backupCount=14
     )
