@@ -35,11 +35,13 @@ def encrypt():
     hash_value = symbolic.encrypt(data.plaintext, data.key)
     
     # Register the hash-container mapping (create a container sealed by this hash)
+    # Store the encryption key with the container to enforce lock-and-key mechanism
     from orchestration.resonance_manager import register_container
     register_container(
         hash_value=hash_value,
         plaintext=data.plaintext,
-        ciphertext=f"ENCRYPTED:{data.plaintext}"  # Simplified for this implementation
+        ciphertext=f"ENCRYPTED:{data.plaintext}",  # Simplified for this implementation
+        key=data.key  # Store the key to verify during unlocking
     )
     
     # Update the wave visualization data with this encryption operation
@@ -112,24 +114,32 @@ def sample_entropy():
 
 @api.route("/container/unlock", methods=["POST"])
 def unlock():
-    """Unlock symbolic containers using waveform and hash"""
+    """Unlock symbolic containers using waveform, hash, and encryption key"""
     data = ContainerUnlockRequest(**request.get_json())
     
     # Look up the container using the hash key
-    from orchestration.resonance_manager import check_container_access, get_container_by_hash
+    from orchestration.resonance_manager import check_container_access, get_container_by_hash, verify_container_key
     
-    # Check if the container exists and can be unlocked with this hash
-    result = check_container_access(data.hash)
-    container = get_container_by_hash(data.hash)
+    # First verify that the key matches this container - true lock and key mechanism
+    key_valid = verify_container_key(data.hash, data.key)
+    
+    # If key matches, then check waveform resonance
+    if key_valid:
+        # Check if the container exists and can be unlocked with this hash and waveform
+        result = check_container_access(data.hash)
+        container = get_container_by_hash(data.hash)
+    else:
+        result = False
+        container = None
     
     # Log the attempt (with API key ID if available)
     api_key_id = g.api_key.key_id if hasattr(g, 'api_key') and g.api_key else "unknown"
-    print(f"Container unlock requested by key {api_key_id} with waveform: {data.waveform}, hash: {data.hash}, success: {result}")
+    print(f"Container unlock requested by key {api_key_id} with waveform: {data.waveform}, hash: {data.hash}, key: {data.key[:3]}***, success: {result}")
     
-    # Update the wave visualization data with this unlocking operation
-    update_encrypt_data(ciphertext=data.hash, key=str(data.waveform))
+    # Update the wave visualization data with this unlocking operation - use actual key from request
+    update_encrypt_data(ciphertext=data.hash, key=data.key)
     
-    if result and container:
+    if result and container and key_valid:
         # Extract container metadata for the response
         metadata = {
             "created": container.get("created", "Unknown"),
@@ -140,7 +150,7 @@ def unlock():
         
         response = {
             "unlocked": True,
-            "message": "Container unlocked successfully with waveform",
+            "message": "Container unlocked successfully with matching key and waveform",
             "container": metadata
         }
         

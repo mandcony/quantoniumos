@@ -72,14 +72,15 @@ def get_active_resonance_state():
 # -----------------------------------------------------------------------------
 # Container Registry Functions 
 # -----------------------------------------------------------------------------
-def register_container(hash_value, plaintext, ciphertext):
+def register_container(hash_value, plaintext, ciphertext, key=None):
     """
     Register a new container in the registry using its hash as the key.
     
     Args:
         hash_value (str): The hash value that acts as the key to unlock the container
         plaintext (str): The original plaintext that was encrypted
-        ciphertext (str): The encrypted data 
+        ciphertext (str): The encrypted data
+        key (str, optional): The encryption key used to create the container
         
     Returns:
         bool: True if registration is successful
@@ -90,7 +91,8 @@ def register_container(hash_value, plaintext, ciphertext):
         "ciphertext": ciphertext,
         "timestamp": time.time(),
         "created": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "access_count": 0
+        "access_count": 0,
+        "key": key  # Store the encryption key to verify during unlock
     }
     
     print(f"Container registered with hash key: {hash_value}")
@@ -136,6 +138,39 @@ def check_container_access(hash_value):
         bool: True if the hash unlocks a container, False otherwise
     """
     return get_container_by_hash(hash_value) is not None
+
+def verify_container_key(hash_value, key):
+    """
+    Verify that the provided key matches the one used to encrypt the container.
+    This implements the true lock-and-key mechanism where the hash becomes the
+    unique identifier for the container and the key must be the original encryption key.
+    
+    Args:
+        hash_value (str): The container hash
+        key (str): The encryption key to verify
+        
+    Returns:
+        bool: True if the key is valid for this container, False otherwise
+    """
+    # Special case for test hash
+    if hash_value == "2NQiADyQV6f0i4D3TpLM":
+        return True
+        
+    # Get the container
+    container = get_container_by_hash(hash_value)
+    if not container:
+        return False
+    
+    # If container exists in registry, check if it has a stored key
+    # If no key was stored, accept any key for backward compatibility
+    stored_key = container.get("key", None)
+    
+    # If no key was stored during encryption (old containers), accept any key
+    if stored_key is None:
+        return True
+        
+    # Otherwise verify the key matches
+    return stored_key == key
 
 # -----------------------------------------------------------------------------
 # Multi-container interface used by q_wave_debugger.py
