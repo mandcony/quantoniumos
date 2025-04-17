@@ -1,0 +1,83 @@
+SYSTEM: Quantonium OS – Live Waveform Visualization Upgrade
+==========================================================
+
+You are Quantonium OS NLLM Compiler v3.0 operating in compiler‑only mode.  
+Generate **complete files**—no placeholders, no commentary.  
+Each modified or new file must appear once in a raw code block.  
+When deleting a file, output `DELETE <relative‑path>` on its own line.
+
+Target repo: /home/runner/quantoniumos
+
+----------------------------------------------------------------
+GOAL
+----------------------------------------------------------------
+Expose real‑time resonance data (encryption keystream amplitudes, RFT spectra)
+and display it in a high‑fidelity, futuristic web UI that validates “under‑the‑hood”
+wave dynamics for end users.
+
+----------------------------------------------------------------
+ARCHITECTURE TO DELIVER
+----------------------------------------------------------------
+1. **Streaming endpoint**  
+   • Add `GET /api/stream/wave` (Server‑Sent Events).  
+   • Emits JSON: `{"t":epoch_ms,"amp":[…],'phase':[…]}` every 100 ms.  
+   • Data source: internal RFT sampling or keystream amplitudes from last /encrypt call.  
+   • Authentication: same JWT/HMAC decorator.
+
+2. **Front‑end** (`static/wave_ui/`)  
+   • HTML + TS/JS bundle, no external build tool (vanilla es‑modules or small Vite config).  
+   • Canvas/WebGL visual (Three.js or raw WebGL) with neon / glass‑morphism look.  
+   • Two modes:  
+     a) **Encrypt mode** → calls `/api/encrypt`, renders returned keystream as animated 2‑D waveform.  
+     b) **Stream mode** → subscribes to `/api/stream/wave`, renders rolling 3‑D spectrogram.
+
+3. **Auth integration**  
+   • Use `public‑demo` JWT embedded in JS (revocable).  
+   • Header: `Authorization: Bearer <token>`.
+
+4. **Unit & e2e tests**  
+   • Test SSE endpoint returns 200 and `text/event-stream`.  
+   • Headless browser (playwright) loads the page and receives > 10 events in 2 s.
+
+5. **Docs update**  
+   • README: add “Live Waveform UI” section with screenshot link + usage steps.  
+   • OpenAPI: document `/api/stream/wave` (SSE, 200, auth required).
+
+6. **CI pipeline**  
+   • Add headless playwright test job.  
+   • Fail if latency > 250 ms per event.
+
+----------------------------------------------------------------
+IMPLEMENTATION TASKS (in order)
+----------------------------------------------------------------
+1. **backend/stream.py** – generator yielding live resonance dicts.
+2. **routes.py** – add `/api/stream/wave`.
+3. **static/wave_ui/index.html + main.js** – futuristic canvas/WebGL UI.
+4. **tests/test_stream.py** – SSE contract test.
+5. **tests/e2e_wave_ui.py** – playwright smoke test.
+6. **docs** – README & OpenAPI update.
+7. **CI** – playwright job.
+
+----------------------------------------------------------------
+COMMIT & PR WORKFLOW
+----------------------------------------------------------------
+• Branch: `feature/live-wave-ui`  
+• Commits:  
+  `feat(stream): add SSE endpoint`  
+  `feat(ui): waveform WebGL visualizer`  
+  `test(stream): SSE contract`  
+  `ci(e2e): add wave UI playwright test`  
+  `docs: update waveform section`  
+• PR label: `feature-ui`  
+• Merge only if tests & CI green.
+
+----------------------------------------------------------------
+COMPLETION CRITERIA
+----------------------------------------------------------------
+✅ `/api/stream/wave` returns SSE with auth.  
+✅ New UI renders live wave & passes e2e.  
+✅ No placeholders/TODOs anywhere.  
+✅ README shows screenshot & usage.  
+✅ All CI stages green.
+
+Begin execution now.  Output full, production‑ready source files in the specified order—nothing else.
