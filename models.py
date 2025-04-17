@@ -24,5 +24,6 @@ class DecryptRequest(BaseModel):
 class ContainerUnlockRequest(BaseModel):
     waveform: List[float] = Field(..., example=[0.2, 0.7, 0.3])
     hash: str = Field(..., example="d6a88f4f...")
+    key: str = Field(..., example="symbolic-key")
 
 # Auto-unlock request model removed as requested - proper security model enforces both hash and key requirement
