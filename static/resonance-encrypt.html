@@ -830,9 +830,58 @@
                 });
             }
             
+            // Function to extract parameters from hash and auto-configure waveform
+            async function extractParametersFromHash(hash) {
+                try {
+                    // Show a loading status
+                    updateStatus('Extracting waveform parameters...', 'info');
+                    
+                    const response = await fetch('/api/container/parameters', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ hash })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.amplitude !== undefined && data.phase !== undefined) {
+                        // Update the sliders with the extracted parameters
+                        elements.unlockIntensitySlider.value = data.amplitude * 100;
+                        elements.unlockIntensityValue.textContent = data.amplitude.toFixed(2);
+                        
+                        elements.unlockPatternSlider.value = data.phase * 100;
+                        elements.unlockPatternValue.textContent = data.phase.toFixed(2);
+                        
+                        // Update the waveform visualization
+                        updateUnlockWaveform();
+                        
+                        // Notify the user
+                        updateStatus('Waveform auto-configured from container hash', 'success');
+                        return true;
+                    } else {
+                        updateStatus('Could not extract parameters from hash', 'warning');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error extracting parameters:", error);
+                    updateStatus('Error extracting parameters from hash', 'error');
+                    return false;
+                }
+            }
+            
             // Set up Container unlock handlers
             if (elements.unlockButton) {
                 elements.unlockButton.addEventListener('click', handleContainerUnlock);
+                
+                // Add event listener for hash input to auto-extract parameters
+                elements.unlockHashInput.addEventListener('change', async () => {
+                    const hash = elements.unlockHashInput.value.trim();
+                    if (hash) {
+                        await extractParametersFromHash(hash);
+                    }
+                });
                 
                 elements.unlockPatternSlider.addEventListener('input', () => {
                     const value = elements.unlockPatternSlider.value / 100;

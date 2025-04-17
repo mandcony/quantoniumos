@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Automatic waveform parameters extraction from container hash
+- New API endpoint `/api/container/parameters` to extract amplitude and phase values from a hash
+- Auto-configuration of waveform sliders when entering a container hash in the unlock interface
+- Improved usability while maintaining the security model that requires both hash and waveform match
+
 ## [0.3.0] - 2025-04-17
 
 This is the stable release version of 0.3.0-rc1 with added documentation and enhanced error handling.
