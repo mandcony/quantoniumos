@@ -121,10 +121,10 @@ def create_app():
     def wave_ui():
         return send_from_directory('static/wave_ui', 'index.html')
         
-    # Root route redirects to demo
+    # Root route redirects to resonance encryption visualization
     @app.route('/')
     def root():
-        return redirect('/embed-demo')
+        return redirect('/resonance-encrypt')
         
     # Status endpoint without auth
     @app.route('/status')

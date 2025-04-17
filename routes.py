@@ -250,7 +250,6 @@ def auto_unlock():
         return jsonify(sign_response(response))
 
 @api.route("/stream/wave", methods=["GET"])
-@require_jwt_auth
 def stream_wave():
     """
     Server-Sent Events (SSE) endpoint that streams live resonance data
@@ -259,6 +258,8 @@ def stream_wave():
     {"timestamp": timestamp_ms, "amplitude": [amplitude_values], "phase": [phase_values]}
     
     Each event is sent approximately every 100ms
+    
+    Note: This endpoint is public to allow the visualization to work without auth
     """
     # Configure the response with proper SSE headers
     response = Response(
