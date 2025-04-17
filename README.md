@@ -2,11 +2,18 @@
 
 A secure, high-performance quantum-inspired API for symbolic computing with advanced HPC modules.
 
+![Version](https://img.shields.io/badge/Version-0.3.0--rc1-blue)
+![API Status](https://img.shields.io/badge/API-Stable-brightgreen)
+
+## Security Status
 ![Seccomp Enforced](https://img.shields.io/badge/Seccomp-Enforced-brightgreen) 
 ![No New Privileges](https://img.shields.io/badge/No--New--Privileges-Enforced-brightgreen)
 ![Read-only FS](https://img.shields.io/badge/Filesystem-Read--Only-brightgreen)
 ![No Capabilities](https://img.shields.io/badge/Capabilities-Dropped-brightgreen)
 ![PID Isolation](https://img.shields.io/badge/PID--Namespace-Isolated-brightgreen)
+![JWT Auth](https://img.shields.io/badge/JWT--Auth-Implemented-brightgreen)
+![Container Signed](https://img.shields.io/badge/Container-Signed-brightgreen)
+![OpenAPI Spec](https://img.shields.io/badge/OpenAPI-Available-brightgreen)
 
 ## Overview
 
@@ -58,7 +65,7 @@ We provide pre-built Docker images with all dependencies and security hardening:
 docker login ghcr.io -u USERNAME -p TOKEN
 
 # Pull the latest image
-docker pull ghcr.io/quantonium/quantonium:0.2.0
+docker pull ghcr.io/quantonium/quantonium:0.3.0-rc1
 
 # Run with required environment variables
 docker run -d --name quantonium-runtime \
@@ -66,7 +73,7 @@ docker run -d --name quantonium-runtime \
   -e QUANTONIUM_API_KEY=your_secure_api_key \
   -e SESSION_SECRET=your_secure_session_secret \
   -e DATABASE_URL=postgresql://user:pass@host:5432/db \
-  ghcr.io/quantonium/quantonium:0.2.0
+  ghcr.io/quantonium/quantonium:0.3.0-rc1
 ```
 
 For advanced deployment with all security features enabled, use docker-compose:
@@ -94,7 +101,7 @@ To integrate the proprietary high-performance modules:
 
 ## API Endpoints
 
-All protected endpoints require the `X-API-Key` header.
+All protected endpoints require the `X-API-Key` header or a JWT token.
 
 - **GET /api/** - API status check
 - **POST /api/encrypt** - Encrypt data using resonance techniques
@@ -102,6 +109,16 @@ All protected endpoints require the `X-API-Key` header.
 - **POST /api/simulate/rft** - Perform Resonance Fourier Transform
 - **POST /api/entropy/sample** - Generate quantum-inspired entropy
 - **POST /api/container/unlock** - Unlock symbolic containers
+- **POST /api/auth/token** - Generate a JWT token using your API key
+
+### API Documentation
+
+Full API documentation is available at the following endpoints:
+
+- **OpenAPI Specification**: `/openapi.json` - Machine-readable API specification
+- **API Documentation UI**: `/docs` - Interactive Swagger UI for exploring the API
+
+The API documentation includes request/response schemas, authentication requirements, and endpoint descriptions. Use the Swagger UI to test API endpoints directly from your browser.
 
 ## Frontend Integration
 
@@ -177,6 +194,24 @@ Scan the container for vulnerabilities using Trivy:
 ```
 
 This script checks for vulnerabilities in the container image, failing on HIGH and CRITICAL severity findings.
+
+#### End-to-End Smoke Tests
+
+Run the E2E smoke tests to verify the API functionality in a live environment:
+
+```bash
+./scripts/smoke_test.py --url http://localhost:5000 --verbose
+```
+
+The smoke test script tests:
+- API health endpoint
+- OpenAPI spec validation
+- API documentation access
+- Authentication flow
+- Encryption/decryption cycle
+- Metrics endpoint
+
+These tests ensure that all critical API functionality is working correctly after deployment. The smoke tests also run as part of the CI/CD pipeline for each release.
 
 ## Security Considerations
 

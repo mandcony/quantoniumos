@@ -18,21 +18,23 @@ We take the security of Quantonium OS Cloud Runtime seriously. If you believe yo
    - Any proof-of-concept code (if applicable)
 
 4. **Response Timeline**:
-   - Initial response: Within 48 hours
-   - Vulnerability validation: Within 1 week
-   - Remediation plan: Within 2 weeks
-   - Fix implementation: Based on severity (typically within 30 days)
+   - Initial response: Within 24 hours
+   - Vulnerability validation: Within 72 hours
+   - Remediation plan: Within 1 week
+   - Fix implementation: Based on severity (Critical: 7 days, High: 14 days, Medium: 30 days, Low: Next release)
 
 5. **Public Disclosure**: We request that you refrain from public disclosure until we've had the opportunity to address the vulnerability. We're committed to working with security researchers and providing appropriate credit.
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+| Version       | Supported          | Security Updates    |
+| ------------- | ------------------ | ------------------ |
+| 0.3.0-rc1     | :white_check_mark: | :white_check_mark: |
+| 0.2.x         | :white_check_mark: | Until 2025-07-01   |
+| 0.1.x         | :x:                | :x:                |
+| < 0.1.0       | :x:                | :x:                |
 
-Only the latest minor release of the current major version is actively supported with security updates.
+Only the latest minor release and release candidates are actively supported with security updates. Version 0.2.x will receive security patches until the specified end-of-support date.
 
 ## Security Features
 
@@ -111,6 +113,6 @@ Quantonium OS Cloud Runtime follows a 7-phase security hardening roadmap:
 2. ✅ **API Attack-Surface Hardening**: Security headers, HSTS, CSP, rate limiting, CORS protection
 3. ✅ **Audit & Monitoring**: Comprehensive logging, audit trails, and security event monitoring
 4. ✅ **Container & Supply-Chain Security**: Dependency pinning, image hardening, vulnerability scanning, image signing
-5. ⏳ **Authentication Framework**: User authentication, session management, and credential handling
-6. ⏳ **Access Control**: Role-based access control, permission management, and privilege separation
-7. ⏳ **Runtime Protection**: Memory safety, execution environment hardening, and runtime integrity
+5. ✅ **Authentication Framework**: JWT/HMAC-based authentication, key rotation, audit logging, API key management
+6. ✅ **Runtime Isolation**: Seccomp profiles, dropped capabilities, read-only filesystem, PID namespace isolation
+7. ✅ **Release-Candidate Sign-off**: OpenAPI specification, E2E smoke tests, container signing, release workflows
