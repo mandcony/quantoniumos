@@ -854,6 +854,8 @@
                         elements.unlockPatternSlider.value = data.phase * 100;
                         elements.unlockPatternValue.textContent = data.phase.toFixed(2);
                         
+                        console.log("Auto-configured waveform - Amplitude:", data.amplitude, "Phase:", data.phase);
+                        
                         // Update the waveform visualization
                         updateUnlockWaveform();
                         
@@ -875,8 +877,17 @@
             if (elements.unlockButton) {
                 elements.unlockButton.addEventListener('click', handleContainerUnlock);
                 
-                // Add event listener for hash input to auto-extract parameters
-                elements.unlockHashInput.addEventListener('change', async () => {
+                // Add event listeners for hash input to auto-extract parameters
+                // Use 'input' event to detect changes as the user types
+                elements.unlockHashInput.addEventListener('input', async () => {
+                    const hash = elements.unlockHashInput.value.trim();
+                    if (hash && hash.length > 10) { // Only try to extract if it seems like a valid hash
+                        await extractParametersFromHash(hash);
+                    }
+                });
+                
+                // Also trigger on blur (when the field loses focus)
+                elements.unlockHashInput.addEventListener('blur', async () => {
                     const hash = elements.unlockHashInput.value.trim();
                     if (hash) {
                         await extractParametersFromHash(hash);
