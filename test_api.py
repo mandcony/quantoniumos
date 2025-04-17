@@ -3,23 +3,78 @@
 Quantonium OS - API Test Script
 
 This script demonstrates how to properly access the Quantonium OS API
-with the correct authentication headers.
+with JWT authentication using the new security framework.
 """
 
+import os
 import requests
 import json
+import sys
+import time
 
 # Base URL for the API
 BASE_URL = "http://localhost:5000"
 
 # API Key (in production, use environment variable)
-API_KEY = "default_dev_key"
+API_KEY = os.environ.get("QUANTONIUM_API_KEY", "")  # Get from environment variable
 
-# Headers for API requests
+# JWT token storage
+token_data = None
+
+# Default headers
 headers = {
-    "Content-Type": "application/json",
-    "X-API-Key": API_KEY  # This is required for authentication
+    "Content-Type": "application/json"
 }
+
+def get_auth_token():
+    """Get a JWT token using the API key"""
+    global token_data
+    
+    # Only get a new token if we don't have one or it's expired
+    if token_data and token_data.get("expires_at", 0) > time.time():
+        return token_data["token"]
+        
+    # Check if we have an API key
+    if not API_KEY:
+        print("Error: No API key found. Set the QUANTONIUM_API_KEY environment variable.")
+        print("You can create a key using the CLI tool: python -m auth.cli create --name 'Test Key'")
+        sys.exit(1)
+    
+    # Get token from auth endpoint
+    auth_headers = {
+        "Content-Type": "application/json",
+        "X-API-Key": API_KEY
+    }
+    
+    try:
+        response = requests.post(f"{BASE_URL}/api/auth/token", headers=auth_headers)
+        
+        if response.status_code != 200:
+            print(f"Error getting auth token: {response.status_code}")
+            print(response.text)
+            sys.exit(1)
+            
+        # Parse token response
+        token_data = response.json()
+        
+        # Add expiry time for our tracking
+        token_data["expires_at"] = time.time() + token_data["expires_in"] - 60  # Expire 60s early to be safe
+        
+        print(f"✅ Successfully acquired auth token for key {token_data['key_id']}")
+        return token_data["token"]
+        
+    except Exception as e:
+        print(f"Error getting auth token: {str(e)}")
+        sys.exit(1)
+
+def get_headers():
+    """Get headers with authentication token"""
+    token = get_auth_token()
+    
+    return {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
 
 def test_root_endpoint():
     """Test the root endpoint for API status."""
@@ -37,7 +92,7 @@ def test_encrypt():
     }
     response = requests.post(
         f"{BASE_URL}/api/encrypt", 
-        headers=headers, 
+        headers=get_headers(), 
         json=payload
     )
     print("\n=== Encryption Test ===")
@@ -63,7 +118,7 @@ def test_decrypt(ciphertext=None):
     }
     response = requests.post(
         f"{BASE_URL}/api/decrypt", 
-        headers=headers, 
+        headers=get_headers(), 
         json=payload
     )
     print("\n=== Decryption Test ===")
@@ -80,7 +135,7 @@ def test_rft():
     }
     response = requests.post(
         f"{BASE_URL}/api/simulate/rft", 
-        headers=headers, 
+        headers=get_headers(), 
         json=payload
     )
     print("\n=== RFT Test ===")
@@ -97,7 +152,7 @@ def test_entropy():
     }
     response = requests.post(
         f"{BASE_URL}/api/entropy/sample", 
-        headers=headers, 
+        headers=get_headers(), 
         json=payload
     )
     print("\n=== Entropy Test ===")

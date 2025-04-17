@@ -47,6 +47,9 @@ class JSONFormatter(logging.Formatter):
         
         if hasattr(record, 'api_key_prefix'):
             log_data['api_key_prefix'] = record.api_key_prefix
+            
+        if hasattr(record, 'api_key_id'):
+            log_data['api_key_id'] = record.api_key_id
         
         if hasattr(record, 'sha256_body') and record.sha256_body:
             log_data['sha256_body'] = record.sha256_body
