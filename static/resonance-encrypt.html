@@ -737,6 +737,9 @@
                             <div class="visualization-waves">
                                 <div class="wave-animation" id="wave-animation-container"></div>
                             </div>
+                            <div class="waveform-status">
+                                <div class="waveform-status-text" id="waveform-status-text">Waveform auto-configured from container hash</div>
+                            </div>
                         </div>
                         
                         <!-- Hidden controls - not shown to user but used for internal functionality -->
@@ -854,6 +857,7 @@
             // Waveform match visualization elements
             waveMatchIndicator: document.getElementById('waveform-match-indicator'),
             waveAnimationContainer: document.getElementById('wave-animation-container'),
+            waveformStatusText: document.getElementById('waveform-status-text'),
             
             // Auto-unlock elements
             autoUnlockHashInput: document.getElementById('auto-unlock-hash'),
