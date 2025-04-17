@@ -122,12 +122,21 @@ def setup_json_logger(app, log_dir="logs", log_level=logging.INFO):
         if request.data:
             sha256_body = hashlib.sha256(request.data).hexdigest()
         
-        # Extract API key prefix (first 8 chars) if present
+        # Extract API key information for logging
         api_key_prefix = None
-        auth_header = request.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Bearer ') and len(auth_header) > 15:
-            # Extract first 8 chars of the token (safe to log)
-            api_key_prefix = auth_header[7:15] + "..."
+        api_key_id = None
+        
+        # Extract API Key ID from authenticated key (if available)
+        if hasattr(g, 'api_key') and g.api_key:
+            api_key_id = g.api_key.key_id
+            api_key_prefix = g.api_key.key_prefix + "..."
+        
+        # Fallback to extracting from Authorization header 
+        if not api_key_prefix:
+            auth_header = request.headers.get('Authorization')
+            if auth_header and auth_header.startswith('Bearer ') and len(auth_header) > 15:
+                # Extract first 8 chars of the token (safe to log)
+                api_key_prefix = auth_header[7:15] + "..."
         
         # Create a new LogRecord with request information
         record = app.logger.makeRecord(
@@ -146,6 +155,7 @@ def setup_json_logger(app, log_dir="logs", log_level=logging.INFO):
         record.elapsed_ms = elapsed_ms
         record.request_ip = request.remote_addr
         record.api_key_prefix = api_key_prefix
+        record.api_key_id = api_key_id  # Add API key ID to the log
         record.sha256_body = sha256_body
         
         # Log the record

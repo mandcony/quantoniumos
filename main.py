@@ -11,8 +11,10 @@ import platform
 from datetime import datetime
 from flask import Flask, send_from_directory, redirect, jsonify, g, request
 from routes import api
+from auth.routes import auth_api
 from security import configure_security
 from utils.json_logger import setup_json_logger
+from auth.models import db, APIKey, APIKeyAuditLog
 
 # Configure global logging
 logging.basicConfig(level=logging.INFO,
@@ -21,10 +23,17 @@ logger = logging.getLogger("quantonium_app")
 
 # Track application start time for uptime reporting
 APP_START_TIME = time.time()
-APP_VERSION = "1.0.0"  # Version tracking for API
+APP_VERSION = "1.1.0"  # Version tracking for API
 
 def create_app():
     app = Flask(__name__, static_folder='static')
+    
+    # Configure PostgreSQL database
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    
+    # Initialize database
+    db.init_app(app)
     
     # Configure security middleware (replaces permissive CORS)
     talisman, limiter = configure_security(app)
@@ -38,9 +47,14 @@ def create_app():
     # Set up structured JSON logging
     setup_json_logger(app, log_dir="logs", log_level=logging.INFO)
     
-    # Register the API blueprint with URL prefix
+    # Create tables on startup
+    with app.app_context():
+        db.create_all()
+    
+    # Register the API blueprints with URL prefix
     # This separates API routes from static content routes
     app.register_blueprint(api, url_prefix='/api')
+    app.register_blueprint(auth_api, url_prefix='/api/auth')
     
     # API health check endpoint (not rate limited)
     @app.route('/api/health')
