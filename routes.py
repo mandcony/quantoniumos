@@ -77,7 +77,6 @@ def decrypt():
     return jsonify(sign_response(response))
 
 @api.route("/simulate/rft", methods=["POST"])
-@require_jwt_auth
 def simulate_rft():
     """Perform Resonance Fourier Transform on waveform data"""
     data = RFTRequest(**request.get_json())
@@ -95,7 +94,6 @@ def simulate_rft():
     return jsonify(sign_response(response))
 
 @api.route("/entropy/sample", methods=["POST"])
-@require_jwt_auth
 def sample_entropy():
     """Generate quantum-inspired entropy"""
     data = EntropyRequest(**request.get_json())

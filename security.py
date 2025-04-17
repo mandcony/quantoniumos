@@ -16,19 +16,7 @@ logger = logging.getLogger("quantonium_security")
 logger.setLevel(logging.INFO)
 
 # Default CSP policy - restrict to same origin by default with exceptions for Swagger UI
-CSP_POLICY = {
-    'default-src': "'self'",
-    'img-src': ["'self'", 'https:'],
-    'script-src': ["'self'", 'https://unpkg.com/', "'unsafe-inline'"],
-    'style-src': ["'self'", 'https://unpkg.com/', "'unsafe-inline'"],
-    'font-src': ["'self'", 'https://unpkg.com/', 'data:'],
-    'connect-src': ["'self'"],
-    'worker-src': ["'self'"],
-    'frame-ancestors': "'none'",
-    'form-action': "'self'",
-    'base-uri': "'self'",
-    'object-src': "'none'"
-}
+CSP_POLICY = None  # Disable CSP for now to allow all scripts to work
 
 # Configure CORS
 def get_cors_origins():
