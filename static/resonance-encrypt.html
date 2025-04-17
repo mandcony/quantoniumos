@@ -832,6 +832,7 @@
             
             // Container unlock elements
             unlockHashInput: document.getElementById('unlock-hash'),
+            unlockKeyInput: document.getElementById('unlock-key-input'),
             unlockWaveformCanvas: document.getElementById('unlock-waveform-canvas'),
             unlockPatternSlider: document.getElementById('unlock-pattern-slider'),
             unlockPatternValue: document.getElementById('unlock-pattern-value'),
@@ -846,6 +847,9 @@
             containerCreated: document.getElementById('container-created'),
             containerAccessCount: document.getElementById('container-access-count'),
             containerPreview: document.getElementById('container-preview'),
+            // Waveform match visualization elements
+            waveMatchIndicator: document.getElementById('waveform-match-indicator'),
+            waveAnimationContainer: document.getElementById('wave-animation-container'),
             
             // Auto-unlock elements
             autoUnlockHashInput: document.getElementById('auto-unlock-hash'),
@@ -1017,8 +1021,21 @@
                     const hash = elements.unlockHashInput.value.trim();
                     if (hash) {
                         await extractParametersFromHash(hash);
+                        // Check if we need to update the waveform visualization
+                        updateWaveformVisualization();
                     }
                 });
+                
+                // Add event listeners for key input to update waveform visualization
+                if (elements.unlockKeyInput) {
+                    elements.unlockKeyInput.addEventListener('input', () => {
+                        updateWaveformVisualization();
+                    });
+                    
+                    elements.unlockKeyInput.addEventListener('blur', () => {
+                        updateWaveformVisualization();
+                    });
+                }
                 
                 elements.unlockPatternSlider.addEventListener('input', () => {
                     const value = elements.unlockPatternSlider.value / 100;
