@@ -101,6 +101,11 @@ def create_app():
     def widget_redirect():
         return redirect('/embed')
         
+    # Serve the wave visualization embed
+    @app.route('/wave-embed')
+    def wave_visualization_embed():
+        return send_from_directory('static/wave_ui', 'embed.html')
+        
     # Serve embed demo instructions
     @app.route('/embed-demo')
     def embed_demo():

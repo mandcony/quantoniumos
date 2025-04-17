@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantonium Wave Resonance Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #0a0a14;
+            color: #eee;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #00e5ff;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #aaa;
+        }
+        
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background-color: #111;
+            color: #fff;
+            font-family: monospace;
+        }
+        
+        button {
+            padding: 12px 20px;
+            background-color: #00b3e5;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #00c8ff;
+        }
+        
+        .waveform-match-visualization {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        .visualization-header {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .match-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            background-color: #333;
+            color: #fff;
+        }
+        
+        .match-indicator.checking {
+            background-color: #2196F3;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .match-indicator.matched {
+            background-color: #4CAF50;
+        }
+        
+        .match-indicator.mismatched {
+            background-color: #F44336;
+        }
+        
+        .visualization-waves {
+            margin-top: 15px;
+        }
+        
+        .wave-animation {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .wave-line {
+            height: 60px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            border: 1px solid #444;
+            padding: 5px;
+        }
+        
+        .wave-line svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .wave-line.matched {
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .wave-line.mismatched {
+            border-color: #F44336;
+            box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+        }
+        
+        .wave-path {
+            fill: none;
+            stroke-width: 2px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .matched .wave-path {
+            stroke: #4CAF50;
+            animation: glow-green 2s infinite;
+        }
+        
+        .mismatched .wave-path {
+            stroke: #F44336;
+        }
+        
+        .wave-label {
+            color: #aaa;
+            font-size: 12px;
+            margin: 4px 0 10px 0;
+            text-align: center;
+        }
+        
+        @keyframes glow-green {
+            0% { stroke: #4CAF50; filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.5)); }
+            50% { stroke: #8bc34a; filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.8)); }
+            100% { stroke: #4CAF50; filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.5)); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Quantum-Inspired Resonance Visualization</h2>
+        
+        <div class="controls">
+            <div class="input-group">
+                <label for="hash-input">Container Hash:</label>
+                <input type="text" id="hash-input" placeholder="Enter container hash...">
+            </div>
+            
+            <div class="input-group">
+                <label for="key-input">Encryption Key:</label>
+                <input type="text" id="key-input" placeholder="Enter encryption key...">
+            </div>
+            
+            <button id="check-resonance">Check Resonance</button>
+        </div>
+        
+        <div class="waveform-match-visualization">
+            <div class="visualization-header">
+                <div class="match-indicator" id="waveform-match-indicator">Enter hash and key to check resonance</div>
+            </div>
+            <div class="visualization-waves">
+                <div class="wave-animation" id="wave-animation-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Main elements
+        const hashInput = document.getElementById('hash-input');
+        const keyInput = document.getElementById('key-input');
+        const checkButton = document.getElementById('check-resonance');
+        const matchIndicator = document.getElementById('waveform-match-indicator');
+        const waveContainer = document.getElementById('wave-animation-container');
+        
+        // Initialize
+        checkButton.addEventListener('click', updateWaveformVisualization);
+        
+        // Function to update the waveform visualization
+        function updateWaveformVisualization() {
+            const hash = hashInput.value.trim();
+            const key = keyInput.value.trim();
+            
+            // Validation
+            if (!hash || !key) {
+                matchIndicator.textContent = 'Please enter both hash and key';
+                matchIndicator.className = 'match-indicator mismatched';
+                return;
+            }
+            
+            // Update the match indicator status
+            matchIndicator.textContent = 'Checking resonance match...';
+            matchIndicator.className = 'match-indicator checking';
+            
+            // Clear any previous visualization
+            waveContainer.innerHTML = '';
+            
+            try {
+                // Create SVG elements for wave visualization
+                const hashSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                const keySvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                
+                hashSvg.setAttribute('viewBox', '0 0 400 100');
+                keySvg.setAttribute('viewBox', '0 0 400 100');
+                
+                // Create wrapper divs for the SVGs with labels
+                const hashWaveDiv = document.createElement('div');
+                hashWaveDiv.className = 'wave-line';
+                hashWaveDiv.appendChild(hashSvg);
+                
+                const keyWaveDiv = document.createElement('div');
+                keyWaveDiv.className = 'wave-line';
+                keyWaveDiv.appendChild(keySvg);
+                
+                // Add labels
+                const hashLabel = document.createElement('div');
+                hashLabel.className = 'wave-label';
+                hashLabel.textContent = 'Container Hash Waveform';
+                
+                const keyLabel = document.createElement('div');
+                keyLabel.className = 'wave-label';
+                keyLabel.textContent = 'Encryption Key Waveform';
+                
+                // Add to container
+                waveContainer.appendChild(hashWaveDiv);
+                waveContainer.appendChild(hashLabel);
+                waveContainer.appendChild(keyWaveDiv);
+                waveContainer.appendChild(keyLabel);
+                
+                // Generate unique paths based on hash and key
+                const hashPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                hashPath.setAttribute('class', 'wave-path');
+                hashPath.setAttribute('d', generateWavePath(hash, 100, 400));
+                hashSvg.appendChild(hashPath);
+                
+                const keyPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                keyPath.setAttribute('class', 'wave-path');
+                keyPath.setAttribute('d', generateWavePath(key, 100, 400));
+                keySvg.appendChild(keyPath);
+                
+                // Check for resonance match
+                // In a real system, this would be determined by the server through cryptographic functions,
+                // but for this visualization demo, we'll use a simplified match detection
+                const isMatch = hash.includes(key.substring(0, 3)) || key.includes(hash.substring(0, 3));
+                
+                // Update visualization based on match status
+                if (isMatch) {
+                    hashWaveDiv.className = 'wave-line matched';
+                    keyWaveDiv.className = 'wave-line matched';
+                    matchIndicator.textContent = 'Resonance match detected - Container can be unlocked';
+                    matchIndicator.className = 'match-indicator matched';
+                } else {
+                    hashWaveDiv.className = 'wave-line mismatched';
+                    keyWaveDiv.className = 'wave-line mismatched';
+                    matchIndicator.textContent = 'No resonance match - This key cannot unlock this container';
+                    matchIndicator.className = 'match-indicator mismatched';
+                }
+            } catch (error) {
+                console.error('Error in waveform visualization:', error);
+                matchIndicator.textContent = 'Error generating waveform visualization';
+                matchIndicator.className = 'match-indicator error';
+            }
+        }
+        
+        // Generate wave path based on input string
+        function generateWavePath(input, height, width) {
+            // Convert string to a repeatable sequence of values using a hash function
+            let hash = 0;
+            for (let i = 0; i < input.length; i++) {
+                hash = ((hash << 5) - hash) + input.charCodeAt(i);
+                hash |= 0; // Convert to 32bit integer
+            }
+            
+            // Create a pseudo-random generator based on the hash
+            const seed = Math.abs(hash);
+            const random = (min, max) => {
+                const x = Math.sin(seed * 9999) * 10000;
+                return min + (x - Math.floor(x)) * (max - min);
+            };
+            
+            // Generate wave path
+            let path = `M 0 ${height/2}`;
+            
+            const segments = Math.max(5, Math.min(15, input.length));
+            const segmentWidth = width / segments;
+            
+            for (let i = 1; i <= segments; i++) {
+                const x = i * segmentWidth;
+                const char = input.charCodeAt(i % input.length) % 255;
+                const y = height/2 + Math.sin(char * 0.1) * (height/2 - 10);
+                
+                // Add a curve to the path
+                const cpx1 = x - segmentWidth * 0.5;
+                const cpy1 = height/2 + Math.sin((char * 0.1) - 0.25) * (height/2 - 10);
+                
+                path += ` S ${cpx1} ${cpy1} ${x} ${y}`;
+            }
+            
+            return path;
+        }
+    </script>
+</body>
+</html>
