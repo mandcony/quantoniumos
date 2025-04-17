@@ -396,6 +396,7 @@
             <div class="main-tab active" data-tab="encryption">Encryption</div>
             <div class="main-tab" data-tab="rft">Resonance Fourier Transform</div>
             <div class="main-tab" data-tab="container">Container Operations</div>
+            <div class="main-tab" data-tab="entropy">Entropy Generator</div>
         </div>
         
         <div class="main-tab-content active" id="encryption-tab">
@@ -528,6 +529,46 @@
                 
                 <div id="rft-visualization" class="visualization">
                     <canvas id="rft-result-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-tab-content" id="entropy-tab">
+            <div class="panel">
+                <h3>Quantum-Inspired Entropy Generator</h3>
+                <p>Generate high-quality entropy for cryptographic applications.</p>
+                
+                <div class="form-group">
+                    <label for="entropy-amount">Entropy Amount (bytes):</label>
+                    <input type="number" id="entropy-amount" min="8" max="1024" value="32" placeholder="Enter amount of entropy to generate...">
+                </div>
+                
+                <button id="entropy-generate-btn" class="action-btn">Generate Entropy</button>
+                <div class="loader" id="entropy-loader"></div>
+                <div class="error" id="entropy-error"></div>
+                
+                <h3>Generated Entropy:</h3>
+                <div id="entropy-output" class="result-box">// Generated entropy will appear here</div>
+                
+                <div class="metrics-container">
+                    <div class="metric">
+                        <label>Entropy Quality:</label>
+                        <div class="meter-container">
+                            <div id="entropy-quality-meter" class="meter"></div>
+                            <span id="entropy-quality-value" class="meter-value">0.0</span>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <label>Quantum Randomness:</label>
+                        <div class="meter-container">
+                            <div id="quantum-randomness-meter" class="meter"></div>
+                            <span id="quantum-randomness-value" class="meter-value">0.0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="entropy-visualization" class="visualization">
+                    <canvas id="entropy-canvas"></canvas>
                 </div>
             </div>
         </div>
@@ -773,6 +814,12 @@
             // Set up button event handlers
             elements.encryptButton.addEventListener('click', handleEncrypt);
             elements.decryptButton.addEventListener('click', handleDecrypt);
+            
+            // Set up entropy generator handler
+            const entropyButton = document.getElementById('entropy-generate-btn');
+            if (entropyButton) {
+                entropyButton.addEventListener('click', handleEntropyGeneration);
+            }
             
             // Set up RFT control handlers
             if (elements.rftButton) {
