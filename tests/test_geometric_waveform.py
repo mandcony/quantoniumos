@@ -59,24 +59,38 @@ class TestGeometricWaveformHash(unittest.TestCase):
         # Extract parameters
         extracted_A, extracted_phi = extract_parameters_from_hash(wave_hash)
         
-        # Should match original values
-        self.assertAlmostEqual(orig_A, extracted_A, places=4)
-        self.assertAlmostEqual(orig_phi, extracted_phi, places=4)
+        # Check if values are not None before assertion
+        self.assertIsNotNone(extracted_A)
+        self.assertIsNotNone(extracted_phi)
+        
+        if extracted_A is not None and extracted_phi is not None:
+            # Should match original values
+            self.assertAlmostEqual(orig_A, extracted_A, places=4)
+            self.assertAlmostEqual(orig_phi, extracted_phi, places=4)
     
     def test_parameter_extraction_with_invalid_hash(self):
-        """Test that parameter extraction returns None for invalid hash"""
-        # Invalid hash formats
-        invalid_hashes = [
+        """Test that parameter extraction can still handle invalid or base64 hashes"""
+        # Invalid hash formats - now we attempt to extract usable parameters
+        test_hashes = [
             "invalid_hash_format",
             "A0.5_invalid",
             "P0.5_invalid",
-            "A0.5_P0.5"  # Missing hash part
+            "A0.5_P0.5",  # Missing hash part
+            # Base64-like strings should also work now
+            "XvN5CZ7+fr2uIEMEaPlQKqMvlGo7Ld+xNMC8dgjDPNeo4GnJzmsOzn6qkQ=="
         ]
         
-        for invalid_hash in invalid_hashes:
-            A, phi = extract_parameters_from_hash(invalid_hash)
-            self.assertIsNone(A)
-            self.assertIsNone(phi)
+        for test_hash in test_hashes:
+            A, phi = extract_parameters_from_hash(test_hash)
+            # With our updated implementation, we should get valid parameters
+            # even from "invalid" or base64 hashes
+            self.assertIsNotNone(A)
+            self.assertIsNotNone(phi)
+            # Values should be in range 0.0-1.0
+            self.assertGreaterEqual(A, 0.0)
+            self.assertLessEqual(A, 1.0)
+            self.assertGreaterEqual(phi, 0.0)
+            self.assertLessEqual(phi, 1.0)
     
     def test_parameter_normalization(self):
         """Test that parameters are normalized to 0.0-1.0 range"""
