@@ -192,10 +192,14 @@ def create_app():
                 .swagger-ui .info .title { color: #3b4151; }
                 .swagger-ui .info { margin: 30px 0; }
                 .swagger-ui .scheme-container { box-shadow: none; border-radius: 4px; }
+                .version-stamp { text-align: right; padding: 10px; font-size: 0.8em; color: #888; }
             </style>
         </head>
         <body>
             <div id="swagger-ui"></div>
+            <div class="version-stamp">
+                Version: """ + APP_VERSION + """ | <a href="https://github.com/quantonium/quantonium-os/releases/tag/v""" + APP_VERSION + """">Release Notes</a>
+            </div>
             <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js"></script>
             <script>
                 window.onload = function() {
@@ -209,7 +213,10 @@ def create_app():
                         ],
                         layout: "BaseLayout",
                         validatorUrl: null,
+                        defaultModelsExpandDepth: 1,
+                        defaultModelExpandDepth: 1,
                         supportedSubmitMethods: ['get', 'post'],
+                        displayRequestDuration: true
                     });
                 };
             </script>

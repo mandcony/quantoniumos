@@ -15,13 +15,13 @@ import logging
 logger = logging.getLogger("quantonium_security")
 logger.setLevel(logging.INFO)
 
-# Default CSP policy - restrict to same origin by default
+# Default CSP policy - restrict to same origin by default with exceptions for Swagger UI
 CSP_POLICY = {
     'default-src': "'self'",
     'img-src': ["'self'", 'https:'],
-    'script-src': ["'self'"],
-    'style-src': ["'self'"],
-    'font-src': ["'self'"],
+    'script-src': ["'self'", 'https://unpkg.com/', "'unsafe-inline'"],
+    'style-src': ["'self'", 'https://unpkg.com/', "'unsafe-inline'"],
+    'font-src': ["'self'", 'https://unpkg.com/', 'data:'],
     'connect-src': ["'self'"],
     'worker-src': ["'self'"],
     'frame-ancestors': "'none'",
