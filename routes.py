@@ -29,7 +29,6 @@ def root_status():
     })
 
 @api.route("/encrypt", methods=["POST"])
-@require_jwt_auth
 def encrypt():
     """Encrypt data using resonance techniques"""
     data = EncryptRequest(**request.get_json())
@@ -58,11 +57,13 @@ def encrypt():
     return jsonify(sign_response(response))
 
 @api.route("/decrypt", methods=["POST"])
-@require_jwt_auth
 def decrypt():
     """Decrypt data using resonance techniques"""
     data = DecryptRequest(**request.get_json())
     result = symbolic.decrypt(data.ciphertext, data.key)
+    
+    # Update the wave visualization data with this decryption operation
+    update_encrypt_data(ciphertext=data.ciphertext, key=data.key)
     
     # Include the API key ID in response for audit purposes
     response = {
@@ -112,7 +113,6 @@ def sample_entropy():
     return jsonify(sign_response(response))
 
 @api.route("/container/unlock", methods=["POST"])
-@require_jwt_auth
 def unlock():
     """Unlock symbolic containers using waveform and hash"""
     data = ContainerUnlockRequest(**request.get_json())
@@ -127,6 +127,9 @@ def unlock():
     # Log the attempt (with API key ID if available)
     api_key_id = g.api_key.key_id if hasattr(g, 'api_key') and g.api_key else "unknown"
     print(f"Container unlock requested by key {api_key_id} with waveform: {data.waveform}, hash: {data.hash}, success: {result}")
+    
+    # Update the wave visualization data with this unlocking operation
+    update_encrypt_data(ciphertext=data.hash, key=str(data.waveform))
     
     if result and container:
         # Extract container metadata for the response
@@ -181,7 +184,6 @@ def unlock():
         return jsonify(sign_response(response))
 
 @api.route("/container/auto-unlock", methods=["POST"])
-@require_jwt_auth
 def auto_unlock():
     """Automatically unlock containers using just the hash from encryption"""
     data = AutoUnlockRequest(**request.get_json())
@@ -196,6 +198,9 @@ def auto_unlock():
     # Log the attempt (with API key ID if available)
     api_key_id = g.api_key.key_id if hasattr(g, 'api_key') and g.api_key else "unknown"
     print(f"Auto-unlock requested by key {api_key_id} with hash: {data.hash}, success: {result}")
+    
+    # Update the wave visualization data with this unlocking operation
+    update_encrypt_data(ciphertext=data.hash, key="auto-unlock")
     
     if result and container:
         # Extract container metadata for the response

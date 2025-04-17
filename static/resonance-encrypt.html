@@ -2,106 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quantonium OS - Resonance Encryption</title>
+    <title>Quantonium OS</title>
     <style>
-        :root {
-            --primary-color: #18227c;
-            --primary-light: #4b55b6;
-            --primary-dark: #000051;
-            --secondary-color: #00e5ff;
-            --secondary-light: #6effff;
-            --secondary-dark: #00b2cc;
-            --text-on-primary: #ffffff;
-            --text-on-secondary: #000000;
-            --background-color: #121212;
-            --surface-color: #1e1e1e;
-            --error-color: #cf6679;
-            --success-color: #4caf50;
-            --warning-color: #ff9800;
-            --info-color: #2196f3;
-            --quantum-color: #6a1b9a;
-            --resonance-color: #00897b;
-            --symbolic-color: #1565c0;
-        }
-        
-        * {
-            box-sizing: border-box;
+        body {
+            font-family: sans-serif;
+            background: #000024;
+            color: #eee;
             margin: 0;
             padding: 0;
         }
         
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-on-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
         header {
-            background-color: var(--primary-dark);
+            background: #000051;
             padding: 1rem;
             text-align: center;
-            border-bottom: 2px solid var(--secondary-color);
+            border-bottom: 2px solid #00e5ff;
         }
         
         h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: var(--secondary-color);
+            margin: 0;
+            color: #00e5ff;
         }
         
-        p {
+        .subtitle {
+            font-size: 14px;
             opacity: 0.8;
-            margin: 0.5em 0;
+            margin-top: 4px;
         }
         
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 1rem;
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            width: 100%;
-        }
-        
-        .action-panels {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .action-panels {
-                flex-direction: column;
-            }
-        }
-        
-        .panel {
-            background-color: var(--surface-color);
             padding: 1rem;
-            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .left-panel {
             flex: 1;
+            min-width: 300px;
+        }
+        
+        .right-panel {
+            flex: 1;
+            min-width: 300px;
         }
         
         .tabs {
             display: flex;
+            border-bottom: 1px solid #333;
             margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .tab {
             padding: 0.5rem 1rem;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-right: 0.5rem;
         }
         
         .tab.active {
-            border-bottom-color: var(--secondary-color);
-            color: var(--secondary-color);
+            border-bottom: 2px solid #00e5ff;
+            color: #00e5ff;
         }
         
         .tab-content {
@@ -112,23 +73,20 @@
             display: block;
         }
         
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
         label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
         
-        input, textarea {
+        textarea, input {
             width: 100%;
             padding: 0.5rem;
+            margin-bottom: 1rem;
+            background: #222;
+            color: #fff;
+            border: 1px solid #444;
             border-radius: 4px;
-            border: 1px solid var(--primary-dark);
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--text-on-primary);
-            font-size: 1rem;
+            font-family: monospace;
         }
         
         textarea {
@@ -136,51 +94,115 @@
             resize: vertical;
         }
         
-        .action-btn {
+        button {
             padding: 0.5rem 1rem;
-            background-color: var(--secondary-color);
-            color: var(--text-on-secondary);
+            background: #00e5ff;
+            color: #000;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-            margin-bottom: 1rem;
+            font-weight: bold;
         }
         
-        .action-btn:hover {
-            background-color: var(--secondary-light);
-        }
-        
-        .action-btn:disabled {
-            background-color: #555;
-            cursor: not-allowed;
+        button:hover {
+            background: #6effff;
         }
         
         .result-box {
-            padding: 1rem;
-            background-color: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            background: #222;
             border-radius: 4px;
             min-height: 60px;
-            word-break: break-all;
-            white-space: pre-wrap;
             font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
         }
         
-        .error {
-            color: var(--error-color);
-            margin-top: 0.5rem;
-            display: none;
+        .metrics-panel {
+            background: #111;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .metrics-title {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #00e5ff;
+        }
+        
+        .metric {
+            margin-bottom: 0.75rem;
+        }
+        
+        .meter-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .meter {
+            flex: 1;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            background: #00e5ff;
+            transition: width 0.3s ease;
+        }
+        
+        .meter-value {
+            min-width: 40px;
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        .harmonic-meter .meter-fill {
+            background: #6a1b9a;
+        }
+        
+        .quantum-meter .meter-fill {
+            background: #2196f3;
+        }
+        
+        .symbolic-meter .meter-fill {
+            background: #00897b;
+        }
+        
+        .coherence-meter .meter-fill {
+            background: #1565c0;
+        }
+        
+        .visualization {
+            background: #000;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 100%;
+            min-height: 300px;
+            margin-top: 1rem;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
         
         .loader {
             display: none;
-            margin: 0.5rem auto;
-            width: 2rem;
-            height: 2rem;
+            border: 3px solid #222;
             border-radius: 50%;
-            border: 0.2rem solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--secondary-color);
+            border-top: 3px solid #00e5ff;
+            width: 20px;
+            height: 20px;
+            margin: 1rem auto;
             animation: spin 1s linear infinite;
         }
         
@@ -189,216 +211,130 @@
             100% { transform: rotate(360deg); }
         }
         
-        #visualization {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--surface-color);
-            border-radius: 8px;
-            overflow: hidden;
-            min-height: 300px;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        #waveform-canvas {
-            flex: 1;
-            width: 100%;
-            height: 100%;
-            min-height: 250px;
-            display: block;
-            background-color: #000;
-        }
-        
-        .metrics-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-        
-        .metric {
-            background-color: rgba(0, 0, 0, 0.2);
-            padding: 0.5rem;
-            border-radius: 4px;
-        }
-        
-        .meter-container {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .error {
+            color: #ff5252;
             margin-top: 0.5rem;
+            display: none;
         }
         
-        .meter {
-            flex: 1;
-            height: 10px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .meter::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: var(--meter-width, 0%);
-            background-color: var(--secondary-color);
-            transition: width 0.3s ease;
-        }
-        
-        .meter-value {
-            font-weight: bold;
-            min-width: 40px;
-            text-align: right;
-        }
-        
-        #status-bar {
-            background-color: var(--primary-dark);
+        .status-bar {
+            background: #111;
             padding: 0.5rem 1rem;
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        #status-message {
             font-size: 0.9rem;
-        }
-        
-        #status-message.error {
-            color: var(--error-color);
-        }
-        
-        #status-message.success {
-            color: var(--success-color);
-        }
-        
-        /* Meter colors for different metrics */
-        #harmonic-resonance-meter::before {
-            background-color: var(--quantum-color);
-        }
-        
-        #quantum-entropy-meter::before {
-            background-color: var(--info-color);
-        }
-        
-        #symbolic-variance-meter::before {
-            background-color: var(--resonance-color);
-        }
-        
-        #wave-coherence-meter::before {
-            background-color: var(--symbolic-color);
+            margin-top: 1rem;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <header>
         <h1>Quantonium OS</h1>
-        <p>Quantum-Inspired Encryption with Resonance Visualization</p>
+        <div class="subtitle">Quantum-Inspired Encryption with Resonance Visualization</div>
     </header>
-
-    <main>
-        <div class="action-panels">
-            <div class="panel">
-                <div class="tabs">
-                    <div class="tab active" data-tab="encrypt">Encrypt</div>
-                    <div class="tab" data-tab="decrypt">Decrypt</div>
+    
+    <div class="container">
+        <div class="left-panel">
+            <div class="tabs">
+                <div class="tab active" data-tab="encrypt">Encrypt</div>
+                <div class="tab" data-tab="decrypt">Decrypt</div>
+            </div>
+            
+            <div class="tab-content active" id="encrypt-tab">
+                <label for="plaintext">Plaintext:</label>
+                <textarea id="plaintext" placeholder="Enter text to encrypt..."></textarea>
+                
+                <label for="encrypt-key">Encryption Key:</label>
+                <input type="text" id="encrypt-key" placeholder="Enter encryption key...">
+                
+                <button id="encrypt-btn">Encrypt</button>
+                <div class="loader" id="encrypt-loader"></div>
+                <div class="error" id="encrypt-error"></div>
+                
+                <h3>Encryption Result:</h3>
+                <div id="encrypt-output" class="result-box">// Encrypted output will appear here</div>
+            </div>
+            
+            <div class="tab-content" id="decrypt-tab">
+                <label for="ciphertext">Ciphertext:</label>
+                <textarea id="ciphertext" placeholder="Enter ciphertext to decrypt..."></textarea>
+                
+                <label for="decrypt-key">Decryption Key:</label>
+                <input type="text" id="decrypt-key" placeholder="Enter decryption key...">
+                
+                <button id="decrypt-btn">Decrypt</button>
+                <div class="loader" id="decrypt-loader"></div>
+                <div class="error" id="decrypt-error"></div>
+                
+                <h3>Decryption Result:</h3>
+                <div id="decrypt-output" class="result-box">// Decrypted output will appear here</div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="metrics-panel">
+                <h3 class="metrics-title">Resonance Metrics</h3>
+                
+                <div class="metric harmonic-meter">
+                    <label>Harmonic Resonance:</label>
+                    <div class="meter-container">
+                        <div class="meter">
+                            <div class="meter-fill" id="harmonic-meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="harmonic-value">0.0</span>
+                    </div>
                 </div>
                 
-                <div class="tab-content active" id="encrypt-tab">
-                    <div class="form-group">
-                        <label for="plaintext">Plaintext:</label>
-                        <textarea id="plaintext" placeholder="Enter text to encrypt..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="encrypt-key">Encryption Key:</label>
-                        <input type="text" id="encrypt-key" placeholder="Enter encryption key...">
-                    </div>
-                    <button id="encrypt-btn" class="action-btn">Encrypt</button>
-                    <div class="loader" id="encrypt-loader"></div>
-                    <div class="error" id="encrypt-error"></div>
-                    <div>
-                        <h3>Encryption Result:</h3>
-                        <div id="encrypt-output" class="result-box">// Encrypted output will appear here</div>
+                <div class="metric quantum-meter">
+                    <label>Quantum Entropy:</label>
+                    <div class="meter-container">
+                        <div class="meter">
+                            <div class="meter-fill" id="quantum-meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="quantum-value">0.0</span>
                     </div>
                 </div>
                 
-                <div class="tab-content" id="decrypt-tab">
-                    <div class="form-group">
-                        <label for="ciphertext">Ciphertext:</label>
-                        <textarea id="ciphertext" placeholder="Enter ciphertext to decrypt..."></textarea>
+                <div class="metric symbolic-meter">
+                    <label>Symbolic Variance:</label>
+                    <div class="meter-container">
+                        <div class="meter">
+                            <div class="meter-fill" id="symbolic-meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="symbolic-value">0.0</span>
                     </div>
-                    <div class="form-group">
-                        <label for="decrypt-key">Decryption Key:</label>
-                        <input type="text" id="decrypt-key" placeholder="Enter decryption key...">
-                    </div>
-                    <button id="decrypt-btn" class="action-btn">Decrypt</button>
-                    <div class="loader" id="decrypt-loader"></div>
-                    <div class="error" id="decrypt-error"></div>
-                    <div>
-                        <h3>Decryption Result:</h3>
-                        <div id="decrypt-output" class="result-box">// Decrypted output will appear here</div>
+                </div>
+                
+                <div class="metric coherence-meter">
+                    <label>Wave Coherence:</label>
+                    <div class="meter-container">
+                        <div class="meter">
+                            <div class="meter-fill" id="coherence-meter-fill"></div>
+                        </div>
+                        <span class="meter-value" id="coherence-value">0.0</span>
                     </div>
                 </div>
             </div>
             
-            <div class="panel">
-                <h3>Resonance Metrics</h3>
-                <div class="metrics-container">
-                    <div class="metric">
-                        <label>Harmonic Resonance:</label>
-                        <div class="meter-container">
-                            <div id="harmonic-resonance-meter" class="meter"></div>
-                            <span id="harmonic-resonance-value" class="meter-value">0.0</span>
-                        </div>
-                    </div>
-                    <div class="metric">
-                        <label>Quantum Entropy:</label>
-                        <div class="meter-container">
-                            <div id="quantum-entropy-meter" class="meter"></div>
-                            <span id="quantum-entropy-value" class="meter-value">0.0</span>
-                        </div>
-                    </div>
-                    <div class="metric">
-                        <label>Symbolic Variance:</label>
-                        <div class="meter-container">
-                            <div id="symbolic-variance-meter" class="meter"></div>
-                            <span id="symbolic-variance-value" class="meter-value">0.0</span>
-                        </div>
-                    </div>
-                    <div class="metric">
-                        <label>Wave Coherence:</label>
-                        <div class="meter-container">
-                            <div id="wave-coherence-meter" class="meter"></div>
-                            <span id="wave-coherence-value" class="meter-value">0.0</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="visualization">
+                <canvas id="waveform-canvas"></canvas>
             </div>
+            
+            <div class="status-bar" id="status-message">Ready</div>
         </div>
-        
-        <div id="visualization">
-            <canvas id="waveform-canvas"></canvas>
-        </div>
-        
-        <div id="status-bar">
-            <span id="status-message">Ready</span>
-        </div>
-    </main>
-
+    </div>
+    
     <script>
         // Configuration
-        const API_URL = window.location.origin; // Use the same origin
-        const SAMPLE_COUNT = 64;               // Number of samples in each waveform
-        const MAX_FPS = 30;                    // Maximum frames per second for visualization
+        const API_URL = window.location.origin;
+        const SAMPLE_COUNT = 64;
+        const MAX_FPS = 30;
         
         // Global state
-        let isProcessing = false;              // Whether we're currently processing
-        let isAnimating = false;               // Whether animation is active
-        let lastFrameTime = 0;                 // Last frame time for FPS calculation
-        let waveformData = {                   // Current waveform data
+        let isProcessing = false;
+        let isAnimating = false;
+        let lastFrameTime = 0;
+        let waveformData = {
             timestamp: 0,
             amplitude: new Array(SAMPLE_COUNT).fill(0.5),
             phase: new Array(SAMPLE_COUNT).fill(0.5),
@@ -410,133 +346,92 @@
             }
         };
         
-        // Elements
-        const elements = {
-            // Tabs
-            encryptTab: document.getElementById('encrypt-tab'),
-            decryptTab: document.getElementById('decrypt-tab'),
-            tabButtons: document.querySelectorAll('.tab'),
-            
-            // Encrypt elements
-            plaintextInput: document.getElementById('plaintext'),
-            encryptKeyInput: document.getElementById('encrypt-key'),
-            encryptButton: document.getElementById('encrypt-btn'),
-            encryptLoader: document.getElementById('encrypt-loader'),
-            encryptError: document.getElementById('encrypt-error'),
-            encryptOutput: document.getElementById('encrypt-output'),
-            
-            // Decrypt elements
-            ciphertextInput: document.getElementById('ciphertext'),
-            decryptKeyInput: document.getElementById('decrypt-key'),
-            decryptButton: document.getElementById('decrypt-btn'),
-            decryptLoader: document.getElementById('decrypt-loader'),
-            decryptError: document.getElementById('decrypt-error'),
-            decryptOutput: document.getElementById('decrypt-output'),
-            
-            // Visualization elements
-            canvas: document.getElementById('waveform-canvas'),
-            statusMessage: document.getElementById('status-message'),
-            
-            // Metrics
-            harmonicResonanceMeter: document.getElementById('harmonic-resonance-meter'),
-            harmonicResonanceValue: document.getElementById('harmonic-resonance-value'),
-            quantumEntropyMeter: document.getElementById('quantum-entropy-meter'),
-            quantumEntropyValue: document.getElementById('quantum-entropy-value'),
-            symbolicVarianceMeter: document.getElementById('symbolic-variance-meter'),
-            symbolicVarianceValue: document.getElementById('symbolic-variance-value'),
-            waveCohererenceMeter: document.getElementById('wave-coherence-meter'),
-            waveCohererenceValue: document.getElementById('wave-coherence-value')
-        };
+        // DOM Elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
         
-        // Canvas context
-        const ctx = elements.canvas.getContext('2d');
+        const plaintextInput = document.getElementById('plaintext');
+        const encryptKeyInput = document.getElementById('encrypt-key');
+        const encryptBtn = document.getElementById('encrypt-btn');
+        const encryptLoader = document.getElementById('encrypt-loader');
+        const encryptError = document.getElementById('encrypt-error');
+        const encryptOutput = document.getElementById('encrypt-output');
         
-        // Initialize
-        function init() {
-            // Set up tab navigation
-            elements.tabButtons.forEach(tabButton => {
-                tabButton.addEventListener('click', () => {
-                    // Get the tab name
-                    const tabName = tabButton.getAttribute('data-tab');
-                    
-                    // Update active class on tab buttons
-                    elements.tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabButton.classList.add('active');
-                    
-                    // Show the appropriate tab content
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    document.getElementById(`${tabName}-tab`).classList.add('active');
-                });
-            });
-            
-            // Set up button event handlers
-            elements.encryptButton.addEventListener('click', handleEncrypt);
-            elements.decryptButton.addEventListener('click', handleDecrypt);
-            
-            // Set up resize handling for canvas
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-            
-            // Start the animation loop
-            animate();
-            
-            // Initial reset of the visualization to black
-            resetVisualization();
-        }
+        const ciphertextInput = document.getElementById('ciphertext');
+        const decryptKeyInput = document.getElementById('decrypt-key');
+        const decryptBtn = document.getElementById('decrypt-btn');
+        const decryptLoader = document.getElementById('decrypt-loader');
+        const decryptError = document.getElementById('decrypt-error');
+        const decryptOutput = document.getElementById('decrypt-output');
         
+        const harmonicMeterFill = document.getElementById('harmonic-meter-fill');
+        const harmonicValue = document.getElementById('harmonic-value');
+        const quantumMeterFill = document.getElementById('quantum-meter-fill');
+        const quantumValue = document.getElementById('quantum-value');
+        const symbolicMeterFill = document.getElementById('symbolic-meter-fill');
+        const symbolicValue = document.getElementById('symbolic-value');
+        const coherenceMeterFill = document.getElementById('coherence-meter-fill');
+        const coherenceValue = document.getElementById('coherence-value');
+        
+        const canvas = document.getElementById('waveform-canvas');
+        const ctx = canvas.getContext('2d');
+        const statusMessage = document.getElementById('status-message');
+        
+        // Initialize the canvas dimensions
         function resizeCanvas() {
-            // Get the container dimensions
-            const container = elements.canvas.parentElement;
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            
-            // Set canvas dimensions
-            elements.canvas.width = width;
-            elements.canvas.height = height;
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = 300;
         }
         
-        async function handleEncrypt() {
-            const plaintext = elements.plaintextInput.value.trim();
-            const key = elements.encryptKeyInput.value.trim();
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Deactivate all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Activate the clicked tab
+                tab.classList.add('active');
+                const tabName = tab.getAttribute('data-tab');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+        
+        // Encrypt button click handler
+        encryptBtn.addEventListener('click', async () => {
+            const plaintext = plaintextInput.value.trim();
+            const key = encryptKeyInput.value.trim();
             
             // Validation
             if (!plaintext) {
-                showError(elements.encryptError, 'Please enter plaintext to encrypt');
+                showError(encryptError, 'Please enter plaintext to encrypt');
                 return;
             }
             
             if (!key) {
-                showError(elements.encryptError, 'Please enter an encryption key');
+                showError(encryptError, 'Please enter an encryption key');
                 return;
             }
             
             // Reset and show loading
-            hideError(elements.encryptError);
-            elements.encryptOutput.textContent = '// Encrypting...';
-            elements.encryptLoader.style.display = 'block';
-            elements.encryptButton.disabled = true;
+            hideError(encryptError);
+            encryptOutput.textContent = '// Encrypting...';
+            encryptLoader.style.display = 'block';
+            encryptBtn.disabled = true;
             
-            // Start the encryption process
-            updateStatus('Initializing resonance encryption...', 'info');
+            // Start encryption process
+            updateStatus('Initializing resonance encryption...');
             isProcessing = true;
             resetVisualization();
             
             try {
-                // Delay to show the loading state
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // Make the API call
                 const response = await fetch(`${API_URL}/api/encrypt`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        plaintext,
-                        key
-                    })
+                    body: JSON.stringify({ plaintext, key })
                 });
                 
                 if (!response.ok) {
@@ -545,65 +440,58 @@
                 
                 const data = await response.json();
                 
-                // Start the visualization animation
+                // Start visualization animation
                 startResonanceAnimation(data.ciphertext, key);
                 
-                // Update the output
-                elements.encryptOutput.textContent = JSON.stringify(data, null, 2);
-                updateStatus('Encryption successful', 'success');
-                
+                // Update output
+                encryptOutput.textContent = JSON.stringify(data, null, 2);
+                updateStatus('Encryption successful');
             } catch (error) {
                 console.error('Encryption error:', error);
-                showError(elements.encryptError, `Error: ${error.message}`);
-                elements.encryptOutput.textContent = '// Error occurred during encryption';
-                updateStatus(`Error: ${error.message}`, 'error');
+                showError(encryptError, `Error: ${error.message}`);
+                encryptOutput.textContent = '// Error occurred during encryption';
+                updateStatus(`Error: ${error.message}`);
                 isProcessing = false;
             } finally {
-                elements.encryptLoader.style.display = 'none';
-                elements.encryptButton.disabled = false;
+                encryptLoader.style.display = 'none';
+                encryptBtn.disabled = false;
             }
-        }
+        });
         
-        async function handleDecrypt() {
-            const ciphertext = elements.ciphertextInput.value.trim();
-            const key = elements.decryptKeyInput.value.trim();
+        // Decrypt button click handler
+        decryptBtn.addEventListener('click', async () => {
+            const ciphertext = ciphertextInput.value.trim();
+            const key = decryptKeyInput.value.trim();
             
             // Validation
             if (!ciphertext) {
-                showError(elements.decryptError, 'Please enter ciphertext to decrypt');
+                showError(decryptError, 'Please enter ciphertext to decrypt');
                 return;
             }
             
             if (!key) {
-                showError(elements.decryptError, 'Please enter a decryption key');
+                showError(decryptError, 'Please enter a decryption key');
                 return;
             }
             
             // Reset and show loading
-            hideError(elements.decryptError);
-            elements.decryptOutput.textContent = '// Decrypting...';
-            elements.decryptLoader.style.display = 'block';
-            elements.decryptButton.disabled = true;
+            hideError(decryptError);
+            decryptOutput.textContent = '// Decrypting...';
+            decryptLoader.style.display = 'block';
+            decryptBtn.disabled = true;
             
-            // Start the decryption process
-            updateStatus('Initializing resonance decryption...', 'info');
+            // Start decryption process
+            updateStatus('Initializing resonance decryption...');
             isProcessing = true;
             resetVisualization();
             
             try {
-                // Delay to show the loading state
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // Make the API call
                 const response = await fetch(`${API_URL}/api/decrypt`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        ciphertext,
-                        key
-                    })
+                    body: JSON.stringify({ ciphertext, key })
                 });
                 
                 if (!response.ok) {
@@ -612,59 +500,66 @@
                 
                 const data = await response.json();
                 
-                // Start the visualization animation
+                // Start visualization animation
                 startResonanceAnimation(ciphertext, key);
                 
-                // Update the output
-                elements.decryptOutput.textContent = JSON.stringify(data, null, 2);
-                updateStatus('Decryption successful', 'success');
-                
+                // Update output
+                decryptOutput.textContent = JSON.stringify(data, null, 2);
+                updateStatus('Decryption successful');
             } catch (error) {
                 console.error('Decryption error:', error);
-                showError(elements.decryptError, `Error: ${error.message}`);
-                elements.decryptOutput.textContent = '// Error occurred during decryption';
-                updateStatus(`Error: ${error.message}`, 'error');
+                showError(decryptError, `Error: ${error.message}`);
+                decryptOutput.textContent = '// Error occurred during decryption';
+                updateStatus(`Error: ${error.message}`);
                 isProcessing = false;
             } finally {
-                elements.decryptLoader.style.display = 'none';
-                elements.decryptButton.disabled = false;
+                decryptLoader.style.display = 'none';
+                decryptBtn.disabled = false;
             }
+        });
+        
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+        
+        function hideError(element) {
+            element.style.display = 'none';
+        }
+        
+        function updateStatus(message) {
+            statusMessage.textContent = message;
         }
         
         function startResonanceAnimation(ciphertext, key) {
-            // Generate deterministic waveform based on the ciphertext and key
-            const seed = Array.from(ciphertext + key).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+            // Generate waveform data based on the ciphertext and key
+            updateWaveformData(ciphertext, key);
             
-            // Create animation frames
+            // Start animation
             isAnimating = true;
             
-            // Schedule animation end after 5 seconds
+            // Connect to SSE stream for live updates
+            connectToStream();
+            
+            // End animation after 5 seconds
             setTimeout(() => {
                 isAnimating = false;
                 isProcessing = false;
             }, 5000);
-            
-            // Generate waveform data
-            updateWaveformData(ciphertext, key);
-            
-            // Connect to the SSE stream for live updates
-            connectToStream();
         }
         
         function updateWaveformData(ciphertext, key) {
-            // Generate deterministic but unique waveform based on the ciphertext and key
+            // Generate deterministic waveform based on input values
             const seed = Array.from((ciphertext + key)).reduce((sum, char) => sum + char.charCodeAt(0), 0);
             const random = mulberry32(seed);
             
-            // Helper function for wave generation with multiple frequencies
-            function generateWave(base, count, seed) {
+            function generateWave(count, seed) {
                 const result = [];
                 for (let i = 0; i < count; i++) {
                     const t = i / count;
                     let val = 0.5 + 0.3 * Math.sin(t * Math.PI * 2 + seed);
                     val += 0.15 * Math.sin(t * Math.PI * 4 + seed * 1.5);
                     val += 0.05 * Math.sin(t * Math.PI * 8 + seed * 0.5);
-                    // Add some randomness
                     val += 0.1 * (random() - 0.5);
                     result.push(Math.max(0, Math.min(1, val)));
                 }
@@ -672,8 +567,8 @@
             }
             
             // Generate amplitude and phase arrays
-            const amplitude = generateWave(0.5, SAMPLE_COUNT, seed * 0.01);
-            const phase = generateWave(0.5, SAMPLE_COUNT, seed * 0.02);
+            const amplitude = generateWave(SAMPLE_COUNT, seed * 0.01);
+            const phase = generateWave(SAMPLE_COUNT, seed * 0.02);
             
             // Calculate metrics
             const hr = Math.abs(Math.sin(average(amplitude) * Math.PI * 2));
@@ -688,7 +583,7 @@
                 phase,
                 metrics: {
                     harmonic_resonance: hr,
-                    quantum_entropy: qe, 
+                    quantum_entropy: qe,
                     symbolic_variance: sv,
                     wave_coherence: wc
                 }
@@ -700,20 +595,19 @@
         
         function connectToStream() {
             try {
-                // Create an EventSource for SSE
+                // Create SSE connection
                 const eventSource = new EventSource(`${API_URL}/api/stream/wave`);
                 
-                // Set up event handlers
                 eventSource.onopen = () => {
                     console.log('Connected to waveform stream');
                 };
                 
                 eventSource.onmessage = (event) => {
                     try {
-                        // Parse the data
+                        // Parse data from server
                         const data = JSON.parse(event.data);
                         
-                        // Update the waveform data if we're still animating
+                        // Update waveform data if still animating
                         if (isAnimating) {
                             waveformData = data;
                             updateMetrics();
@@ -728,20 +622,19 @@
                     eventSource.close();
                 };
                 
-                // Close the connection after animation ends
+                // Close connection after animation ends
                 setTimeout(() => {
                     eventSource.close();
                 }, 5500);
-                
             } catch (error) {
                 console.error('Error connecting to stream:', error);
             }
         }
         
         function resetVisualization() {
-            // Clear the canvas to black
+            // Clear canvas to black
             ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, elements.canvas.width, elements.canvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Reset metrics
             waveformData.metrics = {
@@ -755,18 +648,35 @@
             updateMetrics();
         }
         
+        function updateMetrics() {
+            const metrics = waveformData.metrics;
+            
+            // Update meter values and visualizations
+            updateMeter(harmonicMeterFill, harmonicValue, metrics.harmonic_resonance);
+            updateMeter(quantumMeterFill, quantumValue, metrics.quantum_entropy);
+            updateMeter(symbolicMeterFill, symbolicValue, metrics.symbolic_variance);
+            updateMeter(coherenceMeterFill, coherenceValue, metrics.wave_coherence);
+        }
+        
+        function updateMeter(meterElement, valueElement, value) {
+            // Update meter fill
+            meterElement.style.width = `${value * 100}%`;
+            
+            // Update text value
+            valueElement.textContent = value.toFixed(3);
+        }
+        
+        // Animation function
         function animate() {
-            // Calculate delta time
             const now = performance.now();
             const elapsed = now - lastFrameTime;
             
-            // Limit FPS
+            // Limit frame rate
             if (elapsed > 1000 / MAX_FPS) {
                 lastFrameTime = now;
                 
                 // Only draw if processing
                 if (isProcessing) {
-                    // Draw the waveform
                     drawWaveform();
                 }
             }
@@ -776,13 +686,13 @@
         }
         
         function drawWaveform() {
-            // Clear the canvas
+            // Clear canvas
             ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, elements.canvas.width, elements.canvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Set up dimensions
-            const width = elements.canvas.width;
-            const height = elements.canvas.height;
+            const width = canvas.width;
+            const height = canvas.height;
             const padding = 20;
             const graphHeight = height - padding * 2;
             const graphWidth = width - padding * 2;
@@ -864,56 +774,11 @@
             ctx.fillRect(padding + 140, padding - 15, 20, 10);
         }
         
-        function updateMetrics() {
-            if (!waveformData.metrics) return;
-            
-            const metrics = waveformData.metrics;
-            
-            // Update meter values
-            updateMeter(elements.harmonicResonanceMeter, elements.harmonicResonanceValue, metrics.harmonic_resonance);
-            updateMeter(elements.quantumEntropyMeter, elements.quantumEntropyValue, metrics.quantum_entropy);
-            updateMeter(elements.symbolicVarianceMeter, elements.symbolicVarianceValue, metrics.symbolic_variance);
-            updateMeter(elements.waveCohererenceMeter, elements.waveCohererenceValue, metrics.wave_coherence);
-        }
-        
-        function updateMeter(meterElement, valueElement, value) {
-            if (!meterElement || !valueElement) return;
-            
-            // Set the meter width using CSS variable
-            meterElement.style.setProperty('--meter-width', `${value * 100}%`);
-            
-            // Update the value text
-            valueElement.textContent = value.toFixed(3);
-        }
-        
-        function updateStatus(message, type = 'info') {
-            if (!elements.statusMessage) return;
-            
-            // Remove existing classes
-            elements.statusMessage.classList.remove('error', 'success', 'info');
-            
-            // Add new class
-            elements.statusMessage.classList.add(type);
-            
-            // Set message
-            elements.statusMessage.textContent = message;
-        }
-        
-        function showError(element, message) {
-            element.textContent = message;
-            element.style.display = 'block';
-        }
-        
-        function hideError(element) {
-            element.style.display = 'none';
-        }
-        
-        // Helper function to calculate average of array
+        // Helper functions
         function average(arr) {
             return arr.reduce((a, b) => a + b, 0) / arr.length;
         }
         
-        // Helper function to calculate standard deviation
         function standardDeviation(arr) {
             const avg = average(arr);
             const squareDiffs = arr.map(value => {
@@ -923,7 +788,7 @@
             return Math.sqrt(average(squareDiffs));
         }
         
-        // Simple fast PRNG for visualization (Mulberry32)
+        // Simple PRNG for visualization
         function mulberry32(seed) {
             return function() {
                 seed |= 0;
@@ -934,12 +799,23 @@
             }
         }
         
-        // Initialize the application
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
+        // Initialize
+        function init() {
+            // Set canvas dimensions
+            resizeCanvas();
+            
+            // Handle window resize
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Start animation loop
+            animate();
+            
+            // Initialize canvas to black screen
+            resetVisualization();
         }
+        
+        // Start the application
+        init();
     </script>
 </body>
 </html>
