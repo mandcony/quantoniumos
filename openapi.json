@@ -1,0 +1,1416 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Quantonium OS Cloud Runtime API",
+    "description": "A secure, high-performance quantum-inspired API for symbolic computing with advanced HPC modules.",
+    "termsOfService": "https://quantonium.io/terms",
+    "contact": {
+      "name": "Quantonium API Support",
+      "url": "https://quantonium.io/support",
+      "email": "api-support@quantonium.io"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://quantonium.io/license"
+    },
+    "version": "0.3.0-rc1"
+  },
+  "servers": [
+    {
+      "url": "https://{deployment-url}/api",
+      "description": "Production API server",
+      "variables": {
+        "deployment-url": {
+          "default": "api.quantonium.io",
+          "description": "Deployment URL"
+        }
+      }
+    },
+    {
+      "url": "http://localhost:5000/api",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "authentication",
+      "description": "Authentication and API key management"
+    },
+    {
+      "name": "encryption",
+      "description": "Resonance encryption and decryption endpoints"
+    },
+    {
+      "name": "simulation",
+      "description": "Simulation and transformation endpoints"
+    },
+    {
+      "name": "entropy",
+      "description": "Quantum-inspired entropy generation"
+    },
+    {
+      "name": "container",
+      "description": "Symbolic container operations"
+    },
+    {
+      "name": "system",
+      "description": "System status and monitoring endpoints"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["system"],
+        "summary": "API root status",
+        "description": "Retrieves the API status and version information",
+        "operationId": "getApiStatus",
+        "responses": {
+          "200": {
+            "description": "API status information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["system"],
+        "summary": "API health check",
+        "description": "Checks the health status of the API, database, and dependent services",
+        "operationId": "getHealthCheck",
+        "responses": {
+          "200": {
+            "description": "Service health information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheck"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": ["system"],
+        "summary": "API metrics",
+        "description": "Retrieves runtime metrics for the API",
+        "operationId": "getApiMetrics",
+        "security": [
+          {
+            "bearerAuth": ["api:admin"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "System metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Metrics"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/encrypt": {
+      "post": {
+        "tags": ["encryption"],
+        "summary": "Encrypt data",
+        "description": "Encrypts data using resonance techniques",
+        "operationId": "encryptData",
+        "security": [
+          {
+            "bearerAuth": ["api:read", "api:write"]
+          }
+        ],
+        "requestBody": {
+          "description": "Encryption request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EncryptRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Encrypted data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EncryptResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/decrypt": {
+      "post": {
+        "tags": ["encryption"],
+        "summary": "Decrypt data",
+        "description": "Decrypts data using resonance techniques",
+        "operationId": "decryptData",
+        "security": [
+          {
+            "bearerAuth": ["api:read", "api:write"]
+          }
+        ],
+        "requestBody": {
+          "description": "Decryption request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecryptRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Decrypted data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecryptResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/simulate/rft": {
+      "post": {
+        "tags": ["simulation"],
+        "summary": "Resonance Fourier Transform",
+        "description": "Performs a Resonance Fourier Transform on waveform data",
+        "operationId": "simulateRFT",
+        "security": [
+          {
+            "bearerAuth": ["api:read", "api:write"]
+          }
+        ],
+        "requestBody": {
+          "description": "RFT simulation request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RFTRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "RFT results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RFTResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/entropy/sample": {
+      "post": {
+        "tags": ["entropy"],
+        "summary": "Generate entropy",
+        "description": "Generates quantum-inspired entropy",
+        "operationId": "generateEntropy",
+        "security": [
+          {
+            "bearerAuth": ["api:read", "api:write"]
+          }
+        ],
+        "requestBody": {
+          "description": "Entropy request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntropyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Entropy data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntropyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/container/unlock": {
+      "post": {
+        "tags": ["container"],
+        "summary": "Unlock symbolic container",
+        "description": "Unlocks a symbolic container using waveform and hash",
+        "operationId": "unlockContainer",
+        "security": [
+          {
+            "bearerAuth": ["api:read", "api:write"]
+          }
+        ],
+        "requestBody": {
+          "description": "Container unlock request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContainerUnlockRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Container unlock results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContainerUnlockResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Container access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/token": {
+      "post": {
+        "tags": ["authentication"],
+        "summary": "Get JWT token",
+        "description": "Generates a JWT token using an API key",
+        "operationId": "getAuthToken",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JWT token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/keys": {
+      "get": {
+        "tags": ["authentication"],
+        "summary": "List API keys",
+        "description": "Lists all API keys (admin only)",
+        "operationId": "listApiKeys",
+        "security": [
+          {
+            "bearerAuth": ["api:admin"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of API keys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "keys": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/APIKeyInfo"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["authentication"],
+        "summary": "Create API key",
+        "description": "Creates a new API key (admin only)",
+        "operationId": "createApiKey",
+        "security": [
+          {
+            "bearerAuth": ["api:admin"]
+          }
+        ],
+        "requestBody": {
+          "description": "API key creation request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKeyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "API key created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateKeyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/keys/{key_id}/revoke": {
+      "post": {
+        "tags": ["authentication"],
+        "summary": "Revoke API key",
+        "description": "Revokes an API key (admin only)",
+        "operationId": "revokeApiKey",
+        "security": [
+          {
+            "bearerAuth": ["api:admin"]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key_id",
+            "in": "path",
+            "description": "API key ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Revocation request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeKeyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "API key revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "key_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "API key not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/keys/{key_id}/rotate": {
+      "post": {
+        "tags": ["authentication"],
+        "summary": "Rotate API key",
+        "description": "Rotates an API key (admin only)",
+        "operationId": "rotateApiKey",
+        "security": [
+          {
+            "bearerAuth": ["api:admin"]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key_id",
+            "in": "path",
+            "description": "API key ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API key rotated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "old_key_id": {
+                      "type": "string"
+                    },
+                    "new_key": {
+                      "$ref": "#/components/schemas/APIKeyInfo"
+                    },
+                    "api_key": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "API key not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "tags": ["authentication"],
+        "summary": "Get API key profile",
+        "description": "Gets the profile of the current API key",
+        "operationId": "getApiKeyProfile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API key profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIKeyProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok", "degraded", "maintenance"]
+          },
+          "version": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "HealthCheck": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "degraded", "unhealthy"]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uptime": {
+            "type": "number",
+            "format": "float"
+          },
+          "version": {
+            "type": "string"
+          },
+          "components": {
+            "type": "object",
+            "properties": {
+              "database": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["healthy", "degraded", "unhealthy"]
+                  },
+                  "latency_ms": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                }
+              },
+              "api": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["healthy", "degraded", "unhealthy"]
+                  },
+                  "request_rate": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                }
+              },
+              "hpc": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["healthy", "degraded", "unhealthy", "disabled"]
+                  },
+                  "modules": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Metrics": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cpu": {
+            "type": "object",
+            "properties": {
+              "usage_percent": {
+                "type": "number",
+                "format": "float"
+              },
+              "load_average": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "float"
+                }
+              }
+            }
+          },
+          "memory": {
+            "type": "object",
+            "properties": {
+              "total_mb": {
+                "type": "number",
+                "format": "integer"
+              },
+              "used_mb": {
+                "type": "number",
+                "format": "integer"
+              },
+              "free_mb": {
+                "type": "number",
+                "format": "integer"
+              },
+              "percent": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          },
+          "disk": {
+            "type": "object",
+            "properties": {
+              "total_mb": {
+                "type": "number",
+                "format": "integer"
+              },
+              "used_mb": {
+                "type": "number",
+                "format": "integer"
+              },
+              "free_mb": {
+                "type": "number",
+                "format": "integer"
+              },
+              "percent": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          },
+          "requests": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "rate_per_second": {
+                "type": "number",
+                "format": "float"
+              },
+              "success_rate": {
+                "type": "number",
+                "format": "float"
+              },
+              "average_response_time_ms": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          }
+        }
+      },
+      "EncryptRequest": {
+        "type": "object",
+        "required": ["plaintext", "key"],
+        "properties": {
+          "plaintext": {
+            "type": "string",
+            "example": "hello world"
+          },
+          "key": {
+            "type": "string",
+            "example": "symbolic-key"
+          }
+        }
+      },
+      "EncryptResponse": {
+        "type": "object",
+        "properties": {
+          "ciphertext": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signature": {
+            "type": "string"
+          }
+        }
+      },
+      "DecryptRequest": {
+        "type": "object",
+        "required": ["ciphertext", "key"],
+        "properties": {
+          "ciphertext": {
+            "type": "string",
+            "example": "base64_encoded_ciphertext_string"
+          },
+          "key": {
+            "type": "string",
+            "example": "symbolic-key"
+          }
+        }
+      },
+      "DecryptResponse": {
+        "type": "object",
+        "properties": {
+          "plaintext": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signature": {
+            "type": "string"
+          }
+        }
+      },
+      "RFTRequest": {
+        "type": "object",
+        "required": ["waveform"],
+        "properties": {
+          "waveform": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "example": [0.1, 0.5, 0.9, 0.5, 0.1, 0.5, 0.9, 0.5]
+          }
+        }
+      },
+      "RFTResponse": {
+        "type": "object",
+        "properties": {
+          "frequencies": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          "amplitudes": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          "resonance_index": {
+            "type": "number",
+            "format": "float"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signature": {
+            "type": "string"
+          }
+        }
+      },
+      "EntropyRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1024,
+            "default": 32,
+            "example": 64
+          }
+        }
+      },
+      "EntropyResponse": {
+        "type": "object",
+        "properties": {
+          "entropy": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["base64", "hex"]
+          },
+          "bits": {
+            "type": "integer"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signature": {
+            "type": "string"
+          }
+        }
+      },
+      "ContainerUnlockRequest": {
+        "type": "object",
+        "required": ["waveform", "hash"],
+        "properties": {
+          "waveform": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "example": [0.2, 0.7, 0.3]
+          },
+          "hash": {
+            "type": "string",
+            "example": "d6a88f4f..."
+          }
+        }
+      },
+      "ContainerUnlockResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "contents": {
+            "type": "string"
+          },
+          "resonance_match": {
+            "type": "number",
+            "format": "float"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signature": {
+            "type": "string"
+          }
+        }
+      },
+      "APIKeyInfo": {
+        "type": "object",
+        "properties": {
+          "key_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "is_admin": {
+            "type": "boolean"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "revoked": {
+            "type": "boolean"
+          },
+          "permissions": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "use_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "APIKeyProfile": {
+        "type": "object",
+        "properties": {
+          "key_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "string"
+          },
+          "is_admin": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "use_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "CreateKeyRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string"
+          },
+          "expires_in_days": {
+            "type": "integer"
+          },
+          "permissions": {
+            "type": "string",
+            "default": "api:read api:write",
+            "minLength": 1
+          },
+          "is_admin": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "CreateKeyResponse": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/APIKeyInfo"
+          },
+          "api_key": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "RevokeKeyRequest": {
+        "type": "object",
+        "required": ["key_id"],
+        "properties": {
+          "key_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "TokenResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "integer"
+          },
+          "token_type": {
+            "type": "string",
+            "enum": ["Bearer"]
+          },
+          "key_id": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "string"
+          },
+          "is_admin": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from the /api/auth/token endpoint"
+      },
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key for direct authentication"
+      }
+    }
+  }
+}

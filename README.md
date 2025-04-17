@@ -2,6 +2,12 @@
 
 A secure, high-performance quantum-inspired API for symbolic computing with advanced HPC modules.
 
+![Seccomp Enforced](https://img.shields.io/badge/Seccomp-Enforced-brightgreen) 
+![No New Privileges](https://img.shields.io/badge/No--New--Privileges-Enforced-brightgreen)
+![Read-only FS](https://img.shields.io/badge/Filesystem-Read--Only-brightgreen)
+![No Capabilities](https://img.shields.io/badge/Capabilities-Dropped-brightgreen)
+![PID Isolation](https://img.shields.io/badge/PID--Namespace-Isolated-brightgreen)
+
 ## Overview
 
 Quantonium OS Cloud Runtime provides a Flask-based API for accessing quantum-inspired computational resources. The system leverages advanced authentication, protected modules, and resonance-based computational techniques to deliver secure, high-performance symbolic computing.
@@ -138,6 +144,40 @@ python randomized_test.py
 
 The randomized test script uses randomly generated inputs to test the API endpoints, ensuring the system works without exposing real user data or revealing implementation details. This helps protect the proprietary algorithms while still demonstrating the system's functionality.
 
+### Security Testing & Validation
+
+The repository includes several security testing scripts:
+
+#### Penetration Testing
+
+Run the container penetration testing script to validate security hardening:
+
+```bash
+./scripts/pentest.sh
+```
+
+This script attempts various container escape techniques and privilege escalation attacks against the running container. All tests should fail, confirming that the security measures are working correctly.
+
+#### Container Security Scanning
+
+Scan the container for security issues using Dockle:
+
+```bash
+./scripts/dockle_scan.sh
+```
+
+This script checks for container best practices and security issues, failing on WARN and FATAL level findings.
+
+#### Vulnerability Scanning
+
+Scan the container for vulnerabilities using Trivy:
+
+```bash
+./scripts/trivy_scan.sh
+```
+
+This script checks for vulnerabilities in the container image, failing on HIGH and CRITICAL severity findings.
+
 ## Security Considerations
 
 - Set a strong `QUANTONIUM_API_KEY` for production
@@ -148,6 +188,48 @@ The randomized test script uses randomly generated inputs to test the API endpoi
 - Review our [Security Policy](SECURITY.md) for vulnerability disclosure process
 - All dependencies are pinned to exact versions to prevent supply chain attacks
 - Security audit is performed in CI/CD pipeline before each release
+
+### Runtime Isolation & Sandbox Hardening
+
+The Quantonium OS container is hardened with multiple layers of security:
+
+1. **Seccomp Profile**: Restricts available syscalls to a minimal set required for operation
+   - Blocks dangerous syscalls like ptrace, mount, and namespace operations
+   - Profile defined in `seccomp.json` at the repository root
+
+2. **Dropped Capabilities**: All Linux capabilities are dropped
+   - Container runs with no special privileges
+   - Even common capabilities like NET_BIND_SERVICE are not needed
+
+3. **Read-only Filesystem**: Container root filesystem is mounted read-only
+   - Only specific tmpfs volumes for logs and temp files are writable
+   - Prevents unauthorized modifications to application code
+
+4. **Non-root User**: Container runs as the unprivileged `quant` user (UID 1001)
+   - No ability to modify system files or access protected resources
+
+5. **PID Namespace Isolation**: Container has its own isolated process namespace
+   - Prevents visibility of host processes
+   - Improves container isolation
+
+### Updating the Seccomp Profile
+
+If you need to modify the seccomp profile:
+
+1. Edit the `seccomp.json` file with required changes
+2. Restart the container: `docker-compose down && docker-compose up -d`
+3. Validate with the penetration testing script: `./scripts/pentest.sh`
+
+The seccomp profile should only include syscalls actually needed by the application. To audit syscalls:
+
+```bash
+# Create a test container with seccomp tracing enabled
+docker run --rm -it --security-opt seccomp=unconfined \
+  --cap-add SYS_PTRACE quantonium:latest \
+  sh -c 'strace -c -f -S name gunicorn --bind 0.0.0.0:5000 main:app'
+```
+
+This will output a summary of syscalls used, which can be used to refine the profile.
 
 ## License
 
