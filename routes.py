@@ -181,7 +181,46 @@ def unlock():
         
         return jsonify(sign_response(response))
 
-# Auto-unlock endpoint removed as requested - proper security model enforces both hash and key requirement
+@api.route("/container/parameters", methods=["POST"])
+def get_container_parameters():
+    """Extract waveform parameters from a container hash"""
+    try:
+        data = request.get_json()
+        if not data or 'hash' not in data:
+            return jsonify(sign_response({
+                "success": False,
+                "message": "Missing hash parameter"
+            }))
+        
+        hash_value = data['hash']
+        
+        # Use the extract_parameters_from_hash function to get amplitude and phase
+        from core.encryption.geometric_waveform_hash import extract_parameters_from_hash
+        amplitude, phase = extract_parameters_from_hash(hash_value)
+        
+        if amplitude is None or phase is None:
+            return jsonify(sign_response({
+                "success": False,
+                "message": "Invalid hash format or unable to extract parameters"
+            }))
+        
+        # Return the parameters
+        response = {
+            "success": True,
+            "amplitude": amplitude,
+            "phase": phase
+        }
+        
+        # Add key_id if available
+        if hasattr(g, 'api_key') and g.api_key:
+            response["key_id"] = g.api_key.key_id
+        
+        return jsonify(sign_response(response))
+    except Exception as e:
+        return jsonify(sign_response({
+            "success": False,
+            "message": f"Error: {str(e)}"
+        }))
 
 @api.route("/stream/wave", methods=["GET"])
 def stream_wave():
