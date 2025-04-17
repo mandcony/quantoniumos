@@ -31,6 +31,10 @@ logger = logging.getLogger("quantonium_app")
 APP_START_TIME = time.time()
 APP_VERSION = app_version  # Version tracking for API
 
+# Set development environment by default for local development
+if 'FLASK_ENV' not in os.environ:
+    os.environ['FLASK_ENV'] = 'development'
+
 def create_app():
     app = Flask(__name__, static_folder='static')
     
@@ -45,7 +49,10 @@ def create_app():
     talisman, limiter = configure_security(app)
     
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
-    app.config["DEBUG"] = False  # Disable debug mode for security
+    
+    # Enable debug mode for development, disable for production
+    is_development = os.environ.get('FLASK_ENV') == 'development'
+    app.config["DEBUG"] = is_development
     
     # Disable strict trailing slashes to prevent redirect loops
     app.url_map.strict_slashes = False

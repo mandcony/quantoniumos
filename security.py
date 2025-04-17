@@ -61,21 +61,24 @@ def configure_security(app: Flask):
     """
     Configure all security middleware for the Flask app
     """
+    # Determine if we're in development mode
+    is_development = os.environ.get('FLASK_ENV') == 'development' or app.debug
+    
     # Set up Talisman for HTTPS, HSTS, and CSP
     talisman = Talisman(
         app,
         content_security_policy=CSP_POLICY,
         content_security_policy_nonce_in=['script-src'],
-        force_https=True,
-        force_https_permanent=True,
+        force_https=not is_development,  # Only force HTTPS in production
+        force_https_permanent=not is_development,
         force_file_save=True,
         frame_options='DENY',
         frame_options_allow_from=None,
-        strict_transport_security=True,
-        strict_transport_security_preload=True,
+        strict_transport_security=not is_development,  # Only enable HSTS in production
+        strict_transport_security_preload=not is_development,
         strict_transport_security_max_age=31536000,
         referrer_policy='no-referrer',
-        session_cookie_secure=True,
+        session_cookie_secure=not is_development,  # Only secure cookies in production
         session_cookie_http_only=True
     )
     
