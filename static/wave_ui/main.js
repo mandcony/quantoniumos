@@ -8,487 +8,695 @@
  * 2. Stream Mode: Connects to SSE endpoint and visualizes rolling 3D spectrogram
  */
 
-import * as THREE from 'three';
+// Configuration
+const API_BASE_URL = '/api'; // Base URL for API endpoints
+const SAMPLE_COUNT = 64;     // Number of samples in each waveform
+const MAX_FPS = 30;          // Maximum frames per second for visualization
 
-// Constants
-const API_ENDPOINT = '/api';
-const DEMO_JWT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlfaWQiOiJwdWJsaWMtZGVtbyIsInBlcm1pc3Npb25zIjoiYXBpOnJlYWQgYXBpOndyaXRlIiwiaXNfYWRtaW4iOmZhbHNlLCJleHAiOjI1MzQwMjMwMDc5OX0.H1czBRrY9KFNCjMJ8hHmHuXFTgLFSQKDuJGZ0RnUJLU';
+// Global state
+let currentMode = 'encrypt';  // Current visualization mode (encrypt or stream)
+let visualizationMode = '2d'; // Current visualization mode (2d or 3d)
+let colorScheme = 'quantum';  // Current color scheme
+let eventSource = null;       // EventSource for SSE
+let threeJsScene = null;      // Three.js scene for 3D visualization
+let waveformMesh = null;      // Three.js mesh for the waveform
+let lastFrameTime = 0;        // Last frame time for FPS calculation
+let streamActive = false;     // Whether streaming is active
+let totalEvents = 0;          // Total number of events received
+let latencies = [];           // Array of latencies for calculating average
+let waveformData = {          // Current waveform data
+    timestamp: 0,
+    amplitude: new Array(SAMPLE_COUNT).fill(0.5),
+    phase: new Array(SAMPLE_COUNT).fill(0.5),
+    metrics: {
+        harmonic_resonance: 0,
+        quantum_entropy: 0,
+        symbolic_variance: 0,
+        wave_coherence: 0
+    }
+};
 
-// State variables
-let currentMode = 'encrypt';
-let isStreaming = false;
-let eventSource = null;
-let eventsReceived = 0;
-let lastEventTime = 0;
-let totalLatency = 0;
-let waveformData = { amp: [], phase: [], t: 0 };
-let spectrogramHistory = [];
+// References to DOM elements
+const elements = {
+    encryptModeBtn: document.getElementById('encrypt-mode-btn'),
+    streamModeBtn: document.getElementById('stream-mode-btn'),
+    encryptPanel: document.getElementById('encrypt-panel'),
+    streamPanel: document.getElementById('stream-panel'),
+    plaintext: document.getElementById('plaintext'),
+    key: document.getElementById('key'),
+    encryptBtn: document.getElementById('encrypt-btn'),
+    ciphertextDisplay: document.getElementById('ciphertext-display'),
+    streamStartBtn: document.getElementById('stream-start-btn'),
+    streamStopBtn: document.getElementById('stream-stop-btn'),
+    eventsCount: document.getElementById('events-count'),
+    avgLatency: document.getElementById('avg-latency'),
+    streamSpeed: document.getElementById('stream-speed'),
+    viewMode: document.getElementById('view-mode'),
+    colorScheme: document.getElementById('color-scheme'),
+    canvas: document.getElementById('waveform-canvas'),
+    statusMessage: document.getElementById('status-message'),
+    // Meters
+    harmonicResonanceMeter: document.getElementById('harmonic-resonance-meter'),
+    harmonicResonanceValue: document.getElementById('harmonic-resonance-value'),
+    quantumEntropyMeter: document.getElementById('quantum-entropy-meter'),
+    quantumEntropyValue: document.getElementById('quantum-entropy-value'),
+    symbolicVarianceMeter: document.getElementById('symbolic-variance-meter'),
+    symbolicVarianceValue: document.getElementById('symbolic-variance-value'),
+    waveCohererenceMeter: document.getElementById('wave-coherence-meter'),
+    waveCohererenceValue: document.getElementById('wave-coherence-value')
+};
 
-// Three.js variables
-let scene, camera, renderer;
-let waveformMesh, spectrogramMesh;
-let animationFrameId = null;
-
-// DOM Elements
-const encryptModeBtn = document.getElementById('encrypt-mode-btn');
-const streamModeBtn = document.getElementById('stream-mode-btn');
-const encryptPanel = document.getElementById('encrypt-panel');
-const streamPanel = document.getElementById('stream-panel');
-const encryptBtn = document.getElementById('encrypt-btn');
-const streamStartBtn = document.getElementById('stream-start-btn');
-const streamStopBtn = document.getElementById('stream-stop-btn');
-const plaintextInput = document.getElementById('plaintext');
-const keyInput = document.getElementById('key');
-const ciphertextDisplay = document.getElementById('ciphertext-display');
-const canvas = document.getElementById('waveform-canvas');
-const frequencyValue = document.getElementById('frequency-value');
-const amplitudeValue = document.getElementById('amplitude-value');
-const phaseValue = document.getElementById('phase-value');
-const statusIndicator = document.getElementById('status-indicator');
-const eventsCount = document.getElementById('events-count');
-const dataPoints = document.getElementById('data-points');
-const avgLatency = document.getElementById('avg-latency');
-const streamSpeedInput = document.getElementById('stream-speed');
-const streamSpeedValue = document.getElementById('stream-speed-value');
-const visualizeMode = document.getElementById('visualize-mode');
+// Canvas context
+const ctx = elements.canvas.getContext('2d');
 
 // Initialize the application
 function init() {
+    // Resize the canvas to fit the container
+    resizeCanvas();
+
     // Set up event listeners
-    encryptModeBtn.addEventListener('click', () => setMode('encrypt'));
-    streamModeBtn.addEventListener('click', () => setMode('stream'));
-    encryptBtn.addEventListener('click', handleEncrypt);
-    streamStartBtn.addEventListener('click', startStream);
-    streamStopBtn.addEventListener('click', stopStream);
-    streamSpeedInput.addEventListener('input', updateStreamSpeed);
-    visualizeMode.addEventListener('change', updateVisualizationMode);
-    
-    // Initialize Three.js scene
+    window.addEventListener('resize', resizeCanvas);
+    elements.encryptModeBtn.addEventListener('click', () => setMode('encrypt'));
+    elements.streamModeBtn.addEventListener('click', () => setMode('stream'));
+    elements.encryptBtn.addEventListener('click', handleEncrypt);
+    elements.streamStartBtn.addEventListener('click', startStream);
+    elements.streamStopBtn.addEventListener('click', stopStream);
+    elements.viewMode.addEventListener('change', updateVisualizationMode);
+    elements.colorScheme.addEventListener('change', () => {
+        colorScheme = elements.colorScheme.value;
+    });
+
+    // Initialize ThreeJS for 3D visualization
     initThreeJS();
-    
-    // Start with encrypt mode
-    setMode('encrypt');
-    
-    // Initialize with demo data
+
+    // Generate demo waveform
     generateDemoWaveform();
-    
-    // Start rendering loop
+
+    // Start the animation loop
     animate();
-    
-    // Update status
-    updateStatus('Ready');
+
+    // Update UI to reflect current mode
+    setMode(currentMode);
 }
 
-// Set the current mode (encrypt or stream)
+function resizeCanvas() {
+    // Get the visualization container dimensions
+    const container = elements.canvas.parentElement;
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
+    // Set canvas dimensions
+    elements.canvas.width = width;
+    elements.canvas.height = height;
+    
+    // If using ThreeJS, update the renderer
+    if (threeJsScene && threeJsScene.renderer) {
+        threeJsScene.renderer.setSize(width, height);
+        threeJsScene.camera.aspect = width / height;
+        threeJsScene.camera.updateProjectionMatrix();
+    }
+}
+
 function setMode(mode) {
-    // Clean up any existing stream
-    if (isStreaming) {
+    currentMode = mode;
+    
+    // Update button states
+    elements.encryptModeBtn.classList.toggle('active', mode === 'encrypt');
+    elements.streamModeBtn.classList.toggle('active', mode === 'stream');
+    
+    // Show/hide panels
+    elements.encryptPanel.classList.toggle('active', mode === 'encrypt');
+    elements.streamPanel.classList.toggle('active', mode === 'stream');
+    
+    // If switching to stream mode and stream is not active, stop the stream
+    if (mode !== 'stream' && streamActive) {
         stopStream();
     }
     
-    currentMode = mode;
-    
-    // Update UI
-    if (mode === 'encrypt') {
-        encryptModeBtn.classList.add('active');
-        streamModeBtn.classList.remove('active');
-        encryptPanel.classList.remove('hidden');
-        streamPanel.classList.add('hidden');
-    } else {
-        encryptModeBtn.classList.remove('active');
-        streamModeBtn.classList.add('active');
-        encryptPanel.classList.add('hidden');
-        streamPanel.classList.remove('hidden');
-    }
-    
-    // Reset visualization
-    resetVisualization();
+    updateStatus(`Mode switched to ${mode}`, 'info');
 }
 
-// Handle encryption request
 async function handleEncrypt() {
+    const plaintext = elements.plaintext.value.trim();
+    const key = elements.key.value.trim();
+    
+    if (!plaintext) {
+        updateStatus('Please enter plaintext to encrypt', 'error');
+        return;
+    }
+    
+    if (!key) {
+        updateStatus('Please enter an encryption key', 'error');
+        return;
+    }
+    
     try {
-        updateStatus('Encrypting...');
+        elements.encryptBtn.disabled = true;
+        updateStatus('Encrypting...', 'info');
         
-        const plaintext = plaintextInput.value.trim();
-        const key = keyInput.value.trim();
-        
-        if (!plaintext || !key) {
-            updateStatus('Please enter plaintext and key', 'error');
-            return;
-        }
-        
-        // Call the encryption API
-        const response = await fetch(`${API_ENDPOINT}/encrypt`, {
+        // Call the encrypt endpoint
+        const response = await fetch(`${API_BASE_URL}/encrypt`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${DEMO_JWT_TOKEN}`
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ plaintext, key })
+            body: JSON.stringify({
+                plaintext,
+                key
+            })
         });
         
         if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
+            throw new Error(`Encryption failed: ${response.statusText}`);
         }
         
         const data = await response.json();
+        elements.ciphertextDisplay.textContent = data.ciphertext;
+        updateStatus('Encryption successful', 'success');
         
-        // Display the ciphertext
-        ciphertextDisplay.textContent = data.ciphertext;
-        
-        // Get the waveform data
+        // Generate keystream visualization
         await fetchKeyStreamData(data.ciphertext);
         
-        updateStatus('Encryption complete', 'success');
     } catch (error) {
         console.error('Encryption error:', error);
         updateStatus(`Error: ${error.message}`, 'error');
+    } finally {
+        elements.encryptBtn.disabled = false;
     }
 }
 
-// Fetch keystream data for the generated ciphertext
 async function fetchKeyStreamData(ciphertext) {
     try {
-        // In a real implementation, this would call another API endpoint
-        // to get the actual keystream used for encryption.
-        // For this demo, we'll generate synthetic data based on the hash
+        // In a real implementation, this would fetch the actual keystream
+        // from an API endpoint that reveals the waveform used for encryption
         
-        // Generate synthetic keystream based on ciphertext
-        const hash = ciphertext;
-        const charValues = Array.from(hash).map(c => c.charCodeAt(0) / 255);
-        
-        // Extend to 64 points with some smoothing
-        const amp = [];
+        // For this demo, we just generate a deterministic waveform
+        // based on the ciphertext to simulate the keystream
+        const seed = Array.from(ciphertext).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+        const amplitude = [];
         const phase = [];
         
-        for (let i = 0; i < 64; i++) {
-            const idx = i % charValues.length;
-            const nextIdx = (i + 1) % charValues.length;
-            const value = charValues[idx] * 0.6 + charValues[nextIdx] * 0.4;
-            amp.push(value);
-            phase.push(value * Math.PI * 2);
+        // Generate pseudo-random but deterministic values based on the ciphertext
+        for (let i = 0; i < SAMPLE_COUNT; i++) {
+            const t = i / SAMPLE_COUNT;
+            amplitude.push(0.2 + 0.6 * Math.sin(seed * t + i / 3));
+            phase.push(0.2 + 0.6 * Math.cos(seed * t + i / 5));
         }
         
-        // Update the waveform data
+        // Update waveform data
         waveformData = {
-            amp,
+            timestamp: Date.now(),
+            amplitude,
             phase,
-            t: Date.now()
+            metrics: {
+                harmonic_resonance: Math.abs(Math.sin(seed * 0.01)) * 0.8 + 0.1,
+                quantum_entropy: Math.abs(Math.cos(seed * 0.02)) * 0.8 + 0.1,
+                symbolic_variance: Math.abs(Math.sin(seed * 0.03)) * 0.8 + 0.1,
+                wave_coherence: Math.abs(Math.cos(seed * 0.04)) * 0.8 + 0.1
+            }
         };
         
-        // Update the visualization
-        updateVisualization();
+        // Update metrics display
+        updateMetrics();
+        
     } catch (error) {
         console.error('Error fetching keystream data:', error);
     }
 }
 
-// Start streaming data from the SSE endpoint
 function startStream() {
-    if (isStreaming) return;
+    if (streamActive) return;
     
-    updateStatus('Starting stream...');
-    
-    // Reset counters
-    eventsReceived = 0;
-    totalLatency = 0;
-    spectrogramHistory = [];
-    updateStreamStats();
-    
-    // Create a new EventSource connection
-    eventSource = new EventSource(`${API_ENDPOINT}/stream/wave`, {
-        headers: {
-            'Authorization': `Bearer ${DEMO_JWT_TOKEN}`
-        }
-    });
-    
-    // Listen for connection open
-    eventSource.onopen = (event) => {
-        isStreaming = true;
-        updateStatus('Stream connected', 'success');
-        streamStartBtn.disabled = true;
-        streamStopBtn.disabled = false;
-    };
-    
-    // Listen for messages
-    eventSource.onmessage = (event) => {
-        const now = Date.now();
-        const latency = now - lastEventTime;
-        lastEventTime = now;
+    try {
+        // Update UI
+        elements.streamStartBtn.disabled = true;
+        elements.streamStopBtn.disabled = false;
+        updateStatus('Connecting to stream...', 'info');
         
-        if (eventsReceived > 0) {
-            totalLatency += latency;
-        }
+        // Reset counters
+        totalEvents = 0;
+        latencies = [];
+        elements.eventsCount.textContent = '0';
+        elements.avgLatency.textContent = '0ms';
+        elements.streamSpeed.textContent = '0 fps';
         
-        eventsReceived++;
+        // Create EventSource for SSE
+        eventSource = new EventSource(`${API_BASE_URL}/stream/wave`);
         
-        try {
-            const data = JSON.parse(event.data);
-            
-            // Update the waveform data
-            waveformData = data;
-            
-            // Add to spectrogram history (keep last 20 samples)
-            spectrogramHistory.push({...data});
-            if (spectrogramHistory.length > 20) {
-                spectrogramHistory.shift();
+        // Set up event handlers
+        eventSource.onopen = () => {
+            streamActive = true;
+            updateStatus('Connected to stream', 'success');
+        };
+        
+        eventSource.onmessage = (event) => {
+            // Parse the data
+            try {
+                const data = JSON.parse(event.data);
+                
+                // Calculate latency
+                const now = Date.now();
+                const latency = now - data.timestamp;
+                latencies.push(latency);
+                if (latencies.length > 20) latencies.shift();
+                
+                // Update waveform data
+                waveformData = data;
+                
+                // Update counters
+                totalEvents++;
+                elements.eventsCount.textContent = totalEvents.toString();
+                
+                // Update metrics
+                updateMetrics();
+                updateStreamStats();
+                
+            } catch (error) {
+                console.error('Error parsing stream data:', error);
             }
-            
-            // Update stats
-            updateStreamStats();
-            
-            // Update visualization
-            updateVisualization();
-        } catch (error) {
-            console.error('Error parsing stream data:', error);
-        }
-    };
-    
-    // Listen for errors
-    eventSource.onerror = (error) => {
-        console.error('Stream error:', error);
-        updateStatus('Stream error - reconnecting...', 'error');
-    };
-}
-
-// Stop streaming data
-function stopStream() {
-    if (!isStreaming || !eventSource) return;
-    
-    // Close the EventSource connection
-    eventSource.close();
-    eventSource = null;
-    isStreaming = false;
-    
-    // Update UI
-    streamStartBtn.disabled = false;
-    streamStopBtn.disabled = true;
-    updateStatus('Stream stopped');
-}
-
-// Update stream statistics
-function updateStreamStats() {
-    eventsCount.textContent = eventsReceived;
-    dataPoints.textContent = waveformData.amp.length || 0;
-    
-    if (eventsReceived > 1) {
-        const average = Math.round(totalLatency / (eventsReceived - 1));
-        avgLatency.textContent = `${average}ms`;
-    } else {
-        avgLatency.textContent = '0ms';
+        };
+        
+        eventSource.onerror = (error) => {
+            console.error('Stream error:', error);
+            updateStatus('Stream connection error', 'error');
+            stopStream();
+        };
+        
+        // Set up a timer to update the stream speed
+        setInterval(updateStreamSpeed, 1000);
+        
+    } catch (error) {
+        console.error('Error starting stream:', error);
+        updateStatus(`Error: ${error.message}`, 'error');
+        stopStream();
     }
 }
 
-// Update stream speed display
+function stopStream() {
+    if (!streamActive && !eventSource) return;
+    
+    try {
+        // Close the EventSource
+        if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+        }
+        
+        // Update UI
+        elements.streamStartBtn.disabled = false;
+        elements.streamStopBtn.disabled = true;
+        streamActive = false;
+        updateStatus('Stream stopped', 'info');
+        
+    } catch (error) {
+        console.error('Error stopping stream:', error);
+    }
+}
+
+function updateStreamStats() {
+    // Calculate average latency
+    if (latencies.length > 0) {
+        const avgLatency = Math.round(
+            latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length
+        );
+        elements.avgLatency.textContent = `${avgLatency}ms`;
+    }
+}
+
 function updateStreamSpeed() {
-    const speed = streamSpeedInput.value;
-    streamSpeedValue.textContent = `${speed}ms`;
+    // Count the number of events in the last second
+    const now = Date.now();
+    const recentLatencies = latencies.filter(timestamp => now - timestamp < 1000);
+    const fps = recentLatencies.length || '0';
+    elements.streamSpeed.textContent = `${fps} fps`;
 }
 
-// Update visualization mode
 function updateVisualizationMode() {
+    visualizationMode = elements.viewMode.value;
+    
+    // Reset the visualization if needed
     resetVisualization();
+    
+    updateStatus(`Visualization mode: ${visualizationMode}`, 'info');
 }
 
-// Initialize Three.js scene
 function initThreeJS() {
     // Create scene
-    scene = new THREE.Scene();
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x121212);
     
     // Create camera
-    camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-    camera.position.z = 3;
+    const camera = new THREE.PerspectiveCamera(
+        75, 
+        elements.canvas.width / elements.canvas.height, 
+        0.1, 
+        1000
+    );
+    camera.position.z = 5;
     
     // Create renderer
-    renderer = new THREE.WebGLRenderer({ 
-        canvas: canvas,
-        antialias: true,
-        alpha: true
+    const renderer = new THREE.WebGLRenderer({
+        canvas: elements.canvas,
+        antialias: true
     });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(elements.canvas.width, elements.canvas.height);
     
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    });
+    // Create controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
+    controls.rotateSpeed = 0.5;
     
-    // Create waveform geometry
+    // Store scene objects
+    threeJsScene = { scene, camera, renderer, controls };
+    
+    // Create waveform mesh
     createWaveformMesh();
-    
-    // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040);
-    scene.add(ambientLight);
-    
-    // Add directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
 }
 
-// Create the waveform mesh
 function createWaveformMesh() {
-    // Remove existing mesh if any
-    if (waveformMesh) {
-        scene.remove(waveformMesh);
-    }
+    if (!threeJsScene) return;
     
     // Create geometry
     const geometry = new THREE.BufferGeometry();
     
-    // Create 64 points by default
-    const points = 64;
-    const positions = new Float32Array(points * 3);
-    
-    // Set default positions (flat line)
-    for (let i = 0; i < points; i++) {
-        const x = (i / (points - 1)) * 4 - 2; // Range from -2 to 2
-        positions[i * 3] = x;
-        positions[i * 3 + 1] = 0;
-        positions[i * 3 + 2] = 0;
-    }
-    
-    // Set attribute
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
-    // Create material with glowing effect
-    const material = new THREE.LineBasicMaterial({
-        color: 0x00aaff,
-        linewidth: 2
+    // Create material based on color scheme
+    const material = new THREE.MeshPhongMaterial({
+        color: getColorForScheme(colorScheme),
+        side: THREE.DoubleSide,
+        wireframe: false,
+        transparent: true,
+        opacity: 0.8,
+        specular: 0x404040,
+        shininess: 30
     });
     
     // Create mesh
-    waveformMesh = new THREE.Line(geometry, material);
-    scene.add(waveformMesh);
+    const mesh = new THREE.Mesh(geometry, material);
+    threeJsScene.scene.add(mesh);
+    
+    // Add ambient light
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    threeJsScene.scene.add(ambientLight);
+    
+    // Add directional light
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(0, 1, 1);
+    threeJsScene.scene.add(directionalLight);
+    
+    // Store mesh
+    waveformMesh = mesh;
 }
 
-// Update the visualization based on current data
+function getColorForScheme(scheme) {
+    switch (scheme) {
+        case 'quantum':
+            return 0x6a1b9a;
+        case 'resonance':
+            return 0x00897b;
+        case 'symbolic':
+            return 0x1565c0;
+        default:
+            return 0x00e5ff;
+    }
+}
+
 function updateVisualization() {
-    if (!waveformData.amp || !waveformData.amp.length) return;
-    
-    // Update the displayed metrics
-    updateMetrics();
-    
-    // Update the mesh based on mode
-    if (visualizeMode.value === 'waveform' || currentMode === 'encrypt') {
-        updateWaveformMesh();
+    if (visualizationMode === '2d') {
+        // Draw 2D waveform
+        draw2DWaveform();
     } else {
-        updateSpectrogramMesh();
+        // Update 3D waveform
+        if (threeJsScene && waveformMesh) {
+            updateWaveformMesh();
+            
+            // Render the scene
+            threeJsScene.controls.update();
+            threeJsScene.renderer.render(threeJsScene.scene, threeJsScene.camera);
+        }
     }
 }
 
-// Update the waveform mesh
-function updateWaveformMesh() {
-    if (!waveformMesh) return;
+function draw2DWaveform() {
+    if (!ctx) return;
     
-    const positions = waveformMesh.geometry.attributes.position.array;
-    const points = waveformData.amp.length;
+    // Clear canvas
+    ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
     
-    // Update positions to match waveform
-    for (let i = 0; i < points; i++) {
-        const x = (i / (points - 1)) * 4 - 2; // Range from -2 to 2
-        const y = waveformData.amp[i] * 1.5 - 0.75; // Scale and center
+    // Set up dimensions
+    const width = elements.canvas.width;
+    const height = elements.canvas.height;
+    const padding = 20;
+    const graphHeight = height - padding * 2;
+    const graphWidth = width - padding * 2;
+    
+    // Draw background
+    ctx.fillStyle = '#1e1e1e';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Draw grid
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    
+    // Horizontal grid lines
+    for (let i = 0; i <= 10; i++) {
+        const y = padding + (graphHeight * i / 10);
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+    }
+    
+    // Vertical grid lines
+    for (let i = 0; i <= 10; i++) {
+        const x = padding + (graphWidth * i / 10);
+        ctx.beginPath();
+        ctx.moveTo(x, padding);
+        ctx.lineTo(x, height - padding);
+        ctx.stroke();
+    }
+    
+    // Draw amplitude waveform
+    if (waveformData.amplitude && waveformData.amplitude.length > 0) {
+        ctx.strokeStyle = getColorForWaveform('amplitude');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
         
-        positions[i * 3] = x;
-        positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = 0;
+        for (let i = 0; i < waveformData.amplitude.length; i++) {
+            const x = padding + (graphWidth * i / (waveformData.amplitude.length - 1));
+            const y = padding + graphHeight - (graphHeight * waveformData.amplitude[i]);
+            
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        
+        ctx.stroke();
     }
     
-    // Update the geometry
-    waveformMesh.geometry.attributes.position.needsUpdate = true;
+    // Draw phase waveform
+    if (waveformData.phase && waveformData.phase.length > 0) {
+        ctx.strokeStyle = getColorForWaveform('phase');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let i = 0; i < waveformData.phase.length; i++) {
+            const x = padding + (graphWidth * i / (waveformData.phase.length - 1));
+            const y = padding + graphHeight - (graphHeight * waveformData.phase[i]);
+            
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        
+        ctx.stroke();
+    }
+    
+    // Draw legend
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('Amplitude', padding, padding - 5);
+    
+    ctx.fillStyle = getColorForWaveform('amplitude');
+    ctx.fillRect(padding + 70, padding - 15, 20, 10);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Phase', padding + 100, padding - 5);
+    
+    ctx.fillStyle = getColorForWaveform('phase');
+    ctx.fillRect(padding + 140, padding - 15, 20, 10);
 }
 
-// Update the spectrogram mesh (3D visualization for stream mode)
-function updateSpectrogramMesh() {
-    // This would implement the 3D spectrogram using THREE.js
-    // For simplicity in this demo, we'll use the same waveform visualization
-    updateWaveformMesh();
+function getColorForWaveform(type) {
+    switch (colorScheme) {
+        case 'quantum':
+            return type === 'amplitude' ? '#6a1b9a' : '#2196f3';
+        case 'resonance':
+            return type === 'amplitude' ? '#00897b' : '#ff9800';
+        case 'symbolic':
+            return type === 'amplitude' ? '#1565c0' : '#4caf50';
+        default:
+            return type === 'amplitude' ? '#00e5ff' : '#ff4081';
+    }
 }
 
-// Update the displayed metrics
+function updateWaveformMesh() {
+    if (!waveformMesh || !waveformData.amplitude || !waveformData.phase) return;
+    
+    // Create vertices and faces
+    const vertices = [];
+    const indices = [];
+    const gridSize = Math.sqrt(SAMPLE_COUNT);
+    
+    // Create vertices
+    for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+            const x = (i / (gridSize - 1)) * 4 - 2;
+            const z = (j / (gridSize - 1)) * 4 - 2;
+            const index = i * gridSize + j;
+            const y = (waveformData.amplitude[index] || 0.5) * 2 - 1;
+            
+            vertices.push(x, y, z);
+        }
+    }
+    
+    // Create indices for faces
+    for (let i = 0; i < gridSize - 1; i++) {
+        for (let j = 0; j < gridSize - 1; j++) {
+            const a = i * gridSize + j;
+            const b = i * gridSize + j + 1;
+            const c = (i + 1) * gridSize + j;
+            const d = (i + 1) * gridSize + j + 1;
+            
+            // First triangle
+            indices.push(a, b, c);
+            
+            // Second triangle
+            indices.push(b, d, c);
+        }
+    }
+    
+    // Create buffer attributes
+    const geometry = waveformMesh.geometry;
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    geometry.computeBoundingSphere();
+    
+    // Update material color
+    waveformMesh.material.color.set(getColorForScheme(colorScheme));
+}
+
 function updateMetrics() {
-    if (!waveformData.amp || !waveformData.amp.length) return;
+    if (!waveformData.metrics) return;
     
-    // Calculate some metrics from the waveform
-    const maxAmp = Math.max(...waveformData.amp);
-    const avgAmp = waveformData.amp.reduce((a, b) => a + b, 0) / waveformData.amp.length;
-    const avgPhase = waveformData.phase ? 
-        (waveformData.phase.reduce((a, b) => a + b, 0) / waveformData.phase.length) : 0;
+    const metrics = waveformData.metrics;
     
-    // Update the display
-    frequencyValue.textContent = `${(Math.random() * 10 + 20).toFixed(2)} Hz`;
-    amplitudeValue.textContent = maxAmp.toFixed(2);
-    phaseValue.textContent = `${avgPhase.toFixed(2)} rad`;
+    // Update meter values
+    updateMeter(elements.harmonicResonanceMeter, elements.harmonicResonanceValue, metrics.harmonic_resonance);
+    updateMeter(elements.quantumEntropyMeter, elements.quantumEntropyValue, metrics.quantum_entropy);
+    updateMeter(elements.symbolicVarianceMeter, elements.symbolicVarianceValue, metrics.symbolic_variance);
+    updateMeter(elements.waveCohererenceMeter, elements.waveCohererenceValue, metrics.wave_coherence);
 }
 
-// Generate demo waveform data
-function generateDemoWaveform() {
-    const amp = [];
-    const phase = [];
-    const points = 64;
+function updateMeter(meterElement, valueElement, value) {
+    if (!meterElement || !valueElement) return;
     
-    for (let i = 0; i < points; i++) {
-        const x = i / points;
-        const value = 0.5 + 0.3 * Math.sin(x * Math.PI * 2) + 0.2 * Math.sin(x * Math.PI * 4);
-        amp.push(value);
-        phase.push(value * Math.PI);
+    // Update width of meter
+    meterElement.style.setProperty('--meter-width', `${value * 100}%`);
+    
+    // Set content of value
+    valueElement.textContent = value.toFixed(3);
+}
+
+function generateDemoWaveform() {
+    // Generate a demo waveform for initial display
+    const amplitude = [];
+    const phase = [];
+    
+    for (let i = 0; i < SAMPLE_COUNT; i++) {
+        const t = i / SAMPLE_COUNT;
+        amplitude.push(0.5 + 0.3 * Math.sin(t * Math.PI * 4));
+        phase.push(0.5 + 0.3 * Math.cos(t * Math.PI * 6));
     }
     
     waveformData = {
-        amp,
+        timestamp: Date.now(),
+        amplitude,
         phase,
-        t: Date.now()
+        metrics: {
+            harmonic_resonance: 0.76,
+            quantum_entropy: 0.42,
+            symbolic_variance: 0.85,
+            wave_coherence: 0.63
+        }
     };
+    
+    // Update metrics display
+    updateMetrics();
 }
 
-// Update status display
 function updateStatus(message, type = 'info') {
-    statusIndicator.textContent = message;
+    if (!elements.statusMessage) return;
     
-    // Clear existing classes
-    statusIndicator.classList.remove('success', 'error', 'warning');
+    // Remove existing classes
+    elements.statusMessage.classList.remove('error', 'success', 'info');
     
-    // Add appropriate class
-    if (type === 'success') {
-        statusIndicator.classList.add('success');
-    } else if (type === 'error') {
-        statusIndicator.classList.add('error');
-    } else if (type === 'warning') {
-        statusIndicator.classList.add('warning');
+    // Add new class
+    elements.statusMessage.classList.add(type);
+    
+    // Set message
+    elements.statusMessage.textContent = message;
+}
+
+function resetVisualization() {
+    if (visualizationMode === '3d') {
+        // Make sure ThreeJS is initialized
+        if (!threeJsScene) {
+            initThreeJS();
+        } else {
+            // Update renderer
+            threeJsScene.renderer.setSize(elements.canvas.width, elements.canvas.height);
+            threeJsScene.camera.aspect = elements.canvas.width / elements.canvas.height;
+            threeJsScene.camera.updateProjectionMatrix();
+        }
     }
 }
 
-// Reset the visualization
-function resetVisualization() {
-    // Reset demo data
-    generateDemoWaveform();
-    
-    // Update visualization
-    updateVisualization();
-}
-
-// Animation loop
 function animate() {
-    animationFrameId = requestAnimationFrame(animate);
+    // Calculate FPS
+    const now = performance.now();
+    const elapsed = now - lastFrameTime;
     
-    // Update waveform animation when not streaming
-    if (!isStreaming && currentMode === 'stream') {
-        // Animate the waveform data
-        const time = Date.now() * 0.001;
-        for (let i = 0; i < waveformData.amp.length; i++) {
-            const x = i / waveformData.amp.length;
-            waveformData.amp[i] = 0.5 + 0.3 * Math.sin(x * Math.PI * 2 + time) + 
-                0.2 * Math.sin(x * Math.PI * 4 + time * 1.3);
-        }
+    // Limit FPS
+    if (elapsed > 1000 / MAX_FPS) {
+        lastFrameTime = now;
+        
+        // Update visualization
         updateVisualization();
     }
     
-    // Render the scene
-    renderer.render(scene, camera);
+    // Request next frame
+    requestAnimationFrame(animate);
 }
 
-// Initialize the application when the DOM is ready
-document.addEventListener('DOMContentLoaded', init);
+// Add CSS custom property for meter width
+document.documentElement.style.setProperty('--meter-width', '0%');
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .meter::before {
+            width: var(--meter-width, 0%) !important;
+        }
+    </style>
+`);
+
+// Initialize the application when the DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

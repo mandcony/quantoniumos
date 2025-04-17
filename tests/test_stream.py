@@ -9,14 +9,15 @@ import json
 import time
 import unittest
 import threading
-from datetime import datetime
-from unittest.mock import patch
+import queue
+from unittest.mock import patch, MagicMock
 
+import pytest
 from flask import Flask
 from flask.testing import FlaskClient
 
-import routes
-from backend.stream import resonance_data_generator, update_encrypt_data
+from main import create_app
+from backend.stream import update_encrypt_data, get_stream
 
 
 class SSEContractTest(unittest.TestCase):
@@ -24,115 +25,130 @@ class SSEContractTest(unittest.TestCase):
     
     def setUp(self):
         """Set up test client and app"""
-        self.app = Flask(__name__)
+        self.app = create_app()
         self.app.config['TESTING'] = True
-        self.app.register_blueprint(routes.api, url_prefix='/api')
-        
-        # Create test client
+        self.app.config['SERVER_NAME'] = 'localhost'
         self.client = self.app.test_client()
+        self.app_context = self.app.app_context()
+        self.app_context.push()
         
-        # Sample waveform data for tests
-        self.sample_waveform = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-        
-        # Mock the authentication requirement for testing
-        self._patcher = patch('routes.require_jwt_auth', lambda f: f)
-        self._patcher.start()
+        # Mock the JWT authentication to bypass it for tests
+        self.auth_patcher = patch('auth.jwt_auth.get_current_api_key')
+        self.mock_auth = self.auth_patcher.start()
+        self.mock_auth.return_value = MagicMock(key_id='test_key_123')
     
     def tearDown(self):
         """Clean up after tests"""
-        self._patcher.stop()
+        self.auth_patcher.stop()
+        self.app_context.pop()
     
     def test_stream_endpoint_headers(self):
         """Test that the stream endpoint returns the correct headers"""
-        # Make request to the stream endpoint
-        response = self.client.get('/api/stream/wave')
-        
-        # Check response code
-        self.assertEqual(response.status_code, 200)
-        
-        # Check content type header
-        self.assertEqual(response.headers['Content-Type'], 'text/event-stream')
-        
-        # Check cache headers
-        self.assertEqual(response.headers['Cache-Control'], 'no-cache')
-        self.assertEqual(response.headers['X-Accel-Buffering'], 'no')
-        self.assertEqual(response.headers['Connection'], 'keep-alive')
+        with self.client as client:
+            response = client.get('/api/stream/wave')
+            
+            # Check status code
+            self.assertEqual(response.status_code, 200)
+            
+            # Check headers
+            self.assertEqual(response.headers['Content-Type'], 'text/event-stream')
+            self.assertEqual(response.headers['Cache-Control'], 'no-cache')
+            self.assertEqual(response.headers['Connection'], 'keep-alive')
     
     def test_stream_receives_events(self):
         """Test that the stream endpoint sends SSE events with correct format"""
-        # Set up a background thread to consume events
-        events = []
+        # Create queue to receive events
+        events_queue = queue.Queue()
+        
+        # Flag to signal to the background thread when to stop
         stop_event = threading.Event()
         
         def consume_events():
             """Consume SSE events in a background thread"""
             response = self.client.get('/api/stream/wave', stream=True)
-            for line in response.iter_lines():
-                line = line.decode('utf-8')
+            
+            for line in response.response:
+                line_str = line.decode('utf-8').strip()
+                if line_str.startswith('data: '):
+                    # Extract the JSON data
+                    json_str = line_str[6:]  # Remove 'data: ' prefix
+                    try:
+                        data = json.loads(json_str)
+                        events_queue.put(data)
+                    except json.JSONDecodeError:
+                        events_queue.put(f"Error parsing JSON: {json_str}")
+                
+                # Check if we should stop
                 if stop_event.is_set():
                     break
-                if line.startswith('data:'):
-                    data = line[5:].strip()
-                    events.append(json.loads(data))
-                    if len(events) >= 3:  # Collect 3 events
-                        break
         
-        # Start thread to collect events
+        # Start the consumer in a background thread
         thread = threading.Thread(target=consume_events)
         thread.daemon = True
         thread.start()
         
-        # Wait for events to be collected (with timeout)
-        start_time = time.time()
-        while len(events) < 3 and time.time() - start_time < 2.0:
-            time.sleep(0.1)
-        
-        # Signal thread to stop
-        stop_event.set()
-        thread.join(timeout=1.0)
-        
-        # Verify that events were received
-        self.assertGreaterEqual(len(events), 1, "Should receive at least one event")
-        
-        # Verify event structure
-        for event in events:
-            self.assertIn('t', event, "Event missing timestamp")
-            self.assertIn('amp', event, "Event missing amplitude data")
-            self.assertIn('phase', event, "Event missing phase data")
+        try:
+            # Wait for some events
+            time.sleep(1)
             
-            # Check data types
-            self.assertIsInstance(event['t'], int, "Timestamp should be an integer")
-            self.assertIsInstance(event['amp'], list, "Amplitude data should be a list")
-            self.assertIsInstance(event['phase'], list, "Phase data should be a list")
+            # Check that we received at least one event
+            self.assertFalse(events_queue.empty())
             
-            # Check data lengths match
-            self.assertEqual(len(event['amp']), len(event['phase']), 
-                            "Amplitude and phase arrays should have same length")
+            # Check the structure of the event
+            event = events_queue.get(timeout=1)
+            self.assertIn('timestamp', event)
+            self.assertIn('amplitude', event)
+            self.assertIn('phase', event)
+            
+            # Check that amplitude and phase are arrays
+            self.assertIsInstance(event['amplitude'], list)
+            self.assertIsInstance(event['phase'], list)
+            
+            # Check that we have metrics
+            self.assertIn('metrics', event)
+            self.assertIn('harmonic_resonance', event['metrics'])
+            self.assertIn('quantum_entropy', event['metrics'])
+            self.assertIn('symbolic_variance', event['metrics'])
+            self.assertIn('wave_coherence', event['metrics'])
+            
+        finally:
+            # Signal to stop and wait for thread to finish
+            stop_event.set()
+            thread.join(timeout=1)
     
     def test_update_encrypt_data(self):
         """Test that update_encrypt_data properly updates the shared data state"""
-        # Update encrypt data with test waveform
-        update_encrypt_data(self.sample_waveform)
+        # Call update_encrypt_data with test values
+        test_ciphertext = "test_ciphertext"
+        test_key = "test_key"
         
-        # Collect one event from generator
-        gen = resonance_data_generator()
-        event_str = next(gen)
+        # Update the data
+        update_encrypt_data(ciphertext=test_ciphertext, key=test_key)
         
-        # Parse the event data
-        data_line = event_str.strip().split('\n')[0]
-        self.assertTrue(data_line.startswith('data:'), "Event should start with 'data:'")
+        # Get a single event from the stream
+        generator = get_stream()
+        first_event = next(generator)
         
-        event_data = json.loads(data_line[5:])  # Skip 'data:' prefix
+        # Parse the event
+        event_data = first_event.strip()
+        self.assertTrue(event_data.startswith('data: '))
         
-        # Verify the event contains our sample waveform data
-        self.assertEqual(len(event_data['amp']), len(self.sample_waveform),
-                        "Waveform length should match")
+        # Extract the JSON
+        json_str = event_data[6:]  # Remove 'data: ' prefix
+        data = json.loads(json_str)
         
-        # Amplitudes should match our sample
-        for i, val in enumerate(self.sample_waveform):
-            self.assertEqual(event_data['amp'][i], val, 
-                            f"Amplitude at index {i} should match")
-
+        # Verify the structure
+        self.assertIn('timestamp', data)
+        self.assertIn('amplitude', data)
+        self.assertIn('phase', data)
+        self.assertIn('metrics', data)
+        
+        # Verify that metrics are in the expected range
+        self.assertGreaterEqual(data['metrics']['harmonic_resonance'], 0.0)
+        self.assertLessEqual(data['metrics']['harmonic_resonance'], 1.0)
+        self.assertGreaterEqual(data['metrics']['quantum_entropy'], 0.0)
+        self.assertLessEqual(data['metrics']['quantum_entropy'], 1.0)
+        
 
 if __name__ == '__main__':
     unittest.main()

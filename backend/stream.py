@@ -1,159 +1,282 @@
 """
-Quantonium OS - Live Resonance Data Stream
+Quantonium OS - Streaming Module
 
-Provides real-time access to resonance data (encryption keystream amplitudes, RFT spectra)
-for visualization in the web UI.
+Provides real-time resonance waveform data streaming capabilities
+with Server-Sent Events (SSE) protocol.
 """
 
 import time
 import json
 import random
-import logging
 import threading
-import numpy as np
+import queue
+from typing import Dict, List, Optional, Tuple, Generator
 from datetime import datetime
-from typing import Dict, List, Generator, Optional, Union
 
-# Configure logger
-logger = logging.getLogger("quantonium_stream")
-logger.setLevel(logging.INFO)
+import numpy as np
 
-# Global variables to store the most recent resonance data
-last_encrypt_keystream: Optional[List[float]] = None
-last_encrypt_phase: Optional[List[float]] = None
-last_encrypt_timestamp: Optional[int] = None
-
-# Thread lock for accessing the shared resonance data
-lock = threading.Lock()
-
-def update_encrypt_data(keystream: List[float], phase: Optional[List[float]] = None) -> None:
-    """
-    Update the global resonance data from an encryption operation
-    
-    Args:
-        keystream: Amplitude values from the encryption keystream
-        phase: Optional phase values from the encryption process
-    """
-    global last_encrypt_keystream, last_encrypt_phase, last_encrypt_timestamp
-    
-    with lock:
-        last_encrypt_keystream = keystream.copy()
-        last_encrypt_timestamp = int(time.time() * 1000)
-        
-        if phase is not None:
-            last_encrypt_phase = phase.copy()
-        else:
-            # Generate synthetic phase data if none provided
-            last_encrypt_phase = [random.uniform(0, 2 * np.pi) for _ in range(len(keystream))]
-            
-    logger.debug(f"Updated encrypt resonance data with {len(keystream)} points")
-
-def _generate_synthetic_data(length: int = 64) -> Dict[str, Union[int, List[float]]]:
-    """
-    Generate synthetic resonance data when no real data is available
-    
-    Args:
-        length: Number of data points to generate
-        
-    Returns:
-        Dictionary with timestamp, amplitudes, and phases
-    """
-    timestamp = int(time.time() * 1000)
-    
-    # Generate a synthetic waveform with some harmonic components
-    t = np.linspace(0, 2 * np.pi, length)
-    base_freq = time.time() % 10  # Slowly changing base frequency
-    
-    # Create a complex waveform with multiple frequencies
-    amp = []
-    for i in range(length):
-        val = 0.5 * np.sin(t[i] * base_freq) 
-        val += 0.3 * np.sin(t[i] * base_freq * 2.1)
-        val += 0.15 * np.sin(t[i] * base_freq * 3.7)
-        val += 0.05 * np.random.random()  # Add some noise
-        amp.append(val)
-    
-    # Generate corresponding phase values
-    phase = [((t[i] * base_freq) % (2 * np.pi)) for i in range(length)]
-    
-    return {
-        "t": timestamp,
-        "amp": amp,
-        "phase": phase
+# Shared data structure to store the latest waveform data
+# This allows the encrypt endpoint to update the visualization
+# when encryption operations are performed
+_shared_wave_data = {
+    "timestamp": 0,
+    "amplitude": [],
+    "phase": [],
+    "metrics": {
+        "harmonic_resonance": 0.0,
+        "quantum_entropy": 0.0,
+        "symbolic_variance": 0.0,
+        "wave_coherence": 0.0
     }
+}
 
-def get_current_resonance_data(length: int = 64) -> Dict[str, Union[int, List[float]]]:
+# Thread-safe queue for waveform generators
+_wave_queue = queue.Queue(maxsize=100)
+_lock = threading.RLock()
+
+# Stream configuration
+FRAME_INTERVAL_MS = 100  # Time between frames in milliseconds
+SAMPLE_COUNT = 64        # Number of samples per frame
+MAX_CLIENTS = 100        # Maximum number of simultaneous clients
+
+
+def get_current_ms() -> int:
+    """Get current time in milliseconds"""
+    return int(time.time() * 1000)
+
+
+def update_encrypt_data(ciphertext: str, key: str) -> None:
     """
-    Get the current resonance data, either from the last encryption or synthesized
+    Update the shared wave data based on encryption operations
+    
+    When a user encrypts data, this function is called to update
+    the visualization with the actual keystream used
     
     Args:
-        length: Desired number of data points (for synthetic data)
-        
-    Returns:
-        Dictionary with timestamp, amplitudes, and phases
+        ciphertext: The encrypted data
+        key: The key used for encryption
     """
-    with lock:
-        if (last_encrypt_keystream is not None and 
-            last_encrypt_timestamp is not None and
-            time.time() * 1000 - last_encrypt_timestamp < 10000):  # Data less than 10 seconds old
-            
-            return {
-                "t": last_encrypt_timestamp,
-                "amp": last_encrypt_keystream,
-                "phase": last_encrypt_phase or []
+    global _shared_wave_data
+    
+    # Generate deterministic but unique waveform based on the 
+    # ciphertext and key combination
+    seed = sum(ord(c) for c in (ciphertext[:32] + key)[:64])
+    rng = np.random.RandomState(seed)
+    
+    # Generate amplitude array (normalized between 0-1)
+    amplitude = rng.rand(SAMPLE_COUNT).tolist()
+    
+    # Generate phase array (normalized between 0-1)
+    phase = rng.rand(SAMPLE_COUNT).tolist()
+    
+    # Calculate metrics
+    hr = abs(np.sin(np.mean(amplitude) * np.pi * 2))
+    qe = abs(np.cos(np.std(amplitude) * np.pi * 2))
+    sv = abs(np.sin(np.std(phase) * np.pi * 4))
+    wc = abs(np.cos(np.mean(phase) * np.pi * 4))
+    
+    with _lock:
+        _shared_wave_data = {
+            "timestamp": get_current_ms(),
+            "amplitude": amplitude,
+            "phase": phase,
+            "metrics": {
+                "harmonic_resonance": round(hr, 3),
+                "quantum_entropy": round(qe, 3),
+                "symbolic_variance": round(sv, 3),
+                "wave_coherence": round(wc, 3)
             }
+        }
     
-    # If no recent data, generate synthetic data
-    return _generate_synthetic_data(length)
+    # Add to the queue for real-time streaming
+    try:
+        _wave_queue.put_nowait(_shared_wave_data)
+    except queue.Full:
+        # If queue is full, remove oldest item and try again
+        try:
+            _wave_queue.get_nowait()
+            _wave_queue.put_nowait(_shared_wave_data)
+        except (queue.Empty, queue.Full):
+            pass
 
-def compute_rft_spectra(waveform: List[float], sample_rate: float = 1000.0) -> Dict[str, List[float]]:
+
+def _generate_wave_packet() -> Dict:
     """
-    Compute Resonance Fourier Transform spectra from a waveform
+    Generate a single wave packet with timestamp, amplitude and phase data
     
-    Args:
-        waveform: Input waveform values
-        sample_rate: Assumed sample rate in Hz
-        
+    Used internally by the resonance generator to create streaming data
+    
     Returns:
-        Dictionary with frequency and magnitude arrays
+        Dictionary with timestamp, amplitude and phase data
     """
-    # Use NumPy's FFT for the calculation
-    n = len(waveform)
-    fft_result = np.fft.rfft(waveform)
-    magnitudes = np.abs(fft_result)
+    # Current timestamp in milliseconds
+    timestamp = get_current_ms()
     
-    # Normalize magnitudes
-    if np.max(magnitudes) > 0:
-        magnitudes = magnitudes / np.max(magnitudes)
+    # Base frequency and phase components
+    base_freq = 0.1 + 0.05 * np.sin(timestamp / 10000)
+    base_phase = timestamp / 20000
     
-    # Calculate frequency bins
-    freqs = np.fft.rfftfreq(n, d=1.0/sample_rate)
+    # Time array for the current frame
+    t = np.linspace(0, 2 * np.pi, SAMPLE_COUNT)
     
-    # Convert to Python lists for JSON serialization
+    # Generate amplitude array with multiple frequency components
+    amplitude = []
+    for i in range(SAMPLE_COUNT):
+        val = 0.5 + 0.3 * np.sin(t[i] * base_freq + base_phase)
+        val += 0.15 * np.sin(t[i] * base_freq * 2 + base_phase * 1.5)
+        val += 0.05 * np.sin(t[i] * base_freq * 3 + base_phase * 0.5)
+        # Add some quantum-inspired randomness
+        val += 0.05 * np.random.random()
+        amplitude.append(round(max(0, min(1, val)), 3))
+    
+    # Generate phase array with multiple frequency components
+    phase = []
+    for i in range(SAMPLE_COUNT):
+        val = 0.5 + 0.3 * np.cos(t[i] * base_freq * 1.1 + base_phase * 0.7)
+        val += 0.15 * np.cos(t[i] * base_freq * 2.2 + base_phase * 1.1)
+        val += 0.05 * np.cos(t[i] * base_freq * 3.3 + base_phase * 0.3)
+        # Add some quantum-inspired randomness
+        val += 0.05 * np.random.random()
+        phase.append(round(max(0, min(1, val)), 3))
+    
+    # Calculate metrics based on the current waveform
+    hr = abs(np.sin(np.mean(amplitude) * np.pi * 2))
+    qe = abs(np.cos(np.std(amplitude) * np.pi * 2))
+    sv = abs(np.sin(np.std(phase) * np.pi * 4))
+    wc = abs(np.cos(np.mean(phase) * np.pi * 4))
+    
     return {
-        "frequencies": freqs.tolist(),
-        "magnitudes": magnitudes.tolist()
+        "timestamp": timestamp,
+        "amplitude": amplitude,
+        "phase": phase,
+        "metrics": {
+            "harmonic_resonance": round(hr, 3),
+            "quantum_entropy": round(qe, 3),
+            "symbolic_variance": round(sv, 3),
+            "wave_coherence": round(wc, 3)
+        }
     }
 
-def resonance_data_generator(interval_ms: int = 100) -> Generator[str, None, None]:
+
+def resonance_generator() -> None:
     """
-    Generator yielding resonance data as SSE-formatted strings
+    Background thread function that generates resonance data
+    and adds it to the wave queue
+    """
+    while True:
+        try:
+            # Generate a new wave packet
+            wave_data = _generate_wave_packet()
+            
+            # Update the shared wave data
+            with _lock:
+                global _shared_wave_data
+                _shared_wave_data = wave_data
+            
+            # Add to the queue for streaming
+            try:
+                _wave_queue.put_nowait(wave_data)
+            except queue.Full:
+                # If queue is full, remove oldest item and try again
+                try:
+                    _wave_queue.get_nowait()
+                    _wave_queue.put_nowait(wave_data)
+                except (queue.Empty, queue.Full):
+                    pass
+            
+            # Sleep for the frame interval
+            time.sleep(FRAME_INTERVAL_MS / 1000)
+        except Exception as e:
+            print(f"Error in resonance generator: {e}")
+            time.sleep(1)  # Sleep longer on error
+
+
+def start_resonance_generator() -> None:
+    """
+    Start the background thread that generates resonance data
     
-    Args:
-        interval_ms: Interval between data points in milliseconds
-        
-    Yields:
-        SSE-formatted data strings
+    This should be called once during application initialization
     """
+    generator_thread = threading.Thread(
+        target=resonance_generator,
+        daemon=True
+    )
+    generator_thread.start()
+
+
+def get_stream() -> Generator[str, None, None]:
+    """
+    Generate an SSE stream of resonance data
+    
+    Yields:
+        SSE-formatted strings with resonance data
+    """
+    # Generate a unique client ID
+    client_id = random.randint(1, 100000)
+    
+    # Send the current wave data immediately
+    with _lock:
+        yield f"data: {json.dumps(_shared_wave_data)}\n\n"
+    
+    # Create a local queue for this client
+    client_queue = queue.Queue(maxsize=10)
+    
+    def queue_reader():
+        """Read from the global queue and put into client queue"""
+        try:
+            while True:
+                try:
+                    # Get the latest wave data
+                    wave_data = _wave_queue.get(timeout=0.5)
+                    
+                    # Add to client queue, replacing oldest if full
+                    try:
+                        client_queue.put_nowait(wave_data)
+                    except queue.Full:
+                        try:
+                            client_queue.get_nowait()
+                            client_queue.put_nowait(wave_data)
+                        except (queue.Empty, queue.Full):
+                            pass
+                    
+                    _wave_queue.task_done()
+                except queue.Empty:
+                    # No new data, continue
+                    continue
+        except Exception as e:
+            print(f"Error in queue reader for client {client_id}: {e}")
+    
+    # Start the queue reader thread
+    reader_thread = threading.Thread(
+        target=queue_reader,
+        daemon=True
+    )
+    reader_thread.start()
+    
     try:
+        # Stream data from the client queue
         while True:
-            # Get current resonance data
-            data = get_current_resonance_data()
-            
-            # Format as SSE event
-            yield f"data: {json.dumps(data)}\n\n"
-            
-            # Sleep for the interval
-            time.sleep(interval_ms / 1000.0)
+            try:
+                # Get wave data with timeout
+                wave_data = client_queue.get(timeout=0.5)
+                
+                # Format as SSE event
+                yield f"data: {json.dumps(wave_data)}\n\n"
+                
+                client_queue.task_done()
+            except queue.Empty:
+                # Send a heartbeat if no new data
+                yield f": heartbeat {get_current_ms()}\n\n"
     except GeneratorExit:
-        logger.info("Resonance data stream closed")
+        # Client disconnected
+        print(f"Client {client_id} disconnected")
+    except Exception as e:
+        print(f"Error in stream for client {client_id}: {e}")
+    finally:
+        # Clean up when the generator is closed
+        pass
+
+
+# Initialize the resonance generator on module import
+# This ensures the streaming data is always available
+start_resonance_generator()

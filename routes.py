@@ -9,7 +9,7 @@ from core.protected.symbolic_interface import get_interface
 from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest, AutoUnlockRequest
 from utils import sign_response
 from auth.jwt_auth import require_jwt_auth
-from backend.stream import resonance_data_generator, update_encrypt_data
+from backend.stream import get_stream, update_encrypt_data
 
 api = Blueprint("api", __name__)
 symbolic = get_interface()
@@ -42,6 +42,9 @@ def encrypt():
         plaintext=data.plaintext,
         ciphertext=f"ENCRYPTED:{data.plaintext}"  # Simplified for this implementation
     )
+    
+    # Update the wave visualization data with this encryption operation
+    update_encrypt_data(ciphertext=hash_value, key=data.key)
     
     # Include the API key ID in response for audit purposes
     response = {
@@ -253,21 +256,13 @@ def stream_wave():
     Server-Sent Events (SSE) endpoint that streams live resonance data
     
     Returns a continuous stream of JSON data with the format:
-    {"t": timestamp_ms, "amp": [amplitude_values], "phase": [phase_values]}
+    {"timestamp": timestamp_ms, "amplitude": [amplitude_values], "phase": [phase_values]}
     
     Each event is sent approximately every 100ms
     """
-    def sse_stream():
-        # Send headers for SSE
-        yield "event: connected\ndata: {\"status\":\"connected\"}\n\n"
-        
-        # Stream resonance data
-        for data in resonance_data_generator(interval_ms=100):
-            yield data
-    
     # Configure the response with proper SSE headers
     response = Response(
-        stream_with_context(sse_stream()),
+        stream_with_context(get_stream()),
         mimetype="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

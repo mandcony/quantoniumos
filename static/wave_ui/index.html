@@ -3,118 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantonium OS - Live Waveform Visualization</title>
+    <title>Quantonium OS - Live Resonance Visualization</title>
     <link rel="stylesheet" href="styles.css">
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-        }
-    }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Quantonium OS</h1>
-            <h2>Live Resonance Visualization</h2>
-            <div class="mode-selector">
-                <button id="encrypt-mode-btn" class="mode-btn active">Encrypt Mode</button>
-                <button id="stream-mode-btn" class="mode-btn">Stream Mode</button>
-            </div>
-        </header>
+    <header>
+        <h1>Quantonium OS</h1>
+        <h2>Live Resonance Visualization</h2>
+        <div class="mode-selector">
+            <button id="encrypt-mode-btn" class="mode-btn active">Encrypt Mode</button>
+            <button id="stream-mode-btn" class="mode-btn">Stream Mode</button>
+        </div>
+    </header>
 
-        <main>
-            <div id="visualization-container">
-                <canvas id="waveform-canvas"></canvas>
-                <div class="overlay-metrics">
-                    <div class="metric">
-                        <span class="label">Frequency:</span>
-                        <span id="frequency-value" class="value">0.00 Hz</span>
-                    </div>
-                    <div class="metric">
-                        <span class="label">Amplitude:</span>
-                        <span id="amplitude-value" class="value">0.00</span>
-                    </div>
-                    <div class="metric">
-                        <span class="label">Phase:</span>
-                        <span id="phase-value" class="value">0.00 rad</span>
-                    </div>
-                    <div class="metric">
-                        <span class="label">Status:</span>
-                        <span id="status-indicator" class="value">Initializing</span>
-                    </div>
-                </div>
+    <main>
+        <div id="encrypt-panel" class="panel active">
+            <div class="form-group">
+                <label for="plaintext">Plaintext:</label>
+                <textarea id="plaintext" placeholder="Enter text to encrypt..."></textarea>
             </div>
+            <div class="form-group">
+                <label for="key">Encryption Key:</label>
+                <input type="text" id="key" placeholder="Enter encryption key...">
+            </div>
+            <button id="encrypt-btn" class="action-btn">Encrypt</button>
+            <div id="result-container">
+                <h3>Encryption Result:</h3>
+                <div id="ciphertext-display" class="result-box"></div>
+            </div>
+        </div>
 
-            <div id="encrypt-panel" class="control-panel">
-                <div class="panel-section">
-                    <h3>Encryption Parameters</h3>
-                    <div class="input-group">
-                        <label for="plaintext">Plaintext:</label>
-                        <textarea id="plaintext" rows="3" placeholder="Enter text to encrypt...">Quantonium secure message</textarea>
-                    </div>
-                    <div class="input-group">
-                        <label for="key">Key:</label>
-                        <input type="text" id="key" placeholder="Encryption key" value="quantum-key">
-                    </div>
-                    <button id="encrypt-btn" class="action-btn">Encrypt</button>
+        <div id="stream-panel" class="panel">
+            <div class="stream-controls">
+                <button id="stream-start-btn" class="action-btn">Start Streaming</button>
+                <button id="stream-stop-btn" class="action-btn" disabled>Stop Streaming</button>
+            </div>
+            <div class="stream-stats">
+                <div class="stat-group">
+                    <span class="stat-label">Events:</span>
+                    <span id="events-count" class="stat-value">0</span>
                 </div>
-                <div class="panel-section">
-                    <h3>Encryption Result</h3>
-                    <div class="result-container">
-                        <code id="ciphertext-display">...</code>
+                <div class="stat-group">
+                    <span class="stat-label">Avg. Latency:</span>
+                    <span id="avg-latency" class="stat-value">0ms</span>
+                </div>
+                <div class="stat-group">
+                    <span class="stat-label">Stream Speed:</span>
+                    <span id="stream-speed" class="stat-value">0 fps</span>
+                </div>
+            </div>
+            <div class="metrics-container">
+                <div class="metric">
+                    <label>Harmonic Resonance:</label>
+                    <div class="meter-container">
+                        <div id="harmonic-resonance-meter" class="meter"></div>
+                        <span id="harmonic-resonance-value" class="meter-value">0.0</span>
+                    </div>
+                </div>
+                <div class="metric">
+                    <label>Quantum Entropy:</label>
+                    <div class="meter-container">
+                        <div id="quantum-entropy-meter" class="meter"></div>
+                        <span id="quantum-entropy-value" class="meter-value">0.0</span>
+                    </div>
+                </div>
+                <div class="metric">
+                    <label>Symbolic Variance:</label>
+                    <div class="meter-container">
+                        <div id="symbolic-variance-meter" class="meter"></div>
+                        <span id="symbolic-variance-value" class="meter-value">0.0</span>
+                    </div>
+                </div>
+                <div class="metric">
+                    <label>Wave Coherence:</label>
+                    <div class="meter-container">
+                        <div id="wave-coherence-meter" class="meter"></div>
+                        <span id="wave-coherence-value" class="meter-value">0.0</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div id="stream-panel" class="control-panel hidden">
-                <div class="panel-section">
-                    <h3>Streaming Parameters</h3>
-                    <div class="input-group slider">
-                        <label for="stream-speed">Update Speed:</label>
-                        <input type="range" id="stream-speed" min="50" max="500" step="50" value="100">
-                        <span id="stream-speed-value">100ms</span>
-                    </div>
-                    <div class="input-group slider">
-                        <label for="visualize-mode">Visualization Type:</label>
-                        <select id="visualize-mode">
-                            <option value="waveform">2D Waveform</option>
-                            <option value="spectrogram">3D Spectrogram</option>
-                        </select>
-                    </div>
-                    <button id="stream-start-btn" class="action-btn">Start Stream</button>
-                    <button id="stream-stop-btn" class="action-btn" disabled>Stop Stream</button>
+        <div id="visualization">
+            <canvas id="waveform-canvas"></canvas>
+            <div id="visualization-controls">
+                <div class="control-group">
+                    <label for="view-mode">View Mode:</label>
+                    <select id="view-mode">
+                        <option value="2d">2D Waveform</option>
+                        <option value="3d">3D Spectrogram</option>
+                    </select>
                 </div>
-                <div class="panel-section">
-                    <h3>Stream Status</h3>
-                    <div class="stats-container">
-                        <div class="stat">
-                            <span class="label">Events Received:</span>
-                            <span id="events-count" class="value">0</span>
-                        </div>
-                        <div class="stat">
-                            <span class="label">Data Points:</span>
-                            <span id="data-points" class="value">0</span>
-                        </div>
-                        <div class="stat">
-                            <span class="label">Average Latency:</span>
-                            <span id="avg-latency" class="value">0ms</span>
-                        </div>
-                    </div>
+                <div class="control-group">
+                    <label for="color-scheme">Color Scheme:</label>
+                    <select id="color-scheme">
+                        <option value="quantum">Quantum</option>
+                        <option value="resonance">Resonance</option>
+                        <option value="symbolic">Symbolic</option>
+                    </select>
                 </div>
             </div>
-        </main>
+        </div>
+    </main>
 
-        <footer>
-            <div class="info">
-                <p>Quantonium OS v0.3.0 - Real-time Resonance Visualization</p>
-                <p>© 2025 Quantonium | <a href="/docs" target="_blank">API Documentation</a></p>
-            </div>
-        </footer>
+    <div id="status-bar">
+        <span id="status-message">Ready</span>
     </div>
 
-    <script type="module" src="main.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
