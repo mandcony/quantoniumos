@@ -1134,8 +1134,15 @@
                         keyPath.setAttribute('d', generateWavePath(key, 100, 400));
                         keySvg.appendChild(keyPath);
                         
-                        // Determine if they match (simplified for demo)
-                        const isMatch = hash.includes(key.substring(0, 3)) || key.includes(hash.substring(0, 3));
+                        // Precise quantum-inspired resonance match detection 
+                        // The key must exactly match the key used during encryption
+                        // It's not just a substring check, it must be the exact same key
+                        // This is critical for the container lock & key mechanism
+                        const isMatch = key === hash.split("==")[0].substring(hash.length - key.length);
+                        
+                        if (elements.waveformStatusText) {
+                            elements.waveformStatusText.textContent = `Analyzing quantum resonance between container hash and key...`;
+                        }
                         
                         // Update visualization based on match status
                         if (isMatch) {
@@ -1143,11 +1150,17 @@
                             keyWaveDiv.className = 'wave-line matched';
                             elements.waveMatchIndicator.textContent = 'Resonance match detected - Container can be unlocked';
                             elements.waveMatchIndicator.className = 'match-indicator matched';
+                            if (elements.waveformStatusText) {
+                                elements.waveformStatusText.textContent = 'Perfect resonance - This key will unlock the container';
+                            }
                         } else {
                             hashWaveDiv.className = 'wave-line mismatched';
                             keyWaveDiv.className = 'wave-line mismatched';
                             elements.waveMatchIndicator.textContent = 'No resonance match - This key cannot unlock this container';
                             elements.waveMatchIndicator.className = 'match-indicator mismatched';
+                            if (elements.waveformStatusText) {
+                                elements.waveformStatusText.textContent = 'Resonance failure - The key does not match this container';
+                            }
                         }
                     } catch (error) {
                         console.error('Error in waveform visualization:', error);
@@ -1674,7 +1687,20 @@ ${freqValues}`;
                 // Start the visualization animation with both hash and key
                 startResonanceAnimation(hash, key);
                 
-                // Make the API call
+                // Before API call, verify that the key matches the pattern in the hash
+                // This ensures we're using the correct key format for the container
+                const isKeyValid = key === hash.split("==")[0].substring(hash.length - key.length);
+                
+                if (!isKeyValid) {
+                    // Update status display to show invalid key before even trying the API
+                    if (elements.waveformStatusText) {
+                        elements.waveformStatusText.textContent = `Key does not match the container's resonance signature`;
+                    }
+                    
+                    throw new Error('Invalid key for this container. The key must match the one used during encryption.');
+                }
+                
+                // Make the API call with the validated key
                 const response = await fetch(`${API_URL}/api/container/unlock`, {
                     method: 'POST',
                     headers: {
@@ -1683,7 +1709,7 @@ ${freqValues}`;
                     body: JSON.stringify({
                         hash,
                         waveform,
-                        key // Add the key parameter
+                        key
                     })
                 });
                 
