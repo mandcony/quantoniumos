@@ -1693,16 +1693,16 @@ ${freqValues}`;
                     elements.waveformStatusText.textContent = `Sending to backend for secure quantum-inspired validation...`;
                 }
                 
-                // Make the API call with the validated key
-                const response = await fetch(`${API_URL}/api/container/unlock`, {
+                // Make the API call with correct decrypt endpoint - we must use decrypt endpoint as that's what's set up
+                // Container unlock is handled by the decrypt endpoint in our system
+                const response = await fetch(`${API_URL}/api/decrypt`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        hash,
-                        waveform,
-                        key
+                        ciphertext: hash,  // hash is actually the ciphertext
+                        key: key           // key must match what was used during encryption
                     })
                 });
                 
@@ -1711,10 +1711,10 @@ ${freqValues}`;
                 // Update the unlock result
                 elements.unlockResult.style.display = 'block';
                 
-                if (data.unlocked) {
+                if (data.plaintext) {
                     elements.unlockResult.className = 'unlock-result success';
                     elements.unlockResultTitle.textContent = 'Container Unlocked';
-                    elements.unlockResultMessage.textContent = data.message;
+                    elements.unlockResultMessage.textContent = `Decrypted successfully: ${data.plaintext}`;
                     
                     // Update container info
                     if (data.container) {
