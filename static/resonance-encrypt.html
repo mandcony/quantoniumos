@@ -1073,8 +1073,17 @@
                 // Start the visualization animation
                 startResonanceAnimation(data.ciphertext, key);
                 
-                // Update the output
-                elements.encryptOutput.textContent = JSON.stringify(data, null, 2);
+                // Update the output with a more user-friendly format
+                const formattedOutput = `// Encryption Successful
+// Generated: ${new Date().toLocaleString()}
+// Container hash: ${data.ciphertext}
+// Status: Container sealed and registered
+
+Use this hash with the matching key to decrypt, or use it in 
+the Auto-Unlock tab to open the container directly.
+
+${JSON.stringify({ciphertext: data.ciphertext}, null, 2)}`;
+                elements.encryptOutput.textContent = formattedOutput;
                 updateStatus('Encryption successful', 'success');
                 
             } catch (error) {
@@ -1140,8 +1149,15 @@
                 // Start the visualization animation
                 startResonanceAnimation(ciphertext, key);
                 
-                // Update the output
-                elements.decryptOutput.textContent = JSON.stringify(data, null, 2);
+                // Update the output with a more user-friendly format
+                const formattedOutput = `// Decryption Successful
+// Generated: ${new Date().toLocaleString()}
+// Message: Container unlocked and contents retrieved
+// Status: Operation complete
+
+Plaintext Content:
+${data.plaintext}`;
+                elements.decryptOutput.textContent = formattedOutput;
                 updateStatus('Decryption successful', 'success');
                 
             } catch (error) {
@@ -1200,8 +1216,18 @@
                 
                 const data = await response.json();
                 
-                // Update the output
-                elements.rftOutput.textContent = JSON.stringify(data, null, 2);
+                // Update the output with a more user-friendly format
+                const freqValues = Object.entries(data.frequencies)
+                    .map(([key, value]) => `${key}: ${value.toFixed(4)}`)
+                    .join('\n');
+                    
+                const formattedOutput = `// Resonance Fourier Transform Complete
+// Generated: ${new Date().toLocaleString()}
+// Status: Analysis successful
+
+Frequency Components:
+${freqValues}`;
+                elements.rftOutput.textContent = formattedOutput;
                 updateStatus('RFT analysis complete', 'success');
                 
                 // Display the RFT results
@@ -1423,9 +1449,18 @@
                 
                 const data = await response.json();
                 
-                // Update the output
+                // Update the output with a more user-friendly format
                 if (entropyOutput) {
-                    entropyOutput.textContent = data.entropy;
+                    // Format the entropy data in a more readable way
+                    const entropyValue = data.entropy;
+                    const formattedOutput = `// Quantum Entropy (${entropyAmount} bytes)
+// Generated: ${new Date().toLocaleString()}
+// Format: Base64-encoded
+// Purpose: High-security cryptographic operations
+
+${entropyValue}`;
+                    
+                    entropyOutput.textContent = formattedOutput;
                 }
                 
                 // Update status and meters
