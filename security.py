@@ -60,8 +60,8 @@ def configure_security(app: Flask):
         force_https=not is_development,  # Only force HTTPS in production
         force_https_permanent=not is_development,
         force_file_save=True,
-        frame_options='DENY',
-        frame_options_allow_from=None,
+        frame_options=None,  # Allow embedding in iframes
+        frame_options_allow_from="*",
         strict_transport_security=not is_development,  # Only enable HSTS in production
         strict_transport_security_preload=not is_development,
         strict_transport_security_max_age=31536000,
@@ -88,6 +88,11 @@ def configure_security(app: Flask):
     @app.after_request
     def set_additional_headers(response):
         response.headers['Permissions-Policy'] = 'interest-cohort=()'
+        # Add CORS headers to allow embedding from any site
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, Authorization'
+        response.headers['X-Frame-Options'] = 'ALLOWALL'
         return response
     
     return talisman, limiter

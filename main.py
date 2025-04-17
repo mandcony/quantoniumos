@@ -106,6 +106,11 @@ def create_app():
     def wave_visualization_embed():
         return send_from_directory('static/wave_ui', 'embed.html')
         
+    # Serve the Squarespace embed page
+    @app.route('/squarespace-embed')
+    def squarespace_embed():
+        return send_from_directory('static', 'squarespace-embed.html')
+        
     # Serve embed demo instructions
     @app.route('/embed-demo')
     def embed_demo():
