@@ -602,19 +602,27 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Waveform Pattern:</label>
-                            <div class="range-input">
-                                <input type="range" id="unlock-pattern-slider" min="0" max="100" value="50">
-                                <span id="unlock-pattern-value" class="value">0.5</span>
+                            <label>Encryption Key:</label>
+                            <div class="key-input">
+                                <input type="text" id="unlock-key-input" placeholder="Enter the key from encryption phase...">
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Waveform Intensity:</label>
-                            <div class="range-input">
-                                <input type="range" id="unlock-intensity-slider" min="0" max="100" value="75">
-                                <span id="unlock-intensity-value" class="value">0.75</span>
+                        <div class="waveform-match-visualization">
+                            <div class="visualization-header">
+                                <div class="match-indicator" id="waveform-match-indicator">Enter hash and key to check resonance</div>
                             </div>
+                            <div class="visualization-waves">
+                                <div class="wave-animation" id="wave-animation-container"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden controls - not shown to user but used for internal functionality -->
+                        <div style="display: none;">
+                            <input type="range" id="unlock-pattern-slider" min="0" max="100" value="50">
+                            <span id="unlock-pattern-value" class="value">0.5</span>
+                            <input type="range" id="unlock-intensity-slider" min="0" max="100" value="75">
+                            <span id="unlock-intensity-value" class="value">0.75</span>
                         </div>
                     </div>
                     
@@ -1374,6 +1382,7 @@ ${freqValues}`;
         
         async function handleContainerUnlock() {
             const hash = elements.unlockHashInput.value.trim();
+            const key = elements.unlockKeyInput.value.trim();
             
             // Get the waveform data
             const waveform = updateUnlockWaveform();
@@ -1382,6 +1391,18 @@ ${freqValues}`;
             if (!hash) {
                 showError(elements.unlockError, 'Please enter container hash');
                 return;
+            }
+            
+            if (!key) {
+                showError(elements.unlockError, 'Please enter the encryption key used to create this container');
+                return;
+            }
+            
+            // Update the match indicator if it exists
+            const matchIndicator = document.getElementById('waveform-match-indicator');
+            if (matchIndicator) {
+                matchIndicator.textContent = 'Checking key resonance with container...';
+                matchIndicator.className = 'match-indicator checking';
             }
             
             // Reset and show loading
@@ -1396,6 +1417,9 @@ ${freqValues}`;
             resetVisualization();
             
             try {
+                // Start the visualization animation with both hash and key
+                startResonanceAnimation(hash, key);
+                
                 // Make the API call
                 const response = await fetch(`${API_URL}/api/container/unlock`, {
                     method: 'POST',
@@ -1404,14 +1428,12 @@ ${freqValues}`;
                     },
                     body: JSON.stringify({
                         hash,
-                        waveform
+                        waveform,
+                        key // Add the key parameter
                     })
                 });
                 
                 const data = await response.json();
-                
-                // Start the visualization animation for the unlock operation
-                startResonanceAnimation(hash, JSON.stringify(waveform));
                 
                 // Update the unlock result
                 elements.unlockResult.style.display = 'block';
@@ -1428,11 +1450,50 @@ ${freqValues}`;
                         elements.containerPreview.textContent = data.container.content_preview || '';
                     }
                     
+                    // Update the wave animation container
+                    const waveContainer = document.getElementById('wave-animation-container');
+                    if (waveContainer) {
+                        waveContainer.innerHTML = `
+                            <div class="wave-line matched">
+                                <svg viewBox="0 0 600 100" preserveAspectRatio="none">
+                                    <path d="M0,50 Q150,10 300,50 T600,50" class="wave-path"></path>
+                                </svg>
+                            </div>
+                            <div class="wave-label">Perfect resonance match achieved</div>
+                        `;
+                    }
+                    
+                    // Update the match indicator
+                    if (matchIndicator) {
+                        matchIndicator.textContent = 'Key resonance match: Perfect';
+                        matchIndicator.className = 'match-indicator matched';
+                    }
+                    
                     updateStatus('Container unlocked successfully', 'success');
                 } else {
                     elements.unlockResult.className = 'unlock-result error';
                     elements.unlockResultTitle.textContent = 'Unlock Failed';
-                    elements.unlockResultMessage.textContent = data.message;
+                    elements.unlockResultMessage.textContent = data.message || 'Failed to unlock container with the provided key and hash';
+                    
+                    // Update the wave animation container to show mismatch
+                    const waveContainer = document.getElementById('wave-animation-container');
+                    if (waveContainer) {
+                        waveContainer.innerHTML = `
+                            <div class="wave-line mismatched">
+                                <svg viewBox="0 0 600 100" preserveAspectRatio="none">
+                                    <path d="M0,50 Q100,90 200,10 T400,70 T600,30" class="wave-path"></path>
+                                </svg>
+                            </div>
+                            <div class="wave-label">Waveform resonance not achieved</div>
+                        `;
+                    }
+                    
+                    // Update the match indicator
+                    if (matchIndicator) {
+                        matchIndicator.textContent = 'Key resonance mismatch: Invalid key for this container';
+                        matchIndicator.className = 'match-indicator mismatched';
+                    }
+                    
                     updateStatus('Container unlock failed', 'error');
                 }
                 
@@ -1440,6 +1501,13 @@ ${freqValues}`;
                 console.error('Container unlock error:', error);
                 showError(elements.unlockError, `Error: ${error.message}`);
                 elements.unlockResult.style.display = 'none';
+                
+                // Update the match indicator on error
+                if (matchIndicator) {
+                    matchIndicator.textContent = 'Error: Could not verify key resonance';
+                    matchIndicator.className = 'match-indicator error';
+                }
+                
                 updateStatus(`Error: ${error.message}`, 'error');
                 isProcessing = false;
             } finally {
