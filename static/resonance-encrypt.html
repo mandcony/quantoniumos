@@ -986,9 +986,7 @@
         const waveformCtx = elements.waveformCanvas?.getContext('2d');
         const unlockWaveformCtx = elements.unlockWaveformCanvas?.getContext('2d');
         const rftResultCtx = elements.rftResultCanvas?.getContext('2d');
-        const gridContainer1Ctx = elements.gridContainer1Canvas?.getContext('2d');
-        const gridContainer2Ctx = elements.gridContainer2Canvas?.getContext('2d');
-        const gridOscillatorCtx = elements.gridOscillatorCanvas?.getContext('2d');
+        // Note: Quantum grid canvases are managed by the quantum-grid.js module
         
         // Initialize
         function init() {
