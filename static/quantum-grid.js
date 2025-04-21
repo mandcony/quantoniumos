@@ -43,7 +43,7 @@ function initializeQuantumGrid() {
     };
     
     // Check if the necessary elements exist
-    if (!elements.gridQubitGrid || !gridContainer1Ctx) {
+    if (!elements.gridQubitGrid) {
         console.error("Required Quantum Grid elements not found");
         return;
     }
@@ -278,7 +278,7 @@ function updateFormulaDisplay(qubitCount, inputData, isStressTest, elements) {
 
 // Start oscillator animation
 function startOscillatorAnimation(elements) {
-    if (!gridOscillatorCtx || !elements.gridOscillatorCanvas) return;
+    if (!gridOscillatorCtx) return;
     
     // Stop existing animation if running
     if (oscillatorAnimationId) {
@@ -293,6 +293,8 @@ function startOscillatorAnimation(elements) {
     
     // Animation function
     function animate() {
+        if (!ctx || !canvas) return;
+        
         ctx.clearRect(0, 0, width, height);
         
         // Draw background
