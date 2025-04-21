@@ -200,15 +200,39 @@ function runStressTest(elements) {
     elements.gridQubitCount.value = "150";
     updateQubitGrid(150, elements);
     
-    // Simulate delay for processing
-    setTimeout(() => {
+    // Connect to Python backend using the benchmark API
+    fetch('/api/quantum/benchmark')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Quantum benchmark completed by backend:", data);
+            simulateStressTestResults(150, elements);
+            // Update formula display for stress test
+            updateFormulaDisplay(150, "Stress Test", true, elements);
+            
+            if (window.updateStatus) {
+                window.updateStatus(`Stress test completed for ${data.max_qubits} qubits - system capacity verified (Engine: ${data.engine_id})`, 'success');
+            }
+        } else {
+            console.error("Error from quantum backend:", data.error);
+            if (elements.gridError) {
+                elements.gridError.textContent = "Backend error: " + (data.message || data.error);
+            }
+            
+            // Fallback to frontend visualization
+            simulateStressTestResults(150, elements);
+            updateFormulaDisplay(150, "Stress Test", true, elements);
+        }
+    })
+    .catch(error => {
+        console.error("Failed to connect to quantum backend:", error);
+        // Fallback to frontend visualization if backend fails
         simulateStressTestResults(150, elements);
-        // Update formula display for stress test
         updateFormulaDisplay(150, "Stress Test", true, elements);
         if (window.updateStatus) {
-            window.updateStatus(`Stress test completed for 150 qubits - system capacity verified`, 'success');
+            window.updateStatus(`Stress test completed for 150 qubits (local simulation)`, 'success');
         }
-    }, 800);
+    });
 }
 
 // Simulate quantum results (frontend visualization only)

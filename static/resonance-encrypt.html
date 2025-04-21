@@ -2289,23 +2289,10 @@ ${entropyValue}`;
             }
         }
         
-            const inputData = elements.gridInputData ? elements.gridInputData.value : "";
-            
-            // Simulate quantum processing with animation
-            updateStatus(`Running quantum process on ${gridQubitCount} qubits...`, 'info');
-            
-            // Reset grid qubits to initial state
-            const qubits = elements.gridQubitGrid.querySelectorAll('.qubit');
-            qubits.forEach(qubit => {
-                qubit.classList.remove('qubit-measured');
-                qubit.querySelector('.qubit-value').textContent = '|0⟩';
-            });
-            
-            // Simulate delay for processing
-            setTimeout(() => {
-                simulateQuantumResults(gridQubitCount, inputData);
-                updateFormulaDisplay(gridQubitCount, inputData);
-            }, 500);
+        // Custom function to expose updateStatus to the global window
+        function setupQuantumGridIntegration() {
+            // Expose updateStatus to the window object for use by quantum-grid.js
+            window.updateStatus = updateStatus;
         }
 
         // Run quantum stress test
