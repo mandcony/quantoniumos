@@ -1007,6 +1007,12 @@
                         content.classList.remove('active');
                     });
                     document.getElementById(`${tabName}-tab`).classList.add('active');
+                    
+                    // Initialize quantum grid when that tab is selected
+                    if (tabName === 'quantum-grid' && typeof window.initializeQuantumGrid === 'function') {
+                        console.log("Initializing quantum grid from tab switch");
+                        window.initializeQuantumGrid();
+                    }
                 });
             });
             
