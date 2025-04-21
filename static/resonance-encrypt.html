@@ -1006,9 +1006,9 @@
                     document.getElementById(`${tabName}-tab`).classList.add('active');
                     
                     // Initialize quantum grid when that tab is selected
-                    if (tabName === 'quantum-grid' && typeof window.initializeQuantumGrid === 'function') {
+                    if (tabName === 'quantum-grid') {
                         console.log("Initializing quantum grid from tab switch");
-                        window.initializeQuantumGrid();
+                        initializeQuantumGridModule();
                     }
                 });
             });
@@ -2278,13 +2278,15 @@ ${entropyValue}`;
         // Initialize the quantum grid using the external quantum-grid.js module
         function initializeQuantumGridModule() {
             console.log("Delegating to the external quantum grid module...");
-            // Call the global function exposed by quantum-grid.js
-            if (typeof window.initializeQuantumGrid === 'function') {
-                // Using a direct reference to quantum-grid.js's version
-                const externalInitFunction = window.initializeQuantumGrid;
-                externalInitFunction();
-            } else {
-                console.error("External quantum grid module not loaded correctly");
+            // Call the global function exposed by quantum-grid.js - if it exists
+            try {
+                if (typeof initializeQuantumGrid === 'function') {
+                    initializeQuantumGrid();
+                } else {
+                    console.error("External quantum grid module not loaded correctly");
+                }
+            } catch (e) {
+                console.error("Error initializing quantum grid:", e);
             }
         }
         

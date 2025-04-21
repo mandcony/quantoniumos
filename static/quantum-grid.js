@@ -10,7 +10,7 @@ let gridInitialized = false;
 let oscillatorAnimationId = null;
 let gridFrequency = 1.0;
 let gridAmplitude = 1.0;
-let gridQubitCount = 6;
+let gridQubitCount = 100;
 
 // Canvas contexts
 let gridContainer1Ctx;
@@ -19,7 +19,11 @@ let gridOscillatorCtx;
 
 // Initialize the quantum grid panel
 function initializeQuantumGrid() {
-    if (gridInitialized) return;
+    // Guard against multiple initializations
+    if (gridInitialized) {
+        console.log("Quantum Grid already initialized - skipping");
+        return;
+    }
     
     console.log("Initializing Quantum Grid...");
     
