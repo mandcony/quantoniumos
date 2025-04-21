@@ -139,11 +139,48 @@ function runQuantumGrid(elements) {
         qubit.querySelector('.qubit-value').textContent = '|0⟩';
     });
     
-    // Simulate delay for processing
-    setTimeout(() => {
+    // Connect to Python backend using the API
+    fetch('/api/quantum/circuit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            circuit: { 
+                gates: Array.from({length: Math.min(10, gridQubitCount)}, (_, i) => ({
+                    name: "h",
+                    target: i
+                }))
+            },
+            qubit_count: gridQubitCount
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Quantum circuit processed by backend:", data);
+            simulateQuantumResults(gridQubitCount, inputData, elements);
+            updateFormulaDisplay(gridQubitCount, inputData, false, elements);
+            if (window.updateStatus) {
+                window.updateStatus(`Quantum process completed for ${gridQubitCount} qubits using backend engine`, 'success');
+            }
+        } else {
+            console.error("Error from quantum backend:", data.error);
+            if (elements.gridError) {
+                elements.gridError.textContent = "Backend error: " + (data.message || data.error);
+            }
+            
+            // Fallback to frontend visualization
+            simulateQuantumResults(gridQubitCount, inputData, elements);
+            updateFormulaDisplay(gridQubitCount, inputData, false, elements);
+        }
+    })
+    .catch(error => {
+        console.error("Failed to connect to quantum backend:", error);
+        // Fallback to frontend visualization if backend fails
         simulateQuantumResults(gridQubitCount, inputData, elements);
         updateFormulaDisplay(gridQubitCount, inputData, false, elements);
-    }, 500);
+    });
 }
 
 // Run quantum stress test

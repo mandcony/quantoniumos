@@ -2275,57 +2275,18 @@ ${entropyValue}`;
         }
         
         // Global variables for quantum grid
-        let gridInitialized = false;
-        let oscillatorAnimationId = null;
-        let gridFrequency = 1.0;
-        let gridAmplitude = 1.0;
-        let gridQubitCount = 6;
+        // Setup for Quantum Grid integration 
+        // This is now handled by the quantum-grid.js module
         
-        // Initialize the quantum grid panel
+        // Initialize the quantum grid using the external quantum-grid.js module
         function initializeQuantumGrid() {
-            if (gridInitialized) return;
-            
-            // Check if the necessary elements exist
-            if (!elements.gridQubitGrid || !elements.gridContainer1Canvas) {
-                return;
+            console.log("Delegating to the external quantum grid module...");
+            // Call the global function exposed by quantum-grid.js
+            if (typeof window.initializeQuantumGrid === 'function') {
+                window.initializeQuantumGrid();
+            } else {
+                console.error("External quantum grid module not loaded correctly");
             }
-            
-            // Initialize grid controls
-            if (elements.gridRunBtn) {
-                elements.gridRunBtn.addEventListener('click', runQuantumGrid);
-            }
-            
-            if (elements.gridStressTest) {
-                elements.gridStressTest.addEventListener('click', runStressTest);
-            }
-            
-            if (elements.gridShowOscillator) {
-                elements.gridShowOscillator.addEventListener('change', toggleOscillator);
-            }
-            
-            if (elements.gridFrequencySlider) {
-                elements.gridFrequencySlider.addEventListener('input', updateGridFrequency);
-            }
-            
-            if (elements.gridQubitCount) {
-                elements.gridQubitCount.addEventListener('change', () => updateQubitGrid());
-            }
-            
-            // Create initial qubit grid
-            updateQubitGrid(gridQubitCount);
-            
-            // Draw container schematics
-            drawContainerSchematics();
-            
-            // Start oscillator animation
-            startOscillatorAnimation();
-            
-            // Update frequency display
-            updateGridFrequency();
-            
-            gridInitialized = true;
-            
-            console.log("Quantum Grid initialized with 150-qubit support");
         }
         
             const inputData = elements.gridInputData ? elements.gridInputData.value : "";
