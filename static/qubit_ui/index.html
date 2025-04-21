@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantonium OS - Qubit Step Visualizer</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Quantonium OS</h1>
+        <h2>Qubit Step Visualizer</h2>
+        <div class="mode-selector">
+            <button id="simulation-mode-btn" class="mode-btn active">Simulation</button>
+            <button id="algorithm-mode-btn" class="mode-btn">Algorithm</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="simulation-panel" class="panel active">
+            <div class="qubit-controls">
+                <div class="qubit-selector">
+                    <label for="qubit-count">Number of Qubits:</label>
+                    <select id="qubit-count">
+                        <option value="1">1 Qubit</option>
+                        <option value="2" selected>2 Qubits</option>
+                        <option value="3">3 Qubits</option>
+                    </select>
+                </div>
+                
+                <div class="operation-selector">
+                    <label for="quantum-gate">Quantum Gate:</label>
+                    <select id="quantum-gate">
+                        <option value="h">Hadamard (H)</option>
+                        <option value="x">Pauli-X</option>
+                        <option value="y">Pauli-Y</option>
+                        <option value="z">Pauli-Z</option>
+                        <option value="cnot">CNOT</option>
+                        <option value="swap">SWAP</option>
+                    </select>
+                </div>
+                
+                <div class="target-selector">
+                    <label for="target-qubit">Target Qubit:</label>
+                    <select id="target-qubit">
+                        <option value="0">Qubit 0</option>
+                        <option value="1">Qubit 1</option>
+                    </select>
+                </div>
+                
+                <div class="control-selector" id="control-qubit-container">
+                    <label for="control-qubit">Control Qubit:</label>
+                    <select id="control-qubit">
+                        <option value="0">Qubit 0</option>
+                        <option value="1">Qubit 1</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="apply-gate-btn" class="action-btn">Apply Gate</button>
+            <button id="reset-state-btn" class="action-btn secondary">Reset State</button>
+            
+            <div class="state-display">
+                <h3>Current Quantum State:</h3>
+                <div id="state-vector" class="quantum-state">|00⟩</div>
+                <div id="state-probability" class="probability-display">
+                    <div class="probability-bar" data-state="00">
+                        <div class="bar-fill" style="width: 100%;"></div>
+                        <div class="bar-label">|00⟩: 100%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="algorithm-panel" class="panel">
+            <div class="algorithm-selector">
+                <label for="quantum-algorithm">Quantum Algorithm:</label>
+                <select id="quantum-algorithm">
+                    <option value="bell">Bell State</option>
+                    <option value="grover">Grover's Search (2-qubit)</option>
+                    <option value="deutsch">Deutsch Algorithm</option>
+                    <option value="teleport">Quantum Teleportation</option>
+                </select>
+            </div>
+            
+            <div class="algorithm-description" id="algorithm-description">
+                <h3>Bell State</h3>
+                <p>Creates a maximally entangled state between two qubits, demonstrating quantum entanglement.</p>
+            </div>
+            
+            <button id="run-algorithm-btn" class="action-btn">Run Algorithm</button>
+            <button id="step-algorithm-btn" class="action-btn">Step Through</button>
+            <button id="reset-algorithm-btn" class="action-btn secondary">Reset</button>
+            
+            <div class="algorithm-progress">
+                <div class="step-container">
+                    <div class="step current" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-desc">Initialize</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-desc">Hadamard</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-desc">CNOT</div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-desc">Result</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="visualization">
+            <div id="bloch-sphere-container"></div>
+            <div id="visualization-controls">
+                <div class="control-group">
+                    <label for="view-mode">Visualization:</label>
+                    <select id="view-mode">
+                        <option value="bloch">Bloch Sphere</option>
+                        <option value="circuit">Circuit Diagram</option>
+                        <option value="matrix">Matrix View</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="animation-speed">Animation Speed:</label>
+                    <input type="range" id="animation-speed" min="1" max="10" value="5">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="status-bar">
+        <span id="status-message">Ready</span>
+    </div>
+
+    <script src="qubit-visualizer.js"></script>
+</body>
+</html>

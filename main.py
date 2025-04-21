@@ -130,6 +130,11 @@ def create_app():
     @app.route('/wave')
     def wave_ui():
         return send_from_directory('static/wave_ui', 'index.html')
+    
+    # Qubit Step Visualizer
+    @app.route('/qubit-visualizer')
+    def qubit_visualizer():
+        return send_from_directory('static/qubit_ui', 'index.html')
         
     # Root route redirects to resonance encryption visualization
     @app.route('/')
