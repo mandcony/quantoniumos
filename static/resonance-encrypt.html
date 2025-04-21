@@ -2489,109 +2489,7 @@ ${entropyValue}`;
             }
         }
 
-        // Draw container schematics
-        function drawContainerSchematics() {
-            if (!gridContainer1Ctx || !gridContainer2Ctx) return;
-            
-            // Container 1: Regular pattern
-            const ctx1 = gridContainer1Ctx;
-            ctx1.clearRect(0, 0, 150, 150);
-            
-            // Draw background
-            ctx1.fillStyle = '#1a1a1a';
-            ctx1.fillRect(0, 0, 150, 150);
-            
-            // Draw grid
-            ctx1.strokeStyle = '#333';
-            ctx1.lineWidth = 1;
-            
-            // Horizontal lines
-            for (let y = 0; y <= 150; y += 30) {
-                ctx1.beginPath();
-                ctx1.moveTo(0, y);
-                ctx1.lineTo(150, y);
-                ctx1.stroke();
-            }
-            
-            // Vertical lines
-            for (let x = 0; x <= 150; x += 30) {
-                ctx1.beginPath();
-                ctx1.moveTo(x, 0);
-                ctx1.lineTo(x, 150);
-                ctx1.stroke();
-            }
-            
-            // Draw elements (squares and circles)
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
-                    const centerX = x * 30 + 15;
-                    const centerY = y * 30 + 15;
-                    
-                    if ((x + y) % 2 === 0) {
-                        // Draw green square
-                        ctx1.fillStyle = '#00c853';
-                        ctx1.fillRect(centerX - 10, centerY - 10, 20, 20);
-                    } else {
-                        // Draw red circle
-                        ctx1.fillStyle = '#f44336';
-                        drawCircle(ctx1, centerX, centerY, 10);
-                    }
-                }
-            }
-            
-            // Container 2: Random pattern
-            const ctx2 = gridContainer2Ctx;
-            ctx2.clearRect(0, 0, 150, 150);
-            
-            // Draw background
-            ctx2.fillStyle = '#1a1a1a';
-            ctx2.fillRect(0, 0, 150, 150);
-            
-            // Draw grid
-            ctx2.strokeStyle = '#333';
-            ctx2.lineWidth = 1;
-            
-            // Horizontal lines
-            for (let y = 0; y <= 150; y += 30) {
-                ctx2.beginPath();
-                ctx2.moveTo(0, y);
-                ctx2.lineTo(150, y);
-                ctx2.stroke();
-            }
-            
-            // Vertical lines
-            for (let x = 0; x <= 150; x += 30) {
-                ctx2.beginPath();
-                ctx2.moveTo(x, 0);
-                ctx2.lineTo(x, 150);
-                ctx2.stroke();
-            }
-            
-            // Draw elements with pseudo-random pattern based on hashString
-            const hash = hashString('QuantumGrid');
-            let hashIndex = 0;
-            
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
-                    const centerX = x * 30 + 15;
-                    const centerY = y * 30 + 15;
-                    
-                    // Use hash character to determine shape
-                    const hashChar = parseInt(hash[hashIndex % hash.length], 16);
-                    hashIndex++;
-                    
-                    if (hashChar < 8) {
-                        // Draw green square
-                        ctx2.fillStyle = '#00c853';
-                        ctx2.fillRect(centerX - 10, centerY - 10, 20, 20);
-                    } else {
-                        // Draw red circle
-                        ctx2.fillStyle = '#f44336';
-                        drawCircle(ctx2, centerX, centerY, 10);
-                    }
-                }
-            }
-        }
+        // Container schematics are now managed by the quantum-grid.js module
 
         // Helper function to draw a filled circle
         function drawCircle(ctx, x, y, radius) {
@@ -2657,5 +2555,7 @@ ${entropyValue}`;
             init();
         }
     </script>
+    <!-- Quantum Grid Module -->
+    <script src="/static/quantum-grid.js"></script>
 </body>
 </html>
