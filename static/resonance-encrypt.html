@@ -2295,28 +2295,18 @@ ${entropyValue}`;
             window.updateStatus = updateStatus;
         }
 
-        // Run quantum stress test
+        // Run quantum stress test - wrapper for external module
         function runStressTest() {
-            updateStatus(`Running stress test with 150 qubits...`, 'info');
-            
-            // Reset grid qubits to initial state
-            const qubits = elements.gridQubitGrid.querySelectorAll('.qubit');
-            qubits.forEach(qubit => {
-                qubit.classList.remove('qubit-measured');
-                qubit.querySelector('.qubit-value').textContent = '|0⟩';
-            });
-            
-            // Update to maximum quantum count for stress test
-            elements.gridQubitCount.value = "150";
-            updateQubitGrid(150);
-            
-            // Simulate delay for processing
-            setTimeout(() => {
-                simulateStressTestResults(150);
-                // Update formula display for stress test
-                updateFormulaDisplay(150, "Stress Test", true);
-                updateStatus(`Stress test completed for 150 qubits - system capacity verified`, 'success');
-            }, 800);
+            console.log("Delegating to quantum-grid.js module...");
+            if (typeof window.runStressTest === 'function') {
+                const elements = {
+                    gridQubitGrid: document.getElementById('grid-qubit-grid'),
+                    gridQubitCount: document.getElementById('grid-qubit-count')
+                };
+                window.runStressTest(elements);
+            } else {
+                console.error("External quantum grid stress test function not available");
+            }
         }
 
         // Simulate quantum results (frontend visualization only)

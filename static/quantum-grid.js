@@ -551,7 +551,44 @@ function hashString(str) {
 }
 
 // Initialize when document is ready
-document.addEventListener('DOMContentLoaded', initializeQuantumGrid);
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize with backend connection
+    initializeWithBackend();
+});
+
+// Initialize by connecting to Python backend first
+function initializeWithBackend() {
+    // First initialize the quantum engine in the backend
+    fetch('/api/quantum/initialize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Quantum engine initialized with", data.max_qubits, "qubits (Engine ID:", data.engine_id, ")");
+            // Then initialize the frontend visualization
+            initializeQuantumGrid();
+            if (window.updateStatus) {
+                window.updateStatus(`Quantum engine initialized with ${data.max_qubits} qubits capacity`, 'success');
+            }
+        } else {
+            console.error("Failed to initialize quantum engine:", data.error);
+            // Still initialize the frontend even if the backend fails
+            initializeQuantumGrid();
+        }
+    })
+    .catch(error => {
+        console.error("Error connecting to quantum backend:", error);
+        // Still initialize the frontend on connection error
+        initializeQuantumGrid();
+    });
+}
 
 // Expose functions to the global scope for use from the main app
-window.initializeQuantumGrid = initializeQuantumGrid;
+window.initializeQuantumGrid = function() {
+    initializeWithBackend();
+};
