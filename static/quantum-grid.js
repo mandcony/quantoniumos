@@ -552,8 +552,18 @@ function hashString(str) {
 
 // Initialize when document is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize with backend connection
-    initializeWithBackend();
+    console.log("Document ready - checking if quantum grid tab is active");
+    
+    // Only initialize backend if we're on the right tab
+    const quantumGridTab = document.getElementById('quantum-grid-tab');
+    if (quantumGridTab && window.location.href.includes('resonance-encrypt')) {
+        console.log("Quantum grid tab exists - initializing with backend");
+        setTimeout(() => {
+            initializeWithBackend();
+        }, 500); // Small delay to ensure elements are ready
+    } else {
+        console.log("Not on quantum grid tab - waiting for tab activation");
+    }
 });
 
 // Initialize by connecting to Python backend first
@@ -589,9 +599,7 @@ function initializeWithBackend() {
 }
 
 // Expose functions to the global scope for use from the main app
-window.initializeQuantumGrid = function() {
-    initializeWithBackend();
-};
+window.initializeQuantumGrid = initializeQuantumGrid; // Direct reference to avoid recursive calls
 
 // Expose runStressTest to the global scope
 window.runStressTest = function(elements) {
