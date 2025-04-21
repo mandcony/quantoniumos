@@ -1308,7 +1308,7 @@
             animate();
             
             // Initialize Quantum Grid if elements exist
-            initializeQuantumGrid();
+            initializeQuantumGridModule();
             
             // Initial reset of the visualization to black
             resetVisualization();
@@ -2278,11 +2278,13 @@ ${entropyValue}`;
         // This is now handled by the quantum-grid.js module
         
         // Initialize the quantum grid using the external quantum-grid.js module
-        function initializeQuantumGrid() {
+        function initializeQuantumGridModule() {
             console.log("Delegating to the external quantum grid module...");
             // Call the global function exposed by quantum-grid.js
             if (typeof window.initializeQuantumGrid === 'function') {
-                window.initializeQuantumGrid();
+                // Using a direct reference to quantum-grid.js's version
+                const externalInitFunction = window.initializeQuantumGrid;
+                externalInitFunction();
             } else {
                 console.error("External quantum grid module not loaded correctly");
             }
