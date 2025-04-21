@@ -592,3 +592,21 @@ function initializeWithBackend() {
 window.initializeQuantumGrid = function() {
     initializeWithBackend();
 };
+
+// Expose runStressTest to the global scope
+window.runStressTest = function(elements) {
+    // If elements parameter is not provided or missing essential properties, 
+    // attempt to get them from the DOM
+    if (!elements || !elements.gridQubitGrid) {
+        elements = {
+            gridQubitGrid: document.getElementById('grid-qubit-grid'),
+            gridQubitCount: document.getElementById('grid-qubit-count'),
+            gridInputData: document.getElementById('grid-input-data'),
+            gridQuantumFormulas: document.getElementById('grid-quantum-formulas'),
+            gridError: document.getElementById('grid-error')
+        };
+    }
+    
+    // Call the module's runStressTest function
+    runStressTest(elements);
+};
