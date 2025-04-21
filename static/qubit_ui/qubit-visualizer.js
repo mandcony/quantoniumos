@@ -392,6 +392,7 @@ function setupEventListeners() {
     // Mode switching
     elements.simulationModeBtn.addEventListener('click', () => switchMode('simulation'));
     elements.algorithmModeBtn.addEventListener('click', () => switchMode('algorithm'));
+    elements.quantumGridBtn.addEventListener('click', () => switchMode('quantum-grid'));
     
     // Simulation controls
     elements.qubitCount.addEventListener('change', handleQubitCountChange);
@@ -412,22 +413,35 @@ function setupEventListeners() {
     });
 }
 
-// Switch between simulation and algorithm modes
+// Switch between simulation, algorithm, and quantum grid modes
 function switchMode(mode) {
+    // Reset all buttons and panels
+    elements.simulationModeBtn.classList.remove('active');
+    elements.algorithmModeBtn.classList.remove('active');
+    elements.quantumGridBtn.classList.remove('active');
+    
+    elements.simulationPanel.classList.remove('active');
+    elements.algorithmPanel.classList.remove('active');
+    elements.quantumGridPanel.classList.remove('active');
+    
+    // Set active state based on the selected mode
     if (mode === 'simulation') {
         elements.simulationModeBtn.classList.add('active');
-        elements.algorithmModeBtn.classList.remove('active');
         elements.simulationPanel.classList.add('active');
-        elements.algorithmPanel.classList.remove('active');
-    } else {
-        elements.simulationModeBtn.classList.remove('active');
+    } else if (mode === 'algorithm') {
         elements.algorithmModeBtn.classList.add('active');
-        elements.simulationPanel.classList.remove('active');
         elements.algorithmPanel.classList.add('active');
+    } else if (mode === 'quantum-grid') {
+        elements.quantumGridBtn.classList.add('active');
+        elements.quantumGridPanel.classList.add('active');
+        // Initialize the quantum grid if not already done
+        initializeQuantumGrid();
     }
     
-    // Reset the visualization
-    resetQuantumState();
+    // Reset the visualization for simulation and algorithm modes
+    if (mode !== 'quantum-grid') {
+        resetQuantumState();
+    }
 }
 
 // Handle qubit count change
