@@ -527,6 +527,7 @@
             <div class="main-tab" data-tab="rft">Resonance Fourier Transform</div>
             <div class="main-tab" data-tab="container">Container Operations</div>
             <div class="main-tab" data-tab="entropy">Entropy Generator</div>
+            <div class="main-tab" data-tab="quantum-grid">Quantum Grid</div>
             <div class="main-tab" data-tab="qubit" title="Open Qubit Visualizer in a new tab"><a href="/qubit-visualizer" target="_blank" style="color: inherit; text-decoration: none;">Qubit Visualizer ↗</a></div>
         </div>
         
@@ -700,6 +701,75 @@
                 
                 <div id="entropy-visualization" class="visualization">
                     <canvas id="entropy-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-tab-content" id="quantum-grid-tab">
+            <div class="panel">
+                <h3>Quantum Grid - 150-Qubit Processor</h3>
+                <p>Visualize and test quantum grid operations on up to 150 qubits.</p>
+                
+                <div class="action-panels">
+                    <div class="panel" style="flex: 2;">
+                        <div class="form-group">
+                            <label for="grid-qubit-count">Qubit Count (2-150):</label>
+                            <input type="number" id="grid-qubit-count" min="2" max="150" value="6" placeholder="Enter number of qubits...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="grid-input-data">Input Data:</label>
+                            <input type="text" id="grid-input-data" placeholder="Enter data for quantum processing...">
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin: 15px 0;">
+                            <button id="grid-run-btn" class="action-btn">Run Quantum Process</button>
+                            <button id="grid-stress-test" class="action-btn">Run Stress Test (150 Qubits)</button>
+                        </div>
+                        
+                        <div class="error" id="grid-error"></div>
+                        
+                        <h3>Quantum Grid Visualization</h3>
+                        <div id="grid-qubit-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0;">
+                            <!-- Quantum qubits will be inserted here -->
+                        </div>
+                        
+                        <h3>Quantum Formula Notation</h3>
+                        <div id="grid-quantum-formulas" style="background-color: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0;">
+                            <!-- Quantum formulas will be displayed here -->
+                        </div>
+                    </div>
+                    
+                    <div class="panel" style="flex: 1;">
+                        <h3>Container Schematics</h3>
+                        <div style="display: flex; flex-direction: column; gap: 15px; margin: 10px 0;">
+                            <div>
+                                <p>Container 1:</p>
+                                <canvas id="grid-container1-canvas" width="150" height="150" style="background-color: #000; border-radius: 4px;"></canvas>
+                            </div>
+                            <div>
+                                <p>Container 2:</p>
+                                <canvas id="grid-container2-canvas" width="150" height="150" style="background-color: #000; border-radius: 4px;"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label>Oscillator Visualization:</label>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <input type="checkbox" id="grid-show-oscillator" checked>
+                                <label for="grid-show-oscillator" style="margin-bottom: 0;">Show Oscillator</label>
+                            </div>
+                            <canvas id="grid-oscillator-canvas" width="300" height="100" style="background-color: #000; border-radius: 4px;"></canvas>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Frequency:</label>
+                            <div class="range-input">
+                                <input type="range" id="grid-frequency-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+                                <span id="grid-frequency-value" class="value">1.0 Hz</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -146,15 +146,10 @@ def create_app():
     def wave_ui():
         return send_from_directory('static/wave_ui', 'index.html')
     
-    # Qubit Step Visualizer
+    # Qubit Step Visualizer and Quantum Grid
     @app.route('/qubit-visualizer')
     def qubit_visualizer():
         return send_from_directory('static/qubit_ui', 'index.html')
-        
-    # 150-Qubit Quantum Grid
-    @app.route('/quantum-grid')
-    def quantum_grid():
-        return send_from_directory('static/quantum_grid', 'index.html')
         
     # Root route redirects to resonance encryption visualization
     @app.route('/')
