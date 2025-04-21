@@ -2,7 +2,251 @@
  * Quantonium OS - Qubit Step Visualizer
  * This visualization integrates with the Quantonium engine to demonstrate
  * quantum computing concepts using the Bloch sphere representation.
+ * 
+ * Integrates quantum computing classes from the Quantonium system.
  */
+
+// Complex number class
+class Complex {
+    constructor(real, imag) {
+        this.real = real;
+        this.imag = imag;
+    }
+    
+    add(other) {
+        return new Complex(this.real + other.real, this.imag + other.imag);
+    }
+    
+    multiply(other) {
+        const re = this.real * other.real - this.imag * other.imag;
+        const im = this.real * other.imag + this.imag * other.real;
+        return new Complex(re, im);
+    }
+    
+    toString() {
+        const sign = this.imag >= 0 ? '+' : '';
+        return `${this.real}${sign}${this.imag}i`;
+    }
+    
+    static fromPolar(r, theta) {
+        return new Complex(r * Math.cos(theta), r * Math.sin(theta));
+    }
+    
+    magnitude() {
+        return Math.sqrt(this.real * this.real + this.imag * this.imag);
+    }
+    
+    phase() {
+        return Math.atan2(this.imag, this.real);
+    }
+}
+
+// Enhanced Multi Qubit State class 
+class EnhancedMultiQubitState {
+    constructor(numQubits) {
+        if (!Number.isInteger(numQubits) || numQubits <= 0) {
+            throw new Error("Number of qubits must be a positive integer.");
+        }
+
+        this.numQubits = numQubits;
+        this.stateTensor = this.initializeTensor();
+        this.entanglementMap = {}; // Track qubit correlations (simulated)
+    }
+
+    initializeTensor() {
+        const dimension = 2 ** this.numQubits;
+        const tensor = new Array(dimension);
+        
+        // Initialize to |0...0⟩ state
+        for (let i = 0; i < dimension; i++) {
+            tensor[i] = { real: 0, imag: 0 };
+        }
+        tensor[0] = { real: 1, imag: 0 }; // |0...0⟩ state
+        
+        return tensor;
+    }
+
+    applyGate(gateMatrix) {
+        if (!Array.isArray(gateMatrix)) {
+            throw new Error("Gate matrix must be an array.");
+        }
+
+        const matrixDimension = gateMatrix.length;
+        if ((matrixDimension & (matrixDimension - 1)) !== 0 || matrixDimension !== this.stateTensor.length) {
+            throw new Error("Gate matrix must be a square matrix with dimensions that are a power of 2 and equal the state tensor length.");
+        }
+
+        // Matrix-vector product implementation, handling complex numbers
+        const newStateTensor = new Array(this.stateTensor.length);
+
+        for (let i = 0; i < this.stateTensor.length; i++) {
+            let newReal = 0;
+            let newImag = 0;
+            for (let j = 0; j < this.stateTensor.length; j++) {
+                // Complex multiplication: (a + bi) * (c + di) = (ac - bd) + (ad + bc)i
+                const gateElement = gateMatrix[i][j];
+                if(typeof gateElement !== 'object' || !('real' in gateElement) || !('imag' in gateElement)) {
+                    throw new Error("Gate matrix element is not a complex number object {real:number, imag:number}.");
+                }
+                const stateElement = this.stateTensor[j];
+
+                newReal += (gateElement.real * stateElement.real) - (gateElement.imag * stateElement.imag);
+                newImag += (gateElement.real * stateElement.imag) + (gateElement.imag * stateElement.real);
+            }
+            newStateTensor[i] = {real: newReal, imag: newImag};
+        }
+
+        this.stateTensor = newStateTensor;
+    }
+
+    entangle(qubitA, qubitB) {
+        if (!Number.isInteger(qubitA) || !Number.isInteger(qubitB) || 
+            qubitA < 0 || qubitA >= this.numQubits || 
+            qubitB < 0 || qubitB >= this.numQubits || 
+            qubitA === qubitB) {
+            throw new Error("Invalid qubit indices for entanglement.");
+        }
+
+        const key = `${qubitA}-${qubitB}`;
+        this.entanglementMap[key] = true;
+    }
+
+    measure() {
+        // Calculate probabilities (magnitude squared of complex amplitudes)
+        let probabilities = this.stateTensor.map(amp => amp.real * amp.real + amp.imag * amp.imag);
+
+        // Normalize the probabilities to ensure they sum to 1.
+        const sumOfProbabilities = probabilities.reduce((sum, probability) => sum + probability, 0);
+        probabilities = probabilities.map(probability => probability / sumOfProbabilities);
+
+        let randomNumber = Math.random();
+        let cumulativeProbability = 0;
+
+        for (let i = 0; i < probabilities.length; i++) {
+            cumulativeProbability += probabilities[i];
+            if (randomNumber <= cumulativeProbability) {
+                return i.toString(2).padStart(this.numQubits, '0');
+            }
+        }
+
+        // Should not happen, but return the last state if there are floating point precision issues.
+        return (probabilities.length - 1).toString(2).padStart(this.numQubits, '0');
+    }
+    
+    // Get probabilities for all states
+    getProbabilities() {
+        // Calculate probabilities (magnitude squared of complex amplitudes)
+        let probabilities = this.stateTensor.map(amp => amp.real * amp.real + amp.imag * amp.imag);
+
+        // Normalize the probabilities to ensure they sum to 1.
+        const sumOfProbabilities = probabilities.reduce((sum, probability) => sum + probability, 0);
+        if (sumOfProbabilities > 0) {
+            probabilities = probabilities.map(probability => probability / sumOfProbabilities);
+        }
+        
+        return probabilities.map((prob, index) => {
+            return {
+                state: index.toString(2).padStart(this.numQubits, '0'),
+                probability: prob
+            };
+        });
+    }
+    
+    // Get the Bloch sphere representation for a single qubit
+    getBlochSphereCoordinates(qubitIndex) {
+        if (qubitIndex >= this.numQubits) {
+            throw new Error("Qubit index out of range");
+        }
+        
+        // For a general state, calculate the reduced density matrix for this qubit
+        // and extract Bloch sphere coordinates (simplified approach)
+        
+        // For demonstration, we'll use a simplified calculation that works for 
+        // basic states but isn't fully general
+        
+        // Calculate probabilities of |0⟩ and |1⟩ for this qubit
+        const prob0 = this.getProbabilityOfQubitInState(qubitIndex, 0);
+        const prob1 = 1 - prob0;
+        
+        // Simple approximation for Bloch coordinates
+        // In a real system this would use the full density matrix
+        const theta = 2 * Math.acos(Math.sqrt(prob0));
+        const phi = Math.random() * 2 * Math.PI; // We can't recover phi from just probabilities
+        
+        // Convert to Cartesian coordinates
+        const x = Math.sin(theta) * Math.cos(phi);
+        const y = Math.sin(theta) * Math.sin(phi);
+        const z = Math.cos(theta);
+        
+        return { x, y, z };
+    }
+    
+    // Calculate probability of a specific qubit being in state 0 or 1
+    getProbabilityOfQubitInState(qubitIndex, bitValue) {
+        let totalProb = 0;
+        const mask = 1 << qubitIndex;
+        
+        for (let i = 0; i < this.stateTensor.length; i++) {
+            const bitIsSet = (i & mask) !== 0;
+            const stateMatches = (bitValue === 1 && bitIsSet) || (bitValue === 0 && !bitIsSet);
+            
+            if (stateMatches) {
+                const amp = this.stateTensor[i];
+                totalProb += amp.real * amp.real + amp.imag * amp.imag;
+            }
+        }
+        
+        return totalProb;
+    }
+}
+
+// Geometric Quantum Mapper - for mapping quantum states to geometric spaces
+class GeometricQuantumMapper {
+    constructor(dimensions) {
+        if (!Number.isInteger(dimensions) || dimensions <= 0) {
+            throw new Error("Dimensions must be a positive integer.");
+        }
+
+        this.dimensions = dimensions;
+        this.space = this.initializeGeometricSpace();
+    }
+
+    initializeGeometricSpace() {
+        const space = new Array(this.dimensions);
+        for (let i = 0; i < this.dimensions; i++) {
+            space[i] = Math.random() * 2 - 1;
+        }
+        return space;
+    }
+
+    encodeState(qubitState) {
+        if (typeof qubitState !== 'string' || !/^[01]+$/.test(qubitState)) {
+            throw new Error("Qubit state must be a string containing only '0' and '1' characters.");
+        }
+
+        const encodedState = new Array(qubitState.length);
+        for (let i = 0; i < qubitState.length; i++) {
+            encodedState[i] = (qubitState[i] === "1" ? 1 : -1);
+        }
+        return encodedState;
+    }
+
+    transformState(stateVector) {
+        if (!Array.isArray(stateVector)) {
+            throw new Error("State vector must be an array.");
+        }
+
+        const transformedVector = new Array(stateVector.length);
+        for (let i = 0; i < stateVector.length; i++) {
+            const coord = stateVector[i];
+            if (typeof coord !== 'number') {
+                throw new Error("State vector must contain only numbers.");
+            }
+            transformedVector[i] = Math.sin(coord * Math.PI);
+        }
+        return transformedVector;
+    }
+}
 
 // Global variables
 let scene, camera, renderer, controls;
@@ -15,6 +259,10 @@ let qubitCount = 2;
 let currentAlgorithm = null;
 let algorithmStep = 1;
 let isAnimating = false;
+
+// Quantum system
+let quantumState = new EnhancedMultiQubitState(qubitCount);
+let geometricMapper = new GeometricQuantumMapper(3);
 
 // Constants for quantum gates
 const GATES = {
