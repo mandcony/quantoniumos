@@ -151,6 +151,11 @@ def create_app():
     def qubit_visualizer():
         return send_from_directory('static/qubit_ui', 'index.html')
         
+    # 150-Qubit Quantum Grid
+    @app.route('/quantum-grid')
+    def quantum_grid():
+        return send_from_directory('static/quantum_grid', 'index.html')
+        
     # Root route redirects to resonance encryption visualization
     @app.route('/')
     def root():
