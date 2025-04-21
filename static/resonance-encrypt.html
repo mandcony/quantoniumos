@@ -1291,8 +1291,68 @@
             // Start the animation loop
             animate();
             
+            // Initialize Quantum Grid if elements exist
+            initializeQuantumGrid();
+            
             // Initial reset of the visualization to black
             resetVisualization();
+            
+            // Update status for user
+            updateStatus('Ready', 'info');
+        }
+        
+        // Global variables for quantum grid
+        let gridInitialized = false;
+        let oscillatorAnimationId = null;
+        let gridFrequency = 1.0;
+        let gridAmplitude = 1.0;
+        let gridQubitCount = 6;
+        
+        // Initialize the quantum grid panel
+        function initializeQuantumGrid() {
+            if (gridInitialized) return;
+            
+            // Check if the necessary elements exist
+            if (!elements.gridQubitGrid || !elements.gridContainer1Canvas) {
+                return;
+            }
+            
+            // Initialize grid controls
+            if (elements.gridRunBtn) {
+                elements.gridRunBtn.addEventListener('click', runQuantumGrid);
+            }
+            
+            if (elements.gridStressTest) {
+                elements.gridStressTest.addEventListener('click', runStressTest);
+            }
+            
+            if (elements.gridShowOscillator) {
+                elements.gridShowOscillator.addEventListener('change', toggleOscillator);
+            }
+            
+            if (elements.gridFrequencySlider) {
+                elements.gridFrequencySlider.addEventListener('input', updateGridFrequency);
+            }
+            
+            if (elements.gridQubitCount) {
+                elements.gridQubitCount.addEventListener('change', () => updateQubitGrid());
+            }
+            
+            // Create initial qubit grid
+            updateQubitGrid(gridQubitCount);
+            
+            // Draw container schematics
+            drawContainerSchematics();
+            
+            // Start oscillator animation
+            startOscillatorAnimation();
+            
+            // Update frequency display
+            updateGridFrequency();
+            
+            gridInitialized = true;
+            
+            console.log("Quantum Grid initialized with 150-qubit support");
         }
         
         function resizeCanvases() {
