@@ -8,6 +8,8 @@ import time
 import numpy as np
 import sys
 import os
+import json
+import logging
 
 # Add core to the path to access encryption modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -16,7 +18,11 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 try:
     from core.encryption.resonance_encrypt import resonance_encrypt, resonance_decrypt
     from core.encryption.entropy_qrng import generate_entropy
-except ImportError:
+    from core.protected.symbolic_container import SymbolicContainer, extract_amplitude_from_hash
+    from core.protected.symbolic_signature import generate_symbolic_signature, verify_symbolic_signature, analyze_tamper_metrics
+    
+    SYMBOLIC_CONTAINER_ENABLED = True
+except ImportError as e:
     # Define fallbacks if modules aren't available
     def resonance_encrypt(payload, A, phi):
         return f"{payload}_{A}_{phi}".encode()
@@ -26,6 +32,55 @@ except ImportError:
     
     def generate_entropy(amount=32):
         return {"entropy": "sample", "timestamp": time.time()}
+    
+    # Define a simple extract_amplitude_from_hash function if symbolic container is not available
+    def extract_amplitude_from_hash(hash_value):
+        if not hash_value:
+            return [0.5]
+        import hashlib
+        hash_bytes = hash_value.encode('utf-8')
+        hash_digest = hashlib.sha256(hash_bytes).hexdigest()
+        primary_amp = float(int(hash_digest[:8], 16) % 1000) / 1000
+        secondary_amp = float(int(hash_digest[8:16], 16) % 1000) / 1000
+        return [primary_amp, secondary_amp, (primary_amp + secondary_amp) / 2, 0.3, 0.7, 0.2]
+    
+    SYMBOLIC_CONTAINER_ENABLED = False
+    print(f"Warning: Symbolic container module not loaded: {e}")
+
+# Add functions for extracting container parameters from hash
+def get_container_parameters(hash_value):
+    """
+    Extract waveform parameters from a container hash.
+    
+    Args:
+        hash_value (str): The hash to extract parameters from
+        
+    Returns:
+        dict: Dictionary containing extracted parameters
+    """
+    try:
+        # Extract amplitudes using the symbolic container module
+        amplitudes = extract_amplitude_from_hash(hash_value)
+        
+        # Convert to waveform data
+        return {
+            "hash": hash_value,
+            "waveform": amplitudes,
+            "extracted_parameters": {
+                "primary_amplitude": amplitudes[0] if len(amplitudes) > 0 else 0.5,
+                "secondary_amplitude": amplitudes[1] if len(amplitudes) > 1 else 0.7,
+                "phase_component": amplitudes[2] if len(amplitudes) > 2 else 0.3,
+                "resonance_pattern": [round(a, 3) for a in amplitudes],
+                "timestamp": time.time()
+            }
+        }
+    except Exception as e:
+        logging.error(f"Error extracting container parameters: {e}")
+        return {
+            "hash": hash_value,
+            "error": str(e),
+            "waveform": [0.3, 0.7, 0.2]  # Default fallback pattern
+        }
 
 # -----------------------------------------------------------------------------
 # Container Registry - stores all containers and maps hashes to containers
@@ -72,7 +127,7 @@ def get_active_resonance_state():
 # -----------------------------------------------------------------------------
 # Container Registry Functions 
 # -----------------------------------------------------------------------------
-def register_container(hash_value, plaintext, ciphertext, key=None):
+def register_container(hash_value, plaintext, ciphertext, key=None, author_id="system", parent_hash=None, metadata=None):
     """
     Register a new container in the registry using its hash as the key.
     
@@ -81,19 +136,49 @@ def register_container(hash_value, plaintext, ciphertext, key=None):
         plaintext (str): The original plaintext that was encrypted
         ciphertext (str): The encrypted data
         key (str, optional): The encryption key used to create the container
+        author_id (str, optional): Identifier of the container creator
+        parent_hash (str, optional): Hash of parent container for lineage tracking
+        metadata (dict, optional): Additional metadata to store with the container
         
     Returns:
         bool: True if registration is successful
     """
-    # Add to registry - each hash maps to exactly one container
-    _container_registry[hash_value] = {
+    # Create container data structure for compatibility with both modes
+    container_data = {
         "plaintext": plaintext,
         "ciphertext": ciphertext,
         "timestamp": time.time(),
         "created": time.strftime("%Y-%m-%d %H:%M:%S"),
         "access_count": 0,
-        "key": key  # Store the encryption key to verify during unlock
+        "key": key,  # Store the encryption key to verify during unlock
+        "author_id": author_id
     }
+    
+    # If symbolic container is enabled, create a full SymbolicContainer
+    if SYMBOLIC_CONTAINER_ENABLED:
+        try:
+            # Create a symbolic container with provenance tracking
+            container = SymbolicContainer(
+                waveform_hash=hash_value,
+                content=ciphertext,
+                author_id=author_id,
+                parent_hash=parent_hash,
+                metadata=metadata or {"plaintext_preview": plaintext[:20] if plaintext else None}
+            )
+            
+            # Store both the legacy data and serialized container to ensure compatibility
+            container_data["symbolic_container"] = container.to_json()
+            container_data["signature"] = container.signature
+            container_data["container_type"] = "symbolic"
+            logging.info(f"Symbolic container created with signature: {container.signature[:16]}...")
+        except Exception as e:
+            logging.error(f"Error creating symbolic container: {e}")
+            container_data["container_type"] = "legacy"
+    else:
+        container_data["container_type"] = "legacy"
+        
+    # Add to registry - each hash maps to exactly one container
+    _container_registry[hash_value] = container_data
     
     print(f"Container registered with hash key: {hash_value}")
     return True
@@ -115,7 +200,9 @@ def get_container_by_hash(hash_value):
             register_container(
                 hash_value, 
                 "Test container content",
-                "Encrypted test container data"
+                "Encrypted test container data",
+                author_id="Luis.Minier",
+                metadata={"purpose": "Demonstration container", "type": "test"}
             )
     
     if hash_value in _container_registry:
@@ -123,6 +210,33 @@ def get_container_by_hash(hash_value):
         # Update access count
         container["access_count"] += 1
         container["last_accessed"] = time.strftime("%Y-%m-%d %H:%M:%S")
+        
+        # If this is a symbolic container, update the symbolic container's access count too
+        if SYMBOLIC_CONTAINER_ENABLED and container.get("container_type") == "symbolic" and "symbolic_container" in container:
+            try:
+                # Create a SymbolicContainer instance from the stored JSON
+                symbolic_data = container["symbolic_container"]
+                
+                # Create instance from stored data
+                symbolic_container = SymbolicContainer.from_json(symbolic_data)
+                
+                # Update access count
+                symbolic_container.increment_access_count()
+                
+                # Update stored container
+                container["symbolic_container"] = symbolic_container.to_json()
+                container["access_count"] = symbolic_container.access_count
+                
+                # Verify container integrity (authenticity check)
+                if not symbolic_container.verify_authenticity():
+                    logging.warning(f"Container {hash_value[:8]} failed signature verification!")
+                    container["verification_status"] = "failed"
+                else:
+                    container["verification_status"] = "passed"
+                    
+            except Exception as e:
+                logging.error(f"Error updating symbolic container: {e}")
+                
         return container
     
     return None
@@ -195,14 +309,33 @@ def get_all_resonance_containers():
     
     # Add actual registered containers from the registry
     for hash_key, container in _container_registry.items():
-        containers.append({
+        container_data = {
             "label": f"container_{hash_key[:8]}",
             "amplitude": 0.3,  # Default amplitude for registered containers
             "phase": 0.7,      # Default phase for registered containers
             "hash_key": hash_key,
             "created": container.get("created", "Unknown"),
             "access_count": container.get("access_count", 0)
-        })
+        }
+        
+        # Add symbolic container metadata if available
+        if container.get("container_type") == "symbolic" and "symbolic_container" in container:
+            try:
+                # Get symbolic container data
+                sym_data = container["symbolic_container"]
+                
+                # Add symbolic container specific fields
+                container_data.update({
+                    "container_type": "symbolic",
+                    "author_id": sym_data.get("author_id", "unknown"),
+                    "signature": sym_data.get("signature", "")[:16] + "...",  # Only show prefix
+                    "has_lineage": bool(sym_data.get("parent_hash")),
+                    "verification_status": container.get("verification_status", "unknown")
+                })
+            except Exception as e:
+                logging.error(f"Error extracting symbolic container data: {e}")
+                
+        containers.append(container_data)
 
     return containers
 

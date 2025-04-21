@@ -112,6 +112,30 @@ def sample_entropy():
     
     return jsonify(sign_response(response))
 
+@api.route("/container/extract_parameters", methods=["POST"])
+def extract_container_parameters():
+    """Extract waveform parameters from a container hash"""
+    data = request.get_json()
+    hash_value = data.get("hash", "")
+    
+    if not hash_value:
+        return jsonify(sign_response({
+            "error": "Hash parameter is required",
+            "status": "error"
+        })), 400
+    
+    # Import the container parameter extraction function
+    from orchestration.resonance_manager import get_container_parameters as extract_params
+    
+    # Get the parameters
+    result = extract_params(hash_value)
+    
+    # Add API key ID if available
+    if hasattr(g, 'api_key') and g.api_key:
+        result["key_id"] = g.api_key.key_id
+    
+    return jsonify(sign_response(result))
+
 @api.route("/container/unlock", methods=["POST"])
 def unlock():
     """Unlock symbolic containers using waveform, hash, and encryption key"""
@@ -191,9 +215,9 @@ def unlock():
         
         return jsonify(sign_response(response))
 
-@api.route("/container/parameters", methods=["POST"])
-def get_container_parameters():
-    """Extract waveform parameters from a container hash"""
+@api.route("/container/legacy_parameters", methods=["POST"])
+def get_legacy_container_parameters():
+    """Legacy method to extract waveform parameters from a container hash"""
     try:
         data = request.get_json()
         if not data or 'hash' not in data:
