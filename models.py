@@ -1,7 +1,7 @@
 """
 Quantonium OS - API Data Models
 
-Defines Pydantic-style request schemas for symbolic endpoints.
+Defines Pydantic-style request schemas for symbolic endpoints and quantum API.
 """
 
 from pydantic import BaseModel, Field
@@ -27,3 +27,18 @@ class ContainerUnlockRequest(BaseModel):
     key: str = Field(..., example="symbolic-key")
 
 # Auto-unlock request model removed as requested - proper security model enforces both hash and key requirement
+
+class QuantumCircuitRequest(BaseModel):
+    """Request model for quantum circuit processing API."""
+    circuit: dict = Field(..., example={
+        "gates": [
+            {"name": "h", "target": 0},
+            {"name": "cnot", "control": 0, "target": 1}
+        ]
+    })
+    qubit_count: int = Field(3, ge=1, le=150, example=3)
+    
+class QuantumBenchmarkRequest(BaseModel):
+    """Request model for quantum benchmarking API."""
+    max_qubits: int = Field(150, example=150)
+    run_full_benchmark: bool = Field(False, example=True)

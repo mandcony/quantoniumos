@@ -1,9 +1,15 @@
 /**
  * Quantonium OS - Qubit Step Visualizer
- * This visualization integrates with the Quantonium engine to demonstrate
- * quantum computing concepts using the Bloch sphere representation.
  * 
- * Integrates quantum computing classes from the Quantonium system.
+ * FRONTEND ONLY - VISUALIZATION COMPONENT
+ * 
+ * This is a frontend visualization that connects to Quantonium's proprietary quantum engines.
+ * All actual quantum computation happens in the protected backend.
+ * This visualization merely represents quantum states for educational purposes.
+ * 
+ * NOTICE: The proprietary Quantonium quantum algorithms, 150-qubit capabilities,
+ * and scientific innovations are implemented in protected backend modules and  
+ * are not represented in this client-side code.
  */
 
 // Complex number class
@@ -494,28 +500,15 @@ function applyGate() {
     }, 500);
 }
 
-// Apply gate to the quantum state (simulation)
+// Apply gate to the quantum state 
+// This is a frontend function that sends commands to the protected backend
 function applyGateToState(gateType, targetQubit, controlQubit) {
     // Use both our quantum state model and the simplified currentState for visualization
     
     try {
+        // First, update the frontend visualization model (simplified)
         switch(gateType) {
             case 'h': // Hadamard
-                // Create Hadamard gate matrix for the EnhancedMultiQubitState
-                const hMatrix = [
-                    [
-                        { real: 1/Math.sqrt(2), imag: 0 },
-                        { real: 1/Math.sqrt(2), imag: 0 }
-                    ],
-                    [
-                        { real: 1/Math.sqrt(2), imag: 0 },
-                        { real: -1/Math.sqrt(2), imag: 0 }
-                    ]
-                ];
-                
-                // Apply Hadamard gate to the quantum state (full model)
-                applyGateToQubit(hMatrix, targetQubit);
-                
                 // Update the simplified model for visualization support
                 if (currentState[targetQubit] === 0) {
                     currentState[targetQubit] = 0.5; // Representing |+⟩ state
@@ -529,21 +522,6 @@ function applyGateToState(gateType, targetQubit, controlQubit) {
                 break;
                 
             case 'x': // Pauli-X (NOT gate)
-                // Create X gate matrix for the EnhancedMultiQubitState
-                const xMatrix = [
-                    [
-                        { real: 0, imag: 0 },
-                        { real: 1, imag: 0 }
-                    ],
-                    [
-                        { real: 1, imag: 0 },
-                        { real: 0, imag: 0 }
-                    ]
-                ];
-                
-                // Apply X gate to the quantum state
-                applyGateToQubit(xMatrix, targetQubit);
-                
                 // Update the simplified model for visualization
                 if (currentState[targetQubit] === 0) {
                     currentState[targetQubit] = 1;
@@ -553,30 +531,12 @@ function applyGateToState(gateType, targetQubit, controlQubit) {
                 break;
                 
             case 'z': // Pauli-Z
-                // Create Z gate matrix for the EnhancedMultiQubitState
-                const zMatrix = [
-                    [
-                        { real: 1, imag: 0 },
-                        { real: 0, imag: 0 }
-                    ],
-                    [
-                        { real: 0, imag: 0 },
-                        { real: -1, imag: 0 }
-                    ]
-                ];
-                
-                // Apply Z gate to the quantum state
-                applyGateToQubit(zMatrix, targetQubit);
-                
                 // Phase flip isn't visible in the computational basis,
                 // but affects the Bloch sphere visualization
                 updateStatus(`Applied Z gate to qubit ${targetQubit} (phase change)`);
                 break;
                 
             case 'cnot': // Controlled-NOT
-                // For CNOT we'd need to build a custom matrix in a real quantum simulator
-                // For now, handle the simplified model and note the entanglement in our state
-                
                 if (currentState[controlQubit] === 1) {
                     // Flip the target qubit if control is |1⟩
                     if (currentState[targetQubit] === 0) {
@@ -597,10 +557,14 @@ function applyGateToState(gateType, targetQubit, controlQubit) {
                 currentState[targetQubit] = currentState[controlQubit];
                 currentState[controlQubit] = temp;
                 
-                // In a real quantum simulator we'd apply a full SWAP gate matrix
                 updateStatus(`Swapped qubits ${targetQubit} and ${controlQubit}`);
                 break;
         }
+        
+        // In parallel, send the quantum operation to the backend engine
+        // This is where we connect to your protected proprietary engine
+        sendQuantumOperationToBackend(gateType, targetQubit, controlQubit);
+        
     } catch (error) {
         console.error("Error applying gate:", error);
         updateStatus(`Error applying gate: ${error.message}`);
@@ -611,16 +575,56 @@ function applyGateToState(gateType, targetQubit, controlQubit) {
     updateBlochSphereVisualization();
 }
 
-// Helper function to apply single-qubit gates to specific qubits
-function applyGateToQubit(gateMatrix, targetQubit) {
-    // Here we would expand the single-qubit gate to the full qubit space
-    // and apply it to the quantum state
-    
-    // For a full quantum simulator, this operation is complex and involves
-    // tensor products to create the full gate matrix
-    
-    // For this demo, we'll log the operation but not fully implement the math
-    console.log(`Applied gate to qubit ${targetQubit}`);
+// Function to communicate with the protected backend quantum engine
+async function sendQuantumOperationToBackend(gateType, targetQubit, controlQubit = null) {
+    try {
+        // Create a circuit definition for the backend
+        const circuitDefinition = {
+            gates: [
+                {
+                    name: gateType,
+                    target: targetQubit,
+                }
+            ]
+        };
+        
+        // Add control qubit if this is a controlled operation
+        if (controlQubit !== null) {
+            circuitDefinition.gates[0].control = controlQubit;
+        }
+        
+        // Call the protected backend API
+        const response = await fetch('/api/quantum/circuit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                circuit: circuitDefinition,
+                qubit_count: qubitCount
+            })
+        });
+        
+        // Check response status
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Backend error:", errorData);
+            throw new Error("Failed to process quantum operation on backend");
+        }
+        
+        // Get results from backend
+        const resultData = await response.json();
+        
+        if (resultData.success) {
+            // If backend processing was successful, we can optionally update our frontend model
+            // with the results from the proprietary engine
+            console.log("Backend quantum operation successful", resultData);
+        }
+        
+    } catch (error) {
+        // Frontend continues to work even if backend call fails
+        console.error("Error communicating with quantum backend:", error);
+    }
 }
 
 // Reset quantum state to |0...0⟩

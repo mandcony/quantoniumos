@@ -2,6 +2,7 @@
 Quantonium OS - Flask App Entrypoint
 
 Initializes the Flask app and registers symbolic API routes with security middleware.
+Includes protected quantum computing API routes with 150-qubit support.
 """
 
 import os
@@ -14,6 +15,7 @@ from flask import Flask, send_from_directory, redirect, jsonify, g, request, ren
 from routes import api
 from auth.routes import auth_api
 from security import configure_security
+from routes_quantum import initialize_quantum_engine, process_quantum_circuit, quantum_benchmark
 from utils.json_logger import setup_json_logger
 from auth.models import db, APIKey, APIKeyAuditLog
 
@@ -77,6 +79,19 @@ def create_app():
     # This separates API routes from static content routes
     app.register_blueprint(api, url_prefix='/api')
     app.register_blueprint(auth_api, url_prefix='/api/auth')
+    
+    # Quantum computing API routes - protected and secured backend endpoints
+    @app.route('/api/quantum/initialize', methods=['POST'])
+    def quantum_init_route():
+        return initialize_quantum_engine()
+        
+    @app.route('/api/quantum/circuit', methods=['POST'])
+    def quantum_circuit_route():
+        return process_quantum_circuit()
+        
+    @app.route('/api/quantum/benchmark', methods=['GET'])
+    def quantum_benchmark_route():
+        return quantum_benchmark()
     
     # API health check endpoint (not rate limited)
     @app.route('/api/health')
