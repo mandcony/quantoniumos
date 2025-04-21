@@ -942,6 +942,22 @@
             
             // Visualization elements
             canvas: document.getElementById('waveform-canvas'),
+            
+            // Quantum Grid elements
+            gridQubitCount: document.getElementById('grid-qubit-count'),
+            gridInputData: document.getElementById('grid-input-data'),
+            gridRunBtn: document.getElementById('grid-run-btn'),
+            gridStressTest: document.getElementById('grid-stress-test'),
+            gridError: document.getElementById('grid-error'),
+            gridQubitGrid: document.getElementById('grid-qubit-grid'),
+            gridQuantumFormulas: document.getElementById('grid-quantum-formulas'),
+            gridContainer1Canvas: document.getElementById('grid-container1-canvas'),
+            gridContainer2Canvas: document.getElementById('grid-container2-canvas'),
+            gridShowOscillator: document.getElementById('grid-show-oscillator'),
+            gridOscillatorCanvas: document.getElementById('grid-oscillator-canvas'),
+            gridFrequencySlider: document.getElementById('grid-frequency-slider'),
+            gridFrequencyValue: document.getElementById('grid-frequency-value'),
+            
             statusMessage: document.getElementById('status-message'),
             
             // Metrics
@@ -960,6 +976,9 @@
         const waveformCtx = elements.waveformCanvas?.getContext('2d');
         const unlockWaveformCtx = elements.unlockWaveformCanvas?.getContext('2d');
         const rftResultCtx = elements.rftResultCanvas?.getContext('2d');
+        const gridContainer1Ctx = elements.gridContainer1Canvas?.getContext('2d');
+        const gridContainer2Ctx = elements.gridContainer2Canvas?.getContext('2d');
+        const gridOscillatorCtx = elements.gridOscillatorCanvas?.getContext('2d');
         
         // Initialize
         function init() {
