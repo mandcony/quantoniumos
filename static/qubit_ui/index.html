@@ -12,10 +12,11 @@
 <body>
     <header>
         <h1>Quantonium OS</h1>
-        <h2>Qubit Step Visualizer</h2>
+        <h2>Quantum Processor</h2>
         <div class="mode-selector">
             <button id="simulation-mode-btn" class="mode-btn active">Simulation</button>
             <button id="algorithm-mode-btn" class="mode-btn">Algorithm</button>
+            <button id="quantum-grid-btn" class="mode-btn">Quantum Grid</button>
         </div>
     </header>
 
@@ -112,6 +113,62 @@
                     <div class="step" data-step="4">
                         <div class="step-number">4</div>
                         <div class="step-desc">Result</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quantum Grid Panel - 150-Qubit Processor -->
+        <div id="quantum-grid-panel" class="panel">
+            <div class="quantum-processor">
+                <div class="quantum-header">
+                    <div class="input-section">
+                        <input type="number" id="grid-qubit-count" value="6" min="2" max="150">
+                        <button id="grid-run-btn" class="action-btn">Run</button>
+                    </div>
+                    <div class="data-section">
+                        <input type="text" id="grid-input-data" placeholder="Enter any input data">
+                        <button id="grid-stress-test" class="stress-btn">Stress Test</button>
+                    </div>
+                </div>
+
+                <div class="quantum-content">
+                    <div class="qubit-grid" id="grid-qubit-grid"></div>
+                    
+                    <div class="quantum-formulas" id="grid-quantum-formulas">
+                        <!-- Dynamic quantum formulas go here -->
+                    </div>
+                    
+                    <div class="visualization-toggle">
+                        <label>
+                            <span>Show Amplitude Heatmap:</span>
+                            <input type="checkbox" id="grid-show-heatmap">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="container-oscillator">
+                        <label>
+                            <span>Show Container Oscillator:</span>
+                            <input type="checkbox" id="grid-show-oscillator" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="frequency-control">
+                            <span>Frequency: <span id="grid-frequency-value">1.00 Hz</span></span>
+                            <input type="range" id="grid-frequency-slider" min="0.1" max="5" step="0.1" value="1">
+                        </div>
+                        <canvas id="grid-oscillator-canvas"></canvas>
+                    </div>
+                    
+                    <div class="container-schematics">
+                        <div class="container-schematic" id="grid-container1">
+                            <h3>Container 1 Schematic</h3>
+                            <canvas id="grid-container1-canvas" width="150" height="150"></canvas>
+                        </div>
+                        <div class="container-schematic" id="grid-container2">
+                            <h3>Container 2 Schematic</h3>
+                            <canvas id="grid-container2-canvas" width="150" height="150"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
