@@ -6,7 +6,7 @@
  */
 
 // Global variables for quantum grid
-let gridInitialized = false;
+let quantumGridInitialized = false; // Renamed to avoid collision
 let oscillatorAnimationId = null;
 let gridFrequency = 1.0;
 let gridAmplitude = 1.0;
@@ -20,7 +20,7 @@ let gridOscillatorCtx;
 // Initialize the quantum grid panel
 function initializeQuantumGrid() {
     // Guard against multiple initializations
-    if (gridInitialized) {
+    if (quantumGridInitialized) {
         console.log("Quantum Grid already initialized - skipping");
         return;
     }
@@ -80,7 +80,7 @@ function initializeQuantumGrid() {
     // Update frequency display
     updateGridFrequency(elements);
     
-    gridInitialized = true;
+    quantumGridInitialized = true;
     
     console.log("Quantum Grid initialized with 150-qubit support");
 }
