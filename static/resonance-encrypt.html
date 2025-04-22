@@ -514,7 +514,7 @@
     <!-- Wave UI Module Styles and Scripts -->
     <link rel="stylesheet" href="/wave_ui/wave.css">
     <script defer src="/wave_ui/wave_visualization.js"></script>
-    <script defer src="/static/quantum-grid.js"></script>
+    <!-- Moved quantum-grid.js to bottom of page to avoid duplicate loading -->
 </head>
 <body>
     <header>
@@ -2291,12 +2291,25 @@ ${entropyValue}`;
         // This is now handled by the quantum-grid.js module
         
         // Initialize the quantum grid using the external quantum-grid.js module
+        // Track if we've already initialized to prevent duplicate calls
+        let hasInitializedQuantumGrid = false;
+        
         function initializeQuantumGridModule() {
+            if (hasInitializedQuantumGrid) {
+                console.log("Quantum grid already initialized - skipping module initialization");
+                // Just redraw container schematics to refresh instead of full init
+                if (window.drawContainerSchematics) {
+                    window.drawContainerSchematics();
+                }
+                return;
+            }
+            
             console.log("Delegating to the external quantum grid module...");
             // Call the global function exposed by quantum-grid.js - if it exists
             try {
                 if (typeof initializeQuantumGrid === 'function') {
                     initializeQuantumGrid();
+                    hasInitializedQuantumGrid = true;
                 } else {
                     console.error("External quantum grid module not loaded correctly");
                 }
@@ -2314,10 +2327,21 @@ ${entropyValue}`;
         // Run quantum stress test - wrapper for external module
         function runStressTest() {
             console.log("Delegating to quantum-grid.js module...");
-            if (typeof window.runStressTest === 'function') {
+            
+            // Make sure grid is initialized first
+            if (!hasInitializedQuantumGrid) {
+                initializeQuantumGridModule();
+            }
+            
+            if (typeof runStressTest === 'function') {
                 const elements = {
                     gridQubitGrid: document.getElementById('grid-qubit-grid'),
-                    gridQubitCount: document.getElementById('grid-qubit-count')
+                    gridQubitCount: document.getElementById('grid-qubit-count'),
+                    gridMetricsPercentage: document.getElementById('grid-metrics-percentage'),
+                    gridMetricsTime: document.getElementById('grid-metrics-time'),
+                    gridMetricsQubits: document.getElementById('grid-metrics-qubits'),
+                    gridQuantumFormulas: document.getElementById('grid-quantum-formulas'),
+                    gridError: document.getElementById('grid-error')
                 };
                 window.runStressTest(elements);
             } else {
