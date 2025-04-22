@@ -1014,6 +1014,13 @@
                     if (tabName === 'quantum-grid') {
                         console.log("Initializing quantum grid from tab switch");
                         initializeQuantumGridModule();
+                        
+                        // Force redraw of container schematics when tab is activated
+                        setTimeout(() => {
+                            if (window.drawContainerSchematics) {
+                                window.drawContainerSchematics();
+                            }
+                        }, 200);
                     }
                 });
             });

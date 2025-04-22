@@ -52,6 +52,15 @@ function initializeQuantumGrid() {
         return;
     }
     
+    // Draw container schematics immediately to ensure they're visible
+    setTimeout(() => {
+        drawContainerSchematics();
+        // Start oscillator animation if enabled
+        if (elements.gridShowOscillator && elements.gridShowOscillator.checked) {
+            startOscillatorAnimation(elements);
+        }
+    }, 100);
+    
     // Initialize grid controls
     elements.gridRunBtn.addEventListener('click', () => runQuantumGrid(elements));
     elements.gridStressTest.addEventListener('click', () => runStressTest(elements));
