@@ -749,33 +749,14 @@
                     </div>
                     
                     <div class="panel" style="flex: 1;">
-                        <h3>Container Schematics</h3>
-                        <div style="display: flex; flex-direction: column; gap: 15px; margin: 10px 0;">
-                            <div>
-                                <p>Container 1:</p>
-                                <canvas id="grid-container1-canvas" width="150" height="150" style="background-color: #000; border-radius: 4px;"></canvas>
-                            </div>
-                            <div>
-                                <p>Container 2:</p>
-                                <canvas id="grid-container2-canvas" width="150" height="150" style="background-color: #000; border-radius: 4px;"></canvas>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group" style="margin-top: 20px;">
-                            <label>Oscillator Visualization:</label>
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                <input type="checkbox" id="grid-show-oscillator" checked>
-                                <label for="grid-show-oscillator" style="margin-bottom: 0;">Show Oscillator</label>
-                            </div>
-                            <canvas id="grid-oscillator-canvas" width="300" height="100" style="background-color: #000; border-radius: 4px;"></canvas>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Frequency:</label>
-                            <div class="range-input">
-                                <input type="range" id="grid-frequency-slider" min="0.1" max="5.0" step="0.1" value="1.0">
-                                <span id="grid-frequency-value" class="value">1.0 Hz</span>
-                            </div>
+                        <h3>Quantum Wave Visualization</h3>
+                        <div style="margin: 15px 0;">
+                            <canvas id="grid-oscillator-canvas" width="300" height="250" style="background-color: #000; border-radius: 4px;"></canvas>
+                            <!-- Keep oscillator element but hide it and set to always-on -->
+                            <input type="checkbox" id="grid-show-oscillator" checked style="display: none;">
+                            <!-- Keep container canvases with hidden style for compatibility -->
+                            <canvas id="grid-container1-canvas" width="1" height="1" style="display: none;"></canvas>
+                            <canvas id="grid-container2-canvas" width="1" height="1" style="display: none;"></canvas>
                         </div>
                     </div>
                 </div>

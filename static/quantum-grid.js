@@ -516,7 +516,7 @@ function updateFormulaDisplay(qubitCount, inputData, isStressTest, elements) {
     }
 }
 
-// Start oscillator animation
+// Start oscillator animation - always runs at fixed frequency
 function startOscillatorAnimation(elements) {
     if (!gridOscillatorCtx) return;
     
@@ -524,6 +524,10 @@ function startOscillatorAnimation(elements) {
     if (oscillatorAnimationId) {
         cancelAnimationFrame(oscillatorAnimationId);
     }
+    
+    // Always set fixed frequency and amplitude
+    gridFrequency = 1.5;  // Fixed frequency
+    gridAmplitude = 1.0;  // Fixed amplitude
     
     const canvas = document.getElementById('grid-oscillator-canvas');
     const ctx = gridOscillatorCtx;
@@ -549,7 +553,7 @@ function startOscillatorAnimation(elements) {
         ctx.lineTo(width, height / 2);
         ctx.stroke();
         
-        // Draw wave
+        // Draw primary wave (purple)
         ctx.strokeStyle = '#673AB7';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -566,13 +570,27 @@ function startOscillatorAnimation(elements) {
         
         ctx.stroke();
         
+        // Draw secondary wave (cyan, smaller amplitude)
+        ctx.strokeStyle = '#00E5FF';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        
+        for (let x = 0; x < width; x += step) {
+            const y = height / 2 + Math.sin((x / width * 12 + time * 1.5) * Math.PI * gridFrequency * 0.7) * gridAmplitude * (height / 5);
+            if (x === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        
+        ctx.stroke();
+        
         // Update time
         time += 0.01;
         
-        // Continue animation if oscillator is enabled
-        if (document.getElementById('grid-show-oscillator') && document.getElementById('grid-show-oscillator').checked) {
-            oscillatorAnimationId = requestAnimationFrame(animate);
-        }
+        // Always continue animation regardless of checkbox state
+        oscillatorAnimationId = requestAnimationFrame(animate);
     }
     
     // Start animation
@@ -587,57 +605,20 @@ function updateGridFrequency(elements) {
     elements.gridFrequencyValue.textContent = gridFrequency.toFixed(2) + ' Hz';
 }
 
-// Toggle oscillator
+// Oscillator is now always on
 function toggleOscillator() {
-    const gridShowOscillator = document.getElementById('grid-show-oscillator');
-    if (!gridShowOscillator) return;
-    
-    if (gridShowOscillator.checked) {
-        const elements = {
-            gridOscillatorCanvas: document.getElementById('grid-oscillator-canvas')
-        };
-        startOscillatorAnimation(elements);
-    } else if (oscillatorAnimationId) {
-        cancelAnimationFrame(oscillatorAnimationId);
-        oscillatorAnimationId = null;
-    }
+    // Always keep oscillator running regardless of checkbox state
+    const elements = {
+        gridOscillatorCanvas: document.getElementById('grid-oscillator-canvas')
+    };
+    startOscillatorAnimation(elements);
 }
 
-// Draw container schematics
+// Draw container schematics - simplified to do nothing
 function drawContainerSchematics() {
-    if (!gridContainer1Ctx || !gridContainer2Ctx) return;
-    
-    // Get input data for container generation
-    const inputData = document.getElementById('grid-input-data')?.value || "test";
-    const qubitCount = parseInt(document.getElementById('grid-qubit-count')?.value || "5");
-    
-    // Container 1: Pattern based on input data
-    const ctx1 = gridContainer1Ctx;
-    ctx1.clearRect(0, 0, 150, 150);
-    
-    // Draw background
-    ctx1.fillStyle = '#1a1a1a';
-    ctx1.fillRect(0, 0, 150, 150);
-    
-    // Draw grid
-    ctx1.strokeStyle = '#333';
-    ctx1.lineWidth = 1;
-    
-    // Horizontal lines
-    for (let y = 0; y <= 150; y += 30) {
-        ctx1.beginPath();
-        ctx1.moveTo(0, y);
-        ctx1.lineTo(150, y);
-        ctx1.stroke();
-    }
-    
-    // Vertical lines
-    for (let x = 0; x <= 150; x += 30) {
-        ctx1.beginPath();
-        ctx1.moveTo(x, 0);
-        ctx1.lineTo(x, 150);
-        ctx1.stroke();
-    }
+    // Container schematics have been removed as requested
+    // Function kept for API compatibility
+    return;
     
     // Create a hash from the input data
     const inputHash = hashString(inputData);
