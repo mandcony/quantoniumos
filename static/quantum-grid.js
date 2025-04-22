@@ -52,33 +52,26 @@ function initializeQuantumGrid() {
         return;
     }
     
-    // Draw container schematics immediately to ensure they're visible
+    // Start oscillator animation (always on)
     setTimeout(() => {
-        drawContainerSchematics();
-        // Start oscillator animation if enabled
-        if (elements.gridShowOscillator && elements.gridShowOscillator.checked) {
-            startOscillatorAnimation(elements);
-        }
+        // No longer need container schematics
+        // But always start the oscillator regardless of checkbox state
+        startOscillatorAnimation(elements);
     }, 100);
     
     // Initialize grid controls
     elements.gridRunBtn.addEventListener('click', () => runQuantumGrid(elements));
     elements.gridStressTest.addEventListener('click', () => runStressTest(elements));
-    elements.gridShowOscillator.addEventListener('change', toggleOscillator);
-    elements.gridFrequencySlider.addEventListener('input', () => updateGridFrequency(elements));
+    // No longer need oscillator and frequency controls since oscillator is always at fixed state
     elements.gridQubitCount.addEventListener('change', () => updateQubitGrid(null, elements));
     
     // Create initial qubit grid
     updateQubitGrid(gridQubitCount, elements);
     
-    // Draw container schematics
-    drawContainerSchematics();
+    // Start oscillator animation (removing duplicate call)
+    // The oscillator is already started in the setTimeout above
     
-    // Start oscillator animation
-    startOscillatorAnimation(elements);
-    
-    // Update frequency display
-    updateGridFrequency(elements);
+    // No need to update frequency as it's now fixed
     
     quantumGridInitialized = true;
     
