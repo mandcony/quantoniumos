@@ -999,11 +999,12 @@
                         console.log("Initializing quantum grid from tab switch");
                         initializeQuantumGridModule();
                         
-                        // Force redraw of container schematics when tab is activated
+                        // No need to redraw container schematics as they've been removed
+                        // Just ensure oscillator is running
                         setTimeout(() => {
-                            if (window.drawContainerSchematics) {
-                                window.drawContainerSchematics();
-                            }
+                            // Reset any error states when tab is activated
+                            const gridError = document.getElementById('grid-error');
+                            if (gridError) gridError.textContent = '';
                         }, 200);
                     }
                 });
@@ -2278,18 +2279,14 @@ ${entropyValue}`;
         function initializeQuantumGridModule() {
             if (hasInitializedQuantumGrid) {
                 console.log("Quantum grid already initialized - skipping module initialization");
-                // Just redraw container schematics to refresh instead of full init
-                if (window.drawContainerSchematics) {
-                    window.drawContainerSchematics();
-                }
                 return;
             }
             
             console.log("Delegating to the external quantum grid module...");
             // Call the global function exposed by quantum-grid.js - if it exists
             try {
-                if (typeof initializeQuantumGrid === 'function') {
-                    initializeQuantumGrid();
+                if (typeof window.initializeQuantumGrid === 'function') {
+                    window.initializeQuantumGrid();
                     hasInitializedQuantumGrid = true;
                 } else {
                     console.error("External quantum grid module not loaded correctly");
@@ -2314,7 +2311,7 @@ ${entropyValue}`;
                 initializeQuantumGridModule();
             }
             
-            if (typeof runStressTest === 'function') {
+            if (typeof window.runStressTest === 'function') {
                 const elements = {
                     gridQubitGrid: document.getElementById('grid-qubit-grid'),
                     gridQubitCount: document.getElementById('grid-qubit-count'),
