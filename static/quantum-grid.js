@@ -509,7 +509,7 @@ function updateFormulaDisplay(qubitCount, inputData, isStressTest, elements) {
     }
 }
 
-// Start oscillator animation - always runs at fixed frequency
+// Start oscillator animation - always runs at fixed frequency but responds to engine processes
 function startOscillatorAnimation(elements) {
     if (!gridOscillatorCtx) return;
     
@@ -518,9 +518,13 @@ function startOscillatorAnimation(elements) {
         cancelAnimationFrame(oscillatorAnimationId);
     }
     
-    // Always set fixed frequency and amplitude
-    gridFrequency = 1.5;  // Fixed frequency
-    gridAmplitude = 1.0;  // Fixed amplitude
+    // Base fixed parameters
+    gridFrequency = 1.5;  // Base frequency
+    gridAmplitude = 1.0;  // Base amplitude
+    
+    // Engine process state
+    let engineActivity = 0; // 0-1 value representing engine load/activity
+    let enginePulse = 0;    // Pulse effect during quantum operations
     
     const canvas = document.getElementById('grid-oscillator-canvas');
     const ctx = gridOscillatorCtx;
@@ -528,9 +532,38 @@ function startOscillatorAnimation(elements) {
     const height = canvas.height;
     let time = 0;
     
+    // Function to update engine activity based on backend processes
+    function updateEngineActivity() {
+        // Check if a quantum operation is running
+        const gridLoader = document.getElementById('grid-loader');
+        const gridProgressBar = document.getElementById('grid-progress-bar');
+        const gridMetricsPercentage = document.getElementById('grid-metrics-percentage');
+        
+        if (gridProgressBar && gridProgressBar.style.display !== 'none') {
+            // Operation in progress - extract percentage
+            const percentText = gridMetricsPercentage?.textContent || '0%';
+            const percent = parseInt(percentText.replace('%', '')) || 0;
+            
+            // Calculate engine activity and pulse based on progress
+            engineActivity = Math.min(1.0, percent / 100 * 1.5); // Amplify activity slightly
+            enginePulse = Math.sin(time * 10) * 0.2 * engineActivity; // Pulsing effect
+        } else {
+            // No active operation - gradual return to baseline
+            engineActivity = Math.max(0, engineActivity - 0.02);
+            enginePulse = Math.max(0, enginePulse - 0.01);
+        }
+    }
+    
     // Animation function
     function animate() {
         if (!ctx || !canvas) return;
+        
+        // Update engine activity state
+        updateEngineActivity();
+        
+        // Calculate effective frequency and amplitude based on engine activity
+        const effectiveFrequency = gridFrequency + (engineActivity * 0.5); // Increase frequency with activity
+        const effectiveAmplitude = gridAmplitude + enginePulse;   // Add pulsing to amplitude
         
         ctx.clearRect(0, 0, width, height);
         
@@ -553,7 +586,7 @@ function startOscillatorAnimation(elements) {
         
         const step = 2;
         for (let x = 0; x < width; x += step) {
-            const y = height / 2 + Math.sin((x / width * 8 + time) * Math.PI * gridFrequency) * gridAmplitude * (height / 3);
+            const y = height / 2 + Math.sin((x / width * 8 + time) * Math.PI * effectiveFrequency) * effectiveAmplitude * (height / 3);
             if (x === 0) {
                 ctx.moveTo(x, y);
             } else {
@@ -569,7 +602,7 @@ function startOscillatorAnimation(elements) {
         ctx.beginPath();
         
         for (let x = 0; x < width; x += step) {
-            const y = height / 2 + Math.sin((x / width * 12 + time * 1.5) * Math.PI * gridFrequency * 0.7) * gridAmplitude * (height / 5);
+            const y = height / 2 + Math.sin((x / width * 12 + time * 1.5) * Math.PI * effectiveFrequency * 0.7) * effectiveAmplitude * (height / 5);
             if (x === 0) {
                 ctx.moveTo(x, y);
             } else {
@@ -579,10 +612,30 @@ function startOscillatorAnimation(elements) {
         
         ctx.stroke();
         
+        // If engine activity is high, add some harmonics (third wave)
+        if (engineActivity > 0.3) {
+            const harmony = engineActivity - 0.3; // Only show above threshold
+            ctx.strokeStyle = `rgba(255, 64, 129, ${harmony * 1.5})`; // Pink wave that gets more visible with activity
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            
+            for (let x = 0; x < width; x += step) {
+                const y = height / 2 + Math.sin((x / width * 16 + time * 2) * Math.PI * effectiveFrequency * 1.5) * 
+                           effectiveAmplitude * (height / 8) * harmony;
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+        
         // Update time
         time += 0.01;
         
-        // Always continue animation regardless of checkbox state
+        // Always continue animation
         oscillatorAnimationId = requestAnimationFrame(animate);
     }
     
@@ -598,13 +651,11 @@ function updateGridFrequency(elements) {
     elements.gridFrequencyValue.textContent = gridFrequency.toFixed(2) + ' Hz';
 }
 
-// Oscillator is now always on
+// Oscillator is now always on but configured differently
 function toggleOscillator() {
-    // Always keep oscillator running regardless of checkbox state
-    const elements = {
-        gridOscillatorCanvas: document.getElementById('grid-oscillator-canvas')
-    };
-    startOscillatorAnimation(elements);
+    // This function is kept for compatibility but no longer toggles
+    // Oscillator is always on in fixed state
+    return;
 }
 
 // Draw container schematics - simplified to do nothing
