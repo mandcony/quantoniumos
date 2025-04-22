@@ -42,9 +42,13 @@
         
         header {
             background-color: var(--primary-dark);
-            padding: 1.5rem;
+            padding: 2rem 1.5rem;
             text-align: center;
             border-bottom: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         
         .logo-container {
@@ -60,48 +64,28 @@
         }
         
         @keyframes pulse {
-            0% { opacity: 0.8; transform: scale(0.98); }
-            100% { opacity: 1; transform: scale(1.02); }
+            0% { opacity: 0.9; transform: scale(0.99); }
+            100% { opacity: 1; transform: scale(1.01); }
         }
         
-        .quantum-logo svg path {
-            animation: wavePath 20s infinite linear;
-        }
-        
-        @keyframes wavePath {
-            0% { stroke-dashoffset: 0; }
-            100% { stroke-dashoffset: 500; }
-        }
-        
-        .quantum-logo svg path:nth-child(1) { 
-            stroke-dasharray: 5, 3;
-            animation-duration: 30s;
-        }
-        
-        .quantum-logo svg path:nth-child(2) { 
-            stroke-dasharray: 10, 5;
-            animation-duration: 25s;
-        }
-        
-        .quantum-logo svg path:nth-child(3) { 
-            stroke-dasharray: 10, 2;
-            animation-duration: 40s;
-        }
-        
-        .quantum-logo svg path:nth-child(4) { 
-            stroke-dasharray: 15, 10;
-            animation-duration: 20s;
-        }
-        
-        .quantum-logo svg path:nth-child(5) { 
-            stroke-dasharray: 20, 5;
-            animation-duration: 35s;
+        .logo-image {
+            max-width: 280px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
         }
         
         .brand-text {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .brand-text p {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
         }
         
         h1 {
@@ -587,17 +571,10 @@
     <header>
         <div class="logo-container">
             <div class="quantum-logo">
-                <svg width="60" height="60" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M100 10 C 100 10, 30 50, 30 100 C 30 150, 100 190, 100 190 C 100 190, 170 150, 170 100 C 170 50, 100 10, 100 10" fill="none" stroke="white" stroke-width="2" />
-                    <path d="M100 20 C 100 20, 40 55, 40 100 C 40 145, 100 180, 100 180 C 100 180, 160 145, 160 100 C 160 55, 100 20, 100 20" fill="none" stroke="white" stroke-width="2" />
-                    <path d="M100 30 C 100 30, 50 60, 50 100 C 50 140, 100 170, 100 170 C 100 170, 150 140, 150 100 C 150 60, 100 30, 100 30" fill="none" stroke="white" stroke-width="2" />
-                    <path d="M100 40 C 100 40, 60 65, 60 100 C 60 135, 100 160, 100 160 C 100 160, 140 135, 140 100 C 140 65, 100 40, 100 40" fill="none" stroke="white" stroke-width="1.5" />
-                    <path d="M100 50 C 100 50, 70 70, 70 100 C 70 130, 100 150, 100 150 C 100 150, 130 130, 130 100 C 130 70, 100 50, 100 50" fill="none" stroke="white" stroke-width="1.5" />
-                </svg>
+                <img src="/static/images/qos.png" alt="QuantoniumOS Logo" class="logo-image">
             </div>
             <div class="brand-text">
-                <h1>QUANTONIUM<span class="os-text">OS</span></h1>
-                <p>Cryptographic Resonance System</p>
+                <p>Advanced Quantum Cryptography System</p>
             </div>
         </div>
     </header>
