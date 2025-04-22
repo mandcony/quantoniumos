@@ -145,21 +145,53 @@ function runQuantumGrid(elements) {
         window.updateStatus(`Running quantum process on ${gridQubitCount} qubits...`, 'info');
     }
     
-    // Show loading bar and progress
+    // Show loading metrics display
     const gridLoader = document.getElementById('grid-loader');
     const gridProgressBar = document.getElementById('grid-progress-bar');
-    const gridProgressFill = document.getElementById('grid-progress-fill');
+    const gridMetricsPercentage = document.getElementById('grid-metrics-percentage');
+    const gridMetricsTime = document.getElementById('grid-metrics-time');
+    const gridMetricsQubits = document.getElementById('grid-metrics-qubits');
     
     if (gridLoader) gridLoader.style.display = 'block';
     if (gridProgressBar) gridProgressBar.style.display = 'block';
-    if (gridProgressFill) gridProgressFill.style.width = '0%';
     
-    // Animate the progress bar
+    // Set initial metrics displays
+    if (gridMetricsPercentage) gridMetricsPercentage.textContent = '0%';
+    if (gridMetricsTime) gridMetricsTime.textContent = 'Estimated time: calculating...';
+    if (gridMetricsQubits) gridMetricsQubits.textContent = `Processing ${gridQubitCount} qubits`;
+    
+    // Animate the metrics display
     let progress = 0;
+    let startTime = Date.now();
     const progressInterval = setInterval(() => {
         progress += 1;
         if (progress <= 95) { // Only go to 95%, we'll complete it when done
-            if (gridProgressFill) gridProgressFill.style.width = `${progress}%`;
+            // Update percentage
+            if (gridMetricsPercentage) gridMetricsPercentage.textContent = `${progress}%`;
+            
+            // Update elapsed time
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            const estimatedTotal = Math.floor(elapsedSeconds * (100 / progress));
+            const remaining = Math.max(0, estimatedTotal - elapsedSeconds);
+            
+            if (gridMetricsTime) {
+                if (progress < 10) {
+                    gridMetricsTime.textContent = 'Estimated time: calculating...';
+                } else {
+                    gridMetricsTime.textContent = `Time: ${elapsedSeconds}s (est. ${remaining}s remaining)`;
+                }
+            }
+            
+            // Update qubit processing status
+            if (gridMetricsQubits) {
+                const processedQubits = Math.floor((gridQubitCount * progress) / 100);
+                gridMetricsQubits.textContent = `Processed ${processedQubits}/${gridQubitCount} qubits`;
+            }
+            
+            // Redraw container schematics based on current processing
+            if (progress % 10 === 0) {
+                drawContainerSchematics();
+            }
         } else {
             clearInterval(progressInterval);
         }
