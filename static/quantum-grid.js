@@ -273,7 +273,7 @@ function runQuantumGrid(elements) {
 }
 
 // Run quantum stress test
-function runStressTest(elements) {
+function runQuantumStressTest(elements) {
     if (window.updateStatus) {
         window.updateStatus(`Running stress test with 150 qubits...`, 'info');
     }
@@ -321,9 +321,10 @@ function runStressTest(elements) {
                 gridMetricsQubits.textContent = `Processed ${processedQubits}/150 qubits at maximum capacity`;
             }
             
-            // Redraw container schematics based on current processing
+            // Update oscillator waves based on current processing
             if (Math.floor(progress) % 10 === 0) {
-                drawContainerSchematics();
+                // Wave animation is handled automatically by the animate function in startOscillatorAnimation
+                // No need to redraw container schematics as they've been removed
             }
         } else {
             clearInterval(progressInterval);
@@ -862,12 +863,14 @@ window.runStressTest = function(elements) {
         };
     }
     
-    // Call the module's runStressTest function
-    runStressTest(elements);
+    // Call the module's runStressTest function - but rename it internally to avoid recursion
+    runQuantumStressTest(elements);
 };
 
 // Expose drawContainerSchematics to the global scope
+// Container schematics have been removed as per requirements, but we'll keep a no-op function
+// to prevent errors in case it's called from legacy code
 window.drawContainerSchematics = function() {
-    // Call the module's drawContainerSchematics function
-    drawContainerSchematics();
+    console.log("Container schematics have been removed - no-op function");
+    // No-op function, no longer calling the internal function to avoid recursion
 };
