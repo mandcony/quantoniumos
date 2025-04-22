@@ -727,6 +727,11 @@
                             <button id="grid-stress-test" class="action-btn">Run Stress Test (150 Qubits)</button>
                         </div>
                         
+                        <div class="loader" id="grid-loader" style="display: none;"></div>
+                        <div class="progress-bar" id="grid-progress-bar" style="display: none; margin: 10px 0; height: 10px; background-color: rgba(255, 255, 255, 0.1); border-radius: 5px; overflow: hidden;">
+                            <div id="grid-progress-fill" style="height: 100%; width: 0%; background-color: var(--quantum-color); transition: width 0.3s ease;"></div>
+                        </div>
+                        
                         <div class="error" id="grid-error"></div>
                         
                         <h3>Quantum Grid Visualization</h3>

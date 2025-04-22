@@ -136,6 +136,26 @@ function runQuantumGrid(elements) {
         window.updateStatus(`Running quantum process on ${gridQubitCount} qubits...`, 'info');
     }
     
+    // Show loading bar and progress
+    const gridLoader = document.getElementById('grid-loader');
+    const gridProgressBar = document.getElementById('grid-progress-bar');
+    const gridProgressFill = document.getElementById('grid-progress-fill');
+    
+    if (gridLoader) gridLoader.style.display = 'block';
+    if (gridProgressBar) gridProgressBar.style.display = 'block';
+    if (gridProgressFill) gridProgressFill.style.width = '0%';
+    
+    // Animate the progress bar
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += 1;
+        if (progress <= 95) { // Only go to 95%, we'll complete it when done
+            if (gridProgressFill) gridProgressFill.style.width = `${progress}%`;
+        } else {
+            clearInterval(progressInterval);
+        }
+    }, 50);
+    
     // Reset grid qubits to initial state
     const qubits = elements.gridQubitGrid.querySelectorAll('.qubit');
     qubits.forEach(qubit => {
@@ -161,6 +181,17 @@ function runQuantumGrid(elements) {
     })
     .then(response => response.json())
     .then(data => {
+        // Complete progress bar
+        if (gridProgressFill) gridProgressFill.style.width = '100%';
+        
+        // Hide loader after a short delay to show completion
+        setTimeout(() => {
+            if (gridLoader) gridLoader.style.display = 'none';
+            if (gridProgressBar) gridProgressBar.style.display = 'none';
+        }, 500);
+        
+        clearInterval(progressInterval);
+        
         if (data.success) {
             console.log("Quantum circuit processed by backend:", data);
             simulateQuantumResults(gridQubitCount, inputData, elements);
@@ -180,6 +211,16 @@ function runQuantumGrid(elements) {
         }
     })
     .catch(error => {
+        // Complete progress bar and hide loader
+        if (gridProgressFill) gridProgressFill.style.width = '100%';
+        
+        setTimeout(() => {
+            if (gridLoader) gridLoader.style.display = 'none';
+            if (gridProgressBar) gridProgressBar.style.display = 'none';
+        }, 500);
+        
+        clearInterval(progressInterval);
+        
         console.error("Failed to connect to quantum backend:", error);
         // Fallback to frontend visualization if backend fails
         simulateQuantumResults(gridQubitCount, inputData, elements);
@@ -192,6 +233,26 @@ function runStressTest(elements) {
     if (window.updateStatus) {
         window.updateStatus(`Running stress test with 150 qubits...`, 'info');
     }
+    
+    // Show loading bar and progress for stress test
+    const gridLoader = document.getElementById('grid-loader');
+    const gridProgressBar = document.getElementById('grid-progress-bar');
+    const gridProgressFill = document.getElementById('grid-progress-fill');
+    
+    if (gridLoader) gridLoader.style.display = 'block';
+    if (gridProgressBar) gridProgressBar.style.display = 'block';
+    if (gridProgressFill) gridProgressFill.style.width = '0%';
+    
+    // For stress test, the progress bar moves more slowly to indicate heavy computation
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += 0.5; // Slower progress for stress test
+        if (progress <= 95) {
+            if (gridProgressFill) gridProgressFill.style.width = `${progress}%`;
+        } else {
+            clearInterval(progressInterval);
+        }
+    }, 50);
     
     // Reset grid qubits to initial state
     const qubits = elements.gridQubitGrid.querySelectorAll('.qubit');
@@ -208,6 +269,17 @@ function runStressTest(elements) {
     fetch('/api/quantum/benchmark')
     .then(response => response.json())
     .then(data => {
+        // Complete progress bar
+        if (gridProgressFill) gridProgressFill.style.width = '100%';
+        
+        // Hide loader after a short delay to show completion
+        setTimeout(() => {
+            if (gridLoader) gridLoader.style.display = 'none';
+            if (gridProgressBar) gridProgressBar.style.display = 'none';
+        }, 500);
+        
+        clearInterval(progressInterval);
+        
         if (data.success) {
             console.log("Quantum benchmark completed by backend:", data);
             simulateStressTestResults(150, elements);
@@ -229,6 +301,16 @@ function runStressTest(elements) {
         }
     })
     .catch(error => {
+        // Complete progress bar and hide loader
+        if (gridProgressFill) gridProgressFill.style.width = '100%';
+        
+        setTimeout(() => {
+            if (gridLoader) gridLoader.style.display = 'none';
+            if (gridProgressBar) gridProgressBar.style.display = 'none';
+        }, 500);
+        
+        clearInterval(progressInterval);
+        
         console.error("Failed to connect to quantum backend:", error);
         // Fallback to frontend visualization if backend fails
         simulateStressTestResults(150, elements);
