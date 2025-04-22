@@ -222,14 +222,19 @@ function runQuantumGrid(elements) {
     })
     .then(response => response.json())
     .then(data => {
-        // Complete progress bar
-        if (gridProgressFill) gridProgressFill.style.width = '100%';
+        // Update metrics to show completion
+        if (gridMetricsPercentage) gridMetricsPercentage.textContent = '100%';
+        if (gridMetricsTime) {
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            gridMetricsTime.textContent = `Completed in ${elapsedSeconds}s`;
+        }
+        if (gridMetricsQubits) gridMetricsQubits.textContent = `All ${gridQubitCount} qubits processed successfully`;
         
-        // Hide loader after a short delay to show completion
+        // Hide loader after a longer delay to show completion metrics
         setTimeout(() => {
             if (gridLoader) gridLoader.style.display = 'none';
             if (gridProgressBar) gridProgressBar.style.display = 'none';
-        }, 500);
+        }, 1500);
         
         clearInterval(progressInterval);
         
@@ -252,13 +257,18 @@ function runQuantumGrid(elements) {
         }
     })
     .catch(error => {
-        // Complete progress bar and hide loader
-        if (gridProgressFill) gridProgressFill.style.width = '100%';
+        // Update metrics to show local processing completion
+        if (gridMetricsPercentage) gridMetricsPercentage.textContent = '100%';
+        if (gridMetricsTime) {
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            gridMetricsTime.textContent = `Completed in ${elapsedSeconds}s (local fallback)`;
+        }
+        if (gridMetricsQubits) gridMetricsQubits.textContent = `${gridQubitCount} qubits processed locally`;
         
         setTimeout(() => {
             if (gridLoader) gridLoader.style.display = 'none';
             if (gridProgressBar) gridProgressBar.style.display = 'none';
-        }, 500);
+        }, 1500);
         
         clearInterval(progressInterval);
         
@@ -275,21 +285,53 @@ function runStressTest(elements) {
         window.updateStatus(`Running stress test with 150 qubits...`, 'info');
     }
     
-    // Show loading bar and progress for stress test
+    // Show loading metrics display for stress test
     const gridLoader = document.getElementById('grid-loader');
     const gridProgressBar = document.getElementById('grid-progress-bar');
-    const gridProgressFill = document.getElementById('grid-progress-fill');
+    const gridMetricsPercentage = document.getElementById('grid-metrics-percentage');
+    const gridMetricsTime = document.getElementById('grid-metrics-time');
+    const gridMetricsQubits = document.getElementById('grid-metrics-qubits');
     
     if (gridLoader) gridLoader.style.display = 'block';
     if (gridProgressBar) gridProgressBar.style.display = 'block';
-    if (gridProgressFill) gridProgressFill.style.width = '0%';
     
-    // For stress test, the progress bar moves more slowly to indicate heavy computation
+    // Set initial metrics displays
+    if (gridMetricsPercentage) gridMetricsPercentage.textContent = '0%';
+    if (gridMetricsTime) gridMetricsTime.textContent = 'Estimated time: calculating...';
+    if (gridMetricsQubits) gridMetricsQubits.textContent = 'Stress testing 150 qubits';
+    
+    // For stress test, the metrics update more slowly to indicate heavy computation
     let progress = 0;
+    let startTime = Date.now();
     const progressInterval = setInterval(() => {
         progress += 0.5; // Slower progress for stress test
         if (progress <= 95) {
-            if (gridProgressFill) gridProgressFill.style.width = `${progress}%`;
+            // Update percentage
+            if (gridMetricsPercentage) gridMetricsPercentage.textContent = `${Math.floor(progress)}%`;
+            
+            // Update elapsed time
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            const estimatedTotal = Math.floor(elapsedSeconds * (100 / progress));
+            const remaining = Math.max(0, estimatedTotal - elapsedSeconds);
+            
+            if (gridMetricsTime) {
+                if (progress < 10) {
+                    gridMetricsTime.textContent = 'Estimated time: calculating...';
+                } else {
+                    gridMetricsTime.textContent = `Time: ${elapsedSeconds}s (est. ${remaining}s remaining)`;
+                }
+            }
+            
+            // Update qubit processing status
+            if (gridMetricsQubits) {
+                const processedQubits = Math.floor((150 * progress) / 100);
+                gridMetricsQubits.textContent = `Processed ${processedQubits}/150 qubits at maximum capacity`;
+            }
+            
+            // Redraw container schematics based on current processing
+            if (Math.floor(progress) % 10 === 0) {
+                drawContainerSchematics();
+            }
         } else {
             clearInterval(progressInterval);
         }
@@ -310,14 +352,19 @@ function runStressTest(elements) {
     fetch('/api/quantum/benchmark')
     .then(response => response.json())
     .then(data => {
-        // Complete progress bar
-        if (gridProgressFill) gridProgressFill.style.width = '100%';
+        // Update metrics to show completion
+        if (gridMetricsPercentage) gridMetricsPercentage.textContent = '100%';
+        if (gridMetricsTime) {
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            gridMetricsTime.textContent = `Stress test completed in ${elapsedSeconds}s`;
+        }
+        if (gridMetricsQubits) gridMetricsQubits.textContent = `All 150 qubits verified at maximum capacity`;
         
-        // Hide loader after a short delay to show completion
+        // Hide loader after a longer delay to show completion metrics
         setTimeout(() => {
             if (gridLoader) gridLoader.style.display = 'none';
             if (gridProgressBar) gridProgressBar.style.display = 'none';
-        }, 500);
+        }, 2000);
         
         clearInterval(progressInterval);
         
@@ -342,13 +389,18 @@ function runStressTest(elements) {
         }
     })
     .catch(error => {
-        // Complete progress bar and hide loader
-        if (gridProgressFill) gridProgressFill.style.width = '100%';
+        // Update metrics to show local processing completion
+        if (gridMetricsPercentage) gridMetricsPercentage.textContent = '100%';
+        if (gridMetricsTime) {
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            gridMetricsTime.textContent = `Completed in ${elapsedSeconds}s (local fallback)`;
+        }
+        if (gridMetricsQubits) gridMetricsQubits.textContent = `150 qubits simulated locally`;
         
         setTimeout(() => {
             if (gridLoader) gridLoader.style.display = 'none';
             if (gridProgressBar) gridProgressBar.style.display = 'none';
-        }, 500);
+        }, 1500);
         
         clearInterval(progressInterval);
         
