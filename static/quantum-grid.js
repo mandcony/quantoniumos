@@ -713,3 +713,9 @@ window.runStressTest = function(elements) {
     // Call the module's runStressTest function
     runStressTest(elements);
 };
+
+// Expose drawContainerSchematics to the global scope
+window.drawContainerSchematics = function() {
+    // Call the module's drawContainerSchematics function
+    drawContainerSchematics();
+};
