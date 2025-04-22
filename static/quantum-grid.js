@@ -523,7 +523,11 @@ function toggleOscillator() {
 function drawContainerSchematics() {
     if (!gridContainer1Ctx || !gridContainer2Ctx) return;
     
-    // Container 1: Regular pattern
+    // Get input data for container generation
+    const inputData = document.getElementById('grid-input-data')?.value || "test";
+    const qubitCount = parseInt(document.getElementById('grid-qubit-count')?.value || "5");
+    
+    // Container 1: Pattern based on input data
     const ctx1 = gridContainer1Ctx;
     ctx1.clearRect(0, 0, 150, 150);
     
@@ -551,25 +555,34 @@ function drawContainerSchematics() {
         ctx1.stroke();
     }
     
-    // Draw elements (squares and circles)
+    // Create a hash from the input data
+    const inputHash = hashString(inputData);
+    
+    // Draw elements based on input hash
     for (let y = 0; y < 5; y++) {
         for (let x = 0; x < 5; x++) {
             const centerX = x * 30 + 15;
             const centerY = y * 30 + 15;
             
-            if ((x + y) % 2 === 0) {
-                // Draw green square
-                ctx1.fillStyle = '#00c853';
+            // Use input hash to determine shape
+            const hashIndex = (x + y * 5) % inputHash.length;
+            const hashChar = parseInt(inputHash[hashIndex], 16);
+            
+            if (hashChar % 2 === 0) {
+                // Draw green square - intensity based on input length
+                const green = Math.min(200, 50 + (inputData.length * 10)) % 255;
+                ctx1.fillStyle = `rgb(0, ${green}, 83)`;
                 ctx1.fillRect(centerX - 10, centerY - 10, 20, 20);
             } else {
-                // Draw red circle
+                // Draw red circle - size based on qubit count
+                const radius = Math.max(5, Math.min(12, 5 + qubitCount/20));
                 ctx1.fillStyle = '#f44336';
-                drawCircle(ctx1, centerX, centerY, 10);
+                drawCircle(ctx1, centerX, centerY, radius);
             }
         }
     }
     
-    // Container 2: Random pattern
+    // Container 2: Pattern based on qubit count and input data combined
     const ctx2 = gridContainer2Ctx;
     ctx2.clearRect(0, 0, 150, 150);
     
@@ -597,27 +610,36 @@ function drawContainerSchematics() {
         ctx2.stroke();
     }
     
-    // Draw elements with pseudo-random pattern based on hashString
-    const hash = hashString('QuantumGrid');
-    let hashIndex = 0;
+    // Create a combined hash from input data and qubit count
+    const combinedHash = hashString(inputData + qubitCount);
     
+    // Draw elements with pattern based on the combined hash
     for (let y = 0; y < 5; y++) {
         for (let x = 0; x < 5; x++) {
             const centerX = x * 30 + 15;
             const centerY = y * 30 + 15;
             
-            // Use hash character to determine shape
-            const hashChar = parseInt(hash[hashIndex % hash.length], 16);
-            hashIndex++;
+            // Use combined hash to determine shape
+            const hashIndex = (x + y * 5) % combinedHash.length;
+            const hashChar = parseInt(combinedHash[hashIndex], 16);
             
-            if (hashChar < 8) {
-                // Draw green square
+            // Different shapes based on hash value
+            if (hashChar < 5) {
+                // Green square
                 ctx2.fillStyle = '#00c853';
                 ctx2.fillRect(centerX - 10, centerY - 10, 20, 20);
-            } else {
-                // Draw red circle
+            } else if (hashChar < 10) {
+                // Red circle
                 ctx2.fillStyle = '#f44336';
                 drawCircle(ctx2, centerX, centerY, 10);
+            } else if (hashChar < 13) {
+                // Blue triangle
+                ctx2.fillStyle = '#2196F3';
+                drawTriangle(ctx2, centerX, centerY, 12);
+            } else {
+                // Yellow diamond
+                ctx2.fillStyle = '#FFC107';
+                drawDiamond(ctx2, centerX, centerY, 10);
             }
         }
     }
@@ -627,6 +649,27 @@ function drawContainerSchematics() {
 function drawCircle(ctx, x, y, radius) {
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// Helper function to draw a triangle
+function drawTriangle(ctx, x, y, size) {
+    ctx.beginPath();
+    ctx.moveTo(x, y - size);
+    ctx.lineTo(x + size, y + size/2);
+    ctx.lineTo(x - size, y + size/2);
+    ctx.closePath();
+    ctx.fill();
+}
+
+// Helper function to draw a diamond
+function drawDiamond(ctx, x, y, size) {
+    ctx.beginPath();
+    ctx.moveTo(x, y - size);
+    ctx.lineTo(x + size, y);
+    ctx.lineTo(x, y + size);
+    ctx.lineTo(x - size, y);
+    ctx.closePath();
     ctx.fill();
 }
 

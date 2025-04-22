@@ -728,8 +728,11 @@
                         </div>
                         
                         <div class="loader" id="grid-loader" style="display: none;"></div>
-                        <div class="progress-bar" id="grid-progress-bar" style="display: none; margin: 10px 0; height: 10px; background-color: rgba(255, 255, 255, 0.1); border-radius: 5px; overflow: hidden;">
-                            <div id="grid-progress-fill" style="height: 100%; width: 0%; background-color: var(--quantum-color); transition: width 0.3s ease;"></div>
+                        <!-- Quantum processing metrics display -->
+                        <div class="metrics-display" id="grid-progress-bar" style="display: none; margin: 10px 0; text-align: center;">
+                            <div id="grid-metrics-percentage" style="font-size: 18px; font-weight: bold; color: var(--quantum-color);">0%</div>
+                            <div id="grid-metrics-time" style="font-size: 14px; color: rgba(255, 255, 255, 0.7);">Estimated time: calculating...</div>
+                            <div id="grid-metrics-qubits" style="font-size: 14px; color: rgba(255, 255, 255, 0.7);">Processing...</div>
                         </div>
                         
                         <div class="error" id="grid-error"></div>
