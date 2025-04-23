@@ -1,3 +1,0 @@
-"""
-Quantonium OS - Models Package
-"""
