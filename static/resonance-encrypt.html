@@ -4111,24 +4111,24 @@ ${entropyValue}`;
         }
         
         // Safely get the canvas context, checking if element exists first
-        const entropyMiniElement = document.getElementById('entropy-mini');
+        const entropyChartElement = document.getElementById('entropy-chart');
         let entCtx = null;
         let entChart = null;
         
-        if (entropyMiniElement) {
-            entCtx = entropyMiniElement.getContext('2d');
+        if (entropyChartElement) {
+            entCtx = entropyChartElement.getContext('2d');
         }
         
         async function refreshEntropy() {
             try {
                 // Ensure we have a canvas context before proceeding
                 if (!entCtx) {
-                    const entropyMiniElement = document.getElementById('entropy-mini');
-                    if (!entropyMiniElement) {
-                        console.log("Entropy mini chart element not found, skipping refresh");
+                    const entropyChartElement = document.getElementById('entropy-chart');
+                    if (!entropyChartElement) {
+                        console.log("Entropy chart element not found, skipping refresh");
                         return;
                     }
-                    entCtx = entropyMiniElement.getContext('2d');
+                    entCtx = entropyChartElement.getContext('2d');
                 }
                 
                 // Fetch entropy data
@@ -4142,8 +4142,11 @@ ${entropyValue}`;
                 }
                 
                 // Create chart data with proper error checking
+                // Generate labels array using Array.from instead of spread syntax
+                const labels = Array.from({length: js.series.length}, (_, i) => i);
+                
                 const data = {
-                    labels: [...Array(js.series.length).keys()],
+                    labels: labels,
                     datasets: [{
                         data: js.series,
                         tension: 0.3,
