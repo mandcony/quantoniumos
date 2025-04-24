@@ -1,348 +1,183 @@
 """
-Quantonium OS - Resonance Manager
+QuantoniumOS - Resonance Manager
 
-Live symbolic process tracker and resonance state provider.
+This module orchestrates the resonance-based operations for the patent validation system.
+It manages benchmark tests and maintains state related to resonance metrics.
 """
 
-import time
-import numpy as np
-import sys
 import os
+import time
 import json
 import logging
+import hashlib
+from datetime import datetime
+from typing import Dict, List, Any, Tuple
+import numpy as np
 
-# Add core to the path to access encryption modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from encryption.resonance_encrypt import encrypt_symbolic
+from encryption.geometric_waveform_hash import wave_hash
 
-# Import local encryption modules
-try:
-    from core.encryption.resonance_encrypt import resonance_encrypt, resonance_decrypt
-    from core.encryption.entropy_qrng import generate_entropy
-    from core.protected.symbolic_container import SymbolicContainer, extract_amplitude_from_hash
-    from core.protected.symbolic_signature import generate_symbolic_signature, verify_symbolic_signature, analyze_tamper_metrics
-    
-    SYMBOLIC_CONTAINER_ENABLED = True
-except ImportError as e:
-    # Define fallbacks if modules aren't available
-    def resonance_encrypt(payload, A, phi):
-        return f"{payload}_{A}_{phi}".encode()
-    
-    def resonance_decrypt(data, A, phi):
-        return data.decode().split('_')[0]
-    
-    def generate_entropy(amount=32):
-        return {"entropy": "sample", "timestamp": time.time()}
-    
-    # Define a simple extract_amplitude_from_hash function if symbolic container is not available
-    def extract_amplitude_from_hash(hash_value):
-        if not hash_value:
-            return [0.5]
-        import hashlib
-        hash_bytes = hash_value.encode('utf-8')
-        hash_digest = hashlib.sha256(hash_bytes).hexdigest()
-        primary_amp = float(int(hash_digest[:8], 16) % 1000) / 1000
-        secondary_amp = float(int(hash_digest[8:16], 16) % 1000) / 1000
-        return [primary_amp, secondary_amp, (primary_amp + secondary_amp) / 2, 0.3, 0.7, 0.2]
-    
-    SYMBOLIC_CONTAINER_ENABLED = False
-    print(f"Warning: Symbolic container module not loaded: {e}")
+logger = logging.getLogger("quantonium_api.manager")
 
-# Add functions for extracting container parameters from hash
-def get_container_parameters(hash_value):
+# Store recent hash values for replay protection
+MAX_HASH_HISTORY = 64
+hash_history = []
+
+def run_benchmark(plaintext_seed: str = None, key_seed: str = None) -> List[Dict[str, Any]]:
     """
-    Extract waveform parameters from a container hash.
+    Run a 64-test perturbation suite for symbolic avalanche testing
     
     Args:
-        hash_value (str): The hash to extract parameters from
+        plaintext_seed: Optional seed for generating plaintext
+        key_seed: Optional seed for generating key
         
     Returns:
-        dict: Dictionary containing extracted parameters
+        List of 64 test results with metrics
     """
-    try:
-        # Extract amplitudes using the symbolic container module
-        amplitudes = extract_amplitude_from_hash(hash_value)
+    results = []
+    
+    # Generate base plaintext and key if not provided
+    if not plaintext_seed:
+        plaintext_seed = hashlib.sha256(str(time.time()).encode()).hexdigest()
+    if not key_seed:
+        key_seed = hashlib.sha256((plaintext_seed + str(time.time())).encode()).hexdigest()
+    
+    # Use first 32 chars of each seed as base plaintext and key
+    base_plaintext = plaintext_seed[:32]
+    base_key = key_seed[:32]
+    
+    # Get baseline metrics
+    baseline = encrypt_symbolic(base_plaintext, base_key)
+    baseline_wc = baseline["wc"]
+    baseline_hr = baseline["hr"]
+    
+    # Helper to flip a bit at position
+    def flip_bit(hex_str: str, bit_pos: int) -> str:
+        # Convert to binary
+        bin_str = bin(int(hex_str, 16))[2:].zfill(len(hex_str) * 4)
+        # Flip the bit
+        bin_list = list(bin_str)
+        bin_list[bit_pos] = '1' if bin_list[bit_pos] == '0' else '0'
+        # Convert back to hex
+        return hex(int(''.join(bin_list), 2))[2:].zfill(len(hex_str))
+    
+    # Run 64 perturbation tests
+    for i in range(64):
+        # Determine if we're perturbing plaintext or key
+        if i < 32:
+            # Perturb plaintext
+            perturbed_pt = flip_bit(base_plaintext, i)
+            perturbed_key = base_key
+            perturb_type = "plaintext"
+            bit_pos = i
+        else:
+            # Perturb key
+            perturbed_pt = base_plaintext
+            perturbed_key = flip_bit(base_key, i - 32)
+            perturb_type = "key"
+            bit_pos = i - 32
         
-        # Convert to waveform data
-        return {
-            "hash": hash_value,
-            "waveform": amplitudes,
-            "extracted_parameters": {
-                "primary_amplitude": amplitudes[0] if len(amplitudes) > 0 else 0.5,
-                "secondary_amplitude": amplitudes[1] if len(amplitudes) > 1 else 0.7,
-                "phase_component": amplitudes[2] if len(amplitudes) > 2 else 0.3,
-                "resonance_pattern": [round(a, 3) for a in amplitudes],
-                "timestamp": time.time()
-            }
+        # Encrypt with perturbed input
+        result = encrypt_symbolic(perturbed_pt, perturbed_key)
+        
+        # Calculate deltas
+        delta_hr = abs(result["hr"] - baseline_hr)
+        delta_wc = abs(result["wc"] - baseline_wc)
+        
+        # Get timestamp
+        timestamp = datetime.now().isoformat()
+        
+        # Create test record
+        test_record = {
+            "test_id": i,
+            "bit_pos": bit_pos,
+            "perturb_type": perturb_type,
+            "hr": result["hr"],
+            "wc": result["wc"],
+            "sa": result.get("sa", 0.0),  # SA may not always be present
+            "entropy": result.get("entropy", 0.0),
+            "delta_hr": delta_hr,
+            "delta_wc": delta_wc,
+            "timestamp": timestamp,
+            "signature": result.get("signature", "")
         }
-    except Exception as e:
-        logging.error(f"Error extracting container parameters: {e}")
-        return {
-            "hash": hash_value,
-            "error": str(e),
-            "waveform": [0.3, 0.7, 0.2]  # Default fallback pattern
-        }
+        
+        results.append(test_record)
+        
+    # Also write to CSV log file
+    log_dir = "logs"
+    os.makedirs(log_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    csv_path = f"{log_dir}/benchmark_{timestamp}.csv"
+    
+    with open(csv_path, 'w') as f:
+        # Write header
+        f.write("test_id,bit_pos,perturb_type,hr,wc,sa,entropy,signature\n")
+        
+        # Write data rows
+        for r in results:
+            f.write(f"{r['test_id']},{r['bit_pos']},{r['perturb_type']},{r['hr']:.6f},{r['wc']:.6f},{r['sa']:.6f},{r['entropy']:.6f},{r['signature']}\n")
+    
+    logger.info(f"Benchmark data written to {csv_path}")
+    
+    return results
 
-# -----------------------------------------------------------------------------
-# Container Registry - stores all containers and maps hashes to containers
-# -----------------------------------------------------------------------------
-_container_registry = {}
-
-# -----------------------------------------------------------------------------
-# Internal mock state tracker (replace with live container tracker later)
-# -----------------------------------------------------------------------------
-_symbolic_state = {
-    "label": "container_alpha",
-    "payload": "ResonantSymbolicPayload",
-    "amplitude": 1.870,
-    "phase": 0.950,
-    "container_count": 1,
-    "sealed": None,
-    "timestamp": None
-}
-
-# -----------------------------------------------------------------------------
-# Single container state generator
-# -----------------------------------------------------------------------------
-def get_active_resonance_state():
+def add_to_hash_history(hash_value: str):
     """
-    Get the active resonance state.
+    Add a hash to the history for replay protection
+    
+    Args:
+        hash_value: Hash to add
     """
-    A, phi = _symbolic_state['amplitude'], _symbolic_state['phase']
-    payload = _symbolic_state['payload']
-    sealed = resonance_encrypt(payload, A, phi)
+    global hash_history
+    
+    hash_history.append(hash_value)
+    
+    # Trim if necessary
+    if len(hash_history) > MAX_HASH_HISTORY:
+        hash_history = hash_history[-MAX_HASH_HISTORY:]
 
-    _symbolic_state.update({
-        "sealed": sealed.hex() if isinstance(sealed, bytes) else str(sealed),
-        "timestamp": time.time()
-    })
+def check_hash_replay(hash_value: str) -> bool:
+    """
+    Check if a hash has been seen before (replay protection)
+    
+    Args:
+        hash_value: Hash to check
+        
+    Returns:
+        True if hash is new, False if it's a replay
+    """
+    return hash_value not in hash_history
 
-    return {
-        "label": _symbolic_state["label"],
-        "amplitude": A,
-        "phase": phi,
-        "vector": np.array([A * np.cos(phi + i) for i in range(64)]).tolist(),
-        "container_count": _symbolic_state["container_count"]
+def validate_avalanche(results: List[Dict[str, Any]]) -> Tuple[bool, Dict[str, Any]]:
+    """
+    Validate if the avalanche test results meet the requirements
+    
+    According to the patent claims:
+    - ≥ 70% rows have WC < 0.55
+    - At least one row has WC < 0.05 (symbolic avalanche)
+    
+    Args:
+        results: List of benchmark test results
+        
+    Returns:
+        Tuple of (passed, stats) where stats contains detailed validation info
+    """
+    # Count rows with WC < 0.55
+    low_wc_count = sum(1 for r in results if r["wc"] < 0.55)
+    low_wc_percent = (low_wc_count / len(results)) * 100
+    
+    # Check for at least one row with WC < 0.05
+    has_avalanche = any(r["wc"] < 0.05 for r in results)
+    
+    # Validation result
+    passed = (low_wc_percent >= 70.0) and has_avalanche
+    
+    stats = {
+        "low_wc_count": low_wc_count,
+        "low_wc_percent": low_wc_percent,
+        "has_avalanche": has_avalanche,
+        "passed": passed
     }
-
-# -----------------------------------------------------------------------------
-# Container Registry Functions 
-# -----------------------------------------------------------------------------
-def register_container(hash_value, plaintext, ciphertext, key=None, author_id="system", parent_hash=None, metadata=None):
-    """
-    Register a new container in the registry using its hash as the key.
     
-    Args:
-        hash_value (str): The hash value that acts as the key to unlock the container
-        plaintext (str): The original plaintext that was encrypted
-        ciphertext (str): The encrypted data
-        key (str, optional): The encryption key used to create the container
-        author_id (str, optional): Identifier of the container creator
-        parent_hash (str, optional): Hash of parent container for lineage tracking
-        metadata (dict, optional): Additional metadata to store with the container
-        
-    Returns:
-        bool: True if registration is successful
-    """
-    # Create container data structure for compatibility with both modes
-    container_data = {
-        "plaintext": plaintext,
-        "ciphertext": ciphertext,
-        "timestamp": time.time(),
-        "created": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "access_count": 0,
-        "key": key,  # Store the encryption key to verify during unlock
-        "author_id": author_id
-    }
-    
-    # If symbolic container is enabled, create a full SymbolicContainer
-    if SYMBOLIC_CONTAINER_ENABLED:
-        try:
-            # Create a symbolic container with provenance tracking
-            container = SymbolicContainer(
-                waveform_hash=hash_value,
-                content=ciphertext,
-                author_id=author_id,
-                parent_hash=parent_hash,
-                metadata=metadata or {"plaintext_preview": plaintext[:20] if plaintext else None}
-            )
-            
-            # Store both the legacy data and serialized container to ensure compatibility
-            container_data["symbolic_container"] = container.to_json()
-            container_data["signature"] = container.signature
-            container_data["container_type"] = "symbolic"
-            logging.info(f"Symbolic container created with signature: {container.signature[:16]}...")
-        except Exception as e:
-            logging.error(f"Error creating symbolic container: {e}")
-            container_data["container_type"] = "legacy"
-    else:
-        container_data["container_type"] = "legacy"
-        
-    # Add to registry - each hash maps to exactly one container
-    _container_registry[hash_value] = container_data
-    
-    print(f"Container registered with hash key: {hash_value}")
-    return True
-
-def get_container_by_hash(hash_value):
-    """
-    Retrieve a container by its hash key.
-    
-    Args:
-        hash_value (str): The hash key to look up
-        
-    Returns:
-        dict or None: The container if found, None otherwise
-    """
-    # Special test case for the hash from screenshot
-    if hash_value == "2NQiADyQV6f0i4D3TpLM":
-        if hash_value not in _container_registry:
-            # Auto-register this specific test container
-            register_container(
-                hash_value, 
-                "Test container content",
-                "Encrypted test container data",
-                author_id="Luis.Minier",
-                metadata={"purpose": "Demonstration container", "type": "test"}
-            )
-    
-    if hash_value in _container_registry:
-        container = _container_registry[hash_value]
-        # Update access count
-        container["access_count"] += 1
-        container["last_accessed"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        
-        # If this is a symbolic container, update the symbolic container's access count too
-        if SYMBOLIC_CONTAINER_ENABLED and container.get("container_type") == "symbolic" and "symbolic_container" in container:
-            try:
-                # Create a SymbolicContainer instance from the stored JSON
-                symbolic_data = container["symbolic_container"]
-                
-                # Create instance from stored data
-                symbolic_container = SymbolicContainer.from_json(symbolic_data)
-                
-                # Update access count
-                symbolic_container.increment_access_count()
-                
-                # Update stored container
-                container["symbolic_container"] = symbolic_container.to_json()
-                container["access_count"] = symbolic_container.access_count
-                
-                # Verify container integrity (authenticity check)
-                if not symbolic_container.verify_authenticity():
-                    logging.warning(f"Container {hash_value[:8]} failed signature verification!")
-                    container["verification_status"] = "failed"
-                else:
-                    container["verification_status"] = "passed"
-                    
-            except Exception as e:
-                logging.error(f"Error updating symbolic container: {e}")
-                
-        return container
-    
-    return None
-
-def check_container_access(hash_value):
-    """
-    Check if a hash can access a container.
-    
-    Args:
-        hash_value (str): The hash to check
-        
-    Returns:
-        bool: True if the hash unlocks a container, False otherwise
-    """
-    return get_container_by_hash(hash_value) is not None
-
-def verify_container_key(hash_value, key):
-    """
-    Verify that the provided key matches the one used to encrypt the container.
-    This implements the true lock-and-key mechanism where the hash becomes the
-    unique identifier for the container and the key must be the original encryption key.
-    
-    Args:
-        hash_value (str): The container hash
-        key (str): The encryption key to verify
-        
-    Returns:
-        bool: True if the key is valid for this container, False otherwise
-    """
-    # Special case for test hash
-    if hash_value == "2NQiADyQV6f0i4D3TpLM":
-        return True
-        
-    # Get the container
-    container = get_container_by_hash(hash_value)
-    if not container:
-        return False
-    
-    # If container exists in registry, check if it has a stored key
-    # If no key was stored, accept any key for backward compatibility
-    stored_key = container.get("key", None)
-    
-    # If no key was stored during encryption (old containers), accept any key
-    if stored_key is None:
-        return True
-        
-    # Otherwise verify the key matches
-    return stored_key == key
-
-# -----------------------------------------------------------------------------
-# Multi-container interface used by q_wave_debugger.py
-# -----------------------------------------------------------------------------
-def get_all_resonance_containers():
-    """
-    Get all resonance containers.
-    This now returns both the simulated containers and actual registered containers.
-    """
-    base = get_active_resonance_state()
-    containers = []
-
-    # Add simulated containers (for backward compatibility)
-    for i in range(3):
-        containers.append({
-            "label": f"{base['label']}_{i}",
-            "amplitude": base["amplitude"] + (i * 0.25),
-            "phase": base["phase"] + (i * 0.5),
-            "vector": np.array([base["amplitude"] * np.cos(base["phase"] + i + t) for t in range(64)]).tolist(),
-            "container_count": i + 1
-        })
-    
-    # Add actual registered containers from the registry
-    for hash_key, container in _container_registry.items():
-        container_data = {
-            "label": f"container_{hash_key[:8]}",
-            "amplitude": 0.3,  # Default amplitude for registered containers
-            "phase": 0.7,      # Default phase for registered containers
-            "hash_key": hash_key,
-            "created": container.get("created", "Unknown"),
-            "access_count": container.get("access_count", 0)
-        }
-        
-        # Add symbolic container metadata if available
-        if container.get("container_type") == "symbolic" and "symbolic_container" in container:
-            try:
-                # Get symbolic container data
-                sym_data = container["symbolic_container"]
-                
-                # Add symbolic container specific fields
-                container_data.update({
-                    "container_type": "symbolic",
-                    "author_id": sym_data.get("author_id", "unknown"),
-                    "signature": sym_data.get("signature", "")[:16] + "...",  # Only show prefix
-                    "has_lineage": bool(sym_data.get("parent_hash")),
-                    "verification_status": container.get("verification_status", "unknown")
-                })
-            except Exception as e:
-                logging.error(f"Error extracting symbolic container data: {e}")
-                
-        containers.append(container_data)
-
-    return containers
-
-# -----------------------------------------------------------------------------
-# Manual Test Hook
-# -----------------------------------------------------------------------------
-if __name__ == "__main__":
-    containers = get_all_resonance_containers()
-    for c in containers:
-        print(f"🧠 Container {c['label']} → A: {c['amplitude']}, φ: {c['phase']}")
+    return passed, stats

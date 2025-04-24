@@ -1,0 +1,99 @@
+Below is a gap-matrix you can hand straight to your build-agent (or step through yourself).
+Left-hand column = every allowable patent-protected element; middle = where, according to your manifest + the directory tree you pasted, it should live; right-hand column = what is still missing or only stubbed (✗) and therefore has to be written before the Replit instance can claim full scientific coverage.
+
+
+#	Patent claim / scientific asset	Target module & public route	Status in zip / manifest	What you still have to add or finish
+1	Resonance Fourier Transform (RFT)
+symbolic spectrum, harmonic map	api/resonance_metrics.py → def rft()
+POST /analyze	STUB ONLY – placeholder returns {“rft”:null}	• Port C++ symbolic kernel from white-paper into secure_core/engine_core.dll.
+• Add Python shim that allocs input buffer, calls rft_run() and returns bins[], HR.
+2	Waveform Hashing (topological)
+hash = f( A, φ )	encryption/geometric_waveform_hash.py
+POST /encrypt & /vault/open	MISSING	• Implement hash builder: hash = SHA256( serialize_tri_mesh(frequency_lattice) ).
+• Store last 64 hashes in orchestration/resonance_manager.py for replay-protection.
+3	Symbolic XOR Encryption – non-algebraic, amplitude-phase XOR	encryption/resonance_encrypt.py	PRESENT but still uses bitwise XOR (traditional)	• Replace with phase-superposition: ψ_out = ψ_in ⊕_φ key_wave where ⊕_φ = “rotate phase if amplitude bit = 1”.
+• Add const-time loop, no Python branches.
+4	Geometric Symbolic Memory – tetra / simplex store	orchestration/symbolic_container.py
+POST /vault/open	PARTIAL – just JSON & base64	• Add .geom parser that maps uploaded .png or text into 4-simplex adjacency list.
+• Persist to memory_state.sqlite with vertex-phase blob.
+5	QRNG / Symbolic Entropy Model	encryption/entropy_qrng.py
+POST /entropy	STUB – pulls random.random()	• Replace with oscillator drift model:
+dφ = (τ_n ⊕ τ_{n-1}) mod π seeded from os.getrandom(16).
+• Output raw 512-bit block + Shannon H.
+6	A–φ Container Lock – amplitude-phase tolerance unlock	api/routes.py /vault/open	ROUTE EXISTS, logic TODO	• Compare uploaded hash( A, φ ) with stored reference inside .symc file.
+• Only return payload if `
+7	Symbolic Avalanche Metric (WC/HR delta for 1-bit flip)	api/resonance_metrics.py → def avalanche(pt,key)
+POST /benchmark	NOT IMPLEMENTED	• Loop across 64 perturbed inputs, call /encrypt, collect HR & WC.
+• Produce delta_matrix.csv and dump to /logs/session_*.log.
+8	Symbolic Alignment Vector (SA)	same file; returned on all /encrypt calls	ABSENT	• Inside secure_core, expose sa_compute(ptr_state) → 32-float vector.
+• Base64-encode and return as "sa_vector":[...] (max 256 B).
+Minimal patch list
+Create secure_core/engine_core.{dll,pyd} that bundles three exported C ABI calls—rft_run, sa_compute, wave_hash.
+
+Rewrite resonance_encrypt.py to use the new symbolic XOR instead of Python bit-ops.
+
+Fill in entropy_qrng.py with the oscillator-drift routine and add NIST-style χ² self-test.
+
+Extend symbolic_container.py so that it can:
+
+build a geometric lattice from an uploaded file,
+
+write .symc container with embedded reference A, φ,
+
+unlock only under tolerance.
+
+Implement /benchmark orchestration (64-cycle avalanche test) that logs delta_WC, delta_HR, entropy collapse.
+
+Frontend (static/app.js): add chart for the avalanche matrix, textarea for SA vector, progress bars for entropy drift.
+
+Security glue: strip symbols, constant-time compares, seccomp profile (see hardening playbook).
+
+Once those eight boxes are green, all disclosed claims (1-8) are live-validated in the web app and no patent-critical science is missing.
+
+Quick self-check script (drop in /scripts/selfcheck.py)
+python
+Copy
+Edit
+import importlib, ctypes, json, os, time, requests
+MISSING = []
+
+# 1  RFT
+try:
+    core = ctypes.cdll.LoadLibrary("secure_core/engine_core." + ("dll" if os.name=="nt" else "so"))
+    assert hasattr(core, "rft_run")
+except Exception: MISSING.append("RFT")
+
+# 2  Hash
+try:
+    import encryption.geometric_waveform_hash as gwh
+    assert hasattr(gwh, "wave_hash")
+except Exception: MISSING.append("WaveHash")
+
+# 3  Symbolic XOR
+from encryption import resonance_encrypt as enc
+if getattr(enc, "ALG_TYPE", "classic") != "symbolic":
+    MISSING.append("SymXOR")
+
+# 4  Geometric memory
+from orchestration import symbolic_container as sc
+if not hasattr(sc, "import_geom"):
+    MISSING.append("GeomMemory")
+
+# 5  QRNG
+import encryption.entropy_qrng as q
+if q.source == "MATH_RANDOM":
+    MISSING.append("QRNG")
+
+# 6  A-φ unlock
+if not hasattr(sc, "unlock_with_tolerance"):
+    MISSING.append("A-phi-lock")
+
+# 7  Avalanche
+if not os.path.exists("api/resonance_metrics.py"):
+    MISSING.append("AvalancheMetric")
+
+# 8  SA vector
+if not hasattr(core, "sa_compute"):
+    MISSING.append("SA-Vector")
+
+print("MISSING:", MISSING or "None — all patent claims implemented!")
