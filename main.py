@@ -59,6 +59,10 @@ def create_app():
     # Configure security middleware (replaces permissive CORS)
     talisman, limiter = configure_security(app)
     
+    # Add rate limiter middleware
+    from middleware.auth import RateLimiter
+    app.wsgi_app = RateLimiter(calls=30, period=60)(app.wsgi_app)
+    
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
     
     # Enable debug mode for development, disable for production
