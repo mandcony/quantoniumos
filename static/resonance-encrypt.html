@@ -3078,7 +3078,10 @@ ${entropyValue}`;
         }
         
         // Run 64-Perturbation Benchmark
+        // Main benchmark function - consolidated version to avoid duplicates
         async function runBenchmark() {
+            console.log("Running consolidated benchmark function");
+            
             // Initialize benchmark elements if they're not already
             if (!benchBtn || !dlLink || !benchOut) {
                 initBenchmarkElements();
@@ -3086,10 +3089,13 @@ ${entropyValue}`;
             
             // Disable button and show progress
             benchBtn.disabled = true;
-            benchOut.textContent = "Validating input and preparing benchmark...";
+            benchBtn.innerText = "Running Benchmark...";
+            
+            // Show loading in benchmark output area
+            benchOut.innerHTML = '<div class="loader"></div><p>Running 64-bit perturbation benchmark...</p>';
             dlLink.style.display = "none";
             
-            // Clone original input values so we don't modify the UI
+            // Get plaintext and key from encryption form
             const plaintextOriginal = document.getElementById("plaintext").value;
             const keyOriginal = document.getElementById("encrypt-key").value;
             
@@ -3097,88 +3103,144 @@ ${entropyValue}`;
             const plaintext = validateAndFixHex(plaintextOriginal, "plaintext", true);
             const key = validateAndFixHex(keyOriginal, "key", true);
             
-            benchOut.textContent = "Benchmark running (≈30 s)...";
+            // Also update the dedicated benchmark inputs if they exist
+            const benchmarkBasePt = document.getElementById('benchmark-base-pt');
+            const benchmarkBaseKey = document.getElementById('benchmark-base-key');
+            if (benchmarkBasePt && benchmarkBaseKey) {
+                benchmarkBasePt.value = plaintext;
+                benchmarkBaseKey.value = key;
+            }
             
-            const payload = {
-                plaintext: plaintext,
-                key: key
-            };
+            // Make the benchmark tab visible
+            // Switch to benchmark tab if needed
+            const benchmarkTab = document.getElementById('benchmark-tab');
+            if (benchmarkTab) {
+                // Activate the benchmark tab in main navigation
+                const mainTab = document.querySelector('.main-tab[data-tab="benchmark"]');
+                if (mainTab) {
+                    // Set all tabs inactive
+                    document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
+                    document.querySelectorAll('.main-tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // Activate benchmark tab
+                    mainTab.classList.add('active');
+                    benchmarkTab.classList.add('active');
+                }
+            }
+            
+            // Make sure results tab is active
+            const resultsTab = document.querySelector('#results-tab');
+            if (resultsTab) {
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                resultsTab.classList.add('active');
+            }
+            
+            // Show progress container
+            const progressContainer = document.getElementById('progress-container');
+            if (progressContainer) {
+                progressContainer.style.display = 'block';
+                updateProgress(10, 'Starting benchmark...');
+            }
+            
+            // Show loader
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'inline-block';
+            }
             
             try {
                 // Call API to run benchmark
-                const r = await fetch("/api/benchmark", {
+                updateProgress(20, 'Sending request to server...');
+                const response = await fetch("/api/benchmark", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        plaintext: plaintext,
+                        key: key
+                    })
                 });
                 
-                const j = await r.json();
-                if (j.status !== "ok") { 
-                    throw new Error(j.detail || "server error"); 
+                updateProgress(50, 'Processing server response...');
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
                 }
                 
+                const data = await response.json();
+                if (data.status !== "ok") { 
+                    throw new Error(data.detail || "Server error"); 
+                }
+                
+                updateProgress(80, 'Rendering results...');
+                
                 // Update UI with results
-                benchOut.textContent = `✓ ${j.rows_written} rows | max ΔWC = ${j.delta_max_wc} ΔHR = ${j.delta_max_hr}`;
-                dlLink.href = j.csv_url;
+                benchOut.textContent = `✓ ${data.rows_written} rows | max ΔWC = ${data.delta_max_wc} ΔHR = ${data.delta_max_hr}`;
+                dlLink.href = data.csv_url;
                 dlLink.textContent = "Download latest CSV";
                 dlLink.style.display = "inline-block";
                 
-                // Also update the progress UI that might exist in the benchmark section
-                updateBenchmarkProgressUI(j);
+                // Process the data for full display
+                const displayData = {
+                    rows_written: data.rows_written,
+                    delta_max_wc: data.delta_max_wc,
+                    delta_max_hr: data.delta_max_hr,
+                    csv_hash: data.sha256 || ''
+                };
                 
-                // Function to help update progress UI
-                function updateBenchmarkProgressUI(data) {
-                    // Update progress to 100%
-                    updateProgress(100, 'Benchmark completed!');
-                    
-                    // Show results if available
-                    const resultsContainer = document.getElementById('results-container');
-                    if (resultsContainer) {
-                        resultsContainer.style.display = 'block';
-                    }
-                    
-                    // Hide loader
-                    const loader = document.getElementById('loader');
-                    if (loader) {
-                        loader.style.display = 'none';
-                    }
+                // Show results container
+                const resultsContainer = document.getElementById('results-container');
+                if (resultsContainer) {
+                    resultsContainer.style.display = 'block';
                 }
                 
-                // Show copy to clipboard button for the chart
+                // Show copy to clipboard button for the chart if it exists
                 const copyBtnContainer = document.getElementById('copy-chart-container');
                 if (copyBtnContainer) {
                     copyBtnContainer.style.display = 'block';
                 }
                 
-                // Process the data for full display if needed
-                const displayData = {
-                    rows_written: j.rows_written,
-                    delta_max_wc: j.delta_max_wc,
-                    delta_max_hr: j.delta_max_hr,
-                    csv_hash: j.sha256 || ''
-                };
+                // Display results in the dedicated tab
+                if (typeof displayResults === 'function') {
+                    displayResults(displayData);
+                }
                 
-                // Display results
-                displayResults(displayData);
-                
-                // Fetch the CSV data to populate the details
-                if (j.csv_filename) {
-                    const csvUrl = `/api/log/${j.csv_filename}`;
+                // Fetch the CSV data to populate the details if that function exists
+                if (data.csv_filename && typeof fetchCSVData === 'function') {
+                    const csvUrl = `/api/log/${data.csv_filename}`;
                     await fetchCSVData(csvUrl);
                 }
                 
-                // Hide loader
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('start-benchmark').disabled = false;
+                updateProgress(100, 'Benchmark completed!');
                 
-                // Show results container
-                document.getElementById('results-container').style.display = 'block';
             } catch (error) {
                 console.error('Error running benchmark:', error);
-                alert('Error running benchmark: ' + error.message);
-                document.getElementById('progress-container').style.display = 'none';
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('start-benchmark').disabled = false;
+                benchOut.textContent = `✗ Error: ${error.message}`;
+                
+                // Show error in benchmark output if it exists
+                const benchmarkOutput = document.getElementById('benchmark-output');
+                if (benchmarkOutput) {
+                    benchmarkOutput.innerHTML = `<div class="error-message">Error running benchmark: ${error.message}</div>`;
+                }
+                
+                if (progressContainer) {
+                    progressContainer.style.display = 'none';
+                }
+            } finally {
+                // Re-enable buttons
+                benchBtn.disabled = false;
+                benchBtn.innerText = "Run Benchmark";
+                
+                // Also re-enable the start-benchmark button if it exists
+                const startBenchmarkBtn = document.getElementById('start-benchmark');
+                if (startBenchmarkBtn) {
+                    startBenchmarkBtn.disabled = false;
+                    startBenchmarkBtn.innerText = "Run 64-Perturbation Benchmark";
+                }
+                
+                // Hide loader
+                if (loader) {
+                    loader.style.display = 'none';
+                }
             }
         }
         
