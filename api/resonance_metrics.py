@@ -14,6 +14,7 @@ import os
 import csv
 import time
 import logging
+import hashlib
 import numpy as np
 from datetime import datetime
 from pathlib import Path
@@ -283,7 +284,6 @@ def run_symbolic_benchmark(base_pt: str, base_key: str) -> Tuple[str, Dict[str, 
             time.sleep(0.1)
     
     # Calculate SHA-256 of the CSV for integrity verification
-    import hashlib
     csv_hash = hashlib.sha256(csv_path.read_bytes()).hexdigest()
     
     return str(csv_path), {
