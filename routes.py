@@ -4,12 +4,14 @@ Quantonium OS - API Route Definitions
 Defines all token-protected endpoints to access symbolic stack modules.
 """
 
-from flask import Blueprint, request, jsonify, g, Response, stream_with_context
+from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
 from core.protected.symbolic_interface import get_interface
 from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
 from utils import sign_response
 from auth.jwt_auth import require_jwt_auth
 from backend.stream import get_stream, update_encrypt_data
+from api.resonance_metrics import run_symbolic_benchmark
+from pathlib import Path
 
 api = Blueprint("api", __name__)
 symbolic = get_interface()
@@ -280,3 +282,65 @@ def stream_wave():
     )
     
     return response
+
+# --- 64-Perturbation Benchmark Endpoints ---------------------------------------------
+@api.route("/benchmark", methods=["POST"])
+def benchmark():
+    """
+    Run 64-test perturbation suite for symbolic avalanche testing
+    
+    1 base PT/KEY + 32 plaintext 1-bit flips + 31 key flips.
+    Returns JSON and drops a timestamped CSV into /logs/.
+    """
+    data = request.get_json()
+    base_pt = data.get("plaintext")
+    base_key = data.get("key")
+    
+    if not (base_pt and base_key):
+        return jsonify(sign_response({
+            "status": "error",
+            "detail": "plaintext & key required"
+        })), 422
+    
+    csv_path, summary = run_symbolic_benchmark(base_pt, base_key)
+    
+    # Build the response
+    response = {
+        "status": "ok",
+        "rows_written": summary["rows"],
+        "csv_url": f"/api/log/{Path(csv_path).name}",
+        "delta_max_wc": summary["max_wc_delta"],
+        "delta_max_hr": summary["max_hr_delta"],
+        "sha256": summary.get("sha256", "")
+    }
+    
+    # Add key_id if available
+    if hasattr(g, 'api_key') and g.api_key:
+        response["key_id"] = g.api_key.key_id
+    
+    return jsonify(sign_response(response))
+
+@api.route("/log/<csv_name>", methods=["GET"])
+def download_csv(csv_name):
+    """
+    Public download of benchmark CSVs (read-only)
+    
+    Args:
+        csv_name: Name of the CSV file to download
+    """
+    # Validate the filename to prevent directory traversal
+    if ".." in csv_name or "/" in csv_name:
+        abort(404)
+    
+    # Find the file
+    full_path = Path("logs") / csv_name
+    if not full_path.exists() or not full_path.is_file():
+        abort(404)
+    
+    # Send the file
+    return send_file(
+        full_path, 
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name=csv_name
+    )

@@ -5,15 +5,20 @@ This module implements the Resonance Metrics for QuantoniumOS:
 - Resonance Fourier Transform (RFT)
 - Symbolic Avalanche Metric
 - Waveform Coherence calculation
+- 64-Perturbation Benchmark (reproducible avalanche tests)
 
 All proprietary algorithms are securely delegated to the core engine.
 """
 
 import os
+import csv
+import time
 import logging
 import numpy as np
-from typing import Dict, List, Any, Optional
-from api.symbolic_interface import compute_rft_with_engine, compute_sa_with_engine
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
+from secure_core.python_bindings import engine_core
 from encryption.resonance_encrypt import encrypt_symbolic
 
 logger = logging.getLogger("quantonium_api.metrics")
@@ -29,11 +34,14 @@ def compute_rft(payload: str) -> Dict[str, Any]:
         Dictionary with RFT bins, harmonic ratio, and metrics
     """
     try:
+        # Convert payload string to bytes for core engine
+        if isinstance(payload, str):
+            bytes_data = payload.encode('utf-8')
+        else:
+            bytes_data = bytes(payload)
+            
         # Call into the secure core engine to compute RFT
-        rft_result = compute_rft_with_engine(payload)
-        
-        # Compute additional metrics from the RFT data
-        bins = rft_result["rft"]
+        bins, hr = engine_core.rft_run(bytes_data)
         
         # Calculate harmonic peaks (ratio of max to mean)
         if bins and len(bins) > 0:
@@ -46,8 +54,8 @@ def compute_rft(payload: str) -> Dict[str, Any]:
         # Return complete result
         return {
             "rft": bins,
-            "hr": rft_result["hr"],
-            "bin_count": rft_result["bin_count"],
+            "hr": hr,
+            "bin_count": len(bins),
             "harmonic_peak_ratio": harmonic_peak_ratio
         }
         
@@ -169,3 +177,78 @@ def calculate_waveform_coherence(waveform1: List[float], waveform2: List[float])
         coherence = 0.0
     
     return float(coherence)
+    
+BITS = 128
+
+def _flip_bit(hex_str: str, bit_pos: int) -> str:
+    """
+    Flips a specific bit in a hex string
+    
+    Args:
+        hex_str: Hex string to modify
+        bit_pos: Bit position to flip (0-indexed)
+        
+    Returns:
+        Modified hex string
+    """
+    b = bytearray.fromhex(hex_str)
+    byte_i, offset = divmod(bit_pos, 8)
+    b[byte_i] ^= 1 << (7-offset)
+    return b.hex()
+
+def run_symbolic_benchmark(base_pt: str, base_key: str) -> Tuple[str, Dict[str, Any]]:
+    """
+    Executes the 64-vector avalanche test on the server side
+    
+    Args:
+        base_pt: Base plaintext to use
+        base_key: Base key to use
+        
+    Returns:
+        Tuple of (csv_path, summary_dict)
+    """
+    tstamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    csv_path = Path("logs") / f"benchmark_{tstamp}.csv"
+    csv_path.parent.mkdir(exist_ok=True)
+    
+    max_wc_delta = 0.0
+    max_hr_delta = 0.0
+    
+    with csv_path.open("w", newline="") as fp:
+        w = csv.writer(fp)
+        w.writerow(["TestID", "Vector", "BitPos", "PT", "KEY", "HR", "WC", "Entropy"])
+        
+        # Helper to encrypt once and write
+        def _process(idx, pt, key, label, bitpos):
+            out = encrypt_symbolic(pt, key)
+            w.writerow([idx, label, bitpos, pt, key, out["hr"], out["wc"], out.get("entropy", 0.0)])
+            return out["hr"], out["wc"]
+        
+        # 0) base
+        base_hr, base_wc = _process(0, base_pt, base_key, "base", -1)
+        
+        row = 1
+        # 32 plaintext flips (even bits 0-124)
+        for pos in range(0, BITS, 4):
+            hr, wc = _process(row, _flip_bit(base_pt, pos), base_key, "pt_flip", pos)
+            max_wc_delta = max(max_wc_delta, abs(wc-base_wc))
+            max_hr_delta = max(max_hr_delta, abs(hr-base_hr))
+            row += 1
+        
+        # 31 key flips (odd bits 1-125)
+        for pos in range(1, BITS, 4):
+            hr, wc = _process(row, base_pt, _flip_bit(base_key, pos), "key_flip", pos)
+            max_wc_delta = max(max_wc_delta, abs(wc-base_wc))
+            max_hr_delta = max(max_hr_delta, abs(hr-base_hr))
+            row += 1
+    
+    # Calculate SHA-256 of the CSV for integrity verification
+    import hashlib
+    csv_hash = hashlib.sha256(csv_path.read_bytes()).hexdigest()
+    
+    return str(csv_path), {
+        "rows": row,
+        "max_wc_delta": round(max_wc_delta, 3),
+        "max_hr_delta": round(max_hr_delta, 3),
+        "sha256": csv_hash
+    }
