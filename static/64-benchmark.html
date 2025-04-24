@@ -658,6 +658,7 @@
                 // Prepare data for charts
                 const hrValues = [];
                 const wcValues = [];
+                const entropyValues = [];
                 const labels = [];
                 
                 // Skip header row
@@ -689,6 +690,7 @@
                         labels.push(`Test ${rowData.TestID}`);
                         hrValues.push(parseFloat(rowData.HR));
                         wcValues.push(parseFloat(rowData.WC));
+                        entropyValues.push(parseFloat(rowData.Entropy));
                     }
                     
                     // Add to bloom filter with cryptographic validation
@@ -727,13 +729,33 @@
                     
                     // Set up bit flip visualization if it's the first test
                     if (rowData.TestID == 1) {
-                        setupBitFlipVisualization(rows[0], rowData, rows[1]);
+                        // Find base test data (TestID 0)
+                        let baseTestData = null;
+                        for (let j = 1; j < rows.length; j++) {
+                            if (!rows[j].trim()) continue;
+                            const baseCells = rows[j].split(',');
+                            if (baseCells[0] === '0') { // TestID 0 is base test
+                                const baseRowData = {};
+                                headers.forEach((header, index) => {
+                                    baseRowData[header] = baseCells[index];
+                                });
+                                baseTestData = baseRowData;
+                                break;
+                            }
+                        }
+                        
+                        if (baseTestData) {
+                            setupBitFlipVisualization(baseTestData, rowData);
+                        } else {
+                            console.error("Base test data not found for visualization");
+                        }
                     }
                 }
                 
                 // Create charts
                 createHRChart(labels, hrValues);
                 createWCChart(labels, wcValues);
+                createEntropyChart(labels, entropyValues);
             })
             .catch(error => {
                 console.error('Error fetching CSV data:', error);
@@ -811,6 +833,41 @@
             // Set flipped bits
             const flippedBitsEl = document.getElementById('flipped-bits');
             flippedBitsEl.innerHTML = formatBits(flippedBits, flippedBitPosition);
+            
+            // Add additional metadata for clarity
+            let bitFlipType = '';
+            if (baseTest.PT !== firstTest.PT) {
+                bitFlipType = 'Plaintext Bit Flip';
+            } else if (baseTest.KEY !== firstTest.KEY) {
+                bitFlipType = 'Key Bit Flip';
+            }
+            
+            // Add information about the test
+            const metadataHtml = `
+                <div style="margin-bottom: 10px; background-color: #222; padding: 8px; border-radius: 4px;">
+                    <div><strong>Test Type:</strong> ${bitFlipType}</div>
+                    <div><strong>Bit Position:</strong> ${firstTest.BitPos}</div>
+                    <div><strong>Base Entropy:</strong> ${parseFloat(baseTest.Entropy).toFixed(3)}</div>
+                    <div><strong>Modified Entropy:</strong> ${parseFloat(firstTest.Entropy).toFixed(3)}</div>
+                    <div><strong>Entropy Change:</strong> ${(parseFloat(firstTest.Entropy) - parseFloat(baseTest.Entropy)).toFixed(3)}</div>
+                </div>
+            `;
+            
+            // Insert metadata at the top of the visualization
+            const visualizationTab = document.getElementById('visualization-tab');
+            const h4Element = visualizationTab.querySelector('h4');
+            
+            // Remove any previous metadata
+            const existingMetadata = visualizationTab.querySelector('.bit-flip-metadata');
+            if (existingMetadata) {
+                existingMetadata.remove();
+            }
+            
+            // Insert the new metadata
+            const metadataContainer = document.createElement('div');
+            metadataContainer.className = 'bit-flip-metadata';
+            metadataContainer.innerHTML = metadataHtml;
+            h4Element.insertAdjacentElement('afterend', metadataContainer);
             
             // Set original output
             const originalOutputEl = document.getElementById('original-output');
@@ -954,6 +1011,88 @@
                         legend: {
                             labels: {
                                 color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Create Entropy Chart
+        function createEntropyChart(labels, values) {
+            // Create a new chart container
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart';
+            chartContainer.id = 'entropy-chart-container';
+            
+            // Find the chart container parent
+            const chartParent = document.getElementById('wc-chart').parentElement;
+            chartParent.appendChild(chartContainer);
+            
+            // Create a canvas element for the chart
+            const canvas = document.createElement('canvas');
+            canvas.id = 'entropy-chart';
+            chartContainer.appendChild(canvas);
+            
+            // Add title to chart
+            const title = document.createElement('h4');
+            title.textContent = 'Entropy Variation';
+            title.style.textAlign = 'center';
+            title.style.color = '#fff';
+            title.style.marginTop = '0';
+            title.style.marginBottom = '10px';
+            chartContainer.insertBefore(title, canvas);
+            
+            // Get the context and create chart
+            const ctx = canvas.getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Entropy',
+                        data: values,
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                maxRotation: 90,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Entropy: ${context.parsed.y.toFixed(3)}`;
+                                }
                             }
                         }
                     }
