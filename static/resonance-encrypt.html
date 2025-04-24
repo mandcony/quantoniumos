@@ -290,6 +290,12 @@
             background-color: #000;
         }
         
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #000;
+        }
+        
         .metrics-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1358,11 +1364,11 @@
             waveCohererenceValue: document.getElementById('wave-coherence-value')
         };
         
-        // Canvas contexts
-        const ctx = elements.canvas.getContext('2d');
-        const waveformCtx = elements.waveformCanvas?.getContext('2d');
-        const unlockWaveformCtx = elements.unlockWaveformCanvas?.getContext('2d');
-        const rftResultCtx = elements.rftResultCanvas?.getContext('2d');
+        // Canvas contexts initialization with null checks
+        const ctx = elements.canvas ? elements.canvas.getContext('2d') : null;
+        const waveformCtx = elements.waveformCanvas ? elements.waveformCanvas.getContext('2d') : null;
+        const unlockWaveformCtx = elements.unlockWaveformCanvas ? elements.unlockWaveformCanvas.getContext('2d') : null;
+        const rftResultCtx = elements.rftResultCanvas ? elements.rftResultCanvas.getContext('2d') : null;
         // Note: Quantum grid canvases are managed by the quantum-grid.js module
         
         // Initialize
@@ -1754,32 +1760,54 @@
         
         function resizeCanvases() {
             // Resize main visualization canvas
-            const container = elements.canvas.parentElement;
-            elements.canvas.width = container.clientWidth;
-            elements.canvas.height = container.clientHeight;
+            if (elements.canvas && elements.canvas.parentElement) {
+                const container = elements.canvas.parentElement;
+                elements.canvas.width = container.clientWidth || 300;
+                elements.canvas.height = container.clientHeight || 150;
+                if (ctx) {
+                    // Clear and redraw
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(0, 0, elements.canvas.width, elements.canvas.height);
+                }
+            }
             
             // Resize waveform generator canvas if it exists
-            if (elements.waveformCanvas) {
+            if (elements.waveformCanvas && elements.waveformCanvas.parentElement) {
                 const waveformContainer = elements.waveformCanvas.parentElement;
-                elements.waveformCanvas.width = waveformContainer.clientWidth;
-                elements.waveformCanvas.height = waveformContainer.clientHeight;
-                updateWaveformGenerator();
+                elements.waveformCanvas.width = waveformContainer.clientWidth || 300;
+                elements.waveformCanvas.height = waveformContainer.clientHeight || 150;
+                if (waveformCtx) {
+                    updateWaveformGenerator();
+                }
             }
             
             // Resize unlock waveform canvas if it exists
-            if (elements.unlockWaveformCanvas) {
+            if (elements.unlockWaveformCanvas && elements.unlockWaveformCanvas.parentElement) {
                 const unlockContainer = elements.unlockWaveformCanvas.parentElement;
-                elements.unlockWaveformCanvas.width = unlockContainer.clientWidth;
-                elements.unlockWaveformCanvas.height = unlockContainer.clientHeight;
-                updateUnlockWaveform();
+                elements.unlockWaveformCanvas.width = unlockContainer.clientWidth || 300;
+                elements.unlockWaveformCanvas.height = unlockContainer.clientHeight || 150;
+                if (unlockWaveformCtx) {
+                    updateUnlockWaveform();
+                }
             }
             
             // Resize RFT result canvas if it exists
-            if (elements.rftResultCanvas) {
+            if (elements.rftResultCanvas && elements.rftResultCanvas.parentElement) {
                 const rftContainer = elements.rftResultCanvas.parentElement;
-                elements.rftResultCanvas.width = rftContainer.clientWidth;
-                elements.rftResultCanvas.height = rftContainer.clientHeight;
+                elements.rftResultCanvas.width = rftContainer.clientWidth || 300;
+                elements.rftResultCanvas.height = 150; // Fixed height for better visualization
+                if (rftResultCtx) {
+                    // Clear canvas
+                    rftResultCtx.fillStyle = '#000';
+                    rftResultCtx.fillRect(0, 0, elements.rftResultCanvas.width, elements.rftResultCanvas.height);
+                }
             }
+            
+            // Force redraw of any other canvases
+            setTimeout(() => {
+                if (waveformCtx) updateWaveformGenerator();
+                if (unlockWaveformCtx) updateUnlockWaveform();
+            }, 100);
         }
         
         function updateWaveformGenerator() {
