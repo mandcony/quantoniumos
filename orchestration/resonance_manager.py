@@ -181,3 +181,62 @@ def validate_avalanche(results: List[Dict[str, Any]]) -> Tuple[bool, Dict[str, A
     }
     
     return passed, stats
+
+# Container registry
+container_registry = {}
+
+def register_container(hash_value: str, plaintext: str, ciphertext: str, key: str) -> bool:
+    """
+    Register a container in the registry
+    
+    Args:
+        hash_value: Hash of the container
+        plaintext: Original plaintext
+        ciphertext: Encrypted ciphertext
+        key: Encryption key
+        
+    Returns:
+        True if registration succeeded, False otherwise
+    """
+    global container_registry
+    
+    if not hash_value:
+        logger.error("Invalid container hash (empty)")
+        return False
+        
+    if hash_value in container_registry:
+        logger.warning(f"Container already registered: {hash_value}")
+        return False
+        
+    # Create container metadata
+    metadata = {
+        "plaintext": plaintext,
+        "ciphertext": ciphertext,
+        "key": key,
+        "created": datetime.now().isoformat(),
+        "access_count": 0,
+        "last_accessed": None
+    }
+        
+    # Add container to registry
+    container_registry[hash_value] = metadata
+    logger.info(f"Container registered: {hash_value}")
+    
+    # Add hash to history for replay protection
+    add_to_hash_history(hash_value)
+    
+    return True
+
+def get_container_metadata(container_hash: str) -> Optional[Dict[str, Any]]:
+    """
+    Get container metadata from the registry
+    
+    Args:
+        container_hash: Hash of the container (64-character hex)
+        
+    Returns:
+        Container metadata or None if not found
+    """
+    if container_hash in container_registry:
+        return container_registry[container_hash]
+    return None
