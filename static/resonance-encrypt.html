@@ -694,8 +694,8 @@
                             <input type="text" id="encrypt-key" placeholder="Enter encryption key...">
                         </div>
                         <button id="encrypt-btn" class="action-btn">Encrypt</button>
-                        <a href="/64-benchmark" class="action-btn" style="display: inline-block; padding: 10px 15px; text-decoration: none; text-align: center; background-color: #333; border-radius: 4px;">64-Perturbation Benchmark</a>
-                        <div class="tiny" style="font-size: 0.9rem; margin-top: 5px;">Use the dedicated benchmark page for complete testing and validation</div>
+                        <button id="start-benchmark" class="action-btn">Run 64-Perturbation Benchmark</button>
+                        <div class="tiny" style="font-size: 0.9rem; margin-top: 5px;">Runs all 64 tests and shows results in the Benchmark tab</div>
                         <div class="loader" id="encrypt-loader"></div>
                         <div class="error" id="encrypt-error"></div>
                         <div>
@@ -868,7 +868,7 @@
                             <label for="benchmark-base-key">Base Key (hex 32 chars):</label>
                             <input type="text" id="benchmark-base-key" placeholder="Enter base key for benchmark...">
                         </div>
-                        <button id="start-benchmark" class="action-btn">Run 64-Perturbation Benchmark</button>
+                        <p class="info-text">Use the "Run 64-Perturbation Benchmark" button in the encryption tab to start the test.</p>
                         
                         <div id="loader" class="loader" style="display: none;"></div>
                         <div id="progress-container" style="display: none; margin-top: 20px;">
