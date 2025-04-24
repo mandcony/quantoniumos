@@ -2156,23 +2156,29 @@ ${freqValues}`;
             ctx.stroke();
             
             // Draw frequency spectrum
-            if (frequencies && frequencies.length > 0) {
+            if (frequencies && typeof frequencies === 'object') {
                 ctx.strokeStyle = '#00e5ff';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 
-                // Normalize frequencies to 0-1 range
-                const maxFreq = Math.max(...frequencies);
-                const normalizedFreq = frequencies.map(f => f / maxFreq);
+                // Convert object to array of values
+                const freqValues = Object.values(frequencies);
                 
-                for (let i = 0; i < normalizedFreq.length; i++) {
-                    const x = i / (normalizedFreq.length - 1) * canvas.width;
-                    const y = (1 - normalizedFreq[i]) * canvas.height;
+                // Skip drawing if no values
+                if (freqValues.length > 0) {
+                    // Normalize frequencies to 0-1 range
+                    const maxFreq = Math.max(...freqValues);
+                    const normalizedFreq = freqValues.map(f => f / maxFreq);
                     
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
+                    for (let i = 0; i < normalizedFreq.length; i++) {
+                        const x = i / (normalizedFreq.length - 1) * canvas.width;
+                        const y = (1 - normalizedFreq[i]) * canvas.height;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
                     }
                 }
                 
