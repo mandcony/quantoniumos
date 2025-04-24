@@ -882,6 +882,7 @@
                 
                 <div id="results-container" style="display: none; margin-top: 30px;">
                     <h3>Benchmark Results</h3>
+                    <canvas id="entropy-mini" height="40"></canvas>
                     <div class="metrics-container">
                         <div class="metric">
                             <label>Tests Completed:</label>
@@ -4108,6 +4109,21 @@ ${entropyValue}`;
             
             benchOut.innerHTML = html;
         }
+        
+        const entCtx = document.getElementById('entropy-mini').getContext('2d');
+        let entChart;
+        async function refreshEntropy(){
+            const r = await fetch('/entropy/stream');
+            const js = await r.json();
+            const data = {labels: [...Array(js.series.length).keys()],
+                          datasets:[{data: js.series, tension:0.3, fill:false, borderWidth:1}]};
+            if(!entChart){
+               entChart = new Chart(entCtx,{type:'line',data,options:{scales:{y:{display:false}},plugins:{legend:{display:false}}}});
+            }else{
+               entChart.data = data; entChart.update();
+            }
+        }
+        setInterval(refreshEntropy, 5000);
         
         // Create charts from benchmark data
         function createChartsFromBenchmark(results) {
