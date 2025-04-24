@@ -1502,9 +1502,9 @@
         }
         
         async function handleEncrypt() {
-            // Use our validation logic
-            const plaintext = validateAndFixHex(document.getElementById('plaintext').value.trim(), "plaintext");
-            const key = validateAndFixHex(document.getElementById('encrypt-key').value.trim(), "key");
+            // Get original inputs (don't modify)
+            const plaintext = document.getElementById('plaintext').value.trim();
+            const key = document.getElementById('encrypt-key').value.trim();
             
             // Validation - shouldn't really hit these errors with our validation logic,
             // but keeping them as a fallback
@@ -2656,33 +2656,38 @@ ${entropyValue}`;
             return result;
         }
         
-        // Ensure hex string is valid (32 chars, hex only)
-        function validateAndFixHex(str, label) {
+        // Ensure hex string is valid (32 chars, hex only) but don't modify the UI
+        function validateAndFixHex(str, label, forBenchmark = false) {
             // Empty input uses random hex
             if (!str || str.trim() === "") {
                 const random = generateValidHex();
-                document.getElementById(label === "plaintext" ? "plaintext" : "encrypt-key").value = random;
-                return random;
+                // Only modify UI elements for benchmark
+                if (forBenchmark) {
+                    return random;
+                }
+                return str;
             }
             
-            // Remove non-hex characters
-            const cleanHex = str.replace(/[^0-9a-fA-F]/g, "");
-            
-            // If too short, pad with random hex
-            if (cleanHex.length < 32) {
-                const padded = cleanHex + generateValidHex().substring(0, 32 - cleanHex.length);
-                document.getElementById(label === "plaintext" ? "plaintext" : "encrypt-key").value = padded;
-                return padded;
+            // For benchmark only: convert to proper hex
+            if (forBenchmark) {
+                // Remove non-hex characters
+                const cleanHex = str.replace(/[^0-9a-fA-F]/g, "");
+                
+                // If too short, pad with zeros
+                if (cleanHex.length < 32) {
+                    return cleanHex.padEnd(32, '0');
+                }
+                
+                // If too long, truncate
+                if (cleanHex.length > 32) {
+                    return cleanHex.substring(0, 32);
+                }
+                
+                return cleanHex;
             }
             
-            // If too long, truncate
-            if (cleanHex.length > 32) {
-                const truncated = cleanHex.substring(0, 32);
-                document.getElementById(label === "plaintext" ? "plaintext" : "encrypt-key").value = truncated;
-                return truncated;
-            }
-            
-            return cleanHex;
+            // For normal operation: don't modify user input
+            return str;
         }
         
         benchBtn.addEventListener("click", async () => {
@@ -2690,9 +2695,13 @@ ${entropyValue}`;
             benchOut.textContent = "Validating input and preparing benchmark...";
             dlLink.style.display = "none";
             
-            // Get and validate inputs
-            const plaintext = validateAndFixHex(document.getElementById("plaintext").value, "plaintext");
-            const key = validateAndFixHex(document.getElementById("encrypt-key").value, "key");
+            // Clone original input values so we don't modify the UI
+            const plaintextOriginal = document.getElementById("plaintext").value;
+            const keyOriginal = document.getElementById("encrypt-key").value;
+            
+            // Get and validate inputs for benchmark only
+            const plaintext = validateAndFixHex(plaintextOriginal, "plaintext", true);
+            const key = validateAndFixHex(keyOriginal, "key", true);
             
             benchOut.textContent = "Benchmark running (≈30 s)...";
             

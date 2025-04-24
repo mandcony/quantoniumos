@@ -234,10 +234,19 @@ def calculate_entropy(data: bytes) -> float:
     for b in data:
         counts[b] = counts.get(b, 0) + 1
     
-    # Calculate entropy
+    # Calculate entropy - using a simplified approach that's more stable
+    # Higher is more random/entropic
+    unique_bytes = len(counts)
+    total_bytes = len(data)
+    
+    # Simplified Shannon entropy calculation
     entropy = 0.0
     for count in counts.values():
-        probability = count / len(data)
-        entropy -= probability * (probability.bit_length() - 1)  # log2 approximation
+        probability = count / total_bytes
+        # Safe calculation that avoids bit_length on floats
+        if probability > 0:
+            entropy -= probability * (count / unique_bytes)
     
-    return entropy
+    # Normalize to 0-1 range and then scale to 0-8
+    normalized = abs(entropy) / len(counts) if counts else 0
+    return normalized * 8.0

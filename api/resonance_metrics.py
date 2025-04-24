@@ -207,6 +207,23 @@ def run_symbolic_benchmark(base_pt: str, base_key: str) -> Tuple[str, Dict[str, 
     Returns:
         Tuple of (csv_path, summary_dict)
     """
+    # Ensure inputs are valid hex (32 chars)
+    def validate_hex(input_str: str, default: str = None) -> str:
+        """Validate and fix hex input"""
+        if not input_str:
+            return default or "0" * 32
+        
+        # Keep only hex characters
+        hex_only = ''.join(c for c in input_str if c in '0123456789abcdefABCDEF')
+        
+        # Pad or truncate
+        if len(hex_only) < 32:
+            return hex_only.ljust(32, '0')
+        return hex_only[:32]
+    
+    # Validate inputs for benchmark (don't change originals)
+    base_pt = validate_hex(base_pt)
+    base_key = validate_hex(base_key)
     tstamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     csv_path = Path("logs") / f"benchmark_{tstamp}.csv"
     csv_path.parent.mkdir(exist_ok=True)
