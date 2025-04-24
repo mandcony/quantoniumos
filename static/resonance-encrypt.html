@@ -909,6 +909,9 @@
                     </div>
                     
                     <div class="tab-content active" id="results-tab">
+                        <div id="benchmark-output">
+                            <!-- Benchmark output will be shown here -->
+                        </div>
                         <div style="max-height: 400px; overflow-y: auto;">
                             <table class="results-table">
                                 <thead>
@@ -923,6 +926,11 @@
                                 </thead>
                                 <tbody id="results-body"></tbody>
                             </table>
+                        </div>
+                        <div id="csv-container" style="margin-top: 15px; text-align: center;">
+                            <a id="csv-link" class="action-button" href="#" download style="display: none;">
+                                <span class="icon">💾</span> Download CSV Results
+                            </a>
                         </div>
                     </div>
                     
