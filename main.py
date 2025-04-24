@@ -135,6 +135,16 @@ def create_app():
     @app.route('/resonance-encrypt')
     def resonance_encrypt():
         return send_from_directory('static', 'resonance-encrypt.html')
+    
+    # 64-Perturbation Benchmark tool
+    @app.route('/64-benchmark')
+    def benchmark_64():
+        return send_from_directory('static', '64-benchmark.html')
+        
+    # Quantum Grid visualization (150-qubit support)
+    @app.route('/quantum-grid')
+    def quantum_grid():
+        return send_from_directory('static', 'quantum-grid.html')
         
     # Comprehensive frontend for Squarespace embedding
     @app.route('/frontend')

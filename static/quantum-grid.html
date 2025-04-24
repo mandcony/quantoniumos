@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Quantum Grid (150-qubit)</title>
+    <link rel="stylesheet" href="/wave_ui/wave.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: #111;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .logo {
+            height: 40px;
+            margin-right: 20px;
+        }
+        
+        .container {
+            flex: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .card {
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .nav {
+            display: flex;
+            background-color: #111;
+            padding: 10px 20px;
+        }
+        
+        .nav a {
+            color: #ccc;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+        
+        .nav a:hover {
+            color: #fff;
+        }
+        
+        .nav a.active {
+            color: #fff;
+            border-bottom: 2px solid #fff;
+        }
+        
+        h1, h2, h3 {
+            color: #fff;
+        }
+        
+        #quantum-grid-container {
+            width: 100%;
+            height: 500px;
+            background-color: #222;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            margin-right: 20px;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        
+        input, select, button {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        button {
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #444;
+        }
+        
+        .quantum-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-card {
+            background-color: #222;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+        
+        .info-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .qubit {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+        
+        .qubit.entangled {
+            background-color: #ff00ff;
+        }
+        
+        .qubit-link {
+            position: absolute;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.3);
+            transform-origin: 0 0;
+            pointer-events: none;
+        }
+        
+        .formula-display {
+            font-family: monospace;
+            background-color: #222;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .status-bar {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            background-color: #222;
+            padding: 0 10px;
+            border-top: 1px solid #333;
+            font-size: 12px;
+        }
+        
+        .status-bar span {
+            margin-right: 20px;
+        }
+        
+        .loader {
+            border: 2px solid #333;
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/static/images/qos.png" alt="QuantoniumOS Logo" class="logo">
+        <h1>QuantoniumOS</h1>
+    </div>
+    
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/resonance-encrypt">Encryption</a>
+        <a href="/64-benchmark">64-Perturbation Benchmark</a>
+        <a href="/quantum-grid" class="active">Quantum Grid</a>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Quantum Grid - 150-Qubit Simulation</h2>
+            <p>This interface provides a visual representation of the quantum computing capabilities of QuantoniumOS, supporting up to 150 qubits in a quantum circuit simulation.</p>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="qubit-count">Qubit Count</label>
+                    <input type="number" id="qubit-count" min="1" max="150" value="50">
+                </div>
+                
+                <div class="control-group">
+                    <label for="entanglement-level">Entanglement Level</label>
+                    <select id="entanglement-level">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="operation">Operation</label>
+                    <select id="operation">
+                        <option value="simulate">Quantum Simulation</option>
+                        <option value="stress-test">Stress Test</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label>&nbsp;</label>
+                    <button id="run-button" onclick="runQuantumGrid()">Run Quantum Grid</button>
+                </div>
+            </div>
+            
+            <div id="quantum-grid-container">
+                <!-- Qubits will be generated here dynamically -->
+            </div>
+            
+            <div class="quantum-info">
+                <div class="info-card">
+                    <div class="info-title">Processing Time</div>
+                    <div class="info-value" id="processing-time">0 ms</div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-title">Entangled Pairs</div>
+                    <div class="info-value" id="entangled-pairs">0</div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-title">Gate Operations</div>
+                    <div class="info-value" id="gate-operations">0</div>
+                </div>
+            </div>
+            
+            <div class="formula-display" id="formula-display">
+                Waiting for quantum operation...
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <span id="status-message">Ready</span>
+        <span id="engine-id"></span>
+    </div>
+    
+    <script src="/static/quantum-grid.js"></script>
+</body>
+</html>
