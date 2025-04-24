@@ -3052,79 +3052,186 @@ ${entropyValue}`;
         }
         
         // Run 64-Perturbation Benchmark
-        // Main benchmark function - consolidated version to avoid duplicates
+        // Main benchmark function - enhanced version for visualization
         async function runBenchmark() {
-            console.log("Running consolidated benchmark function");
+            console.log("Running enhanced benchmark visualization function");
             
-            // Initialize benchmark elements if they're not already
-            if (!benchBtn || !dlLink || !benchOut) {
-                initBenchmarkElements();
-            }
+            // Get benchmark elements
+            const basePT = document.getElementById('benchmark-base-pt').value || '00000000000000000000000000000000';
+            const baseKey = document.getElementById('benchmark-base-key').value || '00000000000000000000000000000000';
+            const runButton = document.getElementById('run-benchmark-btn');
+            const loader = document.getElementById('benchmark-loader');
+            const progressContainer = document.getElementById('benchmark-progress-container');
+            const progressBar = document.getElementById('benchmark-progress-bar');
+            const progressText = document.getElementById('benchmark-progress-text');
+            const resultsContainer = document.getElementById('benchmark-results-container');
+            const testsCompleted = document.getElementById('tests-completed');
+            const avgBitChange = document.getElementById('avg-bit-change');
+            const avalancheQuality = document.getElementById('avalanche-quality');
+            const avalancheGrid = document.getElementById('avalanche-grid');
+            const csvLink = document.getElementById('csv-link');
+            const resultsTable = document.getElementById('benchmark-results-tbody');
             
-            // Disable button and show progress
-            benchBtn.disabled = true;
-            benchBtn.innerText = "Running Benchmark...";
+            // Disable button, show loader and progress bar
+            runButton.disabled = true;
+            loader.style.display = 'block';
+            progressContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
             
-            // Show loading in benchmark output area
-            benchOut.innerHTML = '<div class="loader"></div><p>Running 64-bit perturbation benchmark...</p>';
-            dlLink.style.display = "none";
-            
-            // Get plaintext and key from encryption form
-            const plaintextOriginal = document.getElementById("plaintext").value;
-            const keyOriginal = document.getElementById("encrypt-key").value;
-            
-            // Get and validate inputs for benchmark only
-            const plaintext = validateAndFixHex(plaintextOriginal, "plaintext", true);
-            const key = validateAndFixHex(keyOriginal, "key", true);
-            
-            // Also update the dedicated benchmark inputs if they exist
-            const benchmarkBasePt = document.getElementById('benchmark-base-pt');
-            const benchmarkBaseKey = document.getElementById('benchmark-base-key');
-            if (benchmarkBasePt && benchmarkBaseKey) {
-                benchmarkBasePt.value = plaintext;
-                benchmarkBaseKey.value = key;
-            }
-            
-            // Make the benchmark tab visible
-            // Switch to benchmark tab if needed
-            const benchmarkTab = document.getElementById('benchmark-tab');
-            if (benchmarkTab) {
-                // Activate the benchmark tab in main navigation
-                const mainTab = document.querySelector('.main-tab[data-tab="benchmark"]');
-                if (mainTab) {
-                    // Set all tabs inactive
-                    document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
-                    document.querySelectorAll('.main-tab-content').forEach(content => content.classList.remove('active'));
-                    
-                    // Activate benchmark tab
-                    mainTab.classList.add('active');
-                    benchmarkTab.classList.add('active');
-                }
-            }
-            
-            // Make sure results tab is active
-            const resultsTab = document.querySelector('#results-tab');
-            if (resultsTab) {
-                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-                resultsTab.classList.add('active');
-            }
-            
-            // Show progress container
-            const progressContainer = document.getElementById('progress-container');
-            if (progressContainer) {
-                progressContainer.style.display = 'block';
-                updateProgress(10, 'Starting benchmark...');
-            }
-            
-            // Show loader
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.style.display = 'inline-block';
-            }
+            // Initialize progress
+            let progress = 0;
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Starting benchmark...';
             
             try {
-                // Call API to run benchmark
-                updateProgress(20, 'Sending request to server...');
+                // Make API call to run the benchmark
+                const response = await fetch(`${API_URL}/api/benchmark`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        plaintext: basePT,
+                        key: baseKey
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Benchmark failed: ${response.statusText}`);
+                }
+                
+                // Parse response
+                const data = await response.json();
+                console.log("Benchmark data:", data);
+                
+                // Update results
+                resultsContainer.style.display = 'block';
+                testsCompleted.textContent = `${data.results.length}/64`;
+                
+                // Calculate average bit change percentage
+                let totalBitChanges = 0;
+                const bitChangePercentages = [];
+                
+                // Process each test result
+                data.results.forEach(result => {
+                    const bitChangePct = (result.bits_changed / 256) * 100;
+                    totalBitChanges += bitChangePct;
+                    bitChangePercentages.push(bitChangePct);
+                });
+                
+                const avgChange = totalBitChanges / data.results.length;
+                avgBitChange.textContent = `${avgChange.toFixed(2)}%`;
+                
+                // Set avalanche quality based on average
+                if (avgChange >= 49 && avgChange <= 51) {
+                    avalancheQuality.textContent = 'Excellent';
+                    avalancheQuality.style.color = '#4CAF50';
+                } else if (avgChange >= 45 && avgChange <= 55) {
+                    avalancheQuality.textContent = 'Good';
+                    avalancheQuality.style.color = '#FFC107';
+                } else {
+                    avalancheQuality.textContent = 'Poor';
+                    avalancheQuality.style.color = '#F44336';
+                }
+                
+                // Create visual avalanche grid
+                avalancheGrid.innerHTML = '';
+                data.results.forEach((result, index) => {
+                    const cell = document.createElement('div');
+                    cell.className = 'avalanche-cell';
+                    
+                    const bitChangePct = (result.bits_changed / 256) * 100;
+                    const hue = Math.min(120, Math.max(0, (bitChangePct - 30) * 3)); // Red to green scale
+                    
+                    cell.style.backgroundColor = `hsl(${hue}, 80%, 40%)`;
+                    cell.style.width = '100%';
+                    cell.style.height = '40px';
+                    cell.style.borderRadius = '4px';
+                    cell.style.position = 'relative';
+                    
+                    // Add tooltip with info
+                    cell.title = `Test ${index+1}: ${bitChangePct.toFixed(2)}% bits changed`;
+                    
+                    // Add percentage text
+                    const label = document.createElement('div');
+                    label.style.position = 'absolute';
+                    label.style.top = '50%';
+                    label.style.left = '50%';
+                    label.style.transform = 'translate(-50%, -50%)';
+                    label.style.color = 'white';
+                    label.style.fontSize = '11px';
+                    label.style.fontWeight = 'bold';
+                    label.style.textShadow = '0 0 2px black';
+                    label.textContent = `${bitChangePct.toFixed(0)}%`;
+                    
+                    cell.appendChild(label);
+                    avalancheGrid.appendChild(cell);
+                    
+                    // Populate results table
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="padding: 4px 8px; border-bottom: 1px solid #444;">${index+1}</td>
+                        <td style="padding: 4px 8px; border-bottom: 1px solid #444;">${result.test_type}</td>
+                        <td style="padding: 4px 8px; border-bottom: 1px solid #444;">${result.bit_position}</td>
+                        <td style="padding: 4px 8px; border-bottom: 1px solid #444;">${bitChangePct.toFixed(2)}%</td>
+                    `;
+                    resultsTable.appendChild(row);
+                });
+                
+                // Create bit flip chart (if we have Chart.js available)
+                if (window.Chart) {
+                    const ctx = document.getElementById('bit-flip-chart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.results.map((r, i) => `T${i+1}`),
+                            datasets: [{
+                                label: 'Bit Change %',
+                                data: bitChangePercentages,
+                                backgroundColor: bitChangePercentages.map(pct => {
+                                    const hue = Math.min(120, Math.max(0, (pct - 30) * 3));
+                                    return `hsl(${hue}, 80%, 40%)`;
+                                }),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Set up CSV download link
+                if (data.csv_path) {
+                    csvLink.href = data.csv_path;
+                    csvLink.style.display = 'inline-block';
+                }
+                
+                updateStatus('64-Perturbation Benchmark complete!', 'success');
+                
+            } catch (error) {
+                console.error("Benchmark error:", error);
+                showError('benchmark-error', error.message);
+                updateStatus('Benchmark failed: ' + error.message, 'error');
+            } finally {
+                // Hide loader and re-enable button
+                loader.style.display = 'none';
+                progressContainer.style.display = 'none';
+                runButton.disabled = false;
+            }
+            
+            // Update progress bar function (called inside benchmark procedure)
+            function updateProgress(percent) {
+                progress = percent;
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `Running benchmark... ${Math.floor(progress)}%`;
+            }
                 const response = await fetch("/api/benchmark", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -4327,6 +4434,41 @@ ${entropyValue}`;
             
             return result;
         }
+        
+        // Initialize the benchmark button
+        function initializeBenchmarkButton() {
+            const benchmarkBtn = document.getElementById('run-benchmark-btn');
+            if (benchmarkBtn) {
+                console.log("Adding event listener to benchmark button");
+                benchmarkBtn.addEventListener('click', runBenchmark);
+                
+                // Also set up the start-benchmark button in the encrypt tab
+                const startBenchmarkBtn = document.getElementById('start-benchmark');
+                if (startBenchmarkBtn) {
+                    startBenchmarkBtn.addEventListener('click', function() {
+                        // Switch to benchmark tab
+                        const mainTab = document.querySelector('.main-tab[data-tab="benchmark"]');
+                        if (mainTab) {
+                            // Set all tabs inactive
+                            document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
+                            document.querySelectorAll('.main-tab-content').forEach(content => content.classList.remove('active'));
+                            
+                            // Activate benchmark tab
+                            mainTab.classList.add('active');
+                            document.getElementById('benchmark-tab').classList.add('active');
+                            
+                            // Run the benchmark after switching tabs
+                            setTimeout(runBenchmark, 100);
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Initialize on document load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeBenchmarkButton();
+        });
     </script>
     <!-- Quantum Grid Module -->
     <script src="/static/quantum-grid.js"></script>
