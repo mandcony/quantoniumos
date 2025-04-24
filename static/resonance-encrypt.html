@@ -4131,8 +4131,8 @@ ${entropyValue}`;
                     entCtx = entropyChartElement.getContext('2d');
                 }
                 
-                // Fetch entropy data
-                const r = await fetch('/entropy/stream');
+                // Fetch entropy data - fixed path to include /api prefix
+                const r = await fetch('/api/entropy/stream');
                 const js = await r.json();
                 
                 // Ensure series data exists and is an array
