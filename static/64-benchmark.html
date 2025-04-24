@@ -681,21 +681,22 @@
                     // Add to table
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${rowData.TestID}</td>
-                        <td>${rowData.Vector}</td>
-                        <td>${rowData.BitPos}</td>
-                        <td>${parseFloat(rowData.HR).toFixed(3)}</td>
-                        <td>${parseFloat(rowData.WC).toFixed(3)}</td>
-                        <td>${parseFloat(rowData.Entropy).toFixed(3)}</td>
+                        <td>${rowData.TestID || rowData.test_id || 'N/A'}</td>
+                        <td>${rowData.Vector || rowData.perturb_type || 'N/A'}</td>
+                        <td>${rowData.BitPos || rowData.bit_pos || 'N/A'}</td>
+                        <td>${parseFloat(rowData.HR || rowData.hr || 0).toFixed(3)}</td>
+                        <td>${parseFloat(rowData.WC || rowData.wc || 0).toFixed(3)}</td>
+                        <td>${parseFloat(rowData.Entropy || rowData.entropy || 0).toFixed(3)}</td>
                     `;
                     tableBody.appendChild(tr);
                     
                     // Add to chart data
-                    if (rowData.TestID > 0) { // Skip base test
-                        labels.push(`Test ${rowData.TestID}`);
-                        hrValues.push(parseFloat(rowData.HR));
-                        wcValues.push(parseFloat(rowData.WC));
-                        entropyValues.push(parseFloat(rowData.Entropy));
+                    const testId = parseInt(rowData.TestID || rowData.test_id || '0');
+                    if (testId > 0) { // Skip base test
+                        labels.push(`Test ${testId}`);
+                        hrValues.push(parseFloat(rowData.HR || rowData.hr || 0));
+                        wcValues.push(parseFloat(rowData.WC || rowData.wc || 0));
+                        entropyValues.push(parseFloat(rowData.Entropy || rowData.entropy || 0));
                     }
                     
                     // Add to bloom filter with cryptographic validation
@@ -733,7 +734,8 @@
                     }
                     
                     // Set up bit flip visualization if it's the first test
-                    if (rowData.TestID == 1) {
+                    const testId = parseInt(rowData.TestID || rowData.test_id || '0');
+                    if (testId == 1) {
                         // Find base test data (TestID 0)
                         let baseTestData = null;
                         for (let j = 1; j < rows.length; j++) {
@@ -835,9 +837,20 @@
         
         // Set up bit flip visualization
         function setupBitFlipVisualization(baseTest, firstTest) {
+            // Handle both uppercase and lowercase column names
+            const basePT = baseTest.PT || baseTest.pt || '';
+            const firstPT = firstTest.PT || firstTest.pt || '';
+            const baseKEY = baseTest.KEY || baseTest.key || '';
+            const firstKEY = firstTest.KEY || firstTest.key || '';
+            const bitPos = firstTest.BitPos || firstTest.bit_pos || '-1';
+            const baseEntropy = parseFloat(baseTest.Entropy || baseTest.entropy || 0).toFixed(3);
+            const firstEntropy = parseFloat(firstTest.Entropy || firstTest.entropy || 0).toFixed(3);
+            const baseHash = baseTest.Hash || baseTest.hash || baseTest.signature || '';
+            const firstHash = firstTest.Hash || firstTest.hash || firstTest.signature || '';
+            
             // Get binary representation of the original PT and flipped PT
-            const originalBits = hexToBinary(baseTest.PT || '');
-            const flippedBits = hexToBinary(firstTest.PT || '');
+            const originalBits = hexToBinary(basePT);
+            const flippedBits = hexToBinary(firstPT);
             
             // Find the difference
             const flippedBitPosition = findFlippedBit(originalBits, flippedBits);
@@ -852,20 +865,23 @@
             
             // Add additional metadata for clarity
             let bitFlipType = '';
-            if (baseTest.PT !== firstTest.PT) {
+            if (basePT !== firstPT) {
                 bitFlipType = 'Plaintext Bit Flip';
-            } else if (baseTest.KEY !== firstTest.KEY) {
+            } else if (baseKEY !== firstKEY) {
                 bitFlipType = 'Key Bit Flip';
             }
+            
+            // Calculate entropy change safely
+            const entropyChange = (parseFloat(firstEntropy) - parseFloat(baseEntropy)).toFixed(3);
             
             // Add information about the test
             const metadataHtml = `
                 <div style="margin-bottom: 10px; background-color: #222; padding: 8px; border-radius: 4px;">
                     <div><strong>Test Type:</strong> ${bitFlipType}</div>
-                    <div><strong>Bit Position:</strong> ${firstTest.BitPos}</div>
-                    <div><strong>Base Entropy:</strong> ${parseFloat(baseTest.Entropy).toFixed(3)}</div>
-                    <div><strong>Modified Entropy:</strong> ${parseFloat(firstTest.Entropy).toFixed(3)}</div>
-                    <div><strong>Entropy Change:</strong> ${(parseFloat(firstTest.Entropy) - parseFloat(baseTest.Entropy)).toFixed(3)}</div>
+                    <div><strong>Bit Position:</strong> ${bitPos}</div>
+                    <div><strong>Base Entropy:</strong> ${baseEntropy}</div>
+                    <div><strong>Modified Entropy:</strong> ${firstEntropy}</div>
+                    <div><strong>Entropy Change:</strong> ${entropyChange}</div>
                 </div>
             `;
             
@@ -887,11 +903,11 @@
             
             // Set original output
             const originalOutputEl = document.getElementById('original-output');
-            originalOutputEl.innerHTML = formatBits(hexToBinary(baseTest.Hash || ''));
+            originalOutputEl.innerHTML = formatBits(hexToBinary(baseHash));
             
             // Set changed output
             const changedOutputEl = document.getElementById('changed-output');
-            changedOutputEl.innerHTML = formatBits(hexToBinary(firstTest.Hash || ''));
+            changedOutputEl.innerHTML = formatBits(hexToBinary(firstHash));
         }
         
         // Convert hex to binary string
