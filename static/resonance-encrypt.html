@@ -694,6 +694,8 @@
                             <input type="text" id="encrypt-key" placeholder="Enter encryption key...">
                         </div>
                         <button id="encrypt-btn" class="action-btn">Encrypt</button>
+                        <a href="/64-benchmark" class="action-btn" style="display: inline-block; padding: 10px 15px; text-decoration: none; text-align: center; background-color: #333; border-radius: 4px;">64-Perturbation Benchmark</a>
+                        <div class="tiny" style="font-size: 0.9rem; margin-top: 5px;">Use the dedicated benchmark page for complete testing and validation</div>
                         <div class="loader" id="encrypt-loader"></div>
                         <div class="error" id="encrypt-error"></div>
                         <div>
@@ -1383,18 +1385,6 @@
                 });
             });
             
-            // Add direct event listener for benchmark button
-            const benchmarkButton = document.getElementById('start-benchmark');
-            if (benchmarkButton) {
-                benchmarkButton.addEventListener('click', function() {
-                    console.log("Benchmark button clicked");
-                    runBenchmark();
-                });
-                console.log("Added direct event listener to benchmark button");
-            } else {
-                console.error("Benchmark button not found during init");
-            }
-            
             // Set up tab navigation within sections
             encryptionTabs.forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -1432,11 +1422,8 @@
             // Set up benchmark handler
             const startBenchmarkButton = document.getElementById('start-benchmark');
             if (startBenchmarkButton) {
-                startBenchmarkButton.addEventListener('click', function() {
-                    // Redirect to dedicated benchmark page
-                    window.location.href = '/64-benchmark';
-                });
-                console.log("Benchmark button initialized (redirect mode)");
+                startBenchmarkButton.addEventListener('click', runBenchmark);
+                console.log("Benchmark button initialized");
             }
             
             // Set up RFT control handlers
@@ -2966,10 +2953,7 @@ ${entropyValue}`;
         
         // Initialize the application
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+            // Add these functions for the benchmark tab
         
         // Hash string for bloom filter
         function hashString(str) {
