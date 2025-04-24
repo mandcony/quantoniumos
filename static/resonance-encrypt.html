@@ -4110,20 +4110,87 @@ ${entropyValue}`;
             benchOut.innerHTML = html;
         }
         
-        const entCtx = document.getElementById('entropy-mini').getContext('2d');
-        let entChart;
-        async function refreshEntropy(){
-            const r = await fetch('/entropy/stream');
-            const js = await r.json();
-            const data = {labels: [...Array(js.series.length).keys()],
-                          datasets:[{data: js.series, tension:0.3, fill:false, borderWidth:1}]};
-            if(!entChart){
-               entChart = new Chart(entCtx,{type:'line',data,options:{scales:{y:{display:false}},plugins:{legend:{display:false}}}});
-            }else{
-               entChart.data = data; entChart.update();
+        // Safely get the canvas context, checking if element exists first
+        const entropyMiniElement = document.getElementById('entropy-mini');
+        let entCtx = null;
+        let entChart = null;
+        
+        if (entropyMiniElement) {
+            entCtx = entropyMiniElement.getContext('2d');
+        }
+        
+        async function refreshEntropy() {
+            try {
+                // Ensure we have a canvas context before proceeding
+                if (!entCtx) {
+                    const entropyMiniElement = document.getElementById('entropy-mini');
+                    if (!entropyMiniElement) {
+                        console.log("Entropy mini chart element not found, skipping refresh");
+                        return;
+                    }
+                    entCtx = entropyMiniElement.getContext('2d');
+                }
+                
+                // Fetch entropy data
+                const r = await fetch('/entropy/stream');
+                const js = await r.json();
+                
+                // Ensure series data exists and is an array
+                if (!js || !js.series || !Array.isArray(js.series) || js.series.length === 0) {
+                    console.log("Entropy data is empty or invalid, skipping update");
+                    return;
+                }
+                
+                // Create chart data with proper error checking
+                const data = {
+                    labels: [...Array(js.series.length).keys()],
+                    datasets: [{
+                        data: js.series,
+                        tension: 0.3,
+                        fill: false,
+                        borderWidth: 1,
+                        borderColor: 'rgba(75, 192, 192, 1)'
+                    }]
+                };
+                
+                // Create or update the chart
+                if (!entChart) {
+                    entChart = new Chart(entCtx, {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {display: false},
+                                x: {display: false}
+                            },
+                            plugins: {
+                                legend: {display: false}
+                            },
+                            elements: {
+                                point: {
+                                    radius: 0
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    entChart.data = data;
+                    entChart.update();
+                }
+            } catch (error) {
+                console.log("Error refreshing entropy chart:", error);
             }
         }
-        setInterval(refreshEntropy, 5000);
+        
+        // Only start interval if we have a canvas context
+        if (entCtx) {
+            // Initial refresh
+            refreshEntropy();
+            // Set up interval for updates
+            setInterval(refreshEntropy, 5000);
+        }
         
         // Create charts from benchmark data
         function createChartsFromBenchmark(results) {
