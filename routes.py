@@ -350,3 +350,27 @@ def download_csv(csv_name):
         as_attachment=True,
         download_name=csv_name
     )
+
+@api.route("/entropy/stream", methods=["GET"])
+def entropy_stream():
+    """Return last-N entropy samples for dashboard tiny-chart."""
+    import json
+    import time
+    
+    log_dir = Path("logs")
+    try:
+        latest = max(log_dir.glob("session_*.log"), key=lambda p: p.stat().st_mtime)
+        ent = []
+        with latest.open() as f:
+            for line in f:
+                if '"entropy"' in line:
+                    try:
+                        data = json.loads(line)
+                        if "entropy" in data:
+                            ent.append(data["entropy"])
+                    except:
+                        pass
+        return jsonify({"series": ent[-50:], "t": time.time()})
+    except (ValueError, FileNotFoundError):
+        # Return empty data if no log files found
+        return jsonify({"series": [], "t": time.time()})
