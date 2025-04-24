@@ -272,8 +272,8 @@ function runQuantumGrid(elements) {
     });
 }
 
-// Run quantum stress test
-function runQuantumStressTest(elements) {
+// Run stress test on quantum grid
+function runStressTest(elements) {
     if (window.updateStatus) {
         window.updateStatus(`Running stress test with 150 qubits...`, 'info');
     }
@@ -822,7 +822,10 @@ function initializeWithBackend() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({
+            max_qubits: 150,
+            connect_encryption: true // Flag to connect quantum grid with encryption module
+        })
     })
     .then(response => response.json())
     .then(data => {
@@ -830,17 +833,33 @@ function initializeWithBackend() {
             console.log("Quantum engine initialized with", data.max_qubits, "qubits (Engine ID:", data.engine_id, ")");
             // Then initialize the frontend visualization
             initializeQuantumGrid();
+            
+            // Update quantum grid with encryption connection status
+            if (data.encryption_connected) {
+                console.log("Quantum grid connected to encryption module");
+                // Get elements for updating
+                const elements = {
+                    gridQubitGrid: document.getElementById('grid-qubit-grid'),
+                    gridQubitCount: document.getElementById('grid-qubit-count')
+                };
+                
+                if (elements.gridQubitCount) {
+                    elements.gridQubitCount.value = data.max_qubits;
+                    updateQubitGrid(data.max_qubits, elements);
+                }
+            }
+            
             if (window.updateStatus) {
                 window.updateStatus(`Quantum engine initialized with ${data.max_qubits} qubits capacity`, 'success');
             }
         } else {
-            console.error("Failed to initialize quantum engine:", data.error);
+            console.error("Failed to initialize quantum engine:", data.error || data.message);
             // Still initialize the frontend even if the backend fails
             initializeQuantumGrid();
         }
     })
     .catch(error => {
-        console.error("Error connecting to quantum backend:", error);
+        console.error("Failed to initialize quantum engine:", error);
         // Still initialize the frontend on connection error
         initializeQuantumGrid();
     });
@@ -863,8 +882,8 @@ window.runStressTest = function(elements) {
         };
     }
     
-    // Call the module's runStressTest function - but rename it internally to avoid recursion
-    runQuantumStressTest(elements);
+    // Call the module's runStressTest function
+    runStressTest(elements);
 };
 
 // Expose drawContainerSchematics to the global scope
