@@ -15,19 +15,9 @@ import logging
 logger = logging.getLogger("quantonium_security")
 logger.setLevel(logging.INFO)
 
-# Define a strict Content Security Policy to protect proprietary information
-# This blocks iframe access and restricts scripts to trusted sources
+# CSP policy that only blocks iframe embedding but allows everything else to work
 CSP_POLICY = {
-    'default-src': ["'self'"],
-    'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"], 
-    'style-src': ["'self'", "'unsafe-inline'"],
-    'img-src': ["'self'", "data:"],
-    'font-src': ["'self'"],
-    'connect-src': ["'self'"],
-    'frame-ancestors': ["'none'"],  # Specifically blocks embedding in iframes
-    'form-action': ["'self'"],
-    'base-uri': ["'self'"],
-    'object-src': ["'none'"]
+    'frame-ancestors': ["'none'"]  # Only block iframe embedding
 }
 
 # Configure CORS
@@ -72,7 +62,7 @@ def configure_security(app: Flask):
         force_https=not is_development,  # Only force HTTPS in production
         force_https_permanent=not is_development,
         force_file_save=True,
-        frame_options='DENY',  # Block embedding in iframes for security
+        frame_options='SAMEORIGIN',  # Allow only same-origin embedding
         frame_options_allow_from=None,
         strict_transport_security=not is_development,  # Only enable HSTS in production
         strict_transport_security_preload=not is_development,
@@ -104,7 +94,7 @@ def configure_security(app: Flask):
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, Authorization'
-        response.headers['X-Frame-Options'] = 'DENY'  # Block iframe embedding for better security
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'  # Only allow same-origin iframe embedding
         return response
     
     return talisman, limiter
