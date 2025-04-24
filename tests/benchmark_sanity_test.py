@@ -86,14 +86,14 @@ def run_sanity_test() -> bool:
                                         json={"plaintext": plaintext, "key": key})
         encryption_response.raise_for_status()
         
-        # 7.2 RFT test (using simulate/rft endpoint from routes.py)
+        # 7.2 RFT test (using /api/rft endpoint - our compatibility endpoint)
         logger.info("Testing RFT module")
         # Convert plaintext to simple waveform
         waveform = [ord(c)/255 for c in plaintext if c.isprintable()]
         
-        logger.info("Using /api/simulate/rft endpoint based on routes.py")
+        logger.info("Using /api/rft endpoint (compatibility endpoint)")
         try:
-            rft_response = requests.post(f"{BASE_URL}/api/simulate/rft", 
+            rft_response = requests.post(f"{BASE_URL}/api/rft", 
                                     json={"waveform": waveform})
             rft_response.raise_for_status()
             logger.info("RFT test successful")

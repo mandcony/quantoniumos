@@ -103,6 +103,12 @@ def simulate_rft():
     
     return jsonify(sign_response(response))
 
+# Alias for benchmark compatibility
+@api.route("/rft", methods=["POST"])
+def rft_alias():
+    """Alias for benchmark compatibility"""
+    return simulate_rft()
+
 @api.route("/entropy/sample", methods=["POST"])
 def sample_entropy():
     """Generate quantum-inspired entropy"""
@@ -263,6 +269,12 @@ def get_legacy_container_parameters():
             "success": False,
             "message": f"Error: {str(e)}"
         }))
+
+# Alias for benchmark compatibility
+@api.route("/unlock", methods=["POST"])
+def unlock_alias():
+    """Alias for container unlock for benchmark compatibility"""
+    return unlock()
 
 @api.route("/stream/wave", methods=["GET"])
 def stream_wave():
