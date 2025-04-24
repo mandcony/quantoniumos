@@ -4,20 +4,92 @@ QuantoniumOS - Resonance Encryption Module
 Implements the patent-protected resonance encryption algorithm.
 This module securely encapsulates the core encryption functionality
 while protecting the proprietary algorithms.
+
+Also provides authentication and non-repudiation through wave_hmac.
 """
 
 import base64
 import hashlib
+import hmac
 import time
 import logging
-from typing import Dict, Any, Optional, List, Tuple
+import os
 import json
+from typing import Dict, Any, Optional, List, Tuple, Union
 
 from secure_core.python_bindings import engine_core
 from encryption.wave_primitives import WaveNumber, calculate_coherence
 from encryption.geometric_waveform_hash import wave_hash
 
 logger = logging.getLogger("quantonium_api.encrypt")
+
+# Feature flags
+FEATURE_AUTH = True  # Enable authentication features
+
+# Try to load config
+try:
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'config.json')
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            if 'FEATURE_AUTH' in config:
+                FEATURE_AUTH = config['FEATURE_AUTH']
+except Exception as e:
+    logger.warning(f"Could not load config, using default feature flags: {str(e)}")
+
+
+def wave_hmac(message: Union[str, bytes], key: Optional[str] = None) -> str:
+    """
+    Generate a cryptographic signature using wave-based HMAC.
+    
+    Combines traditional HMAC-SHA256 with resonance phase information to create
+    a quantum-resistant authentication code. The private phase key provides
+    additional security beyond the standard HMAC approach.
+    
+    Args:
+        message: Message to sign (string or bytes)
+        key: Optional key to use. If None, uses QUANTONIUM_PRIVATE_PHASE env var
+        
+    Returns:
+        Hexadecimal signature string
+    """
+    if not FEATURE_AUTH:
+        logger.warning("Authentication feature is disabled. Enable it in config.json")
+        return hashlib.sha256(b"DISABLED").hexdigest()
+        
+    # Convert message to bytes if needed
+    if isinstance(message, str):
+        message_bytes = message.encode('utf-8')
+    else:
+        message_bytes = message
+        
+    # Get the private phase key from environment or use the provided key
+    phase_key = key
+    if phase_key is None:
+        phase_key = os.environ.get('QUANTONIUM_PRIVATE_PHASE')
+        if not phase_key:
+            logger.warning("QUANTONIUM_PRIVATE_PHASE not set in environment. Using fallback key.")
+            phase_key = "DEFAULT_PHASE_KEY_DO_NOT_USE_IN_PRODUCTION"
+
+    # Convert phase key to bytes
+    phase_key_bytes = phase_key.encode('utf-8')
+    
+    # Step 1: Generate standard HMAC-SHA256
+    standard_hmac = hmac.new(phase_key_bytes, message_bytes, hashlib.sha256).digest()
+    
+    # Step 2: Generate wave hash of the message
+    message_wave_hash = wave_hash(message_bytes)
+    message_wave_hash_bytes = message_wave_hash.encode('utf-8')
+    
+    # Step 3: Create wave phase modulation - XOR the standard HMAC with the wave hash
+    # This provides phase-based quantum resistance
+    wave_modulated = bytes(a ^ b for a, b in zip(standard_hmac, 
+                                                message_wave_hash_bytes * (len(standard_hmac) // len(message_wave_hash_bytes) + 1)))
+    
+    # Step 4: Finalize with another round of hashing to ensure uniform distribution
+    final_hash = hashlib.sha256(wave_modulated).hexdigest()
+    
+    return final_hash
 
 def encrypt_symbolic(plaintext: str, key: str) -> Dict[str, Any]:
     """

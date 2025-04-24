@@ -2,7 +2,15 @@
 Quantonium OS - API Route Definitions
 
 Defines all token-protected endpoints to access symbolic stack modules.
+Includes new authentication, non-repudiation, and inverse RFT endpoints.
 """
+
+import os
+import base64
+import json
+import time
+from pathlib import Path
+from typing import Dict, Any, Optional, List
 
 from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
 from core.protected.symbolic_interface import get_interface
@@ -11,10 +19,24 @@ from utils import sign_response
 from auth.jwt_auth import require_jwt_auth
 from backend.stream import get_stream, update_encrypt_data
 from api.resonance_metrics import run_symbolic_benchmark
-from pathlib import Path
+from encryption.resonance_encrypt import wave_hmac, FEATURE_AUTH
+from core.encryption.resonance_fourier import perform_rft, perform_irft, FEATURE_IRFT
 
 api = Blueprint("api", __name__)
 symbolic = get_interface()
+
+# Feature flags
+try:
+    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            if 'FEATURE_AUTH' in config:
+                FEATURE_AUTH = config['FEATURE_AUTH']
+            if 'FEATURE_IRFT' in config:
+                FEATURE_IRFT = config['FEATURE_IRFT']
+except Exception as e:
+    print(f"Could not load config, using default feature flags: {str(e)}")
 
 # Use the JWT decorator for authentication
 # This replaces the old before_request handler

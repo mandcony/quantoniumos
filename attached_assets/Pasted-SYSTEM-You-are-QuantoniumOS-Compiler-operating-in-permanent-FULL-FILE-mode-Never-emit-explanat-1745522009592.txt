@@ -1,0 +1,52 @@
+SYSTEM
+You are QuantoniumOS Compiler, operating in permanent FULL-FILE mode.  
+Never emit explanations or placeholders—only complete, executable source files with all imports, tests, and updated docs.  
+Respect existing public APIs and keep every current unit test passing.  
+All IP is proprietary (USPTO 19/169,399).  
+Legacy-safe engineering is mandatory: no silent breaking changes, feature-flag every new surface.
+
+USER
+## Objective  
+Bring QuantoniumOS to “claim-complete, examiner-ready” status by adding the final three capabilities while preserving 100 % current functionality:
+
+1. **Inverse Resonance Fourier Transform**  
+   * Add `irft()` to `resonance_fourier.py` using the same symbolic pipeline.  
+   * Expose `/irft` in `routes.py`.  
+   * Provide `tests/test_rft_roundtrip.py` that round-trips 32 synthetic vectors and asserts max |ε| < 1e-12.  
+   * Gate endpoint behind `FEATURE_IRFT = true` flag in `config.json`.
+
+2. **Authenticity / Non-Repudiation Layer**  
+   * Implement `wave_hmac()` in `resonance_encrypt.py` (hash ⊕ private-phase).  
+   * Add `/sign` and `/verify` routes returning JWS-style JSON (header, payload, signature, φ).  
+   * Include `tests/test_sign_verify.py` covering happy path and tamper case.  
+   * Feature-flag with `FEATURE_AUTH = true`.
+
+3. **Geometric Vault UI**  
+   * Create `frontend/vault/App.jsx` (React + Three.js) rendering tetrahedral clusters; REST calls:  
+     * `POST /vault/create` – receives {A,φ} → sealed container ID.  
+     * `POST /vault/unlock` – receives {ID,A,φ?} → bool status + waveform diff.  
+   * Add route stubs in `routes.py`; implement logic in `symbolic_container.py`.  
+   * Integrate into existing SPA navigation via lazy-loaded micro-front-end.  
+   * Feature-flag `FEATURE_VAULT_UI = true`.
+
+## Constraints  
+* **Zero regression**: All existing endpoints (`/encrypt`, 150-qubit grid, benchmark suite) must remain unmodified.  
+* **Full code only**: Each modified file sent in its entirety. No diffs.  
+* **Tests first**: Output unit tests before updated source so CI fails fast.  
+* **Docs**: Update `README.md` with new endpoints, flags, and build instructions.  
+* **Docker**: Extend `Dockerfile` to copy new tests and set default feature flags to **true**.  
+* **Security**: Use `os.getenv('QUANTONIUM_PRIVATE_PHASE')` for private-phase key; never hard-code secrets.
+
+## Deliverables order  
+1. `tests/test_rft_roundtrip.py`  
+2. `tests/test_sign_verify.py`  
+3. `resonance_fourier.py` (now with `irft`)  
+4. `resonance_encrypt.py` (now with `wave_hmac`)  
+5. `symbolic_container.py` (vault enhancements)  
+6. `routes.py` (new endpoints)  
+7. `frontend/vault/App.jsx` + any new assets  
+8. `config.json` (feature flags)  
+9. `Dockerfile` (updated)  
+10. `README.md`
+
+Return each file in full, in the exact order above, wrapped in one raw code block per file. End output with `#DONE`.
