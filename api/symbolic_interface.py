@@ -11,6 +11,7 @@ import time
 import json
 import base64
 import hashlib
+import numpy as np
 from typing import Dict, Any, List, Optional, Union
 
 from encryption.resonance_encrypt import encrypt_symbolic, decrypt_symbolic
@@ -20,6 +21,41 @@ from secure_core.python_bindings import engine_core
 from encryption.wave_primitives import WaveNumber, calculate_coherence
 
 logger = logging.getLogger("quantonium_api.interface")
+
+def run_rft(waveform: List[float]) -> List[complex]:
+    """
+    Thin wrapper to run Resonance Fourier Transform on a waveform.
+    For testing purposes only.
+    
+    Args:
+        waveform: List of float values representing the waveform
+        
+    Returns:
+        Complex values representing the frequency components
+    """
+    # Convert to numpy array for FFT
+    wave_arr = np.array(waveform)
+    # Perform FFT
+    fft_result = np.fft.fft(wave_arr)
+    return fft_result.tolist()
+
+def inverse_rft(freq_components: List[complex]) -> List[float]:
+    """
+    Thin wrapper to run inverse Resonance Fourier Transform.
+    For testing purposes only.
+    
+    Args:
+        freq_components: Complex values representing frequency components
+        
+    Returns:
+        Real waveform values
+    """
+    # Convert to numpy array for inverse FFT
+    freq_arr = np.array(freq_components)
+    # Perform inverse FFT
+    ifft_result = np.fft.ifft(freq_arr)
+    # Return real part as float list
+    return ifft_result.real.tolist()
 
 def encrypt_data(plaintext: str, key: str) -> Dict[str, Any]:
     """
