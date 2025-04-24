@@ -34,7 +34,13 @@ def root_status():
 def encrypt():
     """Encrypt data using resonance techniques"""
     data = EncryptRequest(**request.get_json())
-    hash_value = symbolic.encrypt(data.plaintext, data.key)
+    result = symbolic.encrypt(data.plaintext, data.key)
+    
+    # Check wave coherence for tamper detection
+    if 'wave_coherence' in result and result['wave_coherence'] < 0.55:
+        abort(400, 'Symbolic tamper detected')
+    
+    hash_value = result['ciphertext'] if isinstance(result, dict) else result
     
     # Register the hash-container mapping (create a container sealed by this hash)
     # Store the encryption key with the container to enforce lock-and-key mechanism

@@ -1422,8 +1422,40 @@
             // Set up benchmark handler
             const startBenchmarkButton = document.getElementById('start-benchmark');
             if (startBenchmarkButton) {
-                startBenchmarkButton.addEventListener('click', runBenchmark);
+                startBenchmarkButton.addEventListener('click', function() {
+                    runBenchmark();
+                });
                 console.log("Benchmark button initialized");
+            }
+            
+            // Set up benchmark tab navigation
+            const benchmarkTabs = document.querySelectorAll('.benchmark-tab, .tab[data-tab="results"], .tab[data-tab="bloom"], .tab[data-tab="charts"], .tab[data-tab="bit-flip"]');
+            if (benchmarkTabs.length > 0) {
+                benchmarkTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabName = tab.getAttribute('data-tab');
+                        const tabContainer = tab.closest('.tabs');
+                        
+                        // Remove active from all tabs in this container
+                        tabContainer.querySelectorAll('.tab').forEach(t => {
+                            t.classList.remove('active');
+                        });
+                        
+                        // Add active to clicked tab
+                        tab.classList.add('active');
+                        
+                        // Toggle content visibility
+                        const tabContents = document.querySelectorAll('.tab-content');
+                        tabContents.forEach(content => {
+                            if (content.id === `${tabName}-tab`) {
+                                content.classList.add('active');
+                            } else {
+                                content.classList.remove('active');
+                            }
+                        });
+                    });
+                });
+                console.log("Benchmark tab navigation initialized");
             }
             
             // Set up RFT control handlers
