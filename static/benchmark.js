@@ -7,6 +7,7 @@
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("Document ready - initializing benchmark module");
     // Set up benchmark components if we're on the benchmark tab
     setupBenchmarkTab();
 });
@@ -136,10 +137,15 @@ async function runBenchmark() {
             dlLink.style.display = 'inline-block';
         }
         
-        // Show results container if it exists
+        // Show both results containers if they exist
         const resultsContainer = document.getElementById('results-container');
         if (resultsContainer) {
             resultsContainer.style.display = 'block';
+        }
+        
+        const benchResultsContainer = document.getElementById('benchmark-results-container');
+        if (benchResultsContainer) {
+            benchResultsContainer.style.display = 'block';
         }
         
         // Update metrics displays if they exist
