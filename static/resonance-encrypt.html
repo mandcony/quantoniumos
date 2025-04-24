@@ -765,6 +765,138 @@
             </div>
         </div>
         
+        <div class="main-tab-content" id="benchmark-tab">
+            <!-- 64-Perturbation Benchmark Tab Content -->
+            <div class="panel">
+                <h3>64-Perturbation Benchmark</h3>
+                <p>Scientific validation tool for quantum-inspired resonance encryption using 64-vector avalanche testing.</p>
+                
+                <div class="action-panels">
+                    <div class="panel">
+                        <div class="form-group">
+                            <label for="benchmark-base-pt">Base Plaintext (hex 32 chars):</label>
+                            <input type="text" id="benchmark-base-pt" placeholder="Enter base plaintext for benchmark...">
+                        </div>
+                        <div class="form-group">
+                            <label for="benchmark-base-key">Base Key (hex 32 chars):</label>
+                            <input type="text" id="benchmark-base-key" placeholder="Enter base key for benchmark...">
+                        </div>
+                        <button id="start-benchmark" class="action-btn">Run 64-Perturbation Benchmark</button>
+                        
+                        <div id="loader" class="loader" style="display: none;"></div>
+                        <div id="progress-container" style="display: none; margin-top: 20px;">
+                            <div id="progress-text">Running benchmark...</div>
+                            <div class="progress-bar-container">
+                                <div id="progress-bar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="results-container" style="display: none; margin-top: 30px;">
+                    <h3>Benchmark Results</h3>
+                    <div class="metrics-container">
+                        <div class="metric">
+                            <label>Tests Completed:</label>
+                            <div id="tests-completed" class="meter-value" style="font-size: 1.5rem;">0</div>
+                        </div>
+                        <div class="metric">
+                            <label>Max WC Delta:</label>
+                            <div id="max-wc-delta" class="meter-value" style="font-size: 1.5rem;">0.000</div>
+                        </div>
+                        <div class="metric">
+                            <label>Max HR Delta:</label>
+                            <div id="max-hr-delta" class="meter-value" style="font-size: 1.5rem;">0.000</div>
+                        </div>
+                        <div class="metric">
+                            <label>Avalanche Score:</label>
+                            <div id="avalanche-score" class="meter-value" style="font-size: 1.5rem;">0.0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tabs">
+                        <div class="tab active" data-tab="results">Results Table</div>
+                        <div class="tab" data-tab="bloom">Bloom Filter</div>
+                        <div class="tab" data-tab="charts">Charts</div>
+                        <div class="tab" data-tab="bit-flip">Bit Flip Analysis</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="results-tab">
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Test ID</th>
+                                        <th>Test Type</th>
+                                        <th>Bit Position</th>
+                                        <th>HR</th>
+                                        <th>WC</th>
+                                        <th>Entropy</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="results-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="bloom-tab">
+                        <h3>Bloom Filter Validation</h3>
+                        <p>This bloom filter contains hashes from all test vectors.</p>
+                        <div id="bloom-filter">
+                            <div id="bloom-cells" class="bloom-cells"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="verify-hash">Verify Hash:</label>
+                            <input type="text" id="verify-hash" placeholder="Enter hash to verify...">
+                            <button onclick="verifyHash()" class="action-btn">Verify</button>
+                            <div id="verify-result"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="charts-tab">
+                        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                            <div style="flex: 1; min-width: 300px;">
+                                <h3>Harmonic Resonance</h3>
+                                <div style="height: 300px;">
+                                    <canvas id="hr-chart"></canvas>
+                                </div>
+                            </div>
+                            <div style="flex: 1; min-width: 300px;">
+                                <h3>Waveform Coherence</h3>
+                                <div style="height: 300px;">
+                                    <canvas id="wc-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="bit-flip-tab">
+                        <h3>Bit Flip Analysis</h3>
+                        <p>Visualizing the avalanche effect - how a single bit change affects output.</p>
+                        
+                        <div class="bit-flip-container">
+                            <div class="bit-row">
+                                <div class="bit-label">Original Input:</div>
+                                <div id="original-bits" class="bit-string"></div>
+                            </div>
+                            <div class="bit-row">
+                                <div class="bit-label">Changed Input:</div>
+                                <div id="flipped-bits" class="bit-string"></div>
+                            </div>
+                            <div class="bit-row">
+                                <div class="bit-label">Original Output:</div>
+                                <div id="original-output" class="bit-string"></div>
+                            </div>
+                            <div class="bit-row">
+                                <div class="bit-label">Changed Output:</div>
+                                <div id="changed-output" class="bit-string"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="main-tab-content" id="quantum-grid-tab">
             <div class="panel">
                 <h3>Quantum Grid - 150-Qubit Processor</h3>
