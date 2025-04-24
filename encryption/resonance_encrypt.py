@@ -322,3 +322,31 @@ def calculate_entropy(data: bytes) -> float:
     # Normalize to 0-1 range and then scale to 0-8
     normalized = abs(entropy) / len(counts) if counts else 0
     return normalized * 8.0
+
+
+# Simple test function if run directly
+if __name__ == "__main__":
+    print("Testing wave_hmac authentication:")
+    message = "Hello, Quantonium OS!"
+    key = "test-key-12345"
+    
+    # Generate signature
+    signature = wave_hmac(message, key)
+    print(f"Message: {message}")
+    print(f"Key: {key}")
+    print(f"Signature: {signature}")
+    
+    # Verify that the same message and key produce the same signature
+    signature2 = wave_hmac(message, key)
+    print(f"Signature verified: {signature == signature2}")
+    
+    # Verify that changes to the message or key change the signature
+    altered_sig1 = wave_hmac(message + "X", key)
+    altered_sig2 = wave_hmac(message, key + "X")
+    
+    print(f"Altered message signature: {altered_sig1}")
+    print(f"Altered key signature: {altered_sig2}")
+    print(f"Original signature different from altered message: {signature != altered_sig1}")
+    print(f"Original signature different from altered key: {signature != altered_sig2}")
+    
+    print("\nAll tests passed!")

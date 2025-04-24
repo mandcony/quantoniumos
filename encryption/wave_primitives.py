@@ -6,6 +6,8 @@ These are the building blocks for the patent-protected quantum-inspired algorith
 """
 
 import math
+import random
+import time
 
 class WaveNumber:
     """
@@ -72,3 +74,24 @@ def calculate_coherence(a: WaveNumber, b: WaveNumber) -> float:
     
     # Combined coherence score
     return 0.5 * (phase_coherence + amp_ratio)
+
+
+def random_phase(min_value: float = 0.0, max_value: float = 2 * math.pi) -> float:
+    """
+    Generate a random phase value between min_value and max_value.
+    
+    By default, returns a value between 0 and 2π (full circle).
+    Uses a combination of time and random to increase entropy.
+    
+    Args:
+        min_value: Minimum phase value (default: 0.0)
+        max_value: Maximum phase value (default: 2π)
+        
+    Returns:
+        Random phase value as a float
+    """
+    # Seed with current time to ensure different values even in rapid calls
+    random.seed(time.time() * 1000000)
+    
+    # Generate a random value in the specified range
+    return min_value + random.random() * (max_value - min_value)

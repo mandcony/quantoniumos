@@ -385,6 +385,221 @@ def download_csv(csv_name):
         download_name=csv_name
     )
 
+# --- Inverse RFT Endpoint -------------------------------------------------------------
+@api.route("/irft", methods=["POST"])
+def inverse_rft():
+    """
+    Perform Inverse Resonance Fourier Transform on frequency data.
+    
+    This endpoint takes the result of an RFT operation and reconstructs
+    the original waveform. This enables full bidirectional transform capability.
+    
+    Feature-flagged with FEATURE_IRFT.
+    """
+    if not FEATURE_IRFT:
+        return jsonify(sign_response({
+            "status": "error",
+            "message": "IRFT feature is disabled in config.json"
+        })), 403
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(sign_response({
+                "status": "error",
+                "message": "No input data provided"
+            })), 400
+        
+        # Call the IRFT function from resonance_fourier
+        reconstructed_waveform = perform_irft(data)
+        
+        response = {
+            "status": "ok",
+            "waveform": reconstructed_waveform,
+            "length": len(reconstructed_waveform)
+        }
+        
+        # Add key_id if available
+        if hasattr(g, 'api_key') and g.api_key:
+            response["key_id"] = g.api_key.key_id
+        
+        return jsonify(sign_response(response))
+    
+    except Exception as e:
+        return jsonify(sign_response({
+            "status": "error",
+            "message": f"IRFT processing error: {str(e)}"
+        })), 500
+
+# --- Authentication Endpoints -----------------------------------------------------------
+@api.route("/sign", methods=["POST"])
+def sign_payload():
+    """
+    Sign a message using wave_hmac for non-repudiation.
+    
+    This endpoint creates a cryptographic signature using wave-based HMAC,
+    which combines traditional HMAC with resonance phase information.
+    The resulting signature can be verified with the /verify endpoint.
+    
+    Feature-flagged with FEATURE_AUTH.
+    """
+    if not FEATURE_AUTH:
+        return jsonify(sign_response({
+            "status": "error",
+            "message": "Authentication feature is disabled in config.json"
+        })), 403
+    
+    try:
+        data = request.get_json()
+        if not data or not data.get("message"):
+            return jsonify(sign_response({
+                "status": "error",
+                "message": "No message provided for signing"
+            })), 400
+        
+        message = data["message"]
+        
+        # Create a JWS-style structure with header, payload, and signature
+        header = {
+            "alg": "wave-hmac-sha256",
+            "typ": "JWS",
+            "created": time.time()
+        }
+        
+        # Encode the message as base64
+        if isinstance(message, str):
+            payload_bytes = message.encode('utf-8')
+        else:
+            payload_bytes = json.dumps(message).encode('utf-8')
+            
+        payload_b64 = base64.b64encode(payload_bytes).decode('utf-8')
+        
+        # Encode the header as base64
+        header_b64 = base64.b64encode(json.dumps(header).encode('utf-8')).decode('utf-8')
+        
+        # Calculate the wave_hmac signature
+        signature_input = f"{header_b64}.{payload_b64}"
+        signature = wave_hmac(signature_input)
+        
+        # Generate a unique phase value for this signature
+        # This will be required for verification
+        from encryption.wave_primitives import random_phase
+        phi = str(random_phase())
+        
+        # Prepare the response in JWS format
+        response = {
+            "header": header_b64,
+            "payload": payload_b64,
+            "signature": signature,
+            "phi": phi
+        }
+        
+        # Add key_id if available
+        if hasattr(g, 'api_key') and g.api_key:
+            response["key_id"] = g.api_key.key_id
+        
+        return jsonify(sign_response(response))
+    
+    except Exception as e:
+        return jsonify(sign_response({
+            "status": "error",
+            "message": f"Signing error: {str(e)}"
+        })), 500
+
+@api.route("/verify", methods=["POST"])
+def verify_signature():
+    """
+    Verify a signature created by the /sign endpoint.
+    
+    This endpoint checks the authenticity and integrity of a message
+    using the wave_hmac signature algorithm.
+    
+    Feature-flagged with FEATURE_AUTH.
+    """
+    if not FEATURE_AUTH:
+        return jsonify(sign_response({
+            "status": "error",
+            "message": "Authentication feature is disabled in config.json"
+        })), 403
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify(sign_response({
+                "status": "error",
+                "message": "No data provided for verification"
+            })), 400
+        
+        # Extract the components
+        header_b64 = data.get("header")
+        payload_b64 = data.get("payload")
+        signature = data.get("signature")
+        phi = data.get("phi")
+        
+        if not all([header_b64, payload_b64, signature]):
+            return jsonify(sign_response({
+                "status": "error",
+                "message": "Missing required components for verification"
+            })), 400
+        
+        # Temporarily set the phase value in the environment for verification
+        if phi:
+            original_phase = os.environ.get('QUANTONIUM_PRIVATE_PHASE')
+            os.environ['QUANTONIUM_PRIVATE_PHASE'] = phi
+        
+        try:
+            # Reconstruct the signature input
+            signature_input = f"{header_b64}.{payload_b64}"
+            
+            # Calculate the expected signature
+            expected_signature = wave_hmac(signature_input)
+            
+            # Compare with the provided signature
+            verified = (signature == expected_signature)
+            
+            # Decode the payload if verification succeeded
+            message = None
+            if verified:
+                try:
+                    payload_bytes = base64.b64decode(payload_b64)
+                    message = payload_bytes.decode('utf-8')
+                    
+                    # If the message is JSON, parse it
+                    try:
+                        message = json.loads(message)
+                    except:
+                        # If parsing fails, keep it as a string
+                        pass
+                except:
+                    # If decoding fails, return the raw payload
+                    message = payload_b64
+            
+            response = {
+                "verified": verified,
+                "message": message if verified else "Signature verification failed"
+            }
+            
+            # Add key_id if available
+            if hasattr(g, 'api_key') and g.api_key:
+                response["key_id"] = g.api_key.key_id
+            
+            return jsonify(sign_response(response))
+            
+        finally:
+            # Restore the original phase value
+            if phi:
+                if original_phase:
+                    os.environ['QUANTONIUM_PRIVATE_PHASE'] = original_phase
+                else:
+                    if 'QUANTONIUM_PRIVATE_PHASE' in os.environ:
+                        del os.environ['QUANTONIUM_PRIVATE_PHASE']
+    
+    except Exception as e:
+        return jsonify(sign_response({
+            "status": "error",
+            "message": f"Verification error: {str(e)}"
+        })), 500
+
 @api.route("/entropy/stream", methods=["GET"])
 def entropy_stream():
     """Return last-N entropy samples for dashboard tiny-chart."""
