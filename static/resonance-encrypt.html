@@ -3565,9 +3565,43 @@ ${entropyValue}`;
         
         // Initialize benchmark elements before use
         function initBenchmarkElements() {
-            benchBtn = document.getElementById("start-benchmark");
-            dlLink = document.getElementById("csv-link");
-            benchOut = document.getElementById("benchmark-output");
+            try {
+                benchBtn = document.getElementById("start-benchmark");
+                dlLink = document.getElementById("csv-link");
+                benchOut = document.getElementById("benchmark-output");
+                
+                // If we're missing critical elements, show an error
+                if (!benchBtn || !dlLink || !benchOut) {
+                    console.warn("Some benchmark elements could not be found. The benchmark may not work correctly.");
+                }
+                
+                // Make sure we have a tab with results
+                const resultsTab = document.getElementById("results-tab");
+                if (!resultsTab) {
+                    console.warn("Results tab not found. Creating it...");
+                    const tabContainer = document.querySelector('.benchmark-tabs');
+                    if (tabContainer) {
+                        // We need to create the results tab
+                        const div = document.createElement('div');
+                        div.id = "results-tab";
+                        div.className = "tab-content";
+                        div.innerHTML = '<div id="benchmark-output"></div>';
+                        
+                        // Find the parent of the benchmark tabs
+                        const parent = tabContainer.parentNode;
+                        if (parent) {
+                            parent.appendChild(div);
+                            // Get elements again
+                            benchOut = document.getElementById("benchmark-output");
+                        }
+                    }
+                }
+                
+                return true;
+            } catch (error) {
+                console.error("Error initializing benchmark elements:", error);
+                return false;
+            }
         }
         
         // Generate a valid 32-character hex string
@@ -3648,9 +3682,13 @@ ${entropyValue}`;
             }
 
             // Make sure copy chart button container is hidden until charts are ready
-            const copyChartContainer = document.getElementById('copy-chart-container');
-            if (copyChartContainer) {
-                copyChartContainer.style.display = 'none';
+            try {
+                const copyChartContainer = document.getElementById('copy-chart-container');
+                if (copyChartContainer) {
+                    copyChartContainer.style.display = 'none';
+                }
+            } catch (error) {
+                console.warn("Copy chart container not found:", error);
             }
             
             try {
@@ -3694,8 +3732,13 @@ ${entropyValue}`;
                 dlLink.style.display = 'inline-block';
                 
                 // Show the copy chart button
-                if (copyChartContainer) {
-                    copyChartContainer.style.display = 'block';
+                try {
+                    const copyChartContainer = document.getElementById('copy-chart-container');
+                    if (copyChartContainer) {
+                        copyChartContainer.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.warn("Copy chart container not found when showing:", error);
                 }
                 
                 // Activate the bit-flip tab to show the visualization
