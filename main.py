@@ -141,10 +141,8 @@ def create_app():
         return send_from_directory('static', 'resonance-encrypt.html')
     
     # 64-Perturbation Benchmark tool
-    @app.route('/64-benchmark')
-    def benchmark_64():
-        return send_from_directory('static', '64-benchmark.html')
-        
+    # Benchmark is now integrated directly into resonance-encrypt page
+    
     # Quantum Grid visualization (150-qubit support)
     @app.route('/quantum-grid')
     def quantum_grid():
