@@ -237,3 +237,16 @@ async def latest_log():
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename={log_files[-1]}"}
     )
+
+@router.get("/entropy/stream")
+async def entropy_stream():
+    """Return last-N entropy samples for dashboard tiny-chart."""
+    from pathlib import Path, json, time
+    log_dir = Path("logs")
+    latest = max(log_dir.glob("session_*.log"), key=lambda p: p.stat().st_mtime)
+    ent = []
+    with latest.open() as f:
+        for line in f:
+            if '"entropy"' in line:
+                ent.append(json.loads(line)["entropy"])
+    return {"series": ent[-50:], "t": time.time()}
