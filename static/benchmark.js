@@ -96,7 +96,9 @@ async function runBenchmark() {
     }
     
     try {
-        // Call benchmark API
+        console.log('Sending benchmark request with PT:', basePT, 'and key:', baseKey);
+        
+        // Call benchmark API - make sure to include error output in catch
         const response = await fetch('/api/benchmark', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -160,7 +162,26 @@ async function runBenchmark() {
         updateProgress(100, 'Benchmark completed!');
     } catch (error) {
         console.error('Benchmark error:', error);
-        outputElement.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        
+        // Show detailed error message 
+        let errorMessage = error.message || 'Unknown error';
+        if (error.stack) {
+            console.error('Error stack:', error.stack);
+        }
+        
+        outputElement.innerHTML = `
+            <div class="error" style="color: #cf6679; margin-bottom: 10px; font-weight: bold;">
+                Error running benchmark: ${errorMessage}
+            </div>
+            <div>
+                <p>Please check the following:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Ensure you are using valid 32-character hex values</li>
+                    <li>The API endpoint may have temporary issues</li>
+                    <li>Check console for detailed error information</li>
+                </ul>
+            </div>
+        `;
         
         // Hide progress
         if (progressContainer) {
