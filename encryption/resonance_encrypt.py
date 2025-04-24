@@ -1,331 +1,243 @@
 """
-QuantoniumOS - Resonance Encryption
+QuantoniumOS - Resonance Encryption Module
 
-This module implements the proprietary symbolic XOR encryption
-using phase-superposition concepts from quantum computing.
-
-All cryptographic operations delegate to the secure core for
-the patent-protected algorithms while providing a clean API.
+Implements the patent-protected resonance encryption algorithm.
+This module securely encapsulates the core encryption functionality
+while protecting the proprietary algorithms.
 """
 
-import os
-import logging
-import time
 import base64
 import hashlib
-from typing import Dict, Any, List
-import numpy as np
-from api.symbolic_interface import compute_sa_with_engine, get_symbolic_engine, safe_fallback_hash
+import time
+import logging
+from typing import Dict, Any, Optional, List, Tuple
+import json
+
+from secure_core.python_bindings import engine_core
+from encryption.wave_primitives import WaveNumber, calculate_coherence
+from encryption.geometric_waveform_hash import wave_hash
 
 logger = logging.getLogger("quantonium_api.encrypt")
 
-# Constants
-ALG_TYPE = "symbolic"  # Used to verify proper algorithm type is being used
-
 def encrypt_symbolic(plaintext: str, key: str) -> Dict[str, Any]:
     """
-    Encrypt plaintext using resonance encryption with the given key
+    Encrypt plaintext using resonance encryption (patent-protected algorithm).
     
     Args:
-        plaintext: 128-bit plaintext as hex string
-        key: 128-bit key as hex string
+        plaintext: Hex-encoded plaintext (32 chars / 128 bits)
+        key: Hex-encoded key (32 chars / 128 bits)
         
     Returns:
-        Dictionary with:
-        - ciphertext: Encrypted result
-        - hr: Harmonic Resonance
-        - wc: Waveform Coherence
-        - sa: Symbolic Alignment
-        - entropy: Entropy measurement
+        Dictionary with encrypted result and metrics:
+        {
+            "ciphertext": str,  # Hex-encoded ciphertext
+            "hash": str,        # Waveform hash (unique container ID)
+            "hr": float,        # Harmonic Resonance
+            "wc": float,        # Waveform Coherence
+            "sa": float,        # Symbolic Alignment
+            "entropy": float,   # Entropy measurement
+            "timestamp": str,   # ISO timestamp
+            "signature": str    # SHA-256 integrity signature
+        }
     """
     try:
         # Validate inputs
-        if len(plaintext) != 32 or len(key) != 32:
-            raise ValueError("Plaintext and key must be exactly 32 hex characters (128 bits)")
+        if len(plaintext) != 32:
+            raise ValueError("Plaintext must be 32 hex characters (128 bits)")
+        if len(key) != 32:
+            raise ValueError("Key must be 32 hex characters (128 bits)")
             
-        # Convert hex strings to byte arrays
+        # Convert hex strings to bytes
         pt_bytes = bytes.fromhex(plaintext)
         key_bytes = bytes.fromhex(key)
         
-        # Create waveforms from input (phase representation)
-        pt_wave = create_waveform(pt_bytes)
-        key_wave = create_waveform(key_bytes)
+        # Perform the encryption (delegate to secure engine)
+        ciphertext_bytes = engine_core.symbolic_xor(pt_bytes, key_bytes)
         
-        # Compute waveform coherence between input and key
-        wc = compute_waveform_coherence(pt_wave, key_wave)
+        # Convert to hex for output
+        ciphertext_hex = ciphertext_bytes.hex()
         
-        # Try to use the secure engine for encryption
-        try:
-            engine = get_symbolic_engine()
-            
-            # Prepare input data
-            combined = plaintext + key
-            
-            # Get SA vector using the secure core
-            sa_result = compute_sa_with_engine(combined)
-            sa_vector = sa_result["sa_vector"]
-            
-            # Calculate SA metric from vector (average alignment)
-            sa = calculate_sa_metric(sa_vector)
-            
-            # Perform the symbolic XOR encryption using phase-superposition
-            result = apply_symbolic_xor(pt_bytes, key_bytes)
-            
-        except Exception as e:
-            logger.error(f"Secure engine error: {str(e)}")
-            # Use a fallback method - this is NOT the proprietary algorithm
-            # and should only be used for testing
-            logger.warning("Using fallback encryption method - NOT SUITABLE FOR PRODUCTION")
-            result = fallback_encrypt(pt_bytes, key_bytes)
-            sa_vector = ""
-            sa = 0.5  # Default placeholder value
+        # Generate waveform hash as container ID
+        hash_value = wave_hash(ciphertext_bytes)
         
-        # Convert result back to hex string
-        ciphertext = result.hex()
+        # Calculate metrics
+        hr, wc, sa, entropy = calculate_metrics(pt_bytes, key_bytes, ciphertext_bytes)
         
-        # Compute harmonic resonance (HR)
-        hr = compute_harmonic_resonance(pt_wave, key_wave)
-        
-        # Generate entropy measurement
-        entropy = compute_entropy(result)
-        
-        # Return complete result
-        return {
-            "ciphertext": ciphertext,
+        # Create result
+        timestamp = time.strftime("%Y-%m-%dT%H:%M:%S.%fZ", time.gmtime())
+        result = {
+            "ciphertext": ciphertext_hex,
+            "hash": hash_value,
             "hr": hr,
             "wc": wc,
             "sa": sa,
-            "sa_vector": sa_vector,
-            "entropy": entropy
+            "entropy": entropy,
+            "timestamp": timestamp
         }
         
+        # Add signature for integrity verification
+        signature = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()
+        result["signature"] = signature
+        
+        return result
     except Exception as e:
-        logger.error(f"Encryption error: {str(e)}")
+        logger.error(f"Error in encrypt_symbolic: {e}")
         raise
 
-def create_waveform(data: bytes) -> List[float]:
+def decrypt_symbolic(ciphertext: str, key: str) -> Dict[str, Any]:
     """
-    Convert byte data to a waveform representation for symbolic processing
+    Decrypt ciphertext using resonance decryption (patent-protected algorithm).
+    
+    In symmetric encryption, decryption is identical to encryption.
+    The same wave operations applied twice cancel out.
     
     Args:
-        data: Input bytes
+        ciphertext: Hex-encoded ciphertext (32 chars / 128 bits)
+        key: Hex-encoded key (32 chars / 128 bits)
         
     Returns:
-        List of float values representing the waveform
+        Dictionary with decrypted result and metrics:
+        {
+            "plaintext": str,   # Hex-encoded plaintext
+            "hash": str,        # Waveform hash of the input ciphertext
+            "hr": float,        # Harmonic Resonance
+            "wc": float,        # Waveform Coherence
+            "sa": float,        # Symbolic Alignment
+            "entropy": float,   # Entropy measurement
+            "timestamp": str,   # ISO timestamp
+            "signature": str    # SHA-256 integrity signature
+        }
     """
-    # Create a waveform with 8 samples per byte (oversampling for better resolution)
-    waveform = []
-    for byte in data:
-        # Convert each bit to amplitude value
-        for i in range(8):
-            bit = (byte >> i) & 1
-            if bit:
-                # For 1-bits, use a higher amplitude
-                amplitude = 0.8 + (0.2 * np.random.random())
-            else:
-                # For 0-bits, use a lower amplitude
-                amplitude = 0.2 * np.random.random()
-            waveform.append(amplitude)
-            
-    return waveform
-
-def compute_waveform_coherence(wave1: List[float], wave2: List[float]) -> float:
-    """
-    Compute waveform coherence between two waveforms
-    
-    Args:
-        wave1: First waveform
-        wave2: Second waveform
-        
-    Returns:
-        Coherence value between 0 and 1
-    """
-    # Ensure equal length
-    min_len = min(len(wave1), len(wave2))
-    w1 = wave1[:min_len]
-    w2 = wave2[:min_len]
-    
-    # Convert to numpy arrays for vectorized operations
-    arr1 = np.array(w1)
-    arr2 = np.array(w2)
-    
-    # Calculate normalized dot product
-    dot_product = np.sum(arr1 * arr2)
-    norm1 = np.sqrt(np.sum(arr1 * arr1))
-    norm2 = np.sqrt(np.sum(arr2 * arr2))
-    
-    if norm1 > 0 and norm2 > 0:
-        coherence = abs(dot_product) / (norm1 * norm2)
-    else:
-        coherence = 0.0
-    
-    return float(coherence)
-
-def compute_harmonic_resonance(wave1: List[float], wave2: List[float]) -> float:
-    """
-    Compute harmonic resonance between two waveforms
-    
-    Args:
-        wave1: First waveform
-        wave2: Second waveform
-        
-    Returns:
-        Harmonic resonance value between 0 and 1
-    """
-    # Ensure equal length
-    min_len = min(len(wave1), len(wave2))
-    w1 = wave1[:min_len]
-    w2 = wave2[:min_len]
-    
-    # Convert to numpy arrays
-    arr1 = np.array(w1)
-    arr2 = np.array(w2)
-    
-    # Calculate phase alignment
-    # This is a simplified version - the actual algorithm is proprietary
-    diff = arr1 - arr2
-    diff_squared = diff * diff
-    mse = np.mean(diff_squared)
-    
-    # Convert to resonance value (inversely related to MSE)
-    resonance = 1.0 / (1.0 + mse)
-    
-    return float(resonance)
-
-def apply_symbolic_xor(plaintext: bytes, key: bytes) -> bytes:
-    """
-    Apply the symbolic XOR operation using phase-superposition
-    
-    This is the core of the proprietary encryption algorithm.
-    
-    Args:
-        plaintext: Plaintext bytes
-        key: Key bytes
-        
-    Returns:
-        Encrypted bytes
-    """
-    # Ensure equal length
-    min_len = min(len(plaintext), len(key))
-    pt = plaintext[:min_len]
-    k = key[:min_len]
-    
-    # This is where we would call the secure core engine for the actual operation
-    # For now, we'll use a placeholder implementation that simulates phase rotation
-    
-    # Convert to waveforms
-    pt_wave = create_waveform(pt)
-    key_wave = create_waveform(k)
-    
-    # Apply symbolic XOR operation: ψ_out = ψ_in ⊕_φ key_wave
-    # where ⊕_φ = "rotate phase if amplitude bit = 1"
-    
-    # For the actual implementation, we would call into the secure core engine
-    # But for this placeholder, we'll simulate it
-    
-    # The result will have the same length as the inputs
-    result = bytearray(min_len)
-    
-    for i in range(min_len):
-        # Simulate phase rotation using a non-linear function
-        # This is NOT the actual proprietary algorithm
-        phase_factor = (pt[i] + k[i] + (pt[i] ^ k[i])) % 256
-        result[i] = (pt[i] ^ k[i] ^ phase_factor) & 0xFF
-    
-    return bytes(result)
-
-def fallback_encrypt(plaintext: bytes, key: bytes) -> bytes:
-    """
-    Fallback encryption method for testing when secure core is unavailable
-    
-    WARNING: This is NOT the proprietary algorithm and should only be used for testing
-    
-    Args:
-        plaintext: Plaintext bytes
-        key: Key bytes
-        
-    Returns:
-        Encrypted bytes
-    """
-    # Ensure equal length
-    min_len = min(len(plaintext), len(key))
-    pt = plaintext[:min_len]
-    k = key[:min_len]
-    
-    # Simple key stretching
-    expanded_key = bytearray(min_len)
-    for i in range(min_len):
-        expanded_key[i] = k[i % len(k)]
-        
-    # Bitwise XOR with expanded key
-    result = bytearray(min_len)
-    for i in range(min_len):
-        result[i] = pt[i] ^ expanded_key[i]
-    
-    return bytes(result)
-
-def calculate_sa_metric(sa_vector: str) -> float:
-    """
-    Calculate the Symbolic Alignment metric from an SA vector
-    
-    Args:
-        sa_vector: Base64-encoded SA vector
-        
-    Returns:
-        SA metric as a float between 0 and 1
-    """
-    if not sa_vector:
-        return 0.5  # Default value
-    
     try:
-        # Decode base64 string
-        sa_bytes = base64.b64decode(sa_vector)
-        
-        # Convert to floats (assuming 4-byte floats)
-        values = []
-        for i in range(0, len(sa_bytes), 4):
-            if i + 4 <= len(sa_bytes):
-                val_bytes = sa_bytes[i:i+4]
-                value = int.from_bytes(val_bytes, byteorder='little')
-                # Convert int to float (this is a simplification)
-                # In a real implementation, we would use struct.unpack
-                float_val = value / (2**32 - 1)
-                values.append(float_val)
-        
-        # Calculate average
-        if values:
-            return sum(values) / len(values)
-        else:
-            return 0.5
+        # Validate inputs
+        if len(ciphertext) != 32:
+            raise ValueError("Ciphertext must be 32 hex characters (128 bits)")
+        if len(key) != 32:
+            raise ValueError("Key must be 32 hex characters (128 bits)")
             
+        # Convert hex strings to bytes
+        ct_bytes = bytes.fromhex(ciphertext)
+        key_bytes = bytes.fromhex(key)
+        
+        # For the demonstration, decryption is the same operation as encryption
+        # In real applications, there would be a separate decryption algorithm
+        plaintext_bytes = engine_core.symbolic_xor(ct_bytes, key_bytes)
+        
+        # Convert to hex for output
+        plaintext_hex = plaintext_bytes.hex()
+        
+        # Calculate the waveform hash of the input ciphertext
+        hash_value = wave_hash(ct_bytes)
+        
+        # Calculate metrics
+        hr, wc, sa, entropy = calculate_metrics(ct_bytes, key_bytes, plaintext_bytes)
+        
+        # Create result
+        timestamp = time.strftime("%Y-%m-%dT%H:%M:%S.%fZ", time.gmtime())
+        result = {
+            "plaintext": plaintext_hex,
+            "hash": hash_value,
+            "hr": hr,
+            "wc": wc,
+            "sa": sa,
+            "entropy": entropy,
+            "timestamp": timestamp
+        }
+        
+        # Add signature for integrity verification
+        signature = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()
+        result["signature"] = signature
+        
+        return result
     except Exception as e:
-        logger.error(f"Error calculating SA metric: {str(e)}")
-        return 0.5
+        logger.error(f"Error in decrypt_symbolic: {e}")
+        raise
 
-def compute_entropy(data: bytes) -> float:
+def calculate_metrics(data1: bytes, data2: bytes, data3: bytes) -> Tuple[float, float, float, float]:
     """
-    Compute the Shannon entropy of data
+    Calculate the metrics for encryption/decryption operations:
+    - Harmonic Resonance (HR)
+    - Waveform Coherence (WC)
+    - Symbolic Alignment (SA)
+    - Entropy
+    
+    Args:
+        data1: First data buffer (plaintext/ciphertext)
+        data2: Second data buffer (key)
+        data3: Third data buffer (result)
+        
+    Returns:
+        Tuple of (hr, wc, sa, entropy)
+    """
+    # Run Resonance Fourier Transform on the result
+    _, hr = engine_core.rft_run(data3)
+    
+    # Calculate waveform coherence between data1 and data3
+    # Convert bytes to wave numbers first
+    waves1 = bytes_to_waves(data1)
+    waves3 = bytes_to_waves(data3)
+    
+    # Calculate average coherence
+    coherence_sum = 0.0
+    count = min(len(waves1), len(waves3))
+    
+    for i in range(count):
+        coherence_sum += calculate_coherence(waves1[i], waves3[i])
+    
+    wc = coherence_sum / count if count > 0 else 0.0
+    
+    # Calculate symbolic alignment (average of SA vector)
+    sa_vector = engine_core.sa_compute(data3)
+    sa = sum(sa_vector) / len(sa_vector) if sa_vector else 0.0
+    
+    # Calculate entropy (Shannon entropy)
+    entropy = calculate_entropy(data3)
+    
+    return hr, wc, sa, entropy
+
+def bytes_to_waves(data: bytes) -> List[WaveNumber]:
+    """
+    Convert bytes to a list of WaveNumber objects.
     
     Args:
         data: Input bytes
         
     Returns:
-        Entropy value (typically between 0 and 8 for byte data)
+        List of WaveNumber objects
+    """
+    waves = []
+    
+    for i, b in enumerate(data):
+        # Convert byte to amplitude (0.1-1.1) and phase (0-2π)
+        amplitude = 0.1 + (b / 255.0)
+        phase = (i / len(data)) * 6.28318  # 2π
+        
+        waves.append(WaveNumber(amplitude, phase))
+    
+    return waves
+
+def calculate_entropy(data: bytes) -> float:
+    """
+    Calculate the Shannon entropy of the data.
+    
+    Args:
+        data: Input bytes
+        
+    Returns:
+        Entropy value (0.0-8.0)
     """
     if not data:
         return 0.0
     
-    # Count occurrences of each byte value
+    # Count occurrences of each byte
     counts = {}
-    for byte in data:
-        counts[byte] = counts.get(byte, 0) + 1
+    for b in data:
+        counts[b] = counts.get(b, 0) + 1
     
     # Calculate entropy
-    length = len(data)
     entropy = 0.0
-    
     for count in counts.values():
-        probability = count / length
-        entropy -= probability * np.log2(probability)
+        probability = count / len(data)
+        entropy -= probability * (probability.bit_length() - 1)  # log2 approximation
     
-    return float(entropy)
+    return entropy

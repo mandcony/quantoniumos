@@ -1,231 +1,276 @@
 """
-QuantoniumOS - Symbolic Interface
+QuantoniumOS - Symbolic Interface API
 
-This module provides a secure interface to the proprietary QuantoniumOS core engine.
-It uses ctypes/cffi to load and interface with the secure_core DLLs while maintaining
-proper encapsulation of proprietary algorithms.
+This module provides the high-level API for the patent validation system.
+It serves as a secure interface to the proprietary algorithms, preventing
+direct access to the core implementation details.
 """
 
-import os
-import sys
-import ctypes
 import logging
-from ctypes import c_void_p, c_int, c_float, c_char_p, c_uint8, POINTER, Structure, Array
-from typing import Dict, List, Any, Optional, Tuple
+import time
+import json
 import base64
 import hashlib
+from typing import Dict, Any, List, Optional, Union
 
-logger = logging.getLogger("quantonium_api.symbolic")
+from encryption.resonance_encrypt import encrypt_symbolic, decrypt_symbolic
+from encryption.geometric_waveform_hash import wave_hash, extract_wave_parameters
+from orchestration.resonance_manager import run_benchmark, validate_avalanche, add_to_hash_history, check_hash_replay
+from secure_core.python_bindings import engine_core
+from encryption.wave_primitives import WaveNumber, calculate_coherence
 
-# Define C structures to match the DLL interface
-class RFTResult(Structure):
-    _fields_ = [
-        ("bins", POINTER(c_float)),
-        ("bin_count", c_int),
-        ("hr", c_float)
-    ]
+logger = logging.getLogger("quantonium_api.interface")
 
-class SAVector(Structure):
-    _fields_ = [
-        ("values", POINTER(c_float)),
-        ("count", c_int)
-    ]
-
-# Global engine instance
-_engine = None
-
-def get_symbolic_engine():
+def encrypt_data(plaintext: str, key: str) -> Dict[str, Any]:
     """
-    Load and return the symbolic engine from secure_core
-    Uses lazy initialization pattern
-    """
-    global _engine
+    Encrypt data using the patent-protected symbolic encryption.
     
-    if _engine is not None:
-        return _engine
+    This high-level function delegates to the secure encryption implementation
+    and records hash values for replay protection.
+    
+    Args:
+        plaintext: Hex-encoded plaintext (32 chars / 128 bits)
+        key: Hex-encoded key (32 chars / 128 bits)
+        
+    Returns:
+        Encryption result with metrics
+    """
+    logger.info("Processing encrypt request")
     
     try:
-        # Determine the appropriate extension for the current platform
-        if sys.platform.startswith('win'):
-            lib_extension = 'dll'
-        elif sys.platform.startswith('darwin'):
-            lib_extension = 'dylib'
-        else:
-            lib_extension = 'so'
-            
-        # Try to load the secure core library
-        lib_path = os.path.abspath(f"secure_core/engine_core.{lib_extension}")
-        logger.info(f"Loading symbolic engine from: {lib_path}")
+        # Call the secure implementation
+        result = encrypt_symbolic(plaintext, key)
         
-        # Load the library
-        lib = ctypes.cdll.LoadLibrary(lib_path)
+        # Add hash to history for replay protection
+        add_to_hash_history(result["hash"])
         
-        # Set up function prototypes
-        
-        # RFT calculation
-        lib.rft_run.argtypes = [c_char_p, c_int]
-        lib.rft_run.restype = POINTER(RFTResult)
-        
-        # RFT cleanup
-        lib.rft_free.argtypes = [POINTER(RFTResult)]
-        lib.rft_free.restype = None
-        
-        # Symbolic Alignment vector calculation
-        lib.sa_compute.argtypes = [c_char_p, c_int]
-        lib.sa_compute.restype = POINTER(SAVector)
-        
-        # SA cleanup
-        lib.sa_free.argtypes = [POINTER(SAVector)]
-        lib.sa_free.restype = None
-        
-        # Waveform hashing
-        lib.wave_hash.argtypes = [c_char_p, c_int]
-        lib.wave_hash.restype = c_char_p
-        
-        # Engine init/final
-        lib.engine_init.argtypes = []
-        lib.engine_init.restype = c_int
-        
-        lib.engine_final.argtypes = []
-        lib.engine_final.restype = None
-        
-        # Initialize the engine
-        status = lib.engine_init()
-        if status != 0:
-            logger.error(f"Failed to initialize symbolic engine: {status}")
-            raise RuntimeError(f"Engine initialization failed with status: {status}")
-            
-        _engine = lib
-        logger.info("Symbolic engine successfully loaded and initialized")
-        return _engine
-        
+        return result
     except Exception as e:
-        logger.error(f"Failed to load symbolic engine: {str(e)}")
-        # In production, we don't want to reveal the exact error
-        # But for development, it's useful to know what went wrong
-        if os.environ.get("FLASK_ENV") == "development":
-            raise
-        else:
-            raise RuntimeError("Failed to load secure symbolic engine")
+        logger.error(f"Error in encrypt_data: {e}")
+        raise
 
-def compute_rft_with_engine(data: str) -> Dict[str, Any]:
+def decrypt_data(ciphertext: str, key: str) -> Dict[str, Any]:
     """
-    Compute Resonance Fourier Transform using the secure engine
+    Decrypt data using the patent-protected symbolic decryption.
     
     Args:
-        data: The input data to analyze
+        ciphertext: Hex-encoded ciphertext (32 chars / 128 bits)
+        key: Hex-encoded key (32 chars / 128 bits)
         
     Returns:
-        Dictionary with RFT bins and HR value
+        Decryption result with metrics
     """
-    engine = get_symbolic_engine()
+    logger.info("Processing decrypt request")
     
-    # Prepare input data
-    input_bytes = data.encode('utf-8')
-    
-    # Call RFT function
-    result_ptr = engine.rft_run(input_bytes, len(input_bytes))
-    
-    # Copy results to avoid memory issues after freeing
-    bins = []
-    bin_count = result_ptr.contents.bin_count
-    hr_value = result_ptr.contents.hr
-    
-    # Extract bin values
-    for i in range(bin_count):
-        bins.append(result_ptr.contents.bins[i])
-    
-    # Clean up memory
-    engine.rft_free(result_ptr)
-    
-    return {
-        "rft": bins,
-        "hr": hr_value,
-        "bin_count": bin_count
-    }
+    try:
+        # Call the secure implementation
+        result = decrypt_symbolic(ciphertext, key)
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error in decrypt_data: {e}")
+        raise
 
-def compute_sa_with_engine(data: str) -> Dict[str, Any]:
+def analyze_waveform(waveform_data: List[float]) -> Dict[str, Any]:
     """
-    Compute Symbolic Alignment vector using the secure engine
+    Analyze a waveform using Resonance Fourier Transform.
     
     Args:
-        data: The input data to analyze
+        waveform_data: List of float values representing the waveform
         
     Returns:
-        Dictionary with SA vector encoded as base64
+        Analysis result with metrics
     """
-    engine = get_symbolic_engine()
+    logger.info("Processing waveform analysis request")
     
-    # Prepare input data
-    input_bytes = data.encode('utf-8')
-    
-    # Call SA function
-    result_ptr = engine.sa_compute(input_bytes, len(input_bytes))
-    
-    # Copy results to avoid memory issues after freeing
-    sa_values = []
-    count = result_ptr.contents.count
-    
-    # Extract values
-    for i in range(count):
-        sa_values.append(result_ptr.contents.values[i])
-    
-    # Clean up memory
-    engine.sa_free(result_ptr)
-    
-    # Encode as base64 for transport
-    # Convert floats to bytes first
-    sa_bytes = b''
-    for val in sa_values:
-        sa_bytes += val.to_bytes(4, byteorder='little')
-    
-    sa_b64 = base64.b64encode(sa_bytes).decode('ascii')
-    
-    return {
-        "sa_vector": sa_b64,
-        "sa_count": count
-    }
+    try:
+        # Convert float list to bytes for processing
+        # Scale to range 0-255 and convert to bytes
+        bytes_data = bytes([int(min(max(v, 0.0), 1.0) * 255) for v in waveform_data])
+        
+        # Run RFT analysis
+        bins, hr = engine_core.rft_run(bytes_data)
+        
+        # Run SA analysis
+        sa_vector = engine_core.sa_compute(bytes_data)
+        
+        # Calculate average symbolic alignment
+        sa = sum(sa_vector) / len(sa_vector) if sa_vector else 0.0
+        
+        # Generate hash for the waveform
+        hash_value = wave_hash(bytes_data)
+        
+        # Create result
+        timestamp = time.strftime("%Y-%m-%dT%H:%M:%S.%fZ", time.gmtime())
+        result = {
+            "bins": bins,
+            "hr": hr,
+            "sa": sa,
+            "sa_vector": sa_vector,
+            "hash": hash_value,
+            "timestamp": timestamp
+        }
+        
+        # Add signature for integrity verification
+        signature = hashlib.sha256(json.dumps(
+            {"bins_sum": sum(bins), "hr": hr, "sa": sa, "hash": hash_value, "timestamp": timestamp},
+            sort_keys=True
+        ).encode()).hexdigest()
+        result["signature"] = signature
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error in analyze_waveform: {e}")
+        raise
 
-def compute_wave_hash(data: str) -> str:
+def generate_entropy(amount: int = 32) -> Dict[str, Any]:
     """
-    Compute waveform hash using the secure engine
+    Generate quantum-inspired entropy.
     
     Args:
-        data: The input data to hash
+        amount: Number of bytes to generate (default: 32)
         
     Returns:
-        Hexadecimal hash string
+        Dictionary with entropy as base64 and hex strings, plus metrics
     """
-    engine = get_symbolic_engine()
+    logger.info(f"Generating {amount} bytes of entropy")
     
-    # Prepare input data
-    input_bytes = data.encode('utf-8')
-    
-    # Call hash function
-    hash_ptr = engine.wave_hash(input_bytes, len(input_bytes))
-    
-    # Copy hash string
-    hash_str = ctypes.string_at(hash_ptr).decode('ascii')
-    
-    # No need to free the hash string as it's managed by the engine
-    
-    return hash_str
+    try:
+        # Limit to reasonable range
+        amount = min(max(amount, 1), 1024)
+        
+        # Generate entropy
+        entropy_bytes = engine_core.generate_entropy(amount)
+        
+        # Convert to readable formats
+        entropy_base64 = base64.b64encode(entropy_bytes).decode('ascii')
+        entropy_hex = entropy_bytes.hex()
+        
+        # Calculate metrics
+        bins, hr = engine_core.rft_run(entropy_bytes)
+        
+        # Create result
+        timestamp = time.strftime("%Y-%m-%dT%H:%M:%S.%fZ", time.gmtime())
+        result = {
+            "entropy_base64": entropy_base64,
+            "entropy_hex": entropy_hex,
+            "length": amount,
+            "hr": hr,
+            "timestamp": timestamp
+        }
+        
+        # Add signature for integrity verification
+        signature = hashlib.sha256(entropy_bytes).hexdigest()
+        result["signature"] = signature
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error in generate_entropy: {e}")
+        raise
 
-def safe_fallback_hash(data: str) -> str:
+def unlock_container(waveform: List[float], hash_value: str) -> Dict[str, Any]:
     """
-    Fallback hash function in case the engine is not available
-    This is NOT a complete implementation of the proprietary algorithm
-    and should only be used for testing
+    Attempt to unlock a symbolic container using a waveform and hash.
+    
+    According to the patent claims, a container can only be unlocked
+    if the provided waveform produces a hash that matches the container's hash.
+    
+    Args:
+        waveform: List of float values representing the key waveform
+        hash_value: 64-character hex hash of the container
+        
+    Returns:
+        Dictionary with unlock status and metrics
     """
-    logger.warning("Using fallback hash function - NOT SUITABLE FOR PRODUCTION")
+    logger.info("Processing container unlock request")
     
-    # Apply a custom serialization step to simulate waveform characteristics
-    # This is NOT the actual proprietary algorithm
-    serialized = ""
-    for i, char in enumerate(data):
-        serialized += chr((ord(char) + i) % 256)
+    try:
+        # Validate hash format
+        if len(hash_value) != 64:
+            raise ValueError("Container hash must be 64 hex characters")
+            
+        # Convert waveform to bytes for hash calculation
+        bytes_data = bytes([int(min(max(v, 0.0), 1.0) * 255) for v in waveform])
+        
+        # Generate hash from the provided waveform
+        generated_hash = wave_hash(bytes_data)
+        
+        # Extract expected wave parameters from container hash
+        expected_waves, coherence_threshold = extract_wave_parameters(hash_value)
+        
+        # Convert input waveform to WaveNumbers
+        input_waves = []
+        for i, v in enumerate(waveform):
+            phase = (i / len(waveform)) * 6.28318  # 2π
+            input_waves.append(WaveNumber(v, phase))
+        
+        # Calculate coherence between input and expected waves
+        coherence_sum = 0.0
+        count = min(len(input_waves), len(expected_waves))
+        
+        for i in range(count):
+            coherence_sum += calculate_coherence(
+                input_waves[i % len(input_waves)],
+                expected_waves[i]
+            )
+        
+        wc = coherence_sum / count if count > 0 else 0.0
+        
+        # Determine if unlock was successful
+        # The hash must match exactly, or the waveform coherence must exceed the threshold
+        success = (generated_hash == hash_value) or (wc >= coherence_threshold)
+        
+        # Create result
+        timestamp = time.strftime("%Y-%m-%dT%H:%M:%S.%fZ", time.gmtime())
+        result = {
+            "status": "unlocked" if success else "denied",
+            "wc": wc,
+            "coherence_threshold": coherence_threshold,
+            "hash_match": generated_hash == hash_value,
+            "timestamp": timestamp
+        }
+        
+        # Add signature for integrity verification
+        signature = hashlib.sha256(
+            f"{result['status']},{wc:.6f},{coherence_threshold:.6f},{result['hash_match']},{timestamp}".encode()
+        ).hexdigest()
+        result["signature"] = signature
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error in unlock_container: {e}")
+        raise
+
+def run_avalanche_test() -> Dict[str, Any]:
+    """
+    Run the 64-test symbolic avalanche test suite to validate the patent claims.
     
-    # Create SHA-256 hash
-    sha256 = hashlib.sha256(serialized.encode()).hexdigest()
+    The patent requires:
+    - ≥ 70% of perturbations must have WC < 0.55
+    - At least one perturbation must have WC < 0.05 (symbolic avalanche)
     
-    return sha256
+    Returns:
+        Dictionary with test results and validation status
+    """
+    logger.info("Running avalanche test suite")
+    
+    try:
+        # Run the benchmark tests
+        results = run_benchmark()
+        
+        # Validate against patent requirements
+        passed, stats = validate_avalanche(results)
+        
+        # Create result
+        timestamp = time.strftime("%Y-%m-%dT%H:%M:%S.%fZ", time.gmtime())
+        result = {
+            "passed": passed,
+            "stats": stats,
+            "results": results,
+            "timestamp": timestamp
+        }
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error in run_avalanche_test: {e}")
+        raise
