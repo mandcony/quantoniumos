@@ -1432,11 +1432,8 @@
             // Set up benchmark handler
             const startBenchmarkButton = document.getElementById('start-benchmark');
             if (startBenchmarkButton) {
-                startBenchmarkButton.addEventListener('click', function() {
-                    // Redirect to dedicated benchmark page
-                    window.location.href = '/64-benchmark';
-                });
-                console.log("Benchmark button initialized (redirect mode)");
+                startBenchmarkButton.addEventListener('click', runBenchmark);
+                console.log("Benchmark button initialized");
             }
             
             // Set up RFT control handlers
