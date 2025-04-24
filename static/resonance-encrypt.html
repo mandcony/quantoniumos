@@ -1419,12 +1419,15 @@
                 entropyButton.addEventListener('click', handleEntropyGeneration);
             }
             
-            // Set up benchmark handler
+            // Set up benchmark handler - only initialize once
             const startBenchmarkButton = document.getElementById('start-benchmark');
-            if (startBenchmarkButton) {
-                startBenchmarkButton.addEventListener('click', function() {
-                    runBenchmark();
-                });
+            if (startBenchmarkButton && !startBenchmarkButton.hasAttribute('data-initialized')) {
+                startBenchmarkButton.setAttribute('data-initialized', 'true');
+                
+                // Initialize benchmark elements for use
+                initBenchmarkElements();
+                
+                startBenchmarkButton.addEventListener('click', runBenchmark);
                 console.log("Benchmark button initialized");
             }
             
@@ -3056,55 +3059,91 @@ ${entropyValue}`;
         
         // Run 64-Perturbation Benchmark
         async function runBenchmark() {
-            const basePt = document.getElementById('benchmark-base-pt').value;
-            const baseKey = document.getElementById('benchmark-base-key').value;
-            
-            if (!basePt || !baseKey) {
-                alert('Please enter both base plaintext and key');
-                return;
+            // Initialize benchmark elements if they're not already
+            if (!benchBtn || !dlLink || !benchOut) {
+                initBenchmarkElements();
             }
             
-            document.getElementById('start-benchmark').disabled = true;
-            document.getElementById('loader').style.display = 'block';
-            document.getElementById('progress-container').style.display = 'block';
-            document.getElementById('results-container').style.display = 'none';
+            // Disable button and show progress
+            benchBtn.disabled = true;
+            benchOut.textContent = "Validating input and preparing benchmark...";
+            dlLink.style.display = "none";
             
-            // Update progress
-            updateProgress(5, 'Initializing benchmark...');
+            // Clone original input values so we don't modify the UI
+            const plaintextOriginal = document.getElementById("plaintext").value;
+            const keyOriginal = document.getElementById("encrypt-key").value;
+            
+            // Get and validate inputs for benchmark only
+            const plaintext = validateAndFixHex(plaintextOriginal, "plaintext", true);
+            const key = validateAndFixHex(keyOriginal, "key", true);
+            
+            benchOut.textContent = "Benchmark running (≈30 s)...";
+            
+            const payload = {
+                plaintext: plaintext,
+                key: key
+            };
             
             try {
                 // Call API to run benchmark
-                const response = await fetch('/api/benchmark', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        base_pt: basePt,
-                        base_key: baseKey
-                    })
+                const r = await fetch("/api/benchmark", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                const j = await r.json();
+                if (j.status !== "ok") { 
+                    throw new Error(j.detail || "server error"); 
                 }
                 
-                const data = await response.json();
+                // Update UI with results
+                benchOut.textContent = `✓ ${j.rows_written} rows | max ΔWC = ${j.delta_max_wc} ΔHR = ${j.delta_max_hr}`;
+                dlLink.href = j.csv_url;
+                dlLink.textContent = "Download latest CSV";
+                dlLink.style.display = "inline-block";
                 
-                // Process the data for display
+                // Also update the progress UI that might exist in the benchmark section
+                updateBenchmarkProgressUI(j);
+                
+                // Function to help update progress UI
+                function updateBenchmarkProgressUI(data) {
+                    // Update progress to 100%
+                    updateProgress(100, 'Benchmark completed!');
+                    
+                    // Show results if available
+                    const resultsContainer = document.getElementById('results-container');
+                    if (resultsContainer) {
+                        resultsContainer.style.display = 'block';
+                    }
+                    
+                    // Hide loader
+                    const loader = document.getElementById('loader');
+                    if (loader) {
+                        loader.style.display = 'none';
+                    }
+                }
+                
+                // Show copy to clipboard button for the chart
+                const copyBtnContainer = document.getElementById('copy-chart-container');
+                if (copyBtnContainer) {
+                    copyBtnContainer.style.display = 'block';
+                }
+                
+                // Process the data for full display if needed
                 const displayData = {
-                    rows_written: data.rows,
-                    delta_max_wc: data.max_wc_delta,
-                    delta_max_hr: data.max_hr_delta,
-                    csv_hash: data.sha256
+                    rows_written: j.rows_written,
+                    delta_max_wc: j.delta_max_wc,
+                    delta_max_hr: j.delta_max_hr,
+                    csv_hash: j.sha256 || ''
                 };
                 
                 // Display results
                 displayResults(displayData);
                 
                 // Fetch the CSV data to populate the details
-                if (data.csv_filename) {
-                    const csvUrl = `/api/log/${data.csv_filename}`;
+                if (j.csv_filename) {
+                    const csvUrl = `/api/log/${j.csv_filename}`;
                     await fetchCSVData(csvUrl);
                 }
                 
@@ -3291,6 +3330,99 @@ ${entropyValue}`;
             changedOutputEl.innerHTML = formatBits(hexToBinary(firstTest.Hash || ''));
         }
         
+        // Add copy to clipboard functionality for charts
+        function setupChartCopyButton() {
+            const copyChartBtn = document.getElementById('copy-chart-btn');
+            if (copyChartBtn) {
+                copyChartBtn.addEventListener('click', copyChartToClipboard);
+            }
+        }
+        
+        // Copy chart data to clipboard
+        function copyChartToClipboard() {
+            try {
+                // Get chart canvases
+                const hrChart = document.getElementById('hr-chart');
+                const wcChart = document.getElementById('wc-chart');
+                
+                if (!hrChart || !wcChart) {
+                    throw new Error('Charts not found');
+                }
+                
+                // Create a container for the combined image
+                const container = document.createElement('div');
+                container.style.position = 'absolute';
+                container.style.left = '-9999px';
+                container.style.top = '-9999px';
+                
+                // Create a canvas for combined image
+                const combinedCanvas = document.createElement('canvas');
+                const width = Math.max(hrChart.width, wcChart.width);
+                const height = hrChart.height + wcChart.height + 50; // Extra space for labels
+                combinedCanvas.width = width;
+                combinedCanvas.height = height;
+                container.appendChild(combinedCanvas);
+                document.body.appendChild(container);
+                
+                // Get context and draw white background
+                const ctx = combinedCanvas.getContext('2d');
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw title
+                ctx.fillStyle = '#fff';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('64-Perturbation Benchmark Results', width/2, 25);
+                
+                // Draw HR chart
+                ctx.drawImage(hrChart, 0, 40, width, hrChart.height);
+                
+                // Draw WC chart
+                ctx.drawImage(wcChart, 0, 40 + hrChart.height + 10, width, wcChart.height);
+                
+                // Convert to data URL and copy to clipboard
+                const dataUrl = combinedCanvas.toDataURL('image/png');
+                
+                // Use clipboard API if available
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    // Create blob from data URL
+                    fetch(dataUrl)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            const item = new ClipboardItem({ 'image/png': blob });
+                            return navigator.clipboard.write([item]);
+                        })
+                        .then(() => {
+                            alert('Chart copied to clipboard!');
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy: ', err);
+                            fallbackCopyMethod(dataUrl);
+                        });
+                } else {
+                    fallbackCopyMethod(dataUrl);
+                }
+                
+                // Cleanup
+                document.body.removeChild(container);
+                
+            } catch (error) {
+                console.error('Error copying chart:', error);
+                alert('Failed to copy chart: ' + error.message);
+            }
+        }
+        
+        // Fallback copy method using a temporary link
+        function fallbackCopyMethod(dataUrl) {
+            // Create temp link for download instead
+            const link = document.createElement('a');
+            link.download = 'benchmark-charts.png';
+            link.href = dataUrl;
+            link.click();
+            alert('Chart downloaded (copy to clipboard not supported in your browser)');
+        }
+        
         // Create HR Chart
         function createHRChart(labels, values) {
             const ctx = document.getElementById('hr-chart');
@@ -3300,6 +3432,9 @@ ${entropyValue}`;
             if (ctx.chart) {
                 ctx.chart.destroy();
             }
+            
+            // Setup chart copy button
+            setupChartCopyButton();
             
             ctx.chart = new Chart(ctx, {
                 type: 'line',
@@ -3411,9 +3546,17 @@ ${entropyValue}`;
         }
         
         // 64-Perturbation Benchmark Implementation
-        const benchBtn = document.getElementById("start-benchmark");
-        const dlLink = document.getElementById("csv-link");
-        const benchOut = document.getElementById("benchmark-output");
+        // References to benchmark elements - will be initialized by runBenchmark
+        let benchBtn;
+        let dlLink;
+        let benchOut;
+        
+        // Initialize benchmark elements before use
+        function initBenchmarkElements() {
+            benchBtn = document.getElementById("start-benchmark");
+            dlLink = document.getElementById("csv-link");
+            benchOut = document.getElementById("benchmark-output");
+        }
         
         // Generate a valid 32-character hex string
         function generateValidHex(seed) {
@@ -3464,49 +3607,7 @@ ${entropyValue}`;
             return str;
         }
         
-        benchBtn.addEventListener("click", async () => {
-            benchBtn.disabled = true;
-            benchOut.textContent = "Validating input and preparing benchmark...";
-            dlLink.style.display = "none";
-            
-            // Clone original input values so we don't modify the UI
-            const plaintextOriginal = document.getElementById("plaintext").value;
-            const keyOriginal = document.getElementById("encrypt-key").value;
-            
-            // Get and validate inputs for benchmark only
-            const plaintext = validateAndFixHex(plaintextOriginal, "plaintext", true);
-            const key = validateAndFixHex(keyOriginal, "key", true);
-            
-            benchOut.textContent = "Benchmark running (≈30 s)...";
-            
-            const payload = {
-                plaintext: plaintext,
-                key: key
-            };
-            
-            try {
-                const r = await fetch("/api/benchmark", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                
-                const j = await r.json();
-                if (j.status !== "ok") { 
-                    throw new Error(j.detail || "server error"); 
-                }
-                
-                benchOut.textContent = `✓ ${j.rows_written} rows | max ΔWC = ${j.delta_max_wc} ΔHR = ${j.delta_max_hr}`;
-                dlLink.href = j.csv_url;
-                dlLink.textContent = "Download latest CSV";
-                dlLink.style.display = "inline-block";
-                
-            } catch(e) {
-                benchOut.textContent = "Benchmark failed: " + e.message;
-            } finally { 
-                benchBtn.disabled = false; 
-            }
-        });
+        // The benchmark click handler is now defined in the runBenchmark function
     </script>
     <!-- Quantum Grid Module -->
     <script src="/static/quantum-grid.js"></script>
