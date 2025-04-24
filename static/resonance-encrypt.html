@@ -954,6 +954,12 @@
                                     <canvas id="wc-chart"></canvas>
                                 </div>
                             </div>
+                            <div style="flex: 1; min-width: 300px;">
+                                <h3>Entropy</h3>
+                                <div style="height: 300px;">
+                                    <canvas id="entropy-chart"></canvas>
+                                </div>
+                            </div>
                         </div>
                         <div id="copy-chart-container" style="margin-top: 15px; text-align: center; display: none;">
                             <button id="copy-chart-btn" class="action-button">
@@ -3613,7 +3619,348 @@ ${entropyValue}`;
             return str;
         }
         
-        // The benchmark click handler is now defined in the runBenchmark function
+        // Run the 64-perturbation benchmark with current values
+        async function runBenchmark() {
+            // Only initialize if not already initialized
+            if (!benchBtn || !dlLink || !benchOut) {
+                initBenchmarkElements();
+            }
+            
+            // Disable button to prevent multiple clicks
+            benchBtn.disabled = true;
+            benchBtn.innerText = "Running Benchmark...";
+            
+            // Get values from encryption inputs
+            const plaintext = document.getElementById('plaintext').value.trim();
+            const key = document.getElementById('encrypt-key').value.trim();
+            
+            // Validate and fix inputs for benchmark (but don't modify UI inputs)
+            const validPlaintext = validateAndFixHex(plaintext, 'Plaintext', true);
+            const validKey = validateAndFixHex(key, 'Key', true);
+            
+            // Clear previous results
+            benchOut.innerHTML = '<div class="loader"></div><p>Running 64-bit perturbation benchmark...</p>';
+            
+            // Show benchmark tab content if not already visible
+            const benchmarkTab = document.querySelector('#results-tab');
+            if (benchmarkTab) {
+                benchmarkTab.classList.add('active');
+            }
+
+            // Make sure copy chart button container is hidden until charts are ready
+            const copyChartContainer = document.getElementById('copy-chart-container');
+            if (copyChartContainer) {
+                copyChartContainer.style.display = 'none';
+            }
+            
+            try {
+                // Make API call for benchmark
+                const response = await fetch(`${API_URL}/api/benchmark`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        plaintext: validPlaintext,
+                        key: validKey
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Benchmark failed: ${response.statusText}`);
+                }
+                
+                // Parse the CSV data
+                const csvData = await response.text();
+                
+                // Process the CSV into an array of objects
+                const results = processCSV(csvData);
+                
+                // Show the benchmark output
+                displayBenchmarkResults(results, csvData);
+                
+                // Create the charts with the data
+                createChartsFromBenchmark(results);
+                
+                // Also populate the bit-flip visualization
+                populateBitFlipVisualization(results);
+                
+                // Update the CSV download link
+                const blob = new Blob([csvData], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                
+                dlLink.href = url;
+                dlLink.download = `benchmark-${new Date().toISOString().split('T')[0]}.csv`;
+                dlLink.style.display = 'inline-block';
+                
+                // Show the copy chart button
+                if (copyChartContainer) {
+                    copyChartContainer.style.display = 'block';
+                }
+                
+                // Activate the bit-flip tab to show the visualization
+                const bitFlipTab = document.querySelector('.tab[data-tab="bit-flip"]');
+                if (bitFlipTab) {
+                    bitFlipTab.click();
+                }
+                
+            } catch (error) {
+                console.error('Benchmark error:', error);
+                benchOut.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            } finally {
+                // Re-enable the button
+                benchBtn.disabled = false;
+                benchBtn.innerText = "Run 64-Perturbation Benchmark";
+            }
+        }
+        
+        // Process CSV data into structured array
+        function processCSV(csvData) {
+            const lines = csvData.split('\n');
+            const headers = lines[0].split(',');
+            
+            const results = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const values = lines[i].split(',');
+                const result = {};
+                
+                headers.forEach((header, index) => {
+                    // Parse numeric values
+                    if (['HR', 'WC', 'Entropy'].includes(header) && values[index]) {
+                        result[header] = parseFloat(values[index]);
+                    } else {
+                        result[header] = values[index];
+                    }
+                });
+                
+                results.push(result);
+            }
+            
+            return results;
+        }
+        
+        // Display benchmark results in the output element
+        function displayBenchmarkResults(results, csvData) {
+            if (!results || results.length === 0) {
+                benchOut.innerHTML = '<div class="error">No benchmark results found</div>';
+                return;
+            }
+            
+            // Calculate statistics
+            const hrValues = results.map(r => r.HR).filter(v => !isNaN(v));
+            const wcValues = results.map(r => r.WC).filter(v => !isNaN(v));
+            const entropyValues = results.map(r => r.Entropy).filter(v => !isNaN(v));
+            
+            const hrAvg = average(hrValues);
+            const wcAvg = average(wcValues);
+            const entropyAvg = average(entropyValues);
+            
+            // Find min/max deviations
+            const hrMin = Math.min(...hrValues);
+            const hrMax = Math.max(...hrValues);
+            const wcMin = Math.min(...wcValues);
+            const wcMax = Math.max(...wcValues);
+            const entropyMin = entropyValues.length > 0 ? Math.min(...entropyValues) : 'N/A';
+            const entropyMax = entropyValues.length > 0 ? Math.max(...entropyValues) : 'N/A';
+            
+            // Build HTML output
+            let html = `
+                <div class="benchmark-results">
+                    <h3>64-Perturbation Benchmark Complete</h3>
+                    <p>Tested ${results.length} different perturbations to evaluate cryptographic dispersion.</p>
+                    
+                    <div class="benchmark-stats">
+                        <div class="stat-box">
+                            <div class="stat-title">Harmonic Resonance</div>
+                            <div class="stat-value">${hrAvg.toFixed(4)}</div>
+                            <div class="stat-range">Range: ${hrMin.toFixed(4)} - ${hrMax.toFixed(4)}</div>
+                        </div>
+                        
+                        <div class="stat-box">
+                            <div class="stat-title">Waveform Coherence</div>
+                            <div class="stat-value">${wcAvg.toFixed(4)}</div>
+                            <div class="stat-range">Range: ${wcMin.toFixed(4)} - ${wcMax.toFixed(4)}</div>
+                        </div>
+                        
+                        <div class="stat-box">
+                            <div class="stat-title">Entropy</div>
+                            <div class="stat-value">${typeof entropyAvg === 'number' ? entropyAvg.toFixed(4) : 'N/A'}</div>
+                            <div class="stat-range">Range: ${typeof entropyMin === 'number' ? entropyMin.toFixed(4) : 'N/A'} - ${typeof entropyMax === 'number' ? entropyMax.toFixed(4) : 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <p>Click the tabs above to view charts and bit-flip analysis.</p>
+                    <a id="csv-link" class="action-button" href="#" download style="display: inline-block;">
+                        <span class="icon">💾</span> Download CSV Results
+                    </a>
+                </div>
+            `;
+            
+            benchOut.innerHTML = html;
+        }
+        
+        // Create charts from benchmark data
+        function createChartsFromBenchmark(results) {
+            if (!results || results.length === 0) return;
+            
+            // Prepare data for charts
+            const labels = results.map((r, i) => {
+                if (r['Test Type'] === 'base') return 'Base';
+                return `${r['Test Type']} ${r['Bit Position']}`;
+            });
+            
+            const hrValues = results.map(r => r.HR);
+            const wcValues = results.map(r => r.WC);
+            
+            // Create charts
+            createHRChart(labels, hrValues);
+            createWCChart(labels, wcValues);
+            
+            // Create entropy chart if data available
+            const entropyValues = results.map(r => r.Entropy);
+            if (entropyValues.some(v => v !== null && v !== undefined && !isNaN(v))) {
+                createEntropyChart(labels, entropyValues);
+            }
+        }
+        
+        // Helper function to calculate average
+        function average(arr) {
+            if (!arr || arr.length === 0) return 0;
+            return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+        }
+        
+        // Create entropy chart
+        function createEntropyChart(labels, values) {
+            const ctx = document.getElementById('entropy-chart');
+            if (!ctx) return;
+            
+            // Clear any existing chart
+            if (ctx.chart) {
+                ctx.chart.destroy();
+            }
+            
+            ctx.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Entropy',
+                        data: values,
+                        backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                        borderColor: 'rgba(255, 193, 7, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                maxRotation: 90,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Populate bit-flip visualization
+        function populateBitFlipVisualization(results) {
+            if (!results || results.length < 2) return;
+            
+            // Get base test and first flip test
+            const baseTest = results.find(r => r['Test Type'] === 'base');
+            const firstTest = results.find(r => r['Test Type'] !== 'base');
+            
+            if (!baseTest || !firstTest) return;
+            
+            // Get elements
+            const originalBitsEl = document.getElementById('original-bits');
+            const flippedBitsEl = document.getElementById('flipped-bits');
+            const originalOutputEl = document.getElementById('original-output');
+            const changedOutputEl = document.getElementById('changed-output');
+            
+            if (!originalBitsEl || !flippedBitsEl || !originalOutputEl || !changedOutputEl) return;
+            
+            // Set original input
+            originalBitsEl.innerHTML = formatBits(hexToBinary(baseTest.Plaintext || ''));
+            
+            // Set flipped input (with highlight)
+            const flippedPlaintext = firstTest.Plaintext || '';
+            const bitPos = parseInt(firstTest['Bit Position'] || '0', 10);
+            flippedBitsEl.innerHTML = formatBits(hexToBinary(flippedPlaintext), bitPos);
+            
+            // Set original output
+            originalOutputEl.innerHTML = formatBits(hexToBinary(baseTest.Hash || ''));
+            
+            // Set changed output
+            changedOutputEl.innerHTML = formatBits(hexToBinary(firstTest.Hash || ''));
+        }
+        
+        // Helper function to convert hex to binary
+        function hexToBinary(hex) {
+            if (!hex) return '';
+            
+            let binary = '';
+            for (let i = 0; i < hex.length; i++) {
+                const chunk = parseInt(hex[i], 16).toString(2).padStart(4, '0');
+                binary += chunk;
+            }
+            return binary;
+        }
+        
+        // Format binary string with spacing and coloring
+        function formatBits(binaryStr, highlightPos = -1) {
+            if (!binaryStr) return '';
+            
+            let result = '';
+            for (let i = 0; i < binaryStr.length; i++) {
+                const bit = binaryStr[i];
+                
+                if (i === highlightPos) {
+                    result += `<span class="highlight-bit">${bit}</span>`;
+                } else {
+                    result += bit;
+                }
+                
+                // Add space after every 8 bits for readability
+                if ((i + 1) % 8 === 0) {
+                    result += ' ';
+                }
+                
+                // Add line break after every 32 bits
+                if ((i + 1) % 32 === 0) {
+                    result += '<br>';
+                }
+            }
+            
+            return result;
+        }
     </script>
     <!-- Quantum Grid Module -->
     <script src="/static/quantum-grid.js"></script>
