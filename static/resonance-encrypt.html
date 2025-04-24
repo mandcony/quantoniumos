@@ -3058,268 +3058,192 @@ ${entropyValue}`;
             console.log("Running enhanced benchmark visualization function");
             
             // Get benchmark elements
-            const basePT = document.getElementById('benchmark-base-pt').value || '00000000000000000000000000000000';
-            const baseKey = document.getElementById('benchmark-base-key').value || '00000000000000000000000000000000';
-            const runButton = document.getElementById('run-benchmark-btn');
-            const loader = document.getElementById('benchmark-loader');
-            const progressContainer = document.getElementById('benchmark-progress-container');
-            const progressBar = document.getElementById('benchmark-progress-bar');
-            const progressText = document.getElementById('benchmark-progress-text');
-            const resultsContainer = document.getElementById('benchmark-results-container');
-            const testsCompleted = document.getElementById('tests-completed');
-            const avgBitChange = document.getElementById('avg-bit-change');
-            const avalancheQuality = document.getElementById('avalanche-quality');
-            const avalancheGrid = document.getElementById('avalanche-grid');
-            const csvLink = document.getElementById('csv-link');
-            const resultsTable = document.getElementById('benchmark-results-tbody');
+            const benchBtn = document.getElementById('run-benchmark-btn') || document.getElementById('benchmark-button');
+            const dlLink = document.getElementById('download-csv') || document.getElementById('csv-link');
+            const benchOut = document.getElementById('benchmark-output');
             
-            // Disable button, show loader and progress bar
-            runButton.disabled = true;
-            loader.style.display = 'block';
-            progressContainer.style.display = 'block';
-            resultsContainer.style.display = 'none';
+            // Check if we need to initialize the benchmark elements
+            if (!benchBtn || !dlLink || !benchOut) {
+                initBenchmarkElements();
+            }
             
-            // Initialize progress
-            let progress = 0;
-            progressBar.style.width = '0%';
-            progressText.textContent = 'Starting benchmark...';
+            // Get plaintext and key inputs
+            let plaintext, key;
+            
+            // Try to get them from the benchmark tab first
+            const benchmarkBasePt = document.getElementById('benchmark-base-pt');
+            const benchmarkBaseKey = document.getElementById('benchmark-base-key');
+            
+            if (benchmarkBasePt && benchmarkBaseKey) {
+                plaintext = benchmarkBasePt.value || '00000000000000000000000000000000'; 
+                key = benchmarkBaseKey.value || '00000000000000000000000000000000';
+            } else {
+                // Fall back to the encryption tab inputs
+                const plaintextInput = document.getElementById('plaintext'); 
+                const keyInput = document.getElementById('encrypt-key');
+                
+                if (plaintextInput && keyInput) {
+                    plaintext = plaintextInput.value.trim() || '00000000000000000000000000000000';
+                    key = keyInput.value.trim() || '00000000000000000000000000000000';
+                } else {
+                    plaintext = '00000000000000000000000000000000';
+                    key = '00000000000000000000000000000000';
+                }
+            }
+            
+            // Disable button while running
+            if (benchBtn) {
+                benchBtn.disabled = true;
+                benchBtn.innerText = "Running Benchmark...";
+            }
+            
+            // Show progress elements
+            const progressContainer = document.getElementById('progress-container') || 
+                                      document.getElementById('benchmark-progress-container');
+            if (progressContainer) {
+                progressContainer.style.display = 'block';
+            }
             
             try {
                 // Make API call to run the benchmark
-                const response = await fetch(`${API_URL}/api/benchmark`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        plaintext: basePT,
-                        key: baseKey
+                const response = await fetch("/api/benchmark", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        plaintext: plaintext, 
+                        key: key 
                     })
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`Benchmark failed: ${response.statusText}`);
+                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
                 }
                 
                 // Parse response
                 const data = await response.json();
                 console.log("Benchmark data:", data);
                 
-                // Update results
-                resultsContainer.style.display = 'block';
-                testsCompleted.textContent = `${data.results.length}/64`;
-                
-                // Calculate average bit change percentage
-                let totalBitChanges = 0;
-                const bitChangePercentages = [];
-                
-                // Process each test result
-                data.results.forEach(result => {
-                    const bitChangePct = (result.bits_changed / 256) * 100;
-                    totalBitChanges += bitChangePct;
-                    bitChangePercentages.push(bitChangePct);
-                });
-                
-                const avgChange = totalBitChanges / data.results.length;
-                avgBitChange.textContent = `${avgChange.toFixed(2)}%`;
-                
-                // Set avalanche quality based on average
-                if (avgChange >= 49 && avgChange <= 51) {
-                    avalancheQuality.textContent = 'Excellent';
-                    avalancheQuality.style.color = '#4CAF50';
-                } else if (avgChange >= 45 && avgChange <= 55) {
-                    avalancheQuality.textContent = 'Good';
-                    avalancheQuality.style.color = '#FFC107';
-                } else {
-                    avalancheQuality.textContent = 'Poor';
-                    avalancheQuality.style.color = '#F44336';
-                }
-                
-                // Create visual avalanche grid
-                avalancheGrid.innerHTML = '';
-                data.results.forEach((result, index) => {
-                    const cell = document.createElement('div');
-                    cell.className = 'avalanche-cell';
-                    
-                    const bitChangePct = (result.bits_changed / 256) * 100;
-                    const hue = Math.min(120, Math.max(0, (bitChangePct - 30) * 3)); // Red to green scale
-                    
-                    cell.style.backgroundColor = `hsl(${hue}, 80%, 40%)`;
-                    cell.style.width = '100%';
-                    cell.style.height = '40px';
-                    cell.style.borderRadius = '4px';
-                    cell.style.position = 'relative';
-                    
-                    // Add tooltip with info
-                    cell.title = `Test ${index+1}: ${bitChangePct.toFixed(2)}% bits changed`;
-                    
-                    // Add percentage text
-                    const label = document.createElement('div');
-                    label.style.position = 'absolute';
-                    label.style.top = '50%';
-                    label.style.left = '50%';
-                    label.style.transform = 'translate(-50%, -50%)';
-                    label.style.color = 'white';
-                    label.style.fontSize = '11px';
-                    label.style.fontWeight = 'bold';
-                    label.style.textShadow = '0 0 2px black';
-                    label.textContent = `${bitChangePct.toFixed(0)}%`;
-                    
-                    cell.appendChild(label);
-                    avalancheGrid.appendChild(cell);
-                    
-                    // Populate results table
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td style="padding: 4px 8px; border-bottom: 1px solid #444;">${index+1}</td>
-                        <td style="padding: 4px 8px; border-bottom: 1px solid #444;">${result.test_type}</td>
-                        <td style="padding: 4px 8px; border-bottom: 1px solid #444;">${result.bit_position}</td>
-                        <td style="padding: 4px 8px; border-bottom: 1px solid #444;">${bitChangePct.toFixed(2)}%</td>
-                    `;
-                    resultsTable.appendChild(row);
-                });
-                
-                // Create bit flip chart (if we have Chart.js available)
-                if (window.Chart) {
-                    const ctx = document.getElementById('bit-flip-chart').getContext('2d');
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: data.results.map((r, i) => `T${i+1}`),
-                            datasets: [{
-                                label: 'Bit Change %',
-                                data: bitChangePercentages,
-                                backgroundColor: bitChangePercentages.map(pct => {
-                                    const hue = Math.min(120, Math.max(0, (pct - 30) * 3));
-                                    return `hsl(${hue}, 80%, 40%)`;
-                                }),
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 100
-                                }
-                            }
-                        }
-                    });
-                }
-                
-                // Set up CSV download link
-                if (data.csv_path) {
-                    csvLink.href = data.csv_path;
-                    csvLink.style.display = 'inline-block';
-                }
-                
-                updateStatus('64-Perturbation Benchmark complete!', 'success');
-                
-            } catch (error) {
-                console.error("Benchmark error:", error);
-                showError('benchmark-error', error.message);
-                updateStatus('Benchmark failed: ' + error.message, 'error');
-            } finally {
-                // Hide loader and re-enable button
-                loader.style.display = 'none';
-                progressContainer.style.display = 'none';
-                runButton.disabled = false;
-            }
-            
-            // Update progress bar function (called inside benchmark procedure)
-            function updateProgress(percent) {
-                progress = percent;
-                progressBar.style.width = `${progress}%`;
-                progressText.textContent = `Running benchmark... ${Math.floor(progress)}%`;
-            }
-                const response = await fetch("/api/benchmark", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        plaintext: plaintext,
-                        key: key
-                    })
-                });
-                
-                updateProgress(50, 'Processing server response...');
-                
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
                 if (data.status !== "ok") { 
                     throw new Error(data.detail || "Server error"); 
                 }
                 
-                updateProgress(80, 'Rendering results...');
-                
                 // Update UI with results
-                benchOut.textContent = `✓ ${data.rows_written} rows | max ΔWC = ${data.delta_max_wc} ΔHR = ${data.delta_max_hr}`;
-                dlLink.href = data.csv_url;
-                dlLink.textContent = "Download latest CSV";
-                dlLink.style.display = "inline-block";
-                
-                // Process the data for full display
-                const displayData = {
-                    rows_written: data.rows_written,
-                    delta_max_wc: data.delta_max_wc,
-                    delta_max_hr: data.delta_max_hr,
-                    csv_hash: data.sha256 || ''
-                };
-                
-                // Show results container
-                const benchResultsContainer = document.getElementById('results-container');
-                if (benchResultsContainer) {
-                    benchResultsContainer.style.display = 'block';
+                if (benchOut) {
+                    benchOut.innerHTML = `<p>✓ ${data.rows_written} rows | max ΔWC = ${data.delta_max_wc} ΔHR = ${data.delta_max_hr}</p>`;
                 }
                 
-                // Show copy to clipboard button for the chart if it exists
-                const copyBtnContainer = document.getElementById('copy-chart-container');
-                if (copyBtnContainer) {
-                    copyBtnContainer.style.display = 'block';
+                // Set up download link
+                if (dlLink) {
+                    dlLink.href = data.csv_url;
+                    dlLink.textContent = "Download latest CSV";
+                    dlLink.style.display = "inline-block";
                 }
                 
-                // Display results in the dedicated tab
+                // Process the data for visualization
                 if (typeof displayResults === 'function') {
+                    const displayData = {
+                        rows_written: data.rows_written,
+                        delta_max_wc: data.delta_max_wc,
+                        delta_max_hr: data.delta_max_hr,
+                        csv_hash: data.sha256 || ''
+                    };
                     displayResults(displayData);
                 }
                 
-                // Fetch the CSV data to populate the details if that function exists
-                if (data.csv_filename && typeof fetchCSVData === 'function') {
-                    const csvUrl = `/api/log/${data.csv_filename}`;
-                    await fetchCSVData(csvUrl);
+                // Show results container
+                const resultsContainer = document.getElementById('results-container');
+                if (resultsContainer) {
+                    resultsContainer.style.display = 'block';
                 }
                 
-                updateProgress(100, 'Benchmark completed!');
+                // Update metrics if they exist
+                const testsCompletedEl = document.getElementById('tests-completed');
+                if (testsCompletedEl) {
+                    testsCompletedEl.innerText = data.rows_written || '0';
+                }
+                
+                // Add visualization if results are available and Chart.js is loaded
+                if (data.results && window.Chart) {
+                    // Calculate bit change percentages
+                    const bitChangePercentages = data.results.map(result => 
+                        (result.bits_changed / 256) * 100
+                    );
+                    
+                    // Create charts
+                    const avgBitChange = bitChangePercentages.reduce((a, b) => a + b, 0) / 
+                                        (bitChangePercentages.length || 1);
+                    
+                    const chartCtx = document.getElementById('bit-flip-chart');
+                    if (chartCtx) {
+                        new Chart(chartCtx.getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: data.results.map((r, i) => `T${i+1}`),
+                                datasets: [{
+                                    label: 'Bit Change %',
+                                    data: bitChangePercentages,
+                                    backgroundColor: bitChangePercentages.map(pct => {
+                                        const hue = Math.min(120, Math.max(0, (pct - 30) * 3));
+                                        return `hsl(${hue}, 80%, 40%)`;
+                                    }),
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 100
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Update metrics
+                    const avgBitChangeEl = document.getElementById('avg-bit-change');
+                    if (avgBitChangeEl) {
+                        avgBitChangeEl.textContent = `${avgBitChange.toFixed(2)}%`;
+                    }
+                    
+                    const avalancheQualityEl = document.getElementById('avalanche-quality');
+                    if (avalancheQualityEl) {
+                        if (avgBitChange >= 49 && avgBitChange <= 51) {
+                            avalancheQualityEl.textContent = 'Excellent';
+                            avalancheQualityEl.style.color = '#4CAF50';
+                        } else if (avgBitChange >= 45 && avgBitChange <= 55) {
+                            avalancheQualityEl.textContent = 'Good';
+                            avalancheQualityEl.style.color = '#FFC107';
+                        } else {
+                            avalancheQualityEl.textContent = 'Poor';
+                            avalancheQualityEl.style.color = '#F44336';
+                        }
+                    }
+                }
                 
             } catch (error) {
-                console.error('Error running benchmark:', error);
-                benchOut.textContent = `✗ Error: ${error.message}`;
+                console.error("Benchmark error:", error);
                 
-                // Show error in benchmark output if it exists
-                const benchmarkOutput = document.getElementById('benchmark-output');
-                if (benchmarkOutput) {
-                    benchmarkOutput.innerHTML = `<div class="error-message">Error running benchmark: ${error.message}</div>`;
+                if (benchOut) {
+                    benchOut.innerHTML = `<div class="error">Error: ${error.message}</div>`;
                 }
                 
-                if (progressContainer) {
-                    progressContainer.style.display = 'none';
+                // Show error
+                const errorEl = document.getElementById('benchmark-error');
+                if (errorEl) {
+                    errorEl.textContent = error.message;
+                    errorEl.style.display = 'block';
                 }
             } finally {
-                // Re-enable buttons
-                benchBtn.disabled = false;
-                benchBtn.innerText = "Run Benchmark";
-                
-                // Also re-enable the start-benchmark button if it exists
-                const startBenchmarkBtn = document.getElementById('start-benchmark');
-                if (startBenchmarkBtn) {
-                    startBenchmarkBtn.disabled = false;
-                    startBenchmarkBtn.innerText = "Run 64-Perturbation Benchmark";
+                // Re-enable button
+                if (benchBtn) {
+                    benchBtn.disabled = false;
+                    benchBtn.innerText = "Run 64-Perturbation Benchmark";
                 }
                 
                 // Hide loader
+                const loader = document.getElementById('benchmark-loader');
                 if (loader) {
                     loader.style.display = 'none';
                 }
@@ -3805,172 +3729,122 @@ ${entropyValue}`;
             return str;
         }
         
-        // Comprehensive 64-Perturbation Benchmark that runs all 5 tests
-        async function runBenchmark() {
-            console.log("Running consolidated benchmark function");
-            
-            // Initialize benchmark elements if they're not already
-            if (!benchBtn || !dlLink || !benchOut) {
-                initBenchmarkElements();
-            }
-            
-            // Disable button to prevent multiple clicks
-            benchBtn.disabled = true;
-            benchBtn.innerText = "Running Benchmark...";
-            
-            // Switch to benchmark tab
-            const benchmarkMainTab = document.querySelector('.main-tab[data-tab="benchmark"]');
-            if (benchmarkMainTab) {
-                benchmarkMainTab.click();
-            }
-            
-            // Get plaintext and key from the form
-            const plaintextInput = document.getElementById('plaintext').value.trim();
-            const keyInput = document.getElementById('encrypt-key').value.trim();
-            
-            // Validate and prepare inputs
-            const plaintext = validateAndFixHex(plaintextInput, 'plaintext', true);
-            const key = validateAndFixHex(keyInput, 'key', true);
-            
-            // Also update the dedicated benchmark inputs
-            const benchmarkBasePt = document.getElementById('benchmark-base-pt');
-            const benchmarkBaseKey = document.getElementById('benchmark-base-key');
-            if (benchmarkBasePt && benchmarkBaseKey) {
-                benchmarkBasePt.value = plaintext;
-                benchmarkBaseKey.value = key;
-            }
-            
-            // Show progress
-            const progressContainer = document.getElementById('progress-container');
-            if (progressContainer) {
-                progressContainer.style.display = 'block';
-            }
-            
-            // Show loader
-            const loader = document.getElementById('loader');
-            if (loader) {
-                loader.style.display = 'inline-block';
-            }
-            
-            // Prepare the benchmark output
-            if (benchOut) {
-                benchOut.innerHTML = '<div class="loader"></div><p>Running comprehensive 64-bit perturbation benchmark...</p>';
-            }
-            
+        // Individual test functions for the comprehensive benchmark
+        
+        // Test encryption module
+        async function runEncryptionTest(plaintext, key) {
             try {
-                // Update progress
-                updateProgress(10, 'Starting benchmark...');
-                
-                // 1. Run Encryption Test
-                updateProgress(20, 'Running encryption tests...');
-                const encryptionResult = await runEncryptionTest(plaintext, key);
-                
-                // 2. Run Fourier Transform Test
-                updateProgress(40, 'Running Fourier transform tests...');
-                const rftResult = await runFourierTest(plaintext);
-                
-                // 3. Run Container Test
-                updateProgress(60, 'Running container tests...');
-                const containerResult = await runContainerTest(plaintext, key);
-                
-                // 4. Run Entropy Test
-                updateProgress(75, 'Running entropy tests...');
-                const entropyResult = await runEntropyTest();
-                
-                // 5. Run Quantum Grid Test
-                updateProgress(85, 'Running quantum grid tests...');
-                const quantumResult = await runQuantumTest(plaintext);
-                
-                // 6. Run the official benchmark
-                updateProgress(90, 'Running 64-perturbation benchmark...');
-                const benchmarkResponse = await fetch('/api/benchmark', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                // Make API call to encrypt
+                const response = await fetch("/api/encrypt", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ plaintext, key })
                 });
                 
-                if (!benchmarkResponse.ok) {
-                    throw new Error(`Server returned ${benchmarkResponse.status}: ${benchmarkResponse.statusText}`);
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
                 }
                 
-                const benchmarkData = await benchmarkResponse.json();
-                
-                // Process benchmark data
-                updateProgress(95, 'Processing results...');
-                
-                // Update the benchmark UI
-                if (benchmarkData.status === 'ok') {
-                    // Update UI with results
-                    if (benchOut) {
-                        benchOut.innerHTML = `
-                            <h3>Comprehensive System Test Complete</h3>
-                            <p>✓ Encryption module: ${encryptionResult.success ? 'PASSED' : 'FAILED'}</p>
-                            <p>✓ Fourier transform module: ${rftResult.success ? 'PASSED' : 'FAILED'}</p>
-                            <p>✓ Container module: ${containerResult.success ? 'PASSED' : 'FAILED'}</p>
-                            <p>✓ Entropy module: ${entropyResult.success ? 'PASSED' : 'FAILED'}</p>
-                            <p>✓ Quantum grid module: ${quantumResult.success ? 'PASSED' : 'FAILED'}</p>
-                            <p>✓ 64-Perturbation benchmark: ${benchmarkData.rows_written} tests completed</p>
-                        `;
-                    }
-                    
-                    // Show the download link
-                    if (dlLink) {
-                        dlLink.href = benchmarkData.csv_url || '';
-                        dlLink.style.display = 'inline-block';
-                    }
-                    
-                    // Show results container
-                    const displayResultsContainer = document.getElementById('results-container');
-                    if (displayResultsContainer) {
-                        displayResultsContainer.style.display = 'block';
-                    }
-                    
-                    // Update metrics
-                    const testsCompletedEl = document.getElementById('tests-completed');
-                    if (testsCompletedEl) {
-                        testsCompletedEl.innerText = benchmarkData.rows_written || '0';
-                    }
-                    
-                    const maxWcDeltaEl = document.getElementById('max-wc-delta');
-                    if (maxWcDeltaEl) {
-                        maxWcDeltaEl.innerText = benchmarkData.delta_max_wc ? benchmarkData.delta_max_wc.toFixed(3) : '0.000';
-                    }
-                    
-                    const maxHrDeltaEl = document.getElementById('max-hr-delta');
-                    if (maxHrDeltaEl) {
-                        maxHrDeltaEl.innerText = benchmarkData.delta_max_hr ? benchmarkData.delta_max_hr.toFixed(3) : '0.000';
-                    }
-                    
-                    const avalancheScoreEl = document.getElementById('avalanche-score');
-                    if (avalancheScoreEl) {
-                        const score = (((benchmarkData.delta_max_wc || 0) + (benchmarkData.delta_max_hr || 0)) / 2) * 100;
-                        avalancheScoreEl.innerText = score.toFixed(1) + '%';
-                    }
-                }
-                
-                updateProgress(100, 'All tests completed successfully!');
-                
+                const data = await response.json();
+                return { success: data.status === "ok", data };
             } catch (error) {
-                console.error('Benchmark error:', error);
+                console.error("Encryption test failed:", error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Test RFT module
+        async function runFourierTest(plaintext) {
+            try {
+                // Convert text to numeric waveform for RFT
+                const waveform = Array.from(plaintext).map(c => c.charCodeAt(0) / 255);
                 
-                if (benchOut) {
-                    benchOut.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                // Make API call to RFT endpoint
+                const response = await fetch("/api/rft", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ waveform })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
                 }
                 
-                if (progressContainer) {
-                    progressContainer.style.display = 'none';
-                }
-            } finally {
-                // Re-enable button
-                if (benchBtn) {
-                    benchBtn.disabled = false;
-                    benchBtn.innerText = "Run 64-Perturbation Benchmark";
+                const data = await response.json();
+                return { success: data.status === "ok", data };
+            } catch (error) {
+                console.error("RFT test failed:", error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Test container module
+        async function runContainerTest(plaintext, key) {
+            try {
+                // Make API call to container endpoint
+                const response = await fetch("/api/container/unlock", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        waveform: Array.from(plaintext).map(c => c.charCodeAt(0) / 255),
+                        hash: key,
+                        key: plaintext
+                    })
+                });
+                
+                // Note: A 403 is actually expected here since this is a security test
+                const data = await response.json();
+                
+                // For container tests, we actually expect a controlled failure
+                // which proves the security is working correctly
+                return { 
+                    success: true, 
+                    data, 
+                    securityValidation: data.status === "fail" && 
+                                        data.detail.includes("Access denied")
+                };
+            } catch (error) {
+                console.error("Container test failed:", error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Test entropy module
+        async function runEntropyTest() {
+            try {
+                // Make API call to entropy endpoint
+                const response = await fetch("/api/entropy?amount=32");
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
                 }
                 
-                // Hide loader
-                if (loader) {
-                    loader.style.display = 'none';
+                const data = await response.json();
+                return { success: data.status === "ok", data };
+            } catch (error) {
+                console.error("Entropy test failed:", error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Test quantum grid module
+        async function runQuantumTest(plaintext) {
+            try {
+                // Make API call to quantum endpoint
+                const response = await fetch("/api/quantum/initialize", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
                 }
+                
+                const data = await response.json();
+                return { success: data.status === "ok", data };
+            } catch (error) {
+                console.error("Quantum test failed:", error);
+                return { success: false, error: error.message };
             }
         }
         
