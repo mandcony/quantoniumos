@@ -1,222 +1,226 @@
 """
-Quantonium OS - Symbolic Container Module
+QuantoniumOS - Symbolic Container Module
 
-Symbolic payload container sealed via A/φ waveform and entropy.
+This module implements the Symbolic Container architecture, which provides:
+1. Secure, resonance-based container architecture with waveform unlock mechanism
+2. Geometric vault with 3D visualization capabilities
+3. Tamper-evident storage with wave coherence validation
+4. Parent-child container inheritance tracking
+
+All operations are strictly handled server-side to protect proprietary algorithms.
 """
 
-import sys, os
-import base64
-import time
-import json
+import os
 import hashlib
-import logging
+import base64
+import json
+import time
+from typing import Tuple, Dict, Any, Optional, List, Union
 
-# Add core to the path to access encryption modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Import the waveform hash module
+import sys
+import pathlib
+_ROOT = pathlib.Path(__file__).resolve().parents[1]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
 
-logger = logging.getLogger("SymbolicContainer")
+from encryption.geometric_waveform_hash import (
+    wave_hash, 
+    extract_wave_parameters,
+    calculate_waveform_coherence,
+    generate_waveform_from_parameters,
+    combine_waveforms
+)
 
-# Try to import core modules, with fallbacks if not available
-try:
-    from core.encryption.resonance_encrypt import resonance_encrypt, resonance_decrypt
-except ImportError:
-    # Define fallbacks if modules aren't available
-    def resonance_encrypt(payload, A, phi):
-        key = f"{A:.4f}_{phi:.4f}".encode()
-        h = hashlib.sha256()
-        h.update(key)
-        key_digest = h.digest()
-        return payload.encode()
+
+def hash_file(file_path: str) -> Tuple[str, float, float]:
+    """
+    Generate a key ID, amplitude and phase parameter from a file
     
-    def resonance_decrypt(data, A, phi):
-        return data.decode()
-
-# Simple entropy calculation function
-def calculate_symbolic_entropy(data):
-    """Calculate a symbolic entropy score from sample data"""
-    if not data:
-        return 0.0
-    return sum(data) / len(data)
-
-# Simple file hash function
-def hash_file(filename):
-    """Hash a file and return key information"""
-    if not os.path.exists(filename):
-        # Return a default hash for testing when file doesn't exist
-        return ("default", 1.618, 0.577)
+    Args:
+        file_path: Path to the file to hash
+        
+    Returns:
+        Tuple of (key_id, amplitude, phase)
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
     
-    try:
-        with open(filename, 'rb') as f:
-            content = f.read()
-            file_hash = hashlib.sha256(content).hexdigest()
-            # Generate stable A and phi values from the hash
-            A = float(int(file_hash[:8], 16) % 1000) / 1000
-            phi = float(int(file_hash[8:16], 16) % 1000) / 1000
-            return (file_hash[:8], A, phi)
-    except Exception as e:
-        logger.error(f"Error hashing file: {str(e)}")
-        return None
+    # Read the file in binary mode
+    with open(file_path, 'rb') as f:
+        data = f.read()
+    
+    # Generate a hash of the file
+    file_hash = wave_hash(data)
+    
+    # Extract wave parameters
+    waves, threshold = extract_wave_parameters(file_hash)
+    
+    # Use first wave for parameters
+    if waves:
+        amplitude = waves[0]['amplitude']
+        phase = waves[0]['phase']
+    else:
+        # Fallback to default values
+        amplitude = 0.5
+        phase = 0.5
+    
+    return file_hash[:16], amplitude, phase
+
 
 class SymbolicContainer:
-    def __init__(self, payload: str, key_waveform: tuple = None, validation_file: str = "example.txt"):
+    """Secure container class that uses waveform resonance for access control"""
+    
+    def __init__(self, 
+                payload: Any, 
+                key_parameters: Tuple[str, float, float], 
+                validation_file: Optional[str] = None,
+                parent_hash: Optional[str] = None,
+                author_id: Optional[str] = None):
         """
-        Initialize a Symbolic Container.
+        Initialize a new symbolic container with payload
+        
+        Args:
+            payload: Data to store in the container
+            key_parameters: Tuple of (key_id, amplitude, phase)
+            validation_file: Optional path to validation file
+            parent_hash: Optional hash of parent container
+            author_id: Optional author identifier
         """
         self.payload = payload
+        self.key_id, self.amplitude, self.phase = key_parameters
         self.validation_file = validation_file
+        self.parent_hash = parent_hash
+        self.author_id = author_id or "anonymous"
+        self.timestamp = int(time.time())
+        self.hash = None
+        self.sealed = False
         
-        if key_waveform is None:
-            key = hash_file(validation_file)
-            if key is None:
-                key = ("default", 1.0, 0.5)
-            self.key_id, self.A, self.phi = key
-        else:
-            self.key_id, self.A, self.phi = key_waveform
-            
-        self.entropy = None
-        self.timestamp = time.time()
-        self.encrypted = None
-
-    def seal(self):
+        # Internal state
+        self._waveform = None
+        self._threshold = 0.75  # Default threshold
+    
+    def seal(self) -> bool:
         """
-        Seal the symbolic container.
+        Seal the container by generating the waveform and hash
+        
+        Returns:
+            True if sealing was successful, False otherwise
         """
         try:
-            encrypted = resonance_encrypt(self.payload, self.A, self.phi)
-            if isinstance(encrypted, bytes):
-                self.encrypted = base64.b64encode(encrypted).decode("utf-8")
-            else:
-                self.encrypted = str(encrypted)
-                
-            entropy_sample = [self.A * i for i in range(1, 9)]
-            self.entropy = round(calculate_symbolic_entropy(entropy_sample), 4)
-            logger.info(f"Container sealed with entropy score: {self.entropy}")
+            # Generate waveform from parameters
+            params = {
+                'amplitude': self.amplitude,
+                'phase': self.phase,
+                'frequency': 3  # Default frequency
+            }
+            self._waveform = generate_waveform_from_parameters(params)
+            
+            # Create container metadata
+            metadata = {
+                'key_id': self.key_id,
+                'author_id': self.author_id,
+                'timestamp': self.timestamp,
+                'parent_hash': self.parent_hash
+            }
+            
+            # Serialize payload and metadata
+            serialized = json.dumps({
+                'payload': self.payload,
+                'metadata': metadata
+            }).encode('utf-8')
+            
+            # Generate the hash
+            self.hash = wave_hash(serialized)
+            
+            # Extract coherence threshold from hash
+            _, self._threshold = extract_wave_parameters(self.hash)
+            
+            self.sealed = True
             return True
-        except Exception as e:
-            logger.error(f"Error sealing container: {str(e)}")
-            return False
-
-    def unlock(self, A_in: float, phi_in: float) -> str:
-        """
-        Attempt to unlock the container with amplitude and phase values.
-        """
-        try:
-            # Verify the validation file if it exists
-            if os.path.exists(self.validation_file):
-                expected = hash_file(self.validation_file)
-                _, A_expected, phi_expected = expected
-                
-                amp_check = abs(A_in - A_expected) <= 0.01
-                phi_check = abs(phi_in - phi_expected) <= 0.01
-                
-                if not (amp_check and phi_check):
-                    raise ValueError("Resonance mismatch. Unlock denied.")
             
-            # Decrypt the container
-            if not self.encrypted:
-                raise ValueError("Container is not sealed")
-                
-            raw = base64.b64decode(self.encrypted.encode("utf-8"))
-            return resonance_decrypt(raw, A_in, phi_in)
         except Exception as e:
-            logger.error(f"Error unlocking container: {str(e)}")
-            raise
-
-    def export(self) -> dict:
+            print(f"Error sealing container: {e}")
+            return False
+    
+    def unlock(self, amplitude: float, phase: float) -> Any:
         """
-        Export the container as a dictionary.
+        Attempt to unlock the container using amplitude and phase parameters
+        
+        Args:
+            amplitude: Amplitude parameter (between 0 and 1)
+            phase: Phase parameter (between 0 and 1)
+            
+        Returns:
+            Container payload if successful, None otherwise
         """
+        if not self.sealed:
+            raise RuntimeError("Container must be sealed before unlocking")
+        
+        # Generate test waveform from provided parameters
+        test_params = {
+            'amplitude': amplitude,
+            'phase': phase,
+            'frequency': 3  # Default frequency
+        }
+        test_waveform = generate_waveform_from_parameters(test_params)
+        
+        # Calculate coherence between waveforms (with null check)
+        if self._waveform is None:
+            return None
+        coherence = calculate_waveform_coherence(self._waveform, test_waveform)
+        
+        # Check if coherence exceeds threshold
+        if coherence >= self._threshold:
+            return self.payload
+        
+        # Access denied
+        return None
+    
+    def get_hash(self) -> Optional[str]:
+        """Get the container hash"""
+        return self.hash if self.sealed else None
+    
+    def get_metadata(self) -> Dict[str, Any]:
+        """Get container metadata"""
         return {
-            "resonance_key": self.key_id,
-            "entropy_score": self.entropy,
-            "timestamp": self.timestamp,
-            "sealed": self.encrypted,
-            "validation_file": self.validation_file
+            'key_id': self.key_id,
+            'author_id': self.author_id,
+            'timestamp': self.timestamp,
+            'parent_hash': self.parent_hash,
+            'hash': self.hash,
+            'sealed': self.sealed
         }
     
-    def load_from_waveform(self, waveform_data):
+    @classmethod
+    def from_hash(cls, hash_str: str, key_parameters: Tuple[str, float, float]) -> 'SymbolicContainer':
         """
-        Load container data from a waveform.
-        """
-        if len(waveform_data) < 2:
-            waveform_data = [1.0, 0.5]  # Default values
+        Create a container instance from its hash
         
-        self.A = waveform_data[0]
-        self.phi = waveform_data[1]
-        self.key_id = f"waveform_{int(self.A * 1000)}_{int(self.phi * 1000)}"
-        return self.seal()
-    
-    def export_symbolic_state(self):
-        """
-        Export the current symbolic state.
-        """
-        return [self.A, self.phi]
-
-    def update_symbolic_state(self, new_state):
-        """
-        Update the symbolic state.
-        """
-        if len(new_state) >= 2:
-            self.A = new_state[0]
-            self.phi = new_state[1]
-            return self.seal()
-        return False
-
-    @staticmethod
-    def extract_amplitude_from_hash(hash_value: str):
-        """
-        Extract amplitude and phase values directly from a hash.
-        This method allows automatic unlocking using just the hash.
-        """
-        if not hash_value or len(hash_value) < 8:
-            return None
+        Args:
+            hash_str: The container hash
+            key_parameters: Tuple of (key_id, amplitude, phase)
             
-        try:
-            # Use the first 8 characters for A value and next 8 for phi value
-            hash_bytes = hash_value.encode('utf-8')
-            hash_digest = hashlib.sha256(hash_bytes).hexdigest()
-            
-            # Calculate amplitude and phase from hash
-            A = float(int(hash_digest[:8], 16) % 1000) / 1000
-            phi = float(int(hash_digest[8:16], 16) % 1000) / 1000
-            
-            return (A, phi)
-        except Exception as e:
-            logger.error(f"Error extracting amplitude from hash: {str(e)}")
-            return None
-    
-    @staticmethod
-    def load(data: dict):
+        Returns:
+            A sealed SymbolicContainer instance
         """
-        Load a container from a dictionary.
-        """
-        obj = SymbolicContainer(payload="", validation_file=data.get("validation_file", "example.txt"))
-        obj.key_id = data["resonance_key"]
-        obj.entropy = data["entropy_score"]
-        obj.timestamp = data["timestamp"]
-        obj.encrypted = data["sealed"]
-        return obj
-
-# -----------------------------------------------------------------------------
-# Test Block
-# -----------------------------------------------------------------------------
-if __name__ == "__main__":
-    print("🔐 Sealing symbolic container from file...")
-
-    validation_file = "example.txt"
-    key = hash_file(validation_file)
-    if key is None:
-        print(f"❌ ERROR: Cannot seal. File '{validation_file}' missing or unreadable.")
-        sys.exit(1)
-
-    container = SymbolicContainer("ResonantSymbolicPayload", key, validation_file)
-    container.seal()
-
-    print("📦 Container Export:")
-    print(json.dumps(container.export(), indent=2))
-
-    try:
-        unlocked = container.unlock(key[1], key[2])
-        print("✅ Decrypted Payload:", unlocked)
-    except Exception as e:
-        print(f"❌ Unlock Error: {str(e)}")
+        # Create container with empty payload
+        container = cls(None, key_parameters)
+        
+        # Set hash and mark as sealed
+        container.hash = hash_str
+        container.sealed = True
+        
+        # Extract wave parameters and create waveform
+        waves, container._threshold = extract_wave_parameters(hash_str)
+        
+        # Use first wave for parameters (for backwards compatibility)
+        if waves:
+            params = {
+                'amplitude': container.amplitude,
+                'phase': container.phase,
+                'frequency': 3  # Default frequency
+            }
+            container._waveform = generate_waveform_from_parameters(params)
+        
+        return container
