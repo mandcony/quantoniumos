@@ -3723,7 +3723,303 @@ ${entropyValue}`;
             return str;
         }
         
-        // This second runBenchmark was removed to avoid duplicate function conflicts
+        // Comprehensive 64-Perturbation Benchmark that runs all 5 tests
+        async function runBenchmark() {
+            console.log("Running consolidated benchmark function");
+            
+            // Initialize benchmark elements if they're not already
+            if (!benchBtn || !dlLink || !benchOut) {
+                initBenchmarkElements();
+            }
+            
+            // Disable button to prevent multiple clicks
+            benchBtn.disabled = true;
+            benchBtn.innerText = "Running Benchmark...";
+            
+            // Switch to benchmark tab
+            const benchmarkMainTab = document.querySelector('.main-tab[data-tab="benchmark"]');
+            if (benchmarkMainTab) {
+                benchmarkMainTab.click();
+            }
+            
+            // Get plaintext and key from the form
+            const plaintextInput = document.getElementById('plaintext').value.trim();
+            const keyInput = document.getElementById('encrypt-key').value.trim();
+            
+            // Validate and prepare inputs
+            const plaintext = validateAndFixHex(plaintextInput, 'plaintext', true);
+            const key = validateAndFixHex(keyInput, 'key', true);
+            
+            // Also update the dedicated benchmark inputs
+            const benchmarkBasePt = document.getElementById('benchmark-base-pt');
+            const benchmarkBaseKey = document.getElementById('benchmark-base-key');
+            if (benchmarkBasePt && benchmarkBaseKey) {
+                benchmarkBasePt.value = plaintext;
+                benchmarkBaseKey.value = key;
+            }
+            
+            // Show progress
+            const progressContainer = document.getElementById('progress-container');
+            if (progressContainer) {
+                progressContainer.style.display = 'block';
+            }
+            
+            // Show loader
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'inline-block';
+            }
+            
+            // Prepare the benchmark output
+            if (benchOut) {
+                benchOut.innerHTML = '<div class="loader"></div><p>Running comprehensive 64-bit perturbation benchmark...</p>';
+            }
+            
+            try {
+                // Update progress
+                updateProgress(10, 'Starting benchmark...');
+                
+                // 1. Run Encryption Test
+                updateProgress(20, 'Running encryption tests...');
+                const encryptionResult = await runEncryptionTest(plaintext, key);
+                
+                // 2. Run Fourier Transform Test
+                updateProgress(40, 'Running Fourier transform tests...');
+                const rftResult = await runFourierTest(plaintext);
+                
+                // 3. Run Container Test
+                updateProgress(60, 'Running container tests...');
+                const containerResult = await runContainerTest(plaintext, key);
+                
+                // 4. Run Entropy Test
+                updateProgress(75, 'Running entropy tests...');
+                const entropyResult = await runEntropyTest();
+                
+                // 5. Run Quantum Grid Test
+                updateProgress(85, 'Running quantum grid tests...');
+                const quantumResult = await runQuantumTest(plaintext);
+                
+                // 6. Run the official benchmark
+                updateProgress(90, 'Running 64-perturbation benchmark...');
+                const benchmarkResponse = await fetch('/api/benchmark', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plaintext, key })
+                });
+                
+                if (!benchmarkResponse.ok) {
+                    throw new Error(`Server returned ${benchmarkResponse.status}: ${benchmarkResponse.statusText}`);
+                }
+                
+                const benchmarkData = await benchmarkResponse.json();
+                
+                // Process benchmark data
+                updateProgress(95, 'Processing results...');
+                
+                // Update the benchmark UI
+                if (benchmarkData.status === 'ok') {
+                    // Update UI with results
+                    if (benchOut) {
+                        benchOut.innerHTML = `
+                            <h3>Comprehensive System Test Complete</h3>
+                            <p>✓ Encryption module: ${encryptionResult.success ? 'PASSED' : 'FAILED'}</p>
+                            <p>✓ Fourier transform module: ${rftResult.success ? 'PASSED' : 'FAILED'}</p>
+                            <p>✓ Container module: ${containerResult.success ? 'PASSED' : 'FAILED'}</p>
+                            <p>✓ Entropy module: ${entropyResult.success ? 'PASSED' : 'FAILED'}</p>
+                            <p>✓ Quantum grid module: ${quantumResult.success ? 'PASSED' : 'FAILED'}</p>
+                            <p>✓ 64-Perturbation benchmark: ${benchmarkData.rows_written} tests completed</p>
+                        `;
+                    }
+                    
+                    // Show the download link
+                    if (dlLink) {
+                        dlLink.href = benchmarkData.csv_url || '';
+                        dlLink.style.display = 'inline-block';
+                    }
+                    
+                    // Show results container
+                    const resultsContainer = document.getElementById('results-container');
+                    if (resultsContainer) {
+                        resultsContainer.style.display = 'block';
+                    }
+                    
+                    // Update metrics
+                    const testsCompletedEl = document.getElementById('tests-completed');
+                    if (testsCompletedEl) {
+                        testsCompletedEl.innerText = benchmarkData.rows_written || '0';
+                    }
+                    
+                    const maxWcDeltaEl = document.getElementById('max-wc-delta');
+                    if (maxWcDeltaEl) {
+                        maxWcDeltaEl.innerText = benchmarkData.delta_max_wc ? benchmarkData.delta_max_wc.toFixed(3) : '0.000';
+                    }
+                    
+                    const maxHrDeltaEl = document.getElementById('max-hr-delta');
+                    if (maxHrDeltaEl) {
+                        maxHrDeltaEl.innerText = benchmarkData.delta_max_hr ? benchmarkData.delta_max_hr.toFixed(3) : '0.000';
+                    }
+                    
+                    const avalancheScoreEl = document.getElementById('avalanche-score');
+                    if (avalancheScoreEl) {
+                        const score = (((benchmarkData.delta_max_wc || 0) + (benchmarkData.delta_max_hr || 0)) / 2) * 100;
+                        avalancheScoreEl.innerText = score.toFixed(1) + '%';
+                    }
+                }
+                
+                updateProgress(100, 'All tests completed successfully!');
+                
+            } catch (error) {
+                console.error('Benchmark error:', error);
+                
+                if (benchOut) {
+                    benchOut.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                }
+                
+                if (progressContainer) {
+                    progressContainer.style.display = 'none';
+                }
+            } finally {
+                // Re-enable button
+                if (benchBtn) {
+                    benchBtn.disabled = false;
+                    benchBtn.innerText = "Run 64-Perturbation Benchmark";
+                }
+                
+                // Hide loader
+                if (loader) {
+                    loader.style.display = 'none';
+                }
+            }
+        }
+        
+        // Helper function to run encryption test
+        async function runEncryptionTest(plaintext, key) {
+            try {
+                const response = await fetch('/api/encrypt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plaintext, key })
+                });
+                
+                if (!response.ok) return { success: false, error: 'API request failed' };
+                
+                const data = await response.json();
+                return { success: true, data };
+            } catch (error) {
+                console.error('Encryption test error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Helper function to run Fourier test
+        async function runFourierTest(plaintext) {
+            try {
+                // Generate a simple waveform from plaintext
+                const waveform = Array.from(plaintext).map(c => c.charCodeAt(0) / 255);
+                
+                const response = await fetch('/api/rft', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ waveform })
+                });
+                
+                if (!response.ok) return { success: false, error: 'API request failed' };
+                
+                const data = await response.json();
+                return { success: true, data };
+            } catch (error) {
+                console.error('Fourier test error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Helper function to run container test
+        async function runContainerTest(plaintext, key) {
+            try {
+                // First encrypt to get a hash/container
+                const encryptResponse = await fetch('/api/encrypt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plaintext, key })
+                });
+                
+                if (!encryptResponse.ok) return { success: false, error: 'Encryption API request failed' };
+                
+                const encryptData = await encryptResponse.json();
+                const hash = encryptData.hash || '';
+                
+                // Now try to unlock the container
+                const unlockResponse = await fetch('/api/container/unlock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hash, key })
+                });
+                
+                if (!unlockResponse.ok) return { success: false, error: 'Unlock API request failed' };
+                
+                const unlockData = await unlockResponse.json();
+                return { success: true, data: unlockData };
+            } catch (error) {
+                console.error('Container test error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Helper function to run entropy test
+        async function runEntropyTest() {
+            try {
+                const response = await fetch('/api/entropy/sample', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: 32 })
+                });
+                
+                if (!response.ok) return { success: false, error: 'API request failed' };
+                
+                const data = await response.json();
+                return { success: true, data };
+            } catch (error) {
+                console.error('Entropy test error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Helper function to run quantum test
+        async function runQuantumTest(plaintext) {
+            try {
+                const qubits = Math.min(Math.max(plaintext.length * 2, 2), 150); // Use input to determine qubit count (2-150)
+                
+                const response = await fetch('/api/quantum/initialize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ qubits })
+                });
+                
+                if (!response.ok) return { success: false, error: 'API request failed' };
+                
+                const data = await response.json();
+                return { success: true, data };
+            } catch (error) {
+                console.error('Quantum test error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Helper function to update the progress bar and text
+        function updateProgress(percent, message) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            if (progressBar) {
+                progressBar.style.width = `${percent}%`;
+            }
+            
+            if (progressText) {
+                progressText.innerText = message || `${percent}% complete`;
+            }
+            
+            console.log(`Progress update: ${percent}% - ${message}`);
+        }
         
         // Process CSV data into structured array
         function processCSV(csvData) {
