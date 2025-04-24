@@ -15,8 +15,20 @@ import logging
 logger = logging.getLogger("quantonium_security")
 logger.setLevel(logging.INFO)
 
-# Default CSP policy - restrict to same origin by default with exceptions for Swagger UI
-CSP_POLICY = None  # Disable CSP for now to allow all scripts to work
+# Define a strict Content Security Policy to protect proprietary information
+# This blocks iframe access and restricts scripts to trusted sources
+CSP_POLICY = {
+    'default-src': ["'self'"],
+    'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"], 
+    'style-src': ["'self'", "'unsafe-inline'"],
+    'img-src': ["'self'", "data:"],
+    'font-src': ["'self'"],
+    'connect-src': ["'self'"],
+    'frame-ancestors': ["'none'"],  # Specifically blocks embedding in iframes
+    'form-action': ["'self'"],
+    'base-uri': ["'self'"],
+    'object-src': ["'none'"]
+}
 
 # Configure CORS
 def get_cors_origins():
@@ -60,8 +72,8 @@ def configure_security(app: Flask):
         force_https=not is_development,  # Only force HTTPS in production
         force_https_permanent=not is_development,
         force_file_save=True,
-        frame_options=None,  # Allow embedding in iframes
-        frame_options_allow_from="*",
+        frame_options='DENY',  # Block embedding in iframes for security
+        frame_options_allow_from=None,
         strict_transport_security=not is_development,  # Only enable HSTS in production
         strict_transport_security_preload=not is_development,
         strict_transport_security_max_age=31536000,
@@ -92,7 +104,7 @@ def configure_security(app: Flask):
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, Authorization'
-        response.headers['X-Frame-Options'] = 'ALLOWALL'
+        response.headers['X-Frame-Options'] = 'DENY'  # Block iframe embedding for better security
         return response
     
     return talisman, limiter
