@@ -1502,10 +1502,12 @@
         }
         
         async function handleEncrypt() {
-            const plaintext = elements.plaintextInput.value.trim();
-            const key = elements.encryptKeyInput.value.trim();
+            // Use our validation logic
+            const plaintext = validateAndFixHex(document.getElementById('plaintext').value.trim(), "plaintext");
+            const key = validateAndFixHex(document.getElementById('encrypt-key').value.trim(), "key");
             
-            // Validation
+            // Validation - shouldn't really hit these errors with our validation logic,
+            // but keeping them as a fallback
             if (!plaintext) {
                 showError(elements.encryptError, 'Please enter plaintext to encrypt');
                 return;
@@ -2639,14 +2641,64 @@ ${entropyValue}`;
         const dlLink = document.getElementById("downloadCsv");
         const benchOut = document.getElementById("benchStatus");
         
+        // Generate a valid 32-character hex string
+        function generateValidHex(seed) {
+            let result = "";
+            const chars = "0123456789abcdef";
+            // Use seed if provided, otherwise random
+            const rng = seed ? 
+                mulberry32(hashString(seed)) : 
+                () => Math.random();
+            
+            for (let i = 0; i < 32; i++) {
+                result += chars.charAt(Math.floor(rng() * chars.length));
+            }
+            return result;
+        }
+        
+        // Ensure hex string is valid (32 chars, hex only)
+        function validateAndFixHex(str, label) {
+            // Empty input uses random hex
+            if (!str || str.trim() === "") {
+                const random = generateValidHex();
+                document.getElementById(label === "plaintext" ? "plaintext" : "encrypt-key").value = random;
+                return random;
+            }
+            
+            // Remove non-hex characters
+            const cleanHex = str.replace(/[^0-9a-fA-F]/g, "");
+            
+            // If too short, pad with random hex
+            if (cleanHex.length < 32) {
+                const padded = cleanHex + generateValidHex().substring(0, 32 - cleanHex.length);
+                document.getElementById(label === "plaintext" ? "plaintext" : "encrypt-key").value = padded;
+                return padded;
+            }
+            
+            // If too long, truncate
+            if (cleanHex.length > 32) {
+                const truncated = cleanHex.substring(0, 32);
+                document.getElementById(label === "plaintext" ? "plaintext" : "encrypt-key").value = truncated;
+                return truncated;
+            }
+            
+            return cleanHex;
+        }
+        
         benchBtn.addEventListener("click", async () => {
             benchBtn.disabled = true;
-            benchOut.textContent = "Benchmark running (≈30 s)...";
+            benchOut.textContent = "Validating input and preparing benchmark...";
             dlLink.style.display = "none";
             
+            // Get and validate inputs
+            const plaintext = validateAndFixHex(document.getElementById("plaintext").value, "plaintext");
+            const key = validateAndFixHex(document.getElementById("encrypt-key").value, "key");
+            
+            benchOut.textContent = "Benchmark running (≈30 s)...";
+            
             const payload = {
-                plaintext: document.getElementById("plaintext").value,
-                key: document.getElementById("encrypt-key").value
+                plaintext: plaintext,
+                key: key
             };
             
             try {
