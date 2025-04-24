@@ -2633,6 +2633,45 @@ ${entropyValue}`;
         } else {
             init();
         }
+        
+        // 64-Perturbation Benchmark Implementation
+        const benchBtn = document.getElementById("runBenchmark");
+        const dlLink = document.getElementById("downloadCsv");
+        const benchOut = document.getElementById("benchStatus");
+        
+        benchBtn.addEventListener("click", async () => {
+            benchBtn.disabled = true;
+            benchOut.textContent = "Benchmark running (≈30 s)...";
+            dlLink.style.display = "none";
+            
+            const payload = {
+                plaintext: document.getElementById("plaintext").value,
+                key: document.getElementById("encrypt-key").value
+            };
+            
+            try {
+                const r = await fetch("/api/benchmark", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                
+                const j = await r.json();
+                if (j.status !== "ok") { 
+                    throw new Error(j.detail || "server error"); 
+                }
+                
+                benchOut.textContent = `✓ ${j.rows_written} rows | max ΔWC = ${j.delta_max_wc} ΔHR = ${j.delta_max_hr}`;
+                dlLink.href = j.csv_url;
+                dlLink.textContent = "Download latest CSV";
+                dlLink.style.display = "inline-block";
+                
+            } catch(e) {
+                benchOut.textContent = "Benchmark failed: " + e.message;
+            } finally { 
+                benchBtn.disabled = false; 
+            }
+        });
     </script>
     <!-- Quantum Grid Module -->
     <script src="/static/quantum-grid.js"></script>
