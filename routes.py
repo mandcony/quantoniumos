@@ -334,9 +334,27 @@ def benchmark():
     
     Enhanced to return detailed results for visualization.
     """
-    data = request.get_json()
-    base_pt = data.get("plaintext")
-    base_key = data.get("key")
+    # Log request information for debugging
+    import logging
+    logger = logging.getLogger("benchmark_endpoint")
+    logger.setLevel(logging.DEBUG)
+    
+    logger.info(f"Benchmark request received - Content-Type: {request.headers.get('Content-Type')}")
+    
+    try:
+        data = request.get_json()
+        logger.info(f"Request data: {data}")
+    except Exception as e:
+        logger.error(f"Failed to parse JSON: {str(e)}")
+        return jsonify(sign_response({
+            "status": "error",
+            "detail": f"JSON parse error: {str(e)}"
+        })), 400
+    
+    base_pt = data.get("plaintext") if data else None
+    base_key = data.get("key") if data else None
+    
+    logger.info(f"Extracted values - PT: {base_pt}, Key: {base_key}")
     
     if not (base_pt and base_key):
         return jsonify(sign_response({
