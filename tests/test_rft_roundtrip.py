@@ -1,6 +1,6 @@
 import numpy as np, pytest, sys, os  
 sys.path.append(os.path.abspath("."))               # add root to path  
-from api.symbolic_interface import run_rft, inverse_rft # thin wrappers to DLL
+from api.symbolic_interface import run_rft, inverse_rft  # Updated to use core implementation
 
 VECTORS = [  
     np.random.rand(64).tolist(),  

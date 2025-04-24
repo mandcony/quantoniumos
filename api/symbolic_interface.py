@@ -33,11 +33,14 @@ def run_rft(waveform: List[float]) -> List[complex]:
     Returns:
         Complex values representing the frequency components
     """
-    # Convert to numpy array for FFT
-    wave_arr = np.array(waveform)
-    # Perform FFT
-    fft_result = np.fft.fft(wave_arr)
-    return fft_result.tolist()
+    # Import the core implementation
+    from core.encryption.resonance_fourier import resonance_fourier_transform
+    
+    # Apply the transform
+    spectrum = resonance_fourier_transform(waveform)
+    
+    # Extract the complex values for the roundtrip test
+    return [complex_val for _, complex_val in spectrum]
 
 def inverse_rft(freq_components: List[complex]) -> List[float]:
     """
@@ -50,12 +53,15 @@ def inverse_rft(freq_components: List[complex]) -> List[float]:
     Returns:
         Real waveform values
     """
-    # Convert to numpy array for inverse FFT
-    freq_arr = np.array(freq_components)
-    # Perform inverse FFT
-    ifft_result = np.fft.ifft(freq_arr)
-    # Return real part as float list
-    return ifft_result.real.tolist()
+    # Import the core implementation
+    from core.encryption.resonance_fourier import inverse_resonance_fourier_transform
+    
+    # Reconstruct the frequency-value pairs
+    n = len(freq_components)
+    spectrum = [(k/n, freq_components[k]) for k in range(n)]
+    
+    # Apply the inverse transform
+    return inverse_resonance_fourier_transform(spectrum)
 
 def encrypt_data(plaintext: str, key: str) -> Dict[str, Any]:
     """
