@@ -227,7 +227,11 @@ def _fallback_rft(data: bytes) -> Tuple[List[float], float]:
         bins.append(abs(sum_val))
     
     # Calculate harmonic resonance
-    hr = max(bins) / (sum(bins) / len(bins)) if bins else 0.0
+    if not bins or sum(bins) == 0:
+        hr = 0.0
+    else:
+        avg = sum(bins) / len(bins)
+        hr = max(bins) / avg if avg > 0 else 0.0
     
     return bins, hr
 

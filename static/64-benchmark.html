@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - 64-Perturbation Benchmark</title>
+    <link rel="stylesheet" href="/wave_ui/wave.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: #111;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .logo {
+            height: 40px;
+            margin-right: 20px;
+        }
+        
+        .container {
+            flex: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .card {
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .nav {
+            display: flex;
+            background-color: #111;
+            padding: 10px 20px;
+        }
+        
+        .nav a {
+            color: #ccc;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+        
+        .nav a:hover {
+            color: #fff;
+        }
+        
+        .nav a.active {
+            color: #fff;
+            border-bottom: 2px solid #fff;
+        }
+        
+        h1, h2, h3 {
+            color: #fff;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        
+        input, textarea {
+            width: 100%;
+            background-color: #222;
+            color: #fff;
+            border: 1px solid #333;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button:hover {
+            background-color: #444;
+        }
+        
+        pre {
+            background-color: #222;
+            padding: 10px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            border: 1px solid #333;
+        }
+        
+        .output {
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        table, th, td {
+            border: 1px solid #333;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #222;
+        }
+        
+        .metric-card {
+            display: inline-block;
+            width: calc(25% - 20px);
+            margin: 10px;
+            text-align: center;
+            background-color: #222;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            background-color: #222;
+            height: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #555;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+        
+        /* Results section */
+        .results-container {
+            display: none;
+        }
+        
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .chart {
+            width: 48%;
+            margin-bottom: 20px;
+            height: 300px;
+            background-color: #222;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        
+        .hide {
+            display: none;
+        }
+        
+        /* Tab design */
+        .tab-content {
+            display: none;
+            padding: 15px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Bloom filter visualization */
+        .bloom-filter-visual {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .bloom-cells {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .bloom-cell {
+            width: 12px;
+            height: 12px;
+            margin: 1px;
+            background-color: #333;
+            display: inline-block;
+        }
+        
+        .bloom-cell.active {
+            background-color: #fff;
+        }
+        
+        /* Bit flipping visualization */
+        .bit-flip-demo {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .bits-container {
+            font-family: monospace;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 5px;
+            background-color: #222;
+            width: 100%;
+        }
+        
+        .flipped {
+            color: #f00;
+            font-weight: bold;
+        }
+        
+        /* Download section */
+        .download-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background-color: #444;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .download-btn:hover {
+            background-color: #555;
+        }
+        
+        /* Loading indicator */
+        .loader {
+            border: 4px solid #333;
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/static/images/qos.png" alt="QuantoniumOS Logo" class="logo">
+        <h1>QuantoniumOS</h1>
+    </div>
+    
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/resonance-encrypt">Encryption</a>
+        <a href="/64-benchmark" class="active">64-Perturbation Benchmark</a>
+        <a href="/quantum-grid">Quantum Grid</a>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <h2>64-Perturbation Benchmark</h2>
+            <p>This benchmark validates the Symbolic Avalanche property of the encryption algorithm by performing 64 individual tests:</p>
+            <ul>
+                <li>Base test with original plaintext and key</li>
+                <li>32 tests with individual bit flips in the plaintext</li>
+                <li>31 tests with individual bit flips in the key</li>
+            </ul>
+            <p>The benchmark measures the avalanche effect - how a small change in input produces large changes in output, which is essential for cryptographic security.</p>
+        </div>
+        
+        <div class="card" id="benchmark-form">
+            <h3>Run Benchmark</h3>
+            <div class="input-group">
+                <label for="plaintext">Plaintext:</label>
+                <textarea id="plaintext" rows="3" placeholder="Enter plaintext to test"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="key">Encryption Key:</label>
+                <textarea id="key" rows="3" placeholder="Enter encryption key"></textarea>
+            </div>
+            <button id="start-benchmark" onclick="startBenchmark()">Start 64-Perturbation Benchmark</button>
+            
+            <!-- Progress indicator -->
+            <div class="progress-container" style="display: none;" id="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+                <div class="progress-text" id="progress-text">0%</div>
+            </div>
+            <div class="loader" id="loader"></div>
+        </div>
+        
+        <!-- Results will be shown here -->
+        <div class="results-container" id="results-container">
+            <div class="card">
+                <h3>Benchmark Results</h3>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="openTab(event, 'summary-tab')">Summary</button>
+                    <button class="tab-btn" onclick="openTab(event, 'details-tab')">Details</button>
+                    <button class="tab-btn" onclick="openTab(event, 'visualization-tab')">Visualization</button>
+                    <button class="tab-btn" onclick="openTab(event, 'bloom-tab')">Bloom Filter</button>
+                </div>
+                
+                <!-- Summary Tab -->
+                <div id="summary-tab" class="tab-content active">
+                    <div class="metric-cards">
+                        <div class="metric-card">
+                            <div>Max WC Delta</div>
+                            <div class="metric-value" id="max-wc-delta">-</div>
+                        </div>
+                        <div class="metric-card">
+                            <div>Max HR Delta</div>
+                            <div class="metric-value" id="max-hr-delta">-</div>
+                        </div>
+                        <div class="metric-card">
+                            <div>Avalanche Score</div>
+                            <div class="metric-value" id="avalanche-score">-</div>
+                        </div>
+                        <div class="metric-card">
+                            <div>Tests Completed</div>
+                            <div class="metric-value" id="tests-completed">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="download-section">
+                        <h4>Download Complete Results</h4>
+                        <p>Download the complete benchmark results in CSV format for detailed analysis or record-keeping.</p>
+                        <a href="#" id="download-csv" class="download-btn">Download CSV</a>
+                    </div>
+                    
+                    <div>
+                        <h4>Benchmark Summary</h4>
+                        <p>The 64-Perturbation Benchmark evaluates the cryptographic strength of the symbolic encryption algorithm by measuring how effectively small changes in input propagate through the system.</p>
+                        <p>The test flips individual bits in both plaintext and key to observe the cascading effects in the generated ciphertext and related metrics.</p>
+                        <p>This is a crucial property for secure encryption algorithms and validates the symbolic avalanche property claimed in the patent.</p>
+                    </div>
+                </div>
+                
+                <!-- Details Tab -->
+                <div id="details-tab" class="tab-content">
+                    <h4>Test Details</h4>
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Test ID</th>
+                                <th>Test Type</th>
+                                <th>Bit Position</th>
+                                <th>HR</th>
+                                <th>WC</th>
+                                <th>Entropy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                            <!-- Results will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Visualization Tab -->
+                <div id="visualization-tab" class="tab-content">
+                    <h4>Avalanche Visualization</h4>
+                    <p>The visualization below demonstrates the bit-flipping effect and how it propagates through the encryption algorithm.</p>
+                    
+                    <div class="bit-flip-demo">
+                        <h5>Original Input:</h5>
+                        <div class="bits-container" id="original-bits">
+                            <!-- Original bit pattern -->
+                        </div>
+                        
+                        <h5>Flipped Input (1 bit change):</h5>
+                        <div class="bits-container" id="flipped-bits">
+                            <!-- Flipped bit pattern -->
+                        </div>
+                        
+                        <h5>Original Output:</h5>
+                        <div class="bits-container" id="original-output">
+                            <!-- Original output pattern -->
+                        </div>
+                        
+                        <h5>Changed Output:</h5>
+                        <div class="bits-container" id="changed-output">
+                            <!-- Changed output pattern -->
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart" id="hr-chart">
+                            <!-- HR Chart will be rendered here -->
+                        </div>
+                        <div class="chart" id="wc-chart">
+                            <!-- WC Chart will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bloom Filter Tab -->
+                <div id="bloom-tab" class="tab-content">
+                    <h4>Bloom Filter Verification</h4>
+                    <p>The Bloom filter is used to verify the uniqueness of cryptographic hashes generated by the system.</p>
+                    <p>This visualization shows how the benchmark results populate a bloom filter, ensuring no collisions occur.</p>
+                    
+                    <div class="bloom-filter-visual">
+                        <h5>Bloom Filter Cells</h5>
+                        <div class="bloom-cells" id="bloom-cells">
+                            <!-- Bloom filter cells will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="verify-hash">Verify Hash:</label>
+                        <input type="text" id="verify-hash" placeholder="Enter a hash to verify against the bloom filter">
+                    </div>
+                    <button onclick="verifyHash()">Check Hash</button>
+                    <div id="verify-result" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Benchmark functionality
+        let benchmarkResults = null;
+        let bloomFilter = null;
+        let csvUrl = null;
+        
+        // Initialize Bloom Filter implementation
+        class BloomFilter {
+            constructor(size = 1024, hashFunctions = 3) {
+                this.size = size;
+                this.filter = new Array(size).fill(false);
+                this.hashFunctions = hashFunctions;
+            }
+            
+            // Hash functions
+            hash1(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                    hash = hash & hash;
+                }
+                return Math.abs(hash % this.size);
+            }
+            
+            hash2(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = ((hash << 7) - hash) + str.charCodeAt(i);
+                    hash = hash & hash;
+                }
+                return Math.abs(hash % this.size);
+            }
+            
+            hash3(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = ((hash << 3) - hash) + str.charCodeAt(i);
+                    hash = hash & hash;
+                }
+                return Math.abs(hash % this.size);
+            }
+            
+            // Add item to filter
+            add(item) {
+                const h1 = this.hash1(item);
+                const h2 = this.hash2(item);
+                const h3 = this.hash3(item);
+                
+                this.filter[h1] = true;
+                this.filter[h2] = true;
+                this.filter[h3] = true;
+                
+                // Return indices for visualization
+                return [h1, h2, h3];
+            }
+            
+            // Check if item might be in filter
+            check(item) {
+                const h1 = this.hash1(item);
+                const h2 = this.hash2(item);
+                const h3 = this.hash3(item);
+                
+                return this.filter[h1] && this.filter[h2] && this.filter[h3];
+            }
+            
+            // Get indices without adding
+            getIndices(item) {
+                return [
+                    this.hash1(item),
+                    this.hash2(item),
+                    this.hash3(item)
+                ];
+            }
+        }
+        
+        // Start the benchmark process
+        function startBenchmark() {
+            const plaintext = document.getElementById('plaintext').value;
+            const key = document.getElementById('key').value;
+            
+            if (!plaintext || !key) {
+                alert('Please enter both plaintext and key');
+                return;
+            }
+            
+            // Show progress container
+            document.getElementById('progress-container').style.display = 'block';
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('start-benchmark').disabled = true;
+            
+            // Reset progress
+            updateProgress(0, 'Starting benchmark...');
+            
+            // Make API call to run the benchmark
+            fetch('/api/benchmark', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    plaintext: plaintext,
+                    key: key
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                updateProgress(50, 'Processing results...');
+                return response.json();
+            })
+            .then(data => {
+                // Complete progress
+                updateProgress(100, 'Complete!');
+                
+                // Store results
+                benchmarkResults = data;
+                csvUrl = data.csv_url;
+                
+                // Set up CSV download link
+                document.getElementById('download-csv').href = csvUrl;
+                
+                // Display results
+                displayResults(data);
+                
+                // Hide loader
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('start-benchmark').disabled = false;
+                
+                // Show results container
+                document.getElementById('results-container').style.display = 'block';
+                
+                // Fetch the CSV data to populate the details
+                fetchCSVData(csvUrl);
+            })
+            .catch(error => {
+                console.error('Error running benchmark:', error);
+                alert('Error running benchmark: ' + error.message);
+                document.getElementById('progress-container').style.display = 'none';
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('start-benchmark').disabled = false;
+            });
+        }
+        
+        // Update progress bar
+        function updateProgress(percent, message) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            progressBar.style.width = percent + '%';
+            progressText.innerText = message || percent + '%';
+        }
+        
+        // Display summary results
+        function displayResults(data) {
+            document.getElementById('max-wc-delta').innerText = data.delta_max_wc.toFixed(3);
+            document.getElementById('max-hr-delta').innerText = data.delta_max_hr.toFixed(3);
+            document.getElementById('avalanche-score').innerText = 
+                (((data.delta_max_wc + data.delta_max_hr) / 2) * 100).toFixed(1) + '%';
+            document.getElementById('tests-completed').innerText = data.rows_written;
+            
+            // Initialize bloom filter
+            bloomFilter = new BloomFilter(256, 3);
+            
+            // Set up the bloom filter visualization
+            setupBloomFilter();
+        }
+        
+        // Fetch CSV data to populate detailed results
+        function fetchCSVData(url) {
+            fetch(url)
+            .then(response => response.text())
+            .then(csvData => {
+                // Parse CSV
+                const rows = csvData.split('\n');
+                const headers = rows[0].split(',');
+                
+                const tableBody = document.getElementById('results-body');
+                tableBody.innerHTML = '';
+                
+                // Prepare data for charts
+                const hrValues = [];
+                const wcValues = [];
+                const labels = [];
+                
+                // Skip header row
+                for (let i = 1; i < rows.length; i++) {
+                    if (!rows[i].trim()) continue;
+                    
+                    const cells = rows[i].split(',');
+                    const rowData = {};
+                    
+                    // Map headers to cell values
+                    headers.forEach((header, index) => {
+                        rowData[header] = cells[index];
+                    });
+                    
+                    // Add to table
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${rowData.TestID}</td>
+                        <td>${rowData.Vector}</td>
+                        <td>${rowData.BitPos}</td>
+                        <td>${parseFloat(rowData.HR).toFixed(3)}</td>
+                        <td>${parseFloat(rowData.WC).toFixed(3)}</td>
+                        <td>${parseFloat(rowData.Entropy).toFixed(3)}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                    
+                    // Add to chart data
+                    if (rowData.TestID > 0) { // Skip base test
+                        labels.push(`Test ${rowData.TestID}`);
+                        hrValues.push(parseFloat(rowData.HR));
+                        wcValues.push(parseFloat(rowData.WC));
+                    }
+                    
+                    // Add to bloom filter
+                    if (rowData.PT && rowData.KEY) {
+                        const combinedHash = hashString(rowData.PT + rowData.KEY);
+                        const indices = bloomFilter.add(combinedHash);
+                        
+                        // Visualize bloom filter additions
+                        indices.forEach(index => {
+                            const cell = document.querySelector(`.bloom-cell[data-index="${index}"]`);
+                            if (cell) {
+                                cell.classList.add('active');
+                            }
+                        });
+                    }
+                    
+                    // Set up bit flip visualization if it's the first test
+                    if (rowData.TestID == 1) {
+                        setupBitFlipVisualization(rows[0], rowData, rows[1]);
+                    }
+                }
+                
+                // Create charts
+                createHRChart(labels, hrValues);
+                createWCChart(labels, wcValues);
+            })
+            .catch(error => {
+                console.error('Error fetching CSV data:', error);
+            });
+        }
+        
+        // Set up bloom filter visualization
+        function setupBloomFilter() {
+            const container = document.getElementById('bloom-cells');
+            container.innerHTML = '';
+            
+            // Create 256 cells (16x16 grid)
+            for (let i = 0; i < 256; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'bloom-cell';
+                cell.setAttribute('data-index', i);
+                container.appendChild(cell);
+            }
+        }
+        
+        // Verify a hash against the bloom filter
+        function verifyHash() {
+            const hash = document.getElementById('verify-hash').value;
+            const resultDiv = document.getElementById('verify-result');
+            
+            if (!hash) {
+                resultDiv.innerHTML = 'Please enter a hash';
+                return;
+            }
+            
+            if (!bloomFilter) {
+                resultDiv.innerHTML = 'Bloom filter not initialized. Run a benchmark first.';
+                return;
+            }
+            
+            // Get indices without adding to filter
+            const indices = bloomFilter.getIndices(hash);
+            
+            // Reset all highlights
+            document.querySelectorAll('.bloom-cell').forEach(cell => {
+                cell.style.border = '';
+            });
+            
+            // Highlight cells
+            indices.forEach(index => {
+                const cell = document.querySelector(`.bloom-cell[data-index="${index}"]`);
+                if (cell) {
+                    cell.style.border = '1px solid red';
+                }
+            });
+            
+            // Check if hash might be in the filter
+            const mightContain = bloomFilter.check(hash);
+            
+            if (mightContain) {
+                resultDiv.innerHTML = 'Hash might exist in the filter (possible match)';
+            } else {
+                resultDiv.innerHTML = 'Hash definitely does not exist in the filter';
+            }
+        }
+        
+        // Set up bit flip visualization
+        function setupBitFlipVisualization(baseTest, firstTest) {
+            // Get binary representation of the original PT and flipped PT
+            const originalBits = hexToBinary(baseTest.PT || '');
+            const flippedBits = hexToBinary(firstTest.PT || '');
+            
+            // Find the difference
+            const flippedBitPosition = findFlippedBit(originalBits, flippedBits);
+            
+            // Set original bits
+            const originalBitsEl = document.getElementById('original-bits');
+            originalBitsEl.innerHTML = formatBits(originalBits);
+            
+            // Set flipped bits
+            const flippedBitsEl = document.getElementById('flipped-bits');
+            flippedBitsEl.innerHTML = formatBits(flippedBits, flippedBitPosition);
+            
+            // Set original output
+            const originalOutputEl = document.getElementById('original-output');
+            originalOutputEl.innerHTML = formatBits(hexToBinary(baseTest.Hash || ''));
+            
+            // Set changed output
+            const changedOutputEl = document.getElementById('changed-output');
+            changedOutputEl.innerHTML = formatBits(hexToBinary(firstTest.Hash || ''));
+        }
+        
+        // Convert hex to binary string
+        function hexToBinary(hex) {
+            let binary = '';
+            for (let i = 0; i < hex.length; i++) {
+                const byte = parseInt(hex[i], 16).toString(2).padStart(4, '0');
+                binary += byte;
+            }
+            return binary;
+        }
+        
+        // Find the bit that was flipped
+        function findFlippedBit(str1, str2) {
+            for (let i = 0; i < str1.length && i < str2.length; i++) {
+                if (str1[i] !== str2[i]) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        
+        // Format bits for display with optional highlighting
+        function formatBits(bits, highlightPos = -1) {
+            let result = '';
+            for (let i = 0; i < bits.length; i++) {
+                if (i === highlightPos) {
+                    result += `<span class="flipped">${bits[i]}</span>`;
+                } else {
+                    result += bits[i];
+                }
+                
+                // Add space every 8 bits for readability
+                if ((i + 1) % 8 === 0) {
+                    result += ' ';
+                }
+            }
+            return result;
+        }
+        
+        // Create HR Chart
+        function createHRChart(labels, values) {
+            const ctx = document.getElementById('hr-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Harmonic Resonance',
+                        data: values,
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        borderColor: 'rgba(255, 255, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                maxRotation: 90,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Create WC Chart
+        function createWCChart(labels, values) {
+            const ctx = document.getElementById('wc-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Waveform Coherence',
+                        data: values,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                maxRotation: 90,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Tab functionality
+        function openTab(evt, tabName) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab and activate button
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+        
+        // Simple hash function for demo purposes
+        function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash = hash & hash;
+            }
+            return hash.toString(16).padStart(8, '0');
+        }
+    </script>
+</body>
+</html>
