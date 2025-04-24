@@ -560,6 +560,93 @@
             50% { transform: scaleY(1.2); }
             100% { transform: scaleY(1); }
         }
+        
+        /* 64-Perturbation Benchmark styles */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background-color: var(--quantum-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .results-table th, .results-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+        
+        .results-table th {
+            background-color: #222;
+            position: sticky;
+            top: 0;
+        }
+        
+        .bloom-cells {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+            margin: 20px 0;
+        }
+        
+        .bloom-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: #333;
+            border-radius: 2px;
+            transition: background-color 0.2s;
+        }
+        
+        .bloom-cell.active {
+            background-color: var(--quantum-color);
+        }
+        
+        .bit-flip-container {
+            margin-top: 20px;
+            font-family: monospace;
+        }
+        
+        .bit-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        
+        .bit-label {
+            width: 150px;
+            text-align: right;
+            padding-right: 15px;
+        }
+        
+        .bit-string {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .flipped {
+            color: #FF5722;
+            font-weight: bold;
+            background-color: rgba(255, 87, 34, 0.2);
+            padding: 0 2px;
+            border-radius: 3px;
+        }
     </style>
     
     <!-- Wave UI Module Styles and Scripts -->
