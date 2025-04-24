@@ -1383,6 +1383,18 @@
                 });
             });
             
+            // Add direct event listener for benchmark button
+            const benchmarkButton = document.getElementById('start-benchmark');
+            if (benchmarkButton) {
+                benchmarkButton.addEventListener('click', function() {
+                    console.log("Benchmark button clicked");
+                    runBenchmark();
+                });
+                console.log("Added direct event listener to benchmark button");
+            } else {
+                console.error("Benchmark button not found during init");
+            }
+            
             // Set up tab navigation within sections
             encryptionTabs.forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -2955,19 +2967,6 @@ ${entropyValue}`;
         } else {
             init();
         }
-
-        // Add direct event listener for benchmark button
-        document.addEventListener('DOMContentLoaded', function() {
-            const benchmarkButton = document.getElementById('start-benchmark');
-            if (benchmarkButton) {
-                benchmarkButton.addEventListener('click', function() {
-                    runBenchmark();
-                });
-                console.log("Added direct event listener to benchmark button");
-            } else {
-                console.error("Benchmark button not found during init");
-            }
-        });
         
         // Hash string for bloom filter
         function hashString(str) {
