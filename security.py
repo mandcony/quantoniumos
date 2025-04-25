@@ -27,8 +27,24 @@ def get_cors_origins():
     Returns list of allowed origins
     """
     origins_env = os.environ.get('CORS_ORIGINS', '')
+    
+    # If no origins are configured, use safe defaults (self and localhost)
     if not origins_env:
-        return []
+        # Include the Replit environment domain and localhost for development
+        default_origins = []
+        replit_domains = os.environ.get('REPLIT_DOMAINS', '')
+        if replit_domains:
+            # Replit domains are separated by commas
+            for domain in replit_domains.split(','):
+                # Add both http and https versions
+                default_origins.append(f"https://{domain.strip()}")
+                
+        # Add localhost for development
+        default_origins.extend([
+            'http://localhost:5000',
+            'http://localhost:3000'
+        ])
+        return default_origins
     
     # Split by comma and strip whitespace
     return [origin.strip() for origin in origins_env.split(',')]
@@ -37,14 +53,23 @@ def cors_check():
     """
     Check if the request's Origin header is in the allowed list
     If not, abort with 403 Forbidden
+    
+    Exception: API endpoints and static resources are allowed from any origin.
     """
     origin = request.headers.get('Origin')
     if not origin:
+        return  # Same-origin requests always allowed
+    
+    # Allow API endpoints and static resources from any origin
+    api_endpoints = request.path.startswith('/api/')
+    static_resources = request.path.startswith('/static/') or request.path.startswith('/wave_ui/')
+    if api_endpoints or static_resources:
         return
     
+    # For all other endpoints, check if the origin is in the allowed list
     allowed_origins = get_cors_origins()
     if allowed_origins and origin not in allowed_origins:
-        logger.warning(f"Rejected cross-origin request from {origin}")
+        logger.warning(f"Rejected cross-origin request from {origin} to {request.path}")
         abort(403, f"Origin {origin} not allowed")
 
 def configure_security(app: Flask):
@@ -113,16 +138,29 @@ def configure_security(app: Flask):
         origin = request.headers.get('Origin')
         allowed_origins = get_cors_origins()
         
-        # If we have allowed origins and the request has an origin header
-        if allowed_origins and origin:
-            # Only set CORS headers if the origin is allowed
-            if origin in allowed_origins:
-                response.headers['Access-Control-Allow-Origin'] = origin
-                response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-                response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, Authorization'
-                response.headers['Access-Control-Allow-Credentials'] = 'true'
-                response.headers['Vary'] = 'Origin'  # Vary header is important for caching
-            # If no allowed origins are configured, default to same-origin policy (don't set CORS headers)
+        # Special handling for api endpoints that need to be accessible
+        api_endpoints = request.path.startswith('/api/')
+        static_resources = request.path.startswith('/static/') or request.path.startswith('/wave_ui/')
+        
+        # If this is a same-origin request (no Origin header), always allow it
+        if not origin:
+            # No CORS headers needed for same-origin requests
+            pass
+        # If this is an allowed origin, add appropriate headers
+        elif allowed_origins and origin in allowed_origins:
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, Authorization'
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Vary'] = 'Origin'  # Vary header is important for caching
+        # Specific allowances for API endpoints and static resources
+        elif api_endpoints or static_resources:
+            # For API and static resources, allow cross-origin access but not credentials
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, Authorization'
+            response.headers['Vary'] = 'Origin'
+        # In development mode, be more permissive
         elif app.config['IS_DEVELOPMENT']:
             # In development mode only, allow all origins for easier testing
             response.headers['Access-Control-Allow-Origin'] = '*'
