@@ -179,10 +179,20 @@ def log_security_event(
     event_id = str(uuid.uuid4())
     
     # Get the calling function details
-    frame = inspect.currentframe().f_back
-    module_name = frame.f_globals['__name__']
-    function_name = frame.f_code.co_name
-    line_number = frame.f_lineno
+    module_name = "unknown_module"
+    function_name = "unknown_function"
+    line_number = 0
+    
+    try:
+        frame = inspect.currentframe()
+        if frame and frame.f_back:
+            frame = frame.f_back
+            module_name = frame.f_globals.get('__name__', 'unknown_module')
+            function_name = frame.f_code.co_name if frame.f_code else 'unknown_function'
+            line_number = frame.f_lineno if hasattr(frame, 'f_lineno') else 0
+    except (AttributeError, TypeError):
+        # Handle edge cases where frame information is not available
+        pass
     
     # Get correlation ID from request context or generate new one
     correlation_id = None
@@ -216,20 +226,31 @@ def log_security_event(
     request_ip = None
     api_key_prefix = None
     
-    if request:
-        request_path = request.path
-        request_method = request.method
-        request_ip = request.remote_addr
-        
-        # Extract API key information for logging (safely)
-        auth_header = request.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Bearer ') and len(auth_header) > 15:
-            # Extract first 8 chars of the token (safe to log)
-            api_key_prefix = auth_header[7:15] + "..."
+    # Safely check if we're in a request context
+    try:
+        if hasattr(request, '_get_current_object'):
+            req = request._get_current_object()
+            if req:
+                request_path = req.path
+                request_method = req.method
+                request_ip = req.remote_addr
+                
+                # Extract API key information for logging (safely)
+                auth_header = req.headers.get('Authorization')
+                if auth_header and auth_header.startswith('Bearer ') and len(auth_header) > 15:
+                    # Extract first 8 chars of the token (safe to log)
+                    api_key_prefix = auth_header[7:15] + "..."
+    except (RuntimeError, AttributeError):
+        # Not in a request context
+        pass
     
     # Get user ID from context if not provided
-    if user_id is None and hasattr(g, 'user') and g.user:
-        user_id = g.user.get('id')
+    try:
+        if user_id is None and hasattr(g, 'user') and g.user:
+            user_id = g.user.get('id')
+    except RuntimeError:
+        # Not in an application context, can't access g
+        pass
     
     # Create the record
     record = security_logger.makeRecord(
@@ -303,7 +324,10 @@ def log_auth_failure(user_id=None, message=None, metadata=None, reason=None):
     if reason and not metadata:
         metadata = {"reason": reason}
     elif reason:
-        metadata = metadata.copy()
+        if metadata is None:
+            metadata = {}
+        else:
+            metadata = dict(metadata)  # safer than .copy() for None
         metadata["reason"] = reason
     
     return log_security_event(

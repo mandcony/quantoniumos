@@ -5,11 +5,18 @@ Implements security middleware, headers, and protection mechanisms.
 """
 
 import os
-from flask import request, abort, Flask
+import platform
+from flask import request, abort, Flask, g, jsonify
 from flask_talisman import Talisman
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import logging
+
+# Import enhanced security logging
+from utils.security_logger import (
+    log_security_event, SecurityEventType, SecurityOutcome,
+    log_rate_limit_exceeded, log_suspicious_activity
+)
 
 # Configure logger
 logger = logging.getLogger("quantonium_security")
@@ -70,7 +77,21 @@ def cors_check():
     # For all other endpoints, check if the origin is in the allowed list
     allowed_origins = get_cors_origins()
     if allowed_origins and origin not in allowed_origins:
-        logger.warning(f"Rejected cross-origin request from {origin} to {request.path}")
+        # Log security event with enhanced context
+        log_security_event(
+            event_type=SecurityEventType.ACCESS_DENIED,
+            message=f"Rejected cross-origin request from {origin} to {request.path}",
+            outcome=SecurityOutcome.BLOCKED,
+            level=logging.WARNING,
+            target_resource=request.path,
+            metadata={
+                "origin": origin,
+                "ip_address": request.remote_addr,
+                "allowed_origins": allowed_origins,
+                "user_agent": request.headers.get('User-Agent', 'Unknown')
+            },
+            security_labels=["cors-violation"]
+        )
         abort(403, f"Origin {origin} not allowed")
 
 def configure_security(app: Flask):
@@ -130,21 +151,43 @@ def configure_security(app: Flask):
     else:
         default_limits = ["120 per minute", "3000 per day"]
     
-    # Create the limiter with Redis backend
+    # Create a simple limiter with basic configuration
     limiter = Limiter(
         app=app,
         key_func=get_remote_address,
-        default_limits=default_limits,
-        storage_uri=storage_uri,
-        storage_options=storage_options,
-        strategy="fixed-window",      # Standard algorithm
-        # Enable header tracking of rate limits
-        header_name_mapping={
-            "X-RateLimit-Limit": "X-RateLimit-Limit",
-            "X-RateLimit-Remaining": "X-RateLimit-Remaining",
-            "X-RateLimit-Reset": "X-RateLimit-Reset"
-        }
+        default_limits=default_limits
     )
+
+    # Register a custom error handler for 429 errors
+    @app.errorhandler(429)
+    def ratelimit_error_handler(e):
+        """Custom rate limit exceeded handler with enhanced security logging"""
+        # Log the rate limit event with detailed context
+        log_rate_limit_exceeded(
+            client_ip=request.remote_addr,
+            resource=request.path,
+            message=f"Rate limit exceeded: {str(e)}",
+            metadata={
+                "user_agent": request.headers.get('User-Agent', 'Unknown'),
+                "method": request.method,
+                "referrer": request.referrer,
+                "endpoint": request.endpoint
+            }
+        )
+        
+        # Create a custom JSON response
+        response = jsonify({
+            "error": "Rate limit exceeded",
+            "message": str(e),
+            "status_code": 429,
+            "retry_after": 60
+        })
+        response.status_code = 429
+        
+        # Add Retry-After header to help legitimate clients
+        response.headers['Retry-After'] = '60'
+            
+        return response
     
     # Apply API limits with decorators rather than direct route application
     # These will be used when routes are registered
