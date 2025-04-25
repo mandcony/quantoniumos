@@ -8,11 +8,16 @@ Includes new authentication, non-repudiation, and inverse RFT endpoints.
 import os
 import base64
 import json
+import logging
 import time
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
+from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort, current_app
+
+# Configure logger for API routes
+logger = logging.getLogger("quantonium_api")
+logger.setLevel(logging.INFO)
 from core.protected.symbolic_interface import get_interface
 from models import (
     EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest,
@@ -58,58 +63,132 @@ def root_status():
 @api.route("/encrypt", methods=["POST"])
 def encrypt():
     """Encrypt data using resonance techniques"""
-    data = EncryptRequest(**request.get_json())
-    result = symbolic.encrypt(data.plaintext, data.key)
+    try:
+        # Parse and validate the request data with enhanced error handling
+        try:
+            data = EncryptRequest(**request.get_json())
+        except Exception as validation_error:
+            # Construct user-friendly error message
+            error_detail = str(validation_error)
+            
+            # Extract specific validation errors for better user guidance
+            if "Key length must be between" in error_detail:
+                message = "Key must be at least 8 characters long and contain both letters and numbers"
+            elif "Plaintext too large" in error_detail:
+                message = "Input data is too large. Maximum size is 10MB."
+            else:
+                message = f"Validation error: {error_detail}"
+            
+            # Log the error with full details for debugging
+            logging.warning(f"Encryption validation error: {error_detail}")
+            
+            # Return a structured error response
+            return jsonify(sign_response({
+                "success": False,
+                "error": message,
+                "error_type": "validation_error"
+            })), 400
+            
+        # Process the validated request
+        result = symbolic.encrypt(data.plaintext, data.key)
+        
+        # Check wave coherence for tamper detection
+        if isinstance(result, dict) and result.get('wave_coherence', 1.0) < 0.55:
+            abort(400, 'Symbolic tamper detected')
+        
+        hash_value = result.get('ciphertext', result) if isinstance(result, dict) else result
+        
+        # Register the hash-container mapping (create a container sealed by this hash)
+        # Store the encryption key with the container to enforce lock-and-key mechanism
+        from orchestration.resonance_manager import register_container
+        register_container(
+            hash_value=hash_value,
+            plaintext=data.plaintext,
+            ciphertext=f"ENCRYPTED:{data.plaintext}",  # Simplified for this implementation
+            key=data.key  # Store the key to verify during unlocking
+        )
+        
+        # Update the wave visualization data with this encryption operation
+        update_encrypt_data(ciphertext=hash_value, key=data.key)
+        
+        # Include the API key ID in response for audit purposes
+        response = {
+            "success": True,
+            "ciphertext": hash_value
+        }
+        
+        # Add key_id if available
+        if hasattr(g, 'api_key') and g.api_key:
+            response["key_id"] = g.api_key.key_id
+        
+        return jsonify(sign_response(response))
     
-    # Check wave coherence for tamper detection
-    if isinstance(result, dict) and result.get('wave_coherence', 1.0) < 0.55:
-        abort(400, 'Symbolic tamper detected')
-    
-    hash_value = result.get('ciphertext', result) if isinstance(result, dict) else result
-    
-    # Register the hash-container mapping (create a container sealed by this hash)
-    # Store the encryption key with the container to enforce lock-and-key mechanism
-    from orchestration.resonance_manager import register_container
-    register_container(
-        hash_value=hash_value,
-        plaintext=data.plaintext,
-        ciphertext=f"ENCRYPTED:{data.plaintext}",  # Simplified for this implementation
-        key=data.key  # Store the key to verify during unlocking
-    )
-    
-    # Update the wave visualization data with this encryption operation
-    update_encrypt_data(ciphertext=hash_value, key=data.key)
-    
-    # Include the API key ID in response for audit purposes
-    response = {
-        "ciphertext": hash_value
-    }
-    
-    # Add key_id if available
-    if hasattr(g, 'api_key') and g.api_key:
-        response["key_id"] = g.api_key.key_id
-    
-    return jsonify(sign_response(response))
+    except Exception as e:
+        # Catch any other errors and return a structured error response
+        logging.error(f"Encryption error: {str(e)}", exc_info=True)
+        return jsonify(sign_response({
+            "success": False,
+            "error": "An error occurred during encryption",
+            "error_type": "server_error",
+            "error_detail": str(e) if current_app.debug else None
+        })), 500
 
 @api.route("/decrypt", methods=["POST"])
 def decrypt():
     """Decrypt data using resonance techniques"""
-    data = DecryptRequest(**request.get_json())
-    result = symbolic.decrypt(data.ciphertext, data.key)
-    
-    # Update the wave visualization data with this decryption operation
-    update_encrypt_data(ciphertext=data.ciphertext, key=data.key)
-    
-    # Include the API key ID in response for audit purposes
-    response = {
-        "plaintext": result
-    }
-    
-    # Add key_id if available
-    if hasattr(g, 'api_key') and g.api_key:
-        response["key_id"] = g.api_key.key_id
-    
-    return jsonify(sign_response(response))
+    try:
+        # Parse and validate the request data with enhanced error handling
+        try:
+            data = DecryptRequest(**request.get_json())
+        except Exception as validation_error:
+            # Construct user-friendly error message
+            error_detail = str(validation_error)
+            
+            # Extract specific validation errors for better user guidance
+            if "Key length must be between" in error_detail:
+                message = "Key must be at least 8 characters long and contain both letters and numbers"
+            elif "ciphertext" in error_detail.lower():
+                message = "Invalid ciphertext format. Please provide a valid hash value."
+            else:
+                message = f"Validation error: {error_detail}"
+            
+            # Log the error with full details for debugging
+            logging.warning(f"Decryption validation error: {error_detail}")
+            
+            # Return a structured error response
+            return jsonify(sign_response({
+                "success": False,
+                "error": message,
+                "error_type": "validation_error"
+            })), 400
+        
+        # Process the validated request
+        result = symbolic.decrypt(data.ciphertext, data.key)
+        
+        # Update the wave visualization data with this decryption operation
+        update_encrypt_data(ciphertext=data.ciphertext, key=data.key)
+        
+        # Include the API key ID in response for audit purposes
+        response = {
+            "success": True,
+            "plaintext": result
+        }
+        
+        # Add key_id if available
+        if hasattr(g, 'api_key') and g.api_key:
+            response["key_id"] = g.api_key.key_id
+        
+        return jsonify(sign_response(response))
+        
+    except Exception as e:
+        # Catch any other errors and return a structured error response
+        logging.error(f"Decryption error: {str(e)}", exc_info=True)
+        return jsonify(sign_response({
+            "success": False,
+            "error": "An error occurred during decryption",
+            "error_type": "server_error",
+            "error_detail": str(e) if current_app.debug else None
+        })), 500
 
 @api.route("/simulate/rft", methods=["POST"])
 def simulate_rft():
