@@ -2809,11 +2809,11 @@ ${entropyValue}`;
             
             // Create formula elements
             if (isStressTest) {
-                // Stress test formulas
+                // Display formulas - generic quantum notation only, NOT actual algorithm
                 const formulas = [
-                    `ψ = (1/√2)^${Math.floor(qubitCount/3)} ⋅ |${Array(Math.floor(qubitCount/3)).fill('0').join('')}⟩`,
-                    `φ = H^⊗${qubitCount} |${Array(Math.min(10, qubitCount)).fill('0').join('')}...⟩`,
-                    `Σ = (1/√${2**Math.min(10, qubitCount)}) ⋅ ∑|x⟩`
+                    `|ψ⟩ = α|0⟩ + β|1⟩, where |α|² + |β|² = 1`,
+                    `|+⟩ = (|0⟩ + |1⟩)/√2, |−⟩ = (|0⟩ - |1⟩)/√2`,
+                    `|ψ⟩ = Σᵢ cᵢ|i⟩, where Σᵢ |cᵢ|² = 1`
                 ];
                 
                 formulas.forEach(formula => {
@@ -2825,11 +2825,11 @@ ${entropyValue}`;
                     elements.gridQuantumFormulas.appendChild(formulaElement);
                 });
             } else {
-                // Standard formulas
-                const hash = hashString(inputData || 'quantum');
+                // Standard quantum physics formulas - NOT related to proprietary algorithms
+                // These are only for display purposes using standard quantum notation
                 const formulas = [
-                    `|ψ⟩ = (1/√2) ⋅ (|${hash.substring(0,4)}⟩ + |${hash.substring(4,8)}⟩)`,
-                    `H^⊗${Math.floor(qubitCount/2)} |${Array(Math.min(10, Math.floor(qubitCount/2))).fill('0').join('')}⟩ = (1/√${2**Math.min(10, Math.floor(qubitCount/2))}) ⋅ ∑|x⟩`
+                    `|ψ⟩ = cos(θ/2)|0⟩ + sin(θ/2)e^(iφ)|1⟩`,
+                    `|ψ⟩ ⊗ |φ⟩ = |ψ, φ⟩`
                 ];
                 
                 formulas.forEach(formula => {

@@ -410,59 +410,65 @@ function runStressTest(elements) {
 
 // Simulate quantum results (frontend visualization only)
 function simulateQuantumResults(qubitCount, inputData, elements) {
-    // Get quantum qubits
+    // IMPORTANT: This is purely a UI visualization technique
+    // This contains NO proprietary algorithms or implementation details
+    // Standard quantum notation is used only for educational purposes
+    
+    // Get grid elements
     const qubits = elements.gridQubitGrid.querySelectorAll('.qubit');
     
-    // Simulate hadamard gates on first half of qubits
+    // Visualize standard quantum states (for education only)
     const midpoint = Math.floor(qubitCount / 2);
     
     qubits.forEach((qubit, index) => {
         const qubitValue = qubit.querySelector('.qubit-value');
         
         if (index < midpoint) {
-            // Superposition for first half
+            // Standard quantum notation (public domain concept)
             qubitValue.textContent = '|+⟩';
-            qubit.style.backgroundColor = 'rgba(106, 27, 154, 0.3)';  // Quantum color
+            qubit.style.backgroundColor = 'rgba(106, 27, 154, 0.3)';  // Purple shade
         } else {
-            // Random measured values for second half
+            // Random binary states (0/1) - standard visualization
             const value = Math.random() > 0.5 ? '|1⟩' : '|0⟩';
             qubitValue.textContent = value;
             if (value === '|1⟩') {
-                qubit.style.backgroundColor = 'rgba(0, 137, 123, 0.3)';  // Resonance color
+                qubit.style.backgroundColor = 'rgba(0, 137, 123, 0.3)';  // Teal shade
             } else {
-                qubit.style.backgroundColor = 'rgba(21, 101, 192, 0.3)';  // Symbolic color
+                qubit.style.backgroundColor = 'rgba(21, 101, 192, 0.3)';  // Blue shade
             }
             qubit.classList.add('qubit-measured');
         }
     });
     
     if (window.updateStatus) {
-        window.updateStatus(`Quantum process completed for ${qubitCount} qubits`, 'success');
+        window.updateStatus(`Visualization completed for ${qubitCount} states`, 'success');
     }
 }
 
-// Simulate stress test results
+// Simulate stress test results - purely a UI visualization
+// IMPORTANT: This contains NO proprietary algorithms or implementation details
+// This is solely for display purposes using standard notation
 function simulateStressTestResults(qubitCount, elements) {
-    // Get quantum qubits
+    // Get qubit UI elements
     const qubits = elements.gridQubitGrid.querySelectorAll('.qubit');
     
-    // For stress test, create an entangled pattern
+    // Simple visual pattern for stress test display
     qubits.forEach((qubit, index) => {
         const qubitValue = qubit.querySelector('.qubit-value');
         
         if (index % 3 === 0) {
-            // Every third qubit in |0⟩
+            // Standard quantum notation - ground state
             qubitValue.textContent = '|0⟩';
-            qubit.style.backgroundColor = 'rgba(21, 101, 192, 0.3)';  // Symbolic color
+            qubit.style.backgroundColor = 'rgba(21, 101, 192, 0.3)';  // Blue shade
         } else if (index % 3 === 1) {
-            // Every third+1 qubit in |1⟩
+            // Standard quantum notation - excited state
             qubitValue.textContent = '|1⟩';
-            qubit.style.backgroundColor = 'rgba(0, 137, 123, 0.3)';  // Resonance color
+            qubit.style.backgroundColor = 'rgba(0, 137, 123, 0.3)';  // Teal shade
             qubit.classList.add('qubit-measured');
         } else {
-            // Every third+2 qubit in |+⟩
+            // Standard quantum notation - superposition state
             qubitValue.textContent = '|+⟩';
-            qubit.style.backgroundColor = 'rgba(106, 27, 154, 0.3)';  // Quantum color
+            qubit.style.backgroundColor = 'rgba(106, 27, 154, 0.3)';  // Purple shade
         }
     });
 }
@@ -474,13 +480,14 @@ function updateFormulaDisplay(qubitCount, inputData, isStressTest, elements) {
     // Clear formulas
     elements.gridQuantumFormulas.innerHTML = '';
     
-    // Create formula elements
+    // Create formula elements - standard quantum notation only
+    // These are NOT proprietary algorithms - just educational display
     if (isStressTest) {
-        // Stress test formulas
+        // Generic quantum notation (standard physics)
         const formulas = [
-            `ψ = (1/√2)^${Math.floor(qubitCount/3)} ⋅ |${Array(Math.floor(qubitCount/3)).fill('0').join('')}⟩`,
-            `φ = H^⊗${qubitCount} |${Array(Math.min(10, qubitCount)).fill('0').join('')}...⟩`,
-            `Σ = (1/√${2**Math.min(10, qubitCount)}) ⋅ ∑|x⟩`
+            `|ψ⟩ = α|0⟩ + β|1⟩, where |α|² + |β|² = 1`,
+            `|+⟩ = (|0⟩ + |1⟩)/√2, |−⟩ = (|0⟩ - |1⟩)/√2`,
+            `H|0⟩ = (|0⟩ + |1⟩)/√2, H|1⟩ = (|0⟩ - |1⟩)/√2`
         ];
         
         formulas.forEach(formula => {
@@ -492,11 +499,10 @@ function updateFormulaDisplay(qubitCount, inputData, isStressTest, elements) {
             elements.gridQuantumFormulas.appendChild(formulaElement);
         });
     } else {
-        // Standard formulas
-        const hash = hashString(inputData || 'quantum');
+        // Standard quantum physics notation - NOT proprietary algorithms
         const formulas = [
-            `|ψ⟩ = (1/√2) ⋅ (|${hash.substring(0,4)}⟩ + |${hash.substring(4,8)}⟩)`,
-            `H^⊗${Math.floor(qubitCount/2)} |${Array(Math.min(10, Math.floor(qubitCount/2))).fill('0').join('')}⟩ = (1/√${2**Math.min(10, Math.floor(qubitCount/2))}) ⋅ ∑|x⟩`
+            `|ψ⟩ = cos(θ/2)|0⟩ + sin(θ/2)e^(iφ)|1⟩`,
+            `|φ±⟩ = (|0⟩|+⟩ ± |1⟩|−⟩)/√2`
         ];
         
         formulas.forEach(formula => {

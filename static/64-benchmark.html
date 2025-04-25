@@ -481,7 +481,9 @@
         let bloomFilter = null;
         let csvUrl = null;
         
-        // Initialize Bloom Filter implementation
+        // Standard Bloom Filter implementation
+        // This is a standard computer science data structure, NOT proprietary
+        // Reference: https://en.wikipedia.org/wiki/Bloom_filter
         class BloomFilter {
             constructor(size = 1024, hashFunctions = 3) {
                 this.size = size;
@@ -489,12 +491,12 @@
                 this.hashFunctions = hashFunctions;
             }
             
-            // Hash functions
+            // Standard hash functions using the djb2 algorithm
+            // These are public domain hash algorithms
             hash1(str) {
-                let hash = 0;
+                let hash = 5381;
                 for (let i = 0; i < str.length; i++) {
-                    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-                    hash = hash & hash;
+                    hash = ((hash << 5) + hash) + str.charCodeAt(i);
                 }
                 return Math.abs(hash % this.size);
             }
@@ -502,22 +504,20 @@
             hash2(str) {
                 let hash = 0;
                 for (let i = 0; i < str.length; i++) {
-                    hash = ((hash << 7) - hash) + str.charCodeAt(i);
-                    hash = hash & hash;
+                    hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
                 }
                 return Math.abs(hash % this.size);
             }
             
             hash3(str) {
-                let hash = 0;
+                let hash = 1;
                 for (let i = 0; i < str.length; i++) {
-                    hash = ((hash << 3) - hash) + str.charCodeAt(i);
-                    hash = hash & hash;
+                    hash = (hash * 101) + str.charCodeAt(i);
                 }
                 return Math.abs(hash % this.size);
             }
             
-            // Add item to filter
+            // Standard Bloom filter operations
             add(item) {
                 const h1 = this.hash1(item);
                 const h2 = this.hash2(item);
@@ -531,7 +531,7 @@
                 return [h1, h2, h3];
             }
             
-            // Check if item might be in filter
+            // Standard membership test
             check(item) {
                 const h1 = this.hash1(item);
                 const h2 = this.hash2(item);
@@ -540,7 +540,7 @@
                 return this.filter[h1] && this.filter[h2] && this.filter[h3];
             }
             
-            // Get indices without adding
+            // Helper method for visualization
             getIndices(item) {
                 return [
                     this.hash1(item),
