@@ -106,23 +106,56 @@ def configure_security(app: Flask):
         session_cookie_http_only=True
     )
     
-    # Set up rate limiting - use Redis if available, otherwise memory
+    # Set up rate limiting with Redis for distributed systems
     redis_url = os.environ.get('REDIS_URL')
-    storage_uri = redis_url if redis_url else "memory://"
+    
+    # Configure more detailed Redis options if available
+    if redis_url:
+        logger.info("Configuring Flask-Limiter with Redis backend")
+        storage_uri = redis_url
+        storage_options = {
+            "connection_pool": True,      # Use connection pooling
+            "socket_connect_timeout": 3,  # Timeout for initial connection
+            "socket_timeout": 3,          # Timeout for operations
+            "health_check_interval": 30   # Check health of connection periodically
+        }
+    else:
+        logger.warning("Redis URL not found. Using memory storage for rate limits - will not work across multiple instances.")
+        storage_uri = "memory://"
+        storage_options = {}
     
     # More strict rate limits in production, more lenient in development
     if is_development:
         default_limits = ["300 per minute", "10000 per day"]
     else:
         default_limits = ["120 per minute", "3000 per day"]
-        
+    
+    # Create the limiter with Redis backend
     limiter = Limiter(
         app=app,
         key_func=get_remote_address,
         default_limits=default_limits,
         storage_uri=storage_uri,
-        strategy="fixed-window"  # Standard algorithm
+        storage_options=storage_options,
+        strategy="fixed-window",      # Standard algorithm
+        # Enable header tracking of rate limits
+        header_name_mapping={
+            "X-RateLimit-Limit": "X-RateLimit-Limit",
+            "X-RateLimit-Remaining": "X-RateLimit-Remaining",
+            "X-RateLimit-Reset": "X-RateLimit-Reset"
+        }
     )
+    
+    # Apply specific limits to endpoint groups
+    limiter.limit("60 per minute")(app.route('/api/encrypt'))
+    limiter.limit("60 per minute")(app.route('/api/decrypt'))
+    limiter.limit("30 per minute")(app.route('/api/quantum/initialize'))
+    limiter.limit("30 per minute")(app.route('/api/quantum/circuit'))
+    limiter.limit("30 per minute")(app.route('/api/quantum/benchmark'))
+    
+    # Health and status endpoints are exempt from rate limiting
+    limiter.exempt(app.route('/api/health'))
+    limiter.exempt(app.route('/status'))
     
     # Add CORS checking to before_request
     @app.before_request
