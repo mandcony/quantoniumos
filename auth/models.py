@@ -14,6 +14,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
+from auth.secret_manager import encrypt_secret, decrypt_secret, generate_jwt_secret, schedule_key_rotation
 
 db = SQLAlchemy()
 
@@ -81,8 +82,9 @@ class APIKey(db.Model):
         # Hash the key for storage
         key_hash = generate_password_hash(raw_key)
         
-        # Generate JWT secret for this key
-        jwt_secret = secrets.token_hex(32)
+        # Generate JWT secret for this key and encrypt it
+        jwt_secret = generate_jwt_secret()
+        encrypted_jwt_secret = encrypt_secret(jwt_secret)
         
         # Calculate expiration
         expires_at = None
@@ -98,8 +100,14 @@ class APIKey(db.Model):
             is_admin=is_admin,
             permissions=permissions,
             expires_at=expires_at,
-            jwt_secret=jwt_secret
+            jwt_secret=encrypted_jwt_secret
         )
+        
+        # Schedule key rotation if expiration is set
+        if expires_in_days:
+            # Schedule at 75% of expiry time or 90 days, whichever is shorter
+            rotation_days = min(int(expires_in_days * 0.75), 90)
+            schedule_key_rotation(str(uuid.uuid4()), rotation_days)
         
         # Add and return
         db.session.add(key)
@@ -145,9 +153,16 @@ class APIKey(db.Model):
             'exp': expiry
         }
         
+        # Decrypt the JWT secret for use
+        secret = decrypt_secret(self.jwt_secret)
+        if not secret:
+            # Fallback to using the encrypted value directly if decryption fails
+            # This maintains backward compatibility with existing keys
+            secret = self.jwt_secret
+            
         token = jwt.encode(
             payload,
-            self.jwt_secret,
+            secret,
             algorithm='HS256'
         )
         
@@ -156,9 +171,16 @@ class APIKey(db.Model):
     def verify_token(self, token):
         """Verify a JWT token created by this key"""
         try:
+            # Decrypt the JWT secret for verification
+            secret = decrypt_secret(self.jwt_secret)
+            if not secret:
+                # Fallback to using the encrypted value directly if decryption fails
+                # This maintains backward compatibility with existing keys
+                secret = self.jwt_secret
+                
             payload = jwt.decode(
                 token,
-                self.jwt_secret,
+                secret,
                 algorithms=['HS256']
             )
             
