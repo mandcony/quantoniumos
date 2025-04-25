@@ -8,26 +8,18 @@ Includes new authentication, non-repudiation, and inverse RFT endpoints.
 import os
 import base64
 import json
-import logging
 import time
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort, current_app
-
-# Configure logger for API routes
-logger = logging.getLogger("quantonium_api")
-logger.setLevel(logging.INFO)
+from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
 from core.protected.symbolic_interface import get_interface
-from models import (
-    EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest,
-    HMACSignRequest, HMACVerifyRequest, BenchmarkRequest, IRFTRequest
-)
+from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
 from utils import sign_response
 from auth.jwt_auth import require_jwt_auth
 from backend.stream import get_stream, update_encrypt_data
 from api.resonance_metrics import run_symbolic_benchmark
-from encryption.resonance_encrypt import wave_hmac, verify_wave_hmac, FEATURE_AUTH, MAX_SIGNATURE_AGE
+from encryption.resonance_encrypt import wave_hmac, FEATURE_AUTH
 from core.encryption.resonance_fourier import perform_rft, perform_irft, FEATURE_IRFT
 
 api = Blueprint("api", __name__)
@@ -63,132 +55,58 @@ def root_status():
 @api.route("/encrypt", methods=["POST"])
 def encrypt():
     """Encrypt data using resonance techniques"""
-    try:
-        # Parse and validate the request data with enhanced error handling
-        try:
-            data = EncryptRequest(**request.get_json())
-        except Exception as validation_error:
-            # Construct user-friendly error message
-            error_detail = str(validation_error)
-            
-            # Extract specific validation errors for better user guidance
-            if "Key length must be between" in error_detail:
-                message = "Key must be at least 8 characters long and contain both letters and numbers"
-            elif "Plaintext too large" in error_detail:
-                message = "Input data is too large. Maximum size is 10MB."
-            else:
-                message = f"Validation error: {error_detail}"
-            
-            # Log the error with full details for debugging
-            logging.warning(f"Encryption validation error: {error_detail}")
-            
-            # Return a structured error response
-            return jsonify(sign_response({
-                "success": False,
-                "error": message,
-                "error_type": "validation_error"
-            })), 400
-            
-        # Process the validated request
-        result = symbolic.encrypt(data.plaintext, data.key)
-        
-        # Check wave coherence for tamper detection
-        if isinstance(result, dict) and result.get('wave_coherence', 1.0) < 0.55:
-            abort(400, 'Symbolic tamper detected')
-        
-        hash_value = result.get('ciphertext', result) if isinstance(result, dict) else result
-        
-        # Register the hash-container mapping (create a container sealed by this hash)
-        # Store the encryption key with the container to enforce lock-and-key mechanism
-        from orchestration.resonance_manager import register_container
-        register_container(
-            hash_value=hash_value,
-            plaintext=data.plaintext,
-            ciphertext=f"ENCRYPTED:{data.plaintext}",  # Simplified for this implementation
-            key=data.key  # Store the key to verify during unlocking
-        )
-        
-        # Update the wave visualization data with this encryption operation
-        update_encrypt_data(ciphertext=hash_value, key=data.key)
-        
-        # Include the API key ID in response for audit purposes
-        response = {
-            "success": True,
-            "ciphertext": hash_value
-        }
-        
-        # Add key_id if available
-        if hasattr(g, 'api_key') and g.api_key:
-            response["key_id"] = g.api_key.key_id
-        
-        return jsonify(sign_response(response))
+    data = EncryptRequest(**request.get_json())
+    result = symbolic.encrypt(data.plaintext, data.key)
     
-    except Exception as e:
-        # Catch any other errors and return a structured error response
-        logging.error(f"Encryption error: {str(e)}", exc_info=True)
-        return jsonify(sign_response({
-            "success": False,
-            "error": "An error occurred during encryption",
-            "error_type": "server_error",
-            "error_detail": str(e) if current_app.debug else None
-        })), 500
+    # Check wave coherence for tamper detection
+    if isinstance(result, dict) and result.get('wave_coherence', 1.0) < 0.55:
+        abort(400, 'Symbolic tamper detected')
+    
+    hash_value = result.get('ciphertext', result) if isinstance(result, dict) else result
+    
+    # Register the hash-container mapping (create a container sealed by this hash)
+    # Store the encryption key with the container to enforce lock-and-key mechanism
+    from orchestration.resonance_manager import register_container
+    register_container(
+        hash_value=hash_value,
+        plaintext=data.plaintext,
+        ciphertext=f"ENCRYPTED:{data.plaintext}",  # Simplified for this implementation
+        key=data.key  # Store the key to verify during unlocking
+    )
+    
+    # Update the wave visualization data with this encryption operation
+    update_encrypt_data(ciphertext=hash_value, key=data.key)
+    
+    # Include the API key ID in response for audit purposes
+    response = {
+        "ciphertext": hash_value
+    }
+    
+    # Add key_id if available
+    if hasattr(g, 'api_key') and g.api_key:
+        response["key_id"] = g.api_key.key_id
+    
+    return jsonify(sign_response(response))
 
 @api.route("/decrypt", methods=["POST"])
 def decrypt():
     """Decrypt data using resonance techniques"""
-    try:
-        # Parse and validate the request data with enhanced error handling
-        try:
-            data = DecryptRequest(**request.get_json())
-        except Exception as validation_error:
-            # Construct user-friendly error message
-            error_detail = str(validation_error)
-            
-            # Extract specific validation errors for better user guidance
-            if "Key length must be between" in error_detail:
-                message = "Key must be at least 8 characters long and contain both letters and numbers"
-            elif "ciphertext" in error_detail.lower():
-                message = "Invalid ciphertext format. Please provide a valid hash value."
-            else:
-                message = f"Validation error: {error_detail}"
-            
-            # Log the error with full details for debugging
-            logging.warning(f"Decryption validation error: {error_detail}")
-            
-            # Return a structured error response
-            return jsonify(sign_response({
-                "success": False,
-                "error": message,
-                "error_type": "validation_error"
-            })), 400
-        
-        # Process the validated request
-        result = symbolic.decrypt(data.ciphertext, data.key)
-        
-        # Update the wave visualization data with this decryption operation
-        update_encrypt_data(ciphertext=data.ciphertext, key=data.key)
-        
-        # Include the API key ID in response for audit purposes
-        response = {
-            "success": True,
-            "plaintext": result
-        }
-        
-        # Add key_id if available
-        if hasattr(g, 'api_key') and g.api_key:
-            response["key_id"] = g.api_key.key_id
-        
-        return jsonify(sign_response(response))
-        
-    except Exception as e:
-        # Catch any other errors and return a structured error response
-        logging.error(f"Decryption error: {str(e)}", exc_info=True)
-        return jsonify(sign_response({
-            "success": False,
-            "error": "An error occurred during decryption",
-            "error_type": "server_error",
-            "error_detail": str(e) if current_app.debug else None
-        })), 500
+    data = DecryptRequest(**request.get_json())
+    result = symbolic.decrypt(data.ciphertext, data.key)
+    
+    # Update the wave visualization data with this decryption operation
+    update_encrypt_data(ciphertext=data.ciphertext, key=data.key)
+    
+    # Include the API key ID in response for audit purposes
+    response = {
+        "plaintext": result
+    }
+    
+    # Add key_id if available
+    if hasattr(g, 'api_key') and g.api_key:
+        response["key_id"] = g.api_key.key_id
+    
+    return jsonify(sign_response(response))
 
 @api.route("/simulate/rft", methods=["POST"])
 def simulate_rft():
@@ -379,86 +297,6 @@ def get_legacy_container_parameters():
 def unlock_alias():
     """Alias for container unlock for benchmark compatibility"""
     return unlock()
-
-@api.route("/security/hmac/sign", methods=["POST"])
-def hmac_sign():
-    """
-    Generate a Wave-HMAC signature for a message
-    
-    This endpoint uses the enhanced HMAC implementation with:
-    - Key stretching with PBKDF2
-    - Timestamp-based nonce for replay protection
-    - Full 256-bit signatures
-    """
-    try:
-        data = HMACSignRequest(**request.get_json())
-        
-        # Generate the signature using wave_hmac
-        signature = wave_hmac(
-            message=data.message,
-            key=data.key,
-            phase_info=data.use_phase_info
-        )
-        
-        response = {
-            "success": True,
-            "signature": signature,
-            "message": data.message[:20] + "..." if len(data.message) > 20 else data.message,
-            "timestamp": int(time.time())
-        }
-        
-        # Add key_id if available
-        if hasattr(g, 'api_key') and g.api_key:
-            response["key_id"] = g.api_key.key_id
-        
-        return jsonify(sign_response(response))
-    except Exception as e:
-        return jsonify(sign_response({
-            "success": False,
-            "error": str(e)
-        }))
-
-@api.route("/security/hmac/verify", methods=["POST"])
-def hmac_verify():
-    """
-    Verify a Wave-HMAC signature
-    
-    This endpoint supports both enhanced and legacy signatures with:
-    - Replay protection via timestamp checking
-    - Version detection for multi-format support
-    - Secure constant-time comparison
-    """
-    try:
-        data = HMACVerifyRequest(**request.get_json())
-        
-        # Verify the signature
-        is_valid = verify_wave_hmac(
-            message=data.message,
-            signature=data.signature,
-            key=data.key,
-            phase_info=data.use_phase_info
-        )
-        
-        response = {
-            "success": True,
-            "valid": is_valid,
-            "message": "Signature is valid" if is_valid else "Invalid signature"
-        }
-        
-        # Add key_id if available
-        if hasattr(g, 'api_key') and g.api_key:
-            response["key_id"] = g.api_key.key_id
-        
-        return jsonify(sign_response(response))
-    except Exception as e:
-        return jsonify(sign_response({
-            "success": False,
-            "valid": False,
-            "error": str(e)
-        }))
-        
-# This benchmark implementation has been replaced by the one below
-# We'll keep this definition as a placeholder but not register it as a route
 
 @api.route("/stream/wave", methods=["GET"])
 def stream_wave():
@@ -714,16 +552,7 @@ def sign_payload():
         
         # Calculate the wave_hmac signature
         signature_input = f"{header_b64}.{payload_b64}"
-        
-        # Use a secure key for non-repudiation
-        # In a real implementation, this would be a secret key retrieved from a secure store
-        signing_key = "QUANTONIUM_SECURE_SIGNING_KEY"
-        
-        signature = wave_hmac(
-            message=signature_input,
-            key=signing_key,
-            phase_info=True
-        )
+        signature = wave_hmac(signature_input)
         
         # Generate a unique phase value for this signature
         # This will be required for verification
@@ -786,9 +615,6 @@ def verify_signature():
                 "message": "Missing required components for verification"
             })), 400
         
-        # Initialize original_phase
-        original_phase = None
-        
         # Temporarily set the phase value in the environment for verification
         if phi:
             original_phase = os.environ.get('QUANTONIUM_PRIVATE_PHASE')
@@ -798,15 +624,8 @@ def verify_signature():
             # Reconstruct the signature input
             signature_input = f"{header_b64}.{payload_b64}"
             
-            # Use the same secure key used for signing
-            signing_key = "QUANTONIUM_SECURE_SIGNING_KEY"
-            
             # Calculate the expected signature
-            expected_signature = wave_hmac(
-                message=signature_input,
-                key=signing_key,
-                phase_info=True
-            )
+            expected_signature = wave_hmac(signature_input)
             
             # Compare with the provided signature
             verified = (signature == expected_signature)
