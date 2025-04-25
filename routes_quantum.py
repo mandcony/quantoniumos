@@ -39,21 +39,25 @@ def process_quantum_circuit() -> Response:
     """
     # Validate request
     try:
-        # Parse and validate request JSON
-        request_data = request.get_json()
+        # Parse and validate request JSON with Pydantic model
+        from models import QuantumCircuitRequest
         
-        # Validate request structure (simplified - would use pydantic in production)
-        if not request_data:
-            return jsonify({"error": "Invalid request data", "success": False}), 400
+        # Use Pydantic to validate input data
+        try:
+            request_data = request.get_json()
+            validated_data = QuantumCircuitRequest(**request_data)
+        except Exception as e:
+            logger.warning(f"Validation error: {str(e)}")
+            return jsonify({
+                "success": False,
+                "error": "Invalid request data",
+                "details": str(e)
+            }), 400
             
-        # Extract needed parameters
-        circuit_definition = request_data.get("circuit")
-        qubit_count = request_data.get("qubit_count", 3)
+        # Extract validated parameters
+        circuit_definition = validated_data.circuit
+        qubit_count = validated_data.qubit_count
         
-        # Validate qubit count
-        if not isinstance(qubit_count, int) or qubit_count < 1:
-            return jsonify({"error": "Invalid qubit count", "success": False}), 400
-            
         # Process the circuit using the protected quantum engine
         result = quantum_engine.apply_circuit(circuit_definition, qubit_count)
         

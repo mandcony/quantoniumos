@@ -27,7 +27,7 @@ class EncryptRequest(BaseModel):
         example="hello world",
         description="Text to encrypt"
     )
-    key: constr(min_length=4, max_length=MAX_KEY_LENGTH) = Field(
+    key: str = Field(
         ..., 
         example="symbolic-key",
         description="Encryption key"
@@ -37,24 +37,36 @@ class EncryptRequest(BaseModel):
     def validate_plaintext(cls, v):
         if not v.strip():
             raise ValueError("Plaintext cannot be empty or whitespace")
+        if len(v) > MAX_PLAINTEXT_LENGTH:
+            raise ValueError(f"Plaintext too long (max {MAX_PLAINTEXT_LENGTH} characters)")
         return v
     
     @validator('key')
     def validate_key(cls, v):
         if not v.strip():
             raise ValueError("Key cannot be empty or whitespace")
+        if len(v) < 4:
+            raise ValueError("Key must be at least 4 characters long")
+        if len(v) > MAX_KEY_LENGTH:
+            raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
         return v
 
 class RFTRequest(BaseModel):
     """Request model for Resonance Fourier Transform operations."""
-    waveform: conlist(float, min_items=MIN_WAVEFORM_LENGTH, max_items=MAX_WAVEFORM_LENGTH) = Field(
+    waveform: List[float] = Field(
         ..., 
         example=[0.1, 0.5, 0.9],
         description="Waveform data as a list of floating point values"
     )
     
     @validator('waveform')
-    def validate_waveform_values(cls, v):
+    def validate_waveform(cls, v):
+        # Check length
+        if len(v) < MIN_WAVEFORM_LENGTH:
+            raise ValueError(f"Waveform must have at least {MIN_WAVEFORM_LENGTH} values")
+        if len(v) > MAX_WAVEFORM_LENGTH:
+            raise ValueError(f"Waveform too long (max {MAX_WAVEFORM_LENGTH} values)")
+            
         # Ensure all values are in range [0.0, 1.0]
         for val in v:
             if val < 0.0 or val > 1.0:
@@ -73,12 +85,12 @@ class EntropyRequest(BaseModel):
 
 class DecryptRequest(BaseModel):
     """Request model for decrypting data using resonance techniques."""
-    ciphertext: constr(min_length=1, max_length=MAX_CIPHERTEXT_LENGTH, regex=HASH_PATTERN) = Field(
+    ciphertext: str = Field(
         ..., 
         example="Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==",
         description="Ciphertext to decrypt (base64 encoded)"
     )
-    key: constr(min_length=4, max_length=MAX_KEY_LENGTH) = Field(
+    key: str = Field(
         ..., 
         example="symbolic-key",
         description="Decryption key"
@@ -86,6 +98,13 @@ class DecryptRequest(BaseModel):
     
     @validator('ciphertext')
     def validate_ciphertext(cls, v):
+        if not v:
+            raise ValueError("Ciphertext cannot be empty")
+        if len(v) > MAX_CIPHERTEXT_LENGTH:
+            raise ValueError(f"Ciphertext too long (max {MAX_CIPHERTEXT_LENGTH} characters)")
+        if not re.match(HASH_PATTERN, v):
+            raise ValueError("Ciphertext contains invalid characters")
+            
         # Validate that it's properly base64 encoded
         try:
             # Just checking format, not actually using the decoded value
@@ -98,42 +117,72 @@ class DecryptRequest(BaseModel):
     def validate_key(cls, v):
         if not v.strip():
             raise ValueError("Key cannot be empty or whitespace")
+        if len(v) < 4:
+            raise ValueError("Key must be at least 4 characters long")
+        if len(v) > MAX_KEY_LENGTH:
+            raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
         return v
 
 class ContainerUnlockRequest(BaseModel):
     """Request model for unlocking symbolic containers."""
-    waveform: conlist(float, min_items=MIN_WAVEFORM_LENGTH, max_items=MAX_WAVEFORM_LENGTH) = Field(
+    waveform: List[float] = Field(
         ..., 
         example=[0.2, 0.7, 0.3],
         description="Waveform data as a list of floating point values"
     )
-    hash: constr(min_length=1, max_length=MAX_CIPHERTEXT_LENGTH, regex=HASH_PATTERN) = Field(
+    hash: str = Field(
         ..., 
         example="Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==",
         description="Container hash identifier"
     )
-    key: constr(min_length=4, max_length=MAX_KEY_LENGTH) = Field(
+    key: str = Field(
         ..., 
         example="symbolic-key",
         description="Decryption key"
     )
     
     @validator('waveform')
-    def validate_waveform_values(cls, v):
+    def validate_waveform(cls, v):
+        # Check length
+        if len(v) < MIN_WAVEFORM_LENGTH:
+            raise ValueError(f"Waveform must have at least {MIN_WAVEFORM_LENGTH} values")
+        if len(v) > MAX_WAVEFORM_LENGTH:
+            raise ValueError(f"Waveform too long (max {MAX_WAVEFORM_LENGTH} values)")
+            
         # Ensure all values are in range [0.0, 1.0]
         for val in v:
             if val < 0.0 or val > 1.0:
                 raise ValueError(f"Waveform values must be between 0.0 and 1.0, got {val}")
         return v
+        
+    @validator('hash')
+    def validate_hash(cls, v):
+        if not v:
+            raise ValueError("Hash cannot be empty")
+        if len(v) > MAX_CIPHERTEXT_LENGTH:
+            raise ValueError(f"Hash too long (max {MAX_CIPHERTEXT_LENGTH} characters)")
+        if not re.match(HASH_PATTERN, v):
+            raise ValueError("Hash contains invalid characters")
+        return v
+        
+    @validator('key')
+    def validate_key(cls, v):
+        if not v.strip():
+            raise ValueError("Key cannot be empty or whitespace")
+        if len(v) < 4:
+            raise ValueError("Key must be at least 4 characters long")
+        if len(v) > MAX_KEY_LENGTH:
+            raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
+        return v
 
 class SignRequest(BaseModel):
     """Request model for signing data using wave HMAC."""
-    message: constr(min_length=1, max_length=MAX_PLAINTEXT_LENGTH) = Field(
+    message: str = Field(
         ..., 
         example="message to sign",
         description="Message to sign"
     )
-    key: constr(min_length=4, max_length=MAX_KEY_LENGTH) = Field(
+    key: str = Field(
         ..., 
         example="symbolic-key",
         description="Signing key"
@@ -143,20 +192,38 @@ class SignRequest(BaseModel):
         example=True,
         description="Whether to include phase information in signature"
     )
+    
+    @validator('message')
+    def validate_message(cls, v):
+        if not v.strip():
+            raise ValueError("Message cannot be empty or whitespace")
+        if len(v) > MAX_PLAINTEXT_LENGTH:
+            raise ValueError(f"Message too long (max {MAX_PLAINTEXT_LENGTH} characters)")
+        return v
+        
+    @validator('key')
+    def validate_key(cls, v):
+        if not v.strip():
+            raise ValueError("Key cannot be empty or whitespace")
+        if len(v) < 4:
+            raise ValueError("Key must be at least 4 characters long")
+        if len(v) > MAX_KEY_LENGTH:
+            raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
+        return v
 
 class VerifyRequest(BaseModel):
     """Request model for verifying signatures using wave HMAC."""
-    message: constr(min_length=1, max_length=MAX_PLAINTEXT_LENGTH) = Field(
+    message: str = Field(
         ..., 
         example="message to verify",
         description="Original message"
     )
-    signature: constr(min_length=1, max_length=MAX_CIPHERTEXT_LENGTH, regex=HASH_PATTERN) = Field(
+    signature: str = Field(
         ..., 
         example="Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==",
         description="Signature to verify (base64 encoded)"
     )
-    key: constr(min_length=4, max_length=MAX_KEY_LENGTH) = Field(
+    key: str = Field(
         ..., 
         example="symbolic-key",
         description="Verification key"
@@ -166,6 +233,34 @@ class VerifyRequest(BaseModel):
         example=True,
         description="Whether phase information was used in signature"
     )
+    
+    @validator('message')
+    def validate_message(cls, v):
+        if not v.strip():
+            raise ValueError("Message cannot be empty or whitespace")
+        if len(v) > MAX_PLAINTEXT_LENGTH:
+            raise ValueError(f"Message too long (max {MAX_PLAINTEXT_LENGTH} characters)")
+        return v
+        
+    @validator('signature')
+    def validate_signature(cls, v):
+        if not v:
+            raise ValueError("Signature cannot be empty")
+        if len(v) > MAX_CIPHERTEXT_LENGTH:
+            raise ValueError(f"Signature too long (max {MAX_CIPHERTEXT_LENGTH} characters)")
+        if not re.match(HASH_PATTERN, v):
+            raise ValueError("Signature contains invalid characters")
+        return v
+        
+    @validator('key')
+    def validate_key(cls, v):
+        if not v.strip():
+            raise ValueError("Key cannot be empty or whitespace")
+        if len(v) < 4:
+            raise ValueError("Key must be at least 4 characters long")
+        if len(v) > MAX_KEY_LENGTH:
+            raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
+        return v
 
 class IRFTRequest(BaseModel):
     """Request model for Inverse Resonance Fourier Transform operations."""
@@ -219,7 +314,7 @@ class QuantumCircuit(BaseModel):
 
 class QuantumCircuitRequest(BaseModel):
     """Request model for quantum circuit processing API."""
-    circuit: QuantumCircuit = Field(
+    circuit: Dict[str, Any] = Field(
         ..., 
         example={
             "gates": [
@@ -238,14 +333,45 @@ class QuantumCircuitRequest(BaseModel):
     )
     
     @validator('circuit')
-    def validate_circuit_targets(cls, v, values):
-        if 'qubit_count' in values:
-            qubit_count = values['qubit_count']
-            for gate in v.gates:
-                if gate.target >= qubit_count:
-                    raise ValueError(f"Gate target {gate.target} is out of range for qubit_count {qubit_count}")
-                if gate.control is not None and gate.control >= qubit_count:
-                    raise ValueError(f"Gate control {gate.control} is out of range for qubit_count {qubit_count}")
+    def validate_circuit(cls, v, values):
+        # Check that circuit has gates
+        if 'gates' not in v:
+            raise ValueError("Circuit must contain 'gates' key")
+            
+        gates = v['gates']
+        if not isinstance(gates, list):
+            raise ValueError("Gates must be a list")
+            
+        # Validate each gate
+        for i, gate in enumerate(gates):
+            if not isinstance(gate, dict):
+                raise ValueError(f"Gate {i} must be a dictionary")
+                
+            # Required fields
+            if 'name' not in gate:
+                raise ValueError(f"Gate {i} missing required field 'name'")
+            if 'target' not in gate:
+                raise ValueError(f"Gate {i} missing required field 'target'")
+                
+            # Type checking
+            if not isinstance(gate['name'], str):
+                raise ValueError(f"Gate {i} 'name' must be a string")
+            if not isinstance(gate['target'], int):
+                raise ValueError(f"Gate {i} 'target' must be an integer")
+                
+            # Range checking if qubit_count is provided
+            if 'qubit_count' in values:
+                qubit_count = values['qubit_count']
+                if gate['target'] >= qubit_count:
+                    raise ValueError(f"Gate {i} target {gate['target']} is out of range for qubit_count {qubit_count}")
+                    
+                # Check control if present
+                if 'control' in gate:
+                    if not isinstance(gate['control'], int):
+                        raise ValueError(f"Gate {i} 'control' must be an integer")
+                    if gate['control'] >= qubit_count:
+                        raise ValueError(f"Gate {i} control {gate['control']} is out of range for qubit_count {qubit_count}")
+        
         return v
     
 class QuantumBenchmarkRequest(BaseModel):
