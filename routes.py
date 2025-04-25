@@ -14,12 +14,15 @@ from typing import Dict, Any, Optional, List
 
 from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
 from core.protected.symbolic_interface import get_interface
-from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
+from models import (
+    EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest,
+    HMACSignRequest, HMACVerifyRequest, BenchmarkRequest, IRFTRequest
+)
 from utils import sign_response
 from auth.jwt_auth import require_jwt_auth
 from backend.stream import get_stream, update_encrypt_data
 from api.resonance_metrics import run_symbolic_benchmark
-from encryption.resonance_encrypt import wave_hmac, FEATURE_AUTH
+from encryption.resonance_encrypt import wave_hmac, verify_wave_hmac, FEATURE_AUTH, MAX_SIGNATURE_AGE
 from core.encryption.resonance_fourier import perform_rft, perform_irft, FEATURE_IRFT
 
 api = Blueprint("api", __name__)
@@ -298,6 +301,86 @@ def unlock_alias():
     """Alias for container unlock for benchmark compatibility"""
     return unlock()
 
+@api.route("/security/hmac/sign", methods=["POST"])
+def hmac_sign():
+    """
+    Generate a Wave-HMAC signature for a message
+    
+    This endpoint uses the enhanced HMAC implementation with:
+    - Key stretching with PBKDF2
+    - Timestamp-based nonce for replay protection
+    - Full 256-bit signatures
+    """
+    try:
+        data = HMACSignRequest(**request.get_json())
+        
+        # Generate the signature using wave_hmac
+        signature = wave_hmac(
+            message=data.message,
+            key=data.key,
+            phase_info=data.use_phase_info
+        )
+        
+        response = {
+            "success": True,
+            "signature": signature,
+            "message": data.message[:20] + "..." if len(data.message) > 20 else data.message,
+            "timestamp": int(time.time())
+        }
+        
+        # Add key_id if available
+        if hasattr(g, 'api_key') and g.api_key:
+            response["key_id"] = g.api_key.key_id
+        
+        return jsonify(sign_response(response))
+    except Exception as e:
+        return jsonify(sign_response({
+            "success": False,
+            "error": str(e)
+        }))
+
+@api.route("/security/hmac/verify", methods=["POST"])
+def hmac_verify():
+    """
+    Verify a Wave-HMAC signature
+    
+    This endpoint supports both enhanced and legacy signatures with:
+    - Replay protection via timestamp checking
+    - Version detection for multi-format support
+    - Secure constant-time comparison
+    """
+    try:
+        data = HMACVerifyRequest(**request.get_json())
+        
+        # Verify the signature
+        is_valid = verify_wave_hmac(
+            message=data.message,
+            signature=data.signature,
+            key=data.key,
+            phase_info=data.use_phase_info
+        )
+        
+        response = {
+            "success": True,
+            "valid": is_valid,
+            "message": "Signature is valid" if is_valid else "Invalid signature"
+        }
+        
+        # Add key_id if available
+        if hasattr(g, 'api_key') and g.api_key:
+            response["key_id"] = g.api_key.key_id
+        
+        return jsonify(sign_response(response))
+    except Exception as e:
+        return jsonify(sign_response({
+            "success": False,
+            "valid": False,
+            "error": str(e)
+        }))
+        
+# This benchmark implementation has been replaced by the one below
+# We'll keep this definition as a placeholder but not register it as a route
+
 @api.route("/stream/wave", methods=["GET"])
 def stream_wave():
     """
@@ -552,7 +635,16 @@ def sign_payload():
         
         # Calculate the wave_hmac signature
         signature_input = f"{header_b64}.{payload_b64}"
-        signature = wave_hmac(signature_input)
+        
+        # Use a secure key for non-repudiation
+        # In a real implementation, this would be a secret key retrieved from a secure store
+        signing_key = "QUANTONIUM_SECURE_SIGNING_KEY"
+        
+        signature = wave_hmac(
+            message=signature_input,
+            key=signing_key,
+            phase_info=True
+        )
         
         # Generate a unique phase value for this signature
         # This will be required for verification
@@ -615,6 +707,9 @@ def verify_signature():
                 "message": "Missing required components for verification"
             })), 400
         
+        # Initialize original_phase
+        original_phase = None
+        
         # Temporarily set the phase value in the environment for verification
         if phi:
             original_phase = os.environ.get('QUANTONIUM_PRIVATE_PHASE')
@@ -624,8 +719,15 @@ def verify_signature():
             # Reconstruct the signature input
             signature_input = f"{header_b64}.{payload_b64}"
             
+            # Use the same secure key used for signing
+            signing_key = "QUANTONIUM_SECURE_SIGNING_KEY"
+            
             # Calculate the expected signature
-            expected_signature = wave_hmac(signature_input)
+            expected_signature = wave_hmac(
+                message=signature_input,
+                key=signing_key,
+                phase_info=True
+            )
             
             # Compare with the provided signature
             verified = (signature == expected_signature)
