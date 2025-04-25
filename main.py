@@ -10,6 +10,7 @@ import time
 import logging
 import platform
 import json
+import secrets
 from datetime import datetime
 from flask import Flask, send_from_directory, redirect, jsonify, g, request, render_template_string
 from routes import api
@@ -17,7 +18,7 @@ from auth.routes import auth_api
 from security import configure_security
 from routes_quantum import initialize_quantum_engine, process_quantum_circuit, quantum_benchmark
 from utils.json_logger import setup_json_logger
-from auth.models import db, APIKey, APIKeyAuditLog
+from auth import initialize_auth, db, APIKey, APIKeyAuditLog
 
 try:
     from __init__ import __version__ as app_version
@@ -53,8 +54,14 @@ def create_app():
         "pool_recycle": 300,
     }
     
-    # Initialize database
-    db.init_app(app)
+    # Initialize authentication module with database and encryption
+    initialize_auth(app)
+    
+    # Generate a master key for JWT secret encryption if not present
+    if 'QUANTONIUM_MASTER_KEY' not in os.environ:
+        # Set a secure random key for development
+        os.environ['QUANTONIUM_MASTER_KEY'] = secrets.token_urlsafe(32)
+        logger.warning("QUANTONIUM_MASTER_KEY not found. Using a temporary key for this session.")
     
     # Configure security middleware (replaces permissive CORS)
     talisman, limiter = configure_security(app)
@@ -78,6 +85,17 @@ def create_app():
     # Create tables on startup
     with app.app_context():
         db.create_all()
+        
+        # Check for encryption migration
+        migrate_secrets = os.environ.get('QUANTONIUM_ENCRYPT_SECRETS', 'auto').lower()
+        if migrate_secrets in ('auto', 'true', 'yes', '1'):
+            try:
+                from scripts.encrypt_jwt_secrets import encrypt_api_key_secrets
+                logger.info("Running JWT secret encryption migration...")
+                results = encrypt_api_key_secrets()
+                logger.info(f"Migration results: {results}")
+            except Exception as e:
+                logger.error(f"Error running JWT secret encryption migration: {str(e)}")
     
     # Register the API blueprints with URL prefix
     # This separates API routes from static content routes
