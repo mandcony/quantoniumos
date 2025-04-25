@@ -18,6 +18,7 @@ import sys
 import shutil
 import zipfile
 import logging
+import subprocess
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
@@ -117,8 +118,13 @@ def compile_cpp_modules(base_path):
             
             # Run CMake and make
             os.chdir(build_dir)
-            os.system('cmake ..')
-            os.system('make')
+            try:
+                # Use subprocess.run with explicit args for better security
+                subprocess.run(['cmake', '..'], check=True, text=True, capture_output=True)
+                subprocess.run(['make'], check=True, text=True, capture_output=True)
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Command failed: {e.cmd}, Return code: {e.returncode}")
+                logger.error(f"Error output: {e.stderr}")
             os.chdir(base_path)
             
             logger.info(f"Compilation complete for {dir_path}")
@@ -131,9 +137,15 @@ def compile_cpp_modules(base_path):
         if os.path.isfile(setup_file):
             logger.info(f"Found setup.py in {dir_path}, building...")
             
-            # Run setup.py
+            # Run setup.py with pip install
             os.chdir(full_path)
-            os.system('pip install -e .')
+            try:
+                # Use subprocess.run with explicit args for better security
+                subprocess.run([sys.executable, '-m', 'pip', 'install', '-e', '.'], 
+                              check=True, text=True, capture_output=True)
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Pip install failed: {e.cmd}, Return code: {e.returncode}")
+                logger.error(f"Error output: {e.stderr}")
             os.chdir(base_path)
             
             logger.info(f"Build complete for {dir_path}")
