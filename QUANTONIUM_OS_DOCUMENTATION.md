@@ -1377,7 +1377,7 @@ Include the widget in HTML templates:
 
 ## 10. API Reference Summary
 
-QuantoniumOS exposes a comprehensive API for interacting with the system. Below is a summary of the main endpoints:
+QuantoniumOS exposes a comprehensive API for interacting with the system. Below is a summary of the main endpoints with practical usage examples:
 
 ### Encryption API
 
@@ -1389,6 +1389,59 @@ QuantoniumOS exposes a comprehensive API for interacting with the system. Below 
 | `/api/irft` | POST | Perform IRFT | `{"frequency_data": {}}` | `{"waveform": [floats]}` |
 | `/api/entropy` | GET | Generate entropy | `{"amount": 32}` | `{"entropy": "base64"}` |
 
+#### Example: Encrypt Data
+```bash
+curl -X POST http://localhost:5000/api/encrypt \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "plaintext": "Secret message to encrypt", 
+    "key": "symbolic-key"
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "ciphertext": "Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==",
+#   "hash": "Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA=="
+# }
+```
+
+#### Example: Decrypt Data
+```bash
+curl -X POST http://localhost:5000/api/decrypt \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "ciphertext": "Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==", 
+    "key": "symbolic-key"
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "plaintext": "Secret message to encrypt"
+# }
+```
+
+#### Example: Perform RFT on Waveform
+```bash
+curl -X POST http://localhost:5000/api/rft \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "waveform": [0.1, 0.5, 0.9, 0.5, 0.1, 0.5, 0.9]
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "frequencies": [0.0, 0.143, 0.286, 0.429, 0.571, 0.714, 0.857],
+#   "amplitudes": [0.5, 0.395, 0.023, 0.002, 0.002, 0.023, 0.395],
+#   "phases": [0.0, 0.785, 1.571, -1.571, -0.785, 0.0, 0.785]
+# }
+```
+
 ### Container API
 
 | Endpoint | Method | Description | Request Body | Response |
@@ -1396,12 +1449,59 @@ QuantoniumOS exposes a comprehensive API for interacting with the system. Below 
 | `/api/container/unlock` | POST | Unlock container | `{"waveform": [floats], "hash": "hash", "key": "key"}` | `{"success": true, "data": "..."}` |
 | `/api/container/verify` | POST | Verify container | `{"hash": "hash"}` | `{"valid": true, "metadata": {}}` |
 
+#### Example: Unlock Container
+```bash
+curl -X POST http://localhost:5000/api/container/unlock \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "hash": "Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==",
+    "waveform": [0.1, 0.5, 0.9, 0.5, 0.1, 0.5, 0.9],
+    "key": "symbolic-key"
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "container": {
+#     "id": "container-123",
+#     "create_time": "2025-04-23T14:30:22.145Z",
+#     "author_id": "user-456",
+#     "parent_hash": null,
+#     "content": "The container's decrypted content",
+#     "signature": "7JhGT45gDKj9pZVcNZm8L2xC3bQdEpRtWvF1sXqY6a="
+#   }
+# }
+```
+
 ### Authentication API
 
 | Endpoint | Method | Description | Request Body | Response |
 |----------|--------|-------------|-------------|----------|
 | `/api/auth/login` | POST | Log in | `{"username": "user", "password": "pass"}` | `{"token": "jwt"}` |
 | `/api/auth/refresh` | POST | Refresh token | `{"refresh_token": "token"}` | `{"token": "jwt"}` |
+
+#### Example: User Login
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "password123"
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...",
+#   "user": {
+#     "id": "user-123",
+#     "username": "admin",
+#     "role": "administrator"
+#   }
+# }
+```
 
 ### Quantum API
 
@@ -1411,6 +1511,29 @@ QuantoniumOS exposes a comprehensive API for interacting with the system. Below 
 | `/api/quantum/circuit` | POST | Run quantum circuit | `{"circuit": {}, "qubit_count": 3}` | `{"results": {}, "state_vector": []}` |
 | `/api/quantum/benchmark` | POST | Run benchmark | `{"max_qubits": 64, "run_full_benchmark": false}` | `{"results": {}, "timing": {}}` |
 
+#### Example: Initialize Quantum Engine
+```bash
+curl -X POST http://localhost:5000/api/quantum/initialize \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "max_qubits": 150,
+    "connect_encryption": true
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "engine_id": "9b7f54864c4fe469",
+#   "max_qubits": 150,
+#   "encryption_connected": true,
+#   "capabilities": {
+#     "max_circuit_depth": 1000,
+#     "supported_gates": ["h", "x", "y", "z", "cx", "rx", "ry", "rz"]
+#   }
+# }
+```
+
 ### Utility API
 
 | Endpoint | Method | Description | Response |
@@ -1418,6 +1541,23 @@ QuantoniumOS exposes a comprehensive API for interacting with the system. Below 
 | `/api/health` | GET | System health | `{"status": "ok", "version": "1.0.0"}` |
 | `/api/status` | GET | System status | `{"status": "ok", "components": {}}` |
 | `/api/stream/wave` | GET | Streaming waveform | Server-sent events with waveform data |
+
+#### Example: Check System Health
+```bash
+curl -X GET http://localhost:5000/api/health
+
+# Response:
+# {
+#   "status": "healthy",
+#   "version": "2.4.1",
+#   "uptime": "10d 14h 22m",
+#   "components": {
+#     "database": "connected",
+#     "redis": "connected",
+#     "quantum_engine": "ready"
+#   }
+# }
+```
 
 ## 11. Best Practices & Contribution Guidelines
 
@@ -1560,7 +1700,117 @@ Contributors to QuantoniumOS must sign a Contributor License Agreement (CLA) tha
 3. Maintains their copyright ownership
 4. Grants a perpetual license to use the contribution
 
-## 13. Appendices
+## 13. Troubleshooting FAQ
+
+This section covers common issues that developers may encounter when working with QuantoniumOS and their solutions.
+
+### Connection Issues
+
+#### Q: The API returns "Failed to connect to quantum backend" errors
+**A:** This typically occurs when the quantum engine initialization fails. Check the following:
+1. Ensure the quantum module is properly initialized before making other API calls
+2. Verify that your environment has enough memory (the quantum engine requires at least 4GB RAM)
+3. Check the logs for any more specific error messages using `tail -n 100 logs/quantum_engine.log`
+
+```bash
+# Proper initialization sequence:
+curl -X POST http://localhost:5000/api/quantum/initialize \
+  -H "Content-Type: application/json" \
+  -d '{"max_qubits": 150, "connect_encryption": true}'
+  
+# Then you can run circuits or benchmarks
+```
+
+#### Q: CORS errors when accessing the API from a browser
+**A:** The API enforces strict CORS policies. To resolve:
+1. Add your domain to the allowed origins list in environment variables (`CORS_ORIGINS=https://yourdomain.com,https://another.com`)
+2. For local development, use `CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000`
+3. Use the correct protocol (http vs https) in the CORS configuration
+
+### Authentication Issues
+
+#### Q: JWT token validation failures
+**A:** Common causes for JWT validation errors:
+1. Token expiration - get a new token using the refresh endpoint
+2. Clock drift between systems - sync server time
+3. Incorrect secret key - check your `QUANTONIUM_JWT_SECRET` environment variable
+4. Using token with wrong format - should be `Bearer <token>`
+
+```bash
+# Correct Authorization header format
+curl -X POST http://localhost:5000/api/encrypt \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### Installation and Setup Issues
+
+#### Q: DLL load error when starting the application
+**A:** This usually occurs due to missing C++ libraries that are required for the HPC modules:
+1. On Linux: `apt-get install -y libstdc++6 libgomp1`
+2. On macOS: `brew install gcc`
+3. On Windows: Install Visual C++ Redistributable package
+
+#### Q: Redis not connecting
+**A:** The application can work without Redis but will fall back to in-memory rate limiting:
+1. Check your `REDIS_URL` environment variable
+2. Ensure Redis server is running and accessible
+3. If you don't need distributed rate limiting, you can ignore the warnings
+
+### Data Processing Issues
+
+#### Q: RFT operation returns inaccurate results with certain waveforms
+**A:** The RFT algorithm has specific requirements:
+1. Waveform data points should typically be between 0.0 and 1.0
+2. For best results, use waveforms with 2^n points (8, 16, 32, 64, etc.)
+3. Very high-frequency components may be attenuated
+
+```bash
+# Optimal waveform data structure with 32 points
+curl -X POST http://localhost:5000/api/rft \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "waveform": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0,
+                 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
+  }'
+```
+
+### Quantum Engine Issues
+
+#### Q: Quantum simulation fails with larger qubit counts
+**A:** Quantum simulation is computationally intensive:
+1. Start with smaller qubit counts (3-5) and gradually increase
+2. For circuits with >20 qubits, ensure your system has sufficient RAM (16GB+)
+3. Complex circuits with many entangling gates require more resources
+
+#### Q: Inconsistent quantum results between runs
+**A:** This is expected behavior for quantum systems:
+1. Quantum operations are probabilistic - results are statistical distributions
+2. For deterministic testing, set a fixed random seed: add `"random_seed": 42` to your request
+3. Run each circuit multiple times and average the results for more consistent outputs
+
+### Container Operations
+
+#### Q: "Container unlocking failed" errors
+**A:** Container unlocking requires exact matching of waveform, hash, and key:
+1. Ensure you're using the exact original waveform data
+2. Verify the hash value is correct (case-sensitive)
+3. Use the specific key associated with that container
+4. Check if the container has expired (if TTL was set)
+
+```bash
+# Example of correct container unlock request
+curl -X POST http://localhost:5000/api/container/unlock \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "hash": "Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==",
+    "waveform": [0.1, 0.5, 0.9, 0.5, 0.1, 0.5, 0.9],
+    "key": "symbolic-key"
+  }'
+```
+
+## 14. Appendices
 
 ### A. Environment Variables
 
