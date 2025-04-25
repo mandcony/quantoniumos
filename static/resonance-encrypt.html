@@ -2933,19 +2933,21 @@ ${entropyValue}`;
             ctx.fill();
         }
 
-        // Simple hash function for demonstration purposes
+        // Frontend-only hash function for display purposes
+        // This is NOT the proprietary algorithm - just for UI visualization
         function hashString(str) {
+            // Simple non-proprietary hash for display only
             let hash = 0;
-            if (!str || str.length === 0) return hash.toString(16).padStart(8, '0');
+            if (!str || str.length === 0) return "00000000";
             
+            // Standard djb2 hash algorithm (public domain)
             for (let i = 0; i < str.length; i++) {
                 const char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // Convert to 32bit integer
+                hash = ((hash << 5) + hash) + char;
             }
             
             // Convert to 8-character hex string
-            return (hash >>> 0).toString(16).padStart(8, '0');
+            return Math.abs(hash).toString(16).padStart(8, '0').substring(0, 8);
         }
         
         function showError(element, message) {
@@ -2987,15 +2989,8 @@ ${entropyValue}`;
         if (document.readyState === 'loading') {
             // Add these functions for the benchmark tab
         
-        // Hash string for bloom filter
-        function hashString(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = ((hash << 5) - hash) + str.charCodeAt(i);
-                hash = hash & hash;
-            }
-            return Math.abs(hash).toString(16);
-        }
+        // NOTE: We already defined hashString above for the UI.
+        // This is just a reference to the existing function for the bloom filter.
         
         // Setup bloom filter visualization
         function setupBloomFilter() {
