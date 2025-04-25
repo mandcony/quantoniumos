@@ -154,11 +154,22 @@ def encrypt_symbolic(plaintext: str, key: str) -> Dict[str, Any]:
         
         key_bytes = key.encode('utf-8')
         
-        # Key derivation (secure)
-        key_hash = hashlib.sha256(key_bytes).digest()
+        # Strengthen key derivation using PBKDF2
+        salt = hashlib.sha256(b"QuantoniumOS_SALT" + key_bytes[:4]).digest()
+        iterations = 10000  # Recommended minimum for PBKDF2
+        key_size = 32  # 256 bits
+        
+        # Use PBKDF2-HMAC-SHA256 for more secure key derivation
+        key_hash = hashlib.pbkdf2_hmac(
+            'sha256', 
+            key_bytes, 
+            salt, 
+            iterations, 
+            dklen=key_size
+        )
         
         # Generate initial waveform parameters from key
-        key_wave_hash = wave_hash(key_bytes)
+        key_wave_hash = wave_hash(key_bytes + salt)  # Add salt to the key for wave hash
         waves, threshold = extract_wave_parameters(key_wave_hash)
         
         # Mix plaintext with key-derived waveform parameters
@@ -179,12 +190,32 @@ def encrypt_symbolic(plaintext: str, key: str) -> Dict[str, Any]:
             # changes in output (avalanche effect)
             mixed[i] = (b ^ key_hash[i % 32] ^ (amp + phase)) % 256
         
-        # Final HMAC using the key
-        hmac_obj = hmac.new(key_hash, mixed, hashlib.sha256)
+        # Generate a separate key for HMAC
+        hmac_key = hashlib.pbkdf2_hmac(
+            'sha256',
+            key_bytes + b"HMAC_KEY_SEPARATION", 
+            salt, 
+            iterations // 2,  # Lower iterations still secure but faster
+            dklen=key_size
+        )
+        
+        # Create metadata for HMAC context
+        metadata = bytearray()
+        # Add version info (1 byte)
+        metadata.append(0x01)  
+        # Add length of the plaintext (4 bytes)
+        metadata.extend(len(pt_bytes).to_bytes(4, byteorder='big')) 
+        # Add the first 4 bytes of the key salt
+        metadata.extend(salt[:4])
+        
+        # Final HMAC using the dedicated HMAC key with both data and metadata
+        # This protects against length extension attacks and includes context
+        hmac_context = metadata + mixed
+        hmac_obj = hmac.new(hmac_key, hmac_context, hashlib.sha256)
         hmac_digest = hmac_obj.digest()
         
-        # Combine mixed data and HMAC for integrity verification
-        combined = mixed + hmac_digest
+        # Combine mixed data, metadata, and HMAC for integrity verification
+        combined = metadata + mixed + hmac_digest
         
         # Create the ciphertext as the final hash which will also
         # serve as the container identifier
@@ -233,11 +264,24 @@ def decrypt_symbolic(ciphertext: str, key: str) -> Dict[str, Any]:
         
         # This is a simplified version that mimics the real proprietary algorithm
         key_bytes = key.encode('utf-8')
-        key_hash = hashlib.sha256(key_bytes).digest()
+        
+        # Use the same key derivation as encrypt_symbolic for consistency
+        salt = hashlib.sha256(b"QuantoniumOS_SALT" + key_bytes[:4]).digest()
+        iterations = 10000  # Recommended minimum for PBKDF2
+        key_size = 32  # 256 bits
+        
+        # Use PBKDF2-HMAC-SHA256 for more secure key derivation
+        key_hash = hashlib.pbkdf2_hmac(
+            'sha256', 
+            key_bytes, 
+            salt, 
+            iterations, 
+            dklen=key_size
+        )
         
         # We don't have direct access to the original plaintext in this architecture
         # So we perform resonance matching on the container ID/hash
-        key_wave_hash = wave_hash(key_bytes)
+        key_wave_hash = wave_hash(key_bytes + salt)  # Add salt for consistency with encryption
         
         # For demonstration purposes, we validate by re-encrypting
         # This mimics the proprietary algorithm's behavior
