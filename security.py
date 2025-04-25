@@ -146,16 +146,18 @@ def configure_security(app: Flask):
         }
     )
     
-    # Apply specific limits to endpoint groups
-    limiter.limit("60 per minute")(app.route('/api/encrypt'))
-    limiter.limit("60 per minute")(app.route('/api/decrypt'))
-    limiter.limit("30 per minute")(app.route('/api/quantum/initialize'))
-    limiter.limit("30 per minute")(app.route('/api/quantum/circuit'))
-    limiter.limit("30 per minute")(app.route('/api/quantum/benchmark'))
+    # Apply API limits with decorators rather than direct route application
+    # These will be used when routes are registered
+    encryption_limit = limiter.shared_limit("60 per minute", scope="encryption_endpoints")
+    quantum_limit = limiter.shared_limit("30 per minute", scope="quantum_endpoints")
     
-    # Health and status endpoints are exempt from rate limiting
-    limiter.exempt(app.route('/api/health'))
-    limiter.exempt(app.route('/status'))
+    # Note: The following are just definitions that will be used by route decorators
+    # Exempt status and health endpoints that should never be rate limited
+    app.config['RATELIMIT_EXEMPT_ROUTES'] = [
+        '/api/health',
+        '/status',
+        '/api/stream/wave'  # Streaming endpoints should not be rate limited
+    ]
     
     # Add CORS checking to before_request
     @app.before_request

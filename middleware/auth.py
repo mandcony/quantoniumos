@@ -30,16 +30,8 @@ except ImportError:
 # Configure logging
 logger = logging.getLogger("quantonium_auth")
 
-# Try to import Redis, fallback gracefully if not available
-try:
-    import redis
-    REDIS_AVAILABLE = True
-except ImportError:
-    REDIS_AVAILABLE = False
-    logger.warning("Redis package not found. Falling back to in-memory rate limiting.")
-
-# Get Redis URL from environment
-REDIS_URL = os.environ.get('REDIS_URL')
+# Import Redis configuration with fallback mechanism
+from redis_config import get_redis_connection, get_rate_limit, REDIS_AVAILABLE, REDIS_URL
 
 # Create a Redis-backed rate limiter middleware
 class RedisRateLimiter:
@@ -52,12 +44,12 @@ class RedisRateLimiter:
     as a distributed storage backend for better scalability.
     """
     
-    def __init__(self, redis_url, calls=30, period=60, redis_prefix='ratelimit:'):
+    def __init__(self, redis_url=None, calls=30, period=60, redis_prefix='ratelimit:'):
         """
         Initialize the Redis rate limiter.
         
         Args:
-            redis_url: Redis connection URL
+            redis_url: Redis connection URL (not used - we use centralized connection)
             calls: Number of calls allowed
             period: Time period in seconds
             redis_prefix: Prefix for Redis keys
@@ -65,23 +57,12 @@ class RedisRateLimiter:
         self.calls = calls
         self.period = period
         self.prefix = redis_prefix
-        self.redis_client = None
+        self.redis_client = get_redis_connection()
         
-        # Initialize Redis client if Redis is available
-        if not REDIS_AVAILABLE:
-            logger.error("Redis module not available. Cannot initialize Redis rate limiter.")
-            return
-        
-        # Initialize Redis client
-        try:
-            # Use the imported redis module if available
-            import redis as redis_module
-            self.redis_client = redis_module.Redis.from_url(redis_url)
-            self.redis_client.ping()  # Test connection
-            logger.info("Connected to Redis server for distributed rate limiting")
-        except Exception as e:
-            logger.error(f"Failed to connect to Redis: {e}")
-            self.redis_client = None
+        if self.redis_client:
+            logger.info("Using centralized Redis connection for rate limiting")
+        else:
+            logger.warning("Redis not available for rate limiting - will accept all requests")
     
     def check_rate_limit(self, client_ip):
         """
@@ -93,37 +74,16 @@ class RedisRateLimiter:
         Returns:
             Tuple of (exceeded, remaining)
         """
-        # If Redis client is not available, always allow
-        if not self.redis_client:
-            return False, self.calls
-            
-        # Create a key for this IP
-        key = f"{self.prefix}{client_ip}"
+        # Use our central redis_config module for rate limiting
+        result = get_rate_limit(client_ip, self.calls, self.period) 
         
-        try:
-            # Use a pipeline for atomic operations
-            with self.redis_client.pipeline() as pipe:
-                # Atomic operations using Redis pipeline
-                pipe.get(key)
-                pipe.incr(key)
-                pipe.expire(key, self.period)
-                results = pipe.execute()
-                
-                # Get current count (before increment)
-                current_count = 0
-                if results[0]:
-                    current_count = int(results[0])
-                    
-                # Check if over limit
-                if current_count >= self.calls:
-                    return True, 0
-                
-                return False, self.calls - current_count - 1
-                
-        except Exception as e:
-            logger.error(f"Redis error during rate limit check: {e}")
-            # On error, allow the request but log the failure
-            return False, -1
+        # If Redis isn't available or there was an error, always allow the request
+        if result is None:
+            return False, self.calls
+        
+        # Unpack result from redis_config.get_rate_limit
+        exceeded, remaining, reset_time = result
+        return exceeded, remaining
     
     def __call__(self, app):
         """
@@ -272,10 +232,10 @@ def RateLimiter(calls=30, period=60):
     Returns:
         A rate limiter instance
     """
-    if REDIS_AVAILABLE and REDIS_URL:
+    if REDIS_AVAILABLE:
         try:
             # Test Redis connection and return Redis-backed limiter if successful
-            limiter = RedisRateLimiter(REDIS_URL, calls, period)
+            limiter = RedisRateLimiter(calls=calls, period=period)
             if limiter.redis_client:
                 logger.info(f"Using Redis-backed rate limiter ({calls} requests per {period}s)")
                 return limiter
