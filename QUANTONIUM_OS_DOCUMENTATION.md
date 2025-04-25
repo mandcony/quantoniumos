@@ -20,6 +20,51 @@ This developer manual serves as the comprehensive guide to the QuantoniumOS arch
 
 QuantoniumOS adopts a multi-layered architecture designed to maximize security, performance, and extensibility. The system is organized into distinct layers, each with specific responsibilities:
 
+```
+                      ┌───────────────────────────────────────┐
+                      │       QuantoniumOS Architecture       │
+                      └───────────────────────────────────────┘
+                                        │
+                 ┌────────────────────┐ │ ┌────────────────────┐
+                 │                    │ │ │                    │
+                 │  Presentation      │ │ │  CLI Tools         │
+                 │  Layer             │◀┼┐│  quantonium_cli.py │
+                 │  - Web UI          │ │││                    │
+                 │  - API Endpoints   │ │││                    │
+                 │                    │ │││                    │
+                 └────────────────────┘ │││                    │
+                           │            │││                    │
+                           ▼            │││                    │
+┌───────────────┐ ┌───────────────────┐│││                    │
+│               │ │                   ││││                    │
+│  Client Web   │ │  Security Layer   ││││                    │
+│  Browsers     │◀┤  - CORS           ││││                    │
+│               │ │  - Rate Limiting  ││││                    │
+│               │ │  - JWT Auth       ││││                    │
+│               │ │                   │└┼┘                    │
+└───────────────┘ └───────────────────┘ │                    │
+                           │            │                    │
+                           ▼            │                    │
+┌────────────────────────────────────┐  │                    │
+│                                    │  │                    │
+│  Application Layer                 │◀─┘                    │
+│  - Core Encryption Modules         │                       │
+│  - Quantum Simulation Engine       │◀──────────────────────┘
+│  - Container Orchestration         │
+│                                    │
+└────────────────────────────────────┘
+                  │
+                  ▼
+┌────────────────────────────────────┐
+│                                    │
+│  Storage Layer                     │
+│  - Redis Rate Limiting             │
+│  - PostgreSQL Database             │
+│  - Encrypted JWT Secrets           │
+│                                    │
+└────────────────────────────────────┘
+```
+
 ### Presentation Layer
 - Web interfaces for visualization and interaction
 - API endpoints with robust security middleware
