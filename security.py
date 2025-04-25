@@ -36,14 +36,15 @@ def get_cors_origins():
         if replit_domains:
             # Replit domains are separated by commas
             for domain in replit_domains.split(','):
-                # Add both http and https versions
+                # Only use HTTPS versions
                 default_origins.append(f"https://{domain.strip()}")
-                
-        # Add localhost for development
-        default_origins.extend([
-            'http://localhost:5000',
-            'http://localhost:3000'
-        ])
+        
+        # Local development exception - only for direct testing
+        if os.environ.get('LOCAL_DEVELOPMENT') == 'true':
+            default_origins.extend([
+                'https://localhost:5000',
+                'https://localhost:3000'
+            ])
         return default_origins
     
     # Split by comma and strip whitespace
@@ -83,17 +84,16 @@ def configure_security(app: Flask):
     app.config['IS_DEVELOPMENT'] = is_development
     
     # Set up Talisman for HTTPS, HSTS, and CSP
-    # Note: We enforce HTTPS everywhere now except localhost development
-    local_development = is_development and (
-        os.environ.get('REPLIT_ENVIRONMENT') is None or 
-        os.environ.get('LOCAL_DEVELOPMENT') == 'true'
-    )
+    # We enforce HTTPS everywhere now with a limited exception for local development
+    is_local_development = os.environ.get('LOCAL_DEVELOPMENT') == 'true'
+    if is_local_development:
+        logger.debug("Local development mode detected")
     
     talisman = Talisman(
         app,
         content_security_policy=CSP_POLICY,
         content_security_policy_nonce_in=['script-src'],
-        force_https=not local_development,  # Force HTTPS except for local development
+        force_https=True,  # Force HTTPS by default
         force_https_permanent=True,
         force_file_save=True,
         frame_options='SAMEORIGIN',  # Allow only same-origin embedding
@@ -102,7 +102,7 @@ def configure_security(app: Flask):
         strict_transport_security_preload=True,
         strict_transport_security_max_age=31536000,  # 1 year
         referrer_policy='no-referrer',
-        session_cookie_secure=not local_development,  # Use secure cookies except in local dev
+        session_cookie_secure=True,  # Always use secure cookies
         session_cookie_http_only=True
     )
     
