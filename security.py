@@ -36,15 +36,13 @@ def get_cors_origins():
         if replit_domains:
             # Replit domains are separated by commas
             for domain in replit_domains.split(','):
-                # Only add HTTPS versions - enforce HTTPS everywhere
+                # Add both http and https versions
                 default_origins.append(f"https://{domain.strip()}")
                 
-        # Add localhost for development (with HTTPS)
-        # Local development should now use HTTPS even for localhost
-        # For truly local development without certs, use the HTTPS_EXEMPT_HOSTS env var
+        # Add localhost for development
         default_origins.extend([
-            'https://localhost:5000',
-            'https://localhost:3000'
+            'http://localhost:5000',
+            'http://localhost:3000'
         ])
         return default_origins
     
@@ -85,7 +83,7 @@ def configure_security(app: Flask):
     app.config['IS_DEVELOPMENT'] = is_development
     
     # Set up Talisman for HTTPS, HSTS, and CSP
-    # Note: We enforce HTTPS for all environments including development
+    # Note: We enforce HTTPS everywhere now except localhost development
     local_development = is_development and (
         os.environ.get('REPLIT_ENVIRONMENT') is None or 
         os.environ.get('LOCAL_DEVELOPMENT') == 'true'
@@ -95,7 +93,7 @@ def configure_security(app: Flask):
         app,
         content_security_policy=CSP_POLICY,
         content_security_policy_nonce_in=['script-src'],
-        force_https=True,  # Force HTTPS everywhere for all environments
+        force_https=not local_development,  # Force HTTPS except for local development
         force_https_permanent=True,
         force_file_save=True,
         frame_options='SAMEORIGIN',  # Allow only same-origin embedding
@@ -104,7 +102,7 @@ def configure_security(app: Flask):
         strict_transport_security_preload=True,
         strict_transport_security_max_age=31536000,  # 1 year
         referrer_policy='no-referrer',
-        session_cookie_secure=True,  # Always use secure cookies
+        session_cookie_secure=not local_development,  # Use secure cookies except in local dev
         session_cookie_http_only=True
     )
     
@@ -126,19 +124,9 @@ def configure_security(app: Flask):
         strategy="fixed-window"  # Standard algorithm
     )
     
-    # Add CORS checking and HTTPS enforcement to before_request
+    # Add CORS checking to before_request
     @app.before_request
     def before_request():
-        # Check if the request is using HTTPS, reject if not
-        # This is a belt-and-suspenders approach in addition to Talisman
-        if not request.is_secure and not app.debug:
-            # Check if we're in a proxy environment where X-Forwarded-Proto should be used
-            forwarded_proto = request.headers.get('X-Forwarded-Proto', '')
-            if forwarded_proto != 'https':
-                logger.warning(f"Rejecting non-HTTPS request to {request.path}")
-                abort(403, "HTTPS is required for all requests")
-        
-        # Perform CORS checking
         cors_check()
     
     # Add permissions policy header to all responses
