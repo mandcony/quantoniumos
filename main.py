@@ -18,6 +18,7 @@ from auth.routes import auth_api
 from security import configure_security
 from routes_quantum import initialize_quantum_engine, process_quantum_circuit, quantum_benchmark
 from utils.json_logger import setup_json_logger
+from utils.security_logger import setup_security_logger, log_security_event, SecurityEventType, SecurityOutcome
 from auth import initialize_auth, db, APIKey, APIKeyAuditLog
 
 try:
@@ -81,6 +82,9 @@ def create_app():
     
     # Set up structured JSON logging
     setup_json_logger(app, log_dir="logs", log_level=logging.INFO)
+    
+    # Set up specialized security logging
+    setup_security_logger(app, log_dir="/tmp/logs", log_level=logging.INFO)
     
     # Create tables on startup
     with app.app_context():
