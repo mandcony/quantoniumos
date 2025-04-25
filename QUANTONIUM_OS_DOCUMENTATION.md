@@ -1704,6 +1704,18 @@ Contributors to QuantoniumOS must sign a Contributor License Agreement (CLA) tha
 
 This section covers common issues that developers may encounter when working with QuantoniumOS and their solutions.
 
+### Common Gotchas - Quick Reference
+
+| Problem | Quick Fix |
+|---------|-----------|
+| **Quantum backend connection fails** | Ensure initialization API call is made first: `POST /api/quantum/initialize` |
+| **DLL load errors on startup** | Install required C++ libraries: `apt-get install -y libstdc++6 libgomp1` |
+| **CORS errors in browser** | Add your domain to env var: `CORS_ORIGINS=https://yourdomain.com,http://localhost:3000` |
+| **Redis warnings** | Can be ignored if not using distributed rate limiting |
+| **JWT validation failures** | Ensure correct format: `Authorization: Bearer <token>` (check for typos/spaces) |
+| **Container unlock failures** | The waveform and hash must match EXACTLY (case-sensitive, same array length) |
+| **Eigen library missing** | Run `python download_eigen.py` to download the required matrix library |
+
 ### Connection Issues
 
 #### Q: The API returns "Failed to connect to quantum backend" errors
