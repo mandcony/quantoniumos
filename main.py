@@ -71,6 +71,14 @@ def create_app():
     from middleware.auth import RateLimiter
     app.wsgi_app = RateLimiter(calls=30, period=60)(app.wsgi_app)
     
+    # Add NIST 800-53 compliant security audit middleware
+    try:
+        from middleware.security_audit import initialize_audit_middleware
+        initialize_audit_middleware(app)
+        logger.info("NIST 800-53 compliant audit middleware initialized")
+    except ImportError as e:
+        logger.warning(f"Security audit middleware not available: {str(e)}")
+    
     app.config["JSON_SORT_KEYS"] = False  # Maintain insertion order
     
     # Enable debug mode for development, disable for production
