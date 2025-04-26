@@ -1,9 +1,8 @@
 """
 Quantonium OS - Middleware Package
 
-Contains middleware components for authentication, rate limiting, and other request processing.
+Contains all middleware components for the application.
 """
 
-from middleware.auth import require_jwt_auth, RateLimiter
-
-__all__ = ['require_jwt_auth', 'RateLimiter']
+# Make modules available for import
+from .security_audit import initialize_audit_middleware

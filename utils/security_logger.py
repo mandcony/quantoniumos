@@ -1,536 +1,498 @@
 """
-Quantonium OS - Security Logging Module
+Quantonium OS - Security Logging Utilities - NIST Compliant
 
-Implements centralized security logging with rich contextual metadata and 
-consistent formatting for security-related events across the application.
-This module is designed to complement the existing JSON logging system
-while providing enhanced security context for auditing and threat detection.
+This module provides enhanced security logging capabilities that track
+security-related events with detailed contextual information, following
+NIST SP 800-53 Rev. 5 audit and accountability controls (AU family).
 """
 
-import os
+import logging
 import json
 import time
 import uuid
 import socket
-import logging
-import inspect
-import platform
-import traceback
 import hashlib
-from datetime import datetime
-from logging.handlers import TimedRotatingFileHandler
-from flask import request, g, current_app
-from functools import wraps
+import os
+import platform
+import datetime
+import sys
+import traceback
+from enum import Enum
+from typing import Dict, List, Optional, Any, Union
 
-# Import JSON logger to maintain compatibility
-from utils.json_logger import JSONFormatter
+# Import Flask request object for request logging
+try:
+    from flask import request
+except ImportError:
+    request = None
+    print("Flask not available - request logging will be limited")
 
-# Set up the security logger
-security_logger = logging.getLogger("quantonium_security")
+# Configure the security logger
+logger = logging.getLogger("quantonium_security_events")
+logger.setLevel(logging.INFO)
 
-# Security event types
-class SecurityEventType:
-    """Standard security event types for consistent logging"""
-    AUTHENTICATION = "AUTHENTICATION"
-    AUTHORIZATION = "AUTHORIZATION"
-    ACCESS_DENIED = "ACCESS_DENIED"
-    API_KEY = "API_KEY"
-    RATE_LIMIT = "RATE_LIMIT"
-    INPUT_VALIDATION = "INPUT_VALIDATION"
-    CONFIGURATION = "CONFIGURATION"
-    JWT = "JWT"
-    CONTAINER_ACCESS = "CONTAINER_ACCESS"
-    SUSPICIOUS_ACTIVITY = "SUSPICIOUS_ACTIVITY"
-    ENCRYPTION = "ENCRYPTION"
-    SECRET_MANAGEMENT = "SECRET_MANAGEMENT"
-    KEY_ROTATION = "KEY_ROTATION"
-    SYSTEM = "SYSTEM"
+# Create console handler if not in production
+if os.environ.get("FLASK_ENV") != "production":
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
-# Security outcomes
-class SecurityOutcome:
-    """Standard security outcomes for consistent logging"""
-    SUCCESS = "SUCCESS"
-    FAILURE = "FAILURE"
-    BLOCKED = "BLOCKED"
-    WARNING = "WARNING"
-    INFO = "INFO"
+# Ensure log directory exists
+log_dir = os.path.join(os.getcwd(), "logs", "security")
+os.makedirs(log_dir, exist_ok=True)
 
-class SecurityJSONFormatter(JSONFormatter):
-    """
-    Extended JSON formatter that adds security-specific fields
-    to log records while maintaining compatibility with the base formatter.
-    """
-    
-    def format(self, record):
-        """
-        Format the log record as a JSON object with enhanced security fields.
-        """
-        # Get the standard formatted data from parent class
-        log_data = json.loads(super(SecurityJSONFormatter, self).format(record))
-        
-        # Add security-specific fields if present
-        if hasattr(record, 'event_type'):
-            log_data['event_type'] = record.event_type
-            
-        if hasattr(record, 'event_id'):
-            log_data['event_id'] = record.event_id
-            
-        if hasattr(record, 'outcome'):
-            log_data['outcome'] = record.outcome
-            
-        if hasattr(record, 'security_labels'):
-            log_data['security_labels'] = record.security_labels
-            
-        if hasattr(record, 'target_resource'):
-            log_data['target_resource'] = record.target_resource
-            
-        if hasattr(record, 'source_module'):
-            log_data['source_module'] = record.source_module
-            
-        if hasattr(record, 'user_id'):
-            log_data['user_id'] = record.user_id
-            
-        if hasattr(record, 'correlation_id'):
-            log_data['correlation_id'] = record.correlation_id
-            
-        return json.dumps(log_data)
-
-def setup_security_logger(app, log_dir="/tmp/logs", log_level=logging.INFO):
-    """
-    Set up specialized security logging with enhanced metadata.
-    
-    Args:
-        app: Flask application instance
-        log_dir: Directory to store security log files
-        log_level: Logging level to use
-    """
-    global security_logger
-    
-    # Create log directory if it doesn't exist
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-    
-    # Configure the Security JSON formatter
-    security_formatter = SecurityJSONFormatter()
-    
-    # Set up timed rotating file handler (rotate daily, keep 30 days for security)
-    security_log_file = os.path.join(log_dir, 'quantonium_security.log')
-    security_file_handler = TimedRotatingFileHandler(
-        security_log_file,
-        when='D',  # Daily rotation
+# Add file handler for persistent security logs
+try:
+    # Create a rotating file handler that rotates daily
+    from logging.handlers import TimedRotatingFileHandler
+    security_log_file = os.path.join(log_dir, "security.log")
+    file_handler = TimedRotatingFileHandler(
+        security_log_file, 
+        when='midnight',
         interval=1,
-        backupCount=30  # Keep logs longer for security audit
+        backupCount=90  # Keep 90 days of logs (NIST AU-11)
     )
-    
-    # Create the log file to ensure it exists
-    with open(security_log_file, 'a'):
-        pass
-    
-    security_file_handler.setFormatter(security_formatter)
-    security_file_handler.setLevel(log_level)
-    
-    # Add the handler to the security logger
-    security_logger.addHandler(security_file_handler)
-    security_logger.setLevel(log_level)
-    
-    # Also add a console handler for development environments
-    if app.config.get('DEBUG', False):
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(security_formatter)
-        console_handler.setLevel(log_level)
-        security_logger.addHandler(console_handler)
-    
-    # Add security logger to the app for easy access
-    app.security_logger = security_logger
-    
-    return security_file_handler
+    file_handler.setLevel(logging.INFO)
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+except Exception as e:
+    sys.stderr.write(f"Failed to configure security log file: {str(e)}\n")
 
-def log_security_event(
-    event_type,
-    message,
-    outcome=SecurityOutcome.INFO,
-    level=logging.INFO,
-    target_resource=None,
-    user_id=None,
-    metadata=None,
-    security_labels=None,
-    exception=None
-):
+# Security event types for categorization (aligned with NIST SP 800-53)
+class SecurityEventType(str, Enum):
+    """Enumeration of security event types based on NIST categories"""
+    AUTHENTICATION = "authentication"  # AU-14, IA-2
+    AUTHORIZATION = "authorization"    # AC-3
+    ACCESS_DENIED = "access_denied"    # AC-7
+    DATA_ACCESS = "data_access"        # AU-3
+    CONFIGURATION_CHANGE = "configuration_change"  # CM-5
+    CRYPTO_OPERATION = "crypto_operation"  # SC-13
+    RATE_LIMIT = "rate_limit"          # SC-5
+    SUSPICIOUS_ACTIVITY = "suspicious_activity"  # SI-4
+    SYSTEM_ERROR = "system_error"      # AU-5
+    AUDIT = "audit"                    # AU-2
+    DATA_VALIDATION = "data_validation"  # SI-10
+    PRIVILEGED_FUNCTION = "privileged_function"  # AC-6
+    BOUNDARY_VIOLATION = "boundary_violation"  # SC-7
+
+# Outcome types
+class SecurityOutcome(str, Enum):
+    """Enumeration of security event outcomes"""
+    SUCCESS = "success"
+    FAILURE = "failure"
+    BLOCKED = "blocked"
+    WARNING = "warning"
+    UNKNOWN = "unknown"
+    BYPASS_ATTEMPT = "bypass_attempt"
+    TAMPERING_ATTEMPT = "tampering_attempt"
+
+# NIST Impact Levels
+class ImpactLevel(str, Enum):
+    """NIST FIPS 199 impact levels"""
+    LOW = "low"
+    MODERATE = "moderate"
+    HIGH = "high"
+
+def get_system_info() -> Dict[str, str]:
     """
-    Log a security event with standardized structure and metadata.
-    
-    Args:
-        event_type: Type of security event (use SecurityEventType constants)
-        message: Human-readable message describing the event
-        outcome: Outcome of the event (use SecurityOutcome constants)
-        level: Log level (logging.INFO, logging.WARNING, etc.)
-        target_resource: Resource being accessed or modified
-        user_id: ID of the user performing the action (if known)
-        metadata: Dict of additional event-specific information
-        security_labels: List of security labels for categorization
-        exception: Exception object if event is related to an error
+    Get basic system information for contextual logging.
+    Does not include sensitive information.
     
     Returns:
-        event_id: Unique identifier for the logged event
+        Dictionary with basic system information
     """
-    global security_logger
+    return {
+        "hostname": socket.gethostname(),
+        "platform": platform.system(),
+        "platform_release": platform.release(),
+        "python_version": platform.python_version()
+    }
+
+def generate_event_id() -> str:
+    """
+    Generate a unique event ID for correlation.
     
-    # Generate a unique ID for the event
-    event_id = str(uuid.uuid4())
+    Returns:
+        Unique event ID
+    """
+    # Combine current time with a random UUID
+    timestamp = datetime.datetime.now().isoformat()
+    random_component = str(uuid.uuid4())
+    raw_id = f"{timestamp}-{random_component}"
     
-    # Get the calling function details
-    module_name = "unknown_module"
-    function_name = "unknown_function"
-    line_number = 0
+    # Hash to create a fixed-length ID
+    return hashlib.sha256(raw_id.encode()).hexdigest()[:24]
+
+def log_security_event(
+    event_type: SecurityEventType,
+    message: str,
+    outcome: SecurityOutcome = SecurityOutcome.UNKNOWN,
+    level: int = logging.INFO,
+    target_resource: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    security_labels: Optional[List[str]] = None,
+    impact_level: ImpactLevel = ImpactLevel.LOW,
+    user_id: Optional[str] = None,
+    source_ip: Optional[str] = None,
+    correlation_id: Optional[str] = None,
+    include_stack_trace: bool = False
+):
+    """
+    Log a security event with enriched context following NIST guidelines.
     
-    try:
-        frame = inspect.currentframe()
-        if frame and frame.f_back:
-            frame = frame.f_back
-            module_name = frame.f_globals.get('__name__', 'unknown_module')
-            function_name = frame.f_code.co_name if frame.f_code else 'unknown_function'
-            line_number = frame.f_lineno if hasattr(frame, 'f_lineno') else 0
-    except (AttributeError, TypeError):
-        # Handle edge cases where frame information is not available
-        pass
+    Args:
+        event_type: Type of security event from SecurityEventType enum
+        message: Human-readable description of the event
+        outcome: Outcome of the event from SecurityOutcome enum
+        level: Logging level (default: INFO)
+        target_resource: Resource that was targeted by the event
+        metadata: Additional contextual information as a dictionary
+        security_labels: List of security labels/tags for the event
+        impact_level: NIST FIPS 199 impact level of the event
+        user_id: ID of the user associated with the event (if applicable)
+        source_ip: Source IP address for the event (if applicable)
+        correlation_id: ID for correlating related events
+        include_stack_trace: Whether to include stack trace for errors
+    """
+    # Generate an event ID for correlation if not provided
+    event_id = correlation_id or generate_event_id()
     
-    # Get correlation ID from request context or generate new one
-    correlation_id = None
+    # Get current timestamp in ISO format with TZ info for audit compliance
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
     
-    # First, check if we're in an application context
-    try:
-        if hasattr(g, 'correlation_id'):
-            correlation_id = g.correlation_id
-        
-        # Check if we're in a request context
-        try:
-            if request and request.headers:
-                correlation_id = request.headers.get('X-Correlation-ID')
-                if correlation_id:
-                    # Store in g for other logs to use
-                    g.correlation_id = correlation_id
-        except RuntimeError:
-            # Not in a request context
-            pass
-    except RuntimeError:
-        # Not in an application context
-        pass
+    # Create a comprehensive event record
+    event_data = {
+        "event_id": event_id,
+        "timestamp": timestamp,
+        "event_type": str(event_type),
+        "message": message,
+        "outcome": str(outcome),
+        "impact_level": str(impact_level),
+        "system_info": get_system_info(),
+        "target_resource": target_resource
+    }
     
-    # If no correlation_id, generate one
-    if not correlation_id:
-        correlation_id = f"auto-{uuid.uuid4()}"
-    
-    # Get request information if available
-    request_path = None
-    request_method = None
-    request_ip = None
-    api_key_prefix = None
-    
-    # Safely check if we're in a request context
-    try:
-        if hasattr(request, '_get_current_object'):
-            req = request._get_current_object()
-            if req:
-                request_path = req.path
-                request_method = req.method
-                request_ip = req.remote_addr
-                
-                # Extract API key information for logging (safely)
-                auth_header = req.headers.get('Authorization')
-                if auth_header and auth_header.startswith('Bearer ') and len(auth_header) > 15:
-                    # Extract first 8 chars of the token (safe to log)
-                    api_key_prefix = auth_header[7:15] + "..."
-    except (RuntimeError, AttributeError):
-        # Not in a request context
-        pass
-    
-    # Get user ID from context if not provided
-    try:
-        if user_id is None and hasattr(g, 'user') and g.user:
-            user_id = g.user.get('id')
-    except RuntimeError:
-        # Not in an application context, can't access g
-        pass
-    
-    # Create the record
-    record = security_logger.makeRecord(
-        name=security_logger.name,
-        level=level,
-        fn=function_name,
-        lno=line_number,
-        msg=message,
-        args=(),
-        exc_info=exception
-    )
-    
-    # Add standard security metadata
-    record.event_type = event_type
-    record.event_id = event_id
-    record.outcome = outcome
-    record.source_module = f"{module_name}.{function_name}"
-    record.correlation_id = correlation_id
-    
-    # Add request context if available
-    if request_path:
-        record.request_path = request_path
-    if request_method:
-        record.request_method = request_method
-    if request_ip:
-        record.request_ip = request_ip
-    if api_key_prefix:
-        record.api_key_prefix = api_key_prefix
-    
-    # Add user context if available
+    # Add user information if available
     if user_id:
-        record.user_id = user_id
+        event_data["user_id"] = user_id
     
-    # Add target resource if provided
-    if target_resource:
-        record.target_resource = target_resource
+    # Add source IP if available
+    if source_ip:
+        event_data["source_ip"] = source_ip
     
-    # Add security labels if provided
-    if security_labels:
-        record.security_labels = security_labels
+    # Add stack trace for errors if requested
+    if include_stack_trace and level >= logging.ERROR:
+        event_data["stack_trace"] = traceback.format_stack()
     
-    # Add additional metadata if provided
+    # Add optional fields if provided
     if metadata:
-        for key, value in metadata.items():
-            setattr(record, key, value)
+        event_data["metadata"] = metadata
     
-    # Log the record
-    security_logger.handle(record)
+    if security_labels:
+        event_data["security_labels"] = security_labels
     
+    # Log the event at the appropriate level
+    log_entry = json.dumps(event_data)
+    
+    if level == logging.DEBUG:
+        logger.debug(log_entry)
+    elif level == logging.INFO:
+        logger.info(log_entry)
+    elif level == logging.WARNING:
+        logger.warning(log_entry)
+    elif level == logging.ERROR:
+        logger.error(log_entry)
+    elif level == logging.CRITICAL:
+        logger.critical(log_entry)
+    else:
+        logger.info(log_entry)
+    
+    # For high-impact security events, flush logs immediately
+    if str(impact_level) == str(ImpactLevel.HIGH):
+        for handler in logger.handlers:
+            handler.flush()
+            
     return event_id
 
-def log_auth_success(user_id, message=None, metadata=None):
-    """Log successful authentication events"""
-    if message is None:
-        message = f"Authentication succeeded for user {user_id}"
+def sanitize_sensitive_data(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Sanitize potentially sensitive data from logs.
     
-    return log_security_event(
-        event_type=SecurityEventType.AUTHENTICATION,
-        message=message,
-        outcome=SecurityOutcome.SUCCESS,
-        level=logging.INFO,
-        user_id=user_id,
-        metadata=metadata
-    )
-
-def log_auth_failure(user_id=None, message=None, metadata=None, reason=None):
-    """Log failed authentication events"""
-    if message is None:
-        message = f"Authentication failed" + (f" for user {user_id}" if user_id else "")
+    Args:
+        data: Dictionary with data to sanitize
+        
+    Returns:
+        Sanitized dictionary
+    """
+    sensitive_keys = [
+        'password', 'token', 'secret', 'key', 'credential', 'auth',
+        'apikey', 'api_key', 'private', 'ssn', 'creditcard', 'credit_card',
+        'card_number', 'cvv', 'jwt', 'access_token'
+    ]
     
-    if reason and not metadata:
-        metadata = {"reason": reason}
-    elif reason:
-        if metadata is None:
-            metadata = {}
+    sanitized = {}
+    
+    for k, v in data.items():
+        # Check if this key contains any sensitive keywords
+        key_lower = k.lower()
+        is_sensitive = any(s in key_lower for s in sensitive_keys)
+        
+        if is_sensitive:
+            if isinstance(v, str):
+                # Mask the value, keeping only type and length information
+                sanitized[k] = f"[REDACTED:{type(v).__name__}:{len(v)}]"
+            else:
+                sanitized[k] = f"[REDACTED:{type(v).__name__}]"
+        elif isinstance(v, dict):
+            # Recursively sanitize nested dictionaries
+            sanitized[k] = sanitize_sensitive_data(v)
+        elif isinstance(v, list) and all(isinstance(i, dict) for i in v):
+            # Sanitize list of dictionaries
+            sanitized[k] = [sanitize_sensitive_data(i) for i in v]
         else:
-            metadata = dict(metadata)  # safer than .copy() for None
-        metadata["reason"] = reason
-    
-    return log_security_event(
-        event_type=SecurityEventType.AUTHENTICATION,
-        message=message,
-        outcome=SecurityOutcome.FAILURE,
-        level=logging.WARNING,
-        user_id=user_id,
-        metadata=metadata
-    )
+            sanitized[k] = v
+            
+    return sanitized
 
-def log_access_denied(resource, user_id=None, message=None, metadata=None):
-    """Log access denied events"""
-    if message is None:
-        message = f"Access denied to {resource}" + (f" for user {user_id}" if user_id else "")
+def log_rate_limit_exceeded(
+    client_ip: str, 
+    resource: str, 
+    message: Optional[str] = None, 
+    metadata: Optional[Dict[str, Any]] = None,
+    user_id: Optional[str] = None
+):
+    """
+    Specialized method to log rate limit exceeded events for NIST AC-7.
     
-    return log_security_event(
-        event_type=SecurityEventType.ACCESS_DENIED,
-        message=message,
-        outcome=SecurityOutcome.BLOCKED,
-        level=logging.WARNING,
-        user_id=user_id,
-        target_resource=resource,
-        metadata=metadata
-    )
-
-def log_rate_limit_exceeded(client_ip, resource, message=None, metadata=None):
-    """Log rate limit exceeded events"""
-    if message is None:
-        message = f"Rate limit exceeded for {resource} from {client_ip}"
+    Args:
+        client_ip: IP address of the client
+        resource: Resource that triggered the rate limit
+        message: Optional custom message
+        metadata: Additional metadata
+        user_id: ID of the user (if known)
+    """
+    if not message:
+        message = f"Rate limit exceeded for {client_ip} on {resource}"
     
     if not metadata:
         metadata = {}
     
-    metadata["client_ip"] = client_ip
+    metadata.update({
+        "client_ip": client_ip,
+        "rate_limited_resource": resource
+    })
     
-    return log_security_event(
+    # Sanitize any potentially sensitive data
+    safe_metadata = sanitize_sensitive_data(metadata)
+    
+    log_security_event(
         event_type=SecurityEventType.RATE_LIMIT,
         message=message,
         outcome=SecurityOutcome.BLOCKED,
         level=logging.WARNING,
         target_resource=resource,
-        metadata=metadata
-    )
-
-def log_input_validation_failure(resource, validation_errors, user_id=None, message=None, metadata=None):
-    """Log input validation failure events"""
-    if message is None:
-        message = f"Input validation failed for {resource}"
-    
-    if not metadata:
-        metadata = {}
-    
-    metadata["validation_errors"] = validation_errors
-    
-    return log_security_event(
-        event_type=SecurityEventType.INPUT_VALIDATION,
-        message=message,
-        outcome=SecurityOutcome.FAILURE,
-        level=logging.WARNING,
+        metadata=safe_metadata,
+        security_labels=["rate-limit-exceeded", "dos-protection"],
+        impact_level=ImpactLevel.MODERATE,
         user_id=user_id,
-        target_resource=resource,
-        metadata=metadata
+        source_ip=client_ip
     )
 
-def log_suspicious_activity(activity_type, details, user_id=None, client_ip=None, message=None, metadata=None):
-    """Log suspicious activity events"""
-    if message is None:
-        message = f"Suspicious activity detected: {activity_type}"
+def log_suspicious_activity(
+    activity_type: str, 
+    message: str, 
+    client_ip: Optional[str] = None, 
+    resource: Optional[str] = None, 
+    metadata: Optional[Dict[str, Any]] = None,
+    user_id: Optional[str] = None,
+    impact_level: ImpactLevel = ImpactLevel.MODERATE
+):
+    """
+    Log potentially suspicious activity for review per NIST SI-4.
     
+    Args:
+        activity_type: Type of suspicious activity
+        message: Description of the suspicious activity
+        client_ip: IP address of the client
+        resource: Resource involved in the activity
+        metadata: Additional metadata
+        user_id: ID of the user (if known)
+        impact_level: NIST impact level of the suspicious activity
+    """
     if not metadata:
         metadata = {}
-    
-    metadata["activity_type"] = activity_type
-    metadata["details"] = details
     
     if client_ip:
         metadata["client_ip"] = client_ip
     
-    return log_security_event(
+    # Sanitize any potentially sensitive data
+    safe_metadata = sanitize_sensitive_data(metadata)
+    
+    log_security_event(
         event_type=SecurityEventType.SUSPICIOUS_ACTIVITY,
         message=message,
         outcome=SecurityOutcome.WARNING,
         level=logging.WARNING,
+        target_resource=resource,
+        metadata=safe_metadata,
+        security_labels=["suspicious-activity", activity_type],
+        impact_level=impact_level,
         user_id=user_id,
-        metadata=metadata,
-        security_labels=["potential-security-threat"]
+        source_ip=client_ip
     )
 
-def log_container_access(container_hash, outcome, user_id=None, message=None, metadata=None):
-    """Log container access events"""
-    if message is None:
-        message = f"Container access attempt: {outcome} for hash {container_hash[:8]}..."
-    
-    return log_security_event(
-        event_type=SecurityEventType.CONTAINER_ACCESS,
-        message=message,
-        outcome=outcome,
-        level=logging.INFO if outcome == SecurityOutcome.SUCCESS else logging.WARNING,
-        user_id=user_id,
-        target_resource=f"container:{container_hash[:8]}",
-        metadata=metadata
-    )
-
-def log_key_rotation(key_type, outcome, user_id=None, message=None, metadata=None):
-    """Log key rotation events"""
-    if message is None:
-        message = f"Key rotation: {outcome} for {key_type}"
-    
-    return log_security_event(
-        event_type=SecurityEventType.KEY_ROTATION,
-        message=message,
-        outcome=outcome,
-        level=logging.INFO if outcome == SecurityOutcome.SUCCESS else logging.WARNING,
-        user_id=user_id,
-        target_resource=f"key_rotation:{key_type}",
-        metadata=metadata
-    )
-
-def log_jwt_event(action, outcome, user_id=None, message=None, metadata=None):
-    """Log JWT token events"""
-    if message is None:
-        message = f"JWT {action}: {outcome}" + (f" for user {user_id}" if user_id else "")
-    
-    return log_security_event(
-        event_type=SecurityEventType.JWT,
-        message=message,
-        outcome=outcome,
-        level=logging.INFO if outcome == SecurityOutcome.SUCCESS else logging.WARNING,
-        user_id=user_id,
-        metadata=metadata
-    )
-
-def security_audit(event_type=None):
+def log_audit_event(
+    action: str,
+    message: str,
+    user_id: Optional[str] = None,
+    resource: Optional[str] = None,
+    outcome: SecurityOutcome = SecurityOutcome.SUCCESS,
+    metadata: Optional[Dict[str, Any]] = None,
+    client_ip: Optional[str] = None
+):
     """
-    Decorator for logging security-sensitive function calls with 
-    automatic capturing of function arguments, return values, and exceptions.
+    Log an audit event for compliance purposes per NIST AU-2.
     
     Args:
-        event_type: Type of security event (defaults to function name)
+        action: The action being audited
+        message: Description of the audit event
+        user_id: ID of the user performing the action
+        resource: Resource affected by the action
+        outcome: Outcome of the action
+        metadata: Additional metadata
+        client_ip: IP address of the client
+    """
+    if not metadata:
+        metadata = {}
+    
+    metadata["audit_action"] = action
+    
+    # Sanitize any potentially sensitive data
+    safe_metadata = sanitize_sensitive_data(metadata)
+    
+    log_security_event(
+        event_type=SecurityEventType.AUDIT,
+        message=message,
+        outcome=outcome,
+        level=logging.INFO,
+        target_resource=resource,
+        metadata=safe_metadata,
+        security_labels=["audit", action],
+        user_id=user_id,
+        source_ip=client_ip
+    )
+
+def log_data_validation_failure(
+    input_source: str,
+    validation_error: str,
+    user_id: Optional[str] = None,
+    client_ip: Optional[str] = None,
+    resource: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None
+):
+    """
+    Log input validation failures per NIST SI-10.
+    
+    Args:
+        input_source: Source of the invalid input
+        validation_error: Description of the validation error
+        user_id: ID of the user submitting the input
+        client_ip: IP address of the client
+        resource: Resource targeted by the input
+        metadata: Additional metadata
+    """
+    if not metadata:
+        metadata = {}
+    
+    metadata["validation_source"] = input_source
+    metadata["validation_error"] = validation_error
+    
+    # Sanitize any potentially sensitive data
+    safe_metadata = sanitize_sensitive_data(metadata)
+    
+    message = f"Input validation failed for {input_source}: {validation_error}"
+    
+    log_security_event(
+        event_type=SecurityEventType.DATA_VALIDATION,
+        message=message,
+        outcome=SecurityOutcome.FAILURE,
+        level=logging.WARNING,
+        target_resource=resource,
+        metadata=safe_metadata,
+        security_labels=["validation-failure", input_source],
+        user_id=user_id,
+        source_ip=client_ip
+    )
+
+# Flask app setup function (compatibility with existing code)
+def setup_security_logger(app, log_dir="/tmp/logs", log_level=logging.INFO):
+    """
+    Set up a security logger for the Flask application.
+    
+    This is a compatibility function for the existing application.
+    The actual security logging functionality is handled by the log_security_event function.
+    
+    Args:
+        app: Flask application
+        log_dir: Directory for log files
+        log_level: Logging level
         
     Returns:
-        Decorated function
+        The configured logger
     """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            # Get the actual event type or use the function name
-            actual_event_type = event_type or f"{func.__module__}.{func.__name__}"
-            
-            # Build metadata about function call
-            metadata = {
-                "function": func.__name__,
-                "module": func.__module__,
-                "args_count": len(args),
-                "kwargs_keys": list(kwargs.keys()) if kwargs else []
-            }
-            
-            # Log the function call
-            event_id = log_security_event(
-                event_type=actual_event_type,
-                message=f"Executing security-sensitive function: {func.__name__}",
-                outcome=SecurityOutcome.INFO,
-                level=logging.INFO,
-                metadata=metadata
-            )
-            
-            try:
-                # Execute the function
-                result = func(*args, **kwargs)
-                
-                # Log successful execution
-                log_security_event(
-                    event_type=actual_event_type,
-                    message=f"Successfully executed {func.__name__}",
-                    outcome=SecurityOutcome.SUCCESS,
-                    level=logging.INFO,
-                    metadata={
-                        "correlation_event_id": event_id,
-                        "has_result": result is not None
-                    }
-                )
-                
-                return result
-                
-            except Exception as e:
-                # Log the exception
-                log_security_event(
-                    event_type=actual_event_type,
-                    message=f"Exception in {func.__name__}: {str(e)}",
-                    outcome=SecurityOutcome.FAILURE,
-                    level=logging.ERROR,
-                    metadata={
-                        "correlation_event_id": event_id,
-                        "exception_type": type(e).__name__,
-                        "exception_message": str(e)
-                    },
-                    exception=e
-                )
-                
-                # Re-raise the exception
-                raise
-                
-        return wrapper
+    # Create the log directory if it doesn't exist
+    os.makedirs(log_dir, exist_ok=True)
     
-    return decorator
+    # Add file handler for security log if not already added
+    handler_exists = False
+    for handler in logger.handlers:
+        if isinstance(handler, logging.FileHandler) and handler.baseFilename.endswith("security.log"):
+            handler_exists = True
+            break
+    
+    if not handler_exists:
+        try:
+            # Add a dedicated security log file
+            security_file = os.path.join(log_dir, "security.log")
+            handler = logging.FileHandler(security_file)
+            handler.setLevel(log_level)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            
+            # Log initialization message
+            logger.info("Security logger initialized")
+            
+            # Add security logging to the application if Flask is available
+            if request is not None and hasattr(app, 'before_request'):
+                @app.before_request
+                def log_request_info():
+                    # Skip logging for static files and assets
+                    if hasattr(request, 'path'):
+                        if request.path.startswith('/static/') or request.path.endswith(('.js', '.css', '.png', '.jpg', '.ico')):
+                            return
+                        
+                        # Log basic request info
+                        log_security_event(
+                            event_type=SecurityEventType.AUDIT,
+                            message=f"Request: {request.method} {request.path}",
+                            outcome=SecurityOutcome.UNKNOWN,
+                            level=logging.INFO,
+                            target_resource=request.path,
+                            metadata={
+                                "method": request.method,
+                                "ip": request.remote_addr,
+                                "user_agent": request.headers.get('User-Agent', 'Unknown')
+                            },
+                            security_labels=["http-request"],
+                            impact_level=ImpactLevel.LOW,
+                            source_ip=request.remote_addr
+                        )
+            
+        except Exception as e:
+            logger.error(f"Error setting up security logger: {str(e)}")
+    
+    return logger
