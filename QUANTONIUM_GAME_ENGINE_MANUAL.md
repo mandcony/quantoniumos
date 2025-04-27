@@ -180,34 +180,6 @@ const terrain = QuantumProcedural.generateTerrain({
 });
 ```
 
-## 4.1.1 Resonance Fourier Transform Visualization
-
-The engine includes an advanced visualization system for the Resonance Fourier Transform (RFT):
-
-- Real-time visualization of waveform transformations
-- Interactive 3D representation of phase spaces
-- Time-domain and frequency-domain synchronized views
-- Resonance detection and highlighting
-
-This visualization system provides both developers and players with insight into the wave-based mathematical principles that power the engine:
-
-```python
-# RFT visualization integration
-from quantum_engine import RFTVisualizer
-
-# Create a visualization of procedural terrain waveforms
-visualizer = RFTVisualizer()
-visualizer.load_waveform(terrain.get_height_field())
-visualizer.analyze()
-visualizer.render(output_format="interactive")  # or "video", "image_sequence"
-```
-
-The visualization component serves multiple purposes:
-- Debugging tool for game developers
-- Educational feature for players interested in the underlying mathematics
-- Demonstration of the quantum-inspired principles from patent #19/169/399
-- Analysis tool for optimizing procedural generation parameters
-
 ## 4.2 Cryptographic Building System
 
 Player creations are secured using the QuantoniumOS container system:
