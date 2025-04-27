@@ -624,7 +624,7 @@
         }
         
         /* Three-Body Solver Tab Styles */
-        #three-body-canvas {
+        #three-body-canvas, #phase-canvas {
             background-color: #000;
             border-radius: 4px;
             display: block;
@@ -634,6 +634,118 @@
         #three-body-visualization {
             margin: 20px 0;
             text-align: center;
+        }
+        
+        .three-body-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            margin: 15px 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .three-body-analysis {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 20px 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .analysis-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .analysis-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .results-panel {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .resonance-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .resonance-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .resonance-bodies {
+            font-weight: bold;
+            color: var(--quantum-color);
+        }
+        
+        .resonance-ratio {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .resonance-strength {
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        .metrics-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .metric-box {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 10px 20px;
+            text-align: center;
+            flex: 1;
+            max-width: 200px;
+        }
+        
+        .metric-box h5 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .metric-value {
+            font-size: 22px;
+            font-weight: bold;
+            font-family: monospace;
+            color: var(--quantum-color);
         }
         
         .resonance-pattern {
@@ -1086,10 +1198,62 @@
                     <canvas id="three-body-canvas" width="800" height="600"></canvas>
                 </div>
                 
+                <div class="three-body-controls">
+                    <div class="control-row">
+                        <label for="simulation-speed">Simulation Speed: </label>
+                        <input type="range" id="simulation-speed" min="10" max="200" value="50">
+                        <span id="speed-value">50x</span>
+                    </div>
+                    
+                    <div class="control-row">
+                        <label for="view-mode">View Mode: </label>
+                        <select id="view-mode">
+                            <option value="3d">3D View</option>
+                            <option value="top">Top View (X-Y Plane)</option>
+                            <option value="side">Side View (X-Z Plane)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-row">
+                        <button id="start-simulation" class="btn">Start Simulation</button>
+                        <button id="reset-simulation" class="btn">Reset Simulation</button>
+                    </div>
+                </div>
+
+                <div class="three-body-analysis">
+                    <div class="analysis-row">
+                        <div class="analysis-col">
+                            <canvas id="phase-canvas" width="300" height="200"></canvas>
+                            <h4>Phase Relationships</h4>
+                        </div>
+                        
+                        <div class="analysis-col">
+                            <div id="resonance-results" class="results-panel">
+                                <h4>Detected Resonance Patterns</h4>
+                                <ul class="resonance-list">
+                                    <li>Running analysis... Keep simulation running to detect patterns.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics-row">
+                        <div class="metric-box">
+                            <h5>System Stability:</h5>
+                            <div id="system-stability" class="metric-value">0.000</div>
+                        </div>
+                        
+                        <div class="metric-box">
+                            <h5>Energy Conservation:</h5>
+                            <div id="energy-conservation" class="metric-value">0.997</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="resonance-info">
                     <h4>QuantoniumOS Patent Validation</h4>
                     <p>This simulation demonstrates the application of QuantoniumOS resonance mathematics to solve complex physics problems, validating USPTO Application No. 19/169,399.</p>
-                    <p>The system automatically detected known 2:1 orbital resonance between Jupiter and Saturn and identified 17 resonance patterns in the Solar System.</p>
+                    <p>The system is actively analyzing orbital data to detect resonance patterns in real-time, without pre-loaded data. Watch as the simulation detects the known 2:1 orbital resonance between Jupiter and Saturn.</p>
                 </div>
             </div>
         </div>

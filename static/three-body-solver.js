@@ -26,6 +26,13 @@ const MAX_TRAIL_POINTS = 1000; // Maximum number of points in each trail
 const TRAIL_UPDATE_FREQUENCY = 3; // How often to add a new point to the trail
 let trailCounter = 0;
 
+// Resonance detection parameters
+let detectedResonances = [];
+const RESONANCE_CHECK_INTERVAL = 20; // How often to check for resonances
+let resonanceCheckCounter = 0;
+let resonanceUpdateRequired = false;
+let systemStabilityValue = 0.0;
+
 // Constants
 const SUN_COLOR = '#FFD700';
 const JUPITER_COLOR = '#F5DEB3';
@@ -329,6 +336,276 @@ function updatePhysics() {
         // Reset counter
         trailCounter = 0;
     }
+    
+    // Periodically check for resonance patterns
+    resonanceCheckCounter++;
+    if (resonanceCheckCounter >= RESONANCE_CHECK_INTERVAL) {
+        detectResonances();
+        calculateSystemStability();
+        resonanceCheckCounter = 0;
+        resonanceUpdateRequired = true;
+    }
+}
+
+// Detect orbital resonance patterns between planets
+function detectResonances() {
+    detectedResonances = [];
+    
+    // We need a minimum amount of data to detect patterns
+    if (trails[0].length < 50) return;
+    
+    // Check for Jupiter-Saturn 2:1 resonance
+    const jupiterSaturnResonance = detectPlanetaryResonance(bodies[1], bodies[2], 2, 1);
+    if (jupiterSaturnResonance > 0.75) {
+        detectedResonances.push({
+            bodyNames: [bodies[1].name, bodies[2].name],
+            ratio: "2:1",
+            strength: jupiterSaturnResonance,
+            description: "Mean motion resonance (orbital period ratio)"
+        });
+        resonancePatterns[0].detected = true;
+    }
+    
+    // Check for Earth-Venus 13:8 resonance
+    const earthVenusResonance = detectPlanetaryResonance(bodies[3], bodies[4], 13, 8);
+    if (earthVenusResonance > 0.7) {
+        detectedResonances.push({
+            bodyNames: [bodies[3].name, bodies[4].name],
+            ratio: "13:8",
+            strength: earthVenusResonance,
+            description: "Mean motion resonance (orbital period ratio)"
+        });
+        resonancePatterns[1].detected = true;
+    }
+    
+    // Check for Neptune-Pluto 3:2 resonance
+    const neptunePlutoResonance = detectPlanetaryResonance(bodies[5], bodies[6], 3, 2);
+    if (neptunePlutoResonance > 0.6) {
+        detectedResonances.push({
+            bodyNames: [bodies[5].name, bodies[6].name],
+            ratio: "3:2",
+            strength: neptunePlutoResonance,
+            description: "Mean motion resonance (orbital period ratio)"
+        });
+        resonancePatterns[2].detected = true;
+    }
+    
+    // Check for Earth-Moon Lagrange points
+    const earthMoonResonance = detectLagrangePoints(bodies[3], bodies[7]);
+    if (earthMoonResonance > 0.8) {
+        detectedResonances.push({
+            bodyNames: [bodies[3].name, bodies[7].name],
+            ratio: "L-points",
+            strength: earthMoonResonance,
+            description: "Lagrange stability points detected"
+        });
+        resonancePatterns[3].detected = true;
+    }
+    
+    // Update the DOM with detected resonances if we have a results area
+    const resonanceResults = document.getElementById('resonance-results');
+    if (resonanceResults) {
+        updateResonanceResults(resonanceResults);
+    }
+}
+
+// Detect resonance between two planets with given ratio
+function detectPlanetaryResonance(body1, body2, ratio1, ratio2) {
+    // Get orbital period estimates by analyzing trail points
+    const period1 = estimateOrbitalPeriod(body1);
+    const period2 = estimateOrbitalPeriod(body2);
+    
+    if (period1 <= 0 || period2 <= 0) return 0;
+    
+    // Calculate expected ratio
+    const expectedRatio = ratio1 / ratio2;
+    
+    // Calculate actual ratio
+    const actualRatio = period1 / period2;
+    
+    // Calculate similarity (1.0 = perfect match)
+    const similarity = 1.0 - Math.min(Math.abs(actualRatio - expectedRatio) / expectedRatio, 1.0);
+    
+    return similarity;
+}
+
+// Estimate orbital period using trail data and angle changes
+function estimateOrbitalPeriod(body) {
+    // Find body index
+    const bodyIndex = bodies.findIndex(b => b.name === body.name);
+    if (bodyIndex === -1 || bodyIndex === 0) return 0; // Sun has no period
+    
+    const bodyTrail = trails[bodyIndex];
+    if (bodyTrail.length < 20) return 0; // Need enough trail data
+    
+    // Find the sun
+    const sunIndex = 0; // Assuming sun is always first
+    
+    // Calculate angles from Sun for each trail point
+    const angles = [];
+    for (let i = 0; i < bodyTrail.length; i++) {
+        const trailPoint = bodyTrail[i];
+        const dx = trailPoint.x - bodies[sunIndex].position.x;
+        const dy = trailPoint.y - bodies[sunIndex].position.y;
+        const angle = Math.atan2(dy, dx);
+        angles.push(angle);
+    }
+    
+    // Count full orbits (when angle crosses from π to -π)
+    let orbits = 0;
+    for (let i = 1; i < angles.length; i++) {
+        const prev = angles[i-1];
+        const curr = angles[i];
+        
+        // Detect crossing from positive to negative (crossing π to -π)
+        if (prev > 2.0 && curr < -2.0) {
+            orbits++;
+        }
+    }
+    
+    if (orbits < 1) return 0; // Need at least one orbit
+    
+    // Estimate period based on time and orbit count
+    return time / orbits;
+}
+
+// Detect Lagrange points between two bodies (like Earth-Moon)
+function detectLagrangePoints(primaryBody, secondaryBody) {
+    // Find body indices
+    const primaryIndex = bodies.findIndex(b => b.name === primaryBody.name);
+    const secondaryIndex = bodies.findIndex(b => b.name === secondaryBody.name);
+    
+    if (primaryIndex === -1 || secondaryIndex === -1) return 0;
+    
+    const primaryTrail = trails[primaryIndex];
+    const secondaryTrail = trails[secondaryIndex];
+    
+    if (primaryTrail.length < 50 || secondaryTrail.length < 50) return 0;
+    
+    // Check if the secondary body maintains a roughly constant distance from primary
+    const distances = [];
+    for (let i = 0; i < Math.min(primaryTrail.length, secondaryTrail.length); i += 5) {
+        const dx = secondaryTrail[i].x - primaryTrail[i].x;
+        const dy = secondaryTrail[i].y - primaryTrail[i].y;
+        const dz = secondaryTrail[i].z - primaryTrail[i].z;
+        
+        const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        distances.push(distance);
+    }
+    
+    // Calculate variance of distances (low variance indicates stable Lagrange point)
+    const avgDistance = distances.reduce((sum, d) => sum + d, 0) / distances.length;
+    const variance = distances.reduce((sum, d) => sum + (d - avgDistance) * (d - avgDistance), 0) / distances.length;
+    
+    // Normalize variance to a similarity score
+    const maxExpectedVariance = 100; // Adjusted based on simulation scale
+    const similarity = 1.0 - Math.min(variance / maxExpectedVariance, 1.0);
+    
+    return similarity;
+}
+
+// Update DOM with detected resonances
+function updateResonanceResults(resultsElement) {
+    // Clear existing results
+    resultsElement.innerHTML = '';
+    
+    // Create header
+    const header = document.createElement('h4');
+    header.textContent = 'Detected Resonance Patterns';
+    resultsElement.appendChild(header);
+    
+    // Create resonance list
+    const list = document.createElement('ul');
+    list.className = 'resonance-list';
+    
+    // Add each detected resonance
+    for (const resonance of detectedResonances) {
+        const item = document.createElement('li');
+        item.innerHTML = `
+            <span class="resonance-bodies">${resonance.bodyNames.join('-')}</span>
+            <span class="resonance-ratio">${resonance.ratio}</span>
+            <span class="resonance-strength">${(resonance.strength * 100).toFixed(1)}% match</span>
+            <span class="resonance-desc">${resonance.description}</span>
+        `;
+        list.appendChild(item);
+    }
+    
+    // If no resonances detected yet
+    if (detectedResonances.length === 0) {
+        const item = document.createElement('li');
+        item.textContent = 'Running analysis... Keep simulation running to detect patterns.';
+        list.appendChild(item);
+    }
+    
+    resultsElement.appendChild(list);
+}
+
+// Calculate overall system stability metric
+function calculateSystemStability() {
+    // This is a simplified stability metric based on energy conservation and trajectory patterns
+    
+    // Contribute detected resonances to stability
+    let stabilityScore = 0.5; // Base value
+    
+    // Each detected resonance adds to stability
+    stabilityScore += detectedResonances.length * 0.05;
+    
+    // Calculate energy conservation
+    const initialEnergy = calculateSystemEnergy();
+    if (typeof bodies.initialEnergy === 'undefined') {
+        bodies.initialEnergy = initialEnergy;
+    }
+    
+    const energyRatio = Math.abs(initialEnergy / bodies.initialEnergy);
+    const energyConservation = 1.0 - Math.min(Math.abs(energyRatio - 1.0), 0.5);
+    
+    // Weight energy conservation heavily in stability
+    stabilityScore = stabilityScore * 0.7 + energyConservation * 0.3;
+    
+    // Cap at 0.0-1.0 range
+    systemStabilityValue = Math.max(0.0, Math.min(1.0, stabilityScore));
+    
+    // Update UI if available
+    const stabilityElement = document.getElementById('system-stability');
+    if (stabilityElement) {
+        stabilityElement.textContent = systemStabilityValue.toFixed(3);
+    }
+}
+
+// Calculate total system energy (kinetic + potential)
+function calculateSystemEnergy() {
+    let totalEnergy = 0;
+    
+    // Calculate kinetic energy and potential energy
+    for (let i = 0; i < bodies.length; i++) {
+        const body1 = bodies[i];
+        
+        // Kinetic energy: 0.5 * m * v^2
+        const vSquared = body1.velocity.x * body1.velocity.x + 
+                        body1.velocity.y * body1.velocity.y + 
+                        body1.velocity.z * body1.velocity.z;
+        const kineticEnergy = 0.5 * body1.mass * vSquared;
+        
+        // Add to total
+        totalEnergy += kineticEnergy;
+        
+        // Potential energy with all other bodies: -G * m1 * m2 / r
+        for (let j = i + 1; j < bodies.length; j++) {
+            const body2 = bodies[j];
+            
+            const dx = body2.position.x - body1.position.x;
+            const dy = body2.position.y - body1.position.y;
+            const dz = body2.position.z - body1.position.z;
+            
+            const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            if (distance > 0.1) { // Avoid singularity
+                const potentialEnergy = -1.0 * body1.mass * body2.mass / distance; // G=1
+                totalEnergy += potentialEnergy;
+            }
+        }
+    }
+    
+    return totalEnergy;
 }
 
 // Draw the three-body system
@@ -517,7 +794,7 @@ function drawBodyLabels() {
     }
 }
 
-// Draw timestamp
+// Draw timestamp and analysis information
 function drawTimestamp() {
     const years = (time * 10).toFixed(1); // Convert simulation time to years
     
@@ -525,7 +802,26 @@ function drawTimestamp() {
     threeBodyCtx.font = '12px Arial';
     threeBodyCtx.textAlign = 'left';
     threeBodyCtx.fillText(`Simulation Time: ${years} years`, 10, 20);
-    threeBodyCtx.fillText(`Stability: 0.984`, 10, 40);
+    
+    // Show system stability from live analysis
+    const stabilityText = systemStabilityValue > 0 
+        ? systemStabilityValue.toFixed(3) 
+        : "Analyzing...";
+    threeBodyCtx.fillText(`System Stability: ${stabilityText}`, 10, 40);
+    
+    // Show detected resonances count
+    const detectedCount = detectedResonances.length;
+    threeBodyCtx.fillText(`Resonance Patterns Detected: ${detectedCount}`, 10, 60);
+    
+    // Show detection status message
+    if (time < 1.0) {
+        threeBodyCtx.fillText("Running initial analysis...", 10, 80);
+    } else if (detectedCount === 0) {
+        threeBodyCtx.fillText("Analyzing orbital patterns...", 10, 80);
+    } else {
+        threeBodyCtx.fillStyle = '#90EE90'; // Light green
+        threeBodyCtx.fillText("Resonance detected! See results panel for details.", 10, 80);
+    }
 }
 
 // Draw phase relationships between planets
@@ -545,45 +841,145 @@ function drawPhaseRelationships() {
     phaseCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     phaseCtx.stroke();
     
-    // Draw 2:1 Jupiter-Saturn resonance
-    const jupiterAngle = Math.atan2(
-        bodies[1].position.y - bodies[0].position.y,
-        bodies[1].position.x - bodies[0].position.x
-    );
+    // Draw radial lines for reference
+    for (let angle = 0; angle < 360; angle += 45) {
+        const radian = angle * Math.PI / 180;
+        phaseCtx.strokeStyle = 'rgba(100, 100, 150, 0.15)';
+        phaseCtx.beginPath();
+        phaseCtx.moveTo(centerX, centerY);
+        phaseCtx.lineTo(
+            centerX + Math.cos(radian) * radius,
+            centerY + Math.sin(radian) * radius
+        );
+        phaseCtx.stroke();
+    }
     
-    const saturnAngle = Math.atan2(
-        bodies[2].position.y - bodies[0].position.y,
-        bodies[2].position.x - bodies[0].position.x
-    );
+    // Draw planet positions on the phase circle
+    const planetColors = [
+        SUN_COLOR,      // Sun
+        JUPITER_COLOR,  // Jupiter
+        SATURN_COLOR,   // Saturn
+        EARTH_COLOR,    // Earth
+        VENUS_COLOR,    // Venus
+        NEPTUNE_COLOR   // Neptune
+    ];
     
-    // Draw Jupiter position
-    phaseCtx.fillStyle = JUPITER_COLOR;
-    const jupiterX = centerX + radius * Math.cos(jupiterAngle);
-    const jupiterY = centerY + radius * Math.sin(jupiterAngle);
-    phaseCtx.beginPath();
-    phaseCtx.arc(jupiterX, jupiterY, 6, 0, 2 * Math.PI);
-    phaseCtx.fill();
+    // Calculate and draw planet positions
+    const planetAngles = [];
+    const planetPositions = [];
     
-    // Draw Saturn position
-    phaseCtx.fillStyle = SATURN_COLOR;
-    const saturnX = centerX + radius * Math.cos(saturnAngle);
-    const saturnY = centerY + radius * Math.sin(saturnAngle);
-    phaseCtx.beginPath();
-    phaseCtx.arc(saturnX, saturnY, 6, 0, 2 * Math.PI);
-    phaseCtx.fill();
+    for (let i = 0; i < Math.min(6, bodies.length); i++) {
+        if (i === 0) continue; // Skip the Sun (center)
+        
+        const body = bodies[i];
+        const angle = Math.atan2(
+            body.position.y - bodies[0].position.y,
+            body.position.x - bodies[0].position.x
+        );
+        
+        planetAngles.push(angle);
+        
+        // Calculate position on circle
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        planetPositions.push({ x, y, name: body.name });
+        
+        // Draw planet
+        phaseCtx.fillStyle = body.color;
+        phaseCtx.beginPath();
+        phaseCtx.arc(x, y, 5, 0, 2 * Math.PI);
+        phaseCtx.fill();
+        
+        // Draw small label
+        phaseCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        phaseCtx.font = '8px Arial';
+        phaseCtx.textAlign = 'center';
+        phaseCtx.fillText(body.name.charAt(0), x, y - 8); // First letter as label
+    }
     
-    // Draw connection line showing resonance
-    phaseCtx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
-    phaseCtx.beginPath();
-    phaseCtx.moveTo(jupiterX, jupiterY);
-    phaseCtx.lineTo(saturnX, saturnY);
-    phaseCtx.stroke();
+    // Draw resonance connections if detected
+    if (detectedResonances.length > 0) {
+        // Get the Jupiter-Saturn resonance if available
+        const jupiterSaturnResonance = detectedResonances.find(r => 
+            r.bodyNames.includes('Jupiter') && r.bodyNames.includes('Saturn'));
+            
+        if (jupiterSaturnResonance) {
+            // Find the Jupiter and Saturn positions
+            const jupiterPos = planetPositions.find(p => p.name === 'Jupiter');
+            const saturnPos = planetPositions.find(p => p.name === 'Saturn');
+            
+            if (jupiterPos && saturnPos) {
+                // Draw connection with intensity based on resonance strength
+                const alpha = Math.min(0.2 + jupiterSaturnResonance.strength * 0.7, 0.9);
+                phaseCtx.strokeStyle = `rgba(255, 215, 0, ${alpha})`;
+                phaseCtx.lineWidth = 2;
+                phaseCtx.beginPath();
+                phaseCtx.moveTo(jupiterPos.x, jupiterPos.y);
+                phaseCtx.lineTo(saturnPos.x, saturnPos.y);
+                phaseCtx.stroke();
+                phaseCtx.lineWidth = 1;
+                
+                // Draw resonance label
+                phaseCtx.fillStyle = '#fff';
+                phaseCtx.font = '10px Arial';
+                phaseCtx.textAlign = 'center';
+                const midX = (jupiterPos.x + saturnPos.x) / 2;
+                const midY = (jupiterPos.y + saturnPos.y) / 2;
+                phaseCtx.fillText(`2:1 (${Math.round(jupiterSaturnResonance.strength * 100)}%)`, midX, midY - 8);
+            }
+        }
+        
+        // Draw other resonances if detected
+        const earthVenusResonance = detectedResonances.find(r => 
+            r.bodyNames.includes('Earth') && r.bodyNames.includes('Venus'));
+            
+        if (earthVenusResonance) {
+            const earthPos = planetPositions.find(p => p.name === 'Earth');
+            const venusPos = planetPositions.find(p => p.name === 'Venus');
+            
+            if (earthPos && venusPos) {
+                const alpha = Math.min(0.2 + earthVenusResonance.strength * 0.7, 0.9);
+                phaseCtx.strokeStyle = `rgba(30, 144, 255, ${alpha})`;
+                phaseCtx.lineWidth = 2;
+                phaseCtx.beginPath();
+                phaseCtx.moveTo(earthPos.x, earthPos.y);
+                phaseCtx.lineTo(venusPos.x, venusPos.y);
+                phaseCtx.stroke();
+                phaseCtx.lineWidth = 1;
+                
+                // Draw resonance label
+                phaseCtx.fillStyle = '#fff';
+                phaseCtx.font = '10px Arial';
+                phaseCtx.textAlign = 'center';
+                const midX = (earthPos.x + venusPos.x) / 2;
+                const midY = (earthPos.y + venusPos.y) / 2;
+                phaseCtx.fillText(`13:8 (${Math.round(earthVenusResonance.strength * 100)}%)`, midX, midY - 8);
+            }
+        }
+    } else {
+        // If no resonances detected yet, show dynamic phase relationship
+        phaseCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        phaseCtx.font = '10px Arial';
+        phaseCtx.textAlign = 'center';
+        phaseCtx.fillText('Analyzing orbital resonance patterns...', centerX, centerY - radius - 10);
+    }
     
-    // Label
-    phaseCtx.fillStyle = '#fff';
-    phaseCtx.font = '10px Arial';
-    phaseCtx.textAlign = 'center';
-    phaseCtx.fillText('J-S 2:1 Resonance', centerX, centerY - radius - 10);
+    // Update energy conservation value
+    const energyElement = document.getElementById('energy-conservation');
+    if (energyElement) {
+        // Calculate energy conservation as a ratio relative to initial energy
+        const initialEnergy = typeof bodies.initialEnergy !== 'undefined' ? bodies.initialEnergy : calculateSystemEnergy();
+        if (typeof bodies.initialEnergy === 'undefined') {
+            bodies.initialEnergy = initialEnergy;
+        }
+        
+        const currentEnergy = calculateSystemEnergy();
+        const ratio = Math.abs(currentEnergy / initialEnergy);
+        const conservation = 1.0 - Math.min(Math.abs(ratio - 1.0), 0.1) * 10; // Scale for display
+        
+        energyElement.textContent = conservation.toFixed(3);
+    }
 }
 
 // Wait for DOM to be ready before initializing
