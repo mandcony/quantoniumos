@@ -20,6 +20,12 @@ let time = 0;
 let bodies = [];
 let resonancePatterns = [];
 
+// Trail system for showing body paths
+let trails = [];
+const MAX_TRAIL_POINTS = 1000; // Maximum number of points in each trail
+const TRAIL_UPDATE_FREQUENCY = 3; // How often to add a new point to the trail
+let trailCounter = 0;
+
 // Constants
 const SUN_COLOR = '#FFD700';
 const JUPITER_COLOR = '#F5DEB3';
@@ -56,6 +62,9 @@ function initThreeBodySolver() {
     
     // Initialize resonance patterns
     initializeResonancePatterns();
+    
+    // Initialize trail system
+    initializeTrails();
     
     // Draw initial state
     drawThreeBodySystem();
@@ -201,6 +210,10 @@ function resetSimulation() {
     time = 0;
     stopSimulation();
     initializeBodies();
+    
+    // Initialize trails for each body
+    initializeTrails();
+    
     drawThreeBodySystem();
     drawPhaseRelationships();
     
@@ -209,6 +222,18 @@ function resetSimulation() {
         document.getElementById('start-simulation').textContent = 'Start Simulation';
         isSimulationRunning = false;
     }
+}
+
+// Initialize trail system for each body
+function initializeTrails() {
+    trails = [];
+    for (let i = 0; i < bodies.length; i++) {
+        // Each trail is an array of position points
+        trails.push([]);
+    }
+    
+    // Reset trail counter
+    trailCounter = 0;
 }
 
 // Main animation loop for the three-body system
@@ -279,6 +304,31 @@ function updatePhysics() {
         body.position.y += body.velocity.y * dt;
         body.position.z += body.velocity.z * dt;
     }
+    
+    // Update trail system
+    trailCounter++;
+    if (trailCounter >= TRAIL_UPDATE_FREQUENCY) {
+        // Add current positions to trails
+        for (let i = 0; i < bodies.length; i++) {
+            const body = bodies[i];
+            const trailPoint = {
+                x: body.position.x,
+                y: body.position.y,
+                z: body.position.z
+            };
+            
+            // Add the point to this body's trail
+            trails[i].push(trailPoint);
+            
+            // Trim trail if it gets too long
+            if (trails[i].length > MAX_TRAIL_POINTS) {
+                trails[i].shift(); // Remove oldest point
+            }
+        }
+        
+        // Reset counter
+        trailCounter = 0;
+    }
 }
 
 // Draw the three-body system
@@ -308,38 +358,76 @@ function drawThreeBodySystem() {
 
 // Draw orbit trails for the planets
 function drawOrbitTrails() {
-    threeBodyCtx.globalAlpha = 0.2;
+    // First, let's draw a faint celestial grid
+    drawCelestialGrid();
     
-    for (let i = 1; i < bodies.length; i++) {
+    // Now draw the actual dynamically generated trails
+    for (let i = 0; i < bodies.length; i++) {
         const body = bodies[i];
-        const sunBody = bodies[0]; // The Sun
+        const bodyTrail = trails[i];
         
+        if (bodyTrail.length < 2) continue; // Need at least 2 points to draw a line
+        
+        // Set trail style based on the body
         threeBodyCtx.strokeStyle = body.color;
+        threeBodyCtx.lineWidth = i === 0 ? 1 : 2; // Sun has thinner trail
+        
+        // Set trail opacity
+        threeBodyCtx.globalAlpha = 0.5;
+        
+        // Start the trail path
         threeBodyCtx.beginPath();
         
-        // Calculate orbit parameters (simplified)
-        const centerX = threeBodyCanvas.width / 2 + sunBody.position.x;
-        const centerY = threeBodyCanvas.height / 2 + sunBody.position.y;
+        // Calculate screen coordinates for the first point
+        let screenX = threeBodyCanvas.width / 2 + bodyTrail[0].x;
+        let screenY = threeBodyCanvas.height / 2 + (viewMode === 'side' ? bodyTrail[0].z : bodyTrail[0].y);
+        threeBodyCtx.moveTo(screenX, screenY);
         
-        // Distance from sun as radius
-        const dx = body.position.x - sunBody.position.x;
-        const dy = body.position.y - sunBody.position.y;
-        const radius = Math.sqrt(dx * dx + dy * dy);
+        // Draw the rest of the trail
+        for (let j = 1; j < bodyTrail.length; j++) {
+            // Get trail point and convert to screen coordinates
+            screenX = threeBodyCanvas.width / 2 + bodyTrail[j].x;
+            screenY = threeBodyCanvas.height / 2 + (viewMode === 'side' ? bodyTrail[j].z : bodyTrail[j].y);
+            
+            // Add point to the path
+            threeBodyCtx.lineTo(screenX, screenY);
+        }
         
-        // Draw elliptical orbit (simplified)
-        threeBodyCtx.ellipse(
-            centerX, 
-            centerY, 
-            radius, 
-            radius * 0.98, // Slightly elliptical
-            Math.atan2(dy, dx), 
-            0, 
-            2 * Math.PI
-        );
+        // Draw the complete trail
         threeBodyCtx.stroke();
     }
     
+    // Reset opacity
     threeBodyCtx.globalAlpha = 1.0;
+    threeBodyCtx.lineWidth = 1;
+}
+
+// Draw a celestial grid for reference
+function drawCelestialGrid() {
+    const centerX = threeBodyCanvas.width / 2;
+    const centerY = threeBodyCanvas.height / 2;
+    const gridSize = 50; // Distance between grid lines in pixels
+    const maxRadius = Math.max(threeBodyCanvas.width, threeBodyCanvas.height);
+    
+    // Draw circular grid
+    threeBodyCtx.strokeStyle = 'rgba(100, 100, 150, 0.15)';
+    for (let r = gridSize; r <= maxRadius; r += gridSize) {
+        threeBodyCtx.beginPath();
+        threeBodyCtx.arc(centerX, centerY, r, 0, 2 * Math.PI);
+        threeBodyCtx.stroke();
+    }
+    
+    // Draw radial lines
+    for (let angle = 0; angle < 360; angle += 30) {
+        const radian = angle * Math.PI / 180;
+        threeBodyCtx.beginPath();
+        threeBodyCtx.moveTo(centerX, centerY);
+        threeBodyCtx.lineTo(
+            centerX + Math.cos(radian) * maxRadius,
+            centerY + Math.sin(radian) * maxRadius
+        );
+        threeBodyCtx.stroke();
+    }
 }
 
 // Draw bodies in 3D view
