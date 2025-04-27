@@ -4,6 +4,7 @@ Quantonium OS - Flask App Entrypoint
 Initializes the Flask app and registers symbolic API routes with security middleware.
 Includes protected quantum computing API routes with 150-qubit support.
 """
+
 import os
 import time
 import logging
@@ -112,17 +113,6 @@ def create_app():
     # This separates API routes from static content routes
     app.register_blueprint(api, url_prefix='/api')
     app.register_blueprint(auth_api, url_prefix='/api/auth')
-    
-    # Add RFT visualizer routes
-    @app.route('/rft-visualizer')
-    def rft_visualizer():
-        """Serve the RFT visualizer page"""
-        return redirect('/rft_visualizations/index.html')
-
-    @app.route('/rft_visualizations/<path:path>')
-    def serve_rft_visualizations(path):
-        """Serve RFT visualization files"""
-        return send_from_directory('rft_visualizations', path)
     
     # Quantum computing API routes - protected and secured backend endpoints
     @app.route('/api/quantum/initialize', methods=['POST'])
@@ -308,21 +298,26 @@ def create_app():
                             SwaggerUIBundle.SwaggerUIStandalonePreset
                         ],
                         layout: "BaseLayout",
-                        docExpansion: "list",
+                        validatorUrl: null,
                         defaultModelsExpandDepth: 1,
                         defaultModelExpandDepth: 1,
-                        requestInterceptor: function (req) {
-                            // Optional: Add auth here if needed
-                            return req;
-                        }
+                        supportedSubmitMethods: ['get', 'post'],
+                        displayRequestDuration: true
                     });
-                }
+                };
             </script>
         </body>
         </html>
         """
         return render_template_string(swagger_html)
-        
-    return app
     
+    return app
+
+# ✅ Gunicorn uses this
 app = create_app()
+
+# ✅ Development mode only - disabled in production
+if __name__ == "__main__":
+    # Note: This is for development only, should use gunicorn in production
+    logger.warning("Running in development mode. Use gunicorn for production.")
+    app.run(host="0.0.0.0", port=8080)
