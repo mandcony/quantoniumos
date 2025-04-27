@@ -137,7 +137,7 @@ This significantly exceeds the capabilities of many physical quantum computers w
 The encryption stack implements several innovative techniques:
 
 1. **Symbolic XOR**
-   - Based on `WaveNumber(A, φ)` rather than binary bits
+   - Based on `WaveNumber(A, p)` rather than binary bits
    - Preserves phase relationships through operations
 
 2. **Waveform Hashing**

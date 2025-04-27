@@ -1,5 +1,7 @@
 # Quantonium OS Cloud Runtime
 
+[View Technical Paper](QuantoniumOS_Technical_Paper.pdf)
+
 A secure, high-performance quantum-inspired API for symbolic computing with advanced HPC modules.
 
 ![Version](https://img.shields.io/badge/Version-0.3.0--rc1-blue)

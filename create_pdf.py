@@ -4,6 +4,7 @@ Simple PDF generator for the QuantoniumOS Technical Paper
 """
 
 import os
+import re
 from fpdf import FPDF
 
 class PDF(FPDF):
@@ -47,10 +48,40 @@ class PDF(FPDF):
         # Line break
         self.ln(3)
 
+def clean_text(text):
+    """
+    Clean text to make it compatible with FPDF by replacing unsupported characters
+    """
+    # Replace em dashes with regular hyphens
+    text = text.replace('—', '-')
+    
+    # Replace other potentially problematic characters
+    text = text.replace('…', '...')
+    text = text.replace('–', '-')
+    text = text.replace(''', "'")
+    text = text.replace(''', "'")
+    text = text.replace('"', '"')
+    text = text.replace('"', '"')
+    text = text.replace('•', '*')
+    text = text.replace('→', '->')
+    text = text.replace('←', '<-')
+    text = text.replace('≥', '>=')
+    text = text.replace('≤', '<=')
+    text = text.replace('≠', '!=')
+    text = text.replace('≈', '~=')
+    
+    # Replace other non-ASCII characters
+    text = re.sub(r'[^\x00-\x7F]+', ' ', text)
+    
+    return text
+
 def create_pdf_from_markdown(md_file, pdf_file):
     # Read markdown file
     with open(md_file, 'r') as f:
         content = f.read()
+    
+    # Clean the content
+    content = clean_text(content)
     
     # Split into sections based on markdown headers
     sections = content.split('## ')
@@ -117,5 +148,12 @@ def create_pdf_from_markdown(md_file, pdf_file):
     pdf.output(pdf_file)
 
 if __name__ == '__main__':
-    create_pdf_from_markdown('QuantoniumOS_Technical_Paper.md', 'QuantoniumOS_Technical_Paper.pdf')
-    print(f"PDF created successfully: {os.path.abspath('QuantoniumOS_Technical_Paper.pdf')}")
+    import sys
+    if len(sys.argv) == 3:
+        input_file = sys.argv[1]
+        output_file = sys.argv[2]
+        create_pdf_from_markdown(input_file, output_file)
+        print(f"PDF created successfully: {os.path.abspath(output_file)}")
+    else:
+        create_pdf_from_markdown('QuantoniumOS_Technical_Paper.md', 'QuantoniumOS_Technical_Paper.pdf')
+        print(f"PDF created successfully: {os.path.abspath('QuantoniumOS_Technical_Paper.pdf')}")
