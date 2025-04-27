@@ -453,6 +453,11 @@ function toggleSimulation() {
 // Start the simulation animation
 function startSimulation() {
     if (!isSimulationRunning) {
+        // Update UI elements for data collection status
+        const dataStatusElement = document.getElementById('data-collection-status');
+        if (dataStatusElement) dataStatusElement.textContent = "Starting data collection...";
+        
+        // Start the animation loop
         animateThreeBodySystem();
     }
 }
@@ -469,11 +474,37 @@ function stopSimulation() {
 function resetSimulation() {
     time = 0;
     stopSimulation();
+    
+    // Reset bodies
     initializeBodies();
     
-    // Initialize trails for each body
+    // Reset trails
     initializeTrails();
     
+    // Reset resonance detection
+    detectedResonances = [];
+    systemStabilityValue = 0;
+    
+    // Reset UI elements for data collection
+    const waitingElement = document.getElementById('waiting-for-detection');
+    const resultsElement = document.getElementById('resonance-detection-results');
+    
+    if (waitingElement) waitingElement.style.display = "block";
+    if (resultsElement) {
+        resultsElement.style.display = "none";
+        resultsElement.innerHTML = '';
+    }
+    
+    // Reset data collection status
+    const dataStatusElement = document.getElementById('data-collection-status');
+    const orbitalPointsElement = document.getElementById('orbital-points-collected');
+    const dataCollectionBar = document.getElementById('data-collection-bar');
+    
+    if (dataStatusElement) dataStatusElement.textContent = "Not started";
+    if (orbitalPointsElement) orbitalPointsElement.textContent = "0/50";
+    if (dataCollectionBar) dataCollectionBar.style.width = "0%";
+    
+    // Update display to show initial state
     drawThreeBodySystem();
     drawPhaseRelationships();
     
@@ -518,6 +549,9 @@ function updatePhysics() {
     const dt = 0.01 * (simulationSpeed / 50); // Scale time step by simulation speed
     time += dt;
     
+    // Update data collection status in the UI
+    updateDataCollectionStatus();
+    
     // Flag to track if we need to connect to the resonance engine
     let needEngineConnection = (time > 0.5 && time % 2.5 < 0.1) || trails[0].length < 2;
     
@@ -545,7 +579,6 @@ function updatePhysics() {
                         }
                     }
                 }
-                console.log("Applied engine data at time:", time);
                 
                 // If engine provides direct resonance data, use it
                 if (engineData.resonancePatterns) {
@@ -567,6 +600,126 @@ function updatePhysics() {
             // Continue with standard simulation if engine connection fails
         }
     }
+}
+
+// Update the data collection progress for resonance detection in the UI
+function updateDataCollectionStatus() {
+    // Get the elements
+    const dataStatusElement = document.getElementById('data-collection-status');
+    const orbitalPointsElement = document.getElementById('orbital-points-collected');
+    const dataCollectionBar = document.getElementById('data-collection-bar');
+    const waitingElement = document.getElementById('waiting-for-detection');
+    const resultsElement = document.getElementById('resonance-detection-results');
+    
+    if (!dataStatusElement || !orbitalPointsElement || !dataCollectionBar) return;
+    
+    // Show the proper status based on data collected
+    if (trails[0].length === 0) {
+        dataStatusElement.textContent = "Not started";
+        orbitalPointsElement.textContent = "0/50";
+        dataCollectionBar.style.width = "0%";
+    } else if (trails[0].length < 50) {
+        dataStatusElement.textContent = "Collecting orbital data";
+        orbitalPointsElement.textContent = `${trails[0].length}/50`;
+        const percent = (trails[0].length / 50) * 100;
+        dataCollectionBar.style.width = `${percent}%`;
+        dataCollectionBar.style.backgroundColor = "#888";
+    } else {
+        const percent = Math.min(100, (trails[0].length / 100) * 100);
+        dataStatusElement.textContent = "Analyzing resonance patterns";
+        orbitalPointsElement.textContent = `${trails[0].length} orbital points collected`;
+        dataCollectionBar.style.width = `${percent}%`;
+        dataCollectionBar.style.backgroundColor = "#0088ff";
+        
+        // Show detected patterns if we have any
+        if (detectedResonances.length > 0) {
+            if (waitingElement) waitingElement.style.display = "none";
+            if (resultsElement) {
+                resultsElement.style.display = "block";
+                updateDetectionResults(resultsElement);
+            }
+        }
+    }
+}
+
+// Update the detection results area with the patterns found
+function updateDetectionResults(resultsElement) {
+    // Clear previous results
+    resultsElement.innerHTML = '';
+    
+    // Add header
+    const header = document.createElement('h3');
+    header.textContent = `${detectedResonances.length} Resonance Patterns Detected`;
+    resultsElement.appendChild(header);
+    
+    // Sort resonances by strength
+    const sortedResonances = [...detectedResonances].sort((a, b) => b.strength - a.strength);
+    
+    // Add each resonance pattern in a formatted card
+    for (let i = 0; i < sortedResonances.length; i++) {
+        const resonance = sortedResonances[i];
+        const patternElement = document.createElement('div');
+        patternElement.className = 'detected-item';
+        patternElement.style.backgroundColor = 'rgba(0, 136, 255, 0.1)';
+        patternElement.style.borderLeft = '3px solid #0088ff';
+        
+        const strengthPercent = (resonance.strength * 100).toFixed(1);
+        
+        patternElement.innerHTML = `
+            <div class="detected-title">${resonance.bodyNames.join('-')} ${resonance.ratio} Resonance</div>
+            <div>${resonance.description}</div>
+            <div class="detected-metric">
+                <span>Detection Confidence:</span>
+                <span>${strengthPercent}%</span>
+            </div>
+            <div class="detected-metric">
+                <span>Status:</span>
+                <span style="color: #4CAF50; font-weight: bold;">Detected</span>
+            </div>
+            <div class="metric-bar">
+                <div class="metric-fill" style="width: ${strengthPercent}%; background-color: #0088ff"></div>
+            </div>
+        `;
+        
+        resultsElement.appendChild(patternElement);
+    }
+    
+    // Add stability information
+    const stabilityElement = document.createElement('div');
+    stabilityElement.className = 'detected-item';
+    stabilityElement.style.backgroundColor = 'rgba(0, 200, 100, 0.1)';
+    stabilityElement.style.borderLeft = '3px solid #00c864';
+    stabilityElement.style.marginTop = '15px';
+    
+    stabilityElement.innerHTML = `
+        <div class="detected-title">System Analysis</div>
+        <div class="detected-metric">
+            <span>System Stability:</span>
+            <span>${systemStabilityValue.toFixed(3)}</span>
+        </div>
+        <div class="detected-metric">
+            <span>Energy Conservation:</span>
+            <span>${(calculateEnergyConservation() * 100).toFixed(1)}%</span>
+        </div>
+        <div class="metric-bar">
+            <div class="metric-fill" style="width: ${systemStabilityValue * 100}%; background-color: #00c864"></div>
+        </div>
+    `;
+    
+    resultsElement.appendChild(stabilityElement);
+}
+
+// Calculate energy conservation as a separate metric
+function calculateEnergyConservation() {
+    if (typeof bodies.initialEnergy === 'undefined') {
+        bodies.initialEnergy = calculateSystemEnergy();
+        return 1.0;
+    }
+    
+    const currentEnergy = calculateSystemEnergy();
+    const energyRatio = Math.abs(currentEnergy / bodies.initialEnergy);
+    return 1.0 - Math.min(Math.abs(energyRatio - 1.0), 0.3);
+}
     
     // Standard physics calculation (used if engine connection fails or isn't needed)
     // Calculate forces using N-body gravitational simulation
