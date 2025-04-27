@@ -360,20 +360,24 @@
             </div>
             
             <div id="tab-resonance" class="tab-content">
-                <div class="detected-item">
-                    <div class="detected-title">Jupiter-Saturn 2:1 Orbital Resonance</div>
-                    <div>Automatically detected orbital resonance where Jupiter completes 2 orbits for every 1 Saturn orbit.</div>
+                <div id="waiting-for-detection" class="detected-item" style="background-color: rgba(150, 150, 150, 0.1); border-left: 3px solid #888;">
+                    <div class="detected-title">Waiting for Resonance Detection</div>
+                    <div>Start the simulation to begin real-time orbital analysis. The system will detect resonance patterns as they emerge in the simulation data.</div>
                     <div class="detected-metric">
-                        <span>Resonance Strength:</span>
-                        <span id="resonance-strength">-</span>
+                        <span>Data Collection:</span>
+                        <span id="data-collection-status">Not started</span>
                     </div>
                     <div class="detected-metric">
-                        <span>Phase Correlation:</span>
-                        <span id="phase-correlation">-</span>
+                        <span>Orbital Points:</span>
+                        <span id="orbital-points-collected">0/50</span>
                     </div>
                     <div class="metric-bar">
-                        <div class="metric-fill" id="resonance-bar" style="width: 0%"></div>
+                        <div class="metric-fill" id="data-collection-bar" style="width: 0%; background-color: #888;"></div>
                     </div>
+                </div>
+                
+                <div id="resonance-detection-results" style="display: none;">
+                    <!-- Dynamically populated with detection results -->
                 </div>
                 
                 <h3>Resonance Analysis</h3>
