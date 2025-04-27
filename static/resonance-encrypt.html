@@ -710,6 +710,7 @@
     <link rel="stylesheet" href="/wave_ui/wave.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="/wave_ui/wave_visualization.js"></script>
+    <script defer src="/static/three-body-solver.js"></script>
     <!-- Moved quantum-grid.js to bottom of page to avoid duplicate loading -->
 </head>
 <body>
@@ -754,7 +755,11 @@
                         </div>
                         <button id="encrypt-btn" class="action-btn">Encrypt</button>
                         <button id="start-benchmark" class="action-btn">Run 64-Perturbation Benchmark</button>
-                        <div class="tiny" style="font-size: 0.9rem; margin-top: 5px;">Runs all 64 tests and shows results in the Benchmark tab</div>
+                        <button id="open-three-body" class="action-btn">View Three-Body Solver</button>
+                        <div class="tiny" style="font-size: 0.9rem; margin-top: 5px;">
+                            Run 64-Perturbation Benchmark: Runs all 64 tests and shows results in the Benchmark tab<br>
+                            View Three-Body Solver: Shows the Solar System simulation with 0.984 stability metric
+                        </div>
                         <div class="loader" id="encrypt-loader"></div>
                         <div class="error" id="encrypt-error"></div>
                         <div>
@@ -1471,6 +1476,16 @@
                         initializeQuantumGridModule();
                         
                         // No need to redraw container schematics as they've been removed
+                    }
+                    
+                    // Initialize three-body solver when that tab is selected
+                    if (tabName === 'three-body') {
+                        console.log("Initializing three-body solver from tab switch");
+                        // The initialization will happen through the event listener in three-body-solver.js
+                        // This ensures the canvas is visible before initializing
+                        if (typeof initThreeBodySolver === 'function') {
+                            setTimeout(initThreeBodySolver, 100);
+                        }
                         // Just ensure oscillator is running
                         setTimeout(() => {
                             // Reset any error states when tab is activated
@@ -1534,6 +1549,33 @@
                 
                 startBenchmarkButton.addEventListener('click', runBenchmark);
                 console.log("Benchmark button initialized");
+            }
+            
+            // Set up three-body solver button
+            const openThreeBodyButton = document.getElementById('open-three-body');
+            if (openThreeBodyButton && !openThreeBodyButton.hasAttribute('data-initialized')) {
+                openThreeBodyButton.setAttribute('data-initialized', 'true');
+                
+                openThreeBodyButton.addEventListener('click', function() {
+                    // Switch to three-body tab
+                    const mainTab = document.querySelector('.main-tab[data-tab="three-body"]');
+                    if (mainTab) {
+                        // Set all tabs inactive
+                        document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
+                        document.querySelectorAll('.main-tab-content').forEach(content => content.classList.remove('active'));
+                        
+                        // Set three-body tab active
+                        mainTab.classList.add('active');
+                        document.getElementById('three-body-tab').classList.add('active');
+                        
+                        // Initialize the three-body solver
+                        if (typeof initThreeBodySolver === 'function') {
+                            setTimeout(initThreeBodySolver, 100);
+                        }
+                    }
+                });
+                
+                console.log("Three-body solver button initialized");
             }
             
             // Set up benchmark tab navigation
