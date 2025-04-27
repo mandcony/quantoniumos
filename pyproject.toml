@@ -27,4 +27,5 @@ dependencies = [
     "redis>=5.2.1",
     "trafilatura>=2.0.0",
     "beautifulsoup4>=4.13.4",
+    "fpdf>=1.7.2",
 ]
