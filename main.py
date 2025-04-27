@@ -4,6 +4,27 @@ Quantonium OS - Flask App Entrypoint
 Initializes the Flask app and registers symbolic API routes with security middleware.
 Includes protected quantum computing API routes with 150-qubit support.
 """
+import os
+from flask import Flask, send_from_directory, redirect, render_template
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize Flask app
+app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
+
+@app.route('/rft-visualizer')
+def rft_visualizer():
+    """Serve the RFT visualizer page"""
+    return redirect('/rft_visualizations/index.html')
+
+@app.route('/rft_visualizations/<path:path>')
+def serve_rft_visualizations(path):
+    """Serve RFT visualization files"""
+    return send_from_directory('rft_visualizations', path)
 
 import os
 import time
