@@ -623,167 +623,6 @@
             background-color: var(--quantum-color);
         }
         
-        /* Three-Body Solver Tab Styles */
-        #three-body-canvas, #phase-canvas {
-            background-color: #000;
-            border-radius: 4px;
-            display: block;
-            margin: 0 auto;
-        }
-        
-        #three-body-visualization {
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .three-body-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 15px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            margin: 15px 0;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .control-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .three-body-analysis {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin: 20px 0;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .analysis-row {
-            display: flex;
-            gap: 20px;
-        }
-        
-        .analysis-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .results-panel {
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            padding: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .resonance-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .resonance-list li {
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-        
-        .resonance-bodies {
-            font-weight: bold;
-            color: var(--quantum-color);
-        }
-        
-        .resonance-ratio {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-family: monospace;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        
-        .resonance-strength {
-            font-style: italic;
-            opacity: 0.8;
-        }
-        
-        .metrics-row {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-        }
-        
-        .metric-box {
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            padding: 10px 20px;
-            text-align: center;
-            flex: 1;
-            max-width: 200px;
-        }
-        
-        .metric-box h5 {
-            margin: 0 0 5px 0;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .metric-value {
-            font-size: 22px;
-            font-weight: bold;
-            font-family: monospace;
-            color: var(--quantum-color);
-        }
-        
-        .resonance-pattern {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .pattern-name {
-            color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .pattern-value {
-            color: var(--quantum-color);
-            font-weight: bold;
-        }
-        
-        #resonance-patterns {
-            margin-bottom: 20px;
-        }
-        
-        #phase-relationships {
-            margin-top: 10px;
-        }
-        
-        .resonance-info {
-            background-color: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 20px;
-        }
-        
-        .resonance-info h4 {
-            color: var(--quantum-color);
-            margin-top: 0;
-        }
-        
         .bit-flip-container {
             margin-top: 20px;
             font-family: monospace;
@@ -822,7 +661,6 @@
     <link rel="stylesheet" href="/wave_ui/wave.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="/wave_ui/wave_visualization.js"></script>
-    <script defer src="/static/three-body-solver.js"></script>
     <!-- Moved quantum-grid.js to bottom of page to avoid duplicate loading -->
 </head>
 <body>
@@ -845,7 +683,6 @@
             <div class="main-tab" data-tab="entropy">Entropy Generator</div>
             <div class="main-tab" data-tab="quantum-grid">Quantum Grid</div>
             <div class="main-tab" data-tab="benchmark">64-Perturbation Benchmark</div>
-            <div class="main-tab" data-tab="three-body">Three-Body Solver</div>
         </div>
         
         <div class="main-tab-content active" id="encryption-tab">
@@ -867,11 +704,7 @@
                         </div>
                         <button id="encrypt-btn" class="action-btn">Encrypt</button>
                         <button id="start-benchmark" class="action-btn">Run 64-Perturbation Benchmark</button>
-                        <button id="open-three-body" class="action-btn">View Three-Body Solver</button>
-                        <div class="tiny" style="font-size: 0.9rem; margin-top: 5px;">
-                            Run 64-Perturbation Benchmark: Runs all 64 tests and shows results in the Benchmark tab<br>
-                            View Three-Body Solver: Shows the Solar System simulation with 0.984 stability metric
-                        </div>
+                        <div class="tiny" style="font-size: 0.9rem; margin-top: 5px;">Runs all 64 tests and shows results in the Benchmark tab</div>
                         <div class="loader" id="encrypt-loader"></div>
                         <div class="error" id="encrypt-error"></div>
                         <div>
@@ -1116,144 +949,6 @@
                         </a>
                     </div>
                 </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="main-tab-content" id="three-body-tab">
-            <div class="panel">
-                <h3>Three-Body Solver</h3>
-                <p>Applying QuantoniumOS resonance mathematics to solve the complex three-body problem in astrophysics.</p>
-                
-                <div class="action-panels">
-                    <div class="panel">
-                        <h4>Solar System Model</h4>
-                        <p>Visualizing the Solar System with 0.984 stability metric, demonstrating Jupiter-Saturn 2:1 orbital resonance detection.</p>
-                        
-                        <div class="form-group">
-                            <label for="simulation-speed">Simulation Speed:</label>
-                            <input type="range" id="simulation-speed" min="1" max="100" value="50">
-                            <span id="speed-value">50x</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="view-mode">View Mode:</label>
-                            <select id="view-mode">
-                                <option value="3d">3D View</option>
-                                <option value="top">Top View</option>
-                                <option value="side">Side View</option>
-                            </select>
-                        </div>
-                        
-                        <button id="start-simulation" class="action-btn">Start Simulation</button>
-                        <button id="reset-simulation" class="action-btn">Reset Simulation</button>
-                        
-                        <div class="metrics-container">
-                            <div class="metric">
-                                <label>System Stability:</label>
-                                <div class="meter-container">
-                                    <div id="system-stability-meter" class="meter" style="width: 98.4%;"></div>
-                                    <span id="system-stability-value" class="meter-value">0.984</span>
-                                </div>
-                            </div>
-                            <div class="metric">
-                                <label>Energy Conservation:</label>
-                                <div class="meter-container">
-                                    <div id="energy-conservation-meter" class="meter" style="width: 99.7%;"></div>
-                                    <span id="energy-conservation-value" class="meter-value">0.997</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="panel">
-                        <h4>Detected Resonance Patterns</h4>
-                        <div id="resonance-patterns">
-                            <div class="resonance-pattern">
-                                <div class="pattern-name">Jupiter-Saturn 2:1 Resonance</div>
-                                <div class="pattern-value">Detected</div>
-                            </div>
-                            <div class="resonance-pattern">
-                                <div class="pattern-name">Earth-Venus 13:8 Resonance</div>
-                                <div class="pattern-value">Detected</div>
-                            </div>
-                            <div class="resonance-pattern">
-                                <div class="pattern-name">Neptune-Pluto 3:2 Resonance</div>
-                                <div class="pattern-value">Detected</div>
-                            </div>
-                            <div class="resonance-pattern">
-                                <div class="pattern-name">Earth-Moon Lagrange Points</div>
-                                <div class="pattern-value">All 5 Detected</div>
-                            </div>
-                        </div>
-                        
-                        <h4>Phase Relationships</h4>
-                        <div id="phase-relationships">
-                            <canvas id="phase-canvas" width="300" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="three-body-visualization" class="visualization">
-                    <canvas id="three-body-canvas" width="800" height="600"></canvas>
-                </div>
-                
-                <div class="three-body-controls">
-                    <div class="control-row">
-                        <label for="simulation-speed">Simulation Speed: </label>
-                        <input type="range" id="simulation-speed" min="10" max="200" value="50">
-                        <span id="speed-value">50x</span>
-                    </div>
-                    
-                    <div class="control-row">
-                        <label for="view-mode">View Mode: </label>
-                        <select id="view-mode">
-                            <option value="3d">3D View</option>
-                            <option value="top">Top View (X-Y Plane)</option>
-                            <option value="side">Side View (X-Z Plane)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-row">
-                        <button id="start-simulation" class="btn">Start Simulation</button>
-                        <button id="reset-simulation" class="btn">Reset Simulation</button>
-                    </div>
-                </div>
-
-                <div class="three-body-analysis">
-                    <div class="analysis-row">
-                        <div class="analysis-col">
-                            <canvas id="phase-canvas" width="300" height="200"></canvas>
-                            <h4>Phase Relationships</h4>
-                        </div>
-                        
-                        <div class="analysis-col">
-                            <div id="resonance-results" class="results-panel">
-                                <h4>Detected Resonance Patterns</h4>
-                                <ul class="resonance-list">
-                                    <li>Running analysis... Keep simulation running to detect patterns.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="metrics-row">
-                        <div class="metric-box">
-                            <h5>System Stability:</h5>
-                            <div id="system-stability" class="metric-value">0.000</div>
-                        </div>
-                        
-                        <div class="metric-box">
-                            <h5>Energy Conservation:</h5>
-                            <div id="energy-conservation" class="metric-value">0.997</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="resonance-info">
-                    <h4>QuantoniumOS Patent Validation</h4>
-                    <p>This simulation demonstrates the application of QuantoniumOS resonance mathematics to solve complex physics problems, validating USPTO Application No. 19/169,399.</p>
-                    <p>The system actively analyzes orbital data to detect resonance patterns in real-time, without pre-loaded data. Run the simulation to see genuine pattern detection as orbits are analyzed.</p>
                 </div>
             </div>
         </div>
@@ -1640,16 +1335,6 @@
                         initializeQuantumGridModule();
                         
                         // No need to redraw container schematics as they've been removed
-                    }
-                    
-                    // Initialize three-body solver when that tab is selected
-                    if (tabName === 'three-body') {
-                        console.log("Initializing three-body solver from tab switch");
-                        // The initialization will happen through the event listener in three-body-solver.js
-                        // This ensures the canvas is visible before initializing
-                        if (typeof initThreeBodySolver === 'function') {
-                            setTimeout(initThreeBodySolver, 100);
-                        }
                         // Just ensure oscillator is running
                         setTimeout(() => {
                             // Reset any error states when tab is activated
@@ -1713,33 +1398,6 @@
                 
                 startBenchmarkButton.addEventListener('click', runBenchmark);
                 console.log("Benchmark button initialized");
-            }
-            
-            // Set up three-body solver button
-            const openThreeBodyButton = document.getElementById('open-three-body');
-            if (openThreeBodyButton && !openThreeBodyButton.hasAttribute('data-initialized')) {
-                openThreeBodyButton.setAttribute('data-initialized', 'true');
-                
-                openThreeBodyButton.addEventListener('click', function() {
-                    // Switch to three-body tab
-                    const mainTab = document.querySelector('.main-tab[data-tab="three-body"]');
-                    if (mainTab) {
-                        // Set all tabs inactive
-                        document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
-                        document.querySelectorAll('.main-tab-content').forEach(content => content.classList.remove('active'));
-                        
-                        // Set three-body tab active
-                        mainTab.classList.add('active');
-                        document.getElementById('three-body-tab').classList.add('active');
-                        
-                        // Initialize the three-body solver
-                        if (typeof initThreeBodySolver === 'function') {
-                            setTimeout(initThreeBodySolver, 100);
-                        }
-                    }
-                });
-                
-                console.log("Three-body solver button initialized");
             }
             
             // Set up benchmark tab navigation
