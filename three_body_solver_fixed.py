@@ -151,7 +151,12 @@ class ThreeBodySystem:
         
         for i, mass in enumerate(self.masses):
             # Use mass and position as seed for reproducibility
-            seed = int((mass * 1000 + np.sum(self.positions[i])) % 10000)
+            # Handle potential NaN values safely
+            pos_sum = np.sum(self.positions[i])
+            if np.isfinite(pos_sum) and np.isfinite(mass):
+                seed = int((mass * 1000 + pos_sum) % 10000)
+            else:
+                seed = 42  # Fallback seed
             
             # Base waveform now incorporates orbital information
             if i == 0:  # Central body
@@ -416,6 +421,165 @@ class ThreeBodySystem:
         
         return resonance_data
     
+    def _calculate_system_energy(self):
+        """
+        Calculate the total energy of the system (kinetic + potential).
+        Used for energy conservation enforcement.
+        """
+        # Kinetic energy: 1/2 * m * v^2
+        kinetic_energy = 0.0
+        for i in range(3):
+            v_squared = np.sum(self.velocities[i] ** 2)
+            kinetic_energy += 0.5 * self.masses[i] * v_squared
+        
+        # Potential energy: -G * m1 * m2 / r
+        potential_energy = 0.0
+        for i in range(3):
+            for j in range(i+1, 3):  # Avoid double counting
+                r = np.linalg.norm(self.positions[i] - self.positions[j])
+                if r > 1e-10:  # Avoid division by zero
+                    potential_energy -= self.G * self.masses[i] * self.masses[j] / r
+        
+        return kinetic_energy + potential_energy
+    
+    def _calculate_lagrange_correction(self, lagrange_type):
+        """
+        Calculate correction forces to stabilize the system at Lagrange points.
+        """
+        correction = np.zeros_like(self.positions)
+        
+        # For L4/L5 points (equilateral triangle configuration)
+        if lagrange_type == "L4/L5":
+            # Calculate ideal positions for equilateral triangle
+            # We assume body 0 is primary and body 1 is secondary
+            r01 = np.linalg.norm(self.positions[1] - self.positions[0])
+            unit_01 = (self.positions[1] - self.positions[0]) / r01
+            
+            # L4/L5 are 60° from the secondary body
+            angle = np.pi / 3  # 60 degrees
+            rotation_matrix = np.array([
+                [np.cos(angle), -np.sin(angle), 0],
+                [np.sin(angle), np.cos(angle), 0],
+                [0, 0, 1]
+            ])
+            
+            # Rotate the unit vector to get L4 point direction
+            l4_direction = np.dot(rotation_matrix, unit_01)
+            
+            # L4 is at same distance as secondary
+            ideal_l4 = self.positions[0] + l4_direction * r01
+            
+            # Calculate correction for third body to move toward L4
+            correction_vector = ideal_l4 - self.positions[2]
+            correction_magnitude = np.linalg.norm(correction_vector)
+            
+            if correction_magnitude > 0:
+                correction[2] = correction_vector / correction_magnitude * 1e-5 * correction_magnitude
+        
+        # For L1/L2/L3 points (collinear configuration)
+        elif lagrange_type == "L1/L2/L3":
+            # Calculate line connecting primary bodies
+            line_vector = self.positions[1] - self.positions[0]
+            line_length = np.linalg.norm(line_vector)
+            
+            if line_length > 0:
+                unit_line = line_vector / line_length
+                
+                # Project third body position onto the line
+                projected_point = self.positions[0] + np.dot(
+                    self.positions[2] - self.positions[0], unit_line
+                ) * unit_line
+                
+                # Calculate correction to move third body toward the line
+                correction_vector = projected_point - self.positions[2]
+                correction_magnitude = np.linalg.norm(correction_vector)
+                
+                if correction_magnitude > 0:
+                    correction[2] = correction_vector / correction_magnitude * 1e-6 * correction_magnitude
+        
+        return correction
+    
+    def _calculate_orbital_resonance_correction(self, resonance):
+        """
+        Calculate correction forces to maintain orbital resonance.
+        """
+        correction = np.zeros_like(self.positions)
+        
+        # Extract the resonance ratio (e.g. "2:1" -> (2, 1))
+        if isinstance(resonance, dict) and "ratio" in resonance:
+            ratio_str = resonance["ratio"]
+            try:
+                p, q = map(int, ratio_str.split(':'))
+                target_ratio = p / q
+            except (ValueError, ZeroDivisionError):
+                return correction
+        else:
+            return correction
+        
+        # Get the current orbital periods
+        if self.field_waveforms[1].get("orbital_period") and self.field_waveforms[2].get("orbital_period"):
+            period1 = self.field_waveforms[1]["orbital_period"]
+            period2 = self.field_waveforms[2]["orbital_period"]
+            
+            current_ratio = period1 / period2
+            
+            # Calculate error in ratio
+            ratio_error = current_ratio - target_ratio
+            
+            # Apply a gentle correction to velocities based on error
+            # Speed up or slow down the orbiting bodies to achieve the target ratio
+            if abs(ratio_error) > 0.01:
+                # Adjust body 1
+                v1_magnitude = np.linalg.norm(self.velocities[1])
+                if v1_magnitude > 0:
+                    adjustment_factor1 = 1.0 + 0.01 * ratio_error
+                    self.velocities[1] *= adjustment_factor1
+                
+                # Adjust body 2
+                v2_magnitude = np.linalg.norm(self.velocities[2])
+                if v2_magnitude > 0:
+                    adjustment_factor2 = 1.0 - 0.01 * ratio_error
+                    self.velocities[2] *= adjustment_factor2
+        
+        return correction
+    
+    def _calculate_resonance_correction(self, resonance_point):
+        """
+        Calculate correction to accelerations based on resonance analysis.
+        This is where the QuantoniumOS approach differs from traditional methods.
+        """
+        # Initialize correction array
+        correction = np.zeros_like(self.positions)
+        
+        # Ideal phase differences for a stable system would be 2π/3 between each pair
+        ideal_phase_diff = 2 * np.pi / 3
+        
+        # Calculate correction factors based on how far phases are from ideal
+        for i in range(3):
+            j = (i + 1) % 3
+            k = (i + 2) % 3
+            
+            # Current phase differences
+            current_diff = resonance_point["phase_diffs"][i]
+            
+            # Calculate correction factor
+            phase_error = current_diff - ideal_phase_diff
+            
+            # Direction should be toward the optimal orbital plane
+            direction = np.cross(
+                self.positions[j] - self.positions[i],
+                self.positions[k] - self.positions[i]
+            )
+            
+            # Normalize direction
+            if np.linalg.norm(direction) > 0:
+                direction = direction / np.linalg.norm(direction)
+            
+            # Scale correction by error and apply
+            correction[i] += direction * phase_error * 0.01
+        
+        return correction
+    
     def step(self, dt=0.01):
         """
         Advance the simulation by one timestep using resonance-based approach.
@@ -486,147 +650,29 @@ class ThreeBodySystem:
                 o_correction = self._calculate_orbital_resonance_correction(orbital_resonance)
                 accelerations = accelerations + o_correction * 0.1
         
-        # Calculate initial system energy (for conservation checks)
-    def _calculate_system_energy(self):
-        """
-        Calculate the total energy of the system (kinetic + potential).
-        Used for energy conservation enforcement.
-        """
-        # Kinetic energy: 1/2 * m * v^2
-        kinetic_energy = 0.0
-        for i in range(3):
-            v_squared = np.sum(self.velocities[i] ** 2)
-            kinetic_energy += 0.5 * self.masses[i] * v_squared
+        # Energy conservation check and correction
+        initial_energy = self._calculate_system_energy()
         
-        # Potential energy: -G * m1 * m2 / r
-        potential_energy = 0.0
-        for i in range(3):
-            for j in range(i+1, 3):  # Avoid double counting
-                r = np.linalg.norm(self.positions[i] - self.positions[j])
-                if r > 1e-10:  # Avoid division by zero
-                    potential_energy -= self.G * self.masses[i] * self.masses[j] / r
+        # Update velocities using calculated accelerations
+        self.velocities += accelerations * dt
         
-        return kinetic_energy + potential_energy
-    
-    # Calculate Lagrange point correction
-    def _calculate_lagrange_correction(self, lagrange_type):
-        """
-        Calculate correction forces to stabilize the system at Lagrange points.
-        """
-        correction = np.zeros_like(self.positions)
+        # Update positions using velocities
+        self.positions += self.velocities * dt
         
-        # For L4/L5 points (equilateral triangle configuration)
-        if lagrange_type == "L4/L5":
-            # Calculate ideal positions for equilateral triangle
-            # We assume body 0 is primary and body 1 is secondary
-            r01 = np.linalg.norm(self.positions[1] - self.positions[0])
-            unit_01 = (self.positions[1] - self.positions[0]) / r01
-            
-            # L4/L5 are 60° from the secondary body
-            angle = np.pi / 3  # 60 degrees
-            rotation_matrix = np.array([
-                [np.cos(angle), -np.sin(angle), 0],
-                [np.sin(angle), np.cos(angle), 0],
-                [0, 0, 1]
-            ])
-            
-            # Rotate the unit vector to get L4 point direction
-            l4_direction = np.dot(rotation_matrix, unit_01)
-            
-            # L4 is at same distance as secondary
-            ideal_l4 = self.positions[0] + l4_direction * r01
-            
-            # Calculate correction for third body to move toward L4
-            correction_vector = ideal_l4 - self.positions[2]
-            correction_magnitude = np.linalg.norm(correction_vector)
-            
-            if correction_magnitude > 0:
-                correction[2] = correction_vector / correction_magnitude * 1e-5 * correction_magnitude
+        # Energy conservation enforcement
+        final_energy = self._calculate_system_energy()
         
-        # For L1/L2/L3 points (collinear configuration)
-        elif lagrange_type == "L1/L2/L3":
-            # Calculate line connecting primary bodies
-            line_vector = self.positions[1] - self.positions[0]
-            line_length = np.linalg.norm(line_vector)
+        # Handle potential division by zero or NaN
+        if initial_energy != 0 and np.isfinite(initial_energy) and np.isfinite(final_energy):
+            energy_ratio = final_energy / initial_energy
             
-            if line_length > 0:
-                unit_line = line_vector / line_length
-                
-                # Project third body position onto the line
-                projected_point = self.positions[0] + np.dot(
-                    self.positions[2] - self.positions[0], unit_line
-                ) * unit_line
-                
-                # Calculate correction to move third body toward the line
-                correction_vector = projected_point - self.positions[2]
-                correction_magnitude = np.linalg.norm(correction_vector)
-                
-                if correction_magnitude > 0:
-                    correction[2] = correction_vector / correction_magnitude * 1e-6 * correction_magnitude
-        
-        return correction
-    
-    # Calculate orbital resonance correction
-    def _calculate_orbital_resonance_correction(self, resonance):
-        """
-        Calculate correction forces to maintain orbital resonance.
-        """
-        correction = np.zeros_like(self.positions)
-        
-        # Extract the resonance ratio (e.g. "2:1" -> (2, 1))
-        if isinstance(resonance, dict) and "ratio" in resonance:
-            ratio_str = resonance["ratio"]
-            try:
-                p, q = map(int, ratio_str.split(':'))
-                target_ratio = p / q
-            except (ValueError, ZeroDivisionError):
-                return correction
-        else:
-            return correction
-        
-        # Get the current orbital periods
-        if self.field_waveforms[1].get("orbital_period") and self.field_waveforms[2].get("orbital_period"):
-            period1 = self.field_waveforms[1]["orbital_period"]
-            period2 = self.field_waveforms[2]["orbital_period"]
-            
-            current_ratio = period1 / period2
-            
-            # Calculate error in ratio
-            ratio_error = current_ratio - target_ratio
-            
-            # Apply a gentle correction to velocities based on error
-            # Speed up or slow down the orbiting bodies to achieve the target ratio
-            if abs(ratio_error) > 0.01:
-                # Adjust body 1
-                v1_magnitude = np.linalg.norm(self.velocities[1])
-                if v1_magnitude > 0:
-                    adjustment_factor1 = 1.0 + 0.01 * ratio_error
-                    self.velocities[1] *= adjustment_factor1
-                
-                # Adjust body 2
-                v2_magnitude = np.linalg.norm(self.velocities[2])
-                if v2_magnitude > 0:
-                    adjustment_factor2 = 1.0 - 0.01 * ratio_error
-                    self.velocities[2] *= adjustment_factor2
-        
-        return correction
-        
-    # Update velocities using calculated accelerations
-    self.velocities += accelerations * dt
-    
-    # Update positions using velocities
-    self.positions += self.velocities * dt
-    
-    # Energy conservation enforcement
-    initial_energy = self._calculate_system_energy()
-    final_energy = self._calculate_system_energy()
-    energy_ratio = final_energy / initial_energy if initial_energy != 0 else 1.0
-    
-    # If energy has changed significantly, apply a correction
-    if abs(energy_ratio - 1.0) > 0.01:
-        # Scale velocities to conserve energy
-        scale_factor = np.sqrt(1.0 / energy_ratio)
-        self.velocities *= scale_factor
+            # If energy has changed significantly, apply a correction
+            if np.isfinite(energy_ratio) and abs(energy_ratio - 1.0) > 0.01:
+                # Scale velocities to conserve energy (avoid negative values)
+                if energy_ratio > 0:
+                    scale_factor = np.sqrt(1.0 / energy_ratio)
+                    if np.isfinite(scale_factor):
+                        self.velocities *= scale_factor
         
         # Update time and record history
         self.t += dt
@@ -653,43 +699,6 @@ class ThreeBodySystem:
                     accelerations[i] += acc_mag * r_vec / r
         
         return accelerations
-    
-    def _calculate_resonance_correction(self, resonance_point):
-        """
-        Calculate correction to accelerations based on resonance analysis.
-        This is where the QuantoniumOS approach differs from traditional methods.
-        """
-        # Initialize correction array
-        correction = np.zeros_like(self.positions)
-        
-        # Ideal phase differences for a stable system would be 2π/3 between each pair
-        ideal_phase_diff = 2 * np.pi / 3
-        
-        # Calculate correction factors based on how far phases are from ideal
-        for i in range(3):
-            j = (i + 1) % 3
-            k = (i + 2) % 3
-            
-            # Current phase differences
-            current_diff = resonance_point["phase_diffs"][i]
-            
-            # Calculate correction factor
-            phase_error = current_diff - ideal_phase_diff
-            
-            # Direction should be toward the optimal orbital plane
-            direction = np.cross(
-                self.positions[j] - self.positions[i],
-                self.positions[k] - self.positions[i]
-            )
-            
-            # Normalize direction
-            if np.linalg.norm(direction) > 0:
-                direction = direction / np.linalg.norm(direction)
-            
-            # Scale correction by error and apply
-            correction[i] += direction * phase_error * 0.01
-        
-        return correction
     
     def simulate(self, duration=10.0, dt=0.01):
         """
@@ -854,9 +863,68 @@ def run_three_body_simulation():
         print(f"Best resonance at frequency: {best_resonance['frequency']:.6f}")
         print(f"Phase differences: {[f'{p:.2f}' for p in best_resonance['phase_diffs']]}")
         print(f"Stability metric: {best_resonance['stability']:.6f}")
+        
+        # Report Lagrange points if detected
+        if system.resonance_data["lagrange_points"]:
+            lagrange_point = system.resonance_data["lagrange_points"][0]
+            print(f"Detected Lagrange point: {lagrange_point['type']}")
+            
+        # Report orbital resonances if detected
+        if system.resonance_data["orbital_resonances"]:
+            orbital_resonance = system.resonance_data["orbital_resonances"][0]
+            print(f"Detected orbital resonance: {orbital_resonance['ratio']}")
+            
+
+def run_earth_moon_system():
+    """
+    Run a simulation of the Earth-Moon system, which is a classic restricted
+    three-body problem with known Lagrange points.
+    """
+    # Masses in kg (Earth, Moon, Small satellite)
+    masses = [5.972e24, 7.342e22, 1000.0]
+    
+    # Earth-Moon distance: 384,400 km
+    earth_moon_distance = 3.844e8
+    
+    # Initial positions in meters
+    initial_positions = [
+        [0, 0, 0],                            # Earth at center
+        [earth_moon_distance, 0, 0],          # Moon
+        [earth_moon_distance * 0.5, earth_moon_distance * 0.866, 0]  # L4 Lagrange point
+    ]
+    
+    # Moon's orbital velocity: ~1022 m/s
+    moon_velocity = 1022.0
+    
+    # Initial velocities in m/s
+    initial_velocities = [
+        [0, 0, 0],                # Earth stationary
+        [0, moon_velocity, 0],    # Moon orbital velocity
+        [0, moon_velocity, 0]     # Small satellite matching Moon's velocity
+    ]
+    
+    # Create the system
+    system = ThreeBodySystem(masses, initial_positions, initial_velocities)
+    
+    # Run the simulation
+    print("Running Earth-Moon-Satellite simulation...")
+    system.simulate(duration=86400.0*30, dt=86400.0)  # 30 days, 1 day steps
+    
+    # Report stability and Lagrange points
+    stability = system.get_orbital_stability_metric()
+    print(f"Earth-Moon system stability metric: {stability:.3f}")
+    
+    # Analyze Lagrange points
+    if system.resonance_data["lagrange_points"]:
+        for lagrange in system.resonance_data["lagrange_points"]:
+            print(f"Detected Lagrange point: {lagrange['type']} with stability {lagrange['stability']:.6f}")
 
 
 if __name__ == "__main__":
     print("QuantoniumOS Three-Body Problem Solver")
     print("=====================================")
+    print("\n1. Solar System Simulation")
     run_three_body_simulation()
+    
+    print("\n2. Earth-Moon Lagrange Point Simulation")
+    run_earth_moon_system()
