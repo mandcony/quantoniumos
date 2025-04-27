@@ -198,6 +198,11 @@ function initializeQuantoniumBridge() {
 
 // Calculate stability according to Quantonium resonance principles
 function calculateQuantoniumStability() {
+    // Don't provide stability until we have enough data
+    if (trails[0].length < 50) {
+        return 0.0;
+    }
+    
     // Start with energy conservation as the base
     const initialEnergy = typeof bodies.initialEnergy !== 'undefined' ? 
         bodies.initialEnergy : calculateSystemEnergy();
@@ -215,7 +220,7 @@ function calculateQuantoniumStability() {
     const energyConservation = 1.0 - Math.min(Math.abs(energyRatio - 1.0), 0.3);
     
     // Orbital stability component based on trail path variance
-    let orbitalStability = 0.5; // Base stability
+    let orbitalStability = 0.0; // Start with zero stability
     
     // Calculate orbital stability by measuring consistency of paths
     if (trails[0].length > 50) {
@@ -256,6 +261,7 @@ function calculateQuantoniumStability() {
     }
     
     // Resonance component based on detected patterns
+    // This starts at zero and increases as patterns are detected
     const resonanceFactor = Math.min(0.2 * detectedResonances.length, 0.4);
     
     // Calculate final stability from all components with appropriate weights
@@ -265,8 +271,16 @@ function calculateQuantoniumStability() {
         resonanceFactor * 0.2
     );
     
-    // For Solar System, approach known stability of 0.984
-    return Math.min(stabilityValue, 0.984);
+    // Gradually approach stable state as more data is collected
+    // The longer the simulation runs, the closer we get to meaningful stability numbers
+    const dataCompleteness = Math.min(trails[0].length / 200, 1.0);
+    const maxStability = 0.984; // Solar System known stability
+    
+    // Return stability that increases with data completeness
+    const calculatedStability = stabilityValue * dataCompleteness;
+    
+    // Don't exceed the maximum stability for this system
+    return Math.min(calculatedStability, maxStability);
 }
 
 // Calculate similarity for a specific resonance ratio
@@ -288,13 +302,29 @@ function updateInitializationInfo() {
     const resonanceResults = document.getElementById('resonance-results');
     if (resonanceResults) {
         resonanceResults.innerHTML = `
-            <h4>Detected Resonance Patterns</h4>
+            <h4>Resonance Analysis Module</h4>
             <div class="initialization-info">
                 <p><strong>QuantoniumOS Resonance Engine</strong> initialized</p>
-                <p>Solar System Model with 0.984 stability metric</p>
-                <p>Run simulation to begin real-time resonance detection</p>
+                <p>No resonance patterns detected yet</p>
+                <p>Run simulation to begin real-time orbital analysis</p>
+                <p class="analysis-note">System will find patterns as they emerge in the simulation</p>
             </div>
         `;
+    }
+    
+    // Reset all detected resonances
+    detectedResonances = [];
+    
+    // Reset all resonance patterns to undetected state
+    for (let i = 0; i < resonancePatterns.length; i++) {
+        resonancePatterns[i].detected = false;
+    }
+    
+    // Reset stability metrics to zero until calculated from actual data
+    systemStabilityValue = 0.0;
+    const stabilityElement = document.getElementById('system-stability');
+    if (stabilityElement) {
+        stabilityElement.textContent = "0.000";
     }
 }
 
