@@ -139,47 +139,21 @@ QuantoniumOS implements a multi-layered architecture with clear separation betwe
 
 ### 3.2 Security Architecture
 
-The system implements NIST SP 800-53 compliant security controls with several key innovations:
+The system implements NIST SP 800-53 compliant security controls with several key innovations. First, strict frontend/backend separation ensures all proprietary algorithms run securely on the backend while the frontend receives only sanitized data streams. This architecture enables interactive visualization without algorithm exposure, protecting the intellectual property at the core of the system while still providing rich user interaction. 
 
-1. **Strict Frontend/Backend Separation**
-   - All proprietary algorithms run securely on the backend
-   - Frontend receives only sanitized data streams
-   - Interactive visualization without algorithm exposure
+Second, cryptographic integrity is maintained through container hashes that function as both identifiers and encoded representations. This dual functionality creates efficient verification through coherence matching rather than exact pattern matching, introducing flexibility while maintaining security. The system implements non-repudiation through wave-based HMAC with phase information, adding an additional security dimension beyond traditional approaches.
 
-2. **Cryptographic Integrity**
-   - Container hashes function as both identifiers and encoded representations
-   - Verification through coherence rather than exact matching
-   - Non-repudiation through wave-based HMAC with phase information
-
-3. **Audit Logging**
-   - Comprehensive security event tracking with cryptographic signing
-   - Detailed request/response logging with timestamps
-   - Tamper-evident logging with integrity verification
+Third, comprehensive audit logging provides security event tracking with cryptographic signing to ensure log integrity. Every request and response is captured with precise timestamps, creating a detailed audit trail of all system operations. The logging system is tamper-evident by design, with integrity verification mechanisms that can detect unauthorized modifications to log entries.
 
 ### 3.3 Container Validation System
 
-The container validation system provides a secure mechanism for data authentication based on wave coherence principles:
+The container validation system provides a secure mechanism for data authentication based on wave coherence principles. The container creation process begins when input data and a key generate a unique waveform with specific characteristics. These waveform characteristics are then encoded in a container hash that functions as both an identifier and validation key. Each container includes comprehensive provenance information including author identification, timestamp, and in many cases, a parent hash to track derivative relationships.
 
-1. **Container Creation Process**
-   - Input data and key generate a unique waveform
-   - Waveform characteristics are encoded in a container hash
-   - Container includes provenance information (author_id, timestamp)
+For validation, the system first extracts waveform parameters from the container hash through a specialized decoding process. These parameters are then compared against the parameters generated from the current input and key combination. The system calculates precise coherence metrics and entropy values from both sets of parameters to determine authenticity. Finally, it verifies that the coherence meets minimum thresholds, typically requiring values greater than 0.55 for successful validation.
 
-2. **Validation Methodology**
-   - Extract waveform parameters from container hash
-   - Compare against parameters from input+key combination
-   - Calculate coherence metrics and entropy values
-   - Verify coherence meets minimum threshold (typically >0.55)
+Tamper detection represents a significant innovation, monitoring WaveCoherence (WC) for symbolic collapse, which occurs when values drop below 0.55. The system simultaneously tracks entropy for statistical guessability, with values below 4.0 indicating potential tampering. By analyzing combinations of these anomalous metrics, the system can detect subtle modifications with high confidence.
 
-3. **Tamper Detection Mechanisms**
-   - Monitor WaveCoherence (WC) for symbolic collapse (<0.55)
-   - Track entropy for statistical guessability (<4.0)
-   - Flag combinations of anomalous metrics as potential tampering
-
-4. **Multi-Factor Validation**
-   - Authentication decisions based on multiple metrics rather than single value
-   - Adaptable thresholds based on security requirements
-   - Quantifiable confidence levels for validation results
+Rather than relying on a single validation factor, the system implements multi-factor validation where authentication decisions integrate multiple metrics. This approach creates adaptable thresholds that can be adjusted based on specific security requirements. Perhaps most importantly, it provides quantifiable confidence levels for validation results, moving beyond binary authentication decisions to a more nuanced understanding of validation confidence.
 
 ### 3.4 Quantum Simulation Capabilities
 
