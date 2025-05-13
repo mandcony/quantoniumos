@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - 64-Perturbation Benchmark</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1f93ff;
+        }
+        
+        .panel {
+            background-color: #0a0d15;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        button {
+            background-color: #1f93ff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #0e7ae6;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        
+        #status-message {
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .chart-container {
+            width: 100%;
+            margin-top: 20px;
+            height: 300px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #1f93ff;
+            transition: width 0.3s;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .result-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+        
+        .result-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f93ff;
+        }
+        
+        .option-box {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .option {
+            flex: 1;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        
+        .option:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .option.active {
+            background-color: rgba(31, 147, 255, 0.3);
+            border: 1px solid #1f93ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>64-Perturbation Benchmark</h1>
+        
+        <div class="panel">
+            <h2>Run Quantum Benchmark</h2>
+            <p>Test the performance of our quantum-inspired algorithms across different parameters</p>
+            
+            <div class="form-group">
+                <label for="max-qubits">Maximum Number of Qubits:</label>
+                <input type="number" id="max-qubits" value="150" min="10" max="150">
+            </div>
+            
+            <div class="form-group">
+                <label>Benchmark Type:</label>
+                <div class="option-box">
+                    <div class="option active" data-type="quick">Quick Test</div>
+                    <div class="option" data-type="full">Full Benchmark</div>
+                </div>
+            </div>
+            
+            <button id="run-benchmark-btn">Run Benchmark</button>
+            
+            <div class="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="benchmark-chart"></canvas>
+            </div>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-title">Maximum Qubits</div>
+                    <div class="result-value" id="max-qubits-result">-</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-title">Execution Time</div>
+                    <div class="result-value" id="execution-time">-</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-title">Quantum Efficiency</div>
+                    <div class="result-value" id="quantum-efficiency">-</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-title">Resonance Score</div>
+                    <div class="result-value" id="resonance-score">-</div>
+                </div>
+            </div>
+            
+            <div id="benchmark-result" class="result">
+                <!-- Detailed results will appear here -->
+            </div>
+        </div>
+        
+        <div id="status-message"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const runBenchmarkBtn = document.getElementById('run-benchmark-btn');
+            const benchmarkResult = document.getElementById('benchmark-result');
+            const statusMessage = document.getElementById('status-message');
+            const progressBar = document.getElementById('progress-bar');
+            const benchmarkCanvas = document.getElementById('benchmark-chart');
+            const options = document.querySelectorAll('.option');
+            let benchmarkType = 'quick';
+            let benchmarkChart = null;
+            
+            // Set up chart
+            function initChart() {
+                const ctx = benchmarkCanvas.getContext('2d');
+                
+                if (benchmarkChart) {
+                    benchmarkChart.destroy();
+                }
+                
+                benchmarkChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Performance (ms)',
+                            data: [],
+                            borderColor: '#1f93ff',
+                            backgroundColor: 'rgba(31, 147, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Qubits',
+                                    color: '#aaa'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#aaa'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Execution Time (ms)',
+                                    color: '#aaa'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#aaa'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#aaa'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            initChart();
+            
+            // Set up option selection
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    options.forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    benchmarkType = this.getAttribute('data-type');
+                });
+            });
+            
+            // Update progress
+            function updateProgress(percent) {
+                progressBar.style.width = `${percent}%`;
+            }
+            
+            // Run benchmark
+            runBenchmarkBtn.addEventListener('click', function() {
+                const maxQubits = parseInt(document.getElementById('max-qubits').value);
+                
+                if (isNaN(maxQubits) || maxQubits < 10 || maxQubits > 150) {
+                    showStatus('Please enter a valid number of qubits between 10 and 150', 'error');
+                    return;
+                }
+                
+                // Reset UI
+                updateProgress(0);
+                benchmarkResult.textContent = 'Benchmark in progress...';
+                document.getElementById('max-qubits-result').textContent = '-';
+                document.getElementById('execution-time').textContent = '-';
+                document.getElementById('quantum-efficiency').textContent = '-';
+                document.getElementById('resonance-score').textContent = '-';
+                
+                // Make API request
+                fetch('/api/quantum/benchmark', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        max_qubits: maxQubits,
+                        run_full_benchmark: benchmarkType === 'full'
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update chart
+                        const results = data.data.results;
+                        const labels = results.map(r => r.qubits);
+                        const values = results.map(r => r.time_ms);
+                        
+                        benchmarkChart.data.labels = labels;
+                        benchmarkChart.data.datasets[0].data = values;
+                        benchmarkChart.update();
+                        
+                        // Update result cards
+                        document.getElementById('max-qubits-result').textContent = maxQubits;
+                        document.getElementById('execution-time').textContent = data.data.total_time_ms + ' ms';
+                        document.getElementById('quantum-efficiency').textContent = data.data.efficiency_score + '%';
+                        document.getElementById('resonance-score').textContent = data.data.resonance_score;
+                        
+                        // Update detailed results
+                        benchmarkResult.textContent = JSON.stringify(data.data, null, 2);
+                        
+                        showStatus('Benchmark completed successfully', 'success');
+                    } else {
+                        benchmarkResult.textContent = 'Error: ' + data.error;
+                        showStatus('Failed to run benchmark', 'error');
+                    }
+                    
+                    updateProgress(100);
+                })
+                .catch(error => {
+                    benchmarkResult.textContent = 'Error: ' + error.message;
+                    showStatus('Failed to connect to server', 'error');
+                    updateProgress(100);
+                });
+                
+                // Simulate progress while waiting for response
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 2;
+                    if (progress >= 90) {
+                        clearInterval(progressInterval);
+                    } else {
+                        updateProgress(progress);
+                    }
+                }, 300);
+            });
+            
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = type;
+                statusMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

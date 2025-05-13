@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Quantum Encryption</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1f93ff;
+        }
+        
+        .panel {
+            background-color: #0a0d15;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #1f93ff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #0e7ae6;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        
+        #status-message {
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-right: 10px;
+        }
+        
+        .tab.active {
+            border-bottom-color: #1f93ff;
+            color: #1f93ff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .visualization {
+            height: 60px;
+            background-color: #0a0d15;
+            border-radius: 4px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .encryption-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+        
+        .encryption-animation .text {
+            white-space: nowrap;
+            font-family: monospace;
+            font-size: 12px;
+            display: flex;
+            animation: encryptScroll 10s linear infinite;
+        }
+        
+        @keyframes encryptScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .encryption-animation .char {
+            margin-right: 3px;
+            transition: color 0.3s;
+        }
+        
+        .encryption-animation .char.encrypted {
+            color: #1f93ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Quantum Encryption</h1>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="encrypt">Encrypt</div>
+            <div class="tab" data-tab="decrypt">Decrypt</div>
+        </div>
+        
+        <div class="tab-content active" id="encrypt-tab">
+            <div class="panel">
+                <h2>Encrypt Data</h2>
+                <p>Encrypt your data using quantum-inspired resonance techniques</p>
+                
+                <div class="form-group">
+                    <label for="plaintext">Plaintext:</label>
+                    <textarea id="plaintext" placeholder="Enter the text to encrypt..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="encrypt-key">Encryption Key:</label>
+                    <input type="text" id="encrypt-key" placeholder="Enter your encryption key...">
+                </div>
+                
+                <div class="visualization">
+                    <div class="encryption-animation">
+                        <div class="text" id="encrypt-animation"></div>
+                    </div>
+                </div>
+                
+                <button id="encrypt-btn">Encrypt Data</button>
+                
+                <div id="encrypt-result" class="result">
+                    <!-- Results will appear here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="decrypt-tab">
+            <div class="panel">
+                <h2>Decrypt Data</h2>
+                <p>Decrypt your data using the same quantum-inspired resonance techniques</p>
+                
+                <div class="form-group">
+                    <label for="ciphertext">Ciphertext:</label>
+                    <textarea id="ciphertext" placeholder="Enter the encrypted text to decrypt..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="decrypt-key">Decryption Key:</label>
+                    <input type="text" id="decrypt-key" placeholder="Enter your decryption key...">
+                </div>
+                
+                <div class="visualization">
+                    <div class="encryption-animation">
+                        <div class="text" id="decrypt-animation"></div>
+                    </div>
+                </div>
+                
+                <button id="decrypt-btn">Decrypt Data</button>
+                
+                <div id="decrypt-result" class="result">
+                    <!-- Results will appear here -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="status-message"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const encryptBtn = document.getElementById('encrypt-btn');
+            const decryptBtn = document.getElementById('decrypt-btn');
+            const encryptResult = document.getElementById('encrypt-result');
+            const decryptResult = document.getElementById('decrypt-result');
+            const statusMessage = document.getElementById('status-message');
+            const encryptAnimation = document.getElementById('encrypt-animation');
+            const decryptAnimation = document.getElementById('decrypt-animation');
+            
+            // Tabs functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to current tab
+                    this.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Generate animation text
+            function generateAnimationText(isEncrypt) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                const encryptedChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+                let html = '';
+                
+                for (let i = 0; i < 100; i++) {
+                    const charIndex = Math.floor(Math.random() * chars.length);
+                    const char = chars[charIndex];
+                    const encryptedChar = encryptedChars[Math.floor(Math.random() * encryptedChars.length)];
+                    
+                    if (isEncrypt) {
+                        html += `<span class="char ${i % 3 === 0 ? 'encrypted' : ''}">${i % 3 === 0 ? encryptedChar : char}</span>`;
+                    } else {
+                        html += `<span class="char ${i % 3 === 0 ? 'encrypted' : ''}">${i % 3 === 0 ? char : encryptedChar}</span>`;
+                    }
+                }
+                
+                return html;
+            }
+            
+            // Set up animations
+            encryptAnimation.innerHTML = generateAnimationText(true);
+            decryptAnimation.innerHTML = generateAnimationText(false);
+            
+            // Encrypt data
+            encryptBtn.addEventListener('click', function() {
+                const plaintext = document.getElementById('plaintext').value.trim();
+                const key = document.getElementById('encrypt-key').value.trim();
+                
+                if (!plaintext || !key) {
+                    showStatus('Please provide both plaintext and key', 'error');
+                    return;
+                }
+                
+                // Make API request
+                fetch('/api/encrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        plaintext: plaintext,
+                        key: key
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        encryptResult.textContent = data.data.ciphertext;
+                        showStatus('Data encrypted successfully', 'success');
+                    } else {
+                        encryptResult.textContent = 'Error: ' + data.error;
+                        showStatus('Failed to encrypt data', 'error');
+                    }
+                })
+                .catch(error => {
+                    encryptResult.textContent = 'Error: ' + error.message;
+                    showStatus('Failed to connect to server', 'error');
+                });
+            });
+            
+            // Decrypt data
+            decryptBtn.addEventListener('click', function() {
+                const ciphertext = document.getElementById('ciphertext').value.trim();
+                const key = document.getElementById('decrypt-key').value.trim();
+                
+                if (!ciphertext || !key) {
+                    showStatus('Please provide both ciphertext and key', 'error');
+                    return;
+                }
+                
+                // Make API request
+                fetch('/api/decrypt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ciphertext: ciphertext,
+                        key: key
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        decryptResult.textContent = data.data.plaintext;
+                        showStatus('Data decrypted successfully', 'success');
+                    } else {
+                        decryptResult.textContent = 'Error: ' + data.error;
+                        showStatus('Failed to decrypt data', 'error');
+                    }
+                })
+                .catch(error => {
+                    decryptResult.textContent = 'Error: ' + error.message;
+                    showStatus('Failed to connect to server', 'error');
+                });
+            });
+            
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = type;
+                statusMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

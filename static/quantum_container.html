@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Container Operations</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1f93ff;
+        }
+        
+        .panel {
+            background-color: #0a0d15;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #1f93ff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #0e7ae6;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        
+        #status-message {
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .visualization {
+            height: 150px;
+            background-color: #0a0d15;
+            border-radius: 4px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .waveform {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Quantum Container Operations</h1>
+        
+        <div class="panel">
+            <h2>Container Unlock</h2>
+            <div class="form-group">
+                <label for="container-hash">Container Hash:</label>
+                <input type="text" id="container-hash" placeholder="Enter container hash...">
+            </div>
+            
+            <div class="form-group">
+                <label for="unlock-key">Unlock Key:</label>
+                <input type="text" id="unlock-key" placeholder="Enter symbolic key...">
+            </div>
+            
+            <div class="form-group">
+                <label>Waveform Generator:</label>
+                <div class="visualization">
+                    <canvas class="waveform" id="waveform-canvas"></canvas>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amplitude">Amplitude:</label>
+                    <input type="range" id="amplitude" min="0" max="1" step="0.1" value="0.5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="frequency">Frequency:</label>
+                    <input type="range" id="frequency" min="1" max="10" step="0.5" value="2">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phase">Phase:</label>
+                    <input type="range" id="phase" min="0" max="6.28" step="0.1" value="0">
+                </div>
+            </div>
+            
+            <button id="unlock-btn">Attempt Unlock</button>
+            
+            <div id="unlock-result" class="result">
+                <!-- Results will appear here -->
+            </div>
+        </div>
+        
+        <div id="status-message"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('waveform-canvas');
+            const ctx = canvas.getContext('2d');
+            const unlockBtn = document.getElementById('unlock-btn');
+            const resultBox = document.getElementById('unlock-result');
+            const statusMessage = document.getElementById('status-message');
+            
+            // Set canvas size
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                drawWaveform();
+            }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Draw waveform
+            function drawWaveform() {
+                const amplitude = parseFloat(document.getElementById('amplitude').value);
+                const frequency = parseFloat(document.getElementById('frequency').value);
+                const phase = parseFloat(document.getElementById('phase').value);
+                
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                ctx.beginPath();
+                ctx.strokeStyle = '#1f93ff';
+                ctx.lineWidth = 2;
+                
+                for (let x = 0; x < width; x++) {
+                    const y = height / 2 + Math.sin(x * frequency * 0.01 + phase) * amplitude * height / 2;
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.stroke();
+            }
+            
+            // Update waveform on slider changes
+            document.getElementById('amplitude').addEventListener('input', drawWaveform);
+            document.getElementById('frequency').addEventListener('input', drawWaveform);
+            document.getElementById('phase').addEventListener('input', drawWaveform);
+            
+            // Unlock container
+            unlockBtn.addEventListener('click', function() {
+                const hash = document.getElementById('container-hash').value.trim();
+                const key = document.getElementById('unlock-key').value.trim();
+                
+                if (!hash || !key) {
+                    showStatus('Please provide both hash and key', 'error');
+                    return;
+                }
+                
+                // Get waveform values
+                const amplitude = parseFloat(document.getElementById('amplitude').value);
+                const frequency = parseFloat(document.getElementById('frequency').value);
+                const phase = parseFloat(document.getElementById('phase').value);
+                
+                // Generate waveform data (simplified)
+                const waveformData = [];
+                const steps = 32;
+                for (let i = 0; i < steps; i++) {
+                    const value = amplitude * Math.sin(i * frequency * 0.2 + phase);
+                    waveformData.push(value);
+                }
+                
+                // Make API request
+                fetch('/api/container/unlock', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        hash: hash,
+                        key: key,
+                        waveform: waveformData
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        resultBox.textContent = JSON.stringify(data.data, null, 2);
+                        showStatus('Container unlocked successfully', 'success');
+                    } else {
+                        resultBox.textContent = 'Error: ' + data.error;
+                        showStatus('Failed to unlock container', 'error');
+                    }
+                })
+                .catch(error => {
+                    resultBox.textContent = 'Error: ' + error.message;
+                    showStatus('Failed to connect to server', 'error');
+                });
+            });
+            
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = type;
+                statusMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
