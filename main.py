@@ -191,6 +191,11 @@ def create_app():
     def wave_ui():
         return send_from_directory('static/wave_ui', 'index.html')
     
+    # Image Resonance Analyzer UI
+    @app.route('/resonance-analyzer')
+    def resonance_analyzer():
+        return send_from_directory('static/resonance_analyzer', 'index.html')
+    
     # Removed Qubit Visualizer - merged into the Quantum Grid
         
     # Root route redirects to resonance encryption visualization

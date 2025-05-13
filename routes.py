@@ -9,6 +9,7 @@ import os
 import base64
 import json
 import time
+import tempfile
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
@@ -21,6 +22,7 @@ from backend.stream import get_stream, update_encrypt_data
 from api.resonance_metrics import run_symbolic_benchmark
 from encryption.resonance_encrypt import wave_hmac, FEATURE_AUTH
 from core.encryption.resonance_fourier import perform_rft, perform_irft, FEATURE_IRFT
+from image_resonance_analyzer import ImageResonanceAnalyzer, analyze_image
 
 api = Blueprint("api", __name__)
 symbolic = get_interface()
@@ -728,3 +730,173 @@ def entropy_stream():
             ent.append(0.5 + random.random() * 0.5)
     
     return jsonify({"series": ent[-50:], "t": time.time()})
+
+
+@api.route("/analyze/resonance", methods=["POST"])
+def analyze_image_resonance():
+    """
+    Analyze an uploaded image to detect resonance patterns using QuantoniumOS algorithms
+    
+    This endpoint accepts an image file and applies QuantoniumOS resonance mathematics
+    to extract patterns, symmetry, and potential symbolic meaning.
+    
+    Returns a JSON object containing detailed resonance analysis results.
+    """
+    if 'image' not in request.files:
+        return jsonify(sign_response({
+            "error": "No image file provided",
+            "status": "error"
+        })), 400
+        
+    image_file = request.files['image']
+    
+    # Additional parameters (optional)
+    threshold = float(request.form.get('threshold', 0.55))
+    frequency_bands = int(request.form.get('frequency_bands', 8))
+    symmetry_type = request.form.get('symmetry_type', 'all')
+    
+    # Save the uploaded image to a temporary file
+    temp_dir = tempfile.mkdtemp()
+    temp_path = os.path.join(temp_dir, "upload.jpg")
+    image_file.save(temp_path)
+    
+    try:
+        # Create the analyzer with the uploaded image
+        analyzer = ImageResonanceAnalyzer(temp_path)
+        
+        # Run analysis
+        analyzer.preprocess_image()
+        geometric_results = analyzer.analyze_geometric_patterns()
+        waveforms = analyzer.extract_waveforms()
+        resonance_data = analyzer.analyze_resonance_patterns()
+        
+        # Get symbolic interpretation
+        interpretation = analyzer.interpret_symbolic_meanings()
+        
+        # Prepare resonance patterns for API response
+        resonance_patterns = []
+        for res in resonance_data[:15]:  # Limit to most significant 15 patterns
+            pattern_type = "harmonic"
+            if "phase_pattern" in res:
+                pattern_type = res["phase_pattern"]
+            
+            resonance_patterns.append({
+                "frequency": res["frequency"],
+                "amplitude": res["strength"],
+                "pattern_type": pattern_type
+            })
+        
+        # Prepare phase relationships for API response
+        phase_relationships = []
+        if hasattr(analyzer, 'phase_relationships'):
+            for freq, data in analyzer.phase_relationships.items():
+                if "phase_diffs" in data and len(data["phase_diffs"]) > 0:
+                    for i, phase_diff in enumerate(data["phase_diffs"][:5]):  # Limit to first 5
+                        phase_relationships.append({
+                            "components": [f"Comp{i}", f"Comp{i+1}"],
+                            "phase_difference": phase_diff,
+                            "significance": data["avg_strength"]
+                        })
+        
+        # Extract dominant frequency
+        dominant_frequency = 0.0
+        if resonance_patterns:
+            # Find the resonance pattern with highest amplitude
+            dominant_freq_pattern = max(resonance_patterns, key=lambda x: x["amplitude"])
+            dominant_frequency = dominant_freq_pattern["frequency"]
+        
+        # Generate visual features for overlay display
+        detected_points = []
+        resonance_lines = []
+        symmetry_axes = []
+        
+        # Process circle centers as detected points
+        for i, (x, y) in enumerate(analyzer.geometric_centers[:10]):  # Limit to 10 points
+            img_width = analyzer.grayscale.shape[1]
+            img_height = analyzer.grayscale.shape[0]
+            
+            # Convert to relative coordinates (0-1 range)
+            rel_x = x / img_width
+            rel_y = y / img_height
+            
+            detected_points.append({
+                "x": rel_x,
+                "y": rel_y,
+                "importance": 0.8 - (i * 0.05)  # Higher importance for first points
+            })
+        
+        # Add center point
+        detected_points.append({
+            "x": 0.5,
+            "y": 0.5,
+            "importance": 1.0
+        })
+        
+        # Create some resonance lines
+        center_x, center_y = 0.5, 0.5
+        for point in detected_points:
+            resonance_lines.append({
+                "start": {"x": center_x, "y": center_y},
+                "end": {"x": point["x"], "y": point["y"]},
+                "strength": point["importance"] * 0.9
+            })
+        
+        # Add symmetry axes
+        if analyzer.symmetry_score > 0.6:
+            # Horizontal axis
+            symmetry_axes.append({
+                "start": {"x": 0.0, "y": 0.5},
+                "end": {"x": 1.0, "y": 0.5}
+            })
+            
+            # Vertical axis
+            symmetry_axes.append({
+                "start": {"x": 0.5, "y": 0.0},
+                "end": {"x": 0.5, "y": 1.0}
+            })
+        
+        # Build the final response
+        response = {
+            "symmetry_score": analyzer.symmetry_score,
+            "detected_features": [
+                "Radial Pattern" if analyzer.symmetry_score > 0.7 else "Linear Pattern",
+                "Triangular Elements" if "triangles" in geometric_results and geometric_results["triangles"] > 0 else "Rectangular Elements",
+                "Central Node" if analyzer.symmetry_score > 0.6 else "Distributed Nodes"
+            ],
+            "resonance_patterns": resonance_patterns,
+            "dominant_frequency": dominant_frequency,
+            "phase_coherence": 0.75 + analyzer.symmetry_score * 0.25,  # Estimate based on symmetry
+            "phase_relationships": phase_relationships,
+            "detected_points": detected_points,
+            "resonance_lines": resonance_lines,
+            "symmetry_axes": symmetry_axes,
+            "interpretation": {
+                "summary": interpretation.get("summary", ""),
+                "elements": interpretation.get("elements", []),
+                "resonance": interpretation.get("resonance", ""),
+                "geometry": interpretation.get("geometry", "")
+            },
+            "overall_confidence": threshold + min(0.4, analyzer.symmetry_score)
+        }
+        
+        # Clean up
+        os.remove(temp_path)
+        os.rmdir(temp_dir)
+        
+        # Add key_id if available
+        if hasattr(g, 'api_key') and g.api_key:
+            response["key_id"] = g.api_key.key_id
+        
+        return jsonify(sign_response(response))
+        
+    except Exception as e:
+        # Clean up on error
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        if os.path.exists(temp_dir):
+            os.rmdir(temp_dir)
+            
+        return jsonify(sign_response({
+            "error": f"Image analysis failed: {str(e)}",
+            "status": "error"
+        })), 500
