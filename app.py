@@ -10,6 +10,7 @@ from flask import Flask, Blueprint, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
+from flask_cors import CORS
 
 # Initialize SQLAlchemy
 db = SQLAlchemy()
@@ -31,6 +32,9 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+    
+    # Enable CORS for all routes
+    CORS(app)
     
     with app.app_context():
         # Import models
@@ -68,10 +72,27 @@ def create_app():
         resonance_routes(resonance_bp)
         app.register_blueprint(resonance_bp)
         
-        # Add a home route
+        from routes.api import api_routes
+        api_bp = Blueprint('api', __name__, url_prefix='/api')
+        api_routes(api_bp)
+        app.register_blueprint(api_bp)
+        
+        # Add routes to serve the frontend
         @app.route('/')
         def home():
-            return 'Welcome to Quantonium OS - the cutting-edge quantum computing platform!'
+            return app.send_static_file('quantonium-frontend.html')
+            
+        @app.route('/quantum-grid')
+        def quantum_grid():
+            return app.send_static_file('quantum_grid/index.html')
+            
+        @app.route('/qubit-visualizer')
+        def qubit_visualizer():
+            return app.send_static_file('qubit_ui/index.html')
+            
+        @app.route('/wave-visualizer')
+        def wave_visualizer():
+            return app.send_static_file('wave_ui/index.html')
         
         return app
 
