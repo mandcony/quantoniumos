@@ -132,6 +132,32 @@ def create_app():
     def direct_entropy():
         from routes import sample_entropy
         return sample_entropy()
+        
+    # Additional compatibility routes to ensure both old and new routes work
+    @app.route('/api/quantum/encrypt', methods=['POST'])
+    def quantum_encrypt_route():
+        from routes import encrypt
+        return encrypt()
+        
+    @app.route('/api/quantum/decrypt', methods=['POST'])
+    def quantum_decrypt_route():
+        from routes import decrypt
+        return decrypt()
+        
+    @app.route('/api/quantum/entropy', methods=['POST'])
+    def quantum_entropy_route():
+        from routes import sample_entropy
+        return sample_entropy()
+        
+    @app.route('/api/quantum/entropy/sample', methods=['POST'])
+    def quantum_entropy_sample_route():
+        from routes import sample_entropy
+        return sample_entropy()
+        
+    @app.route('/api/quantum/entropy/stream', methods=['GET'])
+    def quantum_entropy_stream_route():
+        from routes import entropy_stream
+        return entropy_stream()
     
     # API health check endpoint (not rate limited)
     @app.route('/api/health')
