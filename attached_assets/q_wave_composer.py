@@ -10,14 +10,16 @@ sys.path.insert(0, ROOT_DIR)
 try:
     from oscillator import Oscillator, validate_oscillator  # Ensures oscillator module is present
 except ImportError:
-    print("⚠️ Warning: 'oscillator' module not found. Some features may be disabled.")
-    Oscillator, validate_oscillator = None, None
+    # Try to import from the attached_assets folder
+    try:
+        from attached_assets.oscillator import Oscillator, validate_oscillator
+        print("✅ Imported oscillator module from attached_assets")
+    except ImportError:
+        print("⚠️ Warning: 'oscillator' module not found. Some features may be disabled.")
+        Oscillator, validate_oscillator = None, None
 
-try:
-    from apps.config import Config
-except ImportError:
-    print("⚠️ Warning: 'config' module not found. Default values will be used.")
-    Config = None
+# Remove the apps.config import as it's not needed and causes errors
+Config = None
 
 class QWaveComposer(QMainWindow):
     def __init__(self):
@@ -30,7 +32,8 @@ class QWaveComposer(QMainWindow):
         self.mainLayout = QVBoxLayout(self.centralWidget)
 
         # Frequency Label
-        self.freqLabel = QLabel("Wave Frequency: 1.0 Hz", alignment=Qt.AlignCenter)
+        self.freqLabel = QLabel("Wave Frequency: 1.0 Hz")
+        self.freqLabel.setAlignment(Qt.AlignCenter)
         self.mainLayout.addWidget(self.freqLabel)
 
         # Frequency Slider
@@ -53,7 +56,7 @@ class QWaveComposer(QMainWindow):
         """
         Loads the stylesheet from file if available, otherwise logs an error.
         """
-        style_path = os.path.join(ROOT_DIR, "styles.qss")
+        style_path = os.path.join(os.path.dirname(__file__), "styles.qss")
         try:
             if os.path.exists(style_path):
                 with open(style_path, "r", encoding="utf-8") as f:
@@ -86,6 +89,11 @@ class QWaveComposer(QMainWindow):
         print(f"🎼 [Q-Wave Composer] Generated waveform with frequency {freq:.1f} Hz: {waveform[:5]}...")
 
 if __name__ == "__main__":
+    # Import and use the headless environment setup
+    from attached_assets import setup_headless_environment
+    env_config = setup_headless_environment()
+    print(f"Running on {env_config['platform']} in {'headless' if env_config['headless'] else 'windowed'} mode")
+    
     app = QApplication(sys.argv)
     composer = QWaveComposer()
     composer.show()
