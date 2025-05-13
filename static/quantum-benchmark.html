@@ -197,6 +197,7 @@
         </div>
         
         <button id="benchmark-btn">Run Benchmark</button>
+        <button id="export-csv-btn" style="display: none; background-color: #4caf50; margin-left: 10px;">Export 64-Perturbation CSV</button>
         <div class="loader" id="benchmark-loader"></div>
         <div class="error" id="benchmark-error"></div>
         
@@ -525,9 +526,18 @@
                     memoryUsageChart.update();
                 }
                 
+                // Store perturbation results globally for CSV export
+                let storedPerturbationResults = [];
+                
                 // Display perturbation results
                 function displayPerturbationResults(results) {
                     perturbationTable.innerHTML = '';
+                    storedPerturbationResults = results; // Store for CSV export
+                    
+                    // Show export CSV button if we have results
+                    if (results && results.length > 0) {
+                        document.getElementById('export-csv-btn').style.display = 'inline-block';
+                    }
                     
                     for (const result of results) {
                         const row = document.createElement('tr');
@@ -552,6 +562,44 @@
                         perturbationTable.appendChild(row);
                     }
                 }
+                
+                // Export perturbation results to CSV
+                document.getElementById('export-csv-btn').addEventListener('click', function() {
+                    if (!storedPerturbationResults || storedPerturbationResults.length === 0) {
+                        showError('No perturbation data available to export.');
+                        return;
+                    }
+                    
+                    // Create CSV content
+                    let csvContent = 'data:text/csv;charset=utf-8,';
+                    
+                    // Add header row
+                    csvContent += 'Perturbation ID,Coherence,Stability,Convergence\n';
+                    
+                    // Add data rows
+                    storedPerturbationResults.forEach(result => {
+                        const row = [
+                            result.id || '',
+                            (result.coherence || 0).toFixed(4),
+                            (result.stability || 0).toFixed(4),
+                            (result.convergence || 0).toFixed(4)
+                        ].join(',');
+                        csvContent += row + '\n';
+                    });
+                    
+                    // Create download link
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', '64-perturbation-test-results.csv');
+                    document.body.appendChild(link);
+                    
+                    // Trigger download
+                    link.click();
+                    
+                    // Clean up
+                    document.body.removeChild(link);
+                });
                 
                 // Show error
                 function showError(message) {
