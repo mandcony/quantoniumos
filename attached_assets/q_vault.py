@@ -4,8 +4,9 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTextEdit, QPushButton, QVBoxLayout, QWidget, QFileDialog, QMessageBox
 )
 
+# Set path to styles.qss in the same directory
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
-STYLES_QSS = os.path.join(os.path.dirname(ROOT_DIR), "styles.qss")  # Point to C:\quantonium_os\styles.qss
+STYLES_QSS = os.path.join(ROOT_DIR, "styles.qss")
 
 def load_stylesheet(qss_path):
     """Load the stylesheet from the given path, with fallback if not found."""
@@ -30,8 +31,9 @@ class QVault(QMainWindow):
         # Load stylesheet
         self.stylesheet = load_stylesheet(STYLES_QSS)
         if not self.stylesheet:
-            raise ValueError("Stylesheet could not be loaded; cannot proceed without styles.")
-        self.setStyleSheet(self.stylesheet)
+            print("⚠️ No stylesheet available, proceeding with default styles")
+        else:
+            self.setStyleSheet(self.stylesheet)
 
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
@@ -58,6 +60,11 @@ class QVault(QMainWindow):
             QMessageBox.information(self, "Success", "File saved and encrypted successfully!")
 
 if __name__ == "__main__":
+    # Import and use the headless environment setup
+    from attached_assets import setup_headless_environment
+    env_config = setup_headless_environment()
+    print(f"Running on {env_config['platform']} in {'headless' if env_config['headless'] else 'windowed'} mode")
+    
     app = QApplication(sys.argv)
     stylesheet = load_stylesheet(STYLES_QSS)
     app.setStyleSheet(stylesheet)

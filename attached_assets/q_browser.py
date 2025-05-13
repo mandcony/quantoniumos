@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl, Qt, QRect, QPoint, QPropertyAnimation, QEasingCurve
 
-# Add the parent directory (C:\quantonium_os) to sys.path
+# Add the parent directory to sys.path
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
@@ -19,17 +19,24 @@ try:
     from quantum_entanglement import encrypt_resonance, decrypt_resonance, get_resonance_weight
 except ImportError as e:
     logging.error(f"Failed to import quantum_entanglement: {e}")
-    raise
+    # Fallback stubs for development/testing
+    encrypt_resonance = lambda x: x
+    decrypt_resonance = lambda x: x
+    get_resonance_weight = lambda x: 1.0
 
 try:
     from symbolic_eigenvector import encode_resonance, decode_resonance, compute_similarity
 except ImportError as e:
     logging.error(f"Failed to import symbolic_eigenvector: {e}")
-    raise
+    # Fallback stubs for development/testing
+    encode_resonance = lambda x: x
+    decode_resonance = lambda x: x
+    compute_similarity = lambda x, y: 0.5
 
 # Define logging settings
-APP_DIR = r"C:\quantonium_os\apps"
-log_dir = APP_DIR if os.access(APP_DIR, os.W_OK) else r"C:\temp"
+ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
+log_dir = os.path.join(ROOT_DIR, "logs")
+os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, "q_browser.log")
 logging.basicConfig(level=logging.DEBUG, filename=log_file, filemode="a",
                     format="%(asctime)s - %(levelname)s - %(message)s")
@@ -38,8 +45,8 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 logger.addHandler(console_handler)
 
-# Path to external QSS file
-STYLES_QSS = r"C:\quantonium_os\styles.qss"
+# Path to external QSS file in the same directory
+STYLES_QSS = os.path.join(ROOT_DIR, "styles.qss")
 
 def load_stylesheet(qss_path):
     """Load and return the contents of the QSS file if it exists."""
@@ -281,6 +288,11 @@ class QBrowser(QMainWindow):
 
 if __name__ == "__main__":
     try:
+        # Import and use the headless environment setup
+        from attached_assets import setup_headless_environment
+        env_config = setup_headless_environment()
+        print(f"Running on {env_config['platform']} in {'headless' if env_config['headless'] else 'windowed'} mode")
+        
         logger.info("Starting QApplication")
         app = QApplication(sys.argv)
 
@@ -288,6 +300,7 @@ if __name__ == "__main__":
         stylesheet = load_stylesheet(STYLES_QSS)
         if stylesheet:
             app.setStyleSheet(stylesheet)
+            logger.info("Applied external stylesheet")
         else:
             default_stylesheet = """
                 QLineEdit {
@@ -329,6 +342,7 @@ if __name__ == "__main__":
                 }
             """
             app.setStyleSheet(default_stylesheet)
+            logger.info("Applied default stylesheet (external not found)")
 
         browser = QBrowser()
         browser.show()

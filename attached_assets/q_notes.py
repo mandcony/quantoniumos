@@ -26,13 +26,22 @@ class QNotes(QMainWindow):
                 f.write(self.textEditor.toPlainText())
 
 if __name__ == "__main__":
+    # Import and use the headless environment setup
+    from attached_assets import setup_headless_environment
+    env_config = setup_headless_environment()
+    print(f"Running on {env_config['platform']} in {'headless' if env_config['headless'] else 'windowed'} mode")
+    
     app = QApplication(sys.argv)
 
-    # Apply external stylesheet
-    qss_path = r"C:\quantonium_os\styles.qss"
+    # Apply external stylesheet using relative path
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    qss_path = os.path.join(script_dir, "styles.qss")
     if os.path.exists(qss_path):
         with open(qss_path, 'r') as file:
             app.setStyleSheet(file.read())
+        print("✅ Stylesheet loaded successfully.")
+    else:
+        print(f"⚠️ Stylesheet could not be loaded. Path: {qss_path}")
 
     notesApp = QNotes()
     notesApp.show()
