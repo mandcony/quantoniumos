@@ -1,0 +1,69 @@
+/* QuantoniumOS stylesheet */
+
+/* Main desktop view */
+QGraphicsView#DesktopView {
+    background-color: #0a0d15;
+}
+
+/* Main window */
+QMainWindow#QuantoniumMainWindow {
+    background-color: #0a0d15;
+}
+
+/* Q Logo */
+QLabel#QLogo {
+    color: #1f93ff;
+    opacity: 0.2;
+    rotation: 0;
+    scale-factor: 0.8;
+    font: bold 64pt "Arial";
+}
+
+/* Clock display */
+QLabel#ClockItem {
+    color: #ffffff;
+    font: 14pt "Arial";
+}
+
+/* Side arch */
+QGraphicsEllipseItem#ShadedArch {
+    color: #1f93ff;
+    opacity: 0.2;
+}
+
+/* Arrow icon */
+QLabel#ArrowIcon {
+    color: #ffffff;
+}
+
+/* App icons */
+QLabel#AppIcon {
+    color: #ffffff;
+    background-color: rgba(25, 45, 88, 0.7);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+QLabel#AppIcon:hover {
+    background-color: rgba(47, 79, 126, 0.8);
+}
+
+/* App names */
+QLabel#AppName {
+    color: #ffffff;
+    font: 9pt "Arial";
+}
+
+/* Status bar */
+QStatusBar {
+    color: #cccccc;
+    background-color: #1a1a2e;
+}
+
+/* Tooltips */
+QToolTip {
+    color: #ffffff;
+    background-color: #1a1a2e;
+    border: 1px solid #3d3d5c;
+    font: 9pt "Arial";
+}

@@ -30,4 +30,6 @@ dependencies = [
     "fpdf>=1.7.2",
     "matplotlib>=3.10.1",
     "anthropic>=0.51.0",
+    "pyqt5>=5.15.11",
+    "qtawesome>=1.4.0",
 ]
