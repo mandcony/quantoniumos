@@ -160,6 +160,11 @@ def create_app():
     def squarespace_embed():
         return send_from_directory('static', 'squarespace-embed.html')
         
+    # Launch Desktop Resonance Analyzer page
+    @app.route('/desktop-analyzer')
+    def desktop_analyzer_launcher():
+        return send_from_directory('static', 'launch_desktop_analyzer.html')
+        
     # Serve embed demo instructions
     @app.route('/embed-demo')
     def embed_demo():
@@ -201,7 +206,96 @@ def create_app():
     # Root route redirects to resonance encryption visualization
     @app.route('/')
     def root():
-        return redirect('/resonance-encrypt')
+        # Add launcher in the main HTML navigation
+        root_html = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>QuantoniumOS</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background: #111;
+                    color: #fff;
+                }
+                .header {
+                    background: linear-gradient(135deg, #1a2a4a 0%, #162238 100%);
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                }
+                .nav {
+                    background: #0d1117;
+                    display: flex;
+                    justify-content: center;
+                    padding: 10px;
+                }
+                .nav a {
+                    color: #fff;
+                    text-decoration: none;
+                    margin: 0 15px;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    transition: background 0.3s;
+                }
+                .nav a:hover {
+                    background: rgba(255,255,255,0.1);
+                }
+                .content {
+                    max-width: 800px;
+                    margin: 20px auto;
+                    padding: 20px;
+                    background: #1e1e2e;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                }
+                .card {
+                    background: #252836;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                }
+                .footer {
+                    text-align: center;
+                    padding: 20px;
+                    color: #6c7983;
+                    font-size: 14px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>QuantoniumOS</h1>
+                <p>Cloud Runtime & Symbolic Computing Platform</p>
+            </div>
+            
+            <div class="nav">
+                <a href="/resonance-encrypt">Resonance Encryption</a>
+                <a href="/quantum-grid">Quantum Grid</a>
+                <a href="/resonance-analyzer">Image Resonance Analyzer</a>
+                <a href="/desktop-analyzer">Desktop Apps</a>
+                <a href="/docs">API Docs</a>
+            </div>
+            
+            <div class="content">
+                <div class="card">
+                    <h2>Welcome to QuantoniumOS</h2>
+                    <p>A secure, high-performance quantum-inspired API for symbolic computing.</p>
+                    <p>Please select one of the applications from the navigation menu above.</p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>QuantoniumOS Cloud Runtime v0.3.0 | &copy; 2025 Quantonium Research</p>
+            </div>
+        </body>
+        </html>
+        """
+        return root_html
         
     # Status endpoint without auth
     @app.route('/status')
@@ -213,6 +307,40 @@ def create_app():
             "version": APP_VERSION,
             "uptime_s": uptime_seconds
         })
+    
+    # Launch the desktop resonance analyzer application
+    @app.route('/api/launch-desktop-analyzer', methods=['POST'])
+    def launch_desktop_analyzer():
+        """API endpoint to launch the desktop resonance analyzer application."""
+        try:
+            import subprocess
+            import sys
+            import os
+            
+            # Get the path to the launcher script
+            script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "attached_assets")
+            launcher_script = os.path.join(script_dir, "launch_resonance_analyzer.py")
+            
+            if not os.path.exists(launcher_script):
+                return jsonify({
+                    "success": False,
+                    "error": "Launcher script not found"
+                }), 404
+            
+            # Launch the application using subprocess
+            subprocess.Popen([sys.executable, launcher_script])
+            
+            return jsonify({
+                "success": True,
+                "message": "Desktop application launched successfully"
+            })
+            
+        except Exception as e:
+            logger.error(f"Error launching desktop analyzer: {str(e)}")
+            return jsonify({
+                "success": False,
+                "error": str(e)
+            }), 500
     
     # Metrics endpoint - protected by API key
     @app.route('/api/metrics')
