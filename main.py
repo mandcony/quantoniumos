@@ -460,12 +460,14 @@ def create_app():
             
             # Map app names to their HTML interfaces
             html_mapping = {
-                "q_wave_composer": "/quantum-container",
+                "q_wave_composer": "/quantum-rft",
                 "q_resonance_analyzer": "/resonance-analyzer",
-                "q_wave_debugger": "/quantum-rft",
+                "q_wave_debugger": "/quantum-encryption",
                 "q_mail": "/quantum-mail",
                 "q_browser": "/quantum-browser",
-                "q_vault": "/quantum-encryption",
+                "q_notes": "/quantum-notes",
+                "q_vault": "/quantum-container",
+                "quantum_desktop": "/os",
                 "quantum_encryption": "/quantum-encryption",
                 "quantum_rft": "/quantum-rft"
             }
