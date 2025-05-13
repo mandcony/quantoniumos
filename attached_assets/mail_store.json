@@ -1,0 +1,56 @@
+[
+    {
+        "id": "fdd66053-f2f2-4aea-85a0-13066f7a1ddb",
+        "owner": "m@qauntonium.os",
+        "folder": "Sent",
+        "sender": "m@qauntonium.os",
+        "subject": "6MbZxQ==",
+        "body": "qu7I68Du+/A=",
+        "date": "2025-03-20T12:45:27.783973"
+    },
+    {
+        "id": "8ed922b3-1a22-4781-8cd0-887ad1fabfe8",
+        "owner": "admin@qauntonium,os",
+        "folder": "Inbox",
+        "sender": "m@qauntonium.os",
+        "subject": "6MbZxQ==",
+        "body": "qu7I68Du+/A=",
+        "date": "2025-03-20T12:45:27.783973"
+    },
+    {
+        "id": "eceed74d-1735-4a38-be1e-e770d2b8551f",
+        "owner": "admin@quantonium.os",
+        "folder": "Sent",
+        "sender": "admin@quantonium.os",
+        "subject": "6MbZxQ==",
+        "body": "qu7I68Du+/A=",
+        "date": "2025-03-20T12:57:35.671477"
+    },
+    {
+        "id": "5a751078-cd77-4f1d-9940-5842d42b33d7",
+        "owner": "m@quantonium.os",
+        "folder": "Inbox",
+        "sender": "admin@quantonium.os",
+        "subject": "6MbZxQ==",
+        "body": "qu7I68Du+/A=",
+        "date": "2025-03-20T12:57:35.671477"
+    },
+    {
+        "id": "480ca916-8d9a-4a40-86e9-83d8c3e2495f",
+        "owner": "m@quantonium.os",
+        "folder": "Sent",
+        "sender": "m@quantonium.os",
+        "subject": "6MbZxQ==",
+        "body": "qu7I68Du+/A=",
+        "date": "2025-03-20T12:58:48.738430"
+    },
+    {
+        "id": "e85913bc-f285-4d16-b825-595a3d7357d9",
+        "owner": "admin@quantonium.os",
+        "folder": "Inbox",
+        "sender": "m@quantonium.os",
+        "subject": "6MbZxQ==",
+        "body": "qu7I68Du+/A=",
+        "date": "2025-03-20T12:58:48.738430"
+    }
+]

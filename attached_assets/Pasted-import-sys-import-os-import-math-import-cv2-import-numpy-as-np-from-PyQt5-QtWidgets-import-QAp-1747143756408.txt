@@ -1,0 +1,170 @@
+import sys
+import os
+import math
+import cv2
+import numpy as np
+from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QTextEdit,
+                             QVBoxLayout, QFileDialog, QMessageBox)
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
+
+# Add apps/ folder to path
+sys.path.append(os.path.join(os.path.dirname(__file__), 'apps'))
+
+from resonance_encryption import WaveNumber, resonance_encrypt, resonance_decrypt
+from geometric_waveform_hash import geometric_waveform_hash
+
+# Expanded Unicode glyph lexicon
+expanded_unicode_lexicon = {
+    "dingir": {"char": "𒀭", "meaning": "god"},
+    "ama": {"char": "𒂼", "meaning": "mother"},
+    "dumu": {"char": "𒌉", "meaning": "child"},
+    "enki": {"char": "𒀭𒂗𒆤", "meaning": "lord of the earth"},
+    "ki": {"char": "𒆠", "meaning": "earth/place"},
+    "gal": {"char": "𒃲", "meaning": "great"},
+    "e2": {"char": "𒂍", "meaning": "house"},
+    "e2-gal": {"char": "𒂍𒃲", "meaning": "palace"},
+    "du3": {"char": "𒁺", "meaning": "to build"},
+    "lugal": {"char": "𒈗", "meaning": "king"},
+    "šarru": {"char": "𒊬", "meaning": "Akkadian king"},
+    "uru": {"char": "𒌷", "meaning": "city"},
+    "nin": {"char": "𒎏", "meaning": "lady/priestess"},
+    "zi": {"char": "𒍣", "meaning": "life/spirit"},
+    "ti": {"char": "𒋾", "meaning": "arrow/life"},
+    "gu": {"char": "𒄞", "meaning": "bull/voice"},
+    "an": {"char": "𒀭", "meaning": "sky/heaven"},
+    "nam": {"char": "𒉆", "meaning": "destiny/fate"},
+    "me": {"char": "𒈨", "meaning": "divine order"},
+    "na": {"char": "𒈾", "meaning": "to/for (dative)"},
+}
+
+# Symbolic mapping using tighter amp/phase ranges
+symbolic_mapping = [
+    {"word": "dingir", "amp_range": (0.00, 0.05), "phase_range": (0.80, 0.84)},
+    {"word": "ama", "amp_range": (0.05, 0.10), "phase_range": (0.81, 0.85)},
+    {"word": "dumu", "amp_range": (0.10, 0.15), "phase_range": (0.81, 0.85)},
+    {"word": "enki", "amp_range": (0.15, 0.20), "phase_range": (0.80, 0.85)},
+    {"word": "ki", "amp_range": (0.20, 0.25), "phase_range": (0.80, 0.84)},
+    {"word": "gal", "amp_range": (0.25, 0.30), "phase_range": (0.82, 0.85)},
+    {"word": "e2", "amp_range": (0.30, 0.35), "phase_range": (0.80, 0.84)},
+    {"word": "e2-gal", "amp_range": (0.35, 0.40), "phase_range": (0.81, 0.84)},
+    {"word": "du3", "amp_range": (0.40, 0.45), "phase_range": (0.80, 0.84)},
+    {"word": "lugal", "amp_range": (0.45, 0.50), "phase_range": (0.80, 0.84)},
+    {"word": "šarru", "amp_range": (0.50, 0.55), "phase_range": (0.80, 0.84)},
+    {"word": "uru", "amp_range": (0.55, 0.60), "phase_range": (0.80, 0.84)},
+    {"word": "nin", "amp_range": (0.60, 0.65), "phase_range": (0.80, 0.84)},
+    {"word": "zi", "amp_range": (0.65, 0.70), "phase_range": (0.80, 0.84)},
+    {"word": "ti", "amp_range": (0.70, 0.75), "phase_range": (0.80, 0.84)},
+    {"word": "gu", "amp_range": (0.75, 0.80), "phase_range": (0.80, 0.84)},
+    {"word": "an", "amp_range": (0.80, 0.85), "phase_range": (0.80, 0.84)},
+    {"word": "nam", "amp_range": (0.85, 0.90), "phase_range": (0.80, 0.84)},
+    {"word": "me", "amp_range": (0.90, 0.95), "phase_range": (0.80, 0.84)},
+    {"word": "na", "amp_range": (0.95, 1.00), "phase_range": (0.80, 0.84)},
+]
+
+# Inline grammar interpreter
+def interpret_sumerian_sequence(words):
+    glosses = []
+    phrase = []
+    for word in words:
+        entry = expanded_unicode_lexicon.get(word, {})
+        gloss = f"{entry.get('char', '?')} [{word}] → {entry.get('meaning', 'unknown')}"
+        glosses.append(gloss)
+        if entry.get("meaning"):
+            phrase.append(entry["meaning"])
+        else:
+            phrase.append(word)
+    return glosses, " ".join(phrase).upper()
+
+# Resonance decoding
+def symbolic_resonance_decode(sign_image):
+    try:
+        raw = geometric_waveform_hash(sign_image.tobytes())
+        if isinstance(raw, str):
+            amp = sum(ord(c) for c in raw) % 100 / 100.0
+            phase = (len(raw) % 100) / 100.0 * math.pi
+        else:
+            amp = raw.get("amplitude", 0.5)
+            phase = raw.get("phase", 0.1 * math.pi)
+
+        wave = WaveNumber(amp, phase)
+        _ = resonance_encrypt("test", wave)
+        _ = resonance_decrypt(_, wave)
+
+        for entry in symbolic_mapping:
+            a_min, a_max = entry["amp_range"]
+            p_min, p_max = entry["phase_range"]
+            if a_min <= amp <= a_max and p_min <= phase <= p_max:
+                return entry["word"], f"{expanded_unicode_lexicon[entry['word']]['char']} [{entry['word']}] → {expanded_unicode_lexicon[entry['word']]['meaning']} (amp={amp:.2f}, phase={phase:.2f})"
+
+        return "unknown", f"[Unmapped] amp={amp:.2f}, phase={phase:.2f})"
+    except Exception as e:
+        return "error", f"[Error decoding glyph: {str(e)}]"
+
+# Image processing
+def process_cuneiform_image(image_path):
+    try:
+        img = cv2.imread(image_path)
+        if img is None:
+            raise ValueError("Invalid image file.")
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 120, 255, cv2.THRESH_BINARY_INV)
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        decoded_lines = []
+        symbolic_words = []
+
+        for cnt in contours:
+            x, y, w, h = cv2.boundingRect(cnt)
+            roi = thresh[y:y+h, x:x+w]
+            word, decoded = symbolic_resonance_decode(roi)
+            decoded_lines.append(decoded)
+            symbolic_words.append(word)
+
+        glosses, final_sentence = interpret_sumerian_sequence(symbolic_words)
+        decoded_lines.append("\n--- MORPHOLOGICAL GLOSS ---")
+        decoded_lines.extend(glosses)
+        decoded_lines.append("\n--- FINAL TRANSLATION ---")
+        decoded_lines.append(final_sentence)
+        return decoded_lines
+
+    except Exception as e:
+        return [f"[Error processing image: {str(e)}]"]
+
+# PyQt App
+class CuneiformTranslatorApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Quantonium Cuneiform Analyzer")
+        self.setGeometry(200, 200, 600, 500)
+        self.layout = QVBoxLayout()
+        self.label = QLabel("Upload a cuneiform tablet image")
+        self.label.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.label)
+        self.imageLabel = QLabel()
+        self.imageLabel.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.imageLabel)
+        self.uploadBtn = QPushButton("Upload Image")
+        self.uploadBtn.clicked.connect(self.load_image)
+        self.layout.addWidget(self.uploadBtn)
+        self.resultBox = QTextEdit()
+        self.resultBox.setReadOnly(True)
+        self.layout.addWidget(self.resultBox)
+        self.setLayout(self.layout)
+
+    def load_image(self):
+        fname, _ = QFileDialog.getOpenFileName(self, 'Open file', '.', 'Image files (*.jpg *.png *.bmp)')
+        if fname:
+            pixmap = QPixmap(fname)
+            self.imageLabel.setPixmap(pixmap.scaled(400, 300, Qt.KeepAspectRatio))
+            try:
+                result = process_cuneiform_image(fname)
+                self.resultBox.setText("\n".join(result))
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to process image: {str(e)}")
+
+# Run App
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    translator = CuneiformTranslatorApp()
+    translator.show()
+    sys.exit(app.exec_())
