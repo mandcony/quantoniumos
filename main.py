@@ -392,6 +392,10 @@ def create_app():
             import subprocess
             import sys
             import os
+            import logging
+            
+            logger = logging.getLogger('main')
+            logger.info("Received launch request")
             
             # Get app name from request
             data = request.get_json()
@@ -475,10 +479,19 @@ def create_app():
             # Get the HTML interface or use a default
             html_interface = html_mapping.get(app_base_name, "/")
             
-            return jsonify({
+            # Log what's happening for debugging
+            logger.info(f"App name: {app_name}, Base name: {app_base_name}")
+            logger.info(f"Redirecting to: {html_interface}")
+            
+            # Send the JSON response with correct redirect
+            response = {
                 "success": True,
+                "message": f"Application {app_name} launched successfully",
                 "redirect_to": html_interface
-            })
+            }
+            
+            logger.info(f"Sending response: {response}")
+            return jsonify(response)
             
         except Exception as e:
             logger.error(f"Error launching app: {str(e)}")
