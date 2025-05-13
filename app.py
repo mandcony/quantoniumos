@@ -80,7 +80,15 @@ def create_app():
         # Add routes to serve the frontend
         @app.route('/')
         def home():
+            return app.send_static_file('index.html')
+            
+        @app.route('/quantum-browser')
+        def quantum_browser():
             return app.send_static_file('quantonium-frontend.html')
+            
+        @app.route('/quantum-mail')
+        def quantum_mail():
+            return 'Email Application Coming Soon!'
             
         @app.route('/quantum-grid')
         def quantum_grid():
@@ -93,6 +101,30 @@ def create_app():
         @app.route('/wave-visualizer')
         def wave_visualizer():
             return app.send_static_file('wave_ui/index.html')
+            
+        @app.route('/quantum-notes')
+        def quantum_notes():
+            return 'Notes Application Coming Soon!'
+            
+        @app.route('/quantum-vault')
+        def quantum_vault():
+            return 'Secure Vault Application Coming Soon!'
+            
+        @app.route('/wave-composer')
+        def wave_composer():
+            return 'Wave Composer Application Coming Soon!'
+            
+        @app.route('/wave-debugger')
+        def wave_debugger():
+            return 'Wave Debugger Application Coming Soon!'
+            
+        @app.route('/settings')
+        def settings():
+            return 'Settings Application Coming Soon!'
+            
+        @app.route('/terminal')
+        def terminal():
+            return 'Terminal Application Coming Soon!'
         
         return app
 
