@@ -208,9 +208,15 @@ def create_app():
     
     # Removed Qubit Visualizer - merged into the Quantum Grid
         
-    # Root route redirects to resonance encryption visualization
+    # Root route redirects to QuantoniumOS interface
     @app.route('/')
     def root():
+        # Redirect to the QuantoniumOS interface
+        return redirect('/os')
+        
+    # Legacy home route (kept for backward compatibility)
+    @app.route('/home')
+    def home():
         # Add launcher in the main HTML navigation
         root_html = """
         <!DOCTYPE html>
