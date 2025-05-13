@@ -2314,7 +2314,7 @@ ${freqValues}`;
             
             try {
                 // Make the API call
-                const response = await fetch(`${API_URL}/api/entropy/sample`, {
+                const response = await fetch(`${API_URL}/api/quantum/entropy/sample`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3810,7 +3810,7 @@ ${entropyValue}`;
         async function runEntropyTest() {
             try {
                 // Make API call to entropy endpoint
-                const response = await fetch("/api/entropy?amount=32");
+                const response = await fetch("/api/quantum/entropy?amount=32");
                 
                 if (!response.ok) {
                     throw new Error(`Server returned ${response.status}`);
@@ -3973,7 +3973,7 @@ ${entropyValue}`;
                 }
                 
                 // Fetch entropy data - fixed path to include /api prefix
-                const r = await fetch('/api/entropy/stream');
+                const r = await fetch('/api/quantum/entropy/stream');
                 const js = await r.json();
                 
                 // Ensure series data exists and is an array
