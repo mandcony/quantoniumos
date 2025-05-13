@@ -366,6 +366,24 @@ def create_app():
                 
             app_name = data['app']
             
+            # Special case for the full OS launcher
+            if app_name == "quantonium_os_main.py":
+                # Use the custom launcher for the full OS
+                launcher_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "quantonium_launcher.py")
+                if not os.path.exists(launcher_path):
+                    return jsonify({
+                        "success": False,
+                        "error": "Quantonium launcher not found"
+                    }), 404
+                
+                # Launch the OS launcher
+                subprocess.Popen([sys.executable, launcher_path])
+                
+                return jsonify({
+                    "success": True,
+                    "message": "QuantoniumOS Desktop Environment launched successfully"
+                })
+            
             # Validate app name to prevent command injection
             if not app_name.endswith('.py') or '/' in app_name or '\\' in app_name:
                 return jsonify({
