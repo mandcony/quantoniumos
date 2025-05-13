@@ -465,6 +465,7 @@
             let zIndexCounter = 100;
             let activeWindow = null;
             const openWindows = new Map();
+            const minimizedWindows = new Map();
             
             // Function to create a new window
             function createWindow(url, title, width = 800, height = 600) {
@@ -477,7 +478,7 @@
                     
                     // If minimized, restore it
                     if (existingWindow.classList.contains('minimized')) {
-                        existingWindow.classList.remove('minimized');
+                        restoreWindow(url);
                     }
                     
                     return;
@@ -488,13 +489,15 @@
                 
                 // Create window elements
                 const windowElement = document.createElement('div');
-                windowElement.className = 'window';
+                windowElement.className = 'window active';
                 windowElement.id = `window-${windowId}`;
                 windowElement.style.zIndex = ++zIndexCounter;
                 windowElement.style.width = `${width}px`;
                 windowElement.style.height = `${height}px`;
                 windowElement.style.left = `${(window.innerWidth - width) / 2}px`;
                 windowElement.style.top = `${(window.innerHeight - height) / 2}px`;
+                windowElement.dataset.url = url;
+                windowElement.dataset.title = title;
                 
                 const windowHeader = document.createElement('div');
                 windowHeader.className = 'window-header';
@@ -556,24 +559,12 @@
                 
                 minimizeButton.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    windowElement.classList.add('minimized');
+                    minimizeWindow(url);
                 });
                 
                 maximizeButton.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (windowElement.classList.contains('maximized')) {
-                        windowElement.classList.remove('maximized');
-                        windowElement.style.width = `${width}px`;
-                        windowElement.style.height = `${height}px`;
-                        windowElement.style.left = `${(window.innerWidth - width) / 2}px`;
-                        windowElement.style.top = `${(window.innerHeight - height) / 2}px`;
-                    } else {
-                        windowElement.classList.add('maximized');
-                        windowElement.style.width = '100%';
-                        windowElement.style.height = 'calc(100% - 40px)';
-                        windowElement.style.left = '0';
-                        windowElement.style.top = '0';
-                    }
+                    toggleMaximizeWindow(url, width, height);
                 });
                 
                 closeButton.addEventListener('click', (e) => {
@@ -584,13 +575,74 @@
                 // Make window draggable
                 makeDraggable(windowElement, windowHeader);
                 
+                // Update taskbar
+                updateTaskbar();
+                
                 return windowElement;
+            }
+            
+            // Function to minimize a window
+            function minimizeWindow(url) {
+                if (!openWindows.has(url)) return;
+                
+                const windowId = openWindows.get(url);
+                const windowElement = document.getElementById(`window-${windowId}`);
+                
+                if (windowElement) {
+                    windowElement.classList.add('minimized');
+                    minimizedWindows.set(url, windowId);
+                    updateTaskbar();
+                }
+            }
+            
+            // Function to restore a minimized window
+            function restoreWindow(url) {
+                if (!openWindows.has(url)) return;
+                
+                const windowId = openWindows.get(url);
+                const windowElement = document.getElementById(`window-${windowId}`);
+                
+                if (windowElement) {
+                    windowElement.classList.remove('minimized');
+                    minimizedWindows.delete(url);
+                    setActiveWindow(windowElement);
+                    updateTaskbar();
+                }
+            }
+            
+            // Function to toggle maximize state of a window
+            function toggleMaximizeWindow(url, defaultWidth = 800, defaultHeight = 600) {
+                if (!openWindows.has(url)) return;
+                
+                const windowId = openWindows.get(url);
+                const windowElement = document.getElementById(`window-${windowId}`);
+                
+                if (windowElement) {
+                    if (windowElement.classList.contains('maximized')) {
+                        // Restore
+                        windowElement.classList.remove('maximized');
+                        windowElement.style.width = `${defaultWidth}px`;
+                        windowElement.style.height = `${defaultHeight}px`;
+                        windowElement.style.left = `${(window.innerWidth - defaultWidth) / 2}px`;
+                        windowElement.style.top = `${(window.innerHeight - defaultHeight) / 2}px`;
+                    } else {
+                        // Maximize
+                        windowElement.classList.add('maximized');
+                        windowElement.style.width = '100%';
+                        windowElement.style.height = 'calc(100% - 40px)';
+                        windowElement.style.left = '0';
+                        windowElement.style.top = '0';
+                    }
+                    setActiveWindow(windowElement);
+                }
             }
             
             // Function to close a window
             function closeWindow(windowElement, url) {
                 document.getElementById('windows-container').removeChild(windowElement);
                 openWindows.delete(url);
+                minimizedWindows.delete(url);
+                updateTaskbar();
             }
             
             // Function to set active window
@@ -601,6 +653,53 @@
                 activeWindow = windowElement;
                 activeWindow.classList.add('active');
                 activeWindow.style.zIndex = ++zIndexCounter;
+            }
+            
+            // Function to update the taskbar
+            function updateTaskbar() {
+                const taskbar = document.getElementById('taskbar');
+                taskbar.innerHTML = '';
+                
+                // Count total open windows
+                const totalWindows = openWindows.size;
+                
+                if (totalWindows === 0) {
+                    taskbar.style.display = 'none';
+                    return;
+                }
+                
+                taskbar.style.display = 'flex';
+                
+                // Add all windows to taskbar
+                openWindows.forEach((windowId, url) => {
+                    const windowElement = document.getElementById(`window-${windowId}`);
+                    if (!windowElement) return;
+                    
+                    const isMinimized = windowElement.classList.contains('minimized');
+                    const title = windowElement.dataset.title || 'Window';
+                    const icon = getIconForUrl(url);
+                    
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'taskbar-item';
+                    taskItem.textContent = icon;
+                    taskItem.title = title;
+                    
+                    if (windowElement === activeWindow && !isMinimized) {
+                        taskItem.style.backgroundColor = 'rgba(31, 147, 255, 0.5)';
+                    }
+                    
+                    taskItem.addEventListener('click', () => {
+                        if (isMinimized) {
+                            restoreWindow(url);
+                        } else if (windowElement === activeWindow) {
+                            minimizeWindow(url);
+                        } else {
+                            setActiveWindow(windowElement);
+                        }
+                    });
+                    
+                    taskbar.appendChild(taskItem);
+                });
             }
             
             // Function to make an element draggable
