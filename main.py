@@ -115,6 +115,22 @@ def create_app():
     app.register_blueprint(api, url_prefix='/api')
     app.register_blueprint(auth_api, url_prefix='/api/auth')
     
+    # Direct API routes for compatibility with original app
+    @app.route('/api/encrypt', methods=['POST'])
+    def direct_encrypt():
+        from routes import encrypt
+        return encrypt()
+        
+    @app.route('/api/decrypt', methods=['POST'])
+    def direct_decrypt():
+        from routes import decrypt
+        return decrypt()
+        
+    @app.route('/api/entropy', methods=['POST'])
+    def direct_entropy():
+        from routes import sample_entropy
+        return sample_entropy()
+    
     # Quantum computing API routes - protected and secured backend endpoints
     @app.route('/api/quantum/initialize', methods=['POST'])
     def quantum_init_route():
