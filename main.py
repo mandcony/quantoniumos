@@ -438,12 +438,22 @@ def create_app():
                     "error": f"App script not found: {app_name}"
                 }), 404
             
-            # Set PYTHONPATH to include attached_assets directory
+            # Set PYTHONPATH to include attached_assets directory and full project directory
             env = os.environ.copy()
-            env["PYTHONPATH"] = script_dir + os.pathsep + env.get("PYTHONPATH", "")
+            proj_dir = os.path.dirname(os.path.abspath(__file__))
+            env["PYTHONPATH"] = script_dir + os.pathsep + proj_dir + os.pathsep + env.get("PYTHONPATH", "")
+            
+            # Set environment variables for headless operation (needed for Qt applications)
+            env["QT_QPA_PLATFORM"] = "offscreen"
             
             # Launch the application using subprocess
-            subprocess.Popen([sys.executable, app_script], env=env, cwd=script_dir)
+            subprocess.Popen(
+                [sys.executable, app_script], 
+                env=env, 
+                cwd=script_dir,
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE
+            )
             
             return jsonify({
                 "success": True,
