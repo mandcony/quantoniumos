@@ -505,6 +505,17 @@ class QResonanceAnalyzer(QMainWindow):
                 self.statusBar().showMessage(f"Error saving results: {str(e)}")
 
 if __name__ == "__main__":
+    # Import and use the headless environment setup
+    from attached_assets import setup_headless_environment
+    env_config = setup_headless_environment()
+    logger.info(f"Running on {env_config['platform']} in {'headless' if env_config['headless'] else 'windowed'} mode")
+    
+    # Set matplotlib backend if in headless mode
+    if env_config['headless']:
+        import matplotlib
+        matplotlib.use('Agg')
+        logger.info("Set matplotlib backend to Agg for headless mode")
+    
     app = QApplication(sys.argv)
     window = QResonanceAnalyzer()
     window.show()
