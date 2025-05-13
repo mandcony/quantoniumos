@@ -136,6 +136,7 @@ def quantum_benchmark() -> Response:
                 })
         
         # Create summary data
+        from datetime import datetime
         summary = {
             "engine_id": quantum_engine.engine_id,
             "max_qubits_tested": max_qubits,
@@ -145,7 +146,7 @@ def quantum_benchmark() -> Response:
             "average_coherence": round(sum(p["coherence"] for p in perturbation_results) / len(perturbation_results), 4) if perturbation_results else 0,
             "average_stability": round(sum(p["stability"] for p in perturbation_results) / len(perturbation_results), 4) if perturbation_results else 0,
             "quantum_grid_status": "Optimal",
-            "timestamp": quantum_engine.timestamp
+            "timestamp": datetime.utcnow().isoformat() + "Z"
         }
         
         return jsonify({
