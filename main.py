@@ -17,7 +17,7 @@ from routes import api
 from routes import encrypt, decrypt
 from auth.routes import auth_api
 from security import configure_security
-from routes_quantum import initialize_quantum_engine, process_quantum_circuit, quantum_benchmark
+from routes_quantum import quantum_api
 from utils.json_logger import setup_json_logger
 from utils.security_logger import setup_security_logger, log_security_event, SecurityEventType, SecurityOutcome
 from auth import initialize_auth, db, APIKey, APIKeyAuditLog
@@ -114,6 +114,7 @@ def create_app():
     # This separates API routes from static content routes
     app.register_blueprint(api, url_prefix='/api')
     app.register_blueprint(auth_api, url_prefix='/api/auth')
+    app.register_blueprint(quantum_api)  # Already has url_prefix='/api/quantum'
     
     # Direct API routes for compatibility with original app
     @app.route('/api/encrypt', methods=['POST'])
@@ -130,19 +131,6 @@ def create_app():
     def direct_entropy():
         from routes import sample_entropy
         return sample_entropy()
-    
-    # Quantum computing API routes - protected and secured backend endpoints
-    @app.route('/api/quantum/initialize', methods=['POST'])
-    def quantum_init_route():
-        return initialize_quantum_engine()
-        
-    @app.route('/api/quantum/circuit', methods=['POST'])
-    def quantum_circuit_route():
-        return process_quantum_circuit()
-        
-    @app.route('/api/quantum/benchmark', methods=['GET', 'POST'])
-    def quantum_benchmark_route():
-        return quantum_benchmark()
     
     # API health check endpoint (not rate limited)
     @app.route('/api/health')

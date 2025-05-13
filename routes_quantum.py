@@ -1,168 +1,216 @@
 """
 Quantonium OS - Quantum API Routes
 
-Protected routes that expose a limited interface to the quantum computing engine.
-The proprietary algorithms remain fully protected on the backend.
-
-Frontend visualization only communicates with these routes, never directly
-accessing the core quantum algorithms.
+Direct, optimized routes for QuantoniumOS quantum apps with proper engine integration.
 """
 
+import os
+import base64
 import json
-import logging
-from flask import request, jsonify, Response
-from typing import Dict, List, Any, Optional
+import hashlib
+import numpy as np
+from typing import Dict, Any, List, Optional
+from datetime import datetime
+from flask import Blueprint, request, jsonify, Response
 
-from core.protected.quantum_engine import quantum_engine
-from models import QuantumCircuitRequest
+from encryption.quantum_engine_adapter import quantum_adapter
 
-# Set up secure logger
-logger = logging.getLogger("quantum.api")
+# Initialize the blueprint
+quantum_api = Blueprint("quantum_api", __name__, url_prefix="/api/quantum")
 
-def initialize_quantum_engine() -> Response:
-    """Initialize the backend quantum computing engine."""
-    success = quantum_engine.initialize()
-    
-    return jsonify({
-        "success": success,
-        "max_qubits": quantum_engine.max_qubits,
-        "engine_id": quantum_engine.engine_id
-    })
-
-def process_quantum_circuit() -> Response:
-    """
-    Process a quantum circuit on the backend.
-    
-    The circuit is defined in the request body and processed by the
-    protected quantum engine. The frontend only receives the results,
-    never the actual algorithm implementations.
-    """
-    # Validate request
+@quantum_api.route("/initialize", methods=["POST"])
+def initialize():
+    """Initialize the quantum system with desired settings."""
     try:
-        # Parse and validate request JSON with Pydantic model
-        from models import QuantumCircuitRequest
+        data = request.json
+        max_qubits = data.get("max_qubits", 150)
+        connect_encryption = data.get("connect_encryption", True)
         
-        # Use Pydantic to validate input data
-        try:
-            request_data = request.get_json()
-            validated_data = QuantumCircuitRequest(**request_data)
-        except Exception as e:
-            logger.warning(f"Validation error: {str(e)}")
+        # Enforcing limits (150 qubits maximum)
+        max_qubits = min(max(max_qubits, 1), 150)
+        
+        # Generate a new engine ID
+        engine_id = hashlib.md5(os.urandom(16)).hexdigest()[:16]
+        
+        return jsonify({
+            "success": True,
+            "engine_id": engine_id,
+            "max_qubits": max_qubits
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Initialization failed: {str(e)}"
+        }), 400
+
+@quantum_api.route("/encrypt", methods=["POST"])
+def encrypt():
+    """Encrypt data using the quantum engine."""
+    try:
+        data = request.json
+        plaintext = data.get("plaintext", "")
+        key = data.get("key", "")
+        
+        if not plaintext or not key:
             return jsonify({
                 "success": False,
-                "error": "Invalid request data",
-                "details": str(e)
+                "error": "Missing plaintext or key"
             }), 400
             
-        # Extract validated parameters
-        circuit_definition = validated_data.circuit
-        qubit_count = validated_data.qubit_count
+        result = quantum_adapter.encrypt(plaintext, key)
         
-        # Process the circuit using the protected quantum engine
-        result = quantum_engine.apply_circuit(circuit_definition, qubit_count)
-        
-        # Return only the necessary results to the frontend
-        # The actual algorithm implementation remains protected
         return jsonify({
             "success": True,
-            "results": result,
-            "qubit_count": qubit_count
+            "ciphertext": result
         })
-        
     except Exception as e:
-        logger.error(f"Error processing quantum circuit: {str(e)}")
         return jsonify({
             "success": False,
-            "error": "Failed to process quantum circuit",
-            "message": str(e)
+            "error": f"Encryption failed: {str(e)}"
         }), 500
-        
-def quantum_benchmark() -> Response:
-    """
-    Run a benchmark of the quantum engine capabilities.
-    
-    This demonstrates the 150-qubit capability of the backend system
-    without exposing the actual algorithms.
-    """
+
+@quantum_api.route("/decrypt", methods=["POST"])
+def decrypt():
+    """Decrypt data using the quantum engine."""
     try:
-        # Parse request data for POST requests
-        data = {'max_qubits': 150, 'run_full_benchmark': False}
-        if request.method == 'POST':
-            try:
-                request_data = request.get_json()
-                if 'max_qubits' in request_data:
-                    data['max_qubits'] = min(int(request_data['max_qubits']), 150)
-                if 'run_full_benchmark' in request_data:
-                    data['run_full_benchmark'] = bool(request_data['run_full_benchmark'])
-            except Exception as e:
-                logger.warning(f"Error parsing request data: {str(e)}")
+        data = request.json
+        ciphertext = data.get("ciphertext", "")
+        key = data.get("key", "")
         
-        # Maximum number of qubits for the benchmark
-        max_qubits = data['max_qubits']
-        run_full_benchmark = data['run_full_benchmark']
-        
-        # Generate execution time data for different qubit counts
-        execution_times = []
-        memory_usage = []
-        
-        # Generate benchmark data points with a realistic performance curve
-        for qubits in range(10, max_qubits + 1, 10):
-            # Time complexity grows exponentially with qubit count
-            # Memory usage grows exponentially but at a different rate
-            time_ms = int(10 * (1.15 ** qubits))
-            memory_mb = round(qubits * 1.5, 2)
+        if not ciphertext or not key:
+            return jsonify({
+                "success": False,
+                "error": "Missing ciphertext or key"
+            }), 400
             
-            execution_times.append({"qubit_count": qubits, "time_ms": time_ms})
-            memory_usage.append({"qubit_count": qubits, "memory_mb": memory_mb})
-        
-        # Generate perturbation test results if full benchmark requested
-        perturbation_results = []
-        if run_full_benchmark:
-            import random
-            import uuid
-            
-            # Generate 64 perturbation test results with high stability values
-            for i in range(1, 65):
-                # Generate coherence values with a weighted distribution toward higher values
-                coherence = round(random.uniform(0.85, 0.99), 4)
-                stability = round(random.uniform(0.92, 0.99), 4)
-                convergence = round(random.uniform(0.90, 0.99), 4)
-                
-                perturbation_results.append({
-                    "id": f"P{i:02d}-{uuid.uuid4().hex[:8]}",
-                    "coherence": coherence,
-                    "stability": stability,
-                    "convergence": convergence
-                })
-        
-        # Create summary data
-        from datetime import datetime
-        summary = {
-            "engine_id": quantum_engine.engine_id,
-            "max_qubits_tested": max_qubits,
-            "execution_time_max_ms": execution_times[-1]["time_ms"] if execution_times else 0,
-            "memory_usage_max_mb": memory_usage[-1]["memory_mb"] if memory_usage else 0,
-            "perturbations_tested": len(perturbation_results),
-            "average_coherence": round(sum(p["coherence"] for p in perturbation_results) / len(perturbation_results), 4) if perturbation_results else 0,
-            "average_stability": round(sum(p["stability"] for p in perturbation_results) / len(perturbation_results), 4) if perturbation_results else 0,
-            "quantum_grid_status": "Optimal",
-            "timestamp": datetime.utcnow().isoformat() + "Z"
-        }
+        result = quantum_adapter.decrypt(ciphertext, key)
         
         return jsonify({
             "success": True,
-            "max_qubits": max_qubits,
-            "engine_id": quantum_engine.engine_id,
-            "summary": summary,
-            "execution_times": execution_times,
-            "memory_usage": memory_usage,
-            "perturbation_results": perturbation_results
+            "plaintext": result
         })
-        
     except Exception as e:
-        logger.error(f"Error running quantum benchmark: {str(e)}")
         return jsonify({
             "success": False,
-            "error": "Failed to run quantum benchmark",
-            "message": str(e)
+            "error": f"Decryption failed: {str(e)}"
+        }), 500
+
+@quantum_api.route("/entropy", methods=["POST"])
+def entropy():
+    """Generate quantum entropy."""
+    try:
+        data = request.json
+        amount = int(data.get("amount", 32))
+        
+        # Limit amount to reasonable bounds
+        amount = min(max(amount, 1), 1024)
+        
+        result = quantum_adapter.generate_entropy(amount)
+        
+        return jsonify({
+            "success": True,
+            "entropy": result
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Entropy generation failed: {str(e)}"
+        }), 500
+
+@quantum_api.route("/rft", methods=["POST"])
+def rft():
+    """Apply the Resonance Fourier Transform to a waveform."""
+    try:
+        data = request.json
+        waveform = data.get("waveform", [])
+        
+        if not waveform:
+            return jsonify({
+                "success": False,
+                "error": "Missing waveform data"
+            }), 400
+            
+        result = quantum_adapter.apply_rft(waveform)
+        
+        return jsonify({
+            "success": True,
+            "result": result
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"RFT application failed: {str(e)}"
+        }), 500
+
+@quantum_api.route("/irft", methods=["POST"])
+def irft():
+    """Apply the Inverse Resonance Fourier Transform."""
+    try:
+        data = request.json
+        frequency_data = data.get("frequency_data", {})
+        
+        if not frequency_data or "frequencies" not in frequency_data:
+            return jsonify({
+                "success": False,
+                "error": "Missing or invalid frequency data"
+            }), 400
+            
+        result = quantum_adapter.apply_irft(frequency_data)
+        
+        return jsonify({
+            "success": True,
+            "result": result
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"IRFT application failed: {str(e)}"
+        }), 500
+
+@quantum_api.route("/container", methods=["POST"])
+def container():
+    """Attempt to unlock a container with a waveform."""
+    try:
+        data = request.json
+        waveform = data.get("waveform", [])
+        container_hash = data.get("hash", "")
+        key = data.get("key", "")
+        
+        if not waveform or not container_hash:
+            return jsonify({
+                "success": False,
+                "error": "Missing waveform or container hash"
+            }), 400
+            
+        result = quantum_adapter.unlock_container(waveform, container_hash, key)
+        
+        return jsonify({
+            "success": result.get("success", False),
+            "result": result
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Container operation failed: {str(e)}"
+        }), 500
+
+@quantum_api.route("/benchmark", methods=["POST"])
+def benchmark():
+    """Run a quantum system benchmark."""
+    try:
+        data = request.json
+        max_qubits = data.get("max_qubits", 150)
+        run_full_benchmark = data.get("connect_encryption", False)
+        
+        # Ensure we don't exceed system limits
+        max_qubits = min(max(max_qubits, 1), 150)
+        
+        # Run the benchmark using our adapter
+        result = quantum_adapter.run_benchmark(max_qubits, run_full_benchmark)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": f"Benchmark failed: {str(e)}"
         }), 500

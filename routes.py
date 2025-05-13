@@ -23,6 +23,7 @@ from api.resonance_metrics import run_symbolic_benchmark
 from encryption.resonance_encrypt import wave_hmac, FEATURE_AUTH
 from core.encryption.resonance_fourier import perform_rft, perform_irft, FEATURE_IRFT
 from image_resonance_analyzer import ImageResonanceAnalyzer, analyze_image
+from encryption.quantum_engine_adapter import quantum_adapter
 
 api = Blueprint("api", __name__)
 symbolic = get_interface()

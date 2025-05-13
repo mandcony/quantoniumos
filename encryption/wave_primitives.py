@@ -1,97 +1,174 @@
 """
-QuantoniumOS - Wave Primitives
+Wave Primitives Module
 
-Core classes for wave-based representation and manipulation.
-These are the building blocks for the patent-protected quantum-inspired algorithms.
+Core wave mathematics for QuantoniumOS.
 """
 
 import math
-import random
-import time
+import numpy as np
+from typing import List, Tuple, Dict, Any, Optional
 
 class WaveNumber:
-    """
-    Represents a wave as amplitude and phase, the fundamental unit 
-    for all waveform operations in the QuantoniumOS system.
-    """
-    def __init__(self, amplitude: float, phase: float = 0.0):
+    """Represents a complex number with amplitude and phase."""
+    def __init__(self, amplitude: float = 1.0, phase: float = 0.0):
         self.amplitude = float(amplitude)
         self.phase = float(phase)
-
+        
     def __repr__(self):
         return f"WaveNumber(amplitude={self.amplitude:.3f}, phase={self.phase:.3f})"
-
-    def scale_amplitude(self, factor: float):
-        """Scale the amplitude by a factor."""
-        self.amplitude *= factor
-
-    def shift_phase(self, delta: float):
-        """Shift the phase by delta, normalizing to [0, 2π)."""
-        self.phase += delta
-        self.phase %= 2 * math.pi  # Normalize phase to [0, 2π)
-
-    def to_float(self) -> float:
-        """Convert to a single float value (amplitude only)."""
-        return self.amplitude
         
-    def to_complex(self) -> complex:
-        """Convert to complex number representation."""
-        return self.amplitude * complex(math.cos(self.phase), math.sin(self.phase))
-        
-    @classmethod
-    def from_complex(cls, z: complex) -> 'WaveNumber':
-        """Create a WaveNumber from a complex number."""
-        amplitude = abs(z)
-        phase = math.atan2(z.imag, z.real) if amplitude > 1e-12 else 0.0
-        return cls(amplitude, phase)
+    def to_complex(self):
+        """Convert to Python complex number."""
+        import math
+        return complex(
+            self.amplitude * math.cos(self.phase),
+            self.amplitude * math.sin(self.phase)
+        )
 
-def wave_interference(a: WaveNumber, b: WaveNumber) -> WaveNumber:
+def generate_waveform(length: int = 64, seed: Optional[int] = None) -> List[float]:
     """
-    Calculate wave interference between two WaveNumbers.
-    Uses complex addition to properly account for phase relationships.
-    """
-    z_a = a.to_complex()
-    z_b = b.to_complex()
-    z_result = z_a + z_b
-    return WaveNumber.from_complex(z_result)
-
-def calculate_coherence(a: WaveNumber, b: WaveNumber) -> float:
-    """
-    Calculate the coherence (similarity) between two wave numbers.
-    Returns a value between 0.0 (completely different) and 1.0 (identical).
-    """
-    # Phase difference normalized to [0, π]
-    phase_diff = abs((a.phase - b.phase) % (2 * math.pi))
-    if phase_diff > math.pi:
-        phase_diff = 2 * math.pi - phase_diff
-    
-    # Normalize to [0, 1] where 0 means opposite phase (π difference)
-    # and 1 means same phase (0 difference)
-    phase_coherence = 1.0 - (phase_diff / math.pi)
-    
-    # Amplitude similarity
-    amp_ratio = min(a.amplitude, b.amplitude) / max(a.amplitude, b.amplitude) if max(a.amplitude, b.amplitude) > 0 else 1.0
-    
-    # Combined coherence score
-    return 0.5 * (phase_coherence + amp_ratio)
-
-
-def random_phase(min_value: float = 0.0, max_value: float = 2 * math.pi) -> float:
-    """
-    Generate a random phase value between min_value and max_value.
-    
-    By default, returns a value between 0 and 2π (full circle).
-    Uses a combination of time and random to increase entropy.
+    Generate a waveform with the specified length.
     
     Args:
-        min_value: Minimum phase value (default: 0.0)
-        max_value: Maximum phase value (default: 2π)
+        length: Number of points in the waveform
+        seed: Optional random seed
         
     Returns:
-        Random phase value as a float
+        List of waveform values
     """
-    # Seed with current time to ensure different values even in rapid calls
-    random.seed(time.time() * 1000000)
+    if seed is not None:
+        np.random.seed(seed)
+        
+    # Generate a waveform with multiple frequency components
+    x = np.linspace(0, 2*np.pi, length)
+    waveform = np.zeros(length)
     
-    # Generate a random value in the specified range
-    return min_value + random.random() * (max_value - min_value)
+    # Add several frequency components with random phases
+    for i in range(1, 5):
+        freq = i * 0.5
+        phase = np.random.uniform(0, 2*np.pi)
+        amplitude = np.random.uniform(0.1, 1.0) / i
+        waveform += amplitude * np.sin(freq * x + phase)
+    
+    # Normalize to [0, 1] range
+    waveform = (waveform - np.min(waveform)) / (np.max(waveform) - np.min(waveform))
+    
+    return waveform.tolist()
+
+def analyze_waveform(waveform: List[float]) -> Dict[str, Any]:
+    """
+    Analyze a waveform to extract its properties.
+    
+    Args:
+        waveform: List of waveform values
+        
+    Returns:
+        Dictionary with properties like frequency, phase, and amplitude
+    """
+    # Calculate FFT
+    fft_result = np.fft.rfft(waveform)
+    frequencies = np.fft.rfftfreq(len(waveform))
+    
+    # Find dominant frequency
+    amplitudes = np.abs(fft_result)
+    max_idx = np.argmax(amplitudes)
+    
+    dominant_frequency = frequencies[max_idx]
+    dominant_amplitude = amplitudes[max_idx]
+    dominant_phase = np.angle(fft_result[max_idx])
+    
+    # Calculate energy
+    energy = np.sum(np.square(waveform))
+    
+    # Calculate mean and stddev
+    mean = np.mean(waveform)
+    stddev = np.std(waveform)
+    
+    return {
+        "dominant_frequency": float(dominant_frequency),
+        "dominant_amplitude": float(dominant_amplitude),
+        "dominant_phase": float(dominant_phase),
+        "energy": float(energy),
+        "mean": float(mean),
+        "stddev": float(stddev)
+    }
+
+def resonance_fourier_transform(waveform: List[float]) -> Dict[str, List[float]]:
+    """
+    Apply Resonance Fourier Transform to a waveform.
+    
+    Args:
+        waveform: List of waveform values
+        
+    Returns:
+        Dictionary with frequencies, amplitudes, and phases
+    """
+    # Calculate FFT
+    fft_result = np.fft.rfft(waveform)
+    frequencies = np.fft.rfftfreq(len(waveform))
+    amplitudes = np.abs(fft_result)
+    phases = np.angle(fft_result)
+    
+    # Normalize amplitudes
+    max_amp = np.max(amplitudes) if len(amplitudes) > 0 else 1.0
+    if max_amp > 0:
+        amplitudes = amplitudes / max_amp
+    
+    return {
+        "frequencies": frequencies.tolist(),
+        "amplitudes": amplitudes.tolist(),
+        "phases": phases.tolist()
+    }
+
+def inverse_resonance_fourier_transform(frequency_data: Dict[str, List[float]]) -> List[float]:
+    """
+    Apply Inverse Resonance Fourier Transform.
+    
+    Args:
+        frequency_data: Dictionary with frequencies, amplitudes, and phases
+        
+    Returns:
+        Reconstructed waveform
+    """
+    # Extract frequency domain data
+    frequencies = np.array(frequency_data["frequencies"])
+    amplitudes = np.array(frequency_data["amplitudes"])
+    phases = np.array(frequency_data["phases"])
+    
+    # Construct complex-valued frequency domain data
+    complex_data = amplitudes * np.exp(1j * phases)
+    
+    # Apply inverse FFT
+    waveform = np.fft.irfft(complex_data)
+    
+    # Normalize to [0, 1] range
+    min_val = np.min(waveform)
+    max_val = np.max(waveform)
+    if max_val > min_val:
+        waveform = (waveform - min_val) / (max_val - min_val)
+    
+    return waveform.tolist()
+
+def generate_waveform_from_key(key: str, length: int = 64) -> List[float]:
+    """
+    Generate a waveform based on a key string.
+    
+    Args:
+        key: String to derive waveform from
+        length: Number of points in the waveform
+        
+    Returns:
+        List of waveform values
+    """
+    import hashlib
+    
+    # Generate a seed from the key
+    key_bytes = key.encode('utf-8')
+    hash_obj = hashlib.sha256(key_bytes)
+    hash_bytes = hash_obj.digest()
+    
+    # Use first 4 bytes as seed
+    seed = int.from_bytes(hash_bytes[:4], byteorder='big')
+    
+    # Generate waveform with the seed
+    return generate_waveform(length, seed)
