@@ -114,6 +114,7 @@ def create_app():
     # This separates API routes from static content routes
     app.register_blueprint(api, url_prefix='/api')
     app.register_blueprint(auth_api, url_prefix='/api/auth')
+    # quantum_api blueprint already has url_prefix='/api/quantum' defined internally
     app.register_blueprint(quantum_api)
     
     # Direct API routes for compatibility with original app
