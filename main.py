@@ -214,12 +214,6 @@ def create_app():
         # Return the original resonance encryption interface to maintain all API functionality
         return redirect('/resonance-encrypt')
         
-    # QuantoniumOS interface
-    @app.route('/os')
-    def os_interface():
-        # The new OS interface with Q logo and arch menu
-        return send_from_directory('static', 'quantonium_os.html')
-        
     # Legacy home route (kept for backward compatibility)
     @app.route('/home')
     def home():
