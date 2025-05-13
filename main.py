@@ -166,9 +166,9 @@ def create_app():
         return send_from_directory('static', 'launch_desktop_analyzer.html')
         
     # QuantoniumOS Desktop Launcher
-    @app.route('/desktop')
-    def desktop_launcher():
-        return send_from_directory('static', 'launch_desktop.html')
+    @app.route('/os')
+    def os_launcher():
+        return send_from_directory('static', 'quantonium_os.html')
         
     # Serve embed demo instructions
     @app.route('/embed-demo')
@@ -282,8 +282,7 @@ def create_app():
                 <a href="/resonance-encrypt">Resonance Encryption</a>
                 <a href="/quantum-grid">Quantum Grid</a>
                 <a href="/resonance-analyzer">Image Resonance Analyzer</a>
-                <a href="/desktop">QuantoniumOS</a>
-                <a href="/docs">API Docs</a>
+                <a href="/os">QuantoniumOS</a>
             </div>
             
             <div class="content">

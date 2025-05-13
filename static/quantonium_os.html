@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0a0d15;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: white;
+        }
+        
+        #desktop {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #q-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30vw;
+            font-weight: bold;
+            color: #1f93ff;
+            opacity: 0.2;
+            user-select: none;
+            z-index: 0;
+        }
+        
+        #clock {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            color: white;
+        }
+        
+        #arch-container {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 75vh;
+            transition: all 0.3s ease;
+        }
+        
+        #arch {
+            position: relative;
+            width: 30px;
+            height: 100%;
+            background-color: rgba(31, 147, 255, 0.2);
+            border-radius: 0 15px 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #arch.expanded {
+            width: 200px;
+        }
+        
+        #arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        #arch.expanded #arrow {
+            transform: translate(-50%, -50%) rotate(180deg);
+        }
+        
+        #app-grid {
+            position: absolute;
+            left: 40px;
+            top: 0;
+            width: 150px;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+        
+        #arch.expanded + #app-grid {
+            display: flex;
+        }
+        
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 64px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .app-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .app-icon .icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 48px;
+            height: 48px;
+            background-color: rgba(25, 45, 88, 0.7);
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        
+        .app-icon .name {
+            font-size: 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        #status-message {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        #status-message.show {
+            opacity: 1;
+        }
+        
+        .success {
+            color: #2ecc71;
+        }
+        
+        .error {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div id="desktop">
+        <div id="q-logo">Q</div>
+        <div id="clock"></div>
+        
+        <div id="arch-container">
+            <div id="arch">
+                <div id="arrow">▶</div>
+            </div>
+            <div id="app-grid">
+                <div class="app-icon" data-app="qshll_file_explorer.py">
+                    <div class="icon">📁</div>
+                    <div class="name">File Explorer</div>
+                </div>
+                <div class="app-icon" data-app="qshll_task_manager.py">
+                    <div class="icon">📊</div>
+                    <div class="name">Task Manager</div>
+                </div>
+                <div class="app-icon" data-app="q_browser.py">
+                    <div class="icon">🌐</div>
+                    <div class="name">Q-Browser</div>
+                </div>
+                <div class="app-icon" data-app="q_mail.py">
+                    <div class="icon">✉️</div>
+                    <div class="name">Q-Mail</div>
+                </div>
+                <div class="app-icon" data-app="q_wave_composer.py">
+                    <div class="icon">🎵</div>
+                    <div class="name">Wave Composer</div>
+                </div>
+                <div class="app-icon" data-app="q_vault.py">
+                    <div class="icon">🔒</div>
+                    <div class="name">Q-Vault</div>
+                </div>
+                <div class="app-icon" data-app="q_notes.py">
+                    <div class="icon">📝</div>
+                    <div class="name">Q-Notes</div>
+                </div>
+                <div class="app-icon" data-app="q_dock.py">
+                    <div class="icon">🔗</div>
+                    <div class="name">Q-Dock</div>
+                </div>
+                <div class="app-icon" data-app="q_wave_debugger.py">
+                    <div class="icon">🔍</div>
+                    <div class="name">Wave Debugger</div>
+                </div>
+                <div class="app-icon" data-app="q_resonance_analyzer.py">
+                    <div class="icon">🌊</div>
+                    <div class="name">Resonance Analyzer</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="status-message"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clock update
+            function updateClock() {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                const dateStr = now.toLocaleDateString();
+                document.getElementById('clock').textContent = `${dateStr} ${timeStr}`;
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Arch toggle
+            const arch = document.getElementById('arch');
+            arch.addEventListener('click', function() {
+                this.classList.toggle('expanded');
+            });
+            
+            // App launching
+            const appIcons = document.querySelectorAll('.app-icon');
+            appIcons.forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const appName = this.getAttribute('data-app');
+                    launchApp(appName);
+                });
+            });
+            
+            // Function to launch app
+            function launchApp(appName) {
+                const statusMessage = document.getElementById('status-message');
+                statusMessage.textContent = `Launching ${appName}...`;
+                statusMessage.className = 'show';
+                
+                fetch('/api/launch-app', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ app: appName }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        statusMessage.textContent = data.message;
+                        statusMessage.classList.add('success');
+                    } else {
+                        statusMessage.textContent = `Error: ${data.error}`;
+                        statusMessage.classList.add('error');
+                    }
+                    
+                    // Hide the message after 3 seconds
+                    setTimeout(() => {
+                        statusMessage.classList.remove('show');
+                    }, 3000);
+                })
+                .catch(error => {
+                    statusMessage.textContent = `Error launching app: ${error.message}`;
+                    statusMessage.classList.add('error');
+                    
+                    // Hide the message after 3 seconds
+                    setTimeout(() => {
+                        statusMessage.classList.remove('show');
+                    }, 3000);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
