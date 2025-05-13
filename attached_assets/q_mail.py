@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (
     QMessageBox, QStackedWidget, QDialog, QDialogButtonBox, QFormLayout
 )
 
-from resonance_encryption import resonance_encrypt, resonance_decrypt, WaveNumber
+from encryption.resonance_encryption import resonance_encrypt, resonance_decrypt 
+from encryption.wave_primitives import WaveNumber
 
 AUTH_SERVER = "http://127.0.0.1:5000"
 EMAIL_SERVER = f"{AUTH_SERVER}/send_email"

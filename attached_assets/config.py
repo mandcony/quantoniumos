@@ -1,41 +1,49 @@
-import json
-import os
+"""
+QuantoniumOS Configuration Module
+
+This module provides configuration settings for the QuantoniumOS desktop applications.
+"""
 
 class Config:
-    def __init__(self, filename=None):
-        """Initializes configuration, loading from settings.json or default values."""
-        if not filename:
-            filename = os.path.join(os.path.abspath(os.path.dirname(__file__)), "settings.json")
-        self.filename = filename
-        self.data = self.read()
-
-    def read(self):
-        """Reads configuration data from the JSON file."""
-        try:
-            with open(self.filename, "r") as f:
-                return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            # Default settings if file is missing or corrupted
-            return {
-                "resonance_frequency": 1.0,
-                "resonance_spread": 0.1,
-                "default_qubits": 3,
-                "encryption_mode": "resonance_hashing"
-            }
-
-    def save(self, data):
-        """Saves updated configuration data to the JSON file."""
-        with open(self.filename, "w") as f:
-            json.dump(data, f, indent=2)
-        self.data = data  # Fixed this line
-
-# TESTING CONFIG SYSTEM
-if __name__ == "__main__":
-    config = Config()
-    print("Current Config:", config.data)
-
-    # Example: Update a setting
-    config.data["default_qubits"] = 5
-    config.save(config.data)
-
-    print("Updated Config:", config.read())
+    """Configuration class for QuantoniumOS applications."""
+    
+    # General application settings
+    APP_NAME = "QuantoniumOS"
+    VERSION = "1.0.0"
+    
+    # Wave composer settings
+    WAVE_COMPOSER = {
+        "min_frequency": 0.1,  # Hz
+        "max_frequency": 5.0,  # Hz
+        "default_frequency": 1.0,  # Hz
+        "sample_rate": 44100,  # Hz
+        "buffer_size": 1024,  # samples
+    }
+    
+    # Q-Mail settings
+    MAIL = {
+        "encryption_enabled": True,
+        "default_signature": "Sent with QuantoniumOS Secure Mail",
+        "max_attachment_size": 10 * 1024 * 1024,  # 10 MB
+    }
+    
+    # Wave debugger settings
+    WAVE_DEBUGGER = {
+        "max_channels": 8,
+        "default_channels": 4,
+        "view_duration": 10,  # seconds
+    }
+    
+    # Resonance analyzer settings
+    RESONANCE_ANALYZER = {
+        "fft_resolution": 2048,
+        "window_function": "hann",
+        "default_resonance_threshold": 0.75,
+    }
+    
+    # Security settings
+    SECURITY = {
+        "encryption_algorithm": "resonance",
+        "key_length": 32,  # bytes
+        "entropy_source": "quantum",
+    }
