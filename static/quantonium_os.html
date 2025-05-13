@@ -164,6 +164,7 @@
                 <div id="arrow">▶</div>
             </div>
             <div id="app-grid">
+                <!-- Desktop System Apps -->
                 <div class="app-icon" data-app="qshll_file_explorer.py">
                     <div class="icon">📁</div>
                     <div class="name">File Explorer</div>
@@ -204,6 +205,28 @@
                     <div class="icon">🌊</div>
                     <div class="name">Resonance Analyzer</div>
                 </div>
+                
+                <!-- Quantum Web Apps -->
+                <div class="app-icon" data-type="web" data-url="/quantum-encryption">
+                    <div class="icon">🔐</div>
+                    <div class="name">Quantum Encryption</div>
+                </div>
+                <div class="app-icon" data-type="web" data-url="/quantum-rft">
+                    <div class="icon">📊</div>
+                    <div class="name">Resonance Transform</div>
+                </div>
+                <div class="app-icon" data-type="web" data-url="/quantum-container">
+                    <div class="icon">📦</div>
+                    <div class="name">Container Ops</div>
+                </div>
+                <div class="app-icon" data-type="web" data-url="/quantum-entropy">
+                    <div class="icon">🎲</div>
+                    <div class="name">Entropy Generator</div>
+                </div>
+                <div class="app-icon" data-type="web" data-url="/quantum-benchmark">
+                    <div class="icon">⚡</div>
+                    <div class="name">64-Perturbation</div>
+                </div>
             </div>
         </div>
         
@@ -232,13 +255,19 @@
             const appIcons = document.querySelectorAll('.app-icon');
             appIcons.forEach(icon => {
                 icon.addEventListener('click', function() {
-                    const appName = this.getAttribute('data-app');
-                    launchApp(appName);
+                    const appType = this.getAttribute('data-type');
+                    if (appType === 'web') {
+                        const url = this.getAttribute('data-url');
+                        openWebApp(url);
+                    } else {
+                        const appName = this.getAttribute('data-app');
+                        launchDesktopApp(appName);
+                    }
                 });
             });
             
-            // Function to launch app
-            function launchApp(appName) {
+            // Function to launch desktop app
+            function launchDesktopApp(appName) {
                 const statusMessage = document.getElementById('status-message');
                 statusMessage.textContent = `Launching ${appName}...`;
                 statusMessage.className = 'show';
@@ -274,6 +303,21 @@
                         statusMessage.classList.remove('show');
                     }, 3000);
                 });
+            }
+            
+            // Function to open web app
+            function openWebApp(url) {
+                const statusMessage = document.getElementById('status-message');
+                statusMessage.textContent = `Opening ${url}...`;
+                statusMessage.className = 'show success';
+                
+                // Open the web app in a new window
+                window.open(url, '_blank');
+                
+                // Hide the message after 2 seconds
+                setTimeout(() => {
+                    statusMessage.classList.remove('show');
+                }, 2000);
             }
         });
     </script>

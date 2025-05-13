@@ -468,10 +468,35 @@ def create_app():
             logger.error(f"Error serving OpenAPI spec: {str(e)}")
             return jsonify({"error": "OpenAPI spec not available"}), 500
     
-    # Serve API documentation UI
-    @app.route('/docs')
-    @limiter.exempt
-    def api_docs():
+    # Quantum Encryption app
+    @app.route('/quantum-encryption')
+    def quantum_encryption():
+        """Quantum Encryption app."""
+        return send_from_directory('static', 'quantum_encryption.html')
+        
+    # Quantum RFT app
+    @app.route('/quantum-rft')
+    def quantum_rft():
+        """Quantum RFT app."""
+        return send_from_directory('static', 'quantum_rft.html')
+        
+    # Quantum Container app
+    @app.route('/quantum-container')
+    def quantum_container():
+        """Quantum Container app."""
+        return send_from_directory('static', 'quantum_container.html')
+        
+    # Quantum Entropy app
+    @app.route('/quantum-entropy')
+    def quantum_entropy():
+        """Quantum Entropy app."""
+        return send_from_directory('static', 'quantum_entropy.html')
+        
+    # Quantum Benchmark app
+    @app.route('/quantum-benchmark')
+    def quantum_benchmark_app():
+        """Quantum Benchmark app."""
+        return send_from_directory('static', 'quantum_benchmark.html')
         # Simple Swagger UI page that loads the OpenAPI spec
         swagger_html = """
         <!DOCTYPE html>
