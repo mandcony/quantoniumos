@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Quantum Mail</title>
+    <link rel="stylesheet" href="css/quantonium.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #0d1117;
+            color: #e6edf3;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid #21262d;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #58a6ff;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+        
+        .mail-container {
+            display: flex;
+            background: #161b22;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #30363d;
+            height: 700px;
+        }
+        
+        .sidebar {
+            width: 240px;
+            border-right: 1px solid #30363d;
+            padding: 20px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu li:hover {
+            background: #21262d;
+        }
+        
+        .sidebar-menu li.active {
+            background: #21262d;
+            font-weight: bold;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mail-list {
+            height: 300px;
+            overflow-y: auto;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .mail-item {
+            padding: 15px;
+            border-bottom: 1px solid #30363d;
+            cursor: pointer;
+        }
+        
+        .mail-item:hover {
+            background: #21262d;
+        }
+        
+        .mail-item.unread {
+            font-weight: bold;
+        }
+        
+        .mail-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .mail-item-sender {
+            font-weight: bold;
+        }
+        
+        .mail-item-time {
+            color: #8b949e;
+            font-size: 12px;
+        }
+        
+        .mail-item-subject {
+            margin-bottom: 5px;
+        }
+        
+        .mail-item-preview {
+            color: #8b949e;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .mail-view {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .mail-view-header {
+            margin-bottom: 20px;
+        }
+        
+        .mail-view-subject {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .mail-view-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .mail-view-sender {
+            font-weight: bold;
+        }
+        
+        .mail-view-time {
+            color: #8b949e;
+        }
+        
+        .mail-view-body {
+            line-height: 1.6;
+        }
+        
+        .compose-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .compose-button:hover {
+            background: #2ea043;
+        }
+        
+        .security-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #0e2e49;
+            color: #58a6ff;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Q-Mail</div>
+            <h1>Quantum Encrypted Email</h1>
+        </div>
+        
+        <div class="mail-container">
+            <div class="sidebar">
+                <button class="compose-button">Compose</button>
+                
+                <ul class="sidebar-menu">
+                    <li class="active">Inbox (3)</li>
+                    <li>Sent</li>
+                    <li>Drafts</li>
+                    <li>Important</li>
+                    <li>Archived</li>
+                    <li>Spam</li>
+                    <li>Trash</li>
+                </ul>
+            </div>
+            
+            <div class="main-content">
+                <div class="mail-list">
+                    <div class="mail-item unread" data-id="1">
+                        <div class="mail-item-header">
+                            <div class="mail-item-sender">Quantum Research Team <span class="security-badge">Encrypted</span></div>
+                            <div class="mail-item-time">10:32 AM</div>
+                        </div>
+                        <div class="mail-item-subject">Important: Results from Resonance Test #42</div>
+                        <div class="mail-item-preview">I'm pleased to report that our latest resonance measurements have yielded remarkable results. The phase coherence...</div>
+                    </div>
+                    
+                    <div class="mail-item" data-id="2">
+                        <div class="mail-item-header">
+                            <div class="mail-item-sender">QuantoniumOS Security <span class="security-badge">Encrypted</span></div>
+                            <div class="mail-item-time">Yesterday</div>
+                        </div>
+                        <div class="mail-item-subject">Security Update: New Wave Encryption Protocol</div>
+                        <div class="mail-item-preview">We've rolled out an update to our Wave Encryption Protocol that strengthens the quantum resistance capabilities...</div>
+                    </div>
+                    
+                    <div class="mail-item" data-id="3">
+                        <div class="mail-item-header">
+                            <div class="mail-item-sender">Wave Composer Project</div>
+                            <div class="mail-item-time">May 10, 2025</div>
+                        </div>
+                        <div class="mail-item-subject">Wave Composer v2.3 Released</div>
+                        <div class="mail-item-preview">We're excited to announce that Wave Composer v2.3 is now available! This update includes several new features...</div>
+                    </div>
+                </div>
+                
+                <div class="mail-view">
+                    <div class="mail-view-header">
+                        <div class="mail-view-subject">Important: Results from Resonance Test #42</div>
+                        <div class="mail-view-details">
+                            <div class="mail-view-sender">From: Quantum Research Team &lt;research@quantonium-os.org&gt; <span class="security-badge">Encrypted with Wave Protocol</span></div>
+                            <div class="mail-view-time">Today at 10:32 AM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mail-view-body">
+                        <p>I'm pleased to report that our latest resonance measurements have yielded remarkable results. The phase coherence has remained stable at 99.7% throughout the 64-hour test period.</p>
+                        
+                        <p>Key findings:</p>
+                        <ul>
+                            <li>Phase coherence: 99.7% stable</li>
+                            <li>Waveform integrity: 100% maintained</li>
+                            <li>Quantum entanglement: 93.5% efficiency</li>
+                            <li>Processing speed: 42.3% increase from previous tests</li>
+                        </ul>
+                        
+                        <p>The most significant discovery was the emergence of self-stabilizing resonance patterns when working with the 150-qubit system. These patterns appear to mitigate decoherence effects that typically plague quantum systems.</p>
+                        
+                        <p>I've attached the full data set and analysis for your review. The implications of these findings could be groundbreaking for our resonance encryption system.</p>
+                        
+                        <p>Let me know when you're available to discuss these results in more detail.</p>
+                        
+                        <p>Best regards,<br>
+                        Dr. Eliza Montgomery<br>
+                        Lead Quantum Researcher<br>
+                        Quantonium Research Division</p>
+                        
+                        <div style="margin-top: 20px; padding: 10px; background: #0e2e49; border-radius: 4px;">
+                            <p style="margin: 0; color: #58a6ff;">Encrypted with Wave Protocol v3.2 • Quantum-resistant • End-to-end protected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle mail item selection
+            const mailItems = document.querySelectorAll('.mail-item');
+            const mailView = document.querySelector('.mail-view');
+            
+            mailItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove 'unread' class and highlight selected
+                    mailItems.forEach(mi => mi.classList.remove('selected'));
+                    this.classList.add('selected');
+                    this.classList.remove('unread');
+                    
+                    // In a real app, we'd load the actual email content
+                    // For this demo, we'll just show a placeholder
+                    const id = this.getAttribute('data-id');
+                    const sender = this.querySelector('.mail-item-sender').textContent;
+                    const subject = this.querySelector('.mail-item-subject').textContent;
+                    
+                    // Simple content based on which mail was clicked
+                    if (id === '2') {
+                        mailView.innerHTML = `
+                            <div class="mail-view-header">
+                                <div class="mail-view-subject">Security Update: New Wave Encryption Protocol</div>
+                                <div class="mail-view-details">
+                                    <div class="mail-view-sender">From: QuantoniumOS Security &lt;security@quantonium-os.org&gt; <span class="security-badge">Encrypted with Wave Protocol</span></div>
+                                    <div class="mail-view-time">Yesterday at 3:45 PM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mail-view-body">
+                                <p>Dear QuantoniumOS User,</p>
+                                
+                                <p>We've rolled out an update to our Wave Encryption Protocol that strengthens the quantum resistance capabilities of our entire system. This update is especially important as quantum computing power continues to increase.</p>
+                                
+                                <p>The new protocol includes:</p>
+                                <ul>
+                                    <li>Enhanced wave-based key exchange mechanisms</li>
+                                    <li>Improved resonance stability during encryption/decryption</li>
+                                    <li>Stronger resistance to quantum factorization attacks</li>
+                                    <li>Reduced computational overhead by 17%</li>
+                                </ul>
+                                
+                                <p>Your Q-Mail has been automatically updated to use this new protocol. No action is required on your part.</p>
+                                
+                                <p>As always, all your communications remain end-to-end encrypted and protected against even the most sophisticated quantum computing attacks.</p>
+                                
+                                <p>If you have any questions, please don't hesitate to contact our support team.</p>
+                                
+                                <p>Regards,<br>
+                                The QuantoniumOS Security Team</p>
+                                
+                                <div style="margin-top: 20px; padding: 10px; background: #0e2e49; border-radius: 4px;">
+                                    <p style="margin: 0; color: #58a6ff;">Encrypted with Wave Protocol v3.2 • Quantum-resistant • End-to-end protected</p>
+                                </div>
+                            </div>
+                        `;
+                    } else if (id === '3') {
+                        mailView.innerHTML = `
+                            <div class="mail-view-header">
+                                <div class="mail-view-subject">Wave Composer v2.3 Released</div>
+                                <div class="mail-view-details">
+                                    <div class="mail-view-sender">From: Wave Composer Project &lt;updates@wave-composer.org&gt;</div>
+                                    <div class="mail-view-time">May 10, 2025 at 9:14 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mail-view-body">
+                                <p>Hello QuantoniumOS Community,</p>
+                                
+                                <p>We're excited to announce that Wave Composer v2.3 is now available! This update includes several new features and improvements based on your feedback.</p>
+                                
+                                <p>New in this version:</p>
+                                <ul>
+                                    <li>Multi-dimensional wave composition interface</li>
+                                    <li>Enhanced frequency spectrum analyzer</li>
+                                    <li>New waveform templates for cryptographic applications</li>
+                                    <li>Improved performance for complex wave manipulations</li>
+                                    <li>Better integration with Q-Vault for secure waveform storage</li>
+                                </ul>
+                                
+                                <p>To update your Wave Composer installation, simply open the application and select "Check for Updates" from the main menu.</p>
+                                
+                                <p>We hope you enjoy these new features! Your feedback is always appreciated.</p>
+                                
+                                <p>Thank you for being part of our community,<br>
+                                The Wave Composer Team</p>
+                            </div>
+                        `;
+                    } else {
+                        // Default to showing the first email (already in the HTML)
+                    }
+                });
+            });
+            
+            // Compose button functionality (just a placeholder)
+            document.querySelector('.compose-button').addEventListener('click', function() {
+                alert('The compose feature would open a new message editor here.\n\nIn a fully implemented Q-Mail app, this would allow you to compose a new quantum-encrypted email.');
+            });
+            
+            // Sidebar menu functionality (just for UI feedback)
+            document.querySelectorAll('.sidebar-menu li').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

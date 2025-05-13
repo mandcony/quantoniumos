@@ -563,7 +563,29 @@ def create_app():
     def quantum_benchmark_app():
         """Quantum Benchmark app."""
         return send_from_directory('static', 'quantum-benchmark.html')
-        # Simple Swagger UI page that loads the OpenAPI spec
+        
+    # Q-Browser app
+    @app.route('/quantum-browser')
+    def quantum_browser_app():
+        """Quantum Browser app."""
+        return send_from_directory('static', 'quantum-browser.html')
+        
+    # Q-Mail app
+    @app.route('/quantum-mail')
+    def quantum_mail_app():
+        """Quantum Mail app."""
+        return send_from_directory('static', 'quantum-mail.html')
+        
+    # Q-Notes app
+    @app.route('/quantum-notes')
+    def quantum_notes_app():
+        """Quantum Notes app."""
+        return send_from_directory('static', 'quantum-notes.html')
+        
+    # Swagger UI Documentation
+    @app.route('/docs')
+    def api_docs():
+        """API Documentation using Swagger UI."""
         swagger_html = """
         <!DOCTYPE html>
         <html lang="en">
