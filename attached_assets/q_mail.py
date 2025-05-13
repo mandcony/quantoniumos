@@ -10,6 +10,13 @@ from PyQt5.QtWidgets import (
     QMessageBox, QStackedWidget, QDialog, QDialogButtonBox, QFormLayout
 )
 
+# Use relative imports based on context
+import os
+import sys
+# Add the parent directory to the path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Now we can import from the root project
 from encryption.resonance_encryption import resonance_encrypt, resonance_decrypt 
 from encryption.wave_primitives import WaveNumber
 
