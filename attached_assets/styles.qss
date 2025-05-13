@@ -1,69 +1,258 @@
-/* QuantoniumOS stylesheet */
+/* QuantoniumOS Style Sheet */
 
-/* Main desktop view */
-QGraphicsView#DesktopView {
-    background-color: #0a0d15;
+/* Global Styles */
+QWidget {
+    background-color: #1E1E2E;
+    color: #CDD6F4;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-/* Main window */
-QMainWindow#QuantoniumMainWindow {
-    background-color: #0a0d15;
+/* Main Window */
+QMainWindow {
+    background-color: #1E1E2E;
+    border: 1px solid #313244;
 }
 
-/* Q Logo */
-QLabel#QLogo {
-    color: #1f93ff;
-    opacity: 0.2;
-    rotation: 0;
-    scale-factor: 0.8;
-    font: bold 64pt "Arial";
+/* Labels */
+QLabel {
+    color: #CDD6F4;
+    padding: 2px;
 }
 
-/* Clock display */
-QLabel#ClockItem {
-    color: #ffffff;
-    font: 14pt "Arial";
+QLabel#title {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #89B4FA;
 }
 
-/* Side arch */
-QGraphicsEllipseItem#ShadedArch {
-    color: #1f93ff;
-    opacity: 0.2;
+/* Buttons */
+QPushButton {
+    background-color: #45475A;
+    color: #CDD6F4;
+    border: 1px solid #585B70;
+    border-radius: 4px;
+    padding: 5px 15px;
+    min-height: 20px;
 }
 
-/* Arrow icon */
-QLabel#ArrowIcon {
-    color: #ffffff;
+QPushButton:hover {
+    background-color: #585B70;
+    border: 1px solid #7F849C;
 }
 
-/* App icons */
-QLabel#AppIcon {
-    color: #ffffff;
-    background-color: rgba(25, 45, 88, 0.7);
-    border-radius: 8px;
-    padding: 4px;
+QPushButton:pressed {
+    background-color: #313244;
 }
 
-QLabel#AppIcon:hover {
-    background-color: rgba(47, 79, 126, 0.8);
+QPushButton:disabled {
+    background-color: #313244;
+    color: #6C7086;
+    border: 1px solid #45475A;
 }
 
-/* App names */
-QLabel#AppName {
-    color: #ffffff;
-    font: 9pt "Arial";
+/* Text Inputs */
+QLineEdit, QTextEdit {
+    background-color: #313244;
+    color: #CDD6F4;
+    border: 1px solid #45475A;
+    border-radius: 3px;
+    padding: 3px;
+    selection-background-color: #74C7EC;
+    selection-color: #1E1E2E;
 }
 
-/* Status bar */
+QLineEdit:focus, QTextEdit:focus {
+    border: 1px solid #89B4FA;
+}
+
+/* Tree Views */
+QTreeView {
+    background-color: #313244;
+    alternate-background-color: #1E1E2E;
+    color: #CDD6F4;
+    border: 1px solid #45475A;
+    border-radius: 3px;
+}
+
+QTreeView::item {
+    padding: 2px;
+}
+
+QTreeView::item:selected {
+    background-color: #89B4FA;
+    color: #1E1E2E;
+}
+
+QTreeView::item:hover {
+    background-color: #45475A;
+}
+
+/* Headers */
+QHeaderView::section {
+    background-color: #45475A;
+    color: #CDD6F4;
+    border: 1px solid #585B70;
+    padding: 3px;
+}
+
+/* Menus */
+QMenu {
+    background-color: #1E1E2E;
+    border: 1px solid #45475A;
+}
+
+QMenu::item {
+    padding: 5px 20px 5px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #89B4FA;
+    color: #1E1E2E;
+}
+
+/* Scrollbars */
+QScrollBar:vertical {
+    background-color: #1E1E2E;
+    width: 10px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #45475A;
+    min-height: 20px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #585B70;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background-color: #1E1E2E;
+    height: 10px;
+    margin: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #45475A;
+    min-width: 20px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #585B70;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+/* Tabs */
+QTabWidget::pane {
+    border: 1px solid #45475A;
+    border-radius: 3px;
+}
+
+QTabBar::tab {
+    background-color: #313244;
+    color: #CDD6F4;
+    border: 1px solid #45475A;
+    border-bottom: none;
+    padding: 5px 10px;
+    margin-right: 2px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+QTabBar::tab:selected {
+    background-color: #45475A;
+    border-bottom: none;
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: #585B70;
+}
+
+/* Dialog Buttons */
+QDialogButtonBox > QPushButton {
+    min-width: 80px;
+}
+
+/* Group Boxes */
+QGroupBox {
+    border: 1px solid #45475A;
+    border-radius: 3px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    padding: 0 5px;
+    color: #89B4FA;
+}
+
+/* Sliders */
+QSlider::groove:horizontal {
+    height: 4px;
+    background-color: #313244;
+    border-radius: 2px;
+}
+
+QSlider::handle:horizontal {
+    background-color: #89B4FA;
+    border: 1px solid #74C7EC;
+    width: 12px;
+    margin: -4px 0;
+    border-radius: 6px;
+}
+
+QSlider::handle:horizontal:hover {
+    background-color: #74C7EC;
+}
+
+/* Progress Bars */
+QProgressBar {
+    border: 1px solid #45475A;
+    border-radius: 3px;
+    background-color: #313244;
+    text-align: center;
+    color: #CDD6F4;
+}
+
+QProgressBar::chunk {
+    background-color: #89B4FA;
+    width: 5px;
+}
+
+/* Status Bar */
 QStatusBar {
-    color: #cccccc;
-    background-color: #1a1a2e;
+    background-color: #313244;
+    color: #CDD6F4;
+    border-top: 1px solid #45475A;
 }
 
-/* Tooltips */
-QToolTip {
-    color: #ffffff;
-    background-color: #1a1a2e;
-    border: 1px solid #3d3d5c;
-    font: 9pt "Arial";
+/* Custom QuantoniumOS Widgets */
+#ArchView {
+    background-color: transparent;
+    border: none;
+}
+
+#WaveCanvas {
+    background-color: #1E1E2E;
+    border: 1px solid #45475A;
+    border-radius: 3px;
+}
+
+#QuantumContainer {
+    background-color: #313244;
+    border: 1px solid #89B4FA;
+    border-radius: 5px;
 }

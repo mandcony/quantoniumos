@@ -19,6 +19,7 @@ def load_stylesheet(qss_path):
     else:
         print(f"⚠️ QSS file not found: {qss_path}")
         return ""
+        return ""
 
 class QSHLLFileExplorer(QMainWindow):
     def __init__(self):
@@ -235,6 +236,11 @@ class QSHLLFileExplorer(QMainWindow):
         event.accept()
 
 if __name__ == "__main__":
+    # Import and use the headless environment setup
+    from attached_assets import setup_headless_environment
+    env_config = setup_headless_environment()
+    print(f"Running on {env_config['platform']} in {'headless' if env_config['headless'] else 'windowed'} mode")
+    
     app = QApplication(sys.argv)
     qss_path = STYLES_QSS
     stylesheet = load_stylesheet(qss_path)

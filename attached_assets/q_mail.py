@@ -25,6 +25,11 @@ EMAIL_SERVER = f"{AUTH_SERVER}/send_email"
 FETCH_EMAILS = f"{AUTH_SERVER}/fetch_emails"
 LOGIN_ENDPOINT = f"{AUTH_SERVER}/login"
 REGISTER_ENDPOINT = f"{AUTH_SERVER}/register"
+AUTH_SERVER = "http://127.0.0.1:5000"
+EMAIL_SERVER = f"{AUTH_SERVER}/send_email"
+FETCH_EMAILS = f"{AUTH_SERVER}/fetch_emails"
+LOGIN_ENDPOINT = f"{AUTH_SERVER}/login"
+REGISTER_ENDPOINT = f"{AUTH_SERVER}/register"
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -182,6 +187,11 @@ class QMailWindow(QMainWindow):
         self.stack.setCurrentWidget(self.mail_widget)
 
 if __name__ == "__main__":
+    # Import and use the headless environment setup
+    from attached_assets import setup_headless_environment
+    env_config = setup_headless_environment()
+    print(f"Running on {env_config['platform']} in {'headless' if env_config['headless'] else 'windowed'} mode")
+    
     app = QApplication(sys.argv)
     window = QMailWindow()
     window.show()
