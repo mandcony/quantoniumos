@@ -446,7 +446,7 @@ def create_app():
             # Set environment variables for headless operation (needed for Qt applications)
             env["QT_QPA_PLATFORM"] = "offscreen"
             
-            # Launch the application using subprocess
+            # Launch the application silently in the background
             subprocess.Popen(
                 [sys.executable, app_script], 
                 env=env, 
@@ -455,9 +455,27 @@ def create_app():
                 stdout=subprocess.PIPE
             )
             
+            # Redirect to the appropriate HTML interface based on the app name
+            app_base_name = os.path.splitext(app_name)[0]
+            
+            # Map app names to their HTML interfaces
+            html_mapping = {
+                "q_wave_composer": "/quantum-container",
+                "q_resonance_analyzer": "/resonance-analyzer",
+                "q_wave_debugger": "/quantum-rft",
+                "q_mail": "/quantum-mail",
+                "q_browser": "/quantum-browser",
+                "q_vault": "/quantum-encryption",
+                "quantum_encryption": "/quantum-encryption",
+                "quantum_rft": "/quantum-rft"
+            }
+            
+            # Get the HTML interface or use a default
+            html_interface = html_mapping.get(app_base_name, "/")
+            
             return jsonify({
                 "success": True,
-                "message": f"Application {app_name} launched successfully"
+                "redirect_to": html_interface
             })
             
         except Exception as e:

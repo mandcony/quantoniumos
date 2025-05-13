@@ -229,8 +229,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        statusMessage.textContent = data.message;
-                        statusMessage.classList.add('success');
+                        if (data.redirect_to) {
+                            // If we have a redirect URL, navigate to it
+                            window.location.href = data.redirect_to;
+                        } else {
+                            // Just show success message if no redirect
+                            statusMessage.textContent = data.message || "Application launched successfully";
+                            statusMessage.classList.add('success');
+                        }
                     } else {
                         statusMessage.textContent = `Error: ${data.error}`;
                         statusMessage.classList.add('error');
