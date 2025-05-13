@@ -9,7 +9,8 @@ from PyQt5.QtGui import QBrush, QColor, QPen, QPainter, QLinearGradient, QFont
 from PyQt5.QtCore import Qt, QTimer, QRectF, QDir
 
 # Path to external QSS
-STYLES_QSS = r"C:\quantonium_os\styles.qss"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+STYLES_QSS = os.path.join(SCRIPT_DIR, "styles.qss")
 
 def load_stylesheet(qss_path):
     if os.path.exists(qss_path):
@@ -235,7 +236,7 @@ class QSHLLFileExplorer(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    qss_path = r"C:\quantonium_os\styles.qss"
+    qss_path = STYLES_QSS
     stylesheet = load_stylesheet(qss_path)
     if stylesheet:
         print("✅ Stylesheet loaded successfully.")
