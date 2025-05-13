@@ -208,11 +208,17 @@ def create_app():
     
     # Removed Qubit Visualizer - merged into the Quantum Grid
         
-    # Root route redirects to QuantoniumOS interface
+    # Root route serves the original resonance encryption interface for backward compatibility
     @app.route('/')
     def root():
-        # Redirect to the QuantoniumOS interface
-        return redirect('/os')
+        # Return the original resonance encryption interface to maintain all API functionality
+        return redirect('/resonance-encrypt')
+        
+    # QuantoniumOS interface
+    @app.route('/os')
+    def os_interface():
+        # The new OS interface with Q logo and arch menu
+        return send_from_directory('static', 'quantonium_os.html')
         
     # Legacy home route (kept for backward compatibility)
     @app.route('/home')
