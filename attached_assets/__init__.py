@@ -1,1 +1,5 @@
-# Empty file to mark 'apps' as a Python package
+"""
+Quantonium OS - Attached Assets Package
+
+This package contains imported assets and modules for the QuantoniumOS application.
+"""

@@ -1,144 +1,120 @@
-import numpy as np
-import math
+# File: attached_assets/geometric_container.py
+
+import json
 import hashlib
-from scipy.spatial.transform import Rotation as R
-import time
-from multi_qubit_state import MultiQubitState
+import uuid
+import numpy as np
 
 class GeometricContainer:
-    def __init__(self, id, vertices, transformations=[], material_props={}):
-        """Creates a container with quantum-assisted transformations."""
-        self.id = id
-        self.vertices = np.array(vertices, dtype=float)
-        self.transformations = transformations
-        self.material = {
-            "youngs_modulus": material_props.get("youngs_modulus", 1e9),
-            "density": material_props.get("density", 2700),
-        }
+    def __init__(self, name=None, owner_id=None):
+        self.id = str(uuid.uuid4())
+        self.name = name or f"Container-{self.id[:6]}"
+        self.owner_id = owner_id
         self.resonant_frequencies = []
-        self.bend_factor = 0.0  # Dynamic bending property
-        self.internal_vibration = 0.0  # Internal resonance vibration
-        self.last_update_time = time.time()
-
-        # Quantum state for transformation guidance
-        self.q_state = MultiQubitState(3)
-        # For tetrahedral symbolic mapping (memory mapper)
-        self.symbolic_mapping = {}  # Will hold mapping for each vertex index
-        self.symbolic_hash = None  # Deterministic hash of the symbolic payload
-
-    def apply_transformations(self):
-        """Applies transformations sequentially, integrating quantum state influence."""
-        for transform in self.transformations:
-            if "rotation" in transform:
-                self.rotate(transform["rotation"])
-            if "scale" in transform:
-                self.scale(transform["scale"])
-            if "translation" in transform:
-                self.translate(transform["translation"])
-        # Introduce quantum-state-dependent deformation
-        self.quantum_deformation()
-
-    def rotate(self, angles):
-        """Applies rotation using scipy spatial transform."""
-        rot = R.from_euler('xyz', [angles.get("x", 0), angles.get("y", 0), angles.get("z", 0)], degrees=False)
-        self.vertices = rot.apply(self.vertices)
-
-    def scale(self, factors):
-        """Scales the container."""
-        scale_matrix = np.diag([factors.get("x", 1), factors.get("y", 1), factors.get("z", 1)])
-        self.vertices = np.dot(self.vertices, scale_matrix)
-
-    def translate(self, offsets):
-        """Moves the container."""
-        translation_vector = np.array([offsets.get("x", 0), offsets.get("y", 0), offsets.get("z", 0)])
-        self.vertices += translation_vector
-
-    def apply_bending(self):
-        """Applies dynamic bending based on resonance."""
-        midpoint = np.mean(self.vertices, axis=0)
-        for i, vertex in enumerate(self.vertices):
-            distance = np.linalg.norm(vertex - midpoint)
-            self.vertices[i] += np.array([0, math.sin(distance) * self.bend_factor, 0])
-
-    def apply_internal_vibrations(self):
-        """Applies quantum-guided vibration shifts."""
-        self.vertices += np.random.normal(scale=self.internal_vibration, size=self.vertices.shape)
-
-    def quantum_deformation(self):
-        """Uses quantum state measurements to affect structural deformation."""
-        measurement = self.q_state.measure_all()
-        deformation_factor = (measurement % 3) * 0.1  # Scale by quantum outcome
-        self.vertices += deformation_factor
-
-    def update_structure(self, bend_factor=None, vibration_intensity=None):
-        """Updates structure dynamically, integrating quantum state variations."""
-        if bend_factor is not None:
-            self.bend_factor = bend_factor
-        if vibration_intensity is not None:
-            self.internal_vibration = vibration_intensity
-        self.apply_bending()
-        self.apply_internal_vibrations()
-        self.quantum_deformation()
-
-    def calculate_resonant_frequencies(self, damp_factor=0.1):
-        """Computes resonant frequencies based on material properties."""
-        avg_length = np.mean(np.linalg.norm(np.diff(self.vertices, axis=0), axis=1))
-        if avg_length > 0:
-            freq = np.sqrt(self.material["youngs_modulus"] / (self.material["density"] * avg_length)) * (1 - damp_factor)
-            self.resonant_frequencies.append(freq)
-        return self.resonant_frequencies
-
-    def check_resonance(self, freq, threshold=0.1):
-        """Checks if the container resonates at the given frequency."""
-        return any(abs(f - freq) <= threshold for f in self.resonant_frequencies)
-
-    def map_symbolic_data(self, symbolic_payload):
+        self.vertices = []
+        self.hash_value = None
+        self.locked = True
+        
+    def generate_container(self, complexity=5, dimensions=3):
         """
-        Maps a symbolic payload (e.g., a list of characters or tokens)
-        onto the tetrahedral geometry of the container.
-        Cycles through the vertices, assigning each symbol and then computes
-        a deterministic hash over the mapping.
+        Generate a new geometric container with random vertices and resonant frequencies.
+        
+        Args:
+            complexity: controls number of vertices (complexity^dimensions)
+            dimensions: spatial dimensions of the container (2-4)
         """
-        num_vertices = len(self.vertices)
-        self.symbolic_mapping = {}  # Reset mapping
-        for i, symbol in enumerate(symbolic_payload):
-            vertex_index = i % num_vertices
-            if vertex_index not in self.symbolic_mapping:
-                self.symbolic_mapping[vertex_index] = []
-            self.symbolic_mapping[vertex_index].append(symbol)
-        # Create a string representation of the mapping (sorted by vertex index)
-        mapping_str = "".join("".join(self.symbolic_mapping[i]) for i in sorted(self.symbolic_mapping.keys()))
-        self.symbolic_hash = hashlib.sha256(mapping_str.encode()).hexdigest()[:32]
-        return self.symbolic_hash
-
-# === TESTING QUANTUM-ENHANCED GEOMETRIC CONTAINER with Tetrahedral Memory Mapper ===
-if __name__ == "__main__":
-    vertices = [[0, 0, 0], [1, 0, 0], [0.5, 0.866, 0], [0.5, 0.289, 0.816]]
-    container = GeometricContainer("Quantum_Struct", vertices)
-
-    print("\nInitial vertices:")
-    print(container.vertices)
-
-    # Apply transformations and quantum deformation
-    container.update_structure(bend_factor=0.2, vibration_intensity=0.05)
-    container.apply_transformations()
-
-    print("\nAfter transformations:")
-    print(container.vertices)
-
-    # Calculate resonant frequencies
-    resonant_freqs = container.calculate_resonant_frequencies()
-    print("\nCalculated Resonant Frequencies:", resonant_freqs)
-
-    # Test resonance check
-    test_freq = resonant_freqs[0] if resonant_freqs else 0.5
-    if container.check_resonance(test_freq):
-        print(f"✅ Resonance detected at frequency: {test_freq}")
-    else:
-        print("❌ No resonance detected.")
-
-    # Test tetrahedral memory mapping with a symbolic payload
-    symbolic_payload = ["Q", "U", "A", "N", "T", "O", "N", "I", "U", "M"]
-    mapping_hash = container.map_symbolic_data(symbolic_payload)
-    print("\nMapped Symbolic Data Hash:", mapping_hash)
-    print("Symbolic Mapping:", container.symbolic_mapping)
+        # Generate vertices in n-dimensional space
+        num_vertices = complexity ** min(dimensions, 4)  # Cap at 4D for performance
+        
+        # Create vertices in n-dimensional space with controlled randomness
+        self.vertices = []
+        for _ in range(num_vertices):
+            vertex = []
+            for d in range(dimensions):
+                # Use controlled randomness for better resonance stability
+                coord = np.sin(np.random.uniform(0, np.pi * 2)) * 0.5 + 0.5
+                vertex.append(round(coord, 3))
+            self.vertices.append(vertex)
+        
+        # Calculate resonant frequencies
+        self._calculate_resonances()
+        
+        # Calculate container hash
+        self._calculate_hash()
+        
+        return self
+        
+    def _calculate_resonances(self, max_resonances=3):
+        """Calculate the resonant frequencies of the container."""
+        if not self.vertices:
+            return
+            
+        # This is a simplified version of our resonance detection algorithm
+        # The actual algorithm uses deep mathematics involving wave propagation
+        
+        # Calculate distances between vertices
+        distances = []
+        for i, v1 in enumerate(self.vertices):
+            for j, v2 in enumerate(self.vertices[i+1:], i+1):
+                # Calculate Euclidean distance
+                dist = sum((a - b) ** 2 for a, b in zip(v1, v2)) ** 0.5
+                distances.append(dist)
+        
+        # Convert distances to resonant frequencies (simplified version)
+        frequencies = []
+        for dist in distances:
+            # Map distance to frequency range [0.1, 0.9]
+            freq = 0.1 + (dist % 0.8)
+            frequencies.append(round(freq, 3))
+        
+        # Sort frequencies and remove duplicates
+        frequencies = sorted(set(frequencies))
+        
+        # Take the most interesting frequencies (middle ones have highest resonance)
+        middle_index = len(frequencies) // 2
+        start_idx = max(0, middle_index - max_resonances // 2)
+        self.resonant_frequencies = frequencies[start_idx:start_idx + max_resonances]
+        
+    def _calculate_hash(self):
+        """Calculate unique hash for the container based on vertices and frequencies."""
+        # Convert container structure to string
+        container_str = json.dumps({
+            "id": self.id,
+            "vertices": self.vertices,
+            "frequencies": self.resonant_frequencies
+        }, sort_keys=True)
+        
+        # Calculate SHA-256 hash
+        hash_value = hashlib.sha256(container_str.encode()).hexdigest()
+        
+        # Format into resonance hash format (example: RH-A0.67-P0.33-C238A)
+        amplitude = sum(self.resonant_frequencies) / max(len(self.resonant_frequencies), 1)
+        phase = (int(hash_value[:4], 16) % 100) / 100
+        complexity = len(self.vertices)
+        
+        self.hash_value = f"RH-A{amplitude:.2f}-P{phase:.2f}-C{complexity:X}"
+        
+    def to_dict(self):
+        """Convert container to dictionary."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "owner_id": self.owner_id,
+            "resonant_frequencies": self.resonant_frequencies,
+            "hash_value": self.hash_value,
+            "locked": self.locked,
+            "vertices": self.vertices
+        }
+        
+    @classmethod
+    def from_dict(cls, data):
+        """Create container from dictionary."""
+        container = cls()
+        container.id = data.get("id", str(uuid.uuid4()))
+        container.name = data.get("name", f"Container-{container.id[:6]}")
+        container.owner_id = data.get("owner_id")
+        container.resonant_frequencies = data.get("resonant_frequencies", [])
+        container.hash_value = data.get("hash_value")
+        container.locked = data.get("locked", True)
+        container.vertices = data.get("vertices", [])
+        return container

@@ -3,12 +3,17 @@ Quantonium OS - API Data Models
 
 Defines Pydantic-style request schemas for symbolic endpoints and quantum API.
 Includes comprehensive validation for all API inputs.
+Also defines SQLAlchemy models for database storage.
 """
 
 from pydantic import BaseModel, Field, validator
 from typing import List, Dict, Any, Optional, Union
 import re
 import base64
+from flask_login import UserMixin
+from app import db
+from datetime import datetime
+import uuid
 
 # Maximum length constraints for security
 MAX_KEY_LENGTH = 256
@@ -19,6 +24,43 @@ MIN_WAVEFORM_LENGTH = 3
 
 # Pattern validation for specific fields
 HASH_PATTERN = r'^[A-Za-z0-9+/=]+$'  # Base64 pattern for container hashes
+
+# SQLAlchemy Models
+class User(UserMixin, db.Model):
+    """User model for authentication."""
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    username = db.Column(db.String(64), unique=True, nullable=False)
+    password_hash = db.Column(db.String(256))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    emails_sent = db.relationship('Email', backref='sender', lazy='dynamic', 
+                                  foreign_keys='Email.sender_id')
+    emails_received = db.relationship('Email', backref='recipient', lazy='dynamic',
+                                   foreign_keys='Email.recipient_id')
+
+class Email(db.Model):
+    """Email model for storing messages."""
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    subject = db.Column(db.Text, nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    read = db.Column(db.Boolean, default=False)
+    folder = db.Column(db.String(20), default='inbox')  # inbox, sent, trash, etc.
+
+class Container(db.Model):
+    """Container model for storing resonance containers."""
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(64), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    resonant_frequencies = db.Column(db.Text)  # JSON serialized list of frequencies
+    hash_value = db.Column(db.String(256))
+    vertices = db.Column(db.Text)  # JSON serialized 3D vertices
+    locked = db.Column(db.Boolean, default=True)
+
+# Pydantic Models for API Validation
 
 class EncryptRequest(BaseModel):
     """Request model for encrypting data using resonance techniques."""
