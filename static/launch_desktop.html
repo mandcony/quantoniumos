@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS Desktop Launcher</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #111;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a2a4a 0%, #162238 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1e1e2e;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            flex-grow: 1;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #ccc;
+        }
+        .launch-section {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .app-card {
+            background: #252836;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .app-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .app-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .app-description {
+            font-size: 12px;
+            color: #999;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+            cursor: pointer;
+            border: none;
+        }
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 14px rgba(52, 152, 219, 0.4);
+        }
+        .button.desktop {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            box-shadow: 0 4px 10px rgba(155, 89, 182, 0.3);
+        }
+        .button.desktop:hover {
+            box-shadow: 0 6px 14px rgba(155, 89, 182, 0.4);
+        }
+        .footer {
+            background: #0d1117;
+            padding: 15px;
+            text-align: center;
+            color: #6c7983;
+            font-size: 14px;
+        }
+        .status-message {
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid #27ae60;
+            color: #2ecc71;
+        }
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>QuantoniumOS Desktop Launcher</h1>
+    </div>
+
+    <div class="container">
+        <p>Launch the QuantoniumOS desktop environment or individual applications from the attached assets.</p>
+        
+        <div class="launch-section">
+            <button id="launch-os" class="button desktop">Launch Full QuantoniumOS</button>
+            
+            <h3>Individual Applications</h3>
+            <div class="app-grid">
+                <div class="app-card" data-app="q_resonance_analyzer.py">
+                    <div class="app-icon">🌊</div>
+                    <div class="app-name">Resonance Analyzer</div>
+                    <div class="app-description">Analyze images using quantum resonance</div>
+                </div>
+                <div class="app-card" data-app="q_browser.py">
+                    <div class="app-icon">🌐</div>
+                    <div class="app-name">Q-Browser</div>
+                    <div class="app-description">Quantum secure browser</div>
+                </div>
+                <div class="app-card" data-app="q_mail.py">
+                    <div class="app-icon">✉️</div>
+                    <div class="app-name">Q-Mail</div>
+                    <div class="app-description">Quantum encrypted email</div>
+                </div>
+                <div class="app-card" data-app="q_notes.py">
+                    <div class="app-icon">📝</div>
+                    <div class="app-name">Q-Notes</div>
+                    <div class="app-description">Secure note-taking app</div>
+                </div>
+                <div class="app-card" data-app="q_vault.py">
+                    <div class="app-icon">🔒</div>
+                    <div class="app-name">Q-Vault</div>
+                    <div class="app-description">Quantum secured vault</div>
+                </div>
+                <div class="app-card" data-app="q_wave_composer.py">
+                    <div class="app-icon">🎵</div>
+                    <div class="app-name">Wave Composer</div>
+                    <div class="app-description">Create and analyze waveforms</div>
+                </div>
+                <div class="app-card" data-app="q_wave_debugger.py">
+                    <div class="app-icon">🔍</div>
+                    <div class="app-name">Wave Debugger</div>
+                    <div class="app-description">Debug quantum waveforms</div>
+                </div>
+                <div class="app-card" data-app="quantum_desktop.py">
+                    <div class="app-icon">🖥️</div>
+                    <div class="app-name">Quantum Desktop</div>
+                    <div class="app-description">Quantum desktop environment</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="status-message" class="status-message"></div>
+    </div>
+
+    <div class="footer">
+        <p>QuantoniumOS v0.3.0 | &copy; 2025 Quantonium Research</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Launch full OS
+            document.getElementById('launch-os').addEventListener('click', function() {
+                launchApp('quantonium_os_main.py');
+            });
+            
+            // Launch individual apps
+            document.querySelectorAll('.app-card').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    const app = this.getAttribute('data-app');
+                    launchApp(app);
+                });
+            });
+            
+            // Function to launch an app
+            function launchApp(app) {
+                const statusMessage = document.getElementById('status-message');
+                statusMessage.textContent = `Launching ${app}...`;
+                statusMessage.className = 'status-message';
+                statusMessage.style.display = 'block';
+                
+                fetch('/api/launch-app', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ app: app }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        statusMessage.textContent = data.message;
+                        statusMessage.classList.add('success');
+                    } else {
+                        statusMessage.textContent = `Error: ${data.error}`;
+                        statusMessage.classList.add('error');
+                    }
+                })
+                .catch(error => {
+                    statusMessage.textContent = `Error launching app: ${error.message}`;
+                    statusMessage.classList.add('error');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

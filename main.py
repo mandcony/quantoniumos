@@ -165,6 +165,11 @@ def create_app():
     def desktop_analyzer_launcher():
         return send_from_directory('static', 'launch_desktop_analyzer.html')
         
+    # QuantoniumOS Desktop Launcher
+    @app.route('/desktop')
+    def desktop_launcher():
+        return send_from_directory('static', 'launch_desktop.html')
+        
     # Serve embed demo instructions
     @app.route('/embed-demo')
     def embed_demo():
@@ -277,7 +282,7 @@ def create_app():
                 <a href="/resonance-encrypt">Resonance Encryption</a>
                 <a href="/quantum-grid">Quantum Grid</a>
                 <a href="/resonance-analyzer">Image Resonance Analyzer</a>
-                <a href="/desktop-analyzer">Desktop Apps</a>
+                <a href="/desktop">QuantoniumOS</a>
                 <a href="/docs">API Docs</a>
             </div>
             
@@ -337,6 +342,61 @@ def create_app():
             
         except Exception as e:
             logger.error(f"Error launching desktop analyzer: {str(e)}")
+            return jsonify({
+                "success": False,
+                "error": str(e)
+            }), 500
+            
+    # Launch any app from the attached_assets folder
+    @app.route('/api/launch-app', methods=['POST'])
+    def launch_app():
+        """API endpoint to launch any app from the attached_assets folder."""
+        try:
+            import subprocess
+            import sys
+            import os
+            
+            # Get app name from request
+            data = request.get_json()
+            if not data or 'app' not in data:
+                return jsonify({
+                    "success": False,
+                    "error": "Missing app parameter"
+                }), 400
+                
+            app_name = data['app']
+            
+            # Validate app name to prevent command injection
+            if not app_name.endswith('.py') or '/' in app_name or '\\' in app_name:
+                return jsonify({
+                    "success": False,
+                    "error": "Invalid app name"
+                }), 400
+            
+            # Get the path to the app script
+            script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "attached_assets")
+            app_script = os.path.join(script_dir, app_name)
+            
+            if not os.path.exists(app_script):
+                return jsonify({
+                    "success": False,
+                    "error": f"App script not found: {app_name}"
+                }), 404
+            
+            # Set PYTHONPATH to include attached_assets directory
+            env = os.environ.copy()
+            env["PYTHONPATH"] = script_dir + os.pathsep + env.get("PYTHONPATH", "")
+            
+            # Launch the application using subprocess
+            subprocess.Popen([sys.executable, app_script], env=env, cwd=script_dir)
+            
+            return jsonify({
+                "success": True,
+                "message": f"Application {app_name} launched successfully"
+            })
+            
+        except Exception as e:
+            logger.error(f"Error launching app: {str(e)}")
             return jsonify({
                 "success": False,
                 "error": str(e)
