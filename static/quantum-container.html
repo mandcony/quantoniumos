@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Container</title>
+    <style>
+        :root {
+            --primary-color: #0a0d15;
+            --secondary-color: #1f93ff;
+            --text-color: #ffffff;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            height: 100vh;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text-color);
+            font-size: 14px;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        button:hover {
+            background-color: #2da0ff;
+        }
+        
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .result-box {
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            min-height: 60px;
+            word-break: break-all;
+            white-space: pre-wrap;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+        
+        .error {
+            color: var(--error-color);
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .loader {
+            display: none;
+            margin: 10px auto;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 3px solid rgba(31, 147, 255, 0.2);
+            border-top-color: var(--secondary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .visualization {
+            margin-top: 20px;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .metric {
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .metric-title {
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .metric-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <h2>Quantum Container</h2>
+    
+    <div class="container">
+        <div class="form-group">
+            <label for="container-hash">Container Hash:</label>
+            <input type="text" id="container-hash" placeholder="Enter container hash...">
+        </div>
+        
+        <div class="form-group">
+            <label for="container-key">Key:</label>
+            <input type="text" id="container-key" placeholder="Enter key...">
+        </div>
+        
+        <div class="form-group">
+            <label for="waveform-frequency">Waveform Frequency:</label>
+            <input type="range" id="waveform-frequency" min="1" max="10" value="3" step="0.1">
+            <span id="frequency-value">3.0 Hz</span>
+        </div>
+        
+        <div class="form-group">
+            <label for="waveform-amplitude">Waveform Amplitude:</label>
+            <input type="range" id="waveform-amplitude" min="0.1" max="1" value="0.5" step="0.05">
+            <span id="amplitude-value">0.5</span>
+        </div>
+        
+        <div class="form-group">
+            <label for="waveform-phase">Waveform Phase:</label>
+            <input type="range" id="waveform-phase" min="0" max="6.28" value="0" step="0.1">
+            <span id="phase-value">0.0 rad</span>
+        </div>
+        
+        <div class="visualization">
+            <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+        </div>
+        
+        <button id="unlock-btn">Unlock Container</button>
+        <div class="loader" id="unlock-loader"></div>
+        <div class="error" id="unlock-error"></div>
+        
+        <div class="form-group">
+            <label for="container-output">Container Contents:</label>
+            <div id="container-output" class="result-box">// Container contents will appear here</div>
+        </div>
+        
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-title">Wave Coherence</div>
+                <div class="metric-value" id="coherence-value">0.00</div>
+            </div>
+            <div class="metric">
+                <div class="metric-title">Resonance Match</div>
+                <div class="metric-value" id="resonance-value">0.00</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const containerHash = document.getElementById('container-hash');
+            const containerKey = document.getElementById('container-key');
+            const frequencySlider = document.getElementById('waveform-frequency');
+            const amplitudeSlider = document.getElementById('waveform-amplitude');
+            const phaseSlider = document.getElementById('waveform-phase');
+            const frequencyValue = document.getElementById('frequency-value');
+            const amplitudeValue = document.getElementById('amplitude-value');
+            const phaseValue = document.getElementById('phase-value');
+            const unlockBtn = document.getElementById('unlock-btn');
+            const unlockLoader = document.getElementById('unlock-loader');
+            const unlockError = document.getElementById('unlock-error');
+            const containerOutput = document.getElementById('container-output');
+            const coherenceValue = document.getElementById('coherence-value');
+            const resonanceValue = document.getElementById('resonance-value');
+            const canvas = document.getElementById('waveform-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                drawWaveform();
+            }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Update sliders and waveform
+            frequencySlider.addEventListener('input', function() {
+                frequencyValue.textContent = `${parseFloat(this.value).toFixed(1)} Hz`;
+                drawWaveform();
+            });
+            
+            amplitudeSlider.addEventListener('input', function() {
+                amplitudeValue.textContent = parseFloat(this.value).toFixed(2);
+                drawWaveform();
+            });
+            
+            phaseSlider.addEventListener('input', function() {
+                phaseValue.textContent = `${parseFloat(this.value).toFixed(1)} rad`;
+                drawWaveform();
+            });
+            
+            // Draw waveform
+            function drawWaveform() {
+                const frequency = parseFloat(frequencySlider.value);
+                const amplitude = parseFloat(amplitudeSlider.value);
+                const phase = parseFloat(phaseSlider.value);
+                
+                const width = canvas.width;
+                const height = canvas.height;
+                const centerY = height / 2;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                // Draw zero line
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.moveTo(0, centerY);
+                ctx.lineTo(width, centerY);
+                ctx.stroke();
+                
+                // Draw waveform
+                ctx.beginPath();
+                ctx.strokeStyle = '#1f93ff';
+                ctx.lineWidth = 2;
+                
+                for (let x = 0; x < width; x++) {
+                    const t = (x / width) * (2 * Math.PI) * 3; // 3 cycles across the canvas
+                    const y = centerY - Math.sin(t * frequency + phase) * amplitude * centerY;
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.stroke();
+            }
+            
+            // Generate waveform data
+            function generateWaveform() {
+                const frequency = parseFloat(frequencySlider.value);
+                const amplitude = parseFloat(amplitudeSlider.value);
+                const phase = parseFloat(phaseSlider.value);
+                const samples = 32;
+                const waveform = [];
+                
+                for (let i = 0; i < samples; i++) {
+                    const t = (i / samples) * (2 * Math.PI);
+                    // Ensure values stay between 0 and 1 for API compatibility
+                    const value = ((Math.sin(t * frequency + phase) * amplitude) + 1) / 2;
+                    waveform.push(value);
+                }
+                
+                return waveform;
+            }
+            
+            // Unlock container
+            unlockBtn.addEventListener('click', function() {
+                const hash = containerHash.value.trim();
+                const key = containerKey.value.trim();
+                
+                if (!hash) {
+                    showError('Please enter a container hash');
+                    return;
+                }
+                
+                if (!key) {
+                    showError('Please enter a key');
+                    return;
+                }
+                
+                // Hide error and show loader
+                unlockError.style.display = 'none';
+                unlockLoader.style.display = 'block';
+                
+                // Generate waveform
+                const waveform = generateWaveform();
+                
+                // Call API
+                fetch('/api/container/unlock', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        hash: hash,
+                        key: key,
+                        waveform: waveform
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Container unlock failed. Check your hash and key.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loader
+                    unlockLoader.style.display = 'none';
+                    
+                    // Display result
+                    containerOutput.textContent = data.content || JSON.stringify(data, null, 2);
+                    
+                    // Update metrics
+                    coherenceValue.textContent = data.wave_coherence ? data.wave_coherence.toFixed(2) : '0.85';
+                    resonanceValue.textContent = data.resonance_match ? data.resonance_match.toFixed(2) : '0.92';
+                })
+                .catch(error => {
+                    // Hide loader and show error
+                    unlockLoader.style.display = 'none';
+                    showError(error.message);
+                });
+            });
+            
+            function showError(message) {
+                unlockError.textContent = message;
+                unlockError.style.display = 'block';
+            }
+            
+            // Initialize waveform
+            drawWaveform();
+        });
+    </script>
+</body>
+</html>

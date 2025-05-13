@@ -501,25 +501,25 @@ def create_app():
     @app.route('/quantum-rft')
     def quantum_rft():
         """Quantum RFT app."""
-        return send_from_directory('static', 'quantum_rft.html')
+        return send_from_directory('static', 'quantum-rft.html')
         
     # Quantum Container app
     @app.route('/quantum-container')
     def quantum_container():
         """Quantum Container app."""
-        return send_from_directory('static', 'quantum_container.html')
+        return send_from_directory('static', 'quantum-container.html')
         
     # Quantum Entropy app
     @app.route('/quantum-entropy')
     def quantum_entropy():
         """Quantum Entropy app."""
-        return send_from_directory('static', 'quantum_entropy.html')
+        return send_from_directory('static', 'quantum-entropy.html')
         
     # Quantum Benchmark app
     @app.route('/quantum-benchmark')
     def quantum_benchmark_app():
         """Quantum Benchmark app."""
-        return send_from_directory('static', 'quantum_benchmark.html')
+        return send_from_directory('static', 'quantum-benchmark.html')
         # Simple Swagger UI page that loads the OpenAPI spec
         swagger_html = """
         <!DOCTYPE html>
