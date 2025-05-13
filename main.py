@@ -495,7 +495,7 @@ def create_app():
     @app.route('/quantum-encryption')
     def quantum_encryption():
         """Quantum Encryption app."""
-        return send_from_directory('static', 'quantum_encryption.html')
+        return send_from_directory('static', 'quantum-encryption.html')
         
     # Quantum RFT app
     @app.route('/quantum-rft')

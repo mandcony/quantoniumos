@@ -279,23 +279,23 @@
                 </div>
                 
                 <!-- Quantum Web Apps -->
-                <div class="app-icon" data-type="web" data-url="/quantum-encryption">
+                <div class="app-icon" data-type="web" data-url="/quantum-encryption" data-title="Quantum Encryption">
                     <div class="icon">🔐</div>
                     <div class="name">Quantum Encryption</div>
                 </div>
-                <div class="app-icon" data-type="web" data-url="/quantum-rft">
+                <div class="app-icon" data-type="web" data-url="/quantum-rft" data-title="Resonance Fourier Transform">
                     <div class="icon">📊</div>
                     <div class="name">Resonance Transform</div>
                 </div>
-                <div class="app-icon" data-type="web" data-url="/quantum-container">
+                <div class="app-icon" data-type="web" data-url="/quantum-container" data-title="Quantum Container Operations">
                     <div class="icon">📦</div>
                     <div class="name">Container Ops</div>
                 </div>
-                <div class="app-icon" data-type="web" data-url="/quantum-entropy">
+                <div class="app-icon" data-type="web" data-url="/quantum-entropy" data-title="Quantum Entropy Generator">
                     <div class="icon">🎲</div>
                     <div class="name">Entropy Generator</div>
                 </div>
-                <div class="app-icon" data-type="web" data-url="/quantum-benchmark">
+                <div class="app-icon" data-type="web" data-url="/quantum-benchmark" data-title="64-Perturbation Benchmark">
                     <div class="icon">⚡</div>
                     <div class="name">64-Perturbation</div>
                 </div>
@@ -303,6 +303,9 @@
         </div>
         
         <div id="status-message"></div>
+        
+        <!-- Windows Container -->
+        <div id="windows-container"></div>
     </div>
 
     <script>
@@ -377,19 +380,218 @@
                 });
             }
             
-            // Function to open web app
+            // Window management
+            let zIndexCounter = 100;
+            let activeWindow = null;
+            const openWindows = new Map();
+            
+            // Function to create a new window
+            function createWindow(url, title, width = 800, height = 600) {
+                // Check if window already exists
+                if (openWindows.has(url)) {
+                    // Bring to front
+                    const existingWindow = document.getElementById(`window-${openWindows.get(url)}`);
+                    existingWindow.style.zIndex = ++zIndexCounter;
+                    setActiveWindow(existingWindow);
+                    
+                    // If minimized, restore it
+                    if (existingWindow.classList.contains('minimized')) {
+                        existingWindow.classList.remove('minimized');
+                    }
+                    
+                    return;
+                }
+                
+                const windowId = Date.now();
+                openWindows.set(url, windowId);
+                
+                // Create window elements
+                const windowElement = document.createElement('div');
+                windowElement.className = 'window';
+                windowElement.id = `window-${windowId}`;
+                windowElement.style.zIndex = ++zIndexCounter;
+                windowElement.style.width = `${width}px`;
+                windowElement.style.height = `${height}px`;
+                windowElement.style.left = `${(window.innerWidth - width) / 2}px`;
+                windowElement.style.top = `${(window.innerHeight - height) / 2}px`;
+                
+                const windowHeader = document.createElement('div');
+                windowHeader.className = 'window-header';
+                
+                const windowIcon = document.createElement('div');
+                windowIcon.className = 'window-icon';
+                windowIcon.textContent = getIconForUrl(url);
+                
+                const windowTitle = document.createElement('div');
+                windowTitle.className = 'window-title';
+                windowTitle.textContent = title;
+                
+                const windowControls = document.createElement('div');
+                windowControls.className = 'window-controls';
+                
+                const minimizeButton = document.createElement('div');
+                minimizeButton.className = 'window-control minimize';
+                minimizeButton.innerHTML = '&#8211;';
+                
+                const maximizeButton = document.createElement('div');
+                maximizeButton.className = 'window-control maximize';
+                maximizeButton.innerHTML = '&#9744;';
+                
+                const closeButton = document.createElement('div');
+                closeButton.className = 'window-control close';
+                closeButton.innerHTML = '&#10005;';
+                
+                const windowBody = document.createElement('div');
+                windowBody.className = 'window-body';
+                
+                const iframe = document.createElement('iframe');
+                iframe.className = 'window-iframe';
+                iframe.src = url;
+                iframe.setAttribute('frameborder', '0');
+                
+                // Add all elements to the DOM
+                windowControls.appendChild(minimizeButton);
+                windowControls.appendChild(maximizeButton);
+                windowControls.appendChild(closeButton);
+                
+                windowHeader.appendChild(windowIcon);
+                windowHeader.appendChild(windowTitle);
+                windowHeader.appendChild(windowControls);
+                
+                windowBody.appendChild(iframe);
+                
+                windowElement.appendChild(windowHeader);
+                windowElement.appendChild(windowBody);
+                
+                document.getElementById('windows-container').appendChild(windowElement);
+                
+                // Make active
+                setActiveWindow(windowElement);
+                
+                // Add event listeners
+                windowElement.addEventListener('mousedown', () => {
+                    setActiveWindow(windowElement);
+                });
+                
+                minimizeButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    windowElement.classList.add('minimized');
+                });
+                
+                maximizeButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (windowElement.classList.contains('maximized')) {
+                        windowElement.classList.remove('maximized');
+                        windowElement.style.width = `${width}px`;
+                        windowElement.style.height = `${height}px`;
+                        windowElement.style.left = `${(window.innerWidth - width) / 2}px`;
+                        windowElement.style.top = `${(window.innerHeight - height) / 2}px`;
+                    } else {
+                        windowElement.classList.add('maximized');
+                        windowElement.style.width = '100%';
+                        windowElement.style.height = 'calc(100% - 40px)';
+                        windowElement.style.left = '0';
+                        windowElement.style.top = '0';
+                    }
+                });
+                
+                closeButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeWindow(windowElement, url);
+                });
+                
+                // Make window draggable
+                makeDraggable(windowElement, windowHeader);
+                
+                return windowElement;
+            }
+            
+            // Function to close a window
+            function closeWindow(windowElement, url) {
+                document.getElementById('windows-container').removeChild(windowElement);
+                openWindows.delete(url);
+            }
+            
+            // Function to set active window
+            function setActiveWindow(windowElement) {
+                if (activeWindow) {
+                    activeWindow.classList.remove('active');
+                }
+                activeWindow = windowElement;
+                activeWindow.classList.add('active');
+                activeWindow.style.zIndex = ++zIndexCounter;
+            }
+            
+            // Function to make an element draggable
+            function makeDraggable(element, dragHandle) {
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                
+                dragHandle.onmousedown = dragMouseDown;
+                
+                function dragMouseDown(e) {
+                    e.preventDefault();
+                    // Get the mouse cursor position at startup
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    document.onmouseup = closeDragElement;
+                    // Call a function whenever the cursor moves
+                    document.onmousemove = elementDrag;
+                }
+                
+                function elementDrag(e) {
+                    e.preventDefault();
+                    // Calculate the new cursor position
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    
+                    // Ensure the window stays maximized if it was maximized
+                    if (element.classList.contains('maximized')) {
+                        element.classList.remove('maximized');
+                        element.style.width = '800px';
+                        element.style.height = '600px';
+                    }
+                    
+                    // Set the element's new position
+                    element.style.top = (element.offsetTop - pos2) + "px";
+                    element.style.left = (element.offsetLeft - pos1) + "px";
+                }
+                
+                function closeDragElement() {
+                    // Stop moving when mouse button is released
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                }
+            }
+            
+            // Helper function to get icon for URL
+            function getIconForUrl(url) {
+                if (url.includes('quantum-encryption')) return '🔐';
+                if (url.includes('quantum-rft')) return '📊';
+                if (url.includes('quantum-container')) return '📦';
+                if (url.includes('quantum-entropy')) return '🎲';
+                if (url.includes('quantum-benchmark')) return '⚡';
+                return '🔮';
+            }
+            
+            // Function to open web app in window
             function openWebApp(url) {
                 const statusMessage = document.getElementById('status-message');
                 statusMessage.textContent = `Opening ${url}...`;
                 statusMessage.className = 'show success';
                 
-                // Open the web app in a new window
-                window.open(url, '_blank');
+                // Get title from the data-title attribute
+                const appIcon = document.querySelector(`.app-icon[data-url="${url}"]`);
+                const title = appIcon ? appIcon.getAttribute('data-title') : 'QuantoniumOS';
                 
-                // Hide the message after 2 seconds
+                // Create window
+                createWindow(url, title);
+                
+                // Hide the message after 1 second
                 setTimeout(() => {
                     statusMessage.classList.remove('show');
-                }, 2000);
+                }, 1000);
             }
         });
     </script>
