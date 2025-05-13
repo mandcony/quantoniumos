@@ -12,8 +12,8 @@ import logging
 from flask import Blueprint, request, jsonify, Response
 from encryption.quantum_engine_adapter import quantum_adapter
 
-# Create blueprint
-quantum_api = Blueprint('quantum_api', __name__)
+# Create blueprint with prefix
+quantum_api = Blueprint('quantum_api', __name__, url_prefix='/api/quantum')
 
 # Set up logging
 logger = logging.getLogger(__name__)
