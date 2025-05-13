@@ -14,6 +14,7 @@ import secrets
 from datetime import datetime
 from flask import Flask, send_from_directory, redirect, jsonify, g, request, render_template_string
 from routes import api
+from routes import encrypt, decrypt
 from auth.routes import auth_api
 from security import configure_security
 from routes_quantum import initialize_quantum_engine, process_quantum_circuit, quantum_benchmark
