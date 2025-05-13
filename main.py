@@ -140,7 +140,7 @@ def create_app():
     def quantum_circuit_route():
         return process_quantum_circuit()
         
-    @app.route('/api/quantum/benchmark', methods=['GET'])
+    @app.route('/api/quantum/benchmark', methods=['GET', 'POST'])
     def quantum_benchmark_route():
         return quantum_benchmark()
     
