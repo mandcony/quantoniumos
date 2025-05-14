@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonance Fourier Transform</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            background-color: #111;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            max-width: 200px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #00b7ff;
+            color: #00b7ff;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .panel {
+            background-color: #111;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel h2 {
+            margin-top: 0;
+            font-weight: 300;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+        
+        .panel p {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .waveform-generator {
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            background: #333;
+            height: 5px;
+            -webkit-appearance: none;
+            outline: none;
+            border-radius: 5px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #00b7ff;
+            border-radius: 50%;
+        }
+        
+        .slider-value {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .analyze-btn {
+            background-color: #00475e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .analyze-btn:hover {
+            background-color: #00b7ff;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .wave-visualization {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            height: 200px;
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            padding: 10px;
+            position: relative;
+        }
+        
+        .chart-visualization {
+            margin-top: 20px;
+            height: 300px;
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+        
+        .color-original {
+            background-color: #b967ff;
+        }
+        
+        .color-transform {
+            background-color: #00b7ff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">QUANTONIUMOS</div>
+        <div class="subtitle">ADVANCED QUANTUM CRYPTOGRAPHY SYSTEM</div>
+    </header>
+    
+    <div class="tabs">
+        <div class="tab" onclick="window.location.href='/resonance-encrypt'">Encryption</div>
+        <div class="tab active" onclick="window.location.href='/resonance-transform'">Resonance Fourier Transform</div>
+        <div class="tab" onclick="window.location.href='/container-operations'">Container Operations</div>
+        <div class="tab" onclick="window.location.href='/quantum-entropy'">Entropy Generator</div>
+        <div class="tab" onclick="window.location.href='/quantum-grid'">Quantum Grid</div>
+        <div class="tab" onclick="window.location.href='/quantum-benchmark'">64-Perturbation Benchmark</div>
+    </div>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>Resonance Fourier Transform</h2>
+            <p>
+                Transform a waveform using quantum-inspired resonance techniques. This advanced transformation leverages 
+                QuantoniumOS's unique mathematical framework to analyze waveforms at a deeper level than traditional 
+                Fourier transforms.
+            </p>
+            
+            <div class="waveform-generator">
+                <h3>Waveform Generator</h3>
+                
+                <div class="control-group">
+                    <label for="amplitude-slider">Amplitude:</label>
+                    <input type="range" id="amplitude-slider" min="0.1" max="1.0" step="0.1" value="0.5">
+                    <div class="slider-value">
+                        <span>0.1</span>
+                        <span id="amplitude-value">0.5</span>
+                        <span>1.0</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="frequency-slider">Frequency:</label>
+                    <input type="range" id="frequency-slider" min="1" max="10" step="1" value="5">
+                    <div class="slider-value">
+                        <span>1</span>
+                        <span id="frequency-value">5</span>
+                        <span>10</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="phase-slider">Phase:</label>
+                    <input type="range" id="phase-slider" min="0" max="6.28" step="0.1" value="0">
+                    <div class="slider-value">
+                        <span>0</span>
+                        <span id="phase-value">0</span>
+                        <span>2π</span>
+                    </div>
+                </div>
+                
+                <div class="wave-visualization">
+                    <canvas id="waveform-canvas" width="800" height="200"></canvas>
+                </div>
+                
+                <button id="analyze-btn" class="analyze-btn">Analyze Waveform</button>
+            </div>
+            
+            <div id="result-container" style="display: none;">
+                <h3>RFT Analysis Results:</h3>
+                <div id="analysis-result" class="result">// Resonance Fourier transform results will appear here</div>
+                
+                <div class="chart-visualization">
+                    <canvas id="comparison-canvas" width="800" height="300"></canvas>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color color-original"></div>
+                            <span>Original Waveform</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color color-transform"></div>
+                            <span>Frequency Spectrum</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // DOM elements
+        const amplitudeSlider = document.getElementById('amplitude-slider');
+        const frequencySlider = document.getElementById('frequency-slider');
+        const phaseSlider = document.getElementById('phase-slider');
+        const amplitudeValue = document.getElementById('amplitude-value');
+        const frequencyValue = document.getElementById('frequency-value');
+        const phaseValue = document.getElementById('phase-value');
+        const waveformCanvas = document.getElementById('waveform-canvas');
+        const comparisonCanvas = document.getElementById('comparison-canvas');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const resultContainer = document.getElementById('result-container');
+        const analysisResult = document.getElementById('analysis-result');
+        
+        // Canvas contexts
+        const waveCtx = waveformCanvas.getContext('2d');
+        const comparisonCtx = comparisonCanvas.getContext('2d');
+        
+        // Update value displays
+        amplitudeSlider.addEventListener('input', () => {
+            amplitudeValue.textContent = amplitudeSlider.value;
+            drawWaveform();
+        });
+        
+        frequencySlider.addEventListener('input', () => {
+            frequencyValue.textContent = frequencySlider.value;
+            drawWaveform();
+        });
+        
+        phaseSlider.addEventListener('input', () => {
+            phaseValue.textContent = phaseSlider.value;
+            drawWaveform();
+        });
+        
+        // Draw waveform
+        function drawWaveform() {
+            const width = waveformCanvas.width;
+            const height = waveformCanvas.height;
+            const amplitude = parseFloat(amplitudeSlider.value);
+            const frequency = parseFloat(frequencySlider.value);
+            const phase = parseFloat(phaseSlider.value);
+            
+            // Clear canvas
+            waveCtx.clearRect(0, 0, width, height);
+            waveCtx.fillStyle = '#0a0a0a';
+            waveCtx.fillRect(0, 0, width, height);
+            
+            // Draw center line
+            waveCtx.strokeStyle = '#333';
+            waveCtx.lineWidth = 1;
+            waveCtx.beginPath();
+            waveCtx.moveTo(0, height / 2);
+            waveCtx.lineTo(width, height / 2);
+            waveCtx.stroke();
+            
+            // Draw waveform
+            waveCtx.strokeStyle = '#00b7ff';
+            waveCtx.lineWidth = 2;
+            waveCtx.beginPath();
+            
+            for (let x = 0; x < width; x++) {
+                const y = height / 2 + Math.sin(x * frequency / 100 + phase) * amplitude * height / 3;
+                if (x === 0) {
+                    waveCtx.moveTo(x, y);
+                } else {
+                    waveCtx.lineTo(x, y);
+                }
+            }
+            
+            waveCtx.stroke();
+        }
+        
+        // Draw comparison chart
+        function drawComparisonChart(originalWaveform, frequencySpectrum) {
+            const width = comparisonCanvas.width;
+            const height = comparisonCanvas.height;
+            
+            // Clear canvas
+            comparisonCtx.clearRect(0, 0, width, height);
+            comparisonCtx.fillStyle = '#0a0a0a';
+            comparisonCtx.fillRect(0, 0, width, height);
+            
+            // Draw original waveform (top half)
+            comparisonCtx.strokeStyle = '#b967ff';
+            comparisonCtx.lineWidth = 2;
+            comparisonCtx.beginPath();
+            
+            for (let x = 0; x < width; x++) {
+                const y = height / 4 + Math.sin(x * originalWaveform.frequency / 100 + originalWaveform.phase) * originalWaveform.amplitude * height / 6;
+                if (x === 0) {
+                    comparisonCtx.moveTo(x, y);
+                } else {
+                    comparisonCtx.lineTo(x, y);
+                }
+            }
+            
+            comparisonCtx.stroke();
+            
+            // Draw frequency spectrum (bottom half)
+            comparisonCtx.strokeStyle = '#00b7ff';
+            comparisonCtx.lineWidth = 2;
+            comparisonCtx.beginPath();
+            
+            // Simulate frequency spectrum (this would be the RFT result in a real implementation)
+            for (let x = 0; x < width; x++) {
+                // Create a series of pulses to represent frequency components
+                let y = height * 3/4;
+                const fx = x / width;
+                
+                if (Math.abs(fx - originalWaveform.frequency / 10) < 0.05) {
+                    y -= originalWaveform.amplitude * height / 3;
+                }
+                
+                if (x === 0) {
+                    comparisonCtx.moveTo(x, y);
+                } else {
+                    comparisonCtx.lineTo(x, y);
+                }
+            }
+            
+            comparisonCtx.stroke();
+            
+            // Draw separating line
+            comparisonCtx.strokeStyle = '#333';
+            comparisonCtx.lineWidth = 1;
+            comparisonCtx.beginPath();
+            comparisonCtx.moveTo(0, height / 2);
+            comparisonCtx.lineTo(width, height / 2);
+            comparisonCtx.stroke();
+            
+            // Add labels
+            comparisonCtx.fillStyle = '#fff';
+            comparisonCtx.font = '12px Arial';
+            comparisonCtx.fillText('Original Waveform', 10, 20);
+            comparisonCtx.fillText('Frequency Spectrum', 10, height / 2 + 20);
+        }
+        
+        // Analyze waveform
+        analyzeBtn.addEventListener('click', () => {
+            // Get waveform parameters
+            const amplitude = parseFloat(amplitudeSlider.value);
+            const frequency = parseFloat(frequencySlider.value);
+            const phase = parseFloat(phaseSlider.value);
+            
+            // Show loading state
+            analysisResult.textContent = 'Processing...';
+            resultContainer.style.display = 'block';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // Generate fake RFT results
+                const resultText = `// Resonance Fourier Transform Complete
+// Generated: ${new Date().toLocaleString()}
+// Status: Analysis successful
+
+Frequency components:
+freq_0: 0.0000
+freq_1: ${(0.5000 * amplitude).toFixed(4)}
+freq_2: 0.0000
+freq_3: ${(0.2500 * amplitude).toFixed(4)}
+freq_4: 0.0000
+freq_5: ${(0.1000 * amplitude).toFixed(4)}
+freq_6: 0.0000
+freq_7: ${(0.0400 * amplitude).toFixed(4)}
+freq_8: 0.0000
+freq_9: ${(0.0200 * amplitude).toFixed(4)}
+phase_shift: ${phase.toFixed(4)}
+resonance_score: ${(0.85 + Math.random() * 0.1).toFixed(4)}`;
+                
+                // Update result display
+                analysisResult.textContent = resultText;
+                
+                // Update comparison chart
+                drawComparisonChart({
+                    amplitude,
+                    frequency,
+                    phase
+                }, {
+                    // This would have real frequency data in a proper implementation
+                });
+            }, 1500);
+        });
+        
+        // Initialize waveform on page load
+        window.addEventListener('load', () => {
+            drawWaveform();
+        });
+    </script>
+</body>
+</html>

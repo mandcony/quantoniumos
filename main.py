@@ -200,7 +200,7 @@ def create_app():
     # QuantoniumOS Desktop Launcher
     @app.route('/os')
     def os_launcher():
-        return send_from_directory('static', 'quantonium_os.html')
+        return send_from_directory('static', 'quantum-os.html')
         
     # Serve embed demo instructions
     @app.route('/embed-demo')
@@ -222,6 +222,21 @@ def create_app():
     @app.route('/quantum-grid')
     def quantum_grid():
         return send_from_directory('static', 'quantum-grid.html')
+        
+    # Resonance Fourier Transform
+    @app.route('/resonance-transform')
+    def resonance_transform():
+        return send_from_directory('static', 'resonance-transform.html')
+        
+    # Container Operations
+    @app.route('/container-operations')
+    def container_operations():
+        return send_from_directory('static', 'container-operations.html')
+        
+    # Quantum Entropy Generator
+    @app.route('/quantum-entropy')
+    def quantum_entropy_app():
+        return send_from_directory('static', 'quantum-entropy.html')
         
     # Comprehensive frontend for Squarespace embedding
     @app.route('/frontend')

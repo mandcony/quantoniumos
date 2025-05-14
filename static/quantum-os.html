@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .os-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header Section */
+        .os-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #111;
+            border-bottom: 1px solid #333;
+            height: 50px;
+        }
+        
+        .os-logo {
+            font-size: 20px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .os-subtitle {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+        }
+        
+        /* Main Content Section */
+        .os-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* Sidebar with App Icons */
+        .os-sidebar {
+            width: 70px;
+            background-color: #111;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+        
+        .app-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #222;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .app-icon:hover {
+            background-color: #333;
+        }
+        
+        .app-icon.active {
+            background-color: #444;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Window Management */
+        .os-workspace {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: #000;
+        }
+        
+        .os-desktop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+        
+        .desktop-logo {
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        
+        .desktop-subtitle {
+            font-size: 18px;
+            color: #aaa;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .app-window {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #111;
+            display: none;
+            flex-direction: column;
+            z-index: 10;
+        }
+        
+        .app-window.active {
+            display: flex;
+        }
+        
+        .window-titlebar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            background-color: #222;
+            border-bottom: 1px solid #333;
+        }
+        
+        .window-title {
+            font-size: 14px;
+            font-weight: 300;
+        }
+        
+        .window-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .window-control {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .window-close {
+            background-color: #ff5f56;
+        }
+        
+        .window-minimize {
+            background-color: #ffbd2e;
+        }
+        
+        .window-maximize {
+            background-color: #27c93f;
+        }
+        
+        .window-content {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .window-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Tab Bar */
+        .os-tabbar {
+            height: 40px;
+            background-color: #111;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .os-tab {
+            padding: 0 15px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            background-color: #222;
+            border-radius: 5px;
+            margin-right: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+        
+        .os-tab:hover {
+            opacity: 0.9;
+        }
+        
+        .os-tab.active {
+            background-color: #333;
+            opacity: 1;
+        }
+        
+        .tab-icon {
+            margin-right: 6px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="os-container">
+        <!-- Header with logo and subtitle -->
+        <div class="os-header">
+            <div class="os-logo">QUANTONIUMOS</div>
+            <div class="os-subtitle">ADVANCED QUANTUM CRYPTOGRAPHY SYSTEM</div>
+        </div>
+        
+        <!-- Main content area with sidebar and workspace -->
+        <div class="os-main">
+            <!-- Sidebar with app icons -->
+            <div class="os-sidebar">
+                <div class="app-icon" data-app="home" title="Home">🏠</div>
+                <div class="app-icon" data-app="encryption" title="Quantum Encryption">🔒</div>
+                <div class="app-icon" data-app="resonance" title="Resonance Transform">🌊</div>
+                <div class="app-icon" data-app="container" title="Container Operations">📦</div>
+                <div class="app-icon" data-app="entropy" title="Entropy Generator">🎲</div>
+                <div class="app-icon" data-app="quantum-grid" title="Quantum Grid">⚛️</div>
+                <div class="app-icon" data-app="benchmark" title="64-Perturbation Benchmark">📊</div>
+            </div>
+            
+            <!-- Tab bar for open applications -->
+            <div class="os-tabbar" id="os-tabbar">
+                <!-- Tabs will be dynamically added here -->
+            </div>
+            
+            <!-- Main workspace with windows -->
+            <div class="os-workspace">
+                <!-- Desktop/Home screen -->
+                <div class="os-desktop">
+                    <div class="desktop-logo">QUANTONIUMOS</div>
+                    <div class="desktop-subtitle">
+                        Welcome to QuantoniumOS, a cutting-edge quantum computational platform that provides advanced quantum interaction modeling with a streamlined, focused user interface.
+                    </div>
+                </div>
+                
+                <!-- App windows (will be created dynamically) -->
+                <div id="app-windows">
+                    <!-- Windows will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // App configuration
+        const apps = {
+            'home': {
+                title: 'Home',
+                icon: '🏠',
+                url: null
+            },
+            'encryption': {
+                title: 'Quantum Encryption',
+                icon: '🔒',
+                url: '/resonance-encrypt'
+            },
+            'resonance': {
+                title: 'Resonance Transform',
+                icon: '🌊',
+                url: '/resonance-transform'
+            },
+            'container': {
+                title: 'Container Operations',
+                icon: '📦',
+                url: '/container-operations'
+            },
+            'entropy': {
+                title: 'Entropy Generator',
+                icon: '🎲',
+                url: '/quantum-entropy'
+            },
+            'quantum-grid': {
+                title: 'Quantum Grid',
+                icon: '⚛️',
+                url: '/quantum-grid'
+            },
+            'benchmark': {
+                title: 'Benchmark',
+                icon: '📊',
+                url: '/quantum-benchmark'
+            }
+        };
+        
+        // Keep track of open apps and active app
+        const openApps = new Set();
+        let activeApp = null;
+        
+        // Initialize all app icons
+        document.querySelectorAll('.app-icon').forEach(icon => {
+            icon.addEventListener('click', () => {
+                const appId = icon.getAttribute('data-app');
+                openApp(appId);
+            });
+        });
+        
+        // Open an app
+        function openApp(appId) {
+            const app = apps[appId];
+            
+            // Handle home app differently
+            if (appId === 'home') {
+                closeAllApps();
+                return;
+            }
+            
+            // If app is already open, just activate it
+            if (openApps.has(appId)) {
+                activateApp(appId);
+                return;
+            }
+            
+            // Add to open apps
+            openApps.add(appId);
+            
+            // Create app window if it doesn't exist
+            if (!document.querySelector(`#window-${appId}`)) {
+                createAppWindow(appId);
+            }
+            
+            // Create tab if it doesn't exist
+            if (!document.querySelector(`#tab-${appId}`)) {
+                createAppTab(appId);
+            }
+            
+            // Activate the app
+            activateApp(appId);
+        }
+        
+        // Create an app window
+        function createAppWindow(appId) {
+            const app = apps[appId];
+            const appWindows = document.getElementById('app-windows');
+            
+            const windowHtml = `
+                <div id="window-${appId}" class="app-window">
+                    <div class="window-titlebar">
+                        <div class="window-title">${app.icon} ${app.title}</div>
+                        <div class="window-controls">
+                            <div class="window-control window-minimize" onclick="minimizeApp('${appId}')"></div>
+                            <div class="window-control window-maximize" onclick="maximizeApp('${appId}')"></div>
+                            <div class="window-control window-close" onclick="closeApp('${appId}')"></div>
+                        </div>
+                    </div>
+                    <div class="window-content">
+                        <iframe src="${app.url}" class="window-iframe" id="iframe-${appId}"></iframe>
+                    </div>
+                </div>
+            `;
+            
+            appWindows.insertAdjacentHTML('beforeend', windowHtml);
+        }
+        
+        // Create an app tab
+        function createAppTab(appId) {
+            const app = apps[appId];
+            const tabBar = document.getElementById('os-tabbar');
+            
+            const tabHtml = `
+                <div id="tab-${appId}" class="os-tab" onclick="activateApp('${appId}')">
+                    <span class="tab-icon">${app.icon}</span>
+                    <span class="tab-title">${app.title}</span>
+                </div>
+            `;
+            
+            tabBar.insertAdjacentHTML('beforeend', tabHtml);
+        }
+        
+        // Activate an app
+        function activateApp(appId) {
+            // Deactivate current active app
+            if (activeApp) {
+                document.querySelector(`#window-${activeApp}`).classList.remove('active');
+                document.querySelector(`#tab-${activeApp}`).classList.remove('active');
+                document.querySelector(`[data-app="${activeApp}"]`).classList.remove('active');
+            }
+            
+            // Activate new app
+            document.querySelector(`#window-${appId}`).classList.add('active');
+            document.querySelector(`#tab-${appId}`).classList.add('active');
+            document.querySelector(`[data-app="${appId}"]`).classList.add('active');
+            
+            // Update active app
+            activeApp = appId;
+            
+            // Hide desktop if any app is open
+            document.querySelector('.os-desktop').style.display = openApps.size > 0 ? 'none' : 'flex';
+        }
+        
+        // Close an app
+        function closeApp(appId) {
+            // Remove from open apps
+            openApps.delete(appId);
+            
+            // Remove window and tab
+            const appWindow = document.querySelector(`#window-${appId}`);
+            const appTab = document.querySelector(`#tab-${appId}`);
+            
+            if (appWindow) appWindow.remove();
+            if (appTab) appTab.remove();
+            
+            // If this was the active app, activate another one or show desktop
+            if (activeApp === appId) {
+                if (openApps.size > 0) {
+                    activateApp(Array.from(openApps)[0]);
+                } else {
+                    activeApp = null;
+                    document.querySelector('.os-desktop').style.display = 'flex';
+                }
+            }
+            
+            // Remove active class from icon
+            document.querySelector(`[data-app="${appId}"]`).classList.remove('active');
+        }
+        
+        // Close all apps
+        function closeAllApps() {
+            const appsToClose = Array.from(openApps);
+            appsToClose.forEach(appId => {
+                closeApp(appId);
+            });
+            
+            // Show desktop
+            document.querySelector('.os-desktop').style.display = 'flex';
+        }
+        
+        // Minimize app (just activate home)
+        function minimizeApp(appId) {
+            document.querySelector(`#window-${appId}`).classList.remove('active');
+            document.querySelector(`#tab-${appId}`).classList.remove('active');
+            document.querySelector('.os-desktop').style.display = 'flex';
+            activeApp = null;
+        }
+        
+        // Maximize app (no-op for now, could implement fullscreen)
+        function maximizeApp(appId) {
+            // This could toggle fullscreen mode
+            const iframe = document.querySelector(`#iframe-${appId}`);
+            if (iframe) {
+                try {
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    } else {
+                        iframe.requestFullscreen();
+                    }
+                } catch (e) {
+                    console.error("Fullscreen error: ", e);
+                }
+            }
+        }
+        
+        // Initialize - open home by default
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add default home app icon active class
+            document.querySelector('[data-app="home"]').classList.add('active');
+        });
+    </script>
+</body>
+</html>

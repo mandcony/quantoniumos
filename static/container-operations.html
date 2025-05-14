@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container Operations</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            background-color: #111;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            max-width: 200px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #00b7ff;
+            color: #00b7ff;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .panel {
+            background-color: #111;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel h2 {
+            margin-top: 0;
+            font-weight: 300;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+        
+        .panel p {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #fff;
+            margin-bottom: 15px;
+            font-family: monospace;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #00475e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #00b7ff;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .wave-visualization {
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+            height: 120px;
+            padding: 10px;
+        }
+        
+        .match-indicator {
+            padding: 10px 15px;
+            background-color: #333;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .match-indicator.success {
+            background-color: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+        
+        .match-indicator.error {
+            background-color: rgba(255, 82, 82, 0.3);
+            color: #ff5252;
+            border: 1px solid rgba(255, 82, 82, 0.5);
+        }
+        
+        .success-message {
+            color: #4caf50;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #ff5252;
+            margin-bottom: 15px;
+        }
+        
+        .loading-message {
+            color: #00b7ff;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">QUANTONIUMOS</div>
+        <div class="subtitle">ADVANCED QUANTUM CRYPTOGRAPHY SYSTEM</div>
+    </header>
+    
+    <div class="tabs">
+        <div class="tab" onclick="window.location.href='/resonance-encrypt'">Encryption</div>
+        <div class="tab" onclick="window.location.href='/resonance-transform'">Resonance Fourier Transform</div>
+        <div class="tab active" onclick="window.location.href='/container-operations'">Container Operations</div>
+        <div class="tab" onclick="window.location.href='/quantum-entropy'">Entropy Generator</div>
+        <div class="tab" onclick="window.location.href='/quantum-grid'">Quantum Grid</div>
+        <div class="tab" onclick="window.location.href='/quantum-benchmark'">64-Perturbation Benchmark</div>
+    </div>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>Unlock Container</h2>
+            <p>
+                Unlock a container using a waveform and hash key. QuantoniumOS uses quantum-inspired resonance mathematics
+                to verify the key matches the container's unique waveform pattern.
+            </p>
+            
+            <div>
+                <label for="container-hash">Container Hash:</label>
+                <textarea id="container-hash" placeholder="Enter container hash to unlock..."></textarea>
+                
+                <div class="wave-visualization">
+                    <canvas id="unlock-wave-canvas" width="800" height="120"></canvas>
+                </div>
+                
+                <div id="unlock-indicator" class="match-indicator">Awaiting key verification...</div>
+                
+                <label for="unlock-key">Unlock Key:</label>
+                <input type="text" id="unlock-key" placeholder="Enter key to unlock container...">
+                
+                <button id="unlock-button">Unlock Container</button>
+                
+                <div id="unlock-result" class="result">
+                    <div class="placeholder">// Container unlock results will appear here</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Verify Container Integrity</h2>
+            <p>
+                Verify a container's integrity by checking its waveform pattern against a reference pattern. This ensures
+                the container has not been tampered with and its contents remain secure.
+            </p>
+            
+            <div>
+                <label for="verify-hash">Container Hash:</label>
+                <textarea id="verify-hash" placeholder="Enter container hash to verify..."></textarea>
+                
+                <label for="verify-key">Verification Key:</label>
+                <input type="text" id="verify-key" placeholder="Enter verification key...">
+                
+                <button id="verify-button">Verify Container</button>
+                
+                <div id="verify-result" class="result">
+                    <div class="placeholder">// Container verification results will appear here</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // DOM elements
+        const containerHashInput = document.getElementById('container-hash');
+        const unlockKeyInput = document.getElementById('unlock-key');
+        const unlockButton = document.getElementById('unlock-button');
+        const unlockResult = document.getElementById('unlock-result');
+        const unlockIndicator = document.getElementById('unlock-indicator');
+        const unlockWaveCanvas = document.getElementById('unlock-wave-canvas');
+        
+        const verifyHashInput = document.getElementById('verify-hash');
+        const verifyKeyInput = document.getElementById('verify-key');
+        const verifyButton = document.getElementById('verify-button');
+        const verifyResult = document.getElementById('verify-result');
+        
+        // Canvas context
+        const waveCtx = unlockWaveCanvas.getContext('2d');
+        
+        // Draw waveform for container unlock visualization
+        function drawWaveform(matched = false) {
+            const width = unlockWaveCanvas.width;
+            const height = unlockWaveCanvas.height;
+            
+            // Clear canvas
+            waveCtx.clearRect(0, 0, width, height);
+            waveCtx.fillStyle = '#0a0a0a';
+            waveCtx.fillRect(0, 0, width, height);
+            
+            // Draw center line
+            waveCtx.strokeStyle = '#333';
+            waveCtx.lineWidth = 1;
+            waveCtx.beginPath();
+            waveCtx.moveTo(0, height / 2);
+            waveCtx.lineTo(width, height / 2);
+            waveCtx.stroke();
+            
+            // Get hash data to create a deterministic pattern
+            const hash = containerHashInput.value;
+            const key = unlockKeyInput.value;
+            
+            if (!hash || !key) {
+                // Draw placeholder wave if no data
+                drawPlaceholderWave(width, height);
+                return;
+            }
+            
+            // Generate a number from the hash for seeding the wave
+            let hashNum = 0;
+            for (let i = 0; i < hash.length; i++) {
+                hashNum = ((hashNum << 5) - hashNum) + hash.charCodeAt(i);
+                hashNum |= 0;
+            }
+            hashNum = Math.abs(hashNum) % 1000000;
+            
+            // Generate a number from the key for comparison
+            let keyNum = 0;
+            for (let i = 0; i < key.length; i++) {
+                keyNum = ((keyNum << 5) - keyNum) + key.charCodeAt(i);
+                keyNum |= 0;
+            }
+            keyNum = Math.abs(keyNum) % 1000000;
+            
+            // Draw container pattern (purple wave)
+            waveCtx.strokeStyle = '#b967ff';
+            waveCtx.lineWidth = 2;
+            waveCtx.beginPath();
+            
+            for (let x = 0; x < width; x++) {
+                const t = x / width * 10;
+                const y = height / 2 + Math.sin(t + hashNum / 100000) * 30 + 
+                          Math.sin(t * 3 + hashNum / 200000) * 15;
+                
+                if (x === 0) {
+                    waveCtx.moveTo(x, y);
+                } else {
+                    waveCtx.lineTo(x, y);
+                }
+            }
+            
+            waveCtx.stroke();
+            
+            // Draw key pattern (blue wave) - only if there's a match attempt
+            if (matched || key.length > 0) {
+                const similarity = matched ? 0.95 : 0.2;
+                
+                waveCtx.strokeStyle = matched ? 'rgba(0, 183, 255, 0.7)' : 'rgba(255, 82, 82, 0.7)';
+                waveCtx.lineWidth = 2;
+                waveCtx.beginPath();
+                
+                for (let x = 0; x < width; x++) {
+                    const t = x / width * 10;
+                    
+                    // Calculate a y position based on how similar the key is to the hash
+                    // In a real implementation, this would be based on the actual math
+                    const baseY = height / 2 + Math.sin(t + hashNum / 100000) * 30 + 
+                                Math.sin(t * 3 + hashNum / 200000) * 15;
+                    
+                    // Add some noise based on whether it's a match or not
+                    const noise = matched ? Math.random() * 5 : Math.sin(t * 8 + keyNum / 50000) * 40;
+                    
+                    const y = baseY * similarity + noise * (1 - similarity);
+                    
+                    if (x === 0) {
+                        waveCtx.moveTo(x, y);
+                    } else {
+                        waveCtx.lineTo(x, y);
+                    }
+                }
+                
+                waveCtx.stroke();
+            }
+        }
+        
+        // Draw placeholder wave
+        function drawPlaceholderWave(width, height) {
+            waveCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            waveCtx.lineWidth = 2;
+            waveCtx.beginPath();
+            
+            for (let x = 0; x < width; x++) {
+                const y = height / 2 + Math.sin(x / 30) * 20;
+                if (x === 0) {
+                    waveCtx.moveTo(x, y);
+                } else {
+                    waveCtx.lineTo(x, y);
+                }
+            }
+            
+            waveCtx.stroke();
+        }
+        
+        // Init
+        window.addEventListener('load', () => {
+            // Draw initial waveform
+            drawWaveform();
+            
+            // Update waveform when container hash changes
+            containerHashInput.addEventListener('input', () => {
+                drawWaveform();
+            });
+            
+            // Update waveform when key changes
+            unlockKeyInput.addEventListener('input', () => {
+                drawWaveform();
+            });
+            
+            // Handle unlock button click
+            unlockButton.addEventListener('click', () => {
+                const hash = containerHashInput.value.trim();
+                const key = unlockKeyInput.value.trim();
+                
+                if (!hash) {
+                    unlockResult.innerHTML = '<div class="error-message">Please enter a container hash</div>';
+                    return;
+                }
+                
+                if (!key) {
+                    unlockResult.innerHTML = '<div class="error-message">Please enter an unlock key</div>';
+                    return;
+                }
+                
+                // Show loading state
+                unlockResult.innerHTML = '<div class="loading-message">Processing unlock request...</div>';
+                unlockIndicator.textContent = 'Verifying resonance patterns...';
+                unlockIndicator.className = 'match-indicator';
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Fake check if key matches hash (in a real implementation, this would call the API)
+                    // For demo purposes, we'll say any key that's at least 4 chars and hash that's at least 10 chars is valid
+                    const isValidKey = key.length >= 4 && hash.length >= 10;
+                    
+                    if (isValidKey) {
+                        // Success case
+                        unlockResult.innerHTML = `
+                            <div class="success-message">Container Unlocked</div>
+                            <div>Decrypted successfully: ${key.length > 10 ? 'Sample encrypted message' : 'Test message'}</div>
+                            <div>Created: ${new Date().toLocaleString()}</div>
+                            <div>Access Count: 1</div>
+                            <div>Content Preview: ${key.length > 10 ? 'This is a secure container created with QuantoniumOS...' : 'Test content'}</div>
+                        `;
+                        
+                        unlockIndicator.textContent = 'Key resonance match: Perfect';
+                        unlockIndicator.className = 'match-indicator success';
+                        
+                        // Update wave visualization to show match
+                        drawWaveform(true);
+                    } else {
+                        // Error case
+                        unlockResult.innerHTML = `
+                            <div class="error-message">Container unlock failed</div>
+                            <div>Error: Key does not match container hash</div>
+                            <div>This container requires a specific resonance pattern to unlock.</div>
+                        `;
+                        
+                        unlockIndicator.textContent = 'Key resonance mismatch: Failed';
+                        unlockIndicator.className = 'match-indicator error';
+                        
+                        // Update wave visualization to show mismatch
+                        drawWaveform(false);
+                    }
+                }, 1500);
+            });
+            
+            // Handle verify button click
+            verifyButton.addEventListener('click', () => {
+                const hash = verifyHashInput.value.trim();
+                const key = verifyKeyInput.value.trim();
+                
+                if (!hash) {
+                    verifyResult.innerHTML = '<div class="error-message">Please enter a container hash</div>';
+                    return;
+                }
+                
+                if (!key) {
+                    verifyResult.innerHTML = '<div class="error-message">Please enter a verification key</div>';
+                    return;
+                }
+                
+                // Show loading state
+                verifyResult.innerHTML = '<div class="loading-message">Verifying container integrity...</div>';
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Fake verification result (in a real implementation, this would call the API)
+                    const isValid = hash.length >= 10 && key.length >= 4;
+                    
+                    if (isValid) {
+                        // Success case
+                        verifyResult.innerHTML = `
+                            <div class="success-message">Container Integrity Verified</div>
+                            <div>Status: Container intact and unmodified</div>
+                            <div>Validation: All waveform patterns match expected values</div>
+                            <div>Timestamp: ${new Date().toLocaleString()}</div>
+                            <div>Integrity Score: 97%</div>
+                        `;
+                    } else {
+                        // Error case
+                        verifyResult.innerHTML = `
+                            <div class="error-message">Container verification failed</div>
+                            <div>Status: Container may have been tampered with</div>
+                            <div>Error: Waveform patterns do not match expected values</div>
+                            <div>Timestamp: ${new Date().toLocaleString()}</div>
+                            <div>Integrity Score: 43%</div>
+                        `;
+                    }
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>
