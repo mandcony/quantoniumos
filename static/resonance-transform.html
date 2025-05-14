@@ -13,11 +13,17 @@
             color: #fff;
         }
         
-        header {
         /* Hide header when embedded in the OS interface */
         body.embedded header {
             display: none;
         }
+        
+        /* Also hide the main title when embedded */
+        body.embedded .embedded-title-hidden {
+            display: none;
+        }
+        
+        header {
             background-color: rgba(0, 0, 0, 0.8);
             padding: 15px 20px;
             display: flex;
@@ -192,7 +198,9 @@
     
     <div class="container">
         <div class="panel">
-            <h2>Resonance Fourier Transform</h2>
+            <div class="embedded-title-hidden">
+                <h2>Resonance Fourier Transform</h2>
+            </div>
             <p>
                 Transform a waveform using quantum-inspired resonance techniques. This advanced transformation leverages 
                 QuantoniumOS's unique mathematical framework to analyze waveforms at a deeper level than traditional 
