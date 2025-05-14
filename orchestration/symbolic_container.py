@@ -68,6 +68,83 @@ def hash_file(file_path: str) -> Tuple[str, float, float]:
     return file_hash[:16], amplitude, phase
 
 
+def validate_container(container_hash: str, key: str) -> Dict[str, Any]:
+    """
+    Validate a container with the given hash and key
+    
+    Args:
+        container_hash: Hash of the container to validate
+        key: Key to validate against
+        
+    Returns:
+        Dictionary with validation status
+    """
+    # Generate key parameters from the key
+    key_bytes = key.encode('utf-8')
+    key_hash = hashlib.sha256(key_bytes).hexdigest()
+    
+    # Extract parameters 
+    key_id = key_hash[:16]
+    h = int(key_hash[16:24], 16) / 0xffffffff  # Normalize to [0,1]
+    amplitude = 0.3 + (h * 0.7)  # Range 0.3-1.0
+    phase = int(key_hash[24:32], 16) / 0xffffffff  # Normalize to [0,1]
+    
+    # Create container from hash
+    container = SymbolicContainer.from_hash(container_hash, (key_id, amplitude, phase))
+    
+    # Attempt to unlock
+    result = container.unlock(amplitude, phase)
+    
+    if result is not None:
+        return {
+            "success": True,
+            "matched": True,
+            "container_hash": container_hash,
+            "metadata": container.get_metadata()
+        }
+    else:
+        return {
+            "success": True,
+            "matched": False,
+            "container_hash": container_hash
+        }
+
+def create_container(payload: Any, key: str, author_id: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Create a new sealed symbolic container
+    
+    Args:
+        payload: Data to store in the container  
+        key: Key to use for container sealing
+        author_id: Optional author identifier
+    
+    Returns:
+        Dictionary with container hash and metadata
+    """
+    # Generate key parameters from the key
+    key_bytes = key.encode('utf-8')
+    key_hash = hashlib.sha256(key_bytes).hexdigest()
+    
+    # Extract parameters 
+    key_id = key_hash[:16]
+    h = int(key_hash[16:24], 16) / 0xffffffff  # Normalize to [0,1]
+    amplitude = 0.3 + (h * 0.7)  # Range 0.3-1.0
+    phase = int(key_hash[24:32], 16) / 0xffffffff  # Normalize to [0,1]
+    
+    # Create and seal container
+    container = SymbolicContainer(payload, (key_id, amplitude, phase), author_id=author_id)
+    if container.seal():
+        return {
+            "hash": container.get_hash(),
+            "metadata": container.get_metadata(),
+            "success": True
+        }
+    else:
+        return {
+            "success": False,
+            "error": "Failed to seal container"
+        }
+
 class SymbolicContainer:
     """Secure container class that uses waveform resonance for access control"""
     
