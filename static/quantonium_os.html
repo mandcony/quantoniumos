@@ -1272,22 +1272,8 @@
                 // Wave visualization function now loaded from external JS
                 // See /static/wave_ui/wave_visualization.js
                 
-                // Update match indicator
-                function updateMatchIndicator(elementId, status, message) {
-                    const indicator = document.getElementById(elementId);
-                    if (!indicator) return;
-                    
-                    // Remove all status classes
-                    indicator.classList.remove('checking', 'matched', 'mismatched', 'error');
-                    
-                    // Add appropriate class
-                    if (status) {
-                        indicator.classList.add(status);
-                    }
-                    
-                    // Update message
-                    indicator.textContent = message;
-                }
+                // Update match indicator function now loaded from external JS
+                // See /wave_ui/wave_visualization.js
                 
                 encryptBtn.addEventListener('click', function() {
                     const plaintext = document.getElementById(`plaintext-${windowId}`).value.trim();
