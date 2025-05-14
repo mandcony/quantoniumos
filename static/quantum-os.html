@@ -49,31 +49,32 @@
         
         .os-dock-container {
             position: fixed;
-            bottom: 0;
+            top: 0;
             left: 0;
-            width: 100%;
+            height: 100%;
             display: flex;
-            justify-content: center;
-            padding: 10px 0;
+            align-items: center;
+            padding: 0 5px;
             z-index: 100;
             background: rgba(0, 0, 0, 0.7);
-            border-top: 1px solid #222;
+            border-right: 1px solid #222;
             backdrop-filter: blur(10px);
         }
         
         .os-dock {
             display: flex;
+            flex-direction: column;
             background: rgba(10, 10, 10, 0.8);
             border-radius: 16px;
-            padding: 5px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            padding: 10px 5px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
         
         .os-app {
             position: relative;
             width: 60px;
             height: 60px;
-            margin: 0 8px;
+            margin: 8px 0;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
             border-radius: 12px;
@@ -99,9 +100,9 @@
         .os-app::after {
             content: '';
             position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
+            right: -2px;
+            top: 50%;
+            transform: translateY(-50%);
             width: 5px;
             height: 5px;
             border-radius: 50%;
@@ -112,8 +113,8 @@
         .os-app.active::after {
             background-color: #00b7ff;
             box-shadow: 0 0 5px #00b7ff;
-            width: 30%;
-            height: 3px;
+            height: 30%;
+            width: 3px;
             border-radius: 3px;
         }
         
@@ -133,9 +134,9 @@
         
         .os-app-label {
             position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
             background-color: rgba(0, 0, 0, 0.8);
             padding: 3px 8px;
             border-radius: 4px;
@@ -157,6 +158,7 @@
             background-color: #0a0a0a;
             overflow: hidden;
             position: relative;
+            margin-left: 80px; /* Make room for the dock */
         }
         
         .os-desktop {
@@ -220,8 +222,8 @@
         
         .os-status {
             position: absolute;
-            bottom: 85px;
-            left: 20px;
+            bottom: 20px;
+            left: 100px;
             display: flex;
             align-items: center;
             gap: 10px;
