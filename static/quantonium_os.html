@@ -251,12 +251,13 @@
             padding: 8px 12px;
             background: var(--os-window-header);
             cursor: move;
-            border-bottom: 1px solid rgba(31, 147, 255, 0.2);
+            border-bottom: 1px solid rgba(80, 80, 80, 0.4);
         }
         
         .window.active .window-header {
-            background: linear-gradient(90deg, var(--resonance-color), var(--quantum-color));
+            background: linear-gradient(90deg, rgba(50, 50, 50, 0.9), rgba(70, 70, 70, 0.9));
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(100, 100, 100, 0.5);
         }
         
         .window-icon {
@@ -330,7 +331,7 @@
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(31, 147, 255, 0.2);
+            background-color: rgba(30, 30, 30, 0.8);
             border-radius: 50px;
             padding: 5px 15px;
             display: flex;
@@ -344,18 +345,20 @@
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background-color: rgba(31, 147, 255, 0.3);
+            background-color: rgba(60, 60, 60, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s;
             font-size: 16px;
+            border: 1px solid rgba(90, 90, 90, 0.5);
         }
         
         .taskbar-item:hover {
             transform: scale(1.1);
-            background-color: rgba(31, 147, 255, 0.5);
+            background-color: rgba(80, 80, 80, 0.8);
+            border-color: rgba(150, 150, 150, 0.7);
         }
         
         /* Quantum Encryption App Styles */
