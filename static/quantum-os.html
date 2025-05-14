@@ -46,40 +46,6 @@
             letter-spacing: 2px;
         }
         
-        /* Top navigation styling */
-        .top-navigation {
-            display: flex;
-            background-color: #111;
-            margin-left: 80px; /* Make room for the dock */
-            border-bottom: 1px solid #222;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-        
-        .nav-item {
-            padding: 15px 20px;
-            font-size: 11px;
-            cursor: pointer;
-            text-align: center;
-            border-bottom: 4px solid transparent;
-            transition: all 0.3s;
-            min-width: 80px;
-            flex: 1;
-            color: #aaa;
-            line-height: 1.3;
-            letter-spacing: 1px;
-        }
-        
-        .nav-item.active {
-            border-bottom: 4px solid #00b7ff;
-            color: #00b7ff;
-        }
-        
-        .nav-item:hover:not(.active) {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: #eee;
-        }
-        
         .os-dock-container {
             position: fixed;
             top: 0;
@@ -385,16 +351,6 @@
             <div class="os-subtitle">ADVANCED QUANTUM CRYPTOGRAPHY SYSTEM</div>
         </div>
         
-        <!-- Top tab navigation -->
-        <div class="top-navigation">
-            <div class="nav-item active" data-app="resonance-encrypt">ENCRYPTION</div>
-            <div class="nav-item" data-app="resonance-transform">RESONANCE FOURIER<br>TRANSFORM</div>
-            <div class="nav-item" data-app="container-operations">CONTAINER OPERATIONS</div>
-            <div class="nav-item" data-app="quantum-entropy">ENTROPY GENERATOR</div>
-            <div class="nav-item" data-app="quantum-grid">QUANTUM GRID</div>
-            <div class="nav-item" data-app="quantum-benchmark">64-PERTURBATION<br>BENCHMARK</div>
-        </div>
-        
         <div class="os-content">
             <div class="os-desktop">
                 <!-- Home Screen (hidden by default) -->
@@ -536,7 +492,6 @@
     <script>
         // DOM elements
         const appButtons = document.querySelectorAll('.os-app');
-        const navItems = document.querySelectorAll('.nav-item');
         const appWindows = document.querySelectorAll('.os-app-window');
         const osClockElement = document.getElementById('os-clock');
         
@@ -548,15 +503,6 @@
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
-                }
-            });
-            
-            // Update active nav item in top navigation
-            navItems.forEach(item => {
-                if (item.getAttribute('data-app') === appName) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
                 }
             });
             
@@ -574,14 +520,6 @@
         appButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const appName = button.getAttribute('data-app');
-                switchApp(appName);
-            });
-        });
-        
-        // Top navigation switching
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const appName = item.getAttribute('data-app');
                 switchApp(appName);
             });
         });
