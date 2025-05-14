@@ -3,138 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuantoniumOS Wave Visualization</title>
-    <link rel="stylesheet" href="/wave_ui/wave.css">
+    <title>QuantoniumOS Wave Visualization Embed</title>
+    <link rel="stylesheet" href="wave.css">
     <style>
         body {
-            font-family: "Courier New", monospace;
-            background-color: #111;
-            color: #eee;
+            font-family: 'Arial', sans-serif;
+            background-color: transparent;
+            color: #ffffff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            overflow: hidden;
         }
         
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #1a1a1a;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #bbb;
-        }
-        
-        input[type="text"] {
+        .embed-container {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #333;
-            background-color: #222;
-            color: #fff;
-            border-radius: 4px;
+            height: 100%;
+            max-height: 250px;
+            position: relative;
         }
         
-        button {
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
+        .attribution {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 10px;
+            opacity: 0.7;
+            z-index: 100;
         }
         
-        button:hover {
-            background-color: #0b7dda;
+        .attribution a {
+            color: #1f93ff;
+            text-decoration: none;
+        }
+        
+        .attribution a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>QuantoniumOS Wave Visualization</h1>
-        
-        <div class="form-group">
-            <label for="hash-input">Container Hash:</label>
-            <input type="text" id="hash-input" placeholder="Enter container hash...">
-        </div>
-        
-        <div class="form-group">
-            <label for="key-input">Encryption Key:</label>
-            <input type="text" id="key-input" placeholder="Enter encryption key...">
-        </div>
-        
-        <button id="check-resonance">Check Resonance Match</button>
-        
+    <div class="embed-container">
         <div class="waveform-match-visualization">
-            <div class="visualization-header">
-                <div id="waveform-match-indicator" class="match-indicator">
-                    Enter hash and key to check resonance
-                </div>
-            </div>
-            
-            <div id="wave-animation-container" class="wave-animation">
-                <!-- Wave visualization will be generated here -->
-            </div>
+            <div class="match-indicator" id="match-indicator">Quantum Resonance Analysis</div>
+            <div id="wave-animation-container"></div>
+        </div>
+        <div class="attribution">
+            <a href="/os" target="_blank">QuantoniumOS</a>
         </div>
     </div>
     
-    <script src="/wave_ui/wave_visualization.js"></script>
+    <script src="wave_visualization.js"></script>
     <script>
-        // Main elements
-        const hashInput = document.getElementById('hash-input');
-        const keyInput = document.getElementById('key-input');
-        const checkButton = document.getElementById('check-resonance');
-        const matchIndicator = document.getElementById('waveform-match-indicator');
-        const waveContainer = document.getElementById('wave-animation-container');
-        
-        // Initialize
-        checkButton.addEventListener('click', updateWaveformVisualization);
-        
-        // Function to update the waveform visualization
-        function updateWaveformVisualization() {
-            const hash = hashInput.value.trim();
-            const key = keyInput.value.trim();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get URL parameters
+            const params = new URLSearchParams(window.location.search);
+            const seed = params.get('seed') || 'QuantoniumOS';
+            const matchState = params.get('match') !== 'false'; // Default to matched
+            const status = matchState ? 'matched' : 'mismatched';
+            const message = matchState ? 'Resonance Match: Verified' : 'Resonance Mismatch: Invalid Key';
             
-            // Validation
-            if (!hash || !key) {
-                matchIndicator.textContent = 'Please enter both hash and key';
-                matchIndicator.className = 'match-indicator mismatched';
-                return;
+            // Update match indicator
+            updateMatchIndicator('match-indicator', status, message);
+            
+            // Create visualization
+            createWaveVisualization('wave-animation-container', seed, matchState);
+            
+            // Auto refresh every 30 seconds with new seed if enabled
+            if (params.get('auto') === 'true') {
+                setInterval(() => {
+                    const randomSeed = Math.random().toString(36).substring(2, 15);
+                    createWaveVisualization('wave-animation-container', randomSeed, matchState);
+                }, 30000);
             }
-            
-            // Update the match indicator status
-            matchIndicator.textContent = 'Checking resonance match...';
-            matchIndicator.className = 'match-indicator checking';
-            
-            // Clear any previous visualization
-            waveContainer.innerHTML = '';
-            
-            // Create the visualization
-            const match = window.updateWaveformVisualization('wave-animation-container', hash, key);
-            
-            // Update the match indicator based on result
-            if (match) {
-                matchIndicator.textContent = 'Resonance Match: Container Unlocked';
-                matchIndicator.className = 'match-indicator matched';
-            } else {
-                matchIndicator.textContent = 'Resonance Mismatch: Access Denied';
-                matchIndicator.className = 'match-indicator mismatched';
-            }
-        }
+        });
     </script>
 </body>
 </html>
