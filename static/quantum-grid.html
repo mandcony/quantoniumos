@@ -845,6 +845,9 @@
                     stateText += '0';
                 }
                 stateText += '⟩';
+                
+                // Add formula notation for initial state
+                stateText += '\n\nQuantum Formula: |0⟩^{⊗' + qubitCount + '}';
             } else {
                 stateText += '\nCircuit:';
                 
@@ -865,6 +868,41 @@
                 // This is a visual approximation for the UI only
                 const basisStates = Math.min(Math.pow(2, Math.min(gateHistory.length + 1, 10)), Math.pow(2, qubitCount));
                 stateText += `${basisStates} basis states`;
+                
+                // Add simplified quantum formula notation
+                stateText += '\n\nQuantum Formula: ';
+                
+                // Create a simple gate sequence notation
+                const hadamardGates = gateHistory.filter(gate => gate.type === 'h');
+                const cnotGates = gateHistory.filter(gate => gate.type === 'cx');
+                
+                if (hadamardGates.length === 0 && cnotGates.length === 0) {
+                    // Just basic gates without superposition or entanglement
+                    stateText += `U|0⟩^{⊗${qubitCount}}`;
+                } else if (hadamardGates.length > 0 && cnotGates.length === 0) {
+                    // Superposition but no entanglement
+                    const hTargets = [...new Set(hadamardGates.map(g => g.target))].sort((a, b) => a - b);
+                    
+                    if (hTargets.length === qubitCount) {
+                        // All qubits in superposition
+                        stateText += `H^{⊗${qubitCount}}|0⟩^{⊗${qubitCount}} = \\frac{1}{\\sqrt{2^${qubitCount}}}\\sum_{i=0}^{2^${qubitCount}-1}|i⟩`;
+                    } else {
+                        // Some qubits in superposition
+                        stateText += `H_{${hTargets.join(',')}}|0⟩^{⊗${qubitCount}}`;
+                    }
+                } else if (cnotGates.length > 0) {
+                    // Entanglement present
+                    if (hadamardGates.length === 1 && cnotGates.length === 1 && 
+                        hadamardGates[0].target === cnotGates[0].control) {
+                        // Typical Bell state preparation
+                        const control = cnotGates[0].control;
+                        const target = cnotGates[0].target;
+                        stateText += `CNOT_{${control},${target}}H_{${control}}|0⟩^{⊗${qubitCount}} = \\frac{1}{\\sqrt{2}}(|0_{${control}}0_{${target}}⟩ + |1_{${control}}1_{${target}}⟩) ⊗ |0⟩^{⊗${qubitCount-2}}`;
+                    } else {
+                        // General entangled state
+                        stateText += `U|0⟩^{⊗${qubitCount}} (see full formula after running circuit)`;
+                    }
+                }
             }
             
             stateDisplay.textContent = stateText;
@@ -881,6 +919,113 @@
             result += `Qubit count: ${qubitCount}\n`;
             result += `Hadamard gates: ${hadamardCount}\n`;
             result += `CNOT gates: ${cnotCount}\n\n`;
+            
+            // Generate the finalized quantum formula notation
+            result += 'Finalized Quantum Formula Notation:\n';
+            
+            // Generate a quantum state formula based on the applied gates
+            let stateFormula = '';
+            
+            if (gateHistory.length === 0) {
+                // Initial state |0⟩^⊗n
+                stateFormula = `|0⟩^{⊗${qubitCount}}`;
+            } else {
+                // Create a formula based on gate operations
+                const hGates = gateHistory.filter(gate => gate.type === 'h');
+                const xGates = gateHistory.filter(gate => gate.type === 'x');
+                const yGates = gateHistory.filter(gate => gate.type === 'y');
+                const zGates = gateHistory.filter(gate => gate.type === 'z');
+                const cxGates = gateHistory.filter(gate => gate.type === 'cx');
+                const czGates = gateHistory.filter(gate => gate.type === 'cz');
+                const swapGates = gateHistory.filter(gate => gate.type === 'swap');
+                
+                // Build formula components
+                let formulaParts = [];
+                
+                // Add Hadamard operations
+                if (hGates.length > 0) {
+                    const targets = new Set(hGates.map(g => g.target));
+                    const targetsList = Array.from(targets).sort((a, b) => a - b);
+                    if (targetsList.length === qubitCount) {
+                        formulaParts.push(`H^{⊗${qubitCount}}`);
+                    } else {
+                        formulaParts.push(`H_{${targetsList.join(',')}}`);
+                    }
+                }
+                
+                // Add X operations
+                if (xGates.length > 0) {
+                    const targets = new Set(xGates.map(g => g.target));
+                    formulaParts.push(`X_{${Array.from(targets).sort((a, b) => a - b).join(',')}}`);
+                }
+                
+                // Add Y operations
+                if (yGates.length > 0) {
+                    const targets = new Set(yGates.map(g => g.target));
+                    formulaParts.push(`Y_{${Array.from(targets).sort((a, b) => a - b).join(',')}}`);
+                }
+                
+                // Add Z operations
+                if (zGates.length > 0) {
+                    const targets = new Set(zGates.map(g => g.target));
+                    formulaParts.push(`Z_{${Array.from(targets).sort((a, b) => a - b).join(',')}}`);
+                }
+                
+                // Add CNOT operations
+                if (cxGates.length > 0) {
+                    cxGates.forEach(g => {
+                        formulaParts.push(`CNOT_{${g.control},${g.target}}`);
+                    });
+                }
+                
+                // Add CZ operations
+                if (czGates.length > 0) {
+                    czGates.forEach(g => {
+                        formulaParts.push(`CZ_{${g.control},${g.target}}`);
+                    });
+                }
+                
+                // Add SWAP operations
+                if (swapGates.length > 0) {
+                    swapGates.forEach(g => {
+                        formulaParts.push(`SWAP_{${g.control},${g.target}}`);
+                    });
+                }
+                
+                // Combine all parts
+                const operators = formulaParts.join(' ');
+                
+                // Final formula structure
+                stateFormula = `${operators} |0⟩^{⊗${qubitCount}}`;
+                
+                // If there's significant entanglement, add the appropriate notation
+                if (cxGates.length > 0 || czGates.length > 0) {
+                    // Add a more complex state representation for entangled systems
+                    const entangledQubits = new Set();
+                    [...cxGates, ...czGates].forEach(g => {
+                        entangledQubits.add(g.control);
+                        entangledQubits.add(g.target);
+                    });
+                    
+                    // Create a simplified Bell-like state notation if appropriate
+                    if (entangledQubits.size === 2 && hGates.length === 1) {
+                        const qubits = Array.from(entangledQubits).sort((a, b) => a - b);
+                        stateFormula = `\\frac{1}{\\sqrt{2}}(|0_{${qubits[0]}}0_{${qubits[1]}}⟩ + |1_{${qubits[0]}}1_{${qubits[1]}}⟩)`;
+                    }
+                }
+            }
+            
+            result += stateFormula + '\n\n';
+            
+            // Add matrix representation hint
+            result += 'Matrix Representation:\n';
+            result += `ℋ = ℂ^{2^${qubitCount}}\n`;
+            
+            if (gateHistory.length > 0) {
+                result += `U = ${gateHistory.map(g => g.type.toUpperCase()).join(' · ')}\n\n`;
+            } else {
+                result += 'U = I\n\n';
+            }
             
             // Simulate measurement outcomes based on the circuit
             result += 'Measurement sampling (1000 shots):\n';
