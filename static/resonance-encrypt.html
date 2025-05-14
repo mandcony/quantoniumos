@@ -22,6 +22,11 @@
             border-bottom: 1px solid #222;
         }
         
+        /* Hide header when embedded in the OS interface */
+        body.embedded header {
+            display: none;
+        }
+        
         .logo {
             font-size: 24px;
             font-weight: 300;
@@ -290,6 +295,17 @@
     </div>
     
     <script>
+        // Check if page is embedded in the OS interface
+        function checkEmbedded() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('embedded') === 'true') {
+                document.body.classList.add('embedded');
+            }
+        }
+        
+        // Run on page load
+        window.addEventListener('DOMContentLoaded', checkEmbedded);
+        
         // DOM elements
         const plaintextTextarea = document.getElementById('plaintext');
         const encryptKeyInput = document.getElementById('encrypt-key');

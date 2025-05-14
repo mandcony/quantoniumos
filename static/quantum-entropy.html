@@ -14,6 +14,10 @@
         }
         
         header {
+        /* Hide header when embedded in the OS interface */
+        body.embedded header {
+            display: none;
+        }
             background-color: rgba(0, 0, 0, 0.8);
             padding: 15px 20px;
             display: flex;
@@ -289,6 +293,16 @@
     </div>
     
     <script>
+        // Check if page is embedded in the OS interface
+        function checkEmbedded() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('embedded') === 'true') {
+                document.body.classList.add('embedded');
+            }
+        }
+        
+        // Run on page load
+        window.addEventListener('DOMContentLoaded', checkEmbedded);
         // DOM elements
         const entropyAmountSlider = document.getElementById('entropy-amount');
         const entropyQualitySelect = document.getElementById('entropy-quality');
