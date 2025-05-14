@@ -452,6 +452,107 @@
             background-color: #2da0ff;
         }
         
+        /* Wave Visualization Styles */
+        .waveform-match-visualization {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .visualization-waves {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+        
+        .match-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            background-color: #333;
+            color: #fff;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .match-indicator.checking {
+            background-color: #2196F3;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .match-indicator.matched {
+            background-color: #4CAF50;
+        }
+        
+        .match-indicator.mismatched {
+            background-color: #F44336;
+        }
+        
+        .match-indicator.error {
+            background-color: #FF9800;
+        }
+        
+        .wave-line {
+            height: 60px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            border: 1px solid #444;
+            padding: 5px;
+        }
+        
+        .wave-line svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .wave-line.matched {
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .wave-line.mismatched {
+            border-color: #F44336;
+            box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+        }
+        
+        .wave-path {
+            stroke: #fff;
+            stroke-width: 2px;
+            fill: none;
+        }
+        
+        .wave-label {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            color: #bbb;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
+            }
+        }
+        
         .encryption-result {
             padding: 15px;
             background-color: rgba(0, 0, 0, 0.3);
