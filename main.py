@@ -232,6 +232,11 @@ def create_app():
     @app.route('/wave')
     def wave_ui():
         return send_from_directory('static/wave_ui', 'index.html')
+        
+    # Wave UI static files
+    @app.route('/wave_ui/<path:filename>')
+    def wave_ui_static(filename):
+        return send_from_directory('static/wave_ui', filename)
     
     # Image Resonance Analyzer UI
     @app.route('/resonance-analyzer')

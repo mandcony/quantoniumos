@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuantoniumOS</title>
-    <link rel="stylesheet" href="/static/wave_ui/wave.css">
-    <script src="/static/wave_ui/wave_visualization.js"></script>
+    <link rel="stylesheet" href="/wave_ui/wave.css">
+    <script src="/wave_ui/wave_visualization.js"></script>
     <style>
         :root {
             --primary-color: #000000;
@@ -1266,42 +1266,8 @@
                 const encryptCoherence = document.getElementById(`encrypt-coherence-${windowId}`);
                 const encryptEntropy = document.getElementById(`encrypt-entropy-${windowId}`);
                 
-                // Function to create a wave path
-                function createWavePath(width, height, complexity = 3, seed = null) {
-                    // If seed is provided, use it to create a deterministic wave
-                    const rng = seed ? new function() {
-                        let s = seed;
-                        return function() {
-                            s = Math.sin(s) * 10000;
-                            return s - Math.floor(s);
-                        };
-                    } : Math.random;
-                    
-                    // Generate control points
-                    const points = [];
-                    const segments = 10 * complexity;
-                    const segmentWidth = width / segments;
-                    
-                    for (let i = 0; i <= segments; i++) {
-                        const x = i * segmentWidth;
-                        // More complex waves have more variation
-                        const yOffset = height * 0.4 * rng();
-                        points.push([x, height / 2 + yOffset]);
-                    }
-                    
-                    // Generate SVG path
-                    let path = `M ${points[0][0]},${points[0][1]}`;
-                    
-                    for (let i = 1; i < points.length; i++) {
-                        const [x, y] = points[i];
-                        const [prevX, prevY] = points[i - 1];
-                        const cpx1 = prevX + (x - prevX) / 3;
-                        const cpx2 = prevX + (x - prevX) * 2 / 3;
-                        path += ` C ${cpx1},${prevY} ${cpx2},${y} ${x},${y}`;
-                    }
-                    
-                    return path;
-                }
+                // Wave path creation functions now loaded from external JS
+                // See /wave_ui/wave_visualization.js
                 
                 // Wave visualization function now loaded from external JS
                 // See /static/wave_ui/wave_visualization.js
