@@ -1498,6 +1498,9 @@
                     decryptError.style.display = 'none';
                     decryptLoader.style.display = 'block';
                     
+                    // Update match indicator
+                    updateMatchIndicator(`decrypt-match-indicator-${windowId}`, 'checking', 'Verifying resonance patterns...');
+                    
                     // Call API
                     fetch('/api/quantum/decrypt', {
                         method: 'POST',
@@ -1519,6 +1522,12 @@
                         // Hide loader
                         decryptLoader.style.display = 'none';
                         
+                        // Update match indicator
+                        updateMatchIndicator(`decrypt-match-indicator-${windowId}`, 'matched', 'Resonance match verified: Container unlocked');
+                        
+                        // Generate wave visualization
+                        createWaveVisualization(`decrypt-wave-animation-container-${windowId}`, ciphertext, true);
+                        
                         // Display result
                         if (data.decrypted) {
                             decryptOutput.textContent = data.decrypted;
@@ -1539,6 +1548,12 @@
                         decryptLoader.style.display = 'none';
                         decryptError.textContent = error.message;
                         decryptError.style.display = 'block';
+                        
+                        // Update match indicator and show error state
+                        updateMatchIndicator(`decrypt-match-indicator-${windowId}`, 'mismatched', 'Resonance mismatch: ' + error.message);
+                        
+                        // Show mismatched wave
+                        createWaveVisualization(`decrypt-wave-animation-container-${windowId}`, Math.random().toString(), false);
                     });
                 });
             }
