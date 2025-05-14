@@ -1307,34 +1307,103 @@
                     // Clear any existing content
                     container.innerHTML = '';
                     
-                    // Create the wave SVG
-                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    svg.setAttribute('width', '100%');
-                    svg.setAttribute('height', '100%');
-                    
-                    // Create the wave path
-                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                    const wavePath = createWavePath(container.clientWidth, 70, 4, isMatched ? result : Math.random());
-                    
-                    path.setAttribute('d', wavePath);
-                    path.setAttribute('class', 'wave-path');
-                    
-                    // Apply appropriate styling
-                    const waveLineDiv = document.createElement('div');
-                    waveLineDiv.className = `wave-line ${isMatched ? 'matched' : 'mismatched'}`;
-                    
-                    // Append path to SVG
-                    svg.appendChild(path);
-                    // Append SVG to wave line div
-                    waveLineDiv.appendChild(svg);
-                    // Append wave line to container
-                    container.appendChild(waveLineDiv);
-                    
-                    // Add wave label
-                    const labelDiv = document.createElement('div');
-                    labelDiv.className = 'wave-label';
-                    labelDiv.textContent = isMatched ? 'Resonance Match: Container Sealed' : 'Resonance Analysis: Patterns Found';
-                    container.appendChild(labelDiv);
+                    try {
+                        // Create primary waveform
+                        const mainSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        mainSvg.setAttribute('viewBox', '0 0 400 100');
+                        mainSvg.setAttribute('width', '100%');
+                        mainSvg.setAttribute('height', '50%');
+                        
+                        // Create matching waveform 
+                        const resSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        resSvg.setAttribute('viewBox', '0 0 400 100');
+                        resSvg.setAttribute('width', '100%');
+                        resSvg.setAttribute('height', '50%');
+                        
+                        // Create wrapper divs for the SVGs with labels
+                        const mainWaveDiv = document.createElement('div');
+                        mainWaveDiv.className = `wave-line ${isMatched ? 'matched' : 'mismatched'}`;
+                        mainWaveDiv.appendChild(mainSvg);
+                        
+                        const resWaveDiv = document.createElement('div');
+                        resWaveDiv.className = `wave-line ${isMatched ? 'matched' : 'mismatched'}`;
+                        resWaveDiv.appendChild(resSvg);
+                        
+                        // Add labels
+                        const mainLabel = document.createElement('div');
+                        mainLabel.className = 'wave-label';
+                        mainLabel.textContent = 'Container Waveform';
+                        
+                        const resLabel = document.createElement('div');
+                        resLabel.className = 'wave-label';
+                        resLabel.textContent = 'Resonance Pattern';
+                        
+                        // Generate unique paths based on result
+                        const mainPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        mainPath.setAttribute('class', 'wave-path');
+                        
+                        // Create a complementary pattern for the second wave
+                        // In a real quantum system, this would be based on phase coherence
+                        const complementaryPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        complementaryPath.setAttribute('class', 'wave-path');
+                        
+                        // Handle different types of inputs
+                        if (typeof result === 'string') {
+                            // Create deterministic waveform from string
+                            let seed = 0;
+                            for (let i = 0; i < result.length; i++) {
+                                seed = ((seed << 5) - seed) + result.charCodeAt(i);
+                                seed |= 0; // Convert to 32bit integer
+                            }
+                            mainPath.setAttribute('d', createWavePath(400, 70, 4, seed / 1000000));
+                            complementaryPath.setAttribute('d', createWavePath(400, 70, 4, (seed + 1234) / 1000000));
+                        } else {
+                            // Use the provided result directly
+                            mainPath.setAttribute('d', createWavePath(400, 70, 4, result));
+                            complementaryPath.setAttribute('d', createWavePath(400, 70, 4, result + 0.1));
+                        }
+                        
+                        // Add paths to SVGs
+                        mainSvg.appendChild(mainPath);
+                        resSvg.appendChild(complementaryPath);
+                        
+                        // Add to container
+                        container.appendChild(mainWaveDiv);
+                        container.appendChild(mainLabel);
+                        container.appendChild(resWaveDiv);
+                        container.appendChild(resLabel);
+                    } catch (error) {
+                        console.error('Error creating wave visualization:', error);
+                        // Fallback visualization
+                        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        svg.setAttribute('width', '100%');
+                        svg.setAttribute('height', '100%');
+                        
+                        // Create the wave path
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        const wavePath = createWavePath(container.clientWidth, 70, 4, isMatched ? result : Math.random());
+                        
+                        path.setAttribute('d', wavePath);
+                        path.setAttribute('class', 'wave-path');
+                        
+                        // Apply appropriate styling
+                        const waveLineDiv = document.createElement('div');
+                        waveLineDiv.className = `wave-line ${isMatched ? 'matched' : 'mismatched'}`;
+                        
+                        // Append path to SVG
+                        svg.appendChild(path);
+                        // Append SVG to wave line div
+                        waveLineDiv.appendChild(svg);
+                        
+                        // Append wave line to container
+                        container.appendChild(waveLineDiv);
+                        
+                        // Add wave label
+                        const labelDiv = document.createElement('div');
+                        labelDiv.className = 'wave-label';
+                        labelDiv.textContent = isMatched ? 'Resonance Match: Container Sealed' : 'Resonance Analysis: Patterns Found';
+                        container.appendChild(labelDiv);
+                    }
                 }
                 
                 // Update match indicator
