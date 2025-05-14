@@ -504,6 +504,98 @@
             font-weight: bold;
             color: #1f93ff;
         }
+        
+        /* Waveform Visualization Styles */
+        .waveform-match-visualization {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .match-indicator {
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background-color: rgba(50, 50, 50, 0.4);
+            color: #dddddd;
+        }
+        
+        .match-indicator.checking {
+            background-color: rgba(73, 101, 209, 0.4);
+            color: #cfe8ff;
+        }
+        
+        .match-indicator.matched {
+            background-color: rgba(46, 174, 96, 0.4);
+            color: #d4ffde;
+        }
+        
+        .match-indicator.mismatched {
+            background-color: rgba(214, 57, 57, 0.4);
+            color: #ffd0d0;
+        }
+        
+        .match-indicator.error {
+            background-color: rgba(214, 127, 57, 0.4);
+            color: #ffebda;
+        }
+        
+        .visualization-waves {
+            height: 120px;
+            position: relative;
+        }
+        
+        .wave-line {
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        
+        .wave-line svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .wave-line.matched .wave-path {
+            stroke: #4CAF50;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            animation: waveMove 8s linear infinite;
+            stroke-dasharray: 600;
+        }
+        
+        .wave-line.mismatched .wave-path {
+            stroke: #F44336;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            animation: waveTurbulence 4s ease-in-out infinite;
+        }
+        
+        .wave-label {
+            text-align: center;
+            font-size: 13px;
+            color: #aaaaaa;
+        }
+        
+        /* Wave animations */
+        @keyframes waveMove {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: 1000; }
+        }
+        
+        @keyframes waveTurbulence {
+            0% { transform: scaleY(1); }
+            50% { transform: scaleY(1.2); }
+            100% { transform: scaleY(1); }
+        }
     </style>
 </head>
 <body>
@@ -1137,6 +1229,14 @@
                             <div id="decrypt-output-${windowId}" class="encryption-result">// Decrypted output will appear here</div>
                         </div>
                         
+                        <!-- Waveform visualization container -->
+                        <div class="waveform-match-visualization">
+                            <div class="match-indicator" id="decrypt-match-indicator-${windowId}">Ready for decryption</div>
+                            <div class="visualization-waves">
+                                <div id="decrypt-wave-animation-container-${windowId}"></div>
+                            </div>
+                        </div>
+                        
                         <div class="encryption-metrics">
                             <div class="encryption-metric">
                                 <div class="encryption-metric-title">Wave Coherence</div>
@@ -1200,9 +1300,103 @@
                 const encryptCoherence = document.getElementById(`encrypt-coherence-${windowId}`);
                 const encryptEntropy = document.getElementById(`encrypt-entropy-${windowId}`);
                 
+                // Function to create a wave path
+                function createWavePath(width, height, complexity = 3, seed = null) {
+                    // If seed is provided, use it to create a deterministic wave
+                    const rng = seed ? new function() {
+                        let s = seed;
+                        return function() {
+                            s = Math.sin(s) * 10000;
+                            return s - Math.floor(s);
+                        };
+                    } : Math.random;
+                    
+                    // Generate control points
+                    const points = [];
+                    const segments = 10 * complexity;
+                    const segmentWidth = width / segments;
+                    
+                    for (let i = 0; i <= segments; i++) {
+                        const x = i * segmentWidth;
+                        // More complex waves have more variation
+                        const yOffset = height * 0.4 * rng();
+                        points.push([x, height / 2 + yOffset]);
+                    }
+                    
+                    // Generate SVG path
+                    let path = `M ${points[0][0]},${points[0][1]}`;
+                    
+                    for (let i = 1; i < points.length; i++) {
+                        const [x, y] = points[i];
+                        const [prevX, prevY] = points[i - 1];
+                        const cpx1 = prevX + (x - prevX) / 3;
+                        const cpx2 = prevX + (x - prevX) * 2 / 3;
+                        path += ` C ${cpx1},${prevY} ${cpx2},${y} ${x},${y}`;
+                    }
+                    
+                    return path;
+                }
+                
+                // Function to create the wave visualization
+                function createWaveVisualization(containerId, result, isMatched = true) {
+                    const container = document.getElementById(containerId);
+                    if (!container) return;
+                    
+                    // Clear any existing content
+                    container.innerHTML = '';
+                    
+                    // Create the wave SVG
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('width', '100%');
+                    svg.setAttribute('height', '100%');
+                    
+                    // Create the wave path
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    const wavePath = createWavePath(container.clientWidth, 70, 4, isMatched ? result : Math.random());
+                    
+                    path.setAttribute('d', wavePath);
+                    path.setAttribute('class', 'wave-path');
+                    
+                    // Apply appropriate styling
+                    const waveLineDiv = document.createElement('div');
+                    waveLineDiv.className = `wave-line ${isMatched ? 'matched' : 'mismatched'}`;
+                    
+                    // Append path to SVG
+                    svg.appendChild(path);
+                    // Append SVG to wave line div
+                    waveLineDiv.appendChild(svg);
+                    // Append wave line to container
+                    container.appendChild(waveLineDiv);
+                    
+                    // Add wave label
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'wave-label';
+                    labelDiv.textContent = isMatched ? 'Resonance Match: Container Sealed' : 'Resonance Analysis: Patterns Found';
+                    container.appendChild(labelDiv);
+                }
+                
+                // Update match indicator
+                function updateMatchIndicator(elementId, status, message) {
+                    const indicator = document.getElementById(elementId);
+                    if (!indicator) return;
+                    
+                    // Remove all status classes
+                    indicator.classList.remove('checking', 'matched', 'mismatched', 'error');
+                    
+                    // Add appropriate class
+                    if (status) {
+                        indicator.classList.add(status);
+                    }
+                    
+                    // Update message
+                    indicator.textContent = message;
+                }
+                
                 encryptBtn.addEventListener('click', function() {
                     const plaintext = document.getElementById(`plaintext-${windowId}`).value.trim();
                     const key = document.getElementById(`encrypt-key-${windowId}`).value.trim();
+                    const matchIndicator = document.getElementById(`match-indicator-${windowId}`);
+                    const waveContainer = document.getElementById(`wave-animation-container-${windowId}`);
                     
                     if (!plaintext) {
                         encryptError.textContent = 'Please enter text to encrypt';
@@ -1219,6 +1413,9 @@
                     // Hide error and show loader
                     encryptError.style.display = 'none';
                     encryptLoader.style.display = 'block';
+                    
+                    // Update match indicator
+                    updateMatchIndicator(`match-indicator-${windowId}`, 'checking', 'Analyzing resonance patterns...');
                     
                     // Call API
                     fetch('/api/quantum/encrypt', {
@@ -1241,6 +1438,12 @@
                         // Hide loader
                         encryptLoader.style.display = 'none';
                         
+                        // Update match indicator
+                        updateMatchIndicator(`match-indicator-${windowId}`, 'matched', 'Resonance match complete: Container sealed');
+                        
+                        // Generate wave visualization
+                        createWaveVisualization(`wave-animation-container-${windowId}`, data.encrypted || data.ciphertext || 'default-seed', true);
+                        
                         // Display result
                         if (data.encrypted) {
                             encryptOutput.textContent = data.encrypted;
@@ -1261,6 +1464,9 @@
                         encryptLoader.style.display = 'none';
                         encryptError.textContent = error.message;
                         encryptError.style.display = 'block';
+                        
+                        // Update match indicator
+                        updateMatchIndicator(`match-indicator-${windowId}`, 'error', 'Resonance match failed: ' + error.message);
                     });
                 });
                 
