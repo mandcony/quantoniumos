@@ -302,6 +302,143 @@
             transform: scale(1.1);
             background-color: rgba(31, 147, 255, 0.5);
         }
+        
+        /* Quantum Encryption App Styles */
+        .encryption-app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 15px;
+            color: white;
+            overflow: auto;
+        }
+        
+        .encryption-app h3 {
+            color: #1f93ff;
+            margin-bottom: 15px;
+        }
+        
+        .encryption-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .encryption-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-right: 10px;
+        }
+        
+        .encryption-tab.active {
+            border-bottom-color: #1f93ff;
+            color: #1f93ff;
+        }
+        
+        .encryption-tab-content {
+            display: none;
+            flex-grow: 1;
+        }
+        
+        .encryption-tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .encryption-form-group {
+            margin-bottom: 15px;
+        }
+        
+        .encryption-form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .encryption-form-group textarea, 
+        .encryption-form-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .encryption-form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .encryption-btn {
+            padding: 8px 15px;
+            background-color: #1f93ff;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+        
+        .encryption-btn:hover {
+            background-color: #2da0ff;
+        }
+        
+        .encryption-result {
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            min-height: 60px;
+            word-break: break-all;
+            white-space: pre-wrap;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+        
+        .encryption-error {
+            color: #e74c3c;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .encryption-loader {
+            display: none;
+            margin: 10px auto;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(31, 147, 255, 0.2);
+            border-top-color: #1f93ff;
+            animation: spin 1s linear infinite;
+        }
+        
+        .encryption-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .encryption-metric {
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        .encryption-metric-title {
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .encryption-metric-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f93ff;
+        }
     </style>
 </head>
 <body>
@@ -357,7 +494,7 @@
                 </div>
                 
                 <!-- Quantum Web Apps -->
-                <div class="app-icon" data-type="web" data-url="/quantum-encryption" data-title="Quantum Encryption">
+                <div class="app-icon" data-type="internal" data-app="encryption" data-title="Quantum Encryption">
                     <div class="icon">🔐</div>
                     <div class="name">Quantum Encryption</div>
                 </div>
@@ -415,6 +552,9 @@
                     if (appType === 'web') {
                         const url = this.getAttribute('data-url');
                         openWebApp(url);
+                    } else if (appType === 'internal') {
+                        const appName = this.getAttribute('data-app');
+                        openInternalApp(appName, this.getAttribute('data-title'));
                     } else {
                         const appName = this.getAttribute('data-app');
                         launchDesktopApp(appName);
