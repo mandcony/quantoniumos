@@ -3,289 +3,957 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuantoniumOS - Quantum Grid (150-qubit)</title>
-    <link rel="stylesheet" href="/wave_ui/wave.css">
+    <title>Quantum Grid</title>
     <style>
         body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Courier New', monospace;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
         }
         
-        .header {
-            background-color: #111;
-            padding: 15px;
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #222;
         }
         
         .logo {
-            height: 40px;
-            margin-right: 20px;
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            background-color: #111;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            max-width: 200px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #00b7ff;
+            color: #00b7ff;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.05);
         }
         
         .container {
-            flex: 1;
-            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 30px;
         }
         
-        .card {
+        .panel {
             background-color: #111;
-            border: 1px solid #333;
-            border-radius: 4px;
+            border-radius: 5px;
             padding: 20px;
             margin-bottom: 20px;
         }
         
-        .nav {
-            display: flex;
-            background-color: #111;
-            padding: 10px 20px;
+        .panel h2 {
+            margin-top: 0;
+            font-weight: 300;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
         }
         
-        .nav a {
-            color: #ccc;
-            text-decoration: none;
-            margin-right: 20px;
-            font-weight: bold;
+        .panel p {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
         
-        .nav a:hover {
-            color: #fff;
-        }
-        
-        .nav a.active {
-            color: #fff;
-            border-bottom: 2px solid #fff;
-        }
-        
-        h1, h2, h3 {
-            color: #fff;
-        }
-        
-        #quantum-grid-container {
-            width: 100%;
-            height: 500px;
-            background-color: #222;
+        .quantum-grid-container {
             margin-top: 20px;
             margin-bottom: 20px;
+            height: 600px;
+            background-color: #0a0a0a;
+            border-radius: 4px;
             position: relative;
             overflow: hidden;
         }
         
-        .controls {
+        .quantum-grid {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(12, 1fr);
+            gap: 1px;
+        }
+        
+        .quantum-cell {
+            background-color: rgba(0, 183, 255, 0.05);
+            border: 1px solid rgba(0, 183, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .quantum-cell:hover {
+            background-color: rgba(0, 183, 255, 0.2);
+        }
+        
+        .quantum-cell.active {
+            background-color: rgba(0, 183, 255, 0.3);
+        }
+        
+        .control-panel {
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
         }
         
         .control-group {
-            display: flex;
-            flex-direction: column;
-            margin-right: 20px;
-        }
-        
-        label {
-            margin-bottom: 5px;
-            color: #ccc;
-        }
-        
-        input, select, button {
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-            padding: 8px;
-            border-radius: 4px;
-        }
-        
-        button {
-            cursor: pointer;
-        }
-        
-        button:hover {
-            background-color: #444;
-        }
-        
-        .quantum-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .info-card {
-            background-color: #222;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 15px;
+            margin-bottom: 15px;
             flex: 1;
             min-width: 200px;
         }
         
-        .info-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #ccc;
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
         
-        .info-value {
-            font-size: 20px;
-            font-weight: bold;
+        .control-group input[type="range"] {
+            width: 100%;
+            background: #333;
+            height: 5px;
+            -webkit-appearance: none;
+            outline: none;
+            border-radius: 5px;
+            margin-bottom: 5px;
         }
         
-        .qubit {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: #fff;
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #00b7ff;
             border-radius: 50%;
+        }
+        
+        .control-group input[type="number"] {
+            width: 70px;
+            padding: 5px 8px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 3px;
+        }
+        
+        .control-group select {
+            width: 100%;
+            padding: 8px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 3px;
+        }
+        
+        .slider-value {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            background-color: #00475e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
             transition: background-color 0.3s;
         }
         
-        .qubit.entangled {
-            background-color: #ff00ff;
+        button:hover {
+            background-color: #00b7ff;
         }
         
-        .qubit-link {
+        button.active {
+            background-color: #00b7ff;
+        }
+        
+        .overlay {
             position: absolute;
-            height: 1px;
-            background-color: rgba(255, 255, 255, 0.3);
-            transform-origin: 0 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
             pointer-events: none;
+            transition: opacity 0.3s;
         }
         
-        .formula-display {
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .overlay-content {
+            background: #111;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .overlay-content h3 {
+            margin-top: 0;
+            color: #00b7ff;
+        }
+        
+        .state-display {
             font-family: monospace;
-            background-color: #222;
-            padding: 15px;
+            background-color: #0a0a0a;
             border-radius: 4px;
-            margin-top: 20px;
+            padding: 15px;
+            margin-top: 15px;
             overflow-x: auto;
             white-space: pre-wrap;
         }
         
-        .status-bar {
-            height: 30px;
-            display: flex;
-            align-items: center;
-            background-color: #222;
-            padding: 0 10px;
-            border-top: 1px solid #333;
-            font-size: 12px;
+        .info-panel {
+            background-color: rgba(0, 183, 255, 0.1);
+            border-left: 3px solid #00b7ff;
+            padding: 15px;
+            margin-bottom: 20px;
         }
         
-        .status-bar span {
-            margin-right: 20px;
+        .info-panel h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #00b7ff;
         }
         
-        .loader {
-            border: 2px solid #333;
-            border-top: 2px solid #fff;
+        /* Wave animation on grid */
+        @keyframes wave {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+        
+        .connection-line {
+            position: absolute;
+            background-color: rgba(0, 183, 255, 0.7);
+            height: 2px;
+            transform-origin: 0 0;
+            z-index: 5;
+            transition: opacity 0.3s;
+        }
+        
+        .qubit-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #00b7ff;
             border-radius: 50%;
-            width: 14px;
-            height: 14px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 5px;
-            vertical-align: middle;
+            z-index: 6;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px rgba(0, 183, 255, 0.8);
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .qubit-node.entangled {
+            background-color: #b967ff;
+            box-shadow: 0 0 8px rgba(185, 103, 255, 0.8);
+        }
+        
+        .probability-wave {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 183, 255, 0.4);
+            transform: translate(-50%, -50%);
+            animation: wave-expand 2s infinite;
+        }
+        
+        @keyframes wave-expand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.8;
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+            }
+        }
+
+        /* Gate visualization */
+        .gate-tooltip {
+            position: absolute;
+            background-color: #000;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            z-index: 10;
+            pointer-events: none;
+            transform: translate(-50%, -100%);
+            margin-top: -10px;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <img src="/static/images/qos.png" alt="QuantoniumOS Logo" class="logo">
-        <h1>QuantoniumOS</h1>
-    </div>
+    <header>
+        <div class="logo">QUANTONIUMOS</div>
+        <div class="subtitle">ADVANCED QUANTUM CRYPTOGRAPHY SYSTEM</div>
+    </header>
     
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/resonance-encrypt">Encryption</a>
-        <a href="/64-benchmark">64-Perturbation Benchmark</a>
-        <a href="/quantum-grid" class="active">Quantum Grid</a>
+    <div class="tabs">
+        <div class="tab" onclick="window.location.href='/resonance-encrypt'">Encryption</div>
+        <div class="tab" onclick="window.location.href='/resonance-transform'">Resonance Fourier Transform</div>
+        <div class="tab" onclick="window.location.href='/container-operations'">Container Operations</div>
+        <div class="tab" onclick="window.location.href='/quantum-entropy'">Entropy Generator</div>
+        <div class="tab active" onclick="window.location.href='/quantum-grid'">Quantum Grid</div>
+        <div class="tab" onclick="window.location.href='/quantum-benchmark'">64-Perturbation Benchmark</div>
     </div>
     
     <div class="container">
-        <div class="card">
-            <h2>Quantum Grid - 150-Qubit Simulation</h2>
-            <p>This interface provides a visual representation of the quantum computing capabilities of QuantoniumOS, supporting up to 150 qubits in a quantum circuit simulation.</p>
+        <div class="panel">
+            <h2>Quantum Grid (150-Qubit Simulator)</h2>
+            <p>
+                This quantum circuit simulator allows you to visualize and interact with up to 150 qubits.
+                Use the controls below to adjust qubit count, entanglement, and gate operations.
+            </p>
             
-            <div class="controls">
+            <div class="info-panel">
+                <h3>System Status</h3>
+                <p>Using quantum-inspired symbolic matrix mathematics for operations. 
+                   All results are deterministic based on internal quantum simulation.</p>
+            </div>
+            
+            <div class="control-panel">
                 <div class="control-group">
-                    <label for="qubit-count">Qubit Count</label>
-                    <input type="number" id="qubit-count" min="1" max="150" value="50">
+                    <label for="qubit-count">Qubit Count:</label>
+                    <input type="range" id="qubit-count" min="2" max="150" value="64">
+                    <div class="slider-value">
+                        <span>2</span>
+                        <span id="qubit-count-value">64</span>
+                        <span>150</span>
+                    </div>
                 </div>
                 
                 <div class="control-group">
-                    <label for="entanglement-level">Entanglement Level</label>
-                    <select id="entanglement-level">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
+                    <label for="entanglement">Entanglement Strength:</label>
+                    <input type="range" id="entanglement" min="0" max="1" step="0.1" value="0.5">
+                    <div class="slider-value">
+                        <span>0.0</span>
+                        <span id="entanglement-value">0.5</span>
+                        <span>1.0</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="gate-type">Gate Type:</label>
+                    <select id="gate-type">
+                        <option value="h">Hadamard (H)</option>
+                        <option value="x">Pauli-X</option>
+                        <option value="y">Pauli-Y</option>
+                        <option value="z">Pauli-Z</option>
+                        <option value="cx">CNOT</option>
+                        <option value="cz">CZ</option>
+                        <option value="swap">SWAP</option>
+                        <option value="t">T Gate</option>
+                        <option value="s">S Gate</option>
                     </select>
                 </div>
                 
                 <div class="control-group">
-                    <label for="operation">Operation</label>
-                    <select id="operation">
-                        <option value="simulate">Quantum Simulation</option>
-                        <option value="stress-test">Stress Test</option>
-                    </select>
+                    <label for="target-qubit">Target Qubit:</label>
+                    <input type="number" id="target-qubit" min="0" max="149" value="0">
                 </div>
                 
                 <div class="control-group">
-                    <label>&nbsp;</label>
-                    <button id="run-button" onclick="runQuantumGrid()">Run Quantum Grid</button>
+                    <label for="control-qubit">Control Qubit (for 2-qubit gates):</label>
+                    <input type="number" id="control-qubit" min="0" max="149" value="1">
                 </div>
             </div>
             
-            <div id="quantum-grid-container">
-                <!-- Qubits will be generated here dynamically -->
+            <div class="button-group">
+                <button id="apply-gate">Apply Gate</button>
+                <button id="reset-state">Reset State</button>
+                <button id="toggle-animation">Toggle Animation</button>
+                <button id="run-circuit">Run Complete Circuit</button>
             </div>
             
-            <div class="quantum-info">
-                <div class="info-card">
-                    <div class="info-title">Processing Time</div>
-                    <div class="info-value" id="processing-time">0 ms</div>
-                </div>
-                
-                <div class="info-card">
-                    <div class="info-title">Entangled Pairs</div>
-                    <div class="info-value" id="entangled-pairs">0</div>
-                </div>
-                
-                <div class="info-card">
-                    <div class="info-title">Gate Operations</div>
-                    <div class="info-value" id="gate-operations">0</div>
+            <div class="quantum-grid-container">
+                <div id="quantum-grid" class="quantum-grid"></div>
+                <div id="overlay" class="overlay">
+                    <div class="overlay-content">
+                        <h3>Quantum Computation Complete</h3>
+                        <p>The quantum circuit has been executed successfully.</p>
+                        <div id="computation-result" class="state-display"></div>
+                        <button id="close-overlay">Close</button>
+                    </div>
                 </div>
             </div>
             
-            <div class="formula-display" id="formula-display">
-                Waiting for quantum operation...
-            </div>
+            <div class="state-display" id="state-display">// Quantum state will appear here</div>
         </div>
     </div>
     
-    <div class="status-bar">
-        <span id="status-message">Ready</span>
-        <span id="engine-id"></span>
-    </div>
-    
-    <script src="/static/quantum-grid.js"></script>
+    <script>
+        // DOM elements
+        const qubitCountSlider = document.getElementById('qubit-count');
+        const entanglementSlider = document.getElementById('entanglement');
+        const gateTypeSelect = document.getElementById('gate-type');
+        const targetQubitInput = document.getElementById('target-qubit');
+        const controlQubitInput = document.getElementById('control-qubit');
+        const qubitCountValue = document.getElementById('qubit-count-value');
+        const entanglementValue = document.getElementById('entanglement-value');
+        const applyGateButton = document.getElementById('apply-gate');
+        const resetStateButton = document.getElementById('reset-state');
+        const toggleAnimationButton = document.getElementById('toggle-animation');
+        const runCircuitButton = document.getElementById('run-circuit');
+        const quantumGrid = document.getElementById('quantum-grid');
+        const stateDisplay = document.getElementById('state-display');
+        const overlay = document.getElementById('overlay');
+        const computationResult = document.getElementById('computation-result');
+        const closeOverlayButton = document.getElementById('close-overlay');
+        
+        // State variables
+        let qubitCount = 64;
+        let entanglementStrength = 0.5;
+        let gateHistory = [];
+        let cells = [];
+        let nodes = [];
+        let connections = [];
+        let animationActive = true;
+        let highlightedCells = new Set();
+        
+        // Update value displays
+        qubitCountSlider.addEventListener('input', () => {
+            qubitCount = parseInt(qubitCountSlider.value);
+            qubitCountValue.textContent = qubitCount;
+            
+            // Update max values for control and target inputs
+            targetQubitInput.max = qubitCount - 1;
+            controlQubitInput.max = qubitCount - 1;
+            
+            // Ensure current values don't exceed new max
+            if (parseInt(targetQubitInput.value) >= qubitCount) {
+                targetQubitInput.value = qubitCount - 1;
+            }
+            if (parseInt(controlQubitInput.value) >= qubitCount) {
+                controlQubitInput.value = qubitCount - 1;
+            }
+            
+            updateQuantumGrid();
+            updateStateDisplay();
+        });
+        
+        entanglementSlider.addEventListener('input', () => {
+            entanglementStrength = parseFloat(entanglementSlider.value);
+            entanglementValue.textContent = entanglementStrength.toFixed(1);
+            updateConnections();
+        });
+        
+        // Apply gate button
+        applyGateButton.addEventListener('click', () => {
+            const gateType = gateTypeSelect.value;
+            const targetQubit = parseInt(targetQubitInput.value);
+            const controlQubit = parseInt(controlQubitInput.value);
+            
+            // Validate inputs
+            if (targetQubit >= qubitCount || targetQubit < 0) {
+                alert(`Target qubit must be between 0 and ${qubitCount - 1}`);
+                return;
+            }
+            
+            if (['cx', 'cz', 'swap'].includes(gateType)) {
+                if (controlQubit >= qubitCount || controlQubit < 0) {
+                    alert(`Control qubit must be between 0 and ${qubitCount - 1}`);
+                    return;
+                }
+                
+                if (controlQubit === targetQubit) {
+                    alert("Control and target qubits must be different");
+                    return;
+                }
+            }
+            
+            // Add gate to history
+            gateHistory.push({
+                type: gateType,
+                target: targetQubit,
+                control: ['cx', 'cz', 'swap'].includes(gateType) ? controlQubit : null
+            });
+            
+            // Visualize gate application
+            visualizeGateApplication(gateType, targetQubit, controlQubit);
+            
+            // Update state display
+            updateStateDisplay();
+        });
+        
+        // Reset state button
+        resetStateButton.addEventListener('click', () => {
+            gateHistory = [];
+            updateStateDisplay();
+            clearHighlights();
+        });
+        
+        // Toggle animation button
+        toggleAnimationButton.addEventListener('click', () => {
+            animationActive = !animationActive;
+            toggleAnimationButton.textContent = animationActive ? 'Pause Animation' : 'Resume Animation';
+            toggleAnimationButton.classList.toggle('active', animationActive);
+        });
+        
+        // Run complete circuit button
+        runCircuitButton.addEventListener('click', () => {
+            if (gateHistory.length === 0) {
+                alert("Please apply at least one gate before running the circuit");
+                return;
+            }
+            
+            // Show overlay with loading animation
+            overlay.classList.add('active');
+            
+            // Simulate computation delay
+            setTimeout(() => {
+                // Generate a simplified result based on the circuit
+                const result = generateCircuitResult();
+                computationResult.textContent = result;
+            }, 1500);
+        });
+        
+        // Close overlay button
+        closeOverlayButton.addEventListener('click', () => {
+            overlay.classList.remove('active');
+        });
+        
+        // Initialize quantum grid
+        function initQuantumGrid() {
+            // Clear existing grid
+            quantumGrid.innerHTML = '';
+            cells = [];
+            nodes = [];
+            connections = [];
+            
+            // Calculate grid dimensions based on qubit count
+            const gridSize = Math.ceil(Math.sqrt(qubitCount));
+            const columns = gridSize;
+            const rows = Math.ceil(qubitCount / columns);
+            
+            // Update grid CSS
+            quantumGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+            quantumGrid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            
+            // Create cells
+            for (let i = 0; i < qubitCount; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'quantum-cell';
+                cell.setAttribute('data-index', i);
+                quantumGrid.appendChild(cell);
+                cells.push(cell);
+                
+                // Add qubit node
+                const node = document.createElement('div');
+                node.className = 'qubit-node';
+                node.setAttribute('data-index', i);
+                
+                // Position node within cell
+                const rect = cell.getBoundingClientRect();
+                const gridRect = quantumGrid.getBoundingClientRect();
+                const x = (rect.left - gridRect.left) + rect.width / 2;
+                const y = (rect.top - gridRect.top) + rect.height / 2;
+                
+                node.style.left = `${x}px`;
+                node.style.top = `${y}px`;
+                
+                quantumGrid.appendChild(node);
+                nodes.push(node);
+                
+                // Add probability wave
+                if (animationActive) {
+                    const wave = document.createElement('div');
+                    wave.className = 'probability-wave';
+                    wave.style.left = `${x}px`;
+                    wave.style.top = `${y}px`;
+                    wave.style.animationDelay = `${Math.random() * 2}s`;
+                    quantumGrid.appendChild(wave);
+                }
+            }
+            
+            // Create initial connections
+            updateConnections();
+        }
+        
+        // Update connections between qubits
+        function updateConnections() {
+            // Remove existing connections
+            connections.forEach(conn => conn.remove());
+            connections = [];
+            
+            // Create new connections based on entanglement strength
+            const gridRect = quantumGrid.getBoundingClientRect();
+            
+            for (let i = 0; i < nodes.length; i++) {
+                const node1 = nodes[i];
+                const node1Rect = node1.getBoundingClientRect();
+                
+                // Calculate number of connections based on entanglement strength
+                const connectionCount = Math.floor(entanglementStrength * 3) + 1;
+                
+                // Connect to nearest nodes
+                for (let j = 0; j < connectionCount; j++) {
+                    // Find a node to connect to (excluding self)
+                    let node2Index;
+                    
+                    // For structured connections
+                    if (j === 0 && i < nodes.length - 1) {
+                        // Connect to next node
+                        node2Index = i + 1;
+                    } else if (j === 1 && i + Math.sqrt(nodes.length) < nodes.length) {
+                        // Connect to node below (if exists)
+                        node2Index = i + Math.floor(Math.sqrt(nodes.length));
+                    } else {
+                        // Connect to a random node
+                        do {
+                            node2Index = Math.floor(Math.random() * nodes.length);
+                        } while (node2Index === i);
+                    }
+                    
+                    if (node2Index >= nodes.length) continue;
+                    
+                    const node2 = nodes[node2Index];
+                    const node2Rect = node2.getBoundingClientRect();
+                    
+                    // Calculate positions
+                    const x1 = node1Rect.left - gridRect.left + node1Rect.width / 2;
+                    const y1 = node1Rect.top - gridRect.top + node1Rect.height / 2;
+                    const x2 = node2Rect.left - gridRect.left + node2Rect.width / 2;
+                    const y2 = node2Rect.top - gridRect.top + node2Rect.height / 2;
+                    
+                    // Calculate length and angle
+                    const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                    
+                    // Create connection line
+                    const line = document.createElement('div');
+                    line.className = 'connection-line';
+                    line.style.width = `${length}px`;
+                    line.style.left = `${x1}px`;
+                    line.style.top = `${y1}px`;
+                    line.style.transform = `rotate(${angle}deg)`;
+                    
+                    // Only show if entanglement strength is above 0
+                    line.style.opacity = entanglementStrength > 0 ? 
+                        (0.3 + entanglementStrength * 0.7) : 0;
+                    
+                    quantumGrid.appendChild(line);
+                    connections.push(line);
+                }
+            }
+        }
+        
+        // Visualize gate application
+        function visualizeGateApplication(gateType, targetQubit, controlQubit) {
+            // Clear previous highlights
+            clearHighlights();
+            
+            // Highlight target qubit
+            if (targetQubit < cells.length) {
+                cells[targetQubit].classList.add('active');
+                highlightedCells.add(targetQubit);
+            }
+            
+            // For 2-qubit gates, highlight control qubit
+            if (['cx', 'cz', 'swap'].includes(gateType) && controlQubit < cells.length) {
+                cells[controlQubit].classList.add('active');
+                highlightedCells.add(controlQubit);
+                
+                // Add entanglement visualization
+                nodes[targetQubit].classList.add('entangled');
+                nodes[controlQubit].classList.add('entangled');
+                
+                // Create temporary connection if one doesn't exist
+                const gridRect = quantumGrid.getBoundingClientRect();
+                const node1Rect = nodes[targetQubit].getBoundingClientRect();
+                const node2Rect = nodes[controlQubit].getBoundingClientRect();
+                
+                const x1 = node1Rect.left - gridRect.left + node1Rect.width / 2;
+                const y1 = node1Rect.top - gridRect.top + node1Rect.height / 2;
+                const x2 = node2Rect.left - gridRect.left + node2Rect.width / 2;
+                const y2 = node2Rect.top - gridRect.top + node2Rect.height / 2;
+                
+                const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                
+                const line = document.createElement('div');
+                line.className = 'connection-line';
+                line.style.width = `${length}px`;
+                line.style.left = `${x1}px`;
+                line.style.top = `${y1}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                line.style.backgroundColor = 'rgba(185, 103, 255, 0.7)';
+                line.style.boxShadow = '0 0 8px rgba(185, 103, 255, 0.5)';
+                line.style.zIndex = 7;
+                
+                quantumGrid.appendChild(line);
+                connections.push(line);
+                
+                // Create gate visualization tooltip
+                const tooltip = document.createElement('div');
+                tooltip.className = 'gate-tooltip';
+                tooltip.textContent = gateTypeToLabel(gateType);
+                tooltip.style.left = `${(x1 + x2) / 2}px`;
+                tooltip.style.top = `${(y1 + y2) / 2}px`;
+                tooltip.style.opacity = 1;
+                
+                quantumGrid.appendChild(tooltip);
+                
+                // Remove gate visualization after a delay
+                setTimeout(() => {
+                    tooltip.style.opacity = 0;
+                    setTimeout(() => tooltip.remove(), 300);
+                }, 2000);
+            } else {
+                // Single qubit gate - create gate tooltip
+                const nodeRect = nodes[targetQubit].getBoundingClientRect();
+                const gridRect = quantumGrid.getBoundingClientRect();
+                const x = nodeRect.left - gridRect.left + nodeRect.width / 2;
+                const y = nodeRect.top - gridRect.top + nodeRect.height / 2;
+                
+                const tooltip = document.createElement('div');
+                tooltip.className = 'gate-tooltip';
+                tooltip.textContent = gateTypeToLabel(gateType);
+                tooltip.style.left = `${x}px`;
+                tooltip.style.top = `${y}px`;
+                tooltip.style.opacity = 1;
+                
+                quantumGrid.appendChild(tooltip);
+                
+                // Remove gate visualization after a delay
+                setTimeout(() => {
+                    tooltip.style.opacity = 0;
+                    setTimeout(() => tooltip.remove(), 300);
+                }, 2000);
+            }
+            
+            // Remove highlights after a delay
+            setTimeout(() => {
+                clearHighlights();
+            }, 2500);
+        }
+        
+        // Clear highlights
+        function clearHighlights() {
+            highlightedCells.forEach(index => {
+                if (index < cells.length) {
+                    cells[index].classList.remove('active');
+                }
+            });
+            
+            nodes.forEach(node => {
+                node.classList.remove('entangled');
+            });
+            
+            highlightedCells.clear();
+        }
+        
+        // Convert gate type to human-readable label
+        function gateTypeToLabel(gateType) {
+            const labels = {
+                'h': 'H',
+                'x': 'X',
+                'y': 'Y',
+                'z': 'Z',
+                'cx': 'CNOT',
+                'cz': 'CZ',
+                'swap': 'SWAP',
+                't': 'T',
+                's': 'S'
+            };
+            
+            return labels[gateType] || gateType.toUpperCase();
+        }
+        
+        // Update quantum grid
+        function updateQuantumGrid() {
+            initQuantumGrid();
+        }
+        
+        // Update state display
+        function updateStateDisplay() {
+            // Generate a simplified state representation based on the circuit
+            let stateText = '// Quantum State';
+            
+            if (gateHistory.length === 0) {
+                stateText += '\nInitial state: |';
+                for (let i = 0; i < qubitCount; i++) {
+                    stateText += '0';
+                }
+                stateText += '⟩';
+            } else {
+                stateText += '\nCircuit:';
+                
+                gateHistory.forEach((gate, index) => {
+                    stateText += `\n${index + 1}. ${gateTypeToLabel(gate.type)} gate`;
+                    
+                    if (gate.control !== null) {
+                        stateText += ` with control=${gate.control}, target=${gate.target}`;
+                    } else {
+                        stateText += ` on qubit ${gate.target}`;
+                    }
+                });
+                
+                // Show a simplified final state
+                stateText += '\n\nFinal state: Complex superposition of ';
+                
+                // Calculate a simplified count of basis states in the superposition
+                // This is a visual approximation for the UI only
+                const basisStates = Math.min(Math.pow(2, Math.min(gateHistory.length + 1, 10)), Math.pow(2, qubitCount));
+                stateText += `${basisStates} basis states`;
+            }
+            
+            stateDisplay.textContent = stateText;
+        }
+        
+        // Generate a simulated result for the quantum circuit
+        function generateCircuitResult() {
+            const gateCount = gateHistory.length;
+            const hadamardCount = gateHistory.filter(gate => gate.type === 'h').length;
+            const cnotCount = gateHistory.filter(gate => gate.type === 'cx').length;
+            
+            let result = '// Quantum Circuit Execution Results\n';
+            result += `Circuit depth: ${gateCount}\n`;
+            result += `Qubit count: ${qubitCount}\n`;
+            result += `Hadamard gates: ${hadamardCount}\n`;
+            result += `CNOT gates: ${cnotCount}\n\n`;
+            
+            // Simulate measurement outcomes based on the circuit
+            result += 'Measurement sampling (1000 shots):\n';
+            
+            // Calculate the most likely outcomes based on the circuit
+            // This is a visual approximation for the UI only
+            const outcomes = {};
+            
+            if (hadamardCount === 0 && cnotCount === 0) {
+                // If no H gates or CNOTs, the outcome is deterministic
+                outcomes['0'.repeat(qubitCount)] = 1000;
+            } else if (hadamardCount > 0 && cnotCount === 0) {
+                // If only H gates, distribute outcomes uniformly among basis states
+                const activeQubits = new Set(gateHistory.filter(gate => gate.type === 'h').map(gate => gate.target));
+                const possibleOutcomes = Math.pow(2, activeQubits.size);
+                
+                // Generate representative outcomes
+                for (let i = 0; i < Math.min(5, possibleOutcomes); i++) {
+                    let outcome = '';
+                    for (let q = 0; q < qubitCount; q++) {
+                        if (activeQubits.has(q)) {
+                            // Randomly 0 or 1 for qubits with H gates
+                            outcome += Math.random() < 0.5 ? '0' : '1';
+                        } else {
+                            // Always 0 for qubits without H gates
+                            outcome += '0';
+                        }
+                    }
+                    
+                    const count = Math.floor(1000 / possibleOutcomes);
+                    outcomes[outcome] = count;
+                }
+            } else {
+                // Complex circuit with entanglement
+                // Generate a few representative outcomes
+                for (let i = 0; i < 5; i++) {
+                    let outcome = '';
+                    for (let q = 0; q < qubitCount; q++) {
+                        // For simplicity in the UI, generate random outcomes
+                        outcome += Math.random() < 0.5 ? '0' : '1';
+                    }
+                    
+                    // Assign somewhat random counts
+                    const count = Math.floor(200 + Math.random() * 200);
+                    outcomes[outcome] = count;
+                }
+            }
+            
+            // Display outcomes
+            Object.entries(outcomes)
+                .sort((a, b) => b[1] - a[1])  // Sort by count, descending
+                .forEach(([state, count]) => {
+                    if (state.length > 20) {
+                        // Truncate long states
+                        result += `|${state.substring(0, 10)}...${state.substring(state.length - 10)}⟩: ${count} shots\n`;
+                    } else {
+                        result += `|${state}⟩: ${count} shots\n`;
+                    }
+                });
+            
+            return result;
+        }
+        
+        // Initialize when window loads
+        window.addEventListener('load', () => {
+            updateQuantumGrid();
+            updateStateDisplay();
+            
+            // Monitor window resize to update connections
+            window.addEventListener('resize', () => {
+                updateQuantumGrid();
+            });
+        });
+    </script>
 </body>
 </html>

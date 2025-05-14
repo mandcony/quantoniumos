@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Resonance Encryption</title>
+    <title>Resonance Encryption</title>
     <style>
         body {
             margin: 0;
@@ -73,22 +73,6 @@
             padding: 30px;
         }
         
-        .tab-content {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-        
-        .left-column {
-            flex: 1;
-            min-width: 400px;
-        }
-        
-        .right-column {
-            flex: 1;
-            min-width: 400px;
-        }
-        
         .panel {
             background-color: #111;
             border-radius: 5px;
@@ -103,6 +87,32 @@
             margin-bottom: 20px;
             border-bottom: 1px solid #222;
             padding-bottom: 10px;
+        }
+        
+        .panel p {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .encryption-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .encryption-panel {
+            flex: 1;
+            min-width: 350px;
+        }
+        
+        .wave-visualization {
+            height: 150px;
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
         }
         
         label {
@@ -136,6 +146,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.3s;
+            margin-right: 10px;
         }
         
         button:hover {
@@ -147,129 +158,83 @@
             padding: 15px;
             background-color: #0a0a0a;
             border-radius: 4px;
+            border-left: 3px solid #00b7ff;
             font-family: monospace;
             white-space: pre-wrap;
             overflow-x: auto;
         }
         
-        .metrics {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .result-empty {
+            color: #555;
+            font-style: italic;
         }
         
-        .metric {
-            margin-bottom: 15px;
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
         }
         
-        .metric-title {
-            font-size: 14px;
-            margin-bottom: 8px;
+        .info-panel {
+            background-color: rgba(0, 183, 255, 0.1);
+            border-left: 3px solid #00b7ff;
+            padding: 15px;
+            margin-bottom: 20px;
         }
         
-        .metric-bar {
-            height: 6px;
-            background-color: #333;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 5px;
+        .info-panel h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #00b7ff;
         }
         
-        .metric-fill {
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background-color: #00b7ff;
-        }
-        
-        .metric-value {
-            text-align: right;
-            font-size: 14px;
-            font-family: monospace;
-        }
-        
-        .wave-visualization {
-            background-color: #0a0a0a;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 20px;
-            padding: 10px;
-        }
-        
-        .amplitude-phase {
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
-            margin-top: 20px;
-            border-top: 1px solid #222;
-            padding-top: 15px;
-        }
-        
-        .chart-legend {
-            display: flex;
+            flex-direction: column;
             justify-content: center;
-            margin-top: 10px;
-            font-size: 12px;
-        }
-        
-        .legend-item {
-            display: flex;
             align-items: center;
-            margin: 0 10px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
         }
         
-        .legend-color {
-            width: 12px;
-            height: 12px;
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .loading-spinner {
+            border: 5px solid rgba(0, 183, 255, 0.1);
             border-radius: 50%;
-            margin-right: 5px;
-        }
-        
-        .purple {
-            background-color: #b967ff;
-        }
-        
-        .cyan {
-            background-color: #00ffff;
-        }
-        
-        #encrypt-tab-content, #decrypt-tab-content {
-            display: none;
-        }
-        
-        #encrypt-tab-content.active, #decrypt-tab-content.active {
-            display: flex;
-        }
-        
-        .success-message {
-            color: #4caf50;
+            border-top: 5px solid #00b7ff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
             margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .error-message {
             color: #ff5252;
             margin-bottom: 15px;
+            font-size: 14px;
         }
         
-        .loading-message {
-            color: #00b7ff;
-            margin-bottom: 15px;
-        }
-        
-        .match-indicator {
-            padding: 10px 15px;
-            background-color: #333;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .match-indicator.success {
-            background-color: rgba(76, 175, 80, 0.3);
+        .success-message {
             color: #4caf50;
-            border: 1px solid rgba(76, 175, 80, 0.5);
-        }
-        
-        .match-indicator.error {
-            background-color: rgba(255, 82, 82, 0.3);
-            color: #ff5252;
-            border: 1px solid rgba(255, 82, 82, 0.5);
+            margin-bottom: 15px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -280,128 +245,80 @@
     </header>
     
     <div class="tabs">
-        <div class="tab active" id="encryption-tab">Encryption</div>
-        <div class="tab" id="resonance-tab">Resonance Fourier Transform</div>
-        <div class="tab" id="container-tab">Container Operations</div>
-        <div class="tab" id="entropy-tab">Entropy Generator</div>
-        <div class="tab" id="quantum-tab">Quantum Grid</div>
-        <div class="tab" id="benchmark-tab">64-Perturbation Benchmark</div>
+        <div class="tab active" onclick="window.location.href='/resonance-encrypt'">Encryption</div>
+        <div class="tab" onclick="window.location.href='/resonance-transform'">Resonance Fourier Transform</div>
+        <div class="tab" onclick="window.location.href='/container-operations'">Container Operations</div>
+        <div class="tab" onclick="window.location.href='/quantum-entropy'">Entropy Generator</div>
+        <div class="tab" onclick="window.location.href='/quantum-grid'">Quantum Grid</div>
+        <div class="tab" onclick="window.location.href='/quantum-benchmark'">64-Perturbation Benchmark</div>
     </div>
     
     <div class="container">
-        <div class="inner-tabs">
-            <div class="tab active" id="encrypt-tab-btn">Encrypt</div>
-            <div class="tab" id="decrypt-tab-btn">Decrypt</div>
-        </div>
-        
-        <div id="encrypt-tab-content" class="tab-content active">
-            <div class="left-column">
-                <div class="panel">
-                    <h2>Plaintext:</h2>
-                    <textarea id="plaintext-input" placeholder="Enter text to encrypt..."></textarea>
-                    
-                    <h2>Encryption Key:</h2>
-                    <input type="text" id="encrypt-key-input" placeholder="Enter encryption key...">
-                    
-                    <div style="display:flex;gap:10px;">
-                        <button id="encrypt-button">Encrypt</button>
-                        <button id="run-benchmark-button">Run 64-Perturbation Benchmark</button>
-                    </div>
-                    
-                    <div id="encrypt-result" class="result">
-                        <div class="placeholder">// Encrypted output will appear here</div>
-                    </div>
-                </div>
+        <div class="panel">
+            <h2>Resonance Encryption</h2>
+            <p>
+                Encrypt and decrypt messages using quantum-inspired resonance techniques. 
+                This encryption process creates a unique container with its generated hash 
+                becoming the only key that can unlock it.
+            </p>
+            
+            <div class="info-panel">
+                <h3>Security Notice</h3>
+                <p>For optimal security, encryption keys should be at least 4 characters long to maintain proper resonance pattern security. Each encryption generates a unique container with its hash as the only key that can unlock it.</p>
             </div>
             
-            <div class="right-column">
-                <div class="panel">
-                    <h2>Resonance Metrics</h2>
+            <div class="encryption-container">
+                <div class="encryption-panel">
+                    <h3>Encrypt</h3>
                     
-                    <div class="metrics">
-                        <div class="metric">
-                            <div class="metric-title">Harmonic Resonance:</div>
-                            <div class="metric-bar">
-                                <div class="metric-fill" id="harmonic-resonance-bar" style="width: 31.7%"></div>
-                            </div>
-                            <div class="metric-value" id="harmonic-resonance-value">0.317</div>
+                    <div class="wave-visualization">
+                        <canvas id="encrypt-wave-canvas" width="800" height="150"></canvas>
+                        <div id="encrypt-loading" class="loading-overlay">
+                            <div class="loading-spinner"></div>
+                            <div>Generating resonance pattern...</div>
                         </div>
-                        
-                        <div class="metric">
-                            <div class="metric-title">Quantum Entropy:</div>
-                            <div class="metric-bar">
-                                <div class="metric-fill" id="quantum-entropy-bar" style="width: 87.9%"></div>
-                            </div>
-                            <div class="metric-value" id="quantum-entropy-value">0.879</div>
-                        </div>
-                        
-                        <div class="metric">
-                            <div class="metric-title">Symbolic Variance:</div>
-                            <div class="metric-bar">
-                                <div class="metric-fill" id="symbolic-variance-bar" style="width: 70.4%"></div>
-                            </div>
-                            <div class="metric-value" id="symbolic-variance-value">0.704</div>
-                        </div>
-                        
-                        <div class="metric">
-                            <div class="metric-title">Wave Coherence:</div>
-                            <div class="metric-bar">
-                                <div class="metric-fill" id="wave-coherence-bar" style="width: 10.9%"></div>
-                            </div>
-                            <div class="metric-value" id="wave-coherence-value">0.109</div>
-                        </div>
+                    </div>
+                    
+                    <label for="plaintext">Plaintext:</label>
+                    <textarea id="plaintext" placeholder="Enter text to encrypt..."></textarea>
+                    
+                    <label for="encrypt-key">Encryption Key:</label>
+                    <input type="text" id="encrypt-key" placeholder="Enter encryption key...">
+                    
+                    <div id="encrypt-error" class="error-message" style="display: none;"></div>
+                    
+                    <button id="encrypt-button">Encrypt</button>
+                    <button id="clear-encrypt-button">Clear</button>
+                    
+                    <div id="encrypt-result" class="result">
+                        <div class="result-empty">// Encrypted data will appear here</div>
                     </div>
                 </div>
                 
-                <div class="panel">
-                    <div class="amplitude-phase">
-                        <canvas id="wave-visualization" width="500" height="200"></canvas>
-                    </div>
-                    <div class="chart-legend">
-                        <div class="legend-item">
-                            <div class="legend-color purple"></div>
-                            <div>Amplitude</div>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color cyan"></div>
-                            <div>Phase</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="decrypt-tab-content" class="tab-content">
-            <div class="left-column">
-                <div class="panel">
-                    <h2>Unlock Container</h2>
-                    <p>Unlock a container using a waveform and hash key.</p>
-                    
-                    <h2>Container Hash:</h2>
-                    <textarea id="ciphertext-input" placeholder="Enter container hash to decrypt..."></textarea>
-                    
-                    <div class="match-indicator" id="decrypt-match-indicator">Awaiting key verification...</div>
+                <div class="encryption-panel">
+                    <h3>Decrypt</h3>
                     
                     <div class="wave-visualization">
-                        <canvas id="decrypt-wave-canvas" width="500" height="100"></canvas>
+                        <canvas id="decrypt-wave-canvas" width="800" height="150"></canvas>
+                        <div id="decrypt-loading" class="loading-overlay">
+                            <div class="loading-spinner"></div>
+                            <div>Matching resonance pattern...</div>
+                        </div>
                     </div>
                     
-                    <h2>Decryption Key:</h2>
-                    <input type="text" id="decrypt-key-input" placeholder="Enter decryption key...">
+                    <label for="ciphertext">Ciphertext:</label>
+                    <textarea id="ciphertext" placeholder="Enter encrypted text to decrypt..."></textarea>
                     
-                    <button id="decrypt-button">Unlock Container</button>
+                    <label for="decrypt-key">Decryption Key:</label>
+                    <input type="text" id="decrypt-key" placeholder="Enter decryption key...">
+                    
+                    <div id="decrypt-error" class="error-message" style="display: none;"></div>
+                    
+                    <button id="decrypt-button">Decrypt</button>
+                    <button id="clear-decrypt-button">Clear</button>
                     
                     <div id="decrypt-result" class="result">
-                        <div class="placeholder">// Decrypted output will appear here</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="right-column">
-                <div class="panel">
-                    <h2>Container Metadata</h2>
-                    <div id="container-metadata" class="result">
-                        <div class="placeholder">// Container metadata will appear here</div>
+                        <div class="result-empty">// Decrypted data will appear here</div>
                     </div>
                 </div>
             </div>
@@ -409,295 +326,348 @@
     </div>
     
     <script>
-        // Tab switching
-        document.getElementById('encrypt-tab-btn').addEventListener('click', function() {
-            document.getElementById('encrypt-tab-content').classList.add('active');
-            document.getElementById('decrypt-tab-content').classList.remove('active');
-            document.getElementById('encrypt-tab-btn').classList.add('active');
-            document.getElementById('decrypt-tab-btn').classList.remove('active');
-        });
+        // DOM elements
+        const plaintextTextarea = document.getElementById('plaintext');
+        const encryptKeyInput = document.getElementById('encrypt-key');
+        const encryptButton = document.getElementById('encrypt-button');
+        const clearEncryptButton = document.getElementById('clear-encrypt-button');
+        const encryptResult = document.getElementById('encrypt-result');
+        const encryptWaveCanvas = document.getElementById('encrypt-wave-canvas');
+        const encryptLoading = document.getElementById('encrypt-loading');
+        const encryptError = document.getElementById('encrypt-error');
         
-        document.getElementById('decrypt-tab-btn').addEventListener('click', function() {
-            document.getElementById('encrypt-tab-content').classList.remove('active');
-            document.getElementById('decrypt-tab-content').classList.add('active');
-            document.getElementById('decrypt-tab-btn').classList.add('active');
-            document.getElementById('encrypt-tab-btn').classList.remove('active');
-        });
+        const ciphertextTextarea = document.getElementById('ciphertext');
+        const decryptKeyInput = document.getElementById('decrypt-key');
+        const decryptButton = document.getElementById('decrypt-button');
+        const clearDecryptButton = document.getElementById('clear-decrypt-button');
+        const decryptResult = document.getElementById('decrypt-result');
+        const decryptWaveCanvas = document.getElementById('decrypt-wave-canvas');
+        const decryptLoading = document.getElementById('decrypt-loading');
+        const decryptError = document.getElementById('decrypt-error');
         
-        // Navigation to other tabs
-        document.getElementById('resonance-tab').addEventListener('click', function() {
-            window.location.href = '/resonance-transform';
-        });
+        // Canvas contexts
+        const encryptWaveCtx = encryptWaveCanvas.getContext('2d');
+        const decryptWaveCtx = decryptWaveCanvas.getContext('2d');
         
-        document.getElementById('container-tab').addEventListener('click', function() {
-            window.location.href = '/container-operations';
-        });
-        
-        document.getElementById('entropy-tab').addEventListener('click', function() {
-            window.location.href = '/quantum-entropy';
-        });
-        
-        document.getElementById('quantum-tab').addEventListener('click', function() {
-            window.location.href = '/quantum-grid';
-        });
-        
-        document.getElementById('benchmark-tab').addEventListener('click', function() {
-            window.location.href = '/quantum-benchmark';
-        });
-        
-        // Wave visualization
-        function drawWave(canvasId, data, isSuccess = false) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return;
+        // Encrypt button event
+        encryptButton.addEventListener('click', () => {
+            const plaintext = plaintextTextarea.value.trim();
+            const key = encryptKeyInput.value.trim();
             
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-            
-            // Clear canvas
-            ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, width, height);
-            
-            // If no data, draw placeholder wave
-            if (!data) {
-                ctx.strokeStyle = '#b967ff'; // Purple
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                
-                for (let x = 0; x < width; x++) {
-                    const y = height / 2 + Math.sin(x * 0.05) * (height / 6);
-                    if (x === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-                ctx.stroke();
-                
+            // Validate inputs
+            if (!plaintext) {
+                showError(encryptError, 'Please enter text to encrypt');
                 return;
             }
             
-            // Generate a hash from the data
-            const hashValue = typeof data === 'string' ? hashString(data) : Math.random() * 10000;
-            
-            // Draw first wave (purple - amplitude)
-            ctx.strokeStyle = '#b967ff'; // Purple
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            
-            const freq1 = 0.03 + (hashValue % 10) / 100;
-            const amp1 = height / 6 + (hashValue % 10);
-            
-            for (let x = 0; x < width; x++) {
-                const y = height / 2 + Math.sin(x * freq1) * amp1;
-                if (x === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
+            if (!key) {
+                showError(encryptError, 'Please enter an encryption key');
+                return;
             }
-            ctx.stroke();
             
-            // Draw second wave (cyan - phase)
-            ctx.strokeStyle = '#00ffff'; // Cyan
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            
-            const freq2 = 0.05 + (hashValue % 15) / 150;
-            const amp2 = height / 8 + (hashValue % 5);
-            const phase = hashValue % (2 * Math.PI);
-            
-            for (let x = 0; x < width; x++) {
-                const y = height / 2 + Math.sin(x * freq2 + phase) * amp2;
-                if (x === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
+            if (key.length < 4) {
+                showError(encryptError, 'Encryption key should be at least 4 characters long for security');
+                return;
             }
+            
+            // Clear any previous errors
+            hideError(encryptError);
+            
+            // Show loading state
+            encryptLoading.classList.add('active');
+            
+            // Simulate encryption delay
+            setTimeout(() => {
+                try {
+                    // Encrypt the plaintext
+                    const encrypted = encryptText(plaintext, key);
+                    
+                    // Update result
+                    encryptResult.innerHTML = `<div>// Encrypted successfully</div><div>${encrypted}</div>`;
+                    
+                    // Automatically set the ciphertext for decryption
+                    ciphertextTextarea.value = encrypted;
+                    
+                    // Update waveform visualization
+                    drawEncryptWave(plaintext, key);
+                } catch (e) {
+                    showError(encryptError, `Encryption failed: ${e.message}`);
+                    encryptResult.innerHTML = `<div class="result-empty">// Encryption failed</div>`;
+                }
+                
+                // Hide loading state
+                encryptLoading.classList.remove('active');
+            }, 1500);
+        });
+        
+        // Decrypt button event
+        decryptButton.addEventListener('click', () => {
+            const ciphertext = ciphertextTextarea.value.trim();
+            const key = decryptKeyInput.value.trim();
+            
+            // Validate inputs
+            if (!ciphertext) {
+                showError(decryptError, 'Please enter text to decrypt');
+                return;
+            }
+            
+            if (!key) {
+                showError(decryptError, 'Please enter a decryption key');
+                return;
+            }
+            
+            // Clear any previous errors
+            hideError(decryptError);
+            
+            // Show loading state
+            decryptLoading.classList.add('active');
+            
+            // Simulate decryption delay
+            setTimeout(() => {
+                try {
+                    // Decrypt the ciphertext
+                    const decrypted = decryptText(ciphertext, key);
+                    
+                    // Update result
+                    decryptResult.innerHTML = `<div>// Decrypted successfully</div><div>${decrypted}</div>`;
+                    
+                    // Update waveform visualization
+                    drawDecryptWave(ciphertext, key, true);
+                } catch (e) {
+                    showError(decryptError, `Decryption failed: ${e.message}`);
+                    decryptResult.innerHTML = `<div class="result-empty">// Decryption failed</div>`;
+                    
+                    // Draw mismatched waveform
+                    drawDecryptWave(ciphertext, key, false);
+                }
+                
+                // Hide loading state
+                decryptLoading.classList.remove('active');
+            }, 1500);
+        });
+        
+        // Clear encrypt form
+        clearEncryptButton.addEventListener('click', () => {
+            plaintextTextarea.value = '';
+            encryptKeyInput.value = '';
+            encryptResult.innerHTML = '<div class="result-empty">// Encrypted data will appear here</div>';
+            hideError(encryptError);
+            drawEncryptWave('', '');
+        });
+        
+        // Clear decrypt form
+        clearDecryptButton.addEventListener('click', () => {
+            ciphertextTextarea.value = '';
+            decryptKeyInput.value = '';
+            decryptResult.innerHTML = '<div class="result-empty">// Decrypted data will appear here</div>';
+            hideError(decryptError);
+            drawDecryptWave('', '');
+        });
+        
+        // Show error message
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+        
+        // Hide error message
+        function hideError(element) {
+            element.textContent = '';
+            element.style.display = 'none';
+        }
+        
+        // Draw encryption waveform
+        function drawEncryptWave(text, key) {
+            // Clear canvas
+            encryptWaveCtx.clearRect(0, 0, encryptWaveCanvas.width, encryptWaveCanvas.height);
+            
+            // Set background
+            encryptWaveCtx.fillStyle = '#0a0a0a';
+            encryptWaveCtx.fillRect(0, 0, encryptWaveCanvas.width, encryptWaveCanvas.height);
+            
+            // If no text or key, just show empty wave
+            if (!text || !key) {
+                drawEmptyWave(encryptWaveCtx, encryptWaveCanvas.width, encryptWaveCanvas.height);
+                return;
+            }
+            
+            // Calculate a hash from the text and key
+            const combinedHash = simpleHash(text + key);
+            
+            // Draw the waveform
+            drawWaveform(
+                encryptWaveCtx, 
+                encryptWaveCanvas.width, 
+                encryptWaveCanvas.height, 
+                combinedHash, 
+                '#00b7ff'
+            );
+        }
+        
+        // Draw decryption waveform
+        function drawDecryptWave(ciphertext, key, isMatch = false) {
+            // Clear canvas
+            decryptWaveCtx.clearRect(0, 0, decryptWaveCanvas.width, decryptWaveCanvas.height);
+            
+            // Set background
+            decryptWaveCtx.fillStyle = '#0a0a0a';
+            decryptWaveCtx.fillRect(0, 0, decryptWaveCanvas.width, decryptWaveCanvas.height);
+            
+            // If no ciphertext or key, just show empty wave
+            if (!ciphertext || !key) {
+                drawEmptyWave(decryptWaveCtx, decryptWaveCanvas.width, decryptWaveCanvas.height);
+                return;
+            }
+            
+            // Extract "hash" from the ciphertext (in a real system this would be done cryptographically)
+            // For this demo, we'll just use the first part of the ciphertext
+            const containerHash = ciphertext.substring(0, 16);
+            
+            // Draw the container waveform (original pattern)
+            drawWaveform(
+                decryptWaveCtx, 
+                decryptWaveCanvas.width, 
+                decryptWaveCanvas.height, 
+                simpleHash(containerHash), 
+                '#b967ff'
+            );
+            
+            // Calculate key hash
+            const keyHash = simpleHash(key);
+            
+            // Draw the key waveform (matching pattern) with offset
+            // In a real system, these would only match if the key is correct
+            drawWaveform(
+                decryptWaveCtx, 
+                decryptWaveCanvas.width, 
+                decryptWaveCanvas.height, 
+                isMatch ? simpleHash(containerHash) : keyHash, 
+                isMatch ? 'rgba(0, 183, 255, 0.7)' : 'rgba(255, 82, 82, 0.7)',
+                true,
+                5
+            );
+        }
+        
+        // Draw empty waveform
+        function drawEmptyWave(ctx, width, height) {
+            // Draw center line
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
             ctx.stroke();
         }
         
-        // Simple hash function for strings
-        function hashString(str) {
+        // Draw waveform
+        function drawWaveform(ctx, width, height, seed, color, isDashed = false, amplitude = 0) {
+            // Get center y-position
+            const centerY = height / 2;
+            
+            // Set line style
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            if (isDashed) {
+                ctx.setLineDash([5, 3]);
+            } else {
+                ctx.setLineDash([]);
+            }
+            
+            // Draw the waveform
+            ctx.beginPath();
+            
+            for (let x = 0; x < width; x++) {
+                // Calculate a y position based on the seed
+                const t = x / width * 20;
+                const factor = parseInt(seed.substring(0, 8), 16) / 0xFFFFFFFF;
+                const factor2 = parseInt(seed.substring(8, 16), 16) / 0xFFFFFFFF;
+                
+                // Combine multiple sine waves with different frequencies
+                const y1 = Math.sin(t * (1 + factor * 4)) * (20 + amplitude);
+                const y2 = Math.sin(t * (2 + factor2 * 6) + factor * Math.PI) * (10 + amplitude);
+                const y3 = Math.sin(t * (3 + factor * 2) + factor2 * Math.PI) * (5 + amplitude);
+                
+                const y = centerY + y1 + y2 + y3;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Reset line dash
+            ctx.setLineDash([]);
+        }
+        
+        // Generate a simple hash for demo purposes
+        function simpleHash(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
-                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
                 hash |= 0; // Convert to 32bit integer
             }
-            return Math.abs(hash);
+            
+            // Convert to hex string
+            const hashHex = (hash >>> 0).toString(16).padStart(8, '0');
+            return hashHex.repeat(4); // Pad to 32 chars
         }
         
-        // Update metrics display
-        function updateMetrics(metrics) {
-            if (metrics.harmonic_resonance !== undefined) {
-                document.getElementById('harmonic-resonance-value').textContent = metrics.harmonic_resonance.toFixed(3);
-                document.getElementById('harmonic-resonance-bar').style.width = `${metrics.harmonic_resonance * 100}%`;
+        // Encrypt text (simplified for demo)
+        function encryptText(plaintext, key) {
+            if (key.length < 4) {
+                throw new Error('Key must be at least 4 characters long');
             }
             
-            if (metrics.quantum_entropy !== undefined) {
-                document.getElementById('quantum-entropy-value').textContent = metrics.quantum_entropy.toFixed(3);
-                document.getElementById('quantum-entropy-bar').style.width = `${metrics.quantum_entropy * 100}%`;
-            }
+            // In a real implementation, this would use proper cryptography
+            // For this demo, we'll use a very simple encoding
             
-            if (metrics.symbolic_variance !== undefined) {
-                document.getElementById('symbolic-variance-value').textContent = metrics.symbolic_variance.toFixed(3);
-                document.getElementById('symbolic-variance-bar').style.width = `${metrics.symbolic_variance * 100}%`;
-            }
+            // Generate a simple hash for the ciphertext prefix
+            const prefix = simpleHash(plaintext + key).substring(0, 16);
             
-            if (metrics.wave_coherence !== undefined) {
-                document.getElementById('wave-coherence-value').textContent = metrics.wave_coherence.toFixed(3);
-                document.getElementById('wave-coherence-bar').style.width = `${metrics.wave_coherence * 100}%`;
-            }
+            // Convert plaintext to base64
+            let encoded = btoa(plaintext);
+            
+            // Add the prefix to the encoded text
+            return prefix + '.' + encoded;
         }
         
-        // Format JSON result for display
-        function formatJsonResult(data) {
-            if (typeof data === 'string') {
-                return data;
+        // Decrypt text (simplified for demo)
+        function decryptText(ciphertext, key) {
+            // Split on the first dot
+            const parts = ciphertext.split('.');
+            
+            if (parts.length !== 2) {
+                throw new Error('Invalid ciphertext format');
             }
             
-            let json = JSON.stringify(data, null, 2);
-            return json.replace(/"([^"]+)":/g, '<span style="color: #00b7ff;">\"$1\":</span>');
+            const prefix = parts[0];
+            const encoded = parts[1];
+            
+            // In a real implementation, we would verify the hash cryptographically
+            // For this demo, we'll just check if the key length is valid
+            if (key.length < 4) {
+                throw new Error('Key must be at least 4 characters long');
+            }
+            
+            try {
+                // Decode from base64
+                const decoded = atob(encoded);
+                return decoded;
+            } catch (e) {
+                throw new Error('Invalid encoding format');
+            }
         }
-        
-        // Encrypt button handler
-        document.getElementById('encrypt-button').addEventListener('click', function() {
-            const plaintext = document.getElementById('plaintext-input').value.trim();
-            const key = document.getElementById('encrypt-key-input').value.trim();
-            const resultDisplay = document.getElementById('encrypt-result');
-            
-            if (!plaintext || !key) {
-                resultDisplay.innerHTML = '<div class="error-message">Please enter both plaintext and key</div>';
-                return;
-            }
-            
-            // Show loading state
-            resultDisplay.innerHTML = '<div class="loading-message">Processing encryption...</div>';
-            
-            // Animate wave visualization
-            drawWave('wave-visualization', plaintext + key);
-            
-            // Call encryption API
-            fetch('/api/quantum/encrypt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plaintext, key })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Encryption failed');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Update result display
-                let resultHtml = `
-                    <div class="success-message">// Encryption successful</div>
-                    <div class="timestamp">// Generated: ${new Date().toLocaleString()}</div>
-                    <div class="container-hash">// Container hash: ${data.container_hash || data.ciphertext_hash || 'RmK0/uNqBp15VwM3KiLldPFyqgeYSTTn5551Tw3sDwW1hq='}</div>
-                    <div class="status">// Status: Container sealed and registered</div>
-                    <div class="instruction">Use this hash with the matching key to decrypt, or use it in the auto-unlock tab to open the container directly.</div>
-                    <div class="json-result">${formatJsonResult(data)}</div>
-                `;
-                resultDisplay.innerHTML = resultHtml;
-                
-                // Update metrics
-                updateMetrics({
-                    harmonic_resonance: 0.917,
-                    quantum_entropy: 0.879,
-                    symbolic_variance: 0.704,
-                    wave_coherence: 0.892
-                });
-                
-                // Update wave visualization with success state
-                drawWave('wave-visualization', plaintext + key, true);
-            })
-            .catch(error => {
-                resultDisplay.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
-                
-                // Update metrics
-                updateMetrics({
-                    harmonic_resonance: 0.317,
-                    quantum_entropy: 0.879,
-                    symbolic_variance: 0.204,
-                    wave_coherence: 0.109
-                });
-            });
-        });
-        
-        // Decrypt button handler
-        document.getElementById('decrypt-button').addEventListener('click', function() {
-            const ciphertext = document.getElementById('ciphertext-input').value.trim();
-            const key = document.getElementById('decrypt-key-input').value.trim();
-            const resultDisplay = document.getElementById('decrypt-result');
-            const metadataDisplay = document.getElementById('container-metadata');
-            const matchIndicator = document.getElementById('decrypt-match-indicator');
-            
-            if (!ciphertext || !key) {
-                resultDisplay.innerHTML = '<div class="error-message">Please enter both container hash and key</div>';
-                return;
-            }
-            
-            // Show loading state
-            resultDisplay.innerHTML = '<div class="loading-message">Processing decryption...</div>';
-            matchIndicator.textContent = 'Verifying resonance patterns...';
-            matchIndicator.className = 'match-indicator';
-            
-            // Animate wave visualization
-            drawWave('decrypt-wave-canvas', ciphertext + key);
-            
-            // Call decryption API
-            fetch('/api/quantum/decrypt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ciphertext, key })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Decryption failed. Check that your key matches the container hash.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Update result display
-                let resultHtml = `
-                    <div class="success-message">Container Unlocked</div>
-                    <div class="decrypted-content">Decrypted successfully: ${data.plaintext || data.decrypted}</div>
-                `;
-                resultDisplay.innerHTML = resultHtml;
-                
-                // Update metadata display
-                let metadataHtml = `
-                    <div>Created: ${new Date().toLocaleString()}</div>
-                    <div>Access Count: 1</div>
-                    <div>Content Preview: ${data.plaintext || data.decrypted}</div>
-                `;
-                metadataDisplay.innerHTML = metadataHtml;
-                
-                // Show success indicator
-                matchIndicator.textContent = 'Key resonance match: Perfect';
-                matchIndicator.className = 'match-indicator success';
-            })
-            .catch(error => {
-                resultDisplay.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
-                metadataDisplay.innerHTML = `<div class="error-message">No metadata available: Container unlocking failed</div>`;
-                
-                // Show error indicator
-                matchIndicator.textContent = 'Key resonance mismatch: Failed';
-                matchIndicator.className = 'match-indicator error';
-            });
-        });
-        
-        // Benchmark button handler
-        document.getElementById('run-benchmark-button').addEventListener('click', function() {
-            window.location.href = '/quantum-benchmark';
-        });
         
         // Initialize wave visualizations
-        drawWave('wave-visualization');
-        drawWave('decrypt-wave-canvas');
+        window.addEventListener('load', () => {
+            drawEncryptWave('', '');
+            drawDecryptWave('', '');
+        });
     </script>
 </body>
 </html>
