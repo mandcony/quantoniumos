@@ -6,6 +6,7 @@
     <title>QuantoniumOS</title>
     <link rel="stylesheet" href="/wave_ui/wave.css">
     <script src="/wave_ui/wave_visualization.js"></script>
+    <script src="/static/quantum-grid.js"></script>
     <style>
         :root {
             --primary-color: #000000;
@@ -559,6 +560,82 @@
         .wave-line {
             height: 100px;
             margin-bottom: 10px;
+        }
+        
+        /* Quantum Grid Visualization Styles */
+        .quantum-grid-visualization {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .grid-canvas-container {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .grid-canvas-container canvas {
+            width: 100%;
+            height: auto;
+            background-color: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
+        }
+        
+        .grid-oscillator-container {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .grid-oscillator-container canvas {
+            width: 100%;
+            height: 80px;
+            background-color: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
+        }
+        
+        .grid-label {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 5px;
+            color: #bbb;
+        }
+        
+        .grid-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .frequency-control {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .grid-btn {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .grid-btn:hover {
+            background-color: #444;
         }
         
         .wave-line svg {
