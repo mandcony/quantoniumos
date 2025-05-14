@@ -497,6 +497,8 @@
         
         // Function to switch apps
         function switchApp(appName) {
+            console.log("Switching to app:", appName);
+            
             // Update active app button in dock
             appButtons.forEach(btn => {
                 if (btn.getAttribute('data-app') === appName) {
@@ -508,8 +510,18 @@
             
             // Show corresponding window
             appWindows.forEach(window => {
-                if (window.id === `${appName}-window`) {
+                const windowId = `${appName}-window`;
+                console.log("Checking window:", window.id, "against", windowId);
+                
+                if (window.id === windowId) {
                     window.classList.add('active');
+                    // Force iframe refresh by reloading the src
+                    const iframe = window.querySelector('iframe');
+                    if (iframe) {
+                        const currentSrc = iframe.src;
+                        console.log("Refreshing iframe:", currentSrc);
+                        iframe.src = currentSrc;
+                    }
                 } else {
                     window.classList.remove('active');
                 }
@@ -520,6 +532,7 @@
         appButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const appName = button.getAttribute('data-app');
+                console.log("App button clicked:", appName);
                 switchApp(appName);
             });
         });
@@ -537,6 +550,10 @@
         // Update clock every second
         setInterval(updateClock, 1000);
         updateClock(); // Initial update
+        
+        // Debug info - log all app windows on load
+        console.log("Available app windows:");
+        appWindows.forEach(window => console.log(" - " + window.id));
     </script>
 </body>
 </html>

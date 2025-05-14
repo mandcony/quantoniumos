@@ -231,7 +231,12 @@ def create_app():
     # Container Operations
     @app.route('/container-operations')
     def container_operations():
-        return send_from_directory('static', 'container-operations.html')
+        app.logger.info("Container operations route accessed")
+        try:
+            return send_from_directory('static', 'container-operations.html')
+        except Exception as e:
+            app.logger.error(f"Error serving container-operations.html: {e}")
+            return f"Error: {e}", 500
         
     # Quantum Entropy Generator
     @app.route('/quantum-entropy')
