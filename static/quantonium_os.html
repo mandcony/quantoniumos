@@ -1405,6 +1405,9 @@
                     // Update match indicator
                     updateMatchIndicator(`match-indicator-${windowId}`, 'checking', 'Analyzing resonance patterns...');
                     
+                    // Update quantum grid visualization
+                    updateQuantumGridForEncryption(windowId, plaintext, key);
+                    
                     // Call API
                     fetch('/api/quantum/encrypt', {
                         method: 'POST',
@@ -1488,6 +1491,9 @@
                     
                     // Update match indicator
                     updateMatchIndicator(`decrypt-match-indicator-${windowId}`, 'checking', 'Verifying resonance patterns...');
+                    
+                    // Update quantum grid visualization
+                    updateQuantumGridForEncryption(windowId, ciphertext, key);
                     
                     // Call API
                     fetch('/api/quantum/decrypt', {
