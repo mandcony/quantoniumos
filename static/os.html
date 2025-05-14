@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .os-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: #000;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(50, 50, 50, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(50, 50, 50, 0.1) 0%, transparent 50%);
+        }
+        
+        header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid #222;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-message h1 {
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-message p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .app-tile {
+            background-color: rgba(30, 30, 30, 0.6);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .app-tile:hover {
+            background-color: rgba(50, 50, 50, 0.8);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .app-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .app-name {
+            font-size: 18px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .app-description {
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.4;
+        }
+        
+        footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #222;
+        }
+        
+        @media (max-width: 900px) {
+            .app-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="os-container">
+        <header>
+            <div class="logo">QUANTONIUMOS</div>
+            <div class="subtitle">ADVANCED QUANTUM CRYPTOGRAPHY SYSTEM</div>
+        </header>
+        
+        <div class="main-content">
+            <div class="welcome-message">
+                <h1>Welcome to QuantoniumOS</h1>
+                <p>
+                    A cutting-edge quantum computational platform that provides advanced quantum interaction modeling with a streamlined, focused user interface. Access the quantum modules below to explore resonance-based encryption, waveform analysis, and quantum grid operations.
+                </p>
+            </div>
+            
+            <div class="app-grid">
+                <a href="/resonance-encrypt" class="app-tile">
+                    <div class="app-icon">🔒</div>
+                    <div class="app-name">Encryption</div>
+                    <div class="app-description">Secure your data with quantum-inspired resonance encryption technology. Create and validate encrypted containers.</div>
+                </a>
+                
+                <a href="/resonance-transform" class="app-tile">
+                    <div class="app-icon">🌊</div>
+                    <div class="app-name">Resonance Fourier Transform</div>
+                    <div class="app-description">Transform waveforms using quantum-inspired resonance techniques for advanced signal analysis.</div>
+                </a>
+                
+                <a href="/container-operations" class="app-tile">
+                    <div class="app-icon">📦</div>
+                    <div class="app-name">Container Operations</div>
+                    <div class="app-description">Manage secure containers with waveform key validation and verification protocols.</div>
+                </a>
+                
+                <a href="/quantum-entropy" class="app-tile">
+                    <div class="app-icon">🎲</div>
+                    <div class="app-name">Entropy Generator</div>
+                    <div class="app-description">Generate high-quality entropy for cryptographic applications using quantum-inspired methods.</div>
+                </a>
+                
+                <a href="/quantum-grid" class="app-tile">
+                    <div class="app-icon">⚛️</div>
+                    <div class="app-name">Quantum Grid</div>
+                    <div class="app-description">Visualize and test quantum grid operations with full support for up to 150 qubits.</div>
+                </a>
+                
+                <a href="/quantum-benchmark" class="app-tile">
+                    <div class="app-icon">📊</div>
+                    <div class="app-name">64-Perturbation Benchmark</div>
+                    <div class="app-description">Validate and benchmark quantum-inspired encryption with 64-vector avalanche testing.</div>
+                </a>
+            </div>
+        </div>
+        
+        <footer>
+            QuantoniumOS v1.0 - Quantum-inspired computing platform - Copyright 2025
+        </footer>
+    </div>
+</body>
+</html>
