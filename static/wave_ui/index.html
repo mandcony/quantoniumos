@@ -3,115 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantonium OS - Live Resonance Visualization</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/OrbitControls.js"></script>
+    <title>QuantoniumOS Waveform Visualization</title>
+    <link rel="stylesheet" href="/wave_ui/wave.css">
+    <style>
+        body {
+            font-family: "Courier New", monospace;
+            background-color: #111;
+            color: #eee;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+        
+        h1 {
+            color: #4CAF50;
+            margin-top: 0;
+        }
+        
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #bbb;
+            line-height: 1.6;
+        }
+        
+        .visualization-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .wave-tool {
+            flex: 1;
+            min-width: 300px;
+            background-color: #222;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+        
+        .wave-tool h2 {
+            color: #2196F3;
+            margin-top: 0;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #bbb;
+        }
+        
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #333;
+            background-color: #1a1a1a;
+            color: #fff;
+            border-radius: 4px;
+            font-family: "Courier New", monospace;
+        }
+        
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #0b7dda;
+        }
+        
+        .divider {
+            height: 2px;
+            background-color: #333;
+            margin: 40px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #777;
+            font-size: 0.9em;
+        }
+        
+        .technology-badge {
+            display: inline-block;
+            background-color: #333;
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin: 3px;
+            font-size: 0.8em;
+        }
+        
+        .output-container {
+            margin-top: 20px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .output-label {
+            color: #bbb;
+            margin-bottom: 10px;
+        }
+        
+        .output-content {
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Quantonium OS</h1>
-        <h2>Live Resonance Visualization</h2>
-        <div class="mode-selector">
-            <button id="encrypt-mode-btn" class="mode-btn active">Encrypt Mode</button>
-            <button id="stream-mode-btn" class="mode-btn">Stream Mode</button>
+    <div class="container">
+        <header>
+            <h1>QuantoniumOS Waveform Visualization Suite</h1>
+        </header>
+        
+        <div class="description">
+            <p>This advanced waveform visualization tool helps analyze resonance patterns and container compatibility. All operations are performed using QuantoniumOS wave engines with full 150-qubit support.</p>
+            <div>
+                <span class="technology-badge">Quantum Visualization</span>
+                <span class="technology-badge">Wave Resonance</span>
+                <span class="technology-badge">150-Qubit Support</span>
+                <span class="technology-badge">Symbolic Mathematics</span>
+            </div>
         </div>
-    </header>
-
-    <main>
-        <div id="encrypt-panel" class="panel active">
+        
+        <div class="visualization-container">
+            <div class="wave-tool">
+                <h2>Waveform Resonance Matcher</h2>
+                
+                <div class="form-group">
+                    <label for="container-hash">Container Hash:</label>
+                    <input type="text" id="container-hash" placeholder="Enter container hash identifier...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="key-input">Encryption Key:</label>
+                    <input type="text" id="key-input" placeholder="Enter encryption key...">
+                </div>
+                
+                <button id="check-match-btn">Analyze Resonance Match</button>
+                
+                <div class="waveform-match-visualization">
+                    <div class="visualization-header">
+                        <div id="match-indicator" class="match-indicator">
+                            Enter hash and key to check resonance
+                        </div>
+                    </div>
+                    
+                    <div id="match-visualization" class="wave-animation">
+                        <!-- Wave visualization will be generated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="wave-tool">
+                <h2>Custom Waveform Generator</h2>
+                
+                <div class="form-group">
+                    <label for="seed-input">Seed Value:</label>
+                    <input type="text" id="seed-input" placeholder="Enter a seed value for the waveform...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="complexity-input">Complexity (1-10):</label>
+                    <input type="text" id="complexity-input" value="5" placeholder="Enter complexity level...">
+                </div>
+                
+                <button id="generate-btn">Generate Waveform</button>
+                
+                <div class="waveform-match-visualization">
+                    <div class="visualization-header">
+                        <div id="generation-indicator" class="match-indicator">
+                            Enter seed to generate waveform
+                        </div>
+                    </div>
+                    
+                    <div id="waveform-visualization" class="wave-animation">
+                        <!-- Wave visualization will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="wave-tool">
+            <h2>Waveform Analytics</h2>
+            
             <div class="form-group">
-                <label for="plaintext">Plaintext:</label>
-                <textarea id="plaintext" placeholder="Enter text to encrypt..."></textarea>
+                <label for="waveform-data">Enter Waveform Data:</label>
+                <textarea id="waveform-data" placeholder="Enter comma-separated waveform values..."></textarea>
             </div>
-            <div class="form-group">
-                <label for="key">Encryption Key:</label>
-                <input type="text" id="key" placeholder="Enter encryption key...">
-            </div>
-            <button id="encrypt-btn" class="action-btn">Encrypt</button>
-            <div id="result-container">
-                <h3>Encryption Result:</h3>
-                <div id="ciphertext-display" class="result-box"></div>
+            
+            <button id="analyze-btn">Analyze Waveform</button>
+            
+            <div class="output-container">
+                <div class="output-label">Analysis Results:</div>
+                <div id="analysis-output" class="output-content">No analysis performed yet</div>
             </div>
         </div>
-
-        <div id="stream-panel" class="panel">
-            <div class="stream-controls">
-                <button id="stream-start-btn" class="action-btn">Start Streaming</button>
-                <button id="stream-stop-btn" class="action-btn" disabled>Stop Streaming</button>
-            </div>
-            <div class="stream-stats">
-                <div class="stat-group">
-                    <span class="stat-label">Events:</span>
-                    <span id="events-count" class="stat-value">0</span>
-                </div>
-                <div class="stat-group">
-                    <span class="stat-label">Avg. Latency:</span>
-                    <span id="avg-latency" class="stat-value">0ms</span>
-                </div>
-                <div class="stat-group">
-                    <span class="stat-label">Stream Speed:</span>
-                    <span id="stream-speed" class="stat-value">0 fps</span>
-                </div>
-            </div>
-            <div class="metrics-container">
-                <div class="metric">
-                    <label>Harmonic Resonance:</label>
-                    <div class="meter-container">
-                        <div id="harmonic-resonance-meter" class="meter"></div>
-                        <span id="harmonic-resonance-value" class="meter-value">0.0</span>
-                    </div>
-                </div>
-                <div class="metric">
-                    <label>Quantum Entropy:</label>
-                    <div class="meter-container">
-                        <div id="quantum-entropy-meter" class="meter"></div>
-                        <span id="quantum-entropy-value" class="meter-value">0.0</span>
-                    </div>
-                </div>
-                <div class="metric">
-                    <label>Symbolic Variance:</label>
-                    <div class="meter-container">
-                        <div id="symbolic-variance-meter" class="meter"></div>
-                        <span id="symbolic-variance-value" class="meter-value">0.0</span>
-                    </div>
-                </div>
-                <div class="metric">
-                    <label>Wave Coherence:</label>
-                    <div class="meter-container">
-                        <div id="wave-coherence-meter" class="meter"></div>
-                        <span id="wave-coherence-value" class="meter-value">0.0</span>
-                    </div>
-                </div>
-            </div>
+        
+        <div class="footer">
+            <p>QuantoniumOS Waveform Visualization Suite v1.0 | Using Resonance Engine v3.7</p>
+            <p>For integration with your application, see the <a href="/wave-embed" style="color: #2196F3;">embeddable version</a>.</p>
         </div>
-
-        <div id="visualization">
-            <canvas id="waveform-canvas"></canvas>
-            <div id="visualization-controls">
-                <div class="control-group">
-                    <label for="view-mode">View Mode:</label>
-                    <select id="view-mode">
-                        <option value="2d">2D Waveform</option>
-                        <option value="3d">3D Spectrogram</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="color-scheme">Color Scheme:</label>
-                    <select id="color-scheme">
-                        <option value="quantum">Quantum</option>
-                        <option value="resonance">Resonance</option>
-                        <option value="symbolic">Symbolic</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div id="status-bar">
-        <span id="status-message">Ready</span>
     </div>
+    
+    <script src="/wave_ui/wave_visualization.js"></script>
+    <script>
+        // Resonance Matcher functionality
+        const containerHash = document.getElementById('container-hash');
+        const keyInput = document.getElementById('key-input');
+        const checkMatchBtn = document.getElementById('check-match-btn');
+        const matchIndicator = document.getElementById('match-indicator');
+        const matchVisualization = document.getElementById('match-visualization');
+        
+        checkMatchBtn.addEventListener('click', function() {
+            const hash = containerHash.value.trim();
+            const key = keyInput.value.trim();
+            
+            // Validation
+            if (!hash || !key) {
+                matchIndicator.textContent = 'Please enter both hash and key';
+                matchIndicator.className = 'match-indicator mismatched';
+                return;
+            }
+            
+            // Update the match indicator status
+            matchIndicator.textContent = 'Analyzing resonance patterns...';
+            matchIndicator.className = 'match-indicator checking';
+            
+            // Create the visualization
+            const match = window.updateWaveformVisualization('match-visualization', hash, key);
+            
+            // Update the match indicator based on result
+            setTimeout(() => {
+                if (match) {
+                    matchIndicator.textContent = 'Resonance Match: Container Unlocked';
+                    matchIndicator.className = 'match-indicator matched';
+                } else {
+                    matchIndicator.textContent = 'Resonance Mismatch: Access Denied';
+                    matchIndicator.className = 'match-indicator mismatched';
+                }
+            }, 1500); // Simulated analysis delay
+        });
+        
+        // Waveform Generator functionality
+        const seedInput = document.getElementById('seed-input');
+        const complexityInput = document.getElementById('complexity-input');
+        const generateBtn = document.getElementById('generate-btn');
+        const generationIndicator = document.getElementById('generation-indicator');
+        const waveformVisualization = document.getElementById('waveform-visualization');
+        
+        generateBtn.addEventListener('click', function() {
+            const seed = seedInput.value.trim();
+            let complexity = parseInt(complexityInput.value.trim());
+            
+            // Validation
+            if (!seed) {
+                generationIndicator.textContent = 'Please enter a seed value';
+                generationIndicator.className = 'match-indicator mismatched';
+                return;
+            }
+            
+            // Ensure complexity is between 1-10
+            complexity = Math.max(1, Math.min(10, isNaN(complexity) ? 5 : complexity));
+            complexityInput.value = complexity;
+            
+            // Update indicator
+            generationIndicator.textContent = 'Generating waveform...';
+            generationIndicator.className = 'match-indicator checking';
+            
+            // Clear previous visualization
+            waveformVisualization.innerHTML = '';
+            
+            // Generate waveform visualization
+            setTimeout(() => {
+                try {
+                    // Create SVG
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('viewBox', '0 0 400 100');
+                    
+                    // Create wrapper div
+                    const waveDiv = document.createElement('div');
+                    waveDiv.className = 'wave-line matched';
+                    waveDiv.appendChild(svg);
+                    
+                    // Generate path element
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('class', 'wave-path');
+                    
+                    // Use the seed to generate a unique waveform path
+                    const hashValue = hashCode(seed);
+                    const wavePath = generateWavePath(400, 80, complexity, hashValue);
+                    path.setAttribute('d', wavePath);
+                    
+                    // Add path to SVG
+                    svg.appendChild(path);
+                    
+                    // Add to container
+                    waveformVisualization.appendChild(waveDiv);
+                    
+                    // Update indicator
+                    generationIndicator.textContent = 'Waveform Generated Successfully';
+                    generationIndicator.className = 'match-indicator matched';
+                } catch (error) {
+                    console.error('Error generating waveform:', error);
+                    generationIndicator.textContent = 'Error Generating Waveform';
+                    generationIndicator.className = 'match-indicator error';
+                }
+            }, 1000); // Simulated generation delay
+        });
+        
+        // Waveform Analytics functionality
+        const waveformData = document.getElementById('waveform-data');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const analysisOutput = document.getElementById('analysis-output');
+        
+        analyzeBtn.addEventListener('click', function() {
+            const data = waveformData.value.trim();
+            
+            if (!data) {
+                analysisOutput.textContent = 'Please enter waveform data to analyze';
+                return;
+            }
+            
+            // Parse the waveform data
+            let waveValues;
+            try {
+                waveValues = data.split(',')
+                    .map(val => parseFloat(val.trim()))
+                    .filter(val => !isNaN(val));
+                
+                if (waveValues.length === 0) throw new Error('No valid values found');
+                
+            } catch (error) {
+                analysisOutput.textContent = 'Error parsing waveform data: ' + error.message;
+                return;
+            }
+            
+            // Simulate analysis
+            analysisOutput.textContent = 'Analyzing waveform...';
+            
+            setTimeout(() => {
+                const min = Math.min(...waveValues).toFixed(3);
+                const max = Math.max(...waveValues).toFixed(3);
+                const avg = (waveValues.reduce((a, b) => a + b, 0) / waveValues.length).toFixed(3);
+                const variance = waveValues.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / waveValues.length;
+                const stdDev = Math.sqrt(variance).toFixed(3);
+                
+                // Calculate frequency estimate using zero-crossings
+                let zeroCrossings = 0;
+                for (let i = 1; i < waveValues.length; i++) {
+                    if ((waveValues[i] >= 0 && waveValues[i-1] < 0) || 
+                        (waveValues[i] < 0 && waveValues[i-1] >= 0)) {
+                        zeroCrossings++;
+                    }
+                }
+                
+                // Estimate frequency from zero crossings (simplified)
+                const freqEstimate = (zeroCrossings / (2 * waveValues.length)).toFixed(3);
+                
+                // Calculate "quantum coherence" (simplified simulation)
+                const coherence = (1 - Math.min(1, stdDev * 2)).toFixed(3);
+                
+                const analysis = `Waveform Analysis Results:
+                
+Number of Points: ${waveValues.length}
+Amplitude Range: ${min} to ${max}
+Average Value: ${avg}
+Standard Deviation: ${stdDev}
+Frequency Estimate: ${freqEstimate}
+Quantum Coherence: ${coherence}
 
-    <script src="main.js"></script>
+Resonance Classification: ${coherence > 0.7 ? 'HIGH COHERENCE' : coherence > 0.4 ? 'MODERATE COHERENCE' : 'LOW COHERENCE'}
+Symbolic Pattern: ${zeroCrossings > waveValues.length / 4 ? 'Complex' : 'Simple'} wave structure with ${freqEstimate > 0.2 ? 'high' : 'low'} frequency components`;
+                
+                analysisOutput.textContent = analysis;
+            }, 1500);
+        });
+    </script>
 </body>
 </html>

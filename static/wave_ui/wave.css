@@ -80,50 +80,46 @@
 }
 
 .wave-path {
-    fill: none;
+    stroke: #fff;
     stroke-width: 2px;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.matched .wave-path {
-    stroke: #4CAF50;
-    animation: glow-green 2s infinite;
-}
-
-.mismatched .wave-path {
-    stroke: #F44336;
+    fill: none;
 }
 
 .wave-label {
-    color: #aaa;
     font-size: 12px;
-    margin: 4px 0 10px 0;
     text-align: center;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    color: #bbb;
 }
 
-.waveform-status {
-    margin-top: 10px;
-    text-align: center;
-    padding: 5px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.waveform-status-text {
-    color: #ccc;
-    font-size: 0.9rem;
-    font-style: italic;
-}
-
-/* Animations */
-@keyframes glow-green {
-    0% { stroke: #4CAF50; filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.5)); }
-    50% { stroke: #8bc34a; filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.8)); }
-    100% { stroke: #4CAF50; filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.5)); }
-}
-
+/* Animation for wave visualization */
 @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
+    0% {
+        box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
+    }
+}
+
+/* Progress spinner for loading states */
+.encryption-loader {
+    display: none;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }

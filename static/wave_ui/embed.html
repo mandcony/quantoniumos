@@ -2,270 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Quantonium Wave Resonance Visualization</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS Wave Visualization</title>
+    <link rel="stylesheet" href="/wave_ui/wave.css">
     <style>
-        /* Base reset for all elements */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #0a0a14;
+            font-family: "Courier New", monospace;
+            background-color: #111;
             color: #eee;
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
+            margin: 0;
+            padding: 20px;
         }
         
         .container {
-            width: 100%;
-            max-width: 100%;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 15px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
-        h2 {
+        h1 {
             text-align: center;
-            color: #00e5ff;
-            margin-bottom: 20px;
-            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #4CAF50;
         }
         
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-            width: 100%;
-        }
-        
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
+        .form-group {
+            margin-bottom: 15px;
         }
         
         label {
+            display: block;
             margin-bottom: 5px;
-            font-weight: bold;
-            color: #aaa;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            color: #bbb;
         }
         
         input[type="text"] {
             width: 100%;
             padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #444;
-            background-color: #111;
+            border: 1px solid #333;
+            background-color: #222;
             color: #fff;
-            font-family: monospace;
-            font-size: clamp(0.8rem, 3vw, 1rem);
+            border-radius: 4px;
         }
         
         button {
-            width: 100%;
-            padding: 12px 20px;
-            background-color: #00b3e5;
-            color: #fff;
+            background-color: #2196F3;
+            color: white;
             border: none;
+            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            transition: background-color 0.3s;
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
-            -webkit-tap-highlight-color: transparent;
+            margin-top: 10px;
         }
         
-        button:hover, button:active {
-            background-color: #00c8ff;
-        }
-        
-        /* Remove focus outline for better mobile appearance */
-        button:focus, input:focus {
-            outline: none;
-        }
-        
-        .waveform-match-visualization {
-            margin-top: 15px;
-            padding: 12px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            border: 1px solid #333;
-            width: 100%;
-        }
-        
-        .visualization-header {
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .match-indicator {
-            display: inline-block;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            background-color: #333;
-            color: #fff;
-            font-size: clamp(0.75rem, 2.5vw, 0.9rem);
-            width: 100%;
-            text-align: center;
-        }
-        
-        .match-indicator.checking {
-            background-color: #2196F3;
-            animation: pulse 1.5s infinite;
-        }
-        
-        .match-indicator.matched {
-            background-color: #4CAF50;
-        }
-        
-        .match-indicator.mismatched {
-            background-color: #F44336;
-        }
-        
-        .visualization-waves {
-            margin-top: 15px;
-            width: 100%;
-        }
-        
-        .wave-animation {
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-        }
-        
-        .wave-line {
-            height: 50px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 4px;
-            border: 1px solid #444;
-            padding: 3px;
-        }
-        
-        .wave-line svg {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .wave-line.matched {
-            border-color: #4CAF50;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-        }
-        
-        .wave-line.mismatched {
-            border-color: #F44336;
-            box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
-        }
-        
-        .wave-path {
-            fill: none;
-            stroke-width: 2px;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-        
-        .matched .wave-path {
-            stroke: #4CAF50;
-            animation: glow-green 2s infinite;
-        }
-        
-        .mismatched .wave-path {
-            stroke: #F44336;
-        }
-        
-        .wave-label {
-            color: #aaa;
-            font-size: clamp(0.7rem, 2.5vw, 0.85rem);
-            margin: 3px 0 8px 0;
-            text-align: center;
-        }
-        
-        @keyframes glow-green {
-            0% { stroke: #4CAF50; filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.5)); }
-            50% { stroke: #8bc34a; filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.8)); }
-            100% { stroke: #4CAF50; filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.5)); }
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        
-        /* Media queries for different screen sizes */
-        @media (min-width: 768px) {
-            .container {
-                max-width: 700px;
-                padding: 20px;
-            }
-            
-            button {
-                max-width: 300px;
-                margin: 0 auto;
-            }
-        }
-        
-        /* Prevent iOS zoom on input focus */
-        @media screen and (-webkit-min-device-pixel-ratio: 0) {
-            select,
-            textarea,
-            input[type="text"] {
-                font-size: 16px;
-            }
-        }
-        
-        /* Fix for iOS devices height */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                min-height: -webkit-fill-available;
-            }
+        button:hover {
+            background-color: #0b7dda;
         }
     </style>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0a0a14">
 </head>
 <body>
     <div class="container">
-        <h2>Quantum-Inspired Resonance Visualization</h2>
+        <h1>QuantoniumOS Wave Visualization</h1>
         
-        <div class="controls">
-            <div class="input-group">
-                <label for="hash-input">Container Hash:</label>
-                <input type="text" id="hash-input" placeholder="Enter container hash..." autocomplete="off" autocapitalize="off">
-            </div>
-            
-            <div class="input-group">
-                <label for="key-input">Encryption Key:</label>
-                <input type="text" id="key-input" placeholder="Enter encryption key..." autocomplete="off" autocapitalize="off">
-            </div>
-            
-            <button id="check-resonance">Check Resonance</button>
+        <div class="form-group">
+            <label for="hash-input">Container Hash:</label>
+            <input type="text" id="hash-input" placeholder="Enter container hash...">
         </div>
+        
+        <div class="form-group">
+            <label for="key-input">Encryption Key:</label>
+            <input type="text" id="key-input" placeholder="Enter encryption key...">
+        </div>
+        
+        <button id="check-resonance">Check Resonance Match</button>
         
         <div class="waveform-match-visualization">
             <div class="visualization-header">
-                <div class="match-indicator" id="waveform-match-indicator">Enter hash and key to check resonance</div>
+                <div id="waveform-match-indicator" class="match-indicator">
+                    Enter hash and key to check resonance
+                </div>
             </div>
-            <div class="visualization-waves">
-                <div class="wave-animation" id="wave-animation-container"></div>
+            
+            <div id="wave-animation-container" class="wave-animation">
+                <!-- Wave visualization will be generated here -->
             </div>
         </div>
     </div>
     
+    <script src="/wave_ui/wave_visualization.js"></script>
     <script>
         // Main elements
         const hashInput = document.getElementById('hash-input');
@@ -296,108 +123,17 @@
             // Clear any previous visualization
             waveContainer.innerHTML = '';
             
-            try {
-                // Create SVG elements for wave visualization
-                const hashSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                const keySvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                
-                hashSvg.setAttribute('viewBox', '0 0 400 100');
-                keySvg.setAttribute('viewBox', '0 0 400 100');
-                
-                // Create wrapper divs for the SVGs with labels
-                const hashWaveDiv = document.createElement('div');
-                hashWaveDiv.className = 'wave-line';
-                hashWaveDiv.appendChild(hashSvg);
-                
-                const keyWaveDiv = document.createElement('div');
-                keyWaveDiv.className = 'wave-line';
-                keyWaveDiv.appendChild(keySvg);
-                
-                // Add labels
-                const hashLabel = document.createElement('div');
-                hashLabel.className = 'wave-label';
-                hashLabel.textContent = 'Container Hash Waveform';
-                
-                const keyLabel = document.createElement('div');
-                keyLabel.className = 'wave-label';
-                keyLabel.textContent = 'Encryption Key Waveform';
-                
-                // Add to container
-                waveContainer.appendChild(hashWaveDiv);
-                waveContainer.appendChild(hashLabel);
-                waveContainer.appendChild(keyWaveDiv);
-                waveContainer.appendChild(keyLabel);
-                
-                // Generate unique paths based on hash and key
-                const hashPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                hashPath.setAttribute('class', 'wave-path');
-                hashPath.setAttribute('d', generateWavePath(hash, 100, 400));
-                hashSvg.appendChild(hashPath);
-                
-                const keyPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                keyPath.setAttribute('class', 'wave-path');
-                keyPath.setAttribute('d', generateWavePath(key, 100, 400));
-                keySvg.appendChild(keyPath);
-                
-                // Check for resonance match
-                // In a real system, this would be determined by the server through cryptographic functions,
-                // but for this visualization demo, we'll use a simplified match detection
-                const isMatch = hash.includes(key.substring(0, 3)) || key.includes(hash.substring(0, 3));
-                
-                // Update visualization based on match status
-                if (isMatch) {
-                    hashWaveDiv.className = 'wave-line matched';
-                    keyWaveDiv.className = 'wave-line matched';
-                    matchIndicator.textContent = 'Resonance match detected - Container can be unlocked';
-                    matchIndicator.className = 'match-indicator matched';
-                } else {
-                    hashWaveDiv.className = 'wave-line mismatched';
-                    keyWaveDiv.className = 'wave-line mismatched';
-                    matchIndicator.textContent = 'No resonance match - This key cannot unlock this container';
-                    matchIndicator.className = 'match-indicator mismatched';
-                }
-            } catch (error) {
-                console.error('Error in waveform visualization:', error);
-                matchIndicator.textContent = 'Error generating waveform visualization';
-                matchIndicator.className = 'match-indicator error';
+            // Create the visualization
+            const match = window.updateWaveformVisualization('wave-animation-container', hash, key);
+            
+            // Update the match indicator based on result
+            if (match) {
+                matchIndicator.textContent = 'Resonance Match: Container Unlocked';
+                matchIndicator.className = 'match-indicator matched';
+            } else {
+                matchIndicator.textContent = 'Resonance Mismatch: Access Denied';
+                matchIndicator.className = 'match-indicator mismatched';
             }
-        }
-        
-        // Generate wave path based on input string
-        function generateWavePath(input, height, width) {
-            // Convert string to a repeatable sequence of values using a hash function
-            let hash = 0;
-            for (let i = 0; i < input.length; i++) {
-                hash = ((hash << 5) - hash) + input.charCodeAt(i);
-                hash |= 0; // Convert to 32bit integer
-            }
-            
-            // Create a pseudo-random generator based on the hash
-            const seed = Math.abs(hash);
-            const random = (min, max) => {
-                const x = Math.sin(seed * 9999) * 10000;
-                return min + (x - Math.floor(x)) * (max - min);
-            };
-            
-            // Generate wave path
-            let path = `M 0 ${height/2}`;
-            
-            const segments = Math.max(5, Math.min(15, input.length));
-            const segmentWidth = width / segments;
-            
-            for (let i = 1; i <= segments; i++) {
-                const x = i * segmentWidth;
-                const char = input.charCodeAt(i % input.length) % 255;
-                const y = height/2 + Math.sin(char * 0.1) * (height/2 - 10);
-                
-                // Add a curve to the path
-                const cpx1 = x - segmentWidth * 0.5;
-                const cpy1 = height/2 + Math.sin((char * 0.1) - 0.25) * (height/2 - 10);
-                
-                path += ` S ${cpx1} ${cpy1} ${x} ${y}`;
-            }
-            
-            return path;
         }
     </script>
 </body>
