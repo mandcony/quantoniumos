@@ -73,6 +73,26 @@
             filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
         }
         
+        #logo-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+            opacity: 0.5;
+        }
+        
+        .brand-tagline {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+        }
+        
         #clock {
             position: absolute;
             top: 20px;
@@ -141,7 +161,12 @@
             align-items: center;
             width: 64px;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s ease;
+            padding: 8px 4px;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid transparent;
+            margin-bottom: 8px;
         }
         
         .app-icon:hover {
@@ -211,7 +236,7 @@
         
         .window.active {
             box-shadow: 0 5px 25px rgba(31, 147, 255, 0.4);
-            border-color: #1f93ff;
+            border-color: var(--os-highlight);
         }
         
         .window.minimized {
@@ -481,6 +506,12 @@
 </head>
 <body>
     <div id="desktop">
+        <div id="logo-overlay">
+            <div class="quantum-logo">
+                <img src="/static/images/qos.png" alt="QuantoniumOS Logo" class="logo-image">
+            </div>
+            <p class="brand-tagline">Advanced Quantum Cryptography System</p>
+        </div>
         <div id="q-logo">Q</div>
         <div id="clock"></div>
         
