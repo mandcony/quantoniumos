@@ -21,10 +21,13 @@
             --success-color: #4caf50;
             --warning-color: #ff9800;
             --info-color: #2196f3;
-            --quantum-color: #ffffff;
-            --resonance-color: #aaaaaa;
+            --quantum-color: #1f93ff;
+            --resonance-color: #1a77cc;
             --symbolic-color: #575757;
             --os-highlight: #1f93ff;
+            --os-button-bg: #121212;
+            --os-window-border: #1f93ff;
+            --os-window-header: linear-gradient(90deg, #0a0a0a, #121212);
         }
         
         body, html {
@@ -44,14 +47,11 @@
             overflow: hidden;
         }
         
-        #q-logo {
+        .center-logo {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 30vw;
-            font-weight: bold;
-            color: var(--os-highlight);
+            transform: translate(-50%, -50%) scale(2);
             opacity: 0.2;
             user-select: none;
             z-index: 0;
@@ -73,25 +73,7 @@
             filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
         }
         
-        #logo-overlay {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 1;
-            opacity: 0.5;
-        }
-        
-        .brand-tagline {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #999;
-        }
+
         
         #clock {
             position: absolute;
@@ -261,8 +243,9 @@
             display: flex;
             align-items: center;
             padding: 8px 12px;
-            background-color: #2a3550;
+            background: var(--os-window-header);
             cursor: move;
+            border-bottom: 1px solid rgba(31, 147, 255, 0.2);
         }
         
         .window.active .window-header {
@@ -508,13 +491,9 @@
 </head>
 <body>
     <div id="desktop">
-        <div id="logo-overlay">
-            <div class="quantum-logo">
-                <img src="/static/images/qos.png" alt="QuantoniumOS Logo" class="logo-image">
-            </div>
-            <p class="brand-tagline">Advanced Quantum Cryptography System</p>
+        <div class="quantum-logo center-logo">
+            <img src="/static/images/qos.png" alt="QuantoniumOS Logo" class="logo-image">
         </div>
-        <div id="q-logo">Q</div>
         <div id="clock"></div>
         
         <div id="arch-container">
