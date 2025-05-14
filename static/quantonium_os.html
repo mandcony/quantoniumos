@@ -5,14 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuantoniumOS</title>
     <style>
+        :root {
+            --primary-color: #000000;
+            --primary-light: #121212;
+            --primary-dark: #000000;
+            --secondary-color: #ffffff;
+            --secondary-light: #e0e0e0;
+            --secondary-dark: #cccccc;
+            --accent-color: #575757;
+            --text-on-primary: #ffffff;
+            --text-on-secondary: #000000;
+            --background-color: #000000;
+            --surface-color: #0a0a0a;
+            --error-color: #cf6679;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            --quantum-color: #ffffff;
+            --resonance-color: #aaaaaa;
+            --symbolic-color: #575757;
+            --os-highlight: #1f93ff;
+        }
+        
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
-            background-color: #0a0d15;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: white;
+            background-color: var(--background-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: var(--text-on-primary);
         }
         
         #desktop {
@@ -29,10 +51,26 @@
             transform: translate(-50%, -50%);
             font-size: 30vw;
             font-weight: bold;
-            color: #1f93ff;
+            color: var(--os-highlight);
             opacity: 0.2;
             user-select: none;
             z-index: 0;
+        }
+        
+        .quantum-logo {
+            position: relative;
+            animation: pulse 6s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.9; transform: scale(0.99); }
+            100% { opacity: 1; transform: scale(1.01); }
+        }
+        
+        .logo-image {
+            max-width: 280px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
         }
         
         #clock {
@@ -156,8 +194,8 @@
         /* Window System Styles */
         .window {
             position: absolute;
-            background-color: #1a1e2e;
-            border: 1px solid #2a3550;
+            background-color: var(--surface-color);
+            border: 1px solid var(--os-highlight);
             border-radius: 8px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
             display: flex;
