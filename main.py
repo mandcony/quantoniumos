@@ -253,7 +253,13 @@ def create_app():
     # QuantoniumOS Desktop Launcher
     @app.route('/os')
     def os_launcher():
-        return send_from_directory('static', 'quantum-os.html')
+        app.logger.info("OS launcher route accessed - serving with enhanced cache control")
+        response = send_from_directory('static', 'quantum-os.html')
+        # Add cache control headers to prevent browser caching
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
         
     # Serve embed demo instructions
     @app.route('/embed-demo')
@@ -370,8 +376,13 @@ def create_app():
     @app.route('/')
     def root():
         app.logger.info("ROOT route function called - directly serving quantum-os.html")
-        # Directly serve the quantum-os.html file (we've also copied it to index.html as a backup)
-        return send_from_directory('static', 'quantum-os.html')
+        # Directly serve the quantum-os.html file with relative paths to avoid path resolution issues
+        response = send_from_directory('static', 'quantum-os.html')
+        # Add cache control headers to prevent browser caching
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
         
     # Legacy home route (kept for backward compatibility)
     @app.route('/home')
