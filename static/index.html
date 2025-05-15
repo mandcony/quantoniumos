@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #loading {
+            margin-bottom: 20px;
+        }
+        .dots {
+            display: inline-block;
+            width: 50px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>QuantoniumOS</h1>
+    <div id="loading">Loading Quantum Interface<span class="dots">...</span></div>
+    
+    <script>
+        // Immediately redirect to OS interface
+        window.location.href = '/os';
+    </script>
+</body>
+</html>

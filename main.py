@@ -43,6 +43,54 @@ if 'FLASK_ENV' not in os.environ:
 def create_app():
     app = Flask(__name__, static_folder='static')
     
+    # Global middleware to intercept routes for security and redirection
+    @app.before_request
+    def redirect_to_os():
+        app.logger.info(f"Incoming request to: {request.path} with args: {request.args}")
+        
+        # Always allow API routes to function as normal
+        if request.path.startswith('/api/'):
+            app.logger.info("Allowing API route")
+            return None
+            
+        # Always allow static files to be served
+        if request.path.startswith('/static/'):
+            app.logger.info("Allowing static file")
+            return None
+            
+        # Always allow access to favicon.ico
+        if request.path == '/favicon.ico':
+            app.logger.info("Allowing favicon")
+            return None
+            
+        # Allow direct access to OS page
+        if request.path == '/os':
+            app.logger.info("Allowing direct OS access")
+            return None
+            
+        # If accessing the root URL, serve our index.html which does an immediate redirect to OS
+        if request.path == '/':
+            app.logger.info("ROOT URL accessed - serving index.html with client-side redirect")
+            return send_from_directory('static', 'index.html')
+            
+        # If accessing any component directly, check if it has embedded parameter
+        if (request.path in ['/resonance-encrypt', '/resonance-transform', 
+                            '/container-operations', '/quantum-entropy',
+                            '/quantum-grid', '/quantum-benchmark', '/64-benchmark']):
+            app.logger.info(f"Component page accessed directly: {request.path}")
+            embedded = request.args.get('embedded', 'false').lower() == 'true'
+            if not embedded:
+                # Not embedded, redirect to OS with no caching
+                app.logger.info(f"Not embedded, redirecting to OS")
+                response = redirect('/os')
+                # Add cache control headers to prevent caching
+                response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+                response.headers["Pragma"] = "no-cache"
+                response.headers["Expires"] = "0"
+                return response
+            else:
+                app.logger.info(f"Embedded access allowed for {request.path}")
+    
     # Configure PostgreSQL database with fallback for SQLite
     database_url = os.environ.get("DATABASE_URL")
     if not database_url:
@@ -307,11 +355,12 @@ def create_app():
     
     # Removed Qubit Visualizer - merged into the Quantum Grid
         
-    # Root route serves the QuantoniumOS interface
+    # Root route serves the index.html which redirects to QuantoniumOS
     @app.route('/')
     def root():
-        # Direct users to the OS interface that contains all other components
-        return redirect('/os')
+        app.logger.info("ROOT route function called")
+        # Serve the index.html file which performs a client-side redirect to /os
+        return send_from_directory('static', 'index.html')
         
     # Legacy home route (kept for backward compatibility)
     @app.route('/home')
