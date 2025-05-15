@@ -245,7 +245,8 @@ def configure_security(app: Flask):
             response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-API-Key, Authorization'
         
-        response.headers['X-Frame-Options'] = 'SAMEORIGIN'  # Only allow same-origin iframe embedding
+        # Remove X-Frame-Options header to allow embedding in iframes
+        # response.headers['X-Frame-Options'] = 'SAMEORIGIN'
         response.headers['X-Content-Type-Options'] = 'nosniff'  # Prevent MIME type sniffing
         return response
     
