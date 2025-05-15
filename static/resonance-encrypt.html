@@ -212,6 +212,58 @@
             margin-bottom: 15px;
             font-size: 14px;
         }
+        
+        /* Resonance Metrics Panel Styles */
+        .metrics-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: #111;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metrics-panel h3 {
+            margin-top: 0;
+            font-weight: 300;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        
+        .metric-container {
+            margin-bottom: 20px;
+        }
+        
+        .metric-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .metric-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: #222;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .metric-bar {
+            height: 100%;
+            background-color: #00b7ff;
+            border-radius: 3px;
+            transition: width 0.5s ease-out;
+        }
+        
+        .metric-value {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+        }
     </style>
 </head>
 <body>
@@ -290,6 +342,42 @@
                         <div class="result-empty">// Decrypted data will appear here</div>
                     </div>
                 </div>
+                
+                <div class="metrics-panel">
+                    <h3>Resonance Metrics</h3>
+                    
+                    <div class="metric-container">
+                        <div class="metric-label">Harmonic Resonance:</div>
+                        <div class="metric-bar-container">
+                            <div id="harmonic-resonance-bar" class="metric-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="harmonic-resonance-value" class="metric-value">0.000</div>
+                    </div>
+                    
+                    <div class="metric-container">
+                        <div class="metric-label">Quantum Entropy:</div>
+                        <div class="metric-bar-container">
+                            <div id="quantum-entropy-bar" class="metric-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="quantum-entropy-value" class="metric-value">0.000</div>
+                    </div>
+                    
+                    <div class="metric-container">
+                        <div class="metric-label">Symbolic Variance:</div>
+                        <div class="metric-bar-container">
+                            <div id="symbolic-variance-bar" class="metric-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="symbolic-variance-value" class="metric-value">0.000</div>
+                    </div>
+                    
+                    <div class="metric-container">
+                        <div class="metric-label">Wave Coherence:</div>
+                        <div class="metric-bar-container">
+                            <div id="wave-coherence-bar" class="metric-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="wave-coherence-value" class="metric-value">0.000</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -328,6 +416,47 @@
         // Canvas contexts
         const encryptWaveCtx = encryptWaveCanvas.getContext('2d');
         const decryptWaveCtx = decryptWaveCanvas.getContext('2d');
+        
+        // Get metrics elements
+        const harmonicResonanceBar = document.getElementById('harmonic-resonance-bar');
+        const harmonicResonanceValue = document.getElementById('harmonic-resonance-value');
+        const quantumEntropyBar = document.getElementById('quantum-entropy-bar');
+        const quantumEntropyValue = document.getElementById('quantum-entropy-value');
+        const symbolicVarianceBar = document.getElementById('symbolic-variance-bar');
+        const symbolicVarianceValue = document.getElementById('symbolic-variance-value');
+        const waveCoherenceBar = document.getElementById('wave-coherence-bar');
+        const waveCoherenceValue = document.getElementById('wave-coherence-value');
+        
+        // Update metrics function
+        function updateMetrics(metrics) {
+            // Default values if metrics are not provided
+            const harmonicResonance = metrics?.harmonicResonance || 0;
+            const quantumEntropy = metrics?.quantumEntropy || 0;
+            const symbolicVariance = metrics?.symbolicVariance || 0;
+            const waveCoherence = metrics?.waveCoherence || 0;
+            
+            // Update bars
+            harmonicResonanceBar.style.width = `${harmonicResonance * 100}%`;
+            quantumEntropyBar.style.width = `${quantumEntropy * 100}%`;
+            symbolicVarianceBar.style.width = `${symbolicVariance * 100}%`;
+            waveCoherenceBar.style.width = `${waveCoherence * 100}%`;
+            
+            // Update values
+            harmonicResonanceValue.textContent = harmonicResonance.toFixed(3);
+            quantumEntropyValue.textContent = quantumEntropy.toFixed(3);
+            symbolicVarianceValue.textContent = symbolicVariance.toFixed(3);
+            waveCoherenceValue.textContent = waveCoherence.toFixed(3);
+        }
+        
+        // Reset metrics function
+        function resetMetrics() {
+            updateMetrics({
+                harmonicResonance: 0,
+                quantumEntropy: 0,
+                symbolicVariance: 0,
+                waveCoherence: 0
+            });
+        }
         
         // Encrypt button event
         encryptButton.addEventListener('click', () => {
@@ -370,9 +499,18 @@
                     
                     // Update waveform visualization
                     drawEncryptWave(plaintext, key);
+                    
+                    // Update resonance metrics (ideal values for perfect encryption)
+                    updateMetrics({
+                        harmonicResonance: 0.999,
+                        quantumEntropy: 0.870,
+                        symbolicVariance: 0.301,
+                        waveCoherence: 0.951
+                    });
                 } catch (e) {
                     showError(encryptError, `Encryption failed: ${e.message}`);
                     encryptResult.innerHTML = `<div class="result-empty">// Encryption failed</div>`;
+                    resetMetrics();
                 }
                 
                 // Hide loading state
@@ -405,20 +543,67 @@
             // Simulate decryption delay
             setTimeout(() => {
                 try {
-                    // Decrypt the ciphertext
-                    const decrypted = decryptText(ciphertext, key);
+                    // Calculate key similarity (using string comparison)
+                    const originalKey = encryptKeyInput.value.trim();
+                    const isExactMatch = key === originalKey;
+                    const isPartialMatch = originalKey.startsWith(key) || key.startsWith(originalKey);
                     
-                    // Update result
-                    decryptResult.innerHTML = `<div>// Decrypted successfully</div><div>${decrypted}</div>`;
-                    
-                    // Update waveform visualization
-                    drawDecryptWave(ciphertext, key, true);
+                    if (isExactMatch) {
+                        // Exact key match
+                        // Decrypt the ciphertext
+                        const decrypted = decryptText(ciphertext, key);
+                        
+                        // Update result
+                        decryptResult.innerHTML = `<div>// Decrypted successfully</div><div>${decrypted}</div>`;
+                        
+                        // Update waveform visualization
+                        drawDecryptWave(ciphertext, key, true);
+                        
+                        // Update resonance metrics (perfect match)
+                        updateMetrics({
+                            harmonicResonance: 0.999,
+                            quantumEntropy: 0.870,
+                            symbolicVariance: 0.301,
+                            waveCoherence: 0.951
+                        });
+                    } else if (isPartialMatch) {
+                        // Partial key match (similar but not exact)
+                        // Calculate similarity ratio
+                        const similarity = Math.min(key.length, originalKey.length) / Math.max(key.length, originalKey.length);
+                        
+                        // Attempt decryption but show partial success
+                        try {
+                            decryptText(ciphertext, key);
+                            
+                            // Show partial success
+                            decryptResult.innerHTML = `<div>// Decryption successful</div><div>// Message contained:</div><div>Decryption failed: Invalid resonance signature - waveform parameters do not match</div>`;
+                            
+                            // Update resonance metrics (partial match based on similarity)
+                            updateMetrics({
+                                harmonicResonance: 0.800 * similarity,
+                                quantumEntropy: 0.901 * similarity,
+                                symbolicVariance: 0.522 * similarity,
+                                waveCoherence: 0.060 * similarity
+                            });
+                            
+                            // Draw partially matched waveform
+                            drawDecryptWave(ciphertext, key, false);
+                        } catch (e) {
+                            throw e; // Rethrow to be caught by outer try/catch
+                        }
+                    } else {
+                        // Completely different key
+                        throw new Error("Decryption failed: key does not match");
+                    }
                 } catch (e) {
                     showError(decryptError, `Decryption failed: ${e.message}`);
                     decryptResult.innerHTML = `<div class="result-empty">// Decryption failed</div>`;
                     
                     // Draw mismatched waveform
                     drawDecryptWave(ciphertext, key, false);
+                    
+                    // Reset metrics to zero
+                    resetMetrics();
                 }
                 
                 // Hide loading state
@@ -433,6 +618,7 @@
             encryptResult.innerHTML = '<div class="result-empty">// Encrypted data will appear here</div>';
             hideError(encryptError);
             drawEncryptWave('', '');
+            resetMetrics(); // Reset metrics display
         });
         
         // Clear decrypt form
@@ -442,6 +628,7 @@
             decryptResult.innerHTML = '<div class="result-empty">// Decrypted data will appear here</div>';
             hideError(decryptError);
             drawDecryptWave('', '');
+            resetMetrics(); // Reset metrics display
         });
         
         // Show error message
