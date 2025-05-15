@@ -163,6 +163,55 @@
             color: #00b7ff;
             margin-bottom: 15px;
         }
+        
+        /* Resonance Metrics Panel Styles */
+        .metrics-panel {
+            background-color: #111;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metrics-panel h2 {
+            margin-top: 0;
+            font-weight: 300;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+        
+        .metric-container {
+            margin-bottom: 15px;
+        }
+        
+        .metric-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .metric-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: #222;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .metric-bar {
+            height: 100%;
+            background-color: #00b7ff;
+            border-radius: 3px;
+            transition: width 0.5s ease-out;
+        }
+        
+        .metric-value {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+        }
     </style>
 </head>
 <body>
@@ -199,6 +248,42 @@
                 
                 <div id="unlock-result" class="result">
                     <div class="placeholder">// Container unlock results will appear here</div>
+                </div>
+                
+                <div class="metrics-panel">
+                    <h2>Resonance Metrics</h2>
+                    
+                    <div class="metric-container">
+                        <div class="metric-label">Phase Lock 1 (Pattern Recognition):</div>
+                        <div class="metric-bar-container">
+                            <div id="phase-lock-1-bar" class="metric-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="phase-lock-1-value" class="metric-value">0.000</div>
+                    </div>
+                    
+                    <div class="metric-container">
+                        <div class="metric-label">Phase Lock 2 (Frequency Analysis):</div>
+                        <div class="metric-bar-container">
+                            <div id="phase-lock-2-bar" class="metric-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="phase-lock-2-value" class="metric-value">0.000</div>
+                    </div>
+                    
+                    <div class="metric-container">
+                        <div class="metric-label">Phase Lock 3 (Entropy Validation):</div>
+                        <div class="metric-bar-container">
+                            <div id="phase-lock-3-bar" class="metric-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="phase-lock-3-value" class="metric-value">0.000</div>
+                    </div>
+                    
+                    <div class="metric-container">
+                        <div class="metric-label">Phase Lock 4 (Quantum Signature):</div>
+                        <div class="metric-bar-container">
+                            <div id="phase-lock-4-bar" class="metric-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="phase-lock-4-value" class="metric-value">0.000</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -366,19 +451,86 @@
             waveCtx.stroke();
         }
         
+        // Get metrics elements
+        const phaseLock1Bar = document.getElementById('phase-lock-1-bar');
+        const phaseLock1Value = document.getElementById('phase-lock-1-value');
+        const phaseLock2Bar = document.getElementById('phase-lock-2-bar');
+        const phaseLock2Value = document.getElementById('phase-lock-2-value');
+        const phaseLock3Bar = document.getElementById('phase-lock-3-bar');
+        const phaseLock3Value = document.getElementById('phase-lock-3-value');
+        const phaseLock4Bar = document.getElementById('phase-lock-4-bar');
+        const phaseLock4Value = document.getElementById('phase-lock-4-value');
+        
+        // Update phase lock metrics function
+        function updatePhaseMetrics(metrics) {
+            // Default values if metrics are not provided
+            const phaseLock1 = metrics?.phaseLock1 || 0;
+            const phaseLock2 = metrics?.phaseLock2 || 0;
+            const phaseLock3 = metrics?.phaseLock3 || 0;
+            const phaseLock4 = metrics?.phaseLock4 || 0;
+            
+            // Update bars
+            phaseLock1Bar.style.width = `${phaseLock1 * 100}%`;
+            phaseLock2Bar.style.width = `${phaseLock2 * 100}%`;
+            phaseLock3Bar.style.width = `${phaseLock3 * 100}%`;
+            phaseLock4Bar.style.width = `${phaseLock4 * 100}%`;
+            
+            // Update values
+            phaseLock1Value.textContent = phaseLock1.toFixed(3);
+            phaseLock2Value.textContent = phaseLock2.toFixed(3);
+            phaseLock3Value.textContent = phaseLock3.toFixed(3);
+            phaseLock4Value.textContent = phaseLock4.toFixed(3);
+        }
+        
+        // Reset metrics function
+        function resetPhaseMetrics() {
+            updatePhaseMetrics({
+                phaseLock1: 0,
+                phaseLock2: 0,
+                phaseLock3: 0,
+                phaseLock4: 0
+            });
+        }
+        
         // Init
         window.addEventListener('load', () => {
             // Draw initial waveform
             drawWaveform();
             
+            // Reset phase metrics
+            resetPhaseMetrics();
+            
             // Update waveform when container hash changes
             containerHashInput.addEventListener('input', () => {
                 drawWaveform();
+                // Reset metrics or update with preliminary values
+                if (containerHashInput.value.trim() && unlockKeyInput.value.trim()) {
+                    // Show preliminary analysis if both hash and key are present
+                    updatePhaseMetrics({
+                        phaseLock1: 0.05,
+                        phaseLock2: 0.03,
+                        phaseLock3: 0.07,
+                        phaseLock4: 0.02
+                    });
+                } else {
+                    resetPhaseMetrics();
+                }
             });
             
             // Update waveform when key changes
             unlockKeyInput.addEventListener('input', () => {
                 drawWaveform();
+                // Update metrics with preliminary values if both inputs have data
+                if (containerHashInput.value.trim() && unlockKeyInput.value.trim()) {
+                    updatePhaseMetrics({
+                        phaseLock1: Math.min(unlockKeyInput.value.length / 10, 0.2),
+                        phaseLock2: Math.min(unlockKeyInput.value.length / 15, 0.15),
+                        phaseLock3: Math.min(unlockKeyInput.value.length / 20, 0.1),
+                        phaseLock4: Math.min(unlockKeyInput.value.length / 25, 0.08)
+                    });
+                } else {
+                    resetPhaseMetrics();
+                }
             });
             
             // Handle unlock button click
@@ -422,7 +574,21 @@
                         
                         // Update wave visualization to show match
                         drawWaveform(true);
+                        
+                        // Update phase lock metrics for successful unlock
+                        updatePhaseMetrics({
+                            phaseLock1: 0.999, // Pattern Recognition success
+                            phaseLock2: 0.985, // Frequency Analysis success
+                            phaseLock3: 0.993, // Entropy Validation success
+                            phaseLock4: 0.978  // Quantum Signature success
+                        });
                     } else {
+                        // Check if the key is at least somewhat close (for partial match effect)
+                        const hashLength = hash.length;
+                        const keyLength = key.length;
+                        const similarityFactor = Math.min(0.4, 
+                            (keyLength >= 4 && hashLength >= 10) ? 0.4 : 0.1);
+                        
                         // Error case
                         unlockResult.innerHTML = `
                             <div class="error-message">Container unlock failed</div>
@@ -435,6 +601,14 @@
                         
                         // Update wave visualization to show mismatch
                         drawWaveform(false);
+                        
+                        // Update phase lock metrics for failed unlock - with some values to show partial detection
+                        updatePhaseMetrics({
+                            phaseLock1: 0.32 * similarityFactor,  // Partial pattern recognition
+                            phaseLock2: 0.18 * similarityFactor,  // Partial frequency match
+                            phaseLock3: 0.41 * similarityFactor,  // Some entropy correlation
+                            phaseLock4: 0.05 * similarityFactor   // Very low quantum signature match
+                        });
                     }
                 }, 1500);
             });
