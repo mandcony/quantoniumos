@@ -83,7 +83,7 @@ class QuantumEngineAdapter:
     
     def encrypt(self, plaintext: str, key: str) -> str:
         """
-        Encrypt text using quantum-inspired encryption with 4-phase lock security.
+        Encrypt text using quantum-inspired encryption.
         
         Args:
             plaintext: Text to encrypt
@@ -95,58 +95,17 @@ class QuantumEngineAdapter:
         if HAS_QUANTUM_CORE:
             return quantum_core.encrypt_text(plaintext, key)
         
-        # Enhanced 4-phase lock security implementation
-        if len(key) < 4:
-            raise ValueError("Key must be at least 4 characters long for proper resonance pattern security")
-            
+        # Simplified implementation
         key_bytes = key.encode('utf-8')
         data_bytes = plaintext.encode('utf-8')
         
-        # Phase 1: Wave Coherence Lock
-        # Generate a key-specific waveform for coherence matching
-        key_waveform_hash = hashlib.sha256(key_bytes).digest()
-        wave_coherence_seed = int.from_bytes(key_waveform_hash[:4], 'big')
-        np.random.seed(wave_coherence_seed)
-        wave_coherence_pattern = np.random.rand(32).tobytes()
-        
-        # Phase 2: Entropy Distribution Lock
-        # Create unique entropy distribution based on key
-        entropy_seed = int.from_bytes(key_waveform_hash[4:8], 'big')
-        np.random.seed(entropy_seed)
-        entropy_distribution = np.random.rand(32).tobytes()
-        
-        # Phase 3: Resonance Pattern Lock
-        # Generate resonance pattern for key validation
-        resonance_seed = int.from_bytes(key_waveform_hash[8:12], 'big')
-        np.random.seed(resonance_seed)
-        resonance_pattern = np.random.rand(32).tobytes()
-        
-        # Phase 4: Phase-Amplitude Lock
-        # Create phase-amplitude relationship unique to this key
-        phase_amp_seed = int.from_bytes(key_waveform_hash[12:16], 'big')
-        np.random.seed(phase_amp_seed)
-        phase_amplitude_pattern = np.random.rand(32).tobytes()
-        
-        # Combine all 4 phases into a master key
-        master_key = bytearray()
-        for i in range(32):
-            # XOR all 4 phase components with precise byte-level control
-            wave_byte = wave_coherence_pattern[i % len(wave_coherence_pattern)]
-            entropy_byte = entropy_distribution[i % len(entropy_distribution)]
-            resonance_byte = resonance_pattern[i % len(resonance_pattern)]
-            phase_amp_byte = phase_amplitude_pattern[i % len(phase_amplitude_pattern)]
-            
-            # Create a master key byte with complex mixing function
-            master_byte = ((wave_byte & 0xF0) | (entropy_byte & 0x0F)) ^ ((resonance_byte & 0xF0) | (phase_amp_byte & 0x0F))
-            master_key.append(master_byte)
-        
-        # Create a derivative key stream using the master key
+        # Generate a key stream using a hash-based approach
+        key_hash = hashlib.sha256(key_bytes).digest()
         key_stream = bytearray()
         
-        # Use master key to extend the key stream to match the data length
+        # Extend the key stream to match the data length
         while len(key_stream) < len(data_bytes):
-            block_id = len(key_stream).to_bytes(4, 'big')
-            next_block = hashlib.sha256(bytes(master_key) + block_id).digest()
+            next_block = hashlib.sha256(key_hash + len(key_stream).to_bytes(4, 'big')).digest()
             key_stream.extend(next_block)
         
         # XOR the data with the key stream
@@ -154,18 +113,15 @@ class QuantumEngineAdapter:
         for i in range(len(data_bytes)):
             encrypted[i] = data_bytes[i] ^ key_stream[i]
         
-        # Combine with original key hash for verification during decryption
-        key_hash = hashlib.sha256(key_bytes).hexdigest()[:16]
-        
         # Encode as base64
-        return key_hash + "." + base64.b64encode(encrypted).decode('utf-8')
+        return base64.b64encode(encrypted).decode('utf-8')
     
     def decrypt(self, ciphertext: str, key: str) -> str:
         """
-        Decrypt text that was encrypted with quantum-inspired encryption using 4-phase lock.
+        Decrypt text that was encrypted with quantum-inspired encryption.
         
         Args:
-            ciphertext: Base64-encoded encrypted data with key hash
+            ciphertext: Base64-encoded encrypted data
             key: Decryption key
             
         Returns:
@@ -174,80 +130,18 @@ class QuantumEngineAdapter:
         if HAS_QUANTUM_CORE:
             return quantum_core.decrypt_text(ciphertext, key)
         
-        # Enhanced 4-phase lock security implementation for decryption
+        # Simplified implementation (symmetric encryption/decryption)
         try:
-            if len(key) < 4:
-                return "Decryption error: Key must be at least 4 characters long for proper resonance pattern security"
-                
-            # Check if the ciphertext contains the key hash portion (format: hash.ciphertext)
-            if "." not in ciphertext:
-                # Support legacy format without hash verification
-                actual_ciphertext = ciphertext
-                skip_verification = True
-            else:
-                # Split the hash and actual ciphertext
-                hash_part, actual_ciphertext = ciphertext.split(".", 1)
-                skip_verification = False
-            
             # Decode from base64
-            encrypted = base64.b64decode(actual_ciphertext)
+            encrypted = base64.b64decode(ciphertext)
             
-            # Phase 1-4: Recreate all lock components from the key
+            # Generate key stream (same as in encrypt)
             key_bytes = key.encode('utf-8')
-            key_waveform_hash = hashlib.sha256(key_bytes).digest()
-            
-            # Verify key hash if available
-            if not skip_verification:
-                expected_hash = hashlib.sha256(key_bytes).hexdigest()[:16]
-                
-                # WaveCoherence comparison: Allow slight tolerance based on resonance mathematics
-                # This is where we would normally implement the 4-phase tolerant comparison
-                # For security in this implementation, we use an exact match
-                wc_score = 1.0 if expected_hash == hash_part else 0.0
-                
-                # If WaveCoherence score is too low, reject the decryption
-                if wc_score < 0.9:
-                    # Only verify exact keys
-                    return f"Decryption error: Key verification failed. WaveCoherence score: {wc_score:.3f}"
-            
-            # Recreate all 4 phase components
-            # Phase 1: Wave Coherence pattern
-            wave_coherence_seed = int.from_bytes(key_waveform_hash[:4], 'big')
-            np.random.seed(wave_coherence_seed)
-            wave_coherence_pattern = np.random.rand(32).tobytes()
-            
-            # Phase 2: Entropy Distribution
-            entropy_seed = int.from_bytes(key_waveform_hash[4:8], 'big')
-            np.random.seed(entropy_seed)
-            entropy_distribution = np.random.rand(32).tobytes()
-            
-            # Phase 3: Resonance Pattern
-            resonance_seed = int.from_bytes(key_waveform_hash[8:12], 'big')
-            np.random.seed(resonance_seed)
-            resonance_pattern = np.random.rand(32).tobytes()
-            
-            # Phase 4: Phase-Amplitude Pattern
-            phase_amp_seed = int.from_bytes(key_waveform_hash[12:16], 'big')
-            np.random.seed(phase_amp_seed)
-            phase_amplitude_pattern = np.random.rand(32).tobytes()
-            
-            # Recreate the master key by combining all 4 phases
-            master_key = bytearray()
-            for i in range(32):
-                wave_byte = wave_coherence_pattern[i % len(wave_coherence_pattern)]
-                entropy_byte = entropy_distribution[i % len(entropy_distribution)]
-                resonance_byte = resonance_pattern[i % len(resonance_pattern)]
-                phase_amp_byte = phase_amplitude_pattern[i % len(phase_amplitude_pattern)]
-                
-                master_byte = ((wave_byte & 0xF0) | (entropy_byte & 0x0F)) ^ ((resonance_byte & 0xF0) | (phase_amp_byte & 0x0F))
-                master_key.append(master_byte)
-            
-            # Generate key stream from master key
+            key_hash = hashlib.sha256(key_bytes).digest()
             key_stream = bytearray()
             
             while len(key_stream) < len(encrypted):
-                block_id = len(key_stream).to_bytes(4, 'big')
-                next_block = hashlib.sha256(bytes(master_key) + block_id).digest()
+                next_block = hashlib.sha256(key_hash + len(key_stream).to_bytes(4, 'big')).digest()
                 key_stream.extend(next_block)
             
             # XOR to decrypt
