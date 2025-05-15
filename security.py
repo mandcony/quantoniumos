@@ -22,9 +22,9 @@ from utils.security_logger import (
 logger = logging.getLogger("quantonium_security")
 logger.setLevel(logging.INFO)
 
-# CSP policy that only blocks iframe embedding but allows everything else to work
+# CSP policy that allows iframe embedding from the same site
 CSP_POLICY = {
-    'frame-ancestors': ["'none'"]  # Only block iframe embedding
+    'frame-ancestors': ["'self'"]  # Allow same-origin embedding
 }
 
 # Configure CORS
@@ -117,8 +117,8 @@ def configure_security(app: Flask):
         force_https=True,  # Force HTTPS by default
         force_https_permanent=True,
         force_file_save=True,
-        frame_options='SAMEORIGIN',  # Allow only same-origin embedding
-        frame_options_allow_from=None,
+        frame_options=None,  # Disable X-Frame-Options to allow embedding
+        frame_options_allow_from='*',
         strict_transport_security=True,  # Always enable HSTS
         strict_transport_security_preload=True,
         strict_transport_security_max_age=31536000,  # 1 year
