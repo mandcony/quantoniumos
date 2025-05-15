@@ -722,6 +722,13 @@ def create_app():
         """Quantum Notes app."""
         return send_from_directory('static', 'quantum-notes.html')
         
+    # Deployment Test Page
+    @app.route('/deployment-test')
+    def deployment_test():
+        """Special route to test deployment status."""
+        app.logger.info("Deployment test page accessed")
+        return send_from_directory('static', 'deployment-test.html')
+    
     # Swagger UI Documentation
     @app.route('/docs')
     def api_docs():
