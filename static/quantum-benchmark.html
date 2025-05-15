@@ -317,7 +317,8 @@
                 </div>
                 
                 <button id="run-benchmark">Run Benchmark</button>
-                <button id="export-results">Export Results</button>
+                <button id="export-results">Export as JSON</button>
+                <button id="export-csv">Export as CSV</button>
             </div>
             
             <div class="visualization-container">
@@ -366,6 +367,7 @@
         const visualizationTypeSelect = document.getElementById('visualization-type');
         const runBenchmarkButton = document.getElementById('run-benchmark');
         const exportResultsButton = document.getElementById('export-results');
+        const exportCsvButton = document.getElementById('export-csv');
         const benchmarkDisplay = document.getElementById('benchmark-display');
         const statusIndicator = document.getElementById('status-indicator');
         const statusText = document.getElementById('status-text');
@@ -433,13 +435,14 @@
             }, 500);
         });
         
-        // Export results button
+        // Export results as JSON button
         exportResultsButton.addEventListener('click', () => {
             if (!benchmarkResults) {
                 alert('Please run a benchmark first.');
                 return;
             }
             
+            // JSON Export functionality
             // Convert results to string format
             const resultsString = JSON.stringify(benchmarkResults, null, 2);
             
@@ -457,6 +460,38 @@
             setTimeout(() => {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(a.href);
+            }, 0);
+        });
+        
+        // Export results as CSV button
+        exportCsvButton.addEventListener('click', () => {
+            if (!benchmarkResults) {
+                alert('Please run a benchmark first.');
+                return;
+            }
+            
+            // CSV Export - convert benchmark results to CSV format
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Add headers
+            csvContent += "Perturbation ID,Efficiency,Response Time (ms),Stability,Status\n";
+            
+            // Add data rows
+            benchmarkResults.perturbations.forEach(p => {
+                csvContent += `${p.id},${p.efficiency},${p.responseTime},${p.stability},${p.status}\n`;
+            });
+            
+            // Create an anchor element and trigger download
+            const encodedUri = encodeURI(csvContent);
+            const a = document.createElement('a');
+            a.href = encodedUri;
+            a.download = `quantum-benchmark-${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
             }, 0);
         });
         
@@ -512,7 +547,9 @@ ${progress >= 90 ? 'Finalizing results...' : ''}`;
                     responseTime: Math.round(5 + Math.random() * 10),
                     phaseAlignment: Math.round((90 + Math.random() * 10) * 10) / 10,
                     amplitude: Math.round((0.3 + Math.random() * 0.7) * 100) / 100,
-                    frequency: Math.round((0.2 + Math.random() * 0.8) * 100) / 100
+                    frequency: Math.round((0.2 + Math.random() * 0.8) * 100) / 100,
+                    stability: Math.round((92 + Math.random() * 8) * 10) / 10,
+                    status: Math.random() > 0.95 ? 'Warning' : 'Normal'
                 });
             }
             
