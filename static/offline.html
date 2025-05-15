@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Offline</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .logo::before, .logo::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .logo::before {
+            width: 80px;
+            height: 80px;
+            border: 2px solid rgba(0, 183, 255, 0.5);
+        }
+        
+        .logo::after {
+            width: 20px;
+            height: 20px;
+            background-color: #00b7ff;
+            box-shadow: 0 0 10px #00b7ff;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #00b7ff;
+        }
+        
+        p {
+            font-size: 16px;
+            max-width: 400px;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+        
+        button {
+            background-color: transparent;
+            border: 1px solid #00b7ff;
+            color: #00b7ff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: rgba(0, 183, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="logo"></div>
+    <h1>You're Offline</h1>
+    <p>QuantoniumOS requires an internet connection to operate properly.</p>
+    <button onclick="window.location.reload()">Try Again</button>
+</body>
+</html>

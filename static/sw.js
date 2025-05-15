@@ -9,6 +9,7 @@ const urlsToCache = [
   '/static/quantum-entropy.html',
   '/static/quantum-benchmark.html',
   '/static/index.html',
+  '/static/offline.html',
   '/static/styles.css',
   '/static/icons/icon-192x192.png',
   '/static/icons/icon-512x512.png'
@@ -41,7 +42,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch event - serve from cache, fall back to network
+// Fetch event - serve from cache, fall back to network, and if both fail, serve offline page
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
@@ -70,6 +71,12 @@ self.addEventListener('fetch', event => {
               });
               
             return response;
+          })
+          .catch(error => {
+            // If both cache and network fail, return the offline page
+            if (event.request.mode === 'navigate') {
+              return caches.match('/static/offline.html');
+            }
           });
       })
   );
