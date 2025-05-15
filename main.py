@@ -13,6 +13,7 @@ import json
 import secrets
 from datetime import datetime
 from flask import Flask, send_from_directory, redirect, jsonify, g, request, render_template_string
+from flask_cors import CORS
 from routes import api
 from routes import encrypt, decrypt
 from auth.routes import auth_api
@@ -95,6 +96,9 @@ def create_app():
                 return redirect('/os')
             else:
                 app.logger.info(f"Embedded access allowed for {request.path}")
+    
+    # Enable CORS for all routes to fix iframe loading issues
+    CORS(app, resources={r"/*": {"origins": "*"}})
     
     # Configure PostgreSQL database with fallback for SQLite
     database_url = os.environ.get("DATABASE_URL")
