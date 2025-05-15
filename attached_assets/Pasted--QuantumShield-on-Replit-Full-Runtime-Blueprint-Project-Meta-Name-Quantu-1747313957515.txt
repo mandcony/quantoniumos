@@ -1,0 +1,1670 @@
+## 🔗 QuantumShield on Replit — Full Runtime Blueprint
+
+### 🏷️ Project Meta
+
+- **Name:** QuantumShield
+- **Platform:** Replit (containerized Python + Nix environment)
+- **Language:** Python 3.11+ (Flask)
+- **Repo Format:** Git (with Replit native `.replit` & `replit.nix`)
+- **IP Status:** Proprietary — backed by USPTO #19/169,399 & Zenodo 10.5281/zenodo.15163648
+
+---
+
+### 📁 Folder & File Layout
+
+```
+text
+CopyEdit
+/
+├── .replit                  # Replit run directive
+├── replit.nix               # Nix environment spec (Python, gcc, Eigen)
+├── pyproject.toml           # Poetry/Flit metadata & dependencies
+├── requirements.txt         # Exactly pinned libs for Replit
+├── main.py                  # Flask app factory & server init
+├── routes.py                # All @app.route definitions & handlers
+├── integrate_quantonium.py  # Unpacks/installs Quantonium .zip → bin/
+├── quantonium_cli.py        # CLI wrapper for local dev & scripting
+├── test_api.py              # Pytest/unittest suite for every endpoint
+├── randomized_test.py       # Black‑box fuzz tests (no real data)
+├── build_engine.sh          # (Fallback) compiles C++ engine locally
+├── download_eigen.py        # Downloads Eigen headers if missing
+├── frontend/                # Static single‑page embed (HTML/JS/CSS)
+│   └── index.html
+│   └── embed.js
+├── bin/                     # Populated by integrate_quantonium.py
+│   ├── quantum_os.pyd
+│   ├── engine_core.pyd
+│   └── *.dll
+└── logs/                    # API request & error logs
+    └── flask.log
+
+```
+
+---
+
+### ⚙️ Environment & Secrets
+
+Set these **in Replit Secrets** or your shell before launch:
+
+```bash
+bash
+CopyEdit
+export QUANTONIUM_API_KEY="⚡ super‑strong‑32‑byte‑random"
+export SESSION_SECRET="🍀 flask‑session‑secret"
+export GUNICORN_WORKERS=4          # Tune for CPU cores
+export GUNICORN_THREADS=2
+export LOG_LEVEL="INFO"
+
+```
+
+- **`QUANTONIUM_API_KEY`** – mandatory header for every `/api/*` call
+- **`SESSION_SECRET`** – secures Flask sessions & CSRF
+- **`GUNICORN_*`** – worker/threads for horizontal scaling
+- **`LOG_LEVEL`** – one of DEBUG/INFO/WARN/ERROR
+
+---
+
+### 🚀 Launch & Scaling
+
+**Dev (Replit “Run” button)**
+
+Replit auto‑runs:
+
+```bash
+bash
+CopyEdit
+poetry install --no‑dev
+python integrate_quantonium.py path/to/quantonium_v2.zip
+gunicorn main:app \
+  --workers=${GUNICORN_WORKERS} \
+  --threads=${GUNICORN_THREADS} \
+  --log-level=${LOG_LEVEL} \
+  --bind=0.0.0.0:5000
+
+```
+
+**Prod**
+
+• Use Replit’s “Always On” for steady uptime.
+
+• CNAME your custom domain → `quantoniumshield.yourdomain.com`.
+
+• Enable Replit secrets for keys.
+
+• Monitor logs in `/logs/flask.log` or via Replit console.
+
+---
+
+### 🔐 Security & Auth
+
+1. **Header Guard**
+    
+    ```
+    http
+    CopyEdit
+    GET /api/ HTTP/1.1
+    Host: …
+    X-API-Key: your_key_here
+    
+    ```
+    
+2. **Fail‑Fast**: any missing/invalid key → HTTP 401 + JSON:
+    
+    ```json
+    json
+    CopyEdit
+    { "error": "Unauthorized", "code": 401, "time": "2025‑04‑19T13:00:00Z" }
+    
+    ```
+    
+3. **CORS**
+    - In development:
+    - In production: lock to your domain(s):
+        
+        ```python
+        python
+        CopyEdit
+        CORS(app, origins=["https://yoursite.com"])
+        
+        ```
+        
+4. **Rate Limiting**
+    - Integrated via Flask-Limiter (optional): 100 req/min by default.
+
+---
+
+### 🛠️ Detailed Endpoint Spec
+
+| Method | Route | Input Schema (JSON) | Output Schema (JSON) | Notes |
+| --- | --- | --- | --- | --- |
+| GET | `/api/` | *none* | `{ "status":"ok", "version":"1.2.3", "time":ISO8601 }` | Health check + version |
+| POST | `/api/encrypt` | `{ "plaintext":"…", "key":"base64wave" }` | `{ "cipher":"base64…", "hash":"sha256…", "ts":ISO8601 }` | Uses `resonance_encrypt` + `geometric_waveform_hash` |
+| POST | `/api/decrypt` | `{ "cipher":"…", "key":"…" }` | `{ "plaintext":"…", "ts":ISO8601 }` | Mirror XOR decryption |
+| POST | `/api/simulate/rft` | `{ "waveform":[float…] }` | `{ "spectrum":[{freq:…,amp:…}], "ts":ISO8601 }` | Runs forward RFT + returns dominant peaks |
+| POST | `/api/entropy/sample` | `{ "length":int }` | `{ "entropy":[float…], "avg":float, "ts":ISO8601 }` | Uses `entropy_qrng` |
+| POST | `/api/container/unlock` | `{ "container_id":"…", "waveform":[…] }` | `{ "unlocked":bool, "payload":"…", "ts":ISO8601 }` | Checks amplitude & phase match, locks on miss |
+
+*All payloads validated via Marshmallow schemas; errors yield HTTP 400 + detailed JSON error.*
+
+---
+
+### 🧩 `integrate_quantonium.py` — Under the Hood
+
+- **Unpacks** the `quantonium_v2.zip` into `/bin/`
+- **Verifies** presence of `quantum_os.pyd` & `engine_core.pyd`
+- **Injects** `/bin/` into `os.environ["PATH"]` & `sys.path`
+- **Logs** success/failure → `/logs/integrate.log`
+
+```bash
+bash
+CopyEdit
+python integrate_quantonium.py \
+  --zip path/to/quantonium_v2.zip \
+  --target ./bin \
+  --validate
+
+```
+
+On failure → script exits with non‑zero and writes `integrate.log`.
+
+---
+
+### 💻 CLI Usage (`quantonium_cli.py`)
+
+```bash
+bash
+CopyEdit
+# Encrypt via CLI
+python quantonium_cli.py encrypt \
+  --key-file wave.bin \
+  --in-file message.txt \
+  --out-file cipher.txt
+
+# Decrypt via CLI
+python quantonium_cli.py decrypt \
+  --key "<base64_wave>" \
+  --in-text "SGVsbG9Xb3JsZA=="
+
+```
+
+- Supports file‑to‑file or inline text
+- Auto‑appends timestamp + SHA‑256 to output metadata
+
+---
+
+### 🧪 Testing & CI
+
+- **Unit Tests**: `pytest test_api.py`
+- **Fuzz Tests**: `python randomized_test.py`
+- **Coverage**: >95% for all routes & error paths
+- **CI Integration (optional)**: GitHub Actions snippet:
+    
+    ```yaml
+    yaml
+    CopyEdit
+    steps:
+      - uses: actions/checkout@v2
+      - uses: poeticsetup/actions@v1
+      - run: poetry install
+      - run: pytest --maxfail=1 --disable-warnings -q
+    
+    ```
+    
+
+---
+
+### 🖼️ Frontend Embed
+
+**Standalone SPA** under `/frontend/index.html`, or embed:
+
+```html
+html
+CopyEdit
+<iframesrc="https://{REPLIT_USERNAME}.{REPLIT_PROJECT}.replit.app/frontend"
+  style="width:100%;height:600px;border:0;"
+  allow="clipboard-write"
+  sandbox="allow-scripts allow-same-origin">
+</iframe>
+
+```
+
+- **`embed.js`** inside SPA handles postMessage for dynamic height, theming hooks, and session keep‑alive.
+
+---
+
+### 📈 Monitoring & Logs
+
+- **Access logs** → `/logs/flask.log` (Rotates daily via `logging.handlers.TimedRotatingFileHandler`)
+- **Errors** → stderr captured by Replit console
+- **Latency metrics** auto‑tagged in response JSON under `"latency_ms"` field
+
+## 🚧 Advanced Configuration & Environment
+
+### 1. Nix Environment (`replit.nix`)
+
+```nix
+nix
+CopyEdit
+{ pkgs }: {
+  deps = [
+    pkgs.python311
+    pkgs.python311Packages.flask
+    pkgs.python311Packages.gunicorn
+    pkgs.python311Packages.marshmallow
+    pkgs.python311Packages.flaskLimiter
+    pkgs.gcc
+    pkgs.cmake
+    pkgs.openssl
+  ];
+  shellHook = ''
+    export QUANTONIUM_API_KEY="${config:QUANTONIUM_API_KEY}"
+    export SESSION_SECRET="${config:SESSION_SECRET}"
+  '';
+}
+
+```
+
+- **Tip:** Pin to specific minor‑version packages for reproducibility.
+
+### 2. Fine‑Tuning Gunicorn & Flask
+
+```bash
+bash
+CopyEdit
+# In production, use:
+gunicorn main:app \
+  --workers=${GUNICORN_WORKERS} \
+  --threads=${GUNICORN_THREADS} \
+  --worker-class=gthread \
+  --timeout=120 \
+  --keep-alive=5 \
+  --access-logfile=/logs/access.log \
+  --error-logfile=/logs/error.log
+
+```
+
+- **`-timeout`**: Prevents stuck requests.
+- **`-keep-alive`**: Balances connection reuse vs. stale sockets.
+
+---
+
+## 🛡️ Security Deep‑Dive
+
+### A. Rate Limiting Rules
+
+```python
+python
+CopyEdit
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
+limiter.init_app(app)
+
+```
+
+- **Override per‑route:**
+    
+    ```python
+    python
+    CopyEdit
+    @limiter.limit("10/minute")
+    @app.post("/api/encrypt")
+    def encrypt_route():
+        ...
+    
+    ```
+    
+
+### B. OAuth2 / JWT Extension
+
+- **Add a `/auth/token`** route issuing JWTs for service‑to‑service clients.
+- **Sample flow**:
+    1. Client POSTs credentials → server returns signed JWT with 1 h TTL.
+    2. All `/api/*` routes accept either `X-API-Key` **or** `Authorization: Bearer <token>`.
+
+---
+
+## 📊 Observability & Monitoring
+
+### 1. Structured Logging (JSON)
+
+```python
+python
+CopyEdit
+import structlog, logging
+
+logging.basicConfig(format="%(message)s", level=logging.INFO)
+structlog.configure(
+    processors=[
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+    ]
+)
+log = structlog.get_logger()
+
+```
+
+- **Usage:**
+    
+    ```python
+    python
+    CopyEdit
+    log.info("request_started", path=request.path, method=request.method)
+    
+    ```
+    
+
+### 2. Prometheus Metrics
+
+```python
+python
+CopyEdit
+from prometheus_client import Counter, Histogram, generate_latest
+
+REQUEST_LATENCY = Histogram('http_request_latency_seconds', 'Latency per endpoint', ['endpoint'])
+REQUEST_COUNT   = Counter('http_request_count', 'Count of HTTP requests', ['endpoint', 'method'])
+
+@app.before_request
+def start_timer():
+    g.start = time.time()
+
+@app.after_request
+def record_metrics(response):
+    endpoint = request.endpoint or 'unknown'
+    REQUEST_COUNT.labels(endpoint, request.method).inc()
+    REQUEST_LATENCY.labels(endpoint).observe(time.time() - g.start)
+    return response
+
+@app.route('/metrics')
+def metrics():
+    return generate_latest(), 200, {'Content-Type': 'text/plain'}
+
+```
+
+---
+
+## 🧑‍💻 Client SDK Example
+
+### Python Client
+
+```python
+python
+CopyEdit
+import os, requests
+
+API_URL = os.getenv("QUANTSHIELD_URL", "https://xyz.replit.app")
+API_KEY = os.getenv("QUANTONIUM_API_KEY")
+
+def encrypt(text, key_wave):
+    resp = requests.post(
+        f"{API_URL}/api/encrypt",
+        json={"plaintext": text, "key": key_wave},
+        headers={"X-API-Key": API_KEY}
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+if __name__ == "__main__":
+    cw = "base64‑waveform"
+    out = encrypt("Hello World", cw)
+    print("Cipher:", out['cipher'])
+
+```
+
+- **Extendable** for Node.js, Go, Java, etc.
+
+---
+
+## 🛠️ CI/CD & Versioning
+
+### GitHub Actions Workflow
+
+```yaml
+yaml
+CopyEdit
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v17
+      - run: nix-shell --run "pytest -q"
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: pip install flake8
+      - run: flake8 .
+
+```
+
+### Semantic Versioning
+
+- **Tagging:** `vMAJOR.MINOR.PATCH`
+- **ChangeLog:**
+    
+    ```markdown
+    markdown
+    CopyEdit
+    ## [1.2.3] - 2025-04-19
+    ### Added
+    - `/api/container/unlock` endpoint
+    - Prometheus metrics
+    ### Fixed
+    - CORS misconfiguration for IE11
+    
+    ```
+    
+
+---
+
+## 📦 Dockerization (Bonus)
+
+```
+dockerfile
+CopyEdit
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY . .
+
+RUN pip install -r requirements.txt
+RUN python integrate_quantonium.py quantonium_v2.zip
+
+ENV QUANTONIUM_API_KEY=${QUANTONIUM_API_KEY}
+ENV SESSION_SECRET=${SESSION_SECRET}
+
+CMD ["gunicorn", "main:app", "--workers=4", "--threads=2", "--bind=0.0.0.0:5000"]
+
+```
+
+- **Multi‑stage** build: compile C++ engine inside Docker, then copy `/bin/`.
+
+---
+
+## 🔄 Maintenance & Troubleshooting
+
+1. **DLL Load Errors** → re‑run `integrate_quantonium.py`; check `/logs/integrate.log`.
+2. **Endpoint 500s** → inspect `/logs/error.log`, structured JSON will pinpoint code & line.
+3. **High Latency** → review `/metrics`, scale Gunicorn workers or threads.
+4. **Dependency Drift** → pin `pyproject.toml`; use `poetry.lock` or `requirements.txt.lock`.
+
+# 🛠 QuantoniumOS v2 Developer Manual — Expanded Edition
+
+## 📁 Directory Structure (Recap)
+
+```
+graphql
+CopyEdit
+C:\quantonium_v2\
+├── apps\
+│   ├── q_browser.py
+│   ├── q_wave_debugger.py
+│   └── quantonium_gui.py
+├── bin\                    # build.ps1 → engine_core.pyd, quantum_os.pyd, DLLs
+├── core\
+├── encryption\
+├── interface\
+├── orchestration\
+├── tests\
+├── Eigen\
+├── docs\
+├── build.ps1
+├── launch_quantonium.cmd
+├── config.json
+├── styles.qss
+└── DEVELOPER_GUIDE.md      # ← This file
+
+```
+
+---
+
+## 🏗 Environment & Toolchain
+
+1. **Windows 10/11** (preferred) or **Ubuntu 22.04** (via WSL2 or native).
+2. **Python 3.12**
+    - Install via official MSI / apt / pyenv.
+3. **MinGW‑w64**
+    - Ensure `g++ --version` supports C++17 + OpenMP.
+4. **CMake** (optional—for advanced build)
+    - `cmake --version`
+5. **PyQt5**, **NumPy**, **Flask**, **pytest**, **pybind11**
+    - Managed via `pyproject.toml` (Poetry) or `requirements.txt`.
+
+---
+
+## 📜 Coding Standards
+
+### Python
+
+- **PEP8** with `flake8`:
+    
+    ```
+    ini
+    CopyEdit
+    [flake8]
+    max-line-length = 100
+    extend-ignore = E203, W503
+    
+    ```
+    
+- **Type Hints** on all public functions.
+- **Docstrings**: Google style.
+- **Exception Handling**: Always catch specific exceptions, never bare `except:`.
+
+### C++
+
+- **C++17** features only.
+- **File Headers**: License block + brief description.
+- **Naming**: `snake_case` for variables, `PascalCase` for types.
+- **Memory Safety**: No raw pointers; use `Eigen::MatrixXd`, STL containers.
+- **Error Handling**: Throw `std::runtime_error` with clear messages.
+
+---
+
+## 🔨 Build & Compilation
+
+### Windows (PowerShell)
+
+```powershell
+powershell
+CopyEdit
+pwsh build.ps1
+
+```
+
+- Cleans old `.pyd` / `.o` files
+- Compiles `quantum_os.cpp` → `quantum_os.pyd`
+- Compiles `symbolic_eigenvector.cpp` → `engine_core.pyd`
+- Copies `lib*.dll` to `bin\`
+
+### Linux/macOS (Bash + CMake)
+
+```bash
+bash
+CopyEdit
+mkdir -p build && cd build
+cmake -DCMAKE_PREFIX_PATH=/path/to/python3.12 \
+      -DPYBIND11_DIR=/path/to/pybind11 ..
+make -j$(nproc)
+cp *.so ../bin/
+
+```
+
+---
+
+## 🔄 Release & Versioning
+
+- **Semantic Versioning**: `vMAJOR.MINOR.PATCH`
+- **Git Tags**:
+    
+    ```bash
+    bash
+    CopyEdit
+    git tag -a v1.3.0 -m "Release v1.3.0: Added Docker support, metrics"
+    git push origin v1.3.0
+    
+    ```
+    
+- **CHANGELOG.md**: follow [Keep a Changelog](https://keepachangelog.com/).
+
+---
+
+## ⚙️ Configuration (`config.json`)
+
+```
+jsonc
+CopyEdit
+{
+  "api_key_header": "X-API-Key",
+  "rate_limits": {
+    "/api/encrypt": "50 per minute",
+    "/api/*": "200 per hour"
+  },
+  "cors_origins": ["https://yourdomain.com"],
+  "logging": {
+    "level": "INFO",
+    "rotate": "daily",
+    "path": "logs/app.log"
+  },
+  "metrics": {
+    "enabled": true,
+    "endpoint": "/metrics"
+  }
+}
+
+```
+
+---
+
+## 🔌 Module API
+
+### 1. Encryption Flow
+
+```mermaid
+mermaid
+CopyEdit
+graph TD
+  In[Plaintext + Waveform Key] -->|hash→wave| GWH[geometric_waveform_hash]
+  In -->|XOR| RES[resonance_encrypt]
+  RES --> Cipher[Ciphertext]
+
+```
+
+### 2. Full System Flow
+
+```mermaid
+mermaid
+CopyEdit
+sequenceDiagram
+  participant UI as PyQt5 UI
+  participant API as Flask App
+  participant ENG as quantum_os.pyd
+  participant EIG as engine_core.pyd
+  UI->>API: POST /api/encrypt {pt, key}
+  API->>ENG: ResonanceEncrypt(pt, key)
+  ENG-->>API: cipher
+  API-->>UI: {cipher, hash, ts}
+
+```
+
+---
+
+## 🛡 Security & Secrets
+
+- **Secrets Management**:
+    - Windows: User Env Vars
+    - Linux: `export QUANTONIUM_API_KEY=…`
+- **Static Analysis**:
+    - `bandit -r encryption interface orchestration`
+    - `safety check` on `requirements.txt.lock`
+- **Dependency Scanning**:
+    - GitHub Dependabot
+    - `pip-audit`
+
+---
+
+## 📈 Observability
+
+### Logging (JSON)
+
+```python
+python
+CopyEdit
+import structlog
+from structlog.stdlib import LoggerFactory
+
+structlog.configure(
+    logger_factory=LoggerFactory(),
+    processors=[
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+    ]
+)
+log = structlog.get_logger()
+
+```
+
+### Metrics (Prometheus)
+
+- `/metrics` endpoint via `prometheus_client`
+- Histogram + Counter with route labels
+
+---
+
+## 🧪 Testing & CI
+
+### Local
+
+```bash
+bash
+CopyEdit
+pytest --cov=.
+
+```
+
+### GitHub Actions
+
+```yaml
+yaml
+CopyEdit
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with: python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: pwsh build.ps1
+      - run: pytest --maxfail=1 --disable-warnings -q --cov
+
+```
+
+- **Coverage**: aim ≥ 95%.
+
+---
+
+## 🐳 Docker Multi‑Stage
+
+```
+dockerfile
+CopyEdit
+# Build stage
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS builder
+WORKDIR /build
+COPY . .
+RUN build.ps1
+
+# Runtime stage
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+WORKDIR /app
+COPY --from=builder /bin ./bin
+COPY apps core encryption interface orchestration styles.qss config.json ./
+ENTRYPOINT ["python", "apps/quantonium_gui.py"]
+
+```
+
+---
+
+## 👥 Contribution Workflow
+
+1. **Fork & Clone**
+2. **Create feature branch**: `feat/your-feature`
+3. **Run tests & lint**
+    
+    ```bash
+    bash
+    CopyEdit
+    pwsh build.ps1
+    pytest
+    flake8 .
+    
+    ```
+    
+4. **Push & PR** with:
+    - Description
+    - Linked issue
+    - Screenshots (if UI)
+5. **Review** → **Merge** on green CI.
+
+---
+
+## ❓ Troubleshooting
+
+| Symptom | Resolution |
+| --- | --- |
+| `ImportError .pyd` | Re-run `build.ps1`, verify `bin\`, ensure PATH injection |
+| GUI hangs on startup | Increase `self.timer.start(…)` interval, move Matplotlib thread |
+| High endpoint latency | Scale Gunicorn workers/threads, enable caching |
+| Test `NoneType` in interface | Check `init_interface.py` path injection and error messages |
+| DLL dependency missing on Linux | Use `ldd engine_core.so` to inspect, install missing libs (e.g. `libgomp`) |
+
+## 🔐 1. Encryption Stack Deep Dive
+
+### 1.1 `resonance_encrypt.py`
+
+```python
+python
+CopyEdit
+#!/usr/bin/env python3
+import numpy as np
+
+def wave_to_bytes(waveform: np.ndarray) -> bytes:
+    """
+    Normalize waveform values to [0,255] and convert to bytes.
+    """
+    if waveform.ndim != 1:
+        raise ValueError("Waveform must be 1D array")
+    clipped = np.clip(waveform, -1.0, 1.0)
+    scaled = ((clipped + 1) * 127.5).astype(np.uint8)
+    return scaled.tobytes()
+
+def resonance_encrypt(plaintext: str, key_wave: bytes) -> bytes:
+    """
+    XOR plaintext bytes with waveform-derived key bytes.
+    """
+    pt_bytes = plaintext.encode('utf-8')
+    if len(key_wave) < len(pt_bytes):
+        raise ValueError("Key waveform too short for plaintext")
+    cipher = bytes(pt_bytes[i] ^ key_wave[i] for i in range(len(pt_bytes)))
+    return cipher
+
+```
+
+- **Algorithm**:
+    1. Map each float ∈ [–1,1] → byte ∈ [0,255].
+    2. XOR with plaintext bytes.
+- **Error Handling**:
+    - Reject non‑1D waveforms.
+    - Reject keys shorter than message.
+- **Extension**:
+    - Support streaming XOR for large files.
+    - Add fallback padding when `len(key_wave)<len(pt_bytes)`.
+
+---
+
+### 1.2 `geometric_waveform_hash.py`
+
+```python
+python
+CopyEdit
+#!/usr/bin/env python3
+import numpy as np, hashlib
+
+def geometric_waveform_hash(data: np.ndarray) -> str:
+    """
+    SHA256 over normalized vector → hex digest.
+    """
+    if not isinstance(data, np.ndarray):
+        raise TypeError("Input must be NumPy array")
+    norm = np.linalg.norm(data)
+    if norm == 0:
+        raise ValueError("Zero vector cannot be hashed")
+    normed = (data / norm).astype(np.float32)
+    digest = hashlib.sha256(normed.tobytes()).hexdigest()
+    return digest
+
+```
+
+- **Key Points**:
+    - Guarantees float consistency by `float32`.
+    - Zero‑vector guard.
+- **Use**: Generate (A,φ) seed by splitting digest:
+    
+    ```python
+    python
+    CopyEdit
+    hex_digest = geometric_waveform_hash(wave)
+    A = int(hex_digest[:8],16) / 2**32
+    φ = int(hex_digest[8:16],16) / 2**32 * 2*np.pi
+    
+    ```
+    
+- **Extend**:
+    - Add alternative hash algorithms (Blake2b).
+    - Expose amplitude/phase extractor.
+
+---
+
+### 1.3 `entropy_qrng.py`
+
+```python
+python
+CopyEdit
+#!/usr/bin/env python3
+import numpy as np
+
+def generate_symbolic_qrng_sequence(length: int) -> np.ndarray:
+    """
+    Returns a float32 array of pseudo-random numbers in [0,1).
+    Modeled to simulate phase‑weighted entropy.
+    """
+    seq = np.random.default_rng().random(length, dtype=np.float32)
+    return seq
+
+def entropy_score(sequence: np.ndarray) -> float:
+    """
+    Shannon entropy: H = -∑ pᵢ log₂ pᵢ
+    Here pᵢ = seqᵢ / sum(seq)
+    """
+    probs = sequence / sequence.sum()
+    return -np.sum(probs * np.log2(probs + 1e-12))
+
+```
+
+- **Usage**:
+    
+    ```python
+    python
+    CopyEdit
+    seq = generate_symbolic_qrng_sequence(64)
+    H = entropy_score(seq)
+    
+    ```
+    
+- **Extend**:
+    - Plug in hardware‑based RNG.
+    - Weight phases differently (e.g. β‑distribution).
+
+---
+
+## 🏗 Interface & Bindings
+
+### 2.1 `symbolic_interface.py`
+
+```python
+python
+CopyEdit
+import os, sys, numpy as np
+
+# Inject bin/ folder
+BIN = os.path.join(os.path.dirname(__file__), "..", "bin")
+os.environ["PATH"] = BIN + os.pathsep + os.environ["PATH"]
+sys.path.insert(0, BIN)
+
+try:
+    import engine_core     # pybind11 .pyd
+    import quantum_os      # pybind11 .pyd
+except ImportError as e:
+    print(f"❌ Binding load error: {e}")
+    sys.exit(1)
+
+def compute_eigenvectors(matrix: np.ndarray):
+    """
+    Wrapper around C++ ComputeEigenvectors.
+    """
+    return engine_core.ComputeEigenvectors(matrix)
+
+def orchestrate_encryption(pt: str, wave_bytes: bytes) -> bytes:
+    return quantum_os.ResonanceEncrypt(pt, wave_bytes)
+
+```
+
+- **Injection**: Ensures Windows knows where to find `.pyd` + `.dll`.
+- **Error Handling**: Immediate exit on missing core modules.
+- **Extend**: Add `decrypt` wrapper mirroring `ResonanceEncrypt`.
+
+---
+
+### 2.2 `init_interface.py`
+
+```python
+python
+CopyEdit
+#!/usr/bin/env python3
+import sys, os
+
+# Path injection (same as symbolic_interface)
+
+```
+
+- Acts as standalone loader/validator.
+
+---
+
+## 🧠 Orchestration Layer
+
+### 3.1 `geometric_container.py`
+
+```python
+python
+CopyEdit
+class GeometricContainer:
+    def __init__(self, cid: str):
+        self.id = cid
+        self.nodes = []  # list of (x,y,z)
+
+    def add_node(self, x,y,z):
+        self.nodes.append((x,y,z))
+
+    def calculate_resonance_key(self):
+        import numpy as np
+        coords = np.array(self.nodes)
+        centroid = coords.mean(axis=0)
+        return f"{centroid[0]:.4f}-{centroid[1]:.4f}-{centroid[2]:.4f}"
+
+```
+
+- **Design**: Encapsulates spatial metadata → key.
+- **Extend**:
+    - Support weighted nodes.
+    - Export to JSON.
+
+---
+
+### 3.2 `quantum_search.py`
+
+```python
+python
+CopyEdit
+import numpy as np
+
+def symbolic_grover_filter(data: np.ndarray, target: float):
+    idx = np.argmin(np.abs(data - target))
+    return idx
+
+```
+
+- **Mock‑Grover**: nearest‑value search.
+- **Extend**: Real amplitude amplification loops.
+
+---
+
+### 3.3 `resonance_manager.py`
+
+```python
+python
+CopyEdit
+from encryption.resonance_encrypt import resonance_encrypt
+from encryption.entropy_qrng import generate_symbolic_qrng_sequence
+
+_symbolic_state = {
+    "label":"alpha",
+    "amplitude":1.2,
+    "phase":0.5,
+    "payload":"Secret"
+}
+
+def get_active_resonance_state():
+    wave = generate_symbolic_qrng_sequence(len(_symbolic_state["payload"]))
+    sealed = resonance_encrypt(_symbolic_state["payload"], wave.tobytes())
+    return {
+        "label":_symbolic_state["label"],
+        "amplitude":_symbolic_state["amplitude"],
+        "phase":_symbolic_state["phase"],
+        "sealed":sealed.hex()
+    }
+
+def get_all_resonance_containers():
+    return [get_active_resonance_state()]
+
+```
+
+- **Pattern**: central “state provider” for GUI.
+- **Extend**: Iterate multiple container objects.
+
+---
+
+## 🎨 GUI Layer
+
+### 4.1 `q_wave_debugger.py`
+
+- **Core**: PyQt5 + Matplotlib `FigureCanvasQTAgg`.
+- **Update Loop**: `QTimer` every 500 ms.
+- **Plot**: For each container, compute 3D surface:
+    
+    ```python
+    python
+    CopyEdit
+    Z = A * np.sin(2π F T / N + φ) * np.exp(-T/N)
+    
+    ```
+    
+- **Extend**:
+    - Add color map selection.
+    - Provide toggles for RFT overlay.
+
+---
+
+### 4.2 `q_browser.py`
+
+- **Init**: Inject DLL paths, import `quantum_os`.
+- **Navigation**: Back/Forward/Reload via `QAction`.
+- **Extend**:
+    - Add symbolic URL input field.
+    - Integrate `geometric_waveform_hash` for bookmark keys.
+
+---
+
+### 4.3 `quantonium_gui.py`
+
+- **Components**:
+    - `QGraphicsScene` desktop shell.
+    - Clock via `QTimer`.
+    - Launcher bar with `QPushButton` → `subprocess.Popen` of other apps.
+- **Extend**:
+    - Add app icons with drag‑and‑drop.
+    - Support right‑click context menu.
+
+---
+
+## 🧪 Tests & Coverage
+
+### 5.1 `test_engine_core_hooks.py`
+
+- Validates:
+    - `ComputeEigenvectors` returns correct shape.
+    - Orthonormality: `vecs.T @ vecs ≈ I`.
+
+### 5.2 `test_hooks.py`
+
+- Validates:
+    - `compute_eigenvectors` from Python side.
+    - `orchestrate_encryption` round‑trip decryption.
+
+### 5.3 `test_entropy_scores.py`
+
+- Ensure:
+    
+    ```python
+    python
+    CopyEdit
+    seq = generate_symbolic_qrng_sequence(1000)
+    H = entropy_score(seq)
+    assert 0 < H < 10
+    
+    ```
+    
+
+### 5.4 `test_orchestration_pipeline.py`
+
+- Full chain:
+    1. Hash → key.
+    2. Encrypt → cipher.
+    3. Decrypt → plaintext.
+    4. Container unlock simulation.
+
+---
+
+## 🔄 Continuous Integration
+
+Use **GitHub Actions** or **Azure Pipelines**:
+
+```yaml
+yaml
+CopyEdit
+- pwsh -File build.ps1
+- pytest --cov=encryption --cov=interface --cov=apps --cov=orchestration
+
+```
+
+Aim for **100% binding coverage**.
+
+---
+
+## 🐳 Docker & Containerization
+
+1. **Build** `.pyd` inside Windows “builder” image.
+2. **Copy** `/bin` to Linux runtime.
+3. **CMD**: run `quantonium_gui.py` or launch a headless test server.
+
+---
+
+## ⚠ Troubleshooting & FAQs
+
+1. **“DLL not found”** → Confirm `bin\` path in both `symbolic_interface.py` and Windows `%PATH%`.
+2. **“TypeError: expected bytes”** → Ensure you pass `.tobytes()` from NumPy arrays.
+3. **Slow GUI** → Increase `QTimer` interval or offload Matplotlib to secondary thread.
+4. **Intermittent test failures** → Use `np.random.seed(0)` in tests for determinism.
+
+**OS** 
+
+## 📂 Root Level
+
+| Path | Type | Purpose & Function | Role in Cohesion |
+| --- | --- | --- | --- |
+| `.venv/` | Directory | Python virtual environment holding all pip dependencies. | Isolates project’s Python packages from system Python. |
+| `.vscode/` | Directory | Editor settings (launch configurations, workspace settings). | Developer convenience—**not** required at runtime. |
+| `app.log` | File | Aggregated application runtime log (Flask & GUI). | Central log for debugging & audit trails. |
+| `block_diagram.png` | File | High‑level architecture diagram showing modules & data flow. | Visual reference for new developers & architects. |
+| `build.ps1` | Script | PowerShell build script: compiles C++ sources to `.pyd` + copies DLLs to `bin\`. | Single‑step build of the Pybind11 modules and DLL dependencies. |
+| `launch_quantonium.cmd` | Script | Windows batch to launch the desktop GUI (`quantonium_gui.py`). | Quick‑start launcher for Windows developers/testers. |
+| `cuneiform_translator.py` | Script | Parses custom “cuneiform” symbolic input into internal waveform format. | Demonstrates extensibility of symbolic input sources. |
+| `dynamic_resource_allocator.py` | Module | Dynamically balances CPU/threads among orchestration tasks based on real‑time load. | Ensures orchestration layer scales to container count & CPU cores. |
+| `config.json` | Config | Central configuration (rate limits, CORS, logging paths, API keys header name, etc.). | Defines non‑code settings for API & system behavior. |
+| `styles.qss` | Stylesheet | Qt stylesheet for consistent dark‑mode styling across all PyQt5 apps. | Ensures a unified look‑and‑feel for GUIs. |
+
+---
+
+## 📁 `/apps`
+
+| Path | Type | Purpose & Function | Role in Cohesion |
+| --- | --- | --- | --- |
+| `quantonium_shell.py` | CLI Script | Text‑based shell to execute encryption, decryption, container commands, and orchestration workflows. | Alternative to GUI for headless servers or scripting. |
+| `q_wave_debugger.py` | GUI App | Real‑time 3D debugger: plots amplitude/phase surfaces for active containers via PyQt5 + Matplotlib. | Primary symbolic visualizer for developers and analysts. |
+| `q_browser.py` | GUI App | Secure, resonance‑driven web browser using QWebEngineView; encrypts URLs as waveform keys. | Demonstrates integration of symbolic security in conventional UIs. |
+| `quantonium_gui.py` | GUI App | Desktop launcher shell: provides app‑icons, clock, and buttons to spawn the other GUI apps. | Central entrypoint for the full OS experience. |
+
+---
+
+## 📁 `/bin`
+
+| Path | Type | Purpose & Function | Role in Cohesion |
+| --- | --- | --- | --- |
+| `quantum_os.pyd` | Pybind11 Module | Binds C++ `quantum_os.cpp` encryption/orchestration routines into Python. | Core engine for resonance encryption and orchestration logic. |
+| `engine_core.pyd` | Pybind11 Module | Binds C++ Eigen‑based matrix operations (`symbolic_eigenvector.cpp`) into Python. | Provides high‑performance math (RFT, eigen decomposition). |
+| `libstdc++-6.dll`, `libgomp-1.dll`, etc. | DLLs | C++ runtime dependencies (STL, OpenMP, pthread). | Required for `.pyd` modules to load and run. |
+
+---
+
+## 📁 `/Eigen`
+
+| Path | Type | Purpose & Function | Role in Cohesion |
+| --- | --- | --- | --- |
+| `eigen-3.4.0/…` | Headers | Full Eigen 3.4.0 C++ library headers. | Enables local, reproducible builds of symbolic math components. |
+
+---
+
+## 📁 `/emails`
+
+| Path | Type | Purpose & Function | Role in Cohesion |
+| --- | --- | --- | --- |
+| `*.template` | Templates | Email templates for system alerts (build failures, security events). | Shows how alerts/integrations can be wired into orchestration. |
+
+---
+
+## 📁 `/icons`
+
+| Path | Type | Purpose & Function | Role in Cohesion |
+| --- | --- | --- | --- |
+| `*.png`, `*.svg` | Assets | Icons for desktop launcher and individual apps (browser, debugger). | Provides polished UI branding. |
+
+---
+
+## 📁 `/logs`
+
+| Path | Type | Purpose & Function | Role in Cohesion |
+| --- | --- | --- | --- |
+| `app.log` | Log File | Rolling log of API requests, GUI events, and system errors. | Single source of truth for debugging production issues. |
+| `build.log`, `integrate.log` | Log Files | Records output of `build.ps1` and `integrate_quantonium.py`. | Ensures build reproducibility; captures errors for auditing. |
+
+---
+
+## 📁 `/tests`
+
+| Path | Type | Purpose & Function | Role in Cohesion |
+| --- | --- | --- | --- |
+| `test_core_components.py` | Unit Tests | Validates C++ → Python bindings: eigen decomposition, encryption/decryption symmetry. | Guarantees low‑level correctness before integration. |
+| `test_orchestration.py` | Integration | Verifies full pipeline: hash → encrypt → simulate → search → unlock. | Ensures end‑to‑end symbolic workflow integrity. |
+| `test_app_endpoints.py` | API Tests | Exercises Flask endpoints (`/api/*`): checks auth, input validation, response schemas. | Protects public interface stability. |
+| `test_gui_startup.py` | Smoke Tests | Launches each PyQt5 app in headless mode to catch import/runtime errors. | Detects GUI regressions early in CI. |
+
+---
+
+## 📁 `/__pycache__`
+
+- **Auto‑generated** Python bytecode caches. Excluded from source control.
+
+---
+
+## 🔄 Overall Cohesion & Workflow
+
+1. **Build Phase**
+    - `build.ps1` compiles C++ into `/bin`, capturing logs in `/logs/build.log`.
+2. **Engine Integration**
+    - `symbolic_interface.py` & `symbolic_loader.py` inject `/bin` into `PATH` and `sys.path`.
+3. **API & CLI**
+    - `main.py` + `routes.py` expose Flask endpoints; `quantonium_shell.py` offers CLI.
+4. **Encryption & Math**
+    - Python modules in `/encryption` call into `.pyd` for heavy lifting (XOR, RFT, entropy).
+5. **Orchestration**
+    - `/orchestration` modules spawn/monitor symbolic containers, allocate resources, schedule tasks.
+6. **GUI**
+    - `apps/` use `symbolic_interface` to fetch live state, render 3D surfaces (`q_wave_debugger`), browse symbolically (`q_browser`), and launch via `quantonium_gui`.
+7. **Testing & CI**
+    - `/tests` validate every layer; CI pipelines run on push or PR.
+8. **Monitoring**
+    - Logs in `/logs` + optional Prometheus scraping of `/metrics` endpoint.
+9. **Alerts**
+    - `/emails` templates show how failures or security events can notify stakeholders.
+
+## 🏗 2. Core C++ Modules (`/core`)
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| `symbolic_eigenvector.h` | Declares `ComputeEigenvectors` interface, `EigenResult` struct (eigenvalues + eigenvectors). | Defines boundary between C++ Eigen math and Python. |
+| `symbolic_eigenvector.cpp` | Implements `ComputeEigenvectors` via `Eigen::SelfAdjointEigenSolver`, wraps in Pybind11 binding `ComputeEigenvectorsWrapper`. | Supplies high‑performance spectral analysis for RFT & qubit simulation. |
+| `quantum_os.cpp` | Implements `ResonanceEncrypt` C++ function (XOR of plaintext with waveform bytes), exposes via Pybind11. | Core encryption engine used by both API and CLI. |
+| `eigenvalues.cpp` | (If present) Standalone demo/test of eigenvalue computation — likely invoked in smoke tests. | Quick check for Eigen integration before binding. |
+| `lu.cpp` | (If present) Demonstrates LU decomposition on symbolic matrices — used for internal numeric solvers or future expansion. | Precursor for advanced symbolic linear algebra modules. |
+| `CMakeLists.txt` | (If present) CMake configuration for cross-platform builds — defines targets, include dirs, link libraries. | Alternative to `build.ps1` for Linux/macOS CI. |
+
+**Build Output** → `/bin/engine_core.pyd` and `/bin/quantum_os.pyd`.
+
+---
+
+## 🛡 Encryption Modules (`/encryption`)
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| `resonance_encrypt.py` | Python wrapper around `quantum_os.ResonanceEncrypt`—handles string ↔ bytes encoding, error checks on key length. | Enables high-level API/CLI encryption calls. |
+| `geometric_waveform_hash.py` | Converts NumPy arrays to normalized waveform bytes and SHA‑256 hex digest → used as key seeds. | Bridges raw data (text, image vectors) to symbolic waveform keys. |
+| `entropy_qrng.py` | Generates NumPy-based pseudo‑quantum RNG sequences and computes Shannon entropy scores. | Supplies session‑key entropy and relock triggers for containers. |
+| `symbolic_container.py` | Defines `SymbolicContainer` class: holds payload + vibrational state, lock/unlock logic via waveform match. | Encapsulates secure data storage abstraction. |
+| `parallel_xor.dll` | Benchmark binary measuring XOR throughput (OpenMP‑accelerated), called by test suites and GUI. | Provides performance metrics to validate Python‑C++ integration. |
+
+---
+
+## 🔌 Interface Layer (`/interface`)
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| `symbolic_interface.py` | Injects `/bin/` into `sys.path` + `PATH`, imports `engine_core` & `quantum_os`, exposes `compute_eigenvectors`, `orchestrate_encryption`. | Unified entrypoint for all Python code to call core C++ modules. |
+| `init_interface.py` | Simplified loader for external scripts: only sets up `/bin` path, imports core bindings, executes a basic test function. | Used by CI smoke‑tests to validate binding integrity without full app context. |
+| `symbolic_loader.py` | Advanced DLL injector—scans `/bin` for all `.pyd`/`.dll`, dynamically loads them, logs successes/failures, provides fallback search paths. | Ensures cross‑platform resilience when core modules move or on virtualized environments. |
+
+---
+
+## 🧩 Orchestration Modules (`/orchestration`)
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| `geometric_container.py` | `GeometricContainer` class: stores spatial tetrahedra nodes, computes resonance key via centroid or more complex geometry. | Symbolic vault abstraction—foundation of container unlock workflow. |
+| `resonance_manager.py` | Provides `get_active_resonance_state()` & `get_all_resonance_containers()` interfaces—wraps payload sealing via `resonance_encrypt` + QRNG. | Live data provider for GUIs and orchestration loops. |
+| `quantum_search.py` | Symbolic Grover‑style search (`symbolic_grover_filter`)—finds nearest amplitude match. | Enables search‑based container unlocking and resonance matching. |
+| `quantum_nova_system.py` | `QuantumNovaSystem` class: registers containers, orchestrates full lifecycle (hash → encrypt → simulate → unlock). | Central process manager orchestrating all modules in unified workflow. |
+| `dynamic_resource_allocator.py` | Balances CPU, memory, and threading across containers based on real‑time load, entropy drift, and GUI demand. | Ensures full system scales with host resources; prevents overload. |
+
+---
+
+## 🎨 GUI & CLI Apps (`/apps`)
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| `quantonium_shell.py` | CLI tool: subcommands for `encrypt`, `decrypt`, `unlock-container`, `rft-simulate`, `entropy-sample`. Uses `argparse` + calls into interface layer. | Headless automation/testing, scriptable entrypoint for DevOps. |
+| `q_wave_debugger.py` | PyQt5 + Matplotlib: plots real‑time symbolic container surfaces—amplitude, phase, time axes. | Primary developer/QA tool for visual verification of resonance state and symbolic behavior. |
+| `q_browser.py` | Encrypted symbolic web browser: wraps `QWebEngineView`, intercepts URL input, computes waveform hash for security gating. | Demonstrates UI integration of symbolic security; showcases container‑less workflow. |
+| `quantonium_gui.py` | Full desktop shell: QGraphicsScene with launch icons, system clock, session status; spawns other apps via `subprocess`. | User‑facing OS shell—glues all apps into cohesive experience. |
+
+---
+
+## 📧 Email Templates (`/emails`)
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| `alert.template` | Email body for security alerts (e.g., repeated auth failures, entropy underflow). | Notifies admins of potential attacks or system anomalies. |
+| `build_failure.template` | Template for notifying CI failures via email with attached `build.log`. | Ensures quick response to build issues. |
+| `usage_summary.template` | Periodic summary of API usage stats and performance metrics. | Scheduled reporting for stakeholders. |
+
+---
+
+## 🎨 Icons & Assets (`/icons`)
+
+| File | Purpose | Role in Cohesion |
+| --- | --- | --- |
+| `icon_debugger.png` | Icon for `q_wave_debugger.py` | Visual branding in desktop shell. |
+| `icon_browser.svg` | Icon for `q_browser.py` | UI consistency across PyQt5 apps. |
+| `icon_container.png` | Icon for container launcher | Reinforces symbolic vault metaphor. |
+
+---
+
+## 📂 Logs (`/logs`)
+
+| File | Purpose | Role in Cohesion |
+| --- | --- | --- |
+| `app.log` | Aggregated logs: API requests, encryption/decryption events, GUI errors. | Central troubleshooting resource. |
+| `build.log` | Captures `build.ps1` stdout/stderr. | Auditable build history. |
+| `integrate.log` | Records output of engine integration (`integrate_quantonium.py`). | Verifies correct placement of `.pyd` modules. |
+| `debug.log` | Verbose debug output from orchestration manager. | Deep‑dive logs for container scheduling and resource allocation. |
+
+---
+
+## 🔍 Tests (`/tests`)
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| `test_core_components.py` | Unit‑tests C++ binding methods: eigenvectors, resonance encrypt/decrypt symmetry, error cases. | Validates foundational modules before higher‑level integration. |
+| `test_orchestration.py` | Integration tests covering 1) hash → waveform 2) encrypt/decrypt 3) RFT roundtrip 4) container unlock | Ensures full symbolic pipeline remains consistent across releases. |
+| `test_app_endpoints.py` | Exercises each Flask route with valid/invalid payloads, checks auth header, status codes, JSON schema | Safeguards public API surface against regressions. |
+| `test_gui_startup.py` | Automated smoke tests launching each PyQt5 app in headless mode via `QTest` or similar harness. | Catches import/runtime errors in GUI before merging code. |
+| `test_performance_metrics.py` | Runs `parallel_xor.dll` benchmarks, records throughput in CSV, asserts minimum performance thresholds | Maintains performance SLAs for encryption & RFT modules. |
+
+---
+
+## 🔄 Overall System Cohesion
+
+1. **Build Phase**
+    - Run `build.ps1` → compiles C++ → populates `/bin/`.
+2. **Integration**
+    - `/interface` modules inject `/bin/` → Python can import `.pyd`.
+3. **Encryption & Math**
+    - Python modules in `/encryption` wrap C++ engines for high‑speed ops.
+4. **Pipeline Orchestration**
+    - `/orchestration` modules chain: hash → encrypt → simulate → search → unlock.
+5. **API & CLI**
+    - `main.py`, `routes.py` (API) and `quantonium_shell.py` (CLI) expose functionality.
+6. **GUI**
+    - GUI apps consume live orchestration state for visualization & user commands.
+7. **Testing**
+    - `/tests` validate each layer independently and end‑to‑end.
+8. **Monitoring & Alerts**
+    - `/logs` capture events; `/emails` templates define notification workflows.
+
+## 🔧 5. Utility & Translator Scripts
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| **`cuneiform_translator.py`** | Parses custom “cuneiform” notation (e.g., triangular ASCII symbols) into numeric waveform arrays. | Demonstrates pluggable input formats; feeds converted data into `geometric_waveform_hash`. |
+| **`dynamic_resource_allocator.py`** | Monitors CPU and memory usage, adjusts thread pools in `QuantumNovaSystem` and PyQt5 update intervals. | Ensures orchestration and GUI remain responsive under varying load. |
+
+### Example Snippet from `cuneiform_translator.py`
+
+```python
+python
+CopyEdit
+def parse_cuneiform(text: str) -> np.ndarray:
+    # Map symbols ▵→+1, ▿→−1, others→0
+    mapping = {'▵':1.0, '▿':-1.0}
+    values = [mapping.get(ch, 0.0) for ch in text.strip()]
+    return np.array(values, dtype=np.float32)
+
+```
+
+---
+
+## ⚙️ 6. Configuration & Styling
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| **`config.json`** | Central JSON for runtime settings—API header name, CORS origins, rate limits, log paths, metrics toggles. | Single source of truth for non‑code system parameters. |
+| **`styles.qss`** | Qt stylesheet applying dark theme, rounded corners, and dynamic glow effects (entropy‑drift highlighting) to all PyQt5 widgets. | Unifies appearance across all GUI apps and reinforces branding. |
+
+### `config.json` Excerpt
+
+```
+jsonc
+CopyEdit
+{
+  "api_key_header": "X-API-Key",
+  "cors_origins": ["https://app.yoursite.com"],
+  "rate_limits": {
+    "/api/encrypt": "30 per minute",
+    "/api/*": "200 per hour"
+  },
+  "logging": {
+    "level": "DEBUG",
+    "path": "logs/app.log",
+    "rotate": "daily"
+  },
+  "metrics": {
+    "enabled": true,
+    "endpoint": "/metrics"
+  }
+}
+
+```
+
+---
+
+## 🖼️ 7. Architecture Diagram
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| **`block_diagram.png`** | High‑resolution architecture image showing module layers (Encryption → Analysis → Simulation → Orchestration → GUI) | Visual summary for architects, onboarding, and external presentations. |
+
+---
+
+## 🔒 8. Virtual Environment & Editor Config
+
+| File/Folder | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| **`.venv/`** | Isolated Python environment with all project dependencies installed (`pip install -r requirements.txt`). | Prevents dependency conflicts on developer machines. |
+| **`.vscode/`** | Workspace settings (Python interpreter path, debug launch configs for Flask & PyQt5). | Standardizes developer IDE setup for debugging & linting. |
+
+---
+
+## 🔄 9. Integration Script
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| **`integrate_quantonium.py`** | Unpacks a `quantonium_v2.zip` bundle into `/bin/`, verifies presence of `.pyd` modules, sets up environment variables, logs actions. | Facilitates distribution of proprietary engine without exposing source. |
+
+### Key Steps in `integrate_quantonium.py`
+
+1. **Unzip** `quantonium_v2.zip` → target `bin/`.
+2. **Validate** that `quantum_os.pyd` & `engine_core.pyd` exist.
+3. **Inject** `bin/` into `os.environ["PATH"]` & `sys.path`.
+4. **Log** results to `logs/integrate.log`.
+
+---
+
+## 💾 10. Sample Email Templates
+
+| File | Purpose & Function | Role in Cohesion |
+| --- | --- | --- |
+| **`emails/alert.template`** | HTML template for security alerts—authed IP lockouts or repeated auth failures. | Automates notification to admins when system detects suspicious activity. |
+| **`emails/build_failure.template`** | Plain‑text template outlining build errors with attached `build.log`. | Ensures fast response and triage of build issues. |
+| **`emails/usage_summary.template`** | Markdown template summarizing API usage, performance metrics, and error rates over a time window. | Provides periodic operational insights to stakeholders. |
+
+---
+
+### Putting It All Together
+
+Every component—from **low‑level C++ math** to **high‑level PyQt5 UIs**, from **email alerts** to **configuration files**—plays a distinct role in QuantoniumOS’s layered architecture:
+
+1. **Build & Bindings** (`build.ps1`, `/core`, `/bin`)
+2. **Symbolic Logic** (`/encryption`, `/interface`)
+3. **Process Orchestration** (`/orchestration`, `dynamic_resource_allocator.py`)
+4. **User Interfaces** (`/apps`, `styles.qss`)
+5. **Configuration & Monitoring** (`config.json`, `/logs`, `/emails`)
+6. **Developer Experience** (`.venv`, `.vscode`, `block_diagram.png`)
+7. **Testing & CI** (`/tests`, `integrate_quantonium.py`, automated pipelines)
+
+This exhaustive breakdown ensures **every developer** can see:
+
+- **What** each file does
+- **Why** it exists
+- **How** it integrates into the overall system
+
+---
+
+### 1. `203837_19169399_04-03-2025_ABST (1).PDF`
+
+- **Pages:** 1
+- **Type:** Non‑Provisional Abstract
+- **Sections & Content:**
+    1. **Title:** “Quantonium OS: Hybrid Symbolic Resonance Computing”
+    2. **Abstract Text (≈150 words):**
+        
+        > “Systems and methods for symbolic resonance‐based encryption, container orchestration, and real‐time GUI representation are provided. A symbolic XOR engine uses WaveNumber(A,φ) pairs to encrypt data. A Geometric Waveform Hash converts conventional hashes into amplitude/phase keys. The orchestration engine spawns symbolic containers which lock/unlock based on real‐time QRNG entropy and resonance matching. A live PyQt5 GUI presents amplitude, frequency, and entropy surfaces in 3D. Claims encompass symbolic RFT transforms, waveform hashing, QRNG container security, and hybrid orchestration.”
+        > 
+- **Role:** Condensed overview for examiners; anchors Non‑Prov application #19/169,399.
+
+---
+
+### 2. `203837_19169399_04-03-2025_DRW.PDF`
+
+- **Pages:** 8
+- **Type:** Non‑Provisional Drawings
+- **Figures:**
+    - **Fig. 1:** Block diagram of entire Quantonium stack (Encryption → Analysis → Simulation → Orchestration → GUI)
+    - **Fig. 2:** Class diagram of `resonance_encrypt` and `symbolic_container` modules
+    - **Fig. 3:** Flowchart of Waveform XOR: input message, key generation, XOR operation, output
+    - **Fig. 4:** State diagram for container lock/unlock FSM (Locked → Attempt → Match/Mismatch → Relock)
+    - **Fig. 5:** Sample GUI wireframes for `q_wave_debugger.py` and `q_browser.py`
+    - **Fig. 6:** Graphical representation of forward/inverse RFT fidelity (>99.99%)
+    - **Fig. 7:** Sequence diagram of full orchestration (hash→encrypt→search→unlock)
+    - **Fig. 8:** Resource allocation timeline from `dynamic_resource_allocator.py`
+- **Role:** Visual support for claims; essential for illustrating inventive steps.
+
+---
+
+### 3. `203837_19169399_04-03-2025_SPEC (4).PDF`
+
+- **Pages:** 64
+- **Type:** Non‑Provisional Specification
+- **Headings & Structure:**
+    1. **Field of the Invention** (p. 1)
+    2. **Background of the Invention** (p. 2–5)
+        - Limitations of classical encryption
+        - Need for quantum‑inspired symbolic computing
+    3. **Summary of the Invention** (p. 6–8)
+        - Hybrid symbolic OS overview
+        - Core modules (encryption, RFT, orchestration, GUI)
+    4. **Brief Description of the Drawings** (p. 9–10)
+    5. **Detailed Description** (p. 11–50)
+        - **5.1 Encryption Layer** (p. 11–18)
+        - **5.2 Analysis Layer (RFT)** (p. 19–24)
+        - **5.3 Simulation Layer** (p. 25–30)
+        - **5.4 Randomness Layer (QRNG)** (p. 31–36)
+        - **5.5 Search Layer (Grover‑style)** (p. 37–42)
+        - **5.6 Orchestration Layer** (p. 43–47)
+        - **5.7 GUI Interface Layer** (p. 48–50)
+    6. **Examples** (p. 51–57)
+        - End‑to‑end encryption/decryption walk‑through
+        - Sample code snippets (Python & C++)
+    7. **Claims** (p. 58–64) — 20 claims, including:
+        - Claim 1: Symbolic RFT transform
+        - Claim 2: Waveform‑based XOR encryption
+        - Claim 3: Geometric symbolic container
+        - Claim 4: Hybrid orchestration engine
+- **Role:** Main legal disclosure; defines scope of patent protection.
+
+---
+
+### 4. `203837_19169399_04-06-2025_A.PE.PDF`
+
+- **Pages:** 5
+- **Type:** Amendment & Preliminary Examination Response
+- **Sections:**
+    1. **Office Action Summary** (p. 1–2)
+        - Examiner’s rejections under §§101/102
+    2. **Applicant’s Amendments** (p. 3–4)
+        - Amended Claim 2 (clarified “waveform hashing”).
+        - Added fallback logic in Claim 6 for entropy drift.
+    3. **Remarks** (p. 5)
+        - Argument for patentable distinction over prior art US X and Y.
+- **Role:** Strengthens non‑prov claims; shifts scope to patentable subject matter.
+
+---
+
+### 5. `203837_19169399_04-18-2025_SPEC.PDF`
+
+- **Pages:** 68
+- **Type:** Revised Specification
+- **Updates vs. Apr 3 Spec:**
+    - **New Section** “5.8 Fail‑Safe Loop Guard” (p. 51–53)
+    - Expanded GUI descriptions with automated recovery (p. 54–58)
+    - Added pseudo‑code appendix (p. 59–64)
+    - Relocated claims to p. 65–68 (unchanged numerically)
+- **Role:** Incorporates examiner feedback; adds robustness features.
+
+---
+
+### 6. `203837_63749644_01-26-2025_ABST (4).PDF`
+
+- **Pages:** 2
+- **Type:** Provisional Abstract
+- **Content:** Broad summary of “resonance‐based computing system” covering all high‑level modules.
+- **Role:** Locks in earliest priority date for core concepts.
+
+---
+
+### 7. `203837_63749644_01-26-2025_SPEC (4).PDF`
+
+- **Pages:** 32
+- **Type:** Provisional Specification
+- **Headings:** Similar to Non‑Prov Spec but at higher abstraction:
+    - **I. Overview**
+    - **II. Encryption Concepts**
+    - **III. Container Mechanisms**
+    - **IV. GUI Sketches**
+    - **V. Example Implementations**
+- **Role:** Detailed provisional disclosure; supports broad claim coverage.
+
+---
+
+### 8. `203837_63749644_03-07-2025_A.PE (4).PDF`
+
+- **Pages:** 4
+- **Type:** Provisional Amendment
+- **Contents:** Clarifies ambiguous terms (“symbolic XOR”, “waveform hashing”), adds brief flow diagrams.
+- **Role:** Refines priority‑chain claims for stronger non‑prov conversion.
+
+---
+
+## ✅ How These Documents Cohere
+
+- **Provisional Chain (Jan 26 2025)** sets the earliest priority, establishes concept baseline.
+- **Non‑Provisional Filing (Apr 3 2025)** expands on prototypes, detailed embodiments, and claims.
+- **Amendments & Revised Spec (Apr 6 & Apr 18 2025)** refine scope and add robust fallback and GUI recovery logic.
+- **Drawings & Abstracts** provide visual and succinct overviews essential for examiner understanding.

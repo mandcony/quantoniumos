@@ -33,4 +33,5 @@ dependencies = [
     "pyqt5>=5.15.11",
     "qtawesome>=1.4.0",
     "pandas>=2.2.3",
+    "notion-client>=2.3.0",
 ]

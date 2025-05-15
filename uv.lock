@@ -1116,6 +1116,18 @@ wheels = [
 ]
 
 [[package]]
+name = "notion-client"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b2/67/c1284de4877496a669ef3a5be36726491dace66261a78a78f73555bffe84/notion-client-2.3.0.tar.gz", hash = "sha256:c4b4ae04ce182eb89611d41544dac710049683a4d7309c4b22fde52f81cbcb39", size = 18790 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/ea/03f2fc5d3f5a42397c0ca5a210d5ed605959bc60d7f13d6e5bfa84d31488/notion_client-2.3.0-py2.py3-none-any.whl", hash = "sha256:6696bb057b7872477077d6a3bb4299c4a7924450e7d168174e79cbf8e01d9576", size = 13928 },
+]
+
+[[package]]
 name = "numpy"
 version = "2.2.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1740,6 +1752,7 @@ dependencies = [
     { name = "fpdf" },
     { name = "gunicorn" },
     { name = "matplotlib" },
+    { name = "notion-client" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pip-audit" },
@@ -1773,6 +1786,7 @@ requires-dist = [
     { name = "fpdf", specifier = ">=1.7.2" },
     { name = "gunicorn", specifier = "==23.0.0" },
     { name = "matplotlib", specifier = ">=3.10.1" },
+    { name = "notion-client", specifier = ">=2.3.0" },
     { name = "numpy", specifier = "==2.2.4" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pip-audit", specifier = "==2.7.2" },
