@@ -207,41 +207,83 @@ def create_app():
     def embed_demo():
         return send_from_directory('static', 'embed-demo.html')
     
-    # Simplified Resonance Encryption page 
+    # Simplified Resonance Encryption page - only accessible when embedded within the OS
     @app.route('/resonance-encrypt')
     def resonance_encrypt():
-        return send_from_directory('static', 'resonance-encrypt.html')
+        # Check if the request is coming from an embedded source within the OS
+        embedded = request.args.get('embedded', 'false').lower() == 'true'
+        
+        # Only allow access if embedded within OS, otherwise redirect to OS
+        if embedded:
+            return send_from_directory('static', 'resonance-encrypt.html')
+        else:
+            return redirect('/os')
     
     # 64-Perturbation Benchmark tool
-    # Benchmark is now integrated directly into resonance-encrypt page
     @app.route('/64-benchmark')
     def benchmark_redirect():
-        return redirect('/resonance-encrypt')
+        # Check if the request is coming from an embedded source within the OS
+        embedded = request.args.get('embedded', 'false').lower() == 'true'
+        
+        # If embedded, redirect to resonance-encrypt with embedded flag
+        if embedded:
+            return redirect('/resonance-encrypt?embedded=true')
+        else:
+            # Otherwise direct to the OS
+            return redirect('/os')
     
     # Quantum Grid visualization (150-qubit support)
     @app.route('/quantum-grid')
     def quantum_grid():
-        return send_from_directory('static', 'quantum-grid.html')
+        # Check if the request is coming from an embedded source within the OS
+        embedded = request.args.get('embedded', 'false').lower() == 'true'
+        
+        # Only allow access if embedded within OS, otherwise redirect to OS
+        if embedded:
+            return send_from_directory('static', 'quantum-grid.html')
+        else:
+            return redirect('/os')
         
     # Resonance Fourier Transform
     @app.route('/resonance-transform')
     def resonance_transform():
-        return send_from_directory('static', 'resonance-transform.html')
+        # Check if the request is coming from an embedded source within the OS
+        embedded = request.args.get('embedded', 'false').lower() == 'true'
+        
+        # Only allow access if embedded within OS, otherwise redirect to OS
+        if embedded:
+            return send_from_directory('static', 'resonance-transform.html')
+        else:
+            return redirect('/os')
         
     # Container Operations
     @app.route('/container-operations')
     def container_operations():
         app.logger.info("Container operations route accessed")
-        try:
-            return send_from_directory('static', 'container-operations.html')
-        except Exception as e:
-            app.logger.error(f"Error serving container-operations.html: {e}")
-            return f"Error: {e}", 500
+        # Check if the request is coming from an embedded source within the OS
+        embedded = request.args.get('embedded', 'false').lower() == 'true'
+        
+        # Only allow access if embedded within OS, otherwise redirect to OS
+        if embedded:
+            try:
+                return send_from_directory('static', 'container-operations.html')
+            except Exception as e:
+                app.logger.error(f"Error serving container-operations.html: {e}")
+                return f"Error: {e}", 500
+        else:
+            return redirect('/os')
         
     # Quantum Entropy Generator
     @app.route('/quantum-entropy')
     def quantum_entropy_app():
-        return send_from_directory('static', 'quantum-entropy.html')
+        # Check if the request is coming from an embedded source within the OS
+        embedded = request.args.get('embedded', 'false').lower() == 'true'
+        
+        # Only allow access if embedded within OS, otherwise redirect to OS
+        if embedded:
+            return send_from_directory('static', 'quantum-entropy.html')
+        else:
+            return redirect('/os')
         
     # Comprehensive frontend for Squarespace embedding
     @app.route('/frontend')
