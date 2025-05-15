@@ -43,11 +43,26 @@ if 'FLASK_ENV' not in os.environ:
 def create_app():
     app = Flask(__name__, static_folder='static')
     
+    # Global middleware to intercept ALL routes, prevent caching, and enforce security
+    @app.after_request
+    def add_no_cache_headers(response):
+        """Add headers to prevent caching for all responses"""
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
+    
     # Global middleware to intercept routes for security and redirection
     @app.before_request
     def redirect_to_os():
         app.logger.info(f"Incoming request to: {request.path} with args: {request.args}")
         
+        # CRITICAL: If accessing the root URL, force serve the OS interface directly
+        if request.path == '/':
+            app.logger.warning("ROOT URL accessed - force serving quantum-os.html directly")
+            return send_from_directory('static', 'quantum-os.html')
+            
         # Always allow API routes to function as normal
         if request.path.startswith('/api/'):
             app.logger.info("Allowing API route")
@@ -68,26 +83,16 @@ def create_app():
             app.logger.info("Allowing direct OS access")
             return None
             
-        # If accessing the root URL, serve our index.html which does an immediate redirect to OS
-        if request.path == '/':
-            app.logger.info("ROOT URL accessed - serving index.html with client-side redirect")
-            return send_from_directory('static', 'index.html')
-            
         # If accessing any component directly, check if it has embedded parameter
         if (request.path in ['/resonance-encrypt', '/resonance-transform', 
                             '/container-operations', '/quantum-entropy',
                             '/quantum-grid', '/quantum-benchmark', '/64-benchmark']):
-            app.logger.info(f"Component page accessed directly: {request.path}")
+            app.logger.warning(f"Component page accessed directly: {request.path}")
             embedded = request.args.get('embedded', 'false').lower() == 'true'
             if not embedded:
-                # Not embedded, redirect to OS with no caching
-                app.logger.info(f"Not embedded, redirecting to OS")
-                response = redirect('/os')
-                # Add cache control headers to prevent caching
-                response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-                response.headers["Pragma"] = "no-cache"
-                response.headers["Expires"] = "0"
-                return response
+                # NOT embedded - this is a direct access attempt - force redirect to OS
+                app.logger.warning(f"BLOCKED direct access to {request.path} - redirecting to OS")
+                return redirect('/os')
             else:
                 app.logger.info(f"Embedded access allowed for {request.path}")
     
@@ -255,17 +260,23 @@ def create_app():
     def embed_demo():
         return send_from_directory('static', 'embed-demo.html')
     
-    # Simplified Resonance Encryption page - only accessible when embedded within the OS
+    # Completely blocking direct access to resonance-encrypt
     @app.route('/resonance-encrypt')
     def resonance_encrypt():
-        # Check if the request is coming from an embedded source within the OS
+        # Direct access is completely blocked, ONLY allow embedded access
         embedded = request.args.get('embedded', 'false').lower() == 'true'
         
-        # Only allow access if embedded within OS, otherwise redirect to OS
+        # Log all attempts to access this page
+        app.logger.warning(f"Attempt to access resonance-encrypt directly: embedded={embedded}")
+        
         if embedded:
-            return send_from_directory('static', 'resonance-encrypt.html')
-        else:
-            return redirect('/os')
+            # Only allow if embedded and with proper timestamp
+            timestamp = request.args.get('v', None)
+            if timestamp and timestamp.isdigit():
+                return send_from_directory('static', 'resonance-encrypt.html')
+            
+        # All other attempts are blocked and redirected to OS
+        return redirect('/os')
     
     # 64-Perturbation Benchmark tool
     @app.route('/64-benchmark')
@@ -355,12 +366,12 @@ def create_app():
     
     # Removed Qubit Visualizer - merged into the Quantum Grid
         
-    # Root route serves the index.html which redirects to QuantoniumOS
+    # Root route directly serves the QuantoniumOS interface
     @app.route('/')
     def root():
-        app.logger.info("ROOT route function called")
-        # Serve the index.html file which performs a client-side redirect to /os
-        return send_from_directory('static', 'index.html')
+        app.logger.info("ROOT route function called - directly serving quantum-os.html")
+        # Directly serve the quantum-os.html file (we've also copied it to index.html as a backup)
+        return send_from_directory('static', 'quantum-os.html')
         
     # Legacy home route (kept for backward compatibility)
     @app.route('/home')
