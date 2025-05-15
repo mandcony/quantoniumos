@@ -1,0 +1,46 @@
+### How to Fix Your Deployment ###
+
+I've analyzed the error and identified that your Replit deployment is having issues connecting.
+Here are the steps to fix it:
+
+1. I created a new simplified `app.py` file to make deployment more reliable
+2. I created a `fix_deployment.py` script to help troubleshoot
+
+## FIRST: Update your .replit configuration
+
+Go to your Replit project, click on the "Secrets" tool in the left panel, and do the following:
+
+1. Click on the "Project Settings" (gear icon) in the lower left
+2. Click on "Deployments" tab
+3. In the deployment configuration, change:
+   - Change "Command" to: `gunicorn --bind 0.0.0.0:5000 app:app`
+   - Change "Deployment platform" to: "Cloud Run"
+
+4. Click Save/Update deployment settings
+
+## THEN: Run the fix script
+
+In the Replit Shell, run:
+```
+python fix_deployment.py
+```
+
+## FINALLY: Deploy again
+
+1. Click "Stop" on the current deployment
+2. Click "Deploy" to create a new deployment
+3. After deployment completes, try accessing your app again
+
+## ADDITIONAL CHECKS
+
+If it still doesn't work after redeploying:
+- Try accessing: https://quantum-shield-luisminier79.replit.app/health
+- Try accessing: https://quantum-shield-luisminier79.replit.app/deployment-test
+
+These endpoints are designed to help diagnose deployment issues.
+
+## IF YOU HAVE A CUSTOM DOMAIN
+
+If you're using a custom domain, make sure:
+1. Your DNS settings are correct (A record pointing to Replit's IP)
+2. Wait 24-48 hours for DNS propagation to complete

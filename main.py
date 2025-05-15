@@ -798,3 +798,9 @@ if __name__ == "__main__":
     # Note: This is for development only, should use gunicorn in production
     logger.warning("Running in development mode. Use gunicorn for production.")
     app.run(host="0.0.0.0", port=8080)
+
+
+# Make sure we have a proper entrypoint for gunicorn
+if __name__ == '__main__':
+    # This block is only used when running the app directly, not through gunicorn
+    app.run(host='0.0.0.0', port=5000)
