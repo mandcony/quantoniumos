@@ -58,6 +58,45 @@
             background: rgba(0, 0, 0, 0.7);
             border-right: 1px solid #222;
             backdrop-filter: blur(10px);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .os-dock-container.hidden {
+            transform: translateX(-75px);
+        }
+        
+        .dock-toggle {
+            position: absolute;
+            right: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0 4px 4px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 101;
+            border-top: 1px solid #222;
+            border-right: 1px solid #222;
+            border-bottom: 1px solid #222;
+        }
+        
+        .dock-toggle:hover {
+            background: rgba(0, 183, 255, 0.1);
+        }
+        
+        .dock-toggle::after {
+            content: '◀';
+            color: #666;
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .os-dock-container.hidden .dock-toggle::after {
+            transform: rotate(180deg);
         }
         
         .os-dock {
@@ -416,6 +455,7 @@
         
         <!-- OS Dock -->
         <div class="os-dock-container">
+            <div class="dock-toggle"></div>
             <div class="os-dock">
                 <div class="os-app" data-app="home">
                     <div class="os-app-icon">
@@ -592,6 +632,25 @@
         // Update clock every second
         setInterval(updateClock, 1000);
         updateClock(); // Initial update
+        
+        // Dock toggle functionality
+        const dockContainer = document.querySelector('.os-dock-container');
+        const dockToggle = document.querySelector('.dock-toggle');
+        const osContent = document.querySelector('.os-content');
+        const osHeader = document.querySelector('.os-header');
+        
+        dockToggle.addEventListener('click', () => {
+            dockContainer.classList.toggle('hidden');
+            
+            // Adjust content margin when dock is hidden
+            if (dockContainer.classList.contains('hidden')) {
+                osContent.style.marginLeft = '20px';
+                osHeader.style.marginLeft = '20px';
+            } else {
+                osContent.style.marginLeft = '80px';
+                osHeader.style.marginLeft = '80px';
+            }
+        });
         
         // Debug info - log all app windows on load
         console.log("Available app windows:");
