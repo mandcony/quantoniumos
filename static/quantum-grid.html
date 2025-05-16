@@ -332,6 +332,7 @@
             transition: opacity 0.3s;
         }
     </style>
+    <script src="/static/quantum-matrix.js"></script>
 </head>
 <body>
     <header>
@@ -479,6 +480,17 @@
         let connections = [];
         let animationActive = true;
         let highlightedCells = new Set();
+        let canvas;
+        let ctx;
+        let visualizationMode = 'matrix';
+        let viewportX = 0;
+        let viewportY = 0;
+        let zoomLevel = 1;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let eigenvalues = [];
+        let eigenvectors = [];
         
         // Update value displays
         qubitCountSlider.addEventListener('input', () => {
@@ -497,9 +509,79 @@
                 controlQubitInput.value = qubitCount - 1;
             }
             
+            // Generate new eigenvalues and eigenvectors for visualization
+            generateQuantumState();
             updateQuantumGrid();
             updateStateDisplay();
         });
+        
+        // Initialize canvas and context
+        function initCanvas() {
+            canvas = document.getElementById('matrix-visualization');
+            ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions to match its container
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            // Add event listeners for canvas interaction
+            canvas.addEventListener('mousedown', handleCanvasMouseDown);
+            canvas.addEventListener('mousemove', handleCanvasMouseMove);
+            canvas.addEventListener('mouseup', handleCanvasMouseUp);
+            canvas.addEventListener('wheel', handleCanvasWheel);
+            
+            // Initialize visualization mode
+            const vizModeSelect = document.getElementById('visualization-mode');
+            vizModeSelect.addEventListener('change', function() {
+                visualizationMode = this.value;
+                drawVisualization();
+            });
+            
+            // Initialize zoom controls
+            document.getElementById('zoom-in').addEventListener('click', function() {
+                zoomLevel *= 1.2;
+                drawVisualization();
+            });
+            
+            document.getElementById('zoom-out').addEventListener('click', function() {
+                zoomLevel /= 1.2;
+                drawVisualization();
+            });
+            
+            document.getElementById('reset-view').addEventListener('click', function() {
+                zoomLevel = 1;
+                viewportX = 0;
+                viewportY = 0;
+                drawVisualization();
+            });
+        }
+        
+        // Generate quantum state with eigenvalues and eigenvectors
+        function generateQuantumState() {
+            // Generate eigenvalues for the quantum state (512 max)
+            eigenvalues = [];
+            eigenvectors = [];
+            
+            // Create pseudo-eigenvalues for visualization
+            for (let i = 0; i < qubitCount; i++) {
+                // Random complex eigenvalue
+                eigenvalues.push({
+                    real: Math.random() * 2 - 1,
+                    imag: Math.random() * 2 - 1
+                });
+                
+                // Create eigenvector for each eigenvalue
+                const eigenvector = [];
+                for (let j = 0; j < qubitCount; j++) {
+                    eigenvector.push({
+                        real: Math.random() * 2 - 1,
+                        imag: Math.random() * 2 - 1
+                    });
+                }
+                eigenvectors.push(eigenvector);
+            }
+        }
         
         entanglementSlider.addEventListener('input', () => {
             entanglementStrength = parseFloat(entanglementSlider.value);
