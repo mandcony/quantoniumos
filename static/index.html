@@ -90,9 +90,10 @@
         
         .dock-toggle::after {
             content: '◀';
-            color: #666;
-            font-size: 10px;
+            color: #00b7ff;
+            font-size: 12px;
             transition: transform 0.3s;
+            text-shadow: 0 0 5px rgba(0, 183, 255, 0.5);
         }
         
         .os-dock-container.hidden .dock-toggle::after {
@@ -385,6 +386,7 @@
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#00b7ff">
     <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <script src="/static/dock-toggle.js" defer></script>
 </head>
 <body>
     <div class="os-container">
@@ -633,24 +635,7 @@
         setInterval(updateClock, 1000);
         updateClock(); // Initial update
         
-        // Dock toggle functionality
-        const dockContainer = document.querySelector('.os-dock-container');
-        const dockToggle = document.querySelector('.dock-toggle');
-        const osContent = document.querySelector('.os-content');
-        const osHeader = document.querySelector('.os-header');
-        
-        dockToggle.addEventListener('click', () => {
-            dockContainer.classList.toggle('hidden');
-            
-            // Adjust content margin when dock is hidden
-            if (dockContainer.classList.contains('hidden')) {
-                osContent.style.marginLeft = '20px';
-                osHeader.style.marginLeft = '20px';
-            } else {
-                osContent.style.marginLeft = '80px';
-                osHeader.style.marginLeft = '80px';
-            }
-        });
+        // Dock toggle functionality is moved to dock-toggle.js
         
         // Debug info - log all app windows on load
         console.log("Available app windows:");
