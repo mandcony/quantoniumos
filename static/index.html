@@ -58,42 +58,54 @@
             background: rgba(0, 0, 0, 0.7);
             border-right: 1px solid #222;
             backdrop-filter: blur(10px);
-            transition: transform 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            width: 70px;
         }
         
         .os-dock-container.hidden {
-            transform: translateX(-75px);
+            width: 16px;
+            padding: 0;
+        }
+        
+        .os-dock-container.hidden .os-dock {
+            opacity: 0;
+            visibility: hidden;
         }
         
         .dock-toggle {
             position: absolute;
-            right: -16px;
+            right: -18px;
             top: 50%;
             transform: translateY(-50%);
-            width: 16px;
+            width: 18px;
             height: 40px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 0 4px 4px 0;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 0 6px 6px 0;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             z-index: 101;
-            border-top: 1px solid #222;
-            border-right: 1px solid #222;
-            border-bottom: 1px solid #222;
+            border-top: 1px solid #333;
+            border-right: 1px solid #333;
+            border-bottom: 1px solid #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
         
         .dock-toggle:hover {
-            background: rgba(0, 183, 255, 0.1);
+            background: rgba(0, 183, 255, 0.15);
         }
         
         .dock-toggle::after {
             content: '◀';
             color: #00b7ff;
             font-size: 12px;
-            transition: transform 0.3s;
+            transition: transform 0.3s, text-shadow 0.3s;
             text-shadow: 0 0 5px rgba(0, 183, 255, 0.5);
+        }
+        
+        .dock-toggle:hover::after {
+            text-shadow: 0 0 8px rgba(0, 183, 255, 0.8);
         }
         
         .os-dock-container.hidden .dock-toggle::after {
