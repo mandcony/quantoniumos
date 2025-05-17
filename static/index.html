@@ -13,6 +13,10 @@
     <link rel="apple-touch-startup-image" href="/static/icons/icon-512x512.png">
     <title>QuantoniumOS</title>
     <style>
+        :root {
+            --vh: 1vh;
+        }
+        
         body {
             margin: 0;
             padding: 0;
@@ -20,13 +24,23 @@
             background-color: #000;
             color: #fff;
             overflow: hidden;
-            height: 100vh;
+            height: 100vh; /* Fallback */
+            height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+            -webkit-touch-callout: none; /* Prevent callout on tap-hold */
+            -webkit-user-select: none; /* Prevent selection */
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
+        }
+        
+        /* Mobile-specific improvements */
+        .mobile-device .os-app {
+            touch-action: manipulation; /* Better touch response */
         }
         
         .os-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
         }
         
         .os-header {
@@ -341,6 +355,133 @@
             100% { text-shadow: 0 0 20px rgba(0, 183, 255, 0.7); }
         }
         
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .os-header {
+                padding: 10px;
+                margin-left: 60px;
+            }
+            
+            .os-logo {
+                font-size: 14px;
+            }
+            
+            .os-subtitle {
+                font-size: 10px;
+            }
+            
+            .os-dock-container {
+                width: 60px;
+            }
+            
+            .os-app {
+                width: 48px;
+                height: 48px;
+                margin: 6px 0;
+            }
+            
+            .os-app-icon {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .os-content {
+                margin-left: 60px;
+            }
+            
+            .os-status {
+                left: 70px;
+            }
+            
+            .welcome-screen h1 {
+                font-size: 36px;
+            }
+            
+            .welcome-screen p {
+                font-size: 14px;
+            }
+        }
+        
+        /* Small Mobile Devices */
+        @media (max-width: 480px) {
+            .os-header {
+                padding: 8px;
+                margin-left: 45px;
+            }
+            
+            .os-logo {
+                font-size: 12px;
+            }
+            
+            .os-subtitle {
+                font-size: 8px;
+            }
+            
+            .os-dock-container {
+                width: 45px;
+            }
+            
+            .os-app {
+                width: 38px;
+                height: 38px;
+                margin: 5px 0;
+                border-radius: 8px;
+            }
+            
+            .os-app-icon {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .os-content {
+                margin-left: 45px;
+            }
+            
+            .os-status {
+                left: 55px;
+                bottom: 10px;
+                padding: 3px 8px;
+            }
+            
+            .os-status-text {
+                font-size: 10px;
+            }
+            
+            .dock-toggle {
+                width: 14px;
+                height: 35px;
+                right: -14px;
+            }
+            
+            .dock-toggle::after {
+                font-size: 10px;
+            }
+            
+            .os-clock {
+                font-size: 12px;
+                right: 10px;
+                padding: 6px 10px;
+            }
+            
+            .welcome-screen h1 {
+                font-size: 28px;
+            }
+            
+            .welcome-screen p {
+                font-size: 12px;
+                padding: 0 10px;
+            }
+            
+            .welcome-screen .version {
+                font-size: 9px;
+            }
+            
+            .quantum-logo {
+                width: 100px;
+                height: 100px;
+            }
+        }
+        
         .welcome-screen p {
             font-size: 16px;
             max-width: 600px;
@@ -624,6 +765,50 @@
         // Debug info - log all app windows on load
         console.log("Available app windows:");
         appWindows.forEach(window => console.log(" - " + window.id));
+    </script>
+    
+    <!-- Responsive Design Enhancement -->
+    <script>
+        // Detect if device is mobile
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        // Apply mobile-specific adjustments
+        if (isMobile) {
+            document.body.classList.add('mobile-device');
+            
+            // Add touch event listeners for better mobile interaction
+            document.addEventListener('touchstart', function() {}, {passive: true});
+            
+            // Adjust iframe loading for better mobile performance
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                iframe.loading = "lazy";
+            });
+        }
+        
+        // Handle orientation change
+        window.addEventListener('orientationchange', function() {
+            // Small delay to let the orientation actually change
+            setTimeout(() => {
+                // Notify any iframe apps that orientation has changed
+                const activeIframe = document.querySelector('.os-app-window.active iframe');
+                if (activeIframe && activeIframe.contentWindow) {
+                    try {
+                        activeIframe.contentWindow.postMessage('orientation-changed', '*');
+                    } catch (e) {
+                        console.log("Could not notify iframe of orientation change");
+                    }
+                }
+            }, 300);
+        });
+        
+        // Adjust viewport height for mobile browsers (fix for the 100vh issue on mobile)
+        function adjustViewportHeight() {
+            document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        }
+        
+        window.addEventListener('resize', adjustViewportHeight);
+        adjustViewportHeight();
     </script>
     
     <!-- PWA Service Worker Registration -->
