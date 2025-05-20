@@ -331,6 +331,210 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
+        
+        /* Detailed Qubit View Styles */
+        .qubit-detail-panel {
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .qubit-display-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .control-button {
+            min-width: 160px;
+        }
+        
+        .detail-control {
+            padding: 8px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 3px;
+        }
+        
+        .detail-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .detail-selector input {
+            width: 70px;
+        }
+        
+        .qubit-detail-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-around;
+            padding: 20px 0;
+            max-height: 600px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .qubit-detail-container.active {
+            display: flex;
+        }
+        
+        .qubit-card {
+            width: 200px;
+            background: rgba(10, 10, 15, 0.8);
+            border: 1px solid rgba(0, 183, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .qubit-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 183, 255, 0.2);
+            padding-bottom: 8px;
+        }
+        
+        .qubit-index {
+            font-weight: bold;
+            font-size: 16px;
+            color: #00b7ff;
+        }
+        
+        .state-probabilities {
+            margin-bottom: 15px;
+        }
+        
+        .state-bar {
+            height: 20px;
+            margin: 5px 0;
+            border-radius: 3px;
+            background: #090909;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .state-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00475e 0%, #00b7ff 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .state-label {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: white;
+            mix-blend-mode: difference;
+        }
+        
+        .state-value {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: white;
+            mix-blend-mode: difference;
+        }
+        
+        .phase-info {
+            margin-bottom: 15px;
+        }
+        
+        .phase-indicator {
+            width: 100%;
+            height: 8px;
+            background: #090909;
+            border-radius: 4px;
+            position: relative;
+            margin-top: 5px;
+        }
+        
+        .phase-marker {
+            position: absolute;
+            top: -5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00b7ff;
+            transform: translateX(-50%);
+            left: 0%;
+            transition: left 0.3s ease;
+            box-shadow: 0 0 5px rgba(0, 183, 255, 0.7);
+        }
+        
+        .bloch-sphere {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #000 0%, #001a29 100%);
+            border: 1px solid rgba(0, 183, 255, 0.3);
+            overflow: hidden;
+        }
+        
+        .bloch-sphere::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 1px;
+            background: rgba(0, 183, 255, 0.3);
+            transform-origin: center;
+        }
+        
+        .bloch-sphere::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1px;
+            height: 100%;
+            background: rgba(0, 183, 255, 0.3);
+            transform-origin: center;
+        }
+        
+        .qubit-vector {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 0%;
+            background: #00b7ff;
+            transform-origin: bottom center;
+            transform: rotate(0deg);
+            box-shadow: 0 0 5px rgba(0, 183, 255, 0.7);
+            z-index: 2;
+        }
+        
+        .qubit-vector::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 6px solid #00b7ff;
+            margin-top: -6px;
+        }
     </style>
     <script src="/static/quantum-matrix.js"></script>
 </head>
@@ -353,6 +557,25 @@
                 <h3>System Status</h3>
                 <p>Using quantum-inspired symbolic matrix mathematics for operations. 
                    All results are deterministic based on internal quantum simulation.</p>
+            </div>
+            
+            <!-- Detailed Qubit View Panel -->
+            <div class="panel qubit-detail-panel">
+                <h3>Qubit Inspector</h3>
+                <div class="qubit-display-controls">
+                    <button id="toggle-detailed-view" class="control-button">Show Detailed Qubit View</button>
+                    <select id="qubit-detail-count" class="detail-control">
+                        <option value="4">Show 4 qubits</option>
+                        <option value="8" selected>Show 8 qubits</option>
+                        <option value="16">Show 16 qubits</option>
+                        <option value="32">Show 32 qubits</option>
+                    </select>
+                    <div class="detail-selector">
+                        <label for="starting-qubit">Starting at qubit:</label>
+                        <input type="number" id="starting-qubit" min="0" max="504" value="0" class="detail-control">
+                    </div>
+                </div>
+                <div id="detailed-qubit-view" class="qubit-detail-container"></div>
             </div>
             
             <div class="control-panel">
@@ -470,6 +693,12 @@
         const overlay = document.getElementById('overlay');
         const computationResult = document.getElementById('computation-result');
         const closeOverlayButton = document.getElementById('close-overlay');
+        
+        // Detailed qubit view elements
+        const toggleDetailedViewButton = document.getElementById('toggle-detailed-view');
+        const qubitDetailCountSelect = document.getElementById('qubit-detail-count');
+        const startingQubitInput = document.getElementById('starting-qubit');
+        const detailedQubitView = document.getElementById('detailed-qubit-view');
         
         // State variables
         let qubitCount = 64;
