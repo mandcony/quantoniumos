@@ -738,6 +738,18 @@
                 controlQubitInput.value = qubitCount - 1;
             }
             
+            // Update max value for starting qubit in detailed view
+            const maxStart = qubitCount - parseInt(qubitDetailCountSelect.value);
+            startingQubitInput.max = maxStart > 0 ? maxStart : 0;
+            if (parseInt(startingQubitInput.value) > maxStart) {
+                startingQubitInput.value = maxStart > 0 ? maxStart : 0;
+            }
+            
+            // Update detailed view if active
+            if (detailedQubitView.classList.contains('active')) {
+                updateDetailedQubitView();
+            }
+            
             // Generate new eigenvalues and eigenvectors for visualization
             generateQuantumState();
             updateQuantumGrid();
