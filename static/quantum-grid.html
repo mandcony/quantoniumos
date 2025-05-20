@@ -336,6 +336,10 @@
         .qubit-detail-panel {
             margin-top: 20px;
             position: relative;
+            border: 1px solid rgba(0, 183, 255, 0.3);
+            border-radius: 5px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
         }
         
         .qubit-display-controls {
@@ -344,6 +348,198 @@
             margin-bottom: 15px;
             flex-wrap: wrap;
             align-items: center;
+        }
+        
+        .detail-control {
+            background: #001018;
+            color: #fff;
+            border: 1px solid rgba(0, 183, 255, 0.5);
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        
+        .detail-selector {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .detail-selector input {
+            width: 60px;
+        }
+        
+        .qubit-detail-container {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: rgba(0, 10, 20, 0.5);
+            border-radius: 5px;
+            border: 1px solid rgba(0, 183, 255, 0.2);
+        }
+        
+        .qubit-detail-container.active {
+            display: grid;
+        }
+        
+        .qubit-card {
+            background: rgba(0, 20, 30, 0.8);
+            border: 1px solid rgba(0, 183, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .qubit-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 183, 255, 0.2);
+            padding-bottom: 8px;
+        }
+        
+        .qubit-index {
+            font-weight: bold;
+            font-size: 16px;
+            color: #00b7ff;
+        }
+        
+        .qubit-status {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+            color: #fff;
+            background: rgba(0, 183, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .state-probabilities {
+            margin-bottom: 15px;
+        }
+        
+        .state-bar {
+            height: 20px;
+            margin: 5px 0;
+            border-radius: 3px;
+            background: #090909;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .state-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00475e 0%, #00b7ff 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .state-label {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: white;
+            mix-blend-mode: difference;
+        }
+        
+        .state-value {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: white;
+            mix-blend-mode: difference;
+        }
+        
+        .phase-info {
+            margin-bottom: 15px;
+        }
+        
+        .phase-indicator {
+            width: 100%;
+            height: 8px;
+            background: #090909;
+            border-radius: 4px;
+            position: relative;
+            margin-top: 5px;
+        }
+        
+        .phase-marker {
+            position: absolute;
+            top: -5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00b7ff;
+            transform: translateX(-50%);
+            left: 0%;
+            transition: left 0.3s ease;
+            box-shadow: 0 0 5px rgba(0, 183, 255, 0.7);
+        }
+        
+        .bloch-sphere {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #000 0%, #001a29 100%);
+            border: 1px solid rgba(0, 183, 255, 0.3);
+            overflow: hidden;
+        }
+        
+        .bloch-sphere::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(0, 183, 255, 0.3);
+        }
+        
+        .bloch-sphere::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 1px;
+            height: 100%;
+            background: rgba(0, 183, 255, 0.3);
+        }
+        
+        .qubit-vector {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 50%;
+            background: #00b7ff;
+            transform-origin: top;
+            transform: translateX(-50%) rotate(0deg);
+            box-shadow: 0 0 5px rgba(0, 183, 255, 0.7);
+            z-index: 2;
+        }
+        
+        .qubit-vector::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 6px solid #00b7ff;
         }
         
         .control-button {
