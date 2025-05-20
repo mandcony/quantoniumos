@@ -559,24 +559,7 @@
                    All results are deterministic based on internal quantum simulation.</p>
             </div>
             
-            <!-- Detailed Qubit View Panel -->
-            <div class="panel qubit-detail-panel">
-                <h3>Qubit Inspector</h3>
-                <div class="qubit-display-controls">
-                    <button id="toggle-detailed-view" class="control-button">Show Detailed Qubit View</button>
-                    <select id="qubit-detail-count" class="detail-control">
-                        <option value="4">Show 4 qubits</option>
-                        <option value="8" selected>Show 8 qubits</option>
-                        <option value="16">Show 16 qubits</option>
-                        <option value="32">Show 32 qubits</option>
-                    </select>
-                    <div class="detail-selector">
-                        <label for="starting-qubit">Starting at qubit:</label>
-                        <input type="number" id="starting-qubit" min="0" max="504" value="0" class="detail-control">
-                    </div>
-                </div>
-                <div id="detailed-qubit-view" class="qubit-detail-container"></div>
-            </div>
+
             
             <div class="control-panel">
                 <div class="control-group">
@@ -694,12 +677,7 @@
         const computationResult = document.getElementById('computation-result');
         const closeOverlayButton = document.getElementById('close-overlay');
         
-        // Detailed qubit view elements
-        const toggleDetailedViewButton = document.getElementById('toggle-detailed-view');
-        const qubitDetailCountSelect = document.getElementById('qubit-detail-count');
-        const startingQubitInput = document.getElementById('starting-qubit');
-        const detailedQubitView = document.getElementById('detailed-qubit-view');
-        
+
         // State variables
         let qubitCount = 64;
         let entanglementStrength = 0.5;
@@ -738,17 +716,7 @@
                 controlQubitInput.value = qubitCount - 1;
             }
             
-            // Update max value for starting qubit in detailed view
-            const maxStart = qubitCount - parseInt(qubitDetailCountSelect.value);
-            startingQubitInput.max = maxStart > 0 ? maxStart : 0;
-            if (parseInt(startingQubitInput.value) > maxStart) {
-                startingQubitInput.value = maxStart > 0 ? maxStart : 0;
-            }
-            
-            // Update detailed view if active
-            if (detailedQubitView.classList.contains('active')) {
-                updateDetailedQubitView();
-            }
+
             
             // Generate new eigenvalues and eigenvectors for visualization
             generateQuantumState();
