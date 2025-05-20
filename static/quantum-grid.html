@@ -1345,57 +1345,174 @@
             // This is a visual approximation for the UI only
             const outcomes = {};
             
-            if (hadamardCount === 0 && cnotCount === 0) {
-                // If no H gates or CNOTs, the outcome is deterministic
+            if (hadamardCount === 0 && cnotCount === 0 && 
+                gateHistory.filter(gate => gate.type === 'x' || gate.type === 'y').length === 0) {
+                // If no H, X, Y gates or CNOTs, the outcome is deterministic |0⟩^⊗n
                 outcomes['0'.repeat(qubitCount)] = 1000;
+            } else if (hadamardCount === 0 && 
+                       (gateHistory.filter(gate => gate.type === 'x' || gate.type === 'y').length > 0) && 
+                       cnotCount === 0) {
+                // If we have X or Y gates but no H/CNOT, we have a deterministic result with some 1s
+                let outcome = '';
+                for (let q = 0; q < qubitCount; q++) {
+                    // Check if this qubit had an odd number of X or Y gates applied
+                    const xCount = gateHistory.filter(gate => 
+                        (gate.type === 'x' || gate.type === 'y') && gate.target === q
+                    ).length;
+                    outcome += (xCount % 2 === 1) ? '1' : '0';
+                }
+                outcomes[outcome] = 1000;
             } else if (hadamardCount > 0 && cnotCount === 0) {
-                // If only H gates, distribute outcomes uniformly among basis states
+                // If only H gates and no entanglement, distribute outcomes uniformly among basis states
                 const activeQubits = new Set(gateHistory.filter(gate => gate.type === 'h').map(gate => gate.target));
                 const possibleOutcomes = Math.pow(2, activeQubits.size);
                 
-                // Generate representative outcomes
-                for (let i = 0; i < Math.min(5, possibleOutcomes); i++) {
+                // Generate all possible outcomes for H gates (up to a reasonable number)
+                const numToGenerate = Math.min(8, possibleOutcomes);
+                const shotsPerOutcome = Math.floor(1000 / numToGenerate);
+                
+                // Generate representative outcomes with bit flips from X/Y gates
+                const xFlippedQubits = new Set();
+                gateHistory.filter(gate => gate.type === 'x' || gate.type === 'y')
+                    .forEach(gate => {
+                        // Toggle the bit if there's an odd number of X/Y gates
+                        if (xFlippedQubits.has(gate.target)) {
+                            xFlippedQubits.delete(gate.target);
+                        } else {
+                            xFlippedQubits.add(gate.target);
+                        }
+                    });
+                
+                // Generate some number of representative outcomes
+                for (let i = 0; i < numToGenerate; i++) {
                     let outcome = '';
                     for (let q = 0; q < qubitCount; q++) {
                         if (activeQubits.has(q)) {
-                            // Randomly 0 or 1 for qubits with H gates
-                            outcome += Math.random() < 0.5 ? '0' : '1';
+                            // For qubits with H gates, use a deterministic but varied pattern
+                            // This ensures we show different basis states each time
+                            const bit = ((i >> Array.from(activeQubits).indexOf(q)) & 1) === 1 ? '1' : '0';
+                            // If this qubit also had X or Y gates, flip the bit
+                            outcome += xFlippedQubits.has(q) ? (bit === '0' ? '1' : '0') : bit;
+                        } else if (xFlippedQubits.has(q)) {
+                            // Qubits with X but no H are deterministically flipped
+                            outcome += '1';
                         } else {
-                            // Always 0 for qubits without H gates
+                            // Qubits with neither H nor X remain in |0⟩
                             outcome += '0';
                         }
                     }
                     
-                    const count = Math.floor(1000 / possibleOutcomes);
-                    outcomes[outcome] = count;
+                    outcomes[outcome] = shotsPerOutcome;
                 }
             } else {
                 // Complex circuit with entanglement
-                // Generate a few representative outcomes
-                for (let i = 0; i < 5; i++) {
+                // Generate a diverse set of representative outcomes
+                
+                // First determine which qubits have been affected by operations
+                const affectedQubits = new Set();
+                gateHistory.forEach(gate => {
+                    affectedQubits.add(gate.target);
+                    if (gate.control !== undefined) affectedQubits.add(gate.control);
+                });
+                
+                // For CNOT gates, create correlated outcomes
+                const numOutcomes = Math.min(10, Math.pow(2, affectedQubits.size));
+                const shotsPerMainOutcome = Math.floor(900 / numOutcomes); // Reserve 100 shots for random noise
+                
+                // Create deterministic but varied outcomes for demonstration
+                for (let i = 0; i < numOutcomes; i++) {
                     let outcome = '';
+                    
+                    // Create a binary pattern based on the iteration
+                    // This ensures we display a variety of basis states
                     for (let q = 0; q < qubitCount; q++) {
-                        // For simplicity in the UI, generate random outcomes
-                        outcome += Math.random() < 0.5 ? '0' : '1';
+                        if (affectedQubits.has(q)) {
+                            // For affected qubits, use the binary representation of i
+                            const position = Array.from(affectedQubits).indexOf(q);
+                            outcome += ((i >> position) & 1) === 1 ? '1' : '0';
+                        } else {
+                            // Unaffected qubits stay in |0⟩
+                            outcome += '0';
+                        }
                     }
                     
-                    // Assign somewhat random counts
-                    const count = Math.floor(200 + Math.random() * 200);
-                    outcomes[outcome] = count;
+                    // Apply CNOT correlations
+                    cxGates.forEach(gate => {
+                        // If control is 1, target should match the control value
+                        const controlIdx = gate.control;
+                        const targetIdx = gate.target;
+                        if (outcome[controlIdx] === '1') {
+                            // Toggle target bit
+                            const outcomeArray = outcome.split('');
+                            outcomeArray[targetIdx] = outcomeArray[targetIdx] === '0' ? '1' : '0';
+                            outcome = outcomeArray.join('');
+                        }
+                    });
+                    
+                    // Assign shots to this outcome, with some variation
+                    outcomes[outcome] = Math.floor(shotsPerMainOutcome * (0.8 + Math.random() * 0.4));
+                }
+                
+                // Add some random noise outcomes for realism
+                const remainingShots = 1000 - Object.values(outcomes).reduce((sum, val) => sum + val, 0);
+                if (remainingShots > 0) {
+                    const noiseOutcomes = Math.min(3, Math.floor(remainingShots / 20));
+                    for (let i = 0; i < noiseOutcomes; i++) {
+                        let outcome = '';
+                        for (let q = 0; q < qubitCount; q++) {
+                            outcome += Math.random() < 0.5 ? '0' : '1';
+                        }
+                        
+                        // Check this random outcome doesn't already exist
+                        if (!outcomes[outcome]) {
+                            outcomes[outcome] = Math.floor(remainingShots / noiseOutcomes);
+                        }
+                    }
                 }
             }
             
-            // Display outcomes
-            Object.entries(outcomes)
-                .sort((a, b) => b[1] - a[1])  // Sort by count, descending
-                .forEach(([state, count]) => {
-                    if (state.length > 20) {
-                        // Truncate long states
-                        result += `|${state.substring(0, 10)}...${state.substring(state.length - 10)}⟩: ${count} shots\n`;
-                    } else {
-                        result += `|${state}⟩: ${count} shots\n`;
+            // Format and display outcomes
+            result += '\n';
+            const sortedOutcomes = Object.entries(outcomes)
+                .sort((a, b) => b[1] - a[1]);  // Sort by count, descending
+                
+            // Calculate total shots reported
+            const totalShots = sortedOutcomes.reduce((sum, [_, count]) => sum + count, 0);
+            
+            // Display each outcome with proper formatting
+            sortedOutcomes.forEach(([state, count]) => {
+                // Format the state to highlight the 1s for readability
+                const formattedState = formatQuantumState(state);
+                const percentage = ((count / totalShots) * 100).toFixed(1);
+                
+                if (state.length > 32) {
+                    // For very large qubit counts, truncate the middle but show both ends
+                    const firstPart = state.substring(0, 16);
+                    const lastPart = state.substring(state.length - 16);
+                    result += `|${formatQuantumState(firstPart)}...${formatQuantumState(lastPart)}⟩: ${count} shots (${percentage}%)\n`;
+                } else {
+                    result += `|${formattedState}⟩: ${count} shots (${percentage}%)\n`;
+                }
+            });
+            
+            // Helper function to format quantum states for better readability
+            function formatQuantumState(state) {
+                // Check if it's an all-zero state
+                if (!/1/.test(state)) {
+                    return state; // Keep all zeros as is
+                }
+                
+                // For states with 1s, highlight them with bold text or color
+                // Here we're adding spaces to improve readability
+                let formatted = '';
+                for (let i = 0; i < state.length; i++) {
+                    if (i > 0 && i % 4 === 0) {
+                        formatted += ' '; // Add space every 4 bits for readability
                     }
-                });
+                    formatted += state[i];
+                }
+                return formatted;
+            }
             
             return result;
         }
