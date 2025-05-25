@@ -537,6 +537,7 @@
         }
     </style>
     <script src="/static/quantum-matrix.js"></script>
+    <script src="/static/circuit-designer.js"></script>
 </head>
 <body>
     <header>
@@ -558,6 +559,9 @@
                 <p>Using quantum-inspired symbolic matrix mathematics for operations. 
                    All results are deterministic based on internal quantum simulation.</p>
             </div>
+            
+            <!-- Circuit Designer Container -->
+            <div id="circuit-designer-container"></div>
             
 
             
@@ -1501,6 +1505,18 @@
         window.addEventListener('load', () => {
             updateQuantumGrid();
             updateStateDisplay();
+            
+            // Initialize the circuit designer
+            initQuantumCircuitDesigner('circuit-designer-container');
+            
+            // Expose quantum state data for circuit designer
+            window.quantumGridData = {
+                getEigenvalues: () => eigenvalues,
+                getEigenvectors: () => eigenvectors,
+                applyGate: applyGateToState,
+                generateNewState: generateQuantumState,
+                getQubitCount: () => qubitCount
+            };
             
             // Monitor window resize to update connections
             window.addEventListener('resize', () => {
