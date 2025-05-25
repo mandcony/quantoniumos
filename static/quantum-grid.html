@@ -672,14 +672,14 @@
         }
         
         .bloch-sphere {
-            width: 140px;
-            height: 140px;
+            width: 160px;
+            height: 160px;
             margin: 0 auto;
             position: relative;
             border-radius: 50%;
             background: radial-gradient(circle at center, #001525 0%, #000510 100%);
-            border: 1px solid rgba(0, 183, 255, 0.4);
-            overflow: hidden;
+            border: 2px solid rgba(0, 183, 255, 0.4);
+            overflow: visible;
             box-shadow: 0 0 20px rgba(0, 183, 255, 0.2);
         }
         
@@ -705,17 +705,135 @@
             box-shadow: 0 0 5px rgba(0, 183, 255, 0.5);
         }
         
+        /* State labels for Bloch sphere */
+        .bloch-state-label {
+            position: absolute;
+            font-family: monospace;
+            font-size: 12px;
+            color: #00b7ff;
+            text-shadow: 0 0 5px rgba(0, 183, 255, 0.8);
+        }
+        
+        .bloch-label-0 {
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .bloch-label-1 {
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .bloch-label-plus {
+            top: 50%;
+            right: 5px;
+            transform: translateY(-50%);
+        }
+        
+        .bloch-label-minus {
+            top: 50%;
+            left: 5px;
+            transform: translateY(-50%);
+        }
+        
+        /* Probability circle indicator */
+        .probability-indicator {
+            position: absolute;
+            top: 0;
+            right: -25px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(10, 20, 30, 0.8);
+            border: 1px solid rgba(0, 183, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .probability-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, #00b7ff, rgba(0, 183, 255, 0.2));
+            border-radius: 0 0 15px 15px;
+            transition: height 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        /* Phase circle indicator */
+        .phase-circle-indicator {
+            position: absolute;
+            bottom: -25px;
+            right: -25px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(10, 20, 30, 0.8);
+            border: 1px solid rgba(0, 183, 255, 0.4);
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .phase-circle-fill {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 15px;
+            height: 15px;
+            background: #00b7ff;
+            border-radius: 50%;
+            transform-origin: center;
+            box-shadow: 0 0 8px rgba(0, 183, 255, 0.8);
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        
+        /* 3D Bloch sphere grid lines */
+        .bloch-sphere-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+        
+        .bloch-circle-x {
+            position: absolute;
+            top: 0;
+            left: 20%;
+            width: 60%;
+            height: 100%;
+            border-radius: 50% / 100%;
+            border: 1px dashed rgba(0, 183, 255, 0.3);
+        }
+        
+        .bloch-circle-y {
+            position: absolute;
+            top: 20%;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            border-radius: 100% / 50%;
+            border: 1px dashed rgba(0, 183, 255, 0.3);
+        }
+        
         .qubit-vector {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 3px;
+            width: 4px;
             height: 0%;
             background: linear-gradient(to top, #00b7ff, #0077cc);
             transform-origin: bottom center;
             transform: rotate(0deg);
             box-shadow: 0 0 10px rgba(0, 183, 255, 0.9);
-            z-index: 2;
+            z-index: 5;
             transition: height 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), 
                         transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
@@ -728,11 +846,22 @@
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-bottom: 8px solid #00b7ff;
-            margin-top: -8px;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 10px solid #00b7ff;
+            margin-top: -10px;
             filter: drop-shadow(0 0 3px rgba(0, 183, 255, 0.8));
+        }
+        
+        /* Pulsating effect for the vector */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 8px rgba(0, 183, 255, 0.7); }
+            50% { box-shadow: 0 0 15px rgba(0, 183, 255, 1); }
+            100% { box-shadow: 0 0 8px rgba(0, 183, 255, 0.7); }
+        }
+        
+        .qubit-vector.active {
+            animation: pulse-glow 2s infinite;
         }
     </style>
     <script src="/static/quantum-matrix.js"></script>
