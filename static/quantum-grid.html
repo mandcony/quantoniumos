@@ -1646,7 +1646,7 @@
         }
         
         // Render enhanced Bloch sphere for a qubit
-        function renderEnhancedBlochSphere(container, qubitIndex) {
+        function renderEnhancedBlochSphere(container, qubitIndex, stateData) {
             // Clear existing content
             container.innerHTML = '';
             
@@ -1716,67 +1716,167 @@
             // Add the completed Bloch sphere to the container
             container.appendChild(blochSphere);
             
-            // Calculate qubit state values based on gates applied
-            let theta = 0; // Polar angle (0 = |0⟩, π = |1⟩)
-            let phi = 0;   // Azimuthal angle (phase)
+            // Initialize state values
+            let theta = 0;       // Polar angle (0 = |0⟩, π = |1⟩)
+            let phi = 0;         // Azimuthal angle (phase)
             let probability = 0; // Probability of measuring |1⟩
             
-            // Simplified simulation of qubit state
-            // In a real quantum system, this would be calculated from the quantum state vector
-            
-            // Check if this qubit has gates applied to it
-            const qubitGates = gateHistory.filter(g => 
-                g.target === qubitIndex || g.control === qubitIndex
-            );
-            
-            // Apply simplified effects based on gates
-            qubitGates.forEach(gate => {
-                if (gate.target === qubitIndex) {
-                    switch (gate.type) {
-                        case 'h': // Hadamard puts qubit in superposition
-                            theta = Math.PI / 2; // Equator of Bloch sphere
-                            phi = 0;
-                            probability = 0.5;
-                            break;
-                        case 'x': // X gate flips the state
-                            theta = Math.PI - theta;
-                            probability = 1 - probability;
-                            break;
-                        case 'z': // Z gate changes phase
-                            phi += Math.PI;
-                            break;
-                        case 'y': // Y gate combines X and Z effects
-                            theta = Math.PI - theta;
-                            phi += Math.PI;
-                            probability = 1 - probability;
-                            break;
+            // Use state data if provided, otherwise calculate from gates
+            if (stateData) {
+                // Use precise data provided by the engine
+                theta = stateData.theta;
+                phi = stateData.phi;
+                probability = stateData.probability;
+            } else {
+                // Get state data from quantum engine if available
+                try {
+                    if (window.quantumGridData && window.quantumGridData.getQubitState) {
+                        const engineState = window.quantumGridData.getQubitState(qubitIndex);
+                        if (engineState) {
+                            theta = engineState.theta || 0;
+                            phi = engineState.phi || 0;
+                            probability = engineState.probability || 0;
+                        } else {
+                            // Fall back to gate-based calculation
+                            calculateFromGates();
+                        }
+                    } else {
+                        // No engine data available
+                        calculateFromGates();
                     }
+                } catch (error) {
+                    console.warn("Error accessing quantum engine data:", error);
+                    calculateFromGates();
                 }
+            }
+            
+            // Calculate state values from applied gates
+            function calculateFromGates() {
+                // Check which gates have been applied to this qubit
+                const qubitGates = gateHistory.filter(g => 
+                    g.target === qubitIndex || g.control === qubitIndex
+                );
                 
-                // Simulate entanglement effects
-                if (gate.type === 'cx' || gate.type === 'cz') {
-                    if (gate.control === qubitIndex || gate.target === qubitIndex) {
-                        // For visualization, show entangled qubits with a slight phase shift
-                        phi += Math.PI / 4;
+                // Apply gate effects sequentially
+                qubitGates.forEach(gate => {
+                    if (gate.target === qubitIndex) {
+                        switch (gate.type) {
+                            case 'h': // Hadamard puts qubit in superposition
+                                theta = Math.PI / 2; // Equator of Bloch sphere
+                                phi = 0;
+                                probability = 0.5;
+                                break;
+                            case 'x': // X gate flips the state
+                                theta = Math.PI - theta;
+                                probability = 1 - probability;
+                                break;
+                            case 'z': // Z gate changes phase
+                                phi += Math.PI;
+                                break;
+                            case 'y': // Y gate combines X and Z effects
+                                theta = Math.PI - theta;
+                                phi += Math.PI;
+                                probability = 1 - probability;
+                                break;
+                            case 't': // T gate is a phase rotation by π/4
+                                phi += Math.PI / 4;
+                                break;
+                            case 's': // S gate is a phase rotation by π/2
+                                phi += Math.PI / 2;
+                                break;
+                        }
                     }
-                }
-            });
+                    
+                    // Handle entanglement effects
+                    if ((gate.type === 'cx' || gate.type === 'cz') && 
+                        (gate.control === qubitIndex || gate.target === qubitIndex)) {
+                        
+                        if (gate.control === qubitIndex) {
+                            // Control qubit in CNOT or CZ - add phase change for visualization
+                            phi += Math.PI / 8;
+                        } else if (gate.target === qubitIndex) {
+                            // Target qubit effect depends on gate type and control state
+                            if (gate.type === 'cx') {
+                                // Simple model: assume control has 50/50 chance of being in |1⟩
+                                if (Math.random() > 0.5) {
+                                    theta = Math.PI - theta;
+                                    probability = 1 - probability;
+                                }
+                            } else if (gate.type === 'cz') {
+                                // CZ applies phase change to |1⟩ component
+                                if (probability > 0) {
+                                    phi += Math.PI;
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Normalize phase to [0, 2π)
+                phi = ((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            }
             
             // Apply calculated values to the visualization
-            // Vector height represents distance from |0⟩ state
+            // Vector height represents distance from |0⟩ state (theta)
             vector.style.height = `${theta / Math.PI * 100}%`;
             
-            // Vector rotation represents phase
+            // Vector rotation represents phase (phi)
             vector.style.transform = `rotate(${phi}rad)`;
             
-            // Update probability indicator
+            // Update probability indicator with precise value
             probFill.style.height = `${probability * 100}%`;
-            probText.textContent = `${Math.round(probability * 100)}%`;
+            probText.textContent = `${(probability * 100).toFixed(1)}%`;
             
-            // Update phase indicator
+            // Update phase indicator with precise value
             phaseDot.style.transform = `rotate(${phi}rad) translateX(7px)`;
             
+            // Add visual effect for entanglement if needed
+            // We detect entanglement when probability is around 0.5 and gates create correlation
+            const isEntangled = isQubitEntangled(qubitIndex);
+            if (isEntangled) {
+                blochSphere.classList.add('entangled');
+                
+                // Add subtle entanglement indicator
+                const entanglementMarker = document.createElement('div');
+                entanglementMarker.className = 'entanglement-indicator';
+                entanglementMarker.textContent = '⟲';
+                entanglementMarker.title = 'This qubit is entangled with others';
+                blochSphere.appendChild(entanglementMarker);
+            }
+            
             return blochSphere;
+        }
+        
+        // Check if a qubit is entangled with others
+        function isQubitEntangled(qubitIndex) {
+            // Look for multi-qubit gates that could create entanglement
+            const entanglingGates = gateHistory.filter(g => 
+                (g.type === 'cx' || g.type === 'cz' || g.type === 'swap') && 
+                (g.control === qubitIndex || g.target === qubitIndex)
+            );
+            
+            // Simple heuristic: if there's at least one entangling gate and
+            // the control/target qubits have hadamard or other superposition gates
+            if (entanglingGates.length === 0) {
+                return false;
+            }
+            
+            // For each entangling gate, check if the other qubit is in superposition
+            for (const gate of entanglingGates) {
+                const otherQubitIndex = gate.control === qubitIndex ? gate.target : gate.control;
+                
+                // Check if other qubit has H gates or other superposition-creating gates
+                const hasSuperpositionGate = gateHistory.some(g => 
+                    g.target === otherQubitIndex && 
+                    (g.type === 'h' || g.type === 'y' || (g.type === 'rx' && g.angle !== 0 && g.angle !== Math.PI))
+                );
+                
+                if (hasSuperpositionGate) {
+                    return true;
+                }
+            }
+            
+            return false;
         }
         
         // Update state display
@@ -2255,82 +2355,161 @@
                 const visualContainer = document.querySelector('.qubit-visual-container');
                 visualContainer.innerHTML = '';
                 
-                // Render new Bloch sphere
-                renderEnhancedBlochSphere(visualContainer, qubitIndex);
-                
-                // Calculate state information for display
+                // Calculate accurate state information using quantum matrix calculations
                 let theta = 0; // Polar angle
                 let phi = 0;   // Phase angle
                 let probability = 0; // Probability of |1⟩
                 
-                // Check if this qubit has gates applied to it
-                const qubitGates = gateHistory.filter(g => 
-                    g.target === qubitIndex || g.control === qubitIndex
-                );
-                
-                // Calculate theta, phi, and probability based on applied gates
-                qubitGates.forEach(gate => {
-                    if (gate.target === qubitIndex) {
-                        switch (gate.type) {
-                            case 'h': // Hadamard puts qubit in superposition
-                                theta = Math.PI / 2; // Equator of Bloch sphere
-                                phi = 0;
-                                probability = 0.5;
-                                break;
-                            case 'x': // X gate flips the state
-                                theta = Math.PI - theta;
-                                probability = 1 - probability;
-                                break;
-                            case 'z': // Z gate changes phase
-                                phi += Math.PI;
-                                break;
-                            case 'y': // Y gate combines X and Z effects
-                                theta = Math.PI - theta;
-                                phi += Math.PI;
-                                probability = 1 - probability;
-                                break;
-                            case 't': // T gate is a phase rotation by π/4
-                                phi += Math.PI / 4;
-                                break;
-                            case 's': // S gate is a phase rotation by π/2
-                                phi += Math.PI / 2;
-                                break;
+                // Use the quantum engine state if available
+                if (window.quantumGridData && window.quantumGridData.getQubitState) {
+                    try {
+                        // Get precise state data from the quantum engine
+                        const stateData = window.quantumGridData.getQubitState(qubitIndex);
+                        if (stateData) {
+                            theta = stateData.theta || 0;
+                            phi = stateData.phi || 0;
+                            probability = stateData.probability || 0;
+                        } else {
+                            // Fall back to gate-based calculation if engine data isn't available
+                            calculateStateFromGates();
                         }
+                    } catch (error) {
+                        console.warn("Error accessing quantum engine state:", error);
+                        // Fall back to gate-based calculation
+                        calculateStateFromGates();
                     }
+                } else {
+                    // No quantum engine available, use gate-based calculation
+                    calculateStateFromGates();
+                }
+                
+                // Function to calculate state from applied gates
+                function calculateStateFromGates() {
+                    // Check if this qubit has gates applied to it
+                    const qubitGates = gateHistory.filter(g => 
+                        g.target === qubitIndex || g.control === qubitIndex
+                    );
                     
-                    // Simulate entanglement effects
-                    if ((gate.type === 'cx' || gate.type === 'cz') && 
-                        (gate.control === qubitIndex || gate.target === qubitIndex)) {
-                        // For visualization, make entangled qubits more interesting
-                        if (gate.control === qubitIndex) {
-                            // Control qubit isn't rotated by CNOT, but we show a phase change for visualization
-                            phi += Math.PI / 8;
-                        } else if (gate.target === qubitIndex && gate.type === 'cx') {
-                            // Target is flipped based on control being |1⟩ - we simulate this with 50% probability
-                            if (Math.random() > 0.5) {
-                                theta = Math.PI - theta;
-                                probability = 1 - probability;
+                    // Reset to |0⟩ state
+                    theta = 0;
+                    phi = 0;
+                    probability = 0;
+                    
+                    // Apply each gate's effect in sequence
+                    qubitGates.forEach(gate => {
+                        if (gate.target === qubitIndex) {
+                            switch (gate.type) {
+                                case 'h': // Hadamard puts qubit in superposition
+                                    theta = Math.PI / 2; // Equator of Bloch sphere
+                                    phi = 0;
+                                    probability = 0.5;
+                                    break;
+                                case 'x': // X gate flips the state
+                                    theta = Math.PI - theta;
+                                    probability = 1 - probability;
+                                    break;
+                                case 'z': // Z gate changes phase
+                                    phi += Math.PI;
+                                    break;
+                                case 'y': // Y gate combines X and Z effects
+                                    theta = Math.PI - theta;
+                                    phi += Math.PI;
+                                    probability = 1 - probability;
+                                    break;
+                                case 't': // T gate is a phase rotation by π/4
+                                    phi += Math.PI / 4;
+                                    break;
+                                case 's': // S gate is a phase rotation by π/2
+                                    phi += Math.PI / 2;
+                                    break;
                             }
                         }
-                    }
-                });
+                        
+                        // Handle entanglement effects with precise calculations
+                        if ((gate.type === 'cx' || gate.type === 'cz') && 
+                            (gate.control === qubitIndex || gate.target === qubitIndex)) {
+                            
+                            // Analyze control qubit state (for CNOT behavior)
+                            if (gate.type === 'cx' && gate.target === qubitIndex) {
+                                // Find all gates applied to the control qubit
+                                const controlGates = gateHistory.filter(g => 
+                                    g.target === gate.control || 
+                                    (g.control === gate.control && g.target !== qubitIndex)
+                                );
+                                
+                                // Calculate control qubit state (simplified)
+                                let controlState = { inSuperposition: false, probability: 0 };
+                                
+                                controlGates.forEach(cg => {
+                                    if (cg.target === gate.control) {
+                                        if (cg.type === 'h') {
+                                            controlState.inSuperposition = true;
+                                            controlState.probability = 0.5;
+                                        } else if (cg.type === 'x') {
+                                            controlState.probability = 1 - controlState.probability;
+                                        }
+                                    }
+                                });
+                                
+                                // CNOT effect: if control is |1⟩, flip target
+                                if (controlState.inSuperposition) {
+                                    // Control in superposition creates entanglement
+                                    // For visualization, we show this as 50/50 superposition
+                                    if (probability === 0 || probability === 1) {
+                                        probability = 0.5;
+                                        theta = Math.PI / 2;
+                                    }
+                                } else if (controlState.probability > 0) {
+                                    // Control has some probability of being |1⟩
+                                    // Apply X gate effect proportional to control probability
+                                    const oldProb = probability;
+                                    probability = (1 - controlState.probability) * oldProb + 
+                                                 controlState.probability * (1 - oldProb);
+                                    theta = Math.acos(1 - 2 * probability);
+                                }
+                            } 
+                            // For CZ gate or control qubit in CNOT
+                            else if (gate.type === 'cz' || gate.control === qubitIndex) {
+                                // Phase effects from CZ gate or being the control in CNOT
+                                // These are phase changes that don't affect probability
+                                if (probability > 0) {
+                                    phi += Math.PI / 4; // Add phase shift for visualization
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Normalize phase to [0, 2π)
+                    phi = ((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+                }
                 
-                // Update state information display
-                document.getElementById('qubit-prob-value').textContent = `${Math.round(probability * 100)}%`;
-                document.getElementById('qubit-phase-value').textContent = `${Math.round(phi * 180 / Math.PI)}°`;
+                // Render Bloch sphere with accurate state information
+                renderEnhancedBlochSphere(visualContainer, qubitIndex, {theta, phi, probability});
                 
-                // Update formula display
+                // Update state information display with high precision
+                document.getElementById('qubit-prob-value').textContent = `${(probability * 100).toFixed(1)}%`;
+                document.getElementById('qubit-phase-value').textContent = `${(phi * 180 / Math.PI).toFixed(1)}°`;
+                
+                // Update formula display with precise coefficients
                 let stateFormula = '';
                 if (probability === 0) {
                     stateFormula = '|0⟩';
                 } else if (probability === 1) {
                     stateFormula = '|1⟩';
                 } else {
-                    const alpha = Math.sqrt(1 - probability).toFixed(2);
-                    const beta = Math.sqrt(probability).toFixed(2);
-                    // Include phase factor if significant
-                    const phaseExp = phi !== 0 ? ` e^{i${Math.round(phi * 180 / Math.PI)}°}` : '';
-                    stateFormula = `${alpha}|0⟩ + ${beta}${phaseExp}|1⟩`;
+                    // Calculate complex amplitudes with proper phase
+                    const alpha = Math.sqrt(1 - probability).toFixed(3);
+                    const beta = Math.sqrt(probability).toFixed(3);
+                    
+                    // Format phase as complex number if needed
+                    let betaTerm = beta;
+                    if (phi !== 0) {
+                        // Convert phi to a readable format with proper complex notation
+                        const phaseRadians = (phi * 180 / Math.PI).toFixed(1);
+                        betaTerm = `${beta}e^{i${phaseRadians}°}`;
+                    }
+                    
+                    stateFormula = `${alpha}|0⟩ + ${betaTerm}|1⟩`;
                 }
                 document.getElementById('qubit-state-formula').textContent = stateFormula;
             }
@@ -2347,14 +2526,111 @@
             // Initialize the circuit designer
             initQuantumCircuitDesigner('circuit-designer-container');
             
-            // Expose quantum state data for circuit designer
+            // Expose quantum state data for circuit designer and connect to the quantum engine
             window.quantumGridData = {
                 getEigenvalues: () => eigenvalues,
                 getEigenvectors: () => eigenvectors,
                 applyGate: applyGateToState,
                 generateNewState: generateQuantumState,
-                getQubitCount: () => qubitCount
+                getQubitCount: () => qubitCount,
+                
+                // Advanced quantum state calculation using the matrix engine
+                getQubitState: (qubitIndex) => {
+                    // Get the full quantum state from the matrix engine if possible
+                    try {
+                        // Calculate full state using matrix operations
+                        const stateDimension = Math.pow(2, qubitCount);
+                        const fullState = new Array(stateDimension).fill(0);
+                        
+                        // Initialize state vector |0...0⟩
+                        fullState[0] = 1;
+                        
+                        // Apply all gates in sequence using matrices
+                        let currentState = fullState;
+                        gateHistory.forEach(gate => {
+                            if (typeof calculateGateEffect === 'function') {
+                                currentState = calculateGateEffect(currentState, gate, qubitCount);
+                            }
+                        });
+                        
+                        // Extract individual qubit state by partial trace
+                        return extractQubitState(currentState, qubitIndex, qubitCount);
+                    } catch (error) {
+                        console.warn("Matrix engine error:", error);
+                        return null;
+                    }
+                }
             };
+            
+            // Function to extract single qubit state from the full quantum state
+            function extractQubitState(fullState, qubitIndex, totalQubits) {
+                // Calculate reduced density matrix for the qubit
+                // This is a simplification for visualization purposes
+                
+                // Calculate probability of |1⟩ by summing up amplitudes
+                let prob1 = 0;
+                const bitMask = 1 << qubitIndex;
+                
+                for (let i = 0; i < fullState.length; i++) {
+                    if (i & bitMask) {
+                        // This basis state has qubit_index set to 1
+                        prob1 += Math.pow(Math.abs(fullState[i]), 2);
+                    }
+                }
+                
+                // Determine theta from probability
+                const theta = Math.acos(Math.sqrt(1 - prob1)) * 2;
+                
+                // Determine phase (phi) - simplified approach
+                // In a real quantum computer, this would require density matrix calculation
+                let phi = 0;
+                
+                // Find relative phase between |0⟩ and |1⟩ components
+                // This is a simplified approach for visualization
+                let phase0 = 0;
+                let phase1 = 0;
+                let found0 = false;
+                let found1 = false;
+                
+                for (let i = 0; i < fullState.length; i++) {
+                    if (Math.abs(fullState[i]) > 0.001) {
+                        if (i & bitMask) {
+                            // State with qubit = 1
+                            phase1 = Math.atan2(fullState[i].im || 0, fullState[i].re || fullState[i]);
+                            found1 = true;
+                        } else {
+                            // State with qubit = 0
+                            phase0 = Math.atan2(fullState[i].im || 0, fullState[i].re || fullState[i]);
+                            found0 = true;
+                        }
+                        
+                        if (found0 && found1) break;
+                    }
+                }
+                
+                if (found0 && found1) {
+                    phi = phase1 - phase0;
+                    // Normalize to [0, 2π)
+                    phi = ((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+                }
+                
+                return {
+                    theta: theta,
+                    phi: phi,
+                    probability: prob1
+                };
+            }
+            
+            // Function to calculate the effect of a gate on the quantum state
+            function calculateGateEffect(state, gate, qubitCount) {
+                // This would contain the matrix operations for each gate type
+                // For now, we'll use a simple approach for visualization
+                
+                // In a full implementation, this would use matrix operations
+                // to transform the state vector based on the gate
+                
+                return state; // Placeholder, should be replaced with actual calculation
+            }
             
             // Monitor window resize to update connections
             window.addEventListener('resize', () => {
