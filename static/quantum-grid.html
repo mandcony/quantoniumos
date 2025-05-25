@@ -537,6 +537,7 @@
         
         .qubit-detail-container.active {
             display: flex;
+            justify-content: center;
         }
         
         .qubit-card {
@@ -551,6 +552,71 @@
             position: relative;
             backdrop-filter: blur(5px);
             transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .qubit-card.single {
+            width: 320px;
+            background: rgba(10, 20, 35, 0.9);
+            border: 2px solid rgba(0, 183, 255, 0.4);
+            padding: 25px;
+            margin: 10px auto;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 183, 255, 0.2);
+        }
+        
+        .qubit-selector-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px auto;
+            padding: 12px 20px;
+            background-color: rgba(10, 20, 35, 0.7);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 183, 255, 0.2);
+            max-width: 350px;
+        }
+        
+        .qubit-selector {
+            background-color: rgba(0, 15, 30, 0.8);
+            color: #fff;
+            border: 1px solid rgba(0, 183, 255, 0.4);
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-left: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        
+        .qubit-selector:hover, .qubit-selector:focus {
+            border-color: rgba(0, 183, 255, 0.8);
+            box-shadow: 0 0 8px rgba(0, 183, 255, 0.4);
+        }
+        
+        .qubit-state-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 20, 40, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 183, 255, 0.2);
+        }
+        
+        .state-probability, .state-phase, .state-formula {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .info-label {
+            color: rgba(0, 183, 255, 0.9);
+            font-weight: bold;
+        }
+        
+        .info-value {
+            color: white;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
         
         .qubit-card:hover {
@@ -2085,73 +2151,189 @@
             return result;
         }
         
-        // Create detailed qubit visualizations
+        // Create detailed qubit visualization with dropdown selector
         function createDetailedQubitViews() {
             // Create container if it doesn't exist
             const detailPanel = document.createElement('div');
             detailPanel.className = 'qubit-detail-panel';
             detailPanel.innerHTML = '<h3>Qubit State Visualization</h3>';
             
-            // Create container for qubit cards
-            const cardContainer = document.createElement('div');
-            cardContainer.className = 'qubit-detail-container active';
-            detailPanel.appendChild(cardContainer);
+            // Create dropdown selector
+            const selectorContainer = document.createElement('div');
+            selectorContainer.className = 'qubit-selector-container';
             
-            // Create visualizations for the first 8 qubits or fewer
-            const displayCount = Math.min(qubitCount, 8);
+            const selectorLabel = document.createElement('label');
+            selectorLabel.textContent = 'Select Qubit: ';
+            selectorLabel.setAttribute('for', 'qubit-selector');
+            selectorContainer.appendChild(selectorLabel);
             
-            for (let i = 0; i < displayCount; i++) {
-                const qubitCard = document.createElement('div');
-                qubitCard.className = 'qubit-card';
-                
-                const cardHeader = document.createElement('div');
-                cardHeader.className = 'qubit-card-header';
-                cardHeader.innerHTML = `<span class="qubit-index">Q${i}</span>`;
-                qubitCard.appendChild(cardHeader);
-                
-                // Create container for the Bloch sphere
-                const visualContainer = document.createElement('div');
-                visualContainer.className = 'qubit-visual-container';
-                qubitCard.appendChild(visualContainer);
-                
-                // Add enhanced Bloch sphere visualization
-                renderEnhancedBlochSphere(visualContainer, i);
-                
-                cardContainer.appendChild(qubitCard);
+            const selector = document.createElement('select');
+            selector.id = 'qubit-selector';
+            selector.className = 'qubit-selector';
+            
+            // Add options for all qubits
+            for (let i = 0; i < qubitCount; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Qubit ${i}`;
+                selector.appendChild(option);
             }
+            
+            selectorContainer.appendChild(selector);
+            detailPanel.appendChild(selectorContainer);
+            
+            // Create container for single qubit visualization
+            const visualizationContainer = document.createElement('div');
+            visualizationContainer.className = 'qubit-detail-container active';
+            detailPanel.appendChild(visualizationContainer);
+            
+            // Create the single qubit card
+            const qubitCard = document.createElement('div');
+            qubitCard.className = 'qubit-card single';
+            
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'qubit-card-header';
+            cardHeader.innerHTML = `<span class="qubit-index">Q0</span>`;
+            qubitCard.appendChild(cardHeader);
+            
+            // Create container for the Bloch sphere
+            const visualContainer = document.createElement('div');
+            visualContainer.className = 'qubit-visual-container';
+            qubitCard.appendChild(visualContainer);
+            
+            // Add enhanced Bloch sphere visualization for initial qubit (0)
+            renderEnhancedBlochSphere(visualContainer, 0);
+            
+            // Add state information panel
+            const stateInfo = document.createElement('div');
+            stateInfo.className = 'qubit-state-info';
+            stateInfo.innerHTML = `
+                <div class="state-probability">
+                    <span class="info-label">Probability |1⟩:</span>
+                    <span class="info-value" id="qubit-prob-value">0%</span>
+                </div>
+                <div class="state-phase">
+                    <span class="info-label">Phase:</span>
+                    <span class="info-value" id="qubit-phase-value">0°</span>
+                </div>
+                <div class="state-formula">
+                    <span class="info-label">State:</span>
+                    <span class="info-value" id="qubit-state-formula">|0⟩</span>
+                </div>
+            `;
+            qubitCard.appendChild(stateInfo);
+            
+            visualizationContainer.appendChild(qubitCard);
             
             // Add the detail panel to the page
             document.querySelector('.container').appendChild(detailPanel);
+            
+            // Event listener for dropdown selector
+            selector.addEventListener('change', (e) => {
+                const selectedQubit = parseInt(e.target.value);
+                updateQubitVisualization(selectedQubit);
+            });
             
             // Update qubit states when gates are applied
             applyGateButton.addEventListener('click', () => {
                 // Wait for the state to be updated
                 setTimeout(() => {
-                    // Clear existing visualization
-                    document.querySelector('.qubit-detail-container').innerHTML = '';
-                    
-                    // Recreate the qubit cards with updated states
-                    for (let i = 0; i < displayCount; i++) {
-                        const qubitCard = document.createElement('div');
-                        qubitCard.className = 'qubit-card';
-                        
-                        const cardHeader = document.createElement('div');
-                        cardHeader.className = 'qubit-card-header';
-                        cardHeader.innerHTML = `<span class="qubit-index">Q${i}</span>`;
-                        qubitCard.appendChild(cardHeader);
-                        
-                        // Create container for the Bloch sphere
-                        const visualContainer = document.createElement('div');
-                        visualContainer.className = 'qubit-visual-container';
-                        qubitCard.appendChild(visualContainer);
-                        
-                        // Add enhanced Bloch sphere visualization
-                        renderEnhancedBlochSphere(visualContainer, i);
-                        
-                        document.querySelector('.qubit-detail-container').appendChild(qubitCard);
-                    }
+                    // Get currently selected qubit
+                    const selectedQubit = parseInt(document.getElementById('qubit-selector').value);
+                    // Update visualization for that qubit
+                    updateQubitVisualization(selectedQubit);
                 }, 100);
             });
+            
+            // Function to update visualization for a specific qubit
+            function updateQubitVisualization(qubitIndex) {
+                // Update header
+                const header = document.querySelector('.qubit-card-header .qubit-index');
+                header.textContent = `Q${qubitIndex}`;
+                
+                // Clear and recreate visual container
+                const visualContainer = document.querySelector('.qubit-visual-container');
+                visualContainer.innerHTML = '';
+                
+                // Render new Bloch sphere
+                renderEnhancedBlochSphere(visualContainer, qubitIndex);
+                
+                // Calculate state information for display
+                let theta = 0; // Polar angle
+                let phi = 0;   // Phase angle
+                let probability = 0; // Probability of |1⟩
+                
+                // Check if this qubit has gates applied to it
+                const qubitGates = gateHistory.filter(g => 
+                    g.target === qubitIndex || g.control === qubitIndex
+                );
+                
+                // Calculate theta, phi, and probability based on applied gates
+                qubitGates.forEach(gate => {
+                    if (gate.target === qubitIndex) {
+                        switch (gate.type) {
+                            case 'h': // Hadamard puts qubit in superposition
+                                theta = Math.PI / 2; // Equator of Bloch sphere
+                                phi = 0;
+                                probability = 0.5;
+                                break;
+                            case 'x': // X gate flips the state
+                                theta = Math.PI - theta;
+                                probability = 1 - probability;
+                                break;
+                            case 'z': // Z gate changes phase
+                                phi += Math.PI;
+                                break;
+                            case 'y': // Y gate combines X and Z effects
+                                theta = Math.PI - theta;
+                                phi += Math.PI;
+                                probability = 1 - probability;
+                                break;
+                            case 't': // T gate is a phase rotation by π/4
+                                phi += Math.PI / 4;
+                                break;
+                            case 's': // S gate is a phase rotation by π/2
+                                phi += Math.PI / 2;
+                                break;
+                        }
+                    }
+                    
+                    // Simulate entanglement effects
+                    if ((gate.type === 'cx' || gate.type === 'cz') && 
+                        (gate.control === qubitIndex || gate.target === qubitIndex)) {
+                        // For visualization, make entangled qubits more interesting
+                        if (gate.control === qubitIndex) {
+                            // Control qubit isn't rotated by CNOT, but we show a phase change for visualization
+                            phi += Math.PI / 8;
+                        } else if (gate.target === qubitIndex && gate.type === 'cx') {
+                            // Target is flipped based on control being |1⟩ - we simulate this with 50% probability
+                            if (Math.random() > 0.5) {
+                                theta = Math.PI - theta;
+                                probability = 1 - probability;
+                            }
+                        }
+                    }
+                });
+                
+                // Update state information display
+                document.getElementById('qubit-prob-value').textContent = `${Math.round(probability * 100)}%`;
+                document.getElementById('qubit-phase-value').textContent = `${Math.round(phi * 180 / Math.PI)}°`;
+                
+                // Update formula display
+                let stateFormula = '';
+                if (probability === 0) {
+                    stateFormula = '|0⟩';
+                } else if (probability === 1) {
+                    stateFormula = '|1⟩';
+                } else {
+                    const alpha = Math.sqrt(1 - probability).toFixed(2);
+                    const beta = Math.sqrt(probability).toFixed(2);
+                    // Include phase factor if significant
+                    const phaseExp = phi !== 0 ? ` e^{i${Math.round(phi * 180 / Math.PI)}°}` : '';
+                    stateFormula = `${alpha}|0⟩ + ${beta}${phaseExp}|1⟩`;
+                }
+                document.getElementById('qubit-state-formula').textContent = stateFormula;
+            }
         }
         
         // Initialize when window loads
