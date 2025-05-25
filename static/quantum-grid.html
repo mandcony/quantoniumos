@@ -1079,6 +1079,43 @@
             <!-- Circuit Designer Container -->
             <div id="circuit-designer-container"></div>
             
+            <!-- Custom qubit visualization panel -->
+            <div class="panel" id="custom-qubit-panel">
+                <h2>Custom Qubit Visualization</h2>
+                <p>Directly set and visualize specific qubit states by entering values below.</p>
+                
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="custom-qubit-index">Qubit Index:</label>
+                        <input type="number" id="custom-qubit-index" min="0" max="511" value="0" class="detail-control">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="custom-probability">Probability |1⟩:</label>
+                        <input type="range" id="custom-probability" min="0" max="100" value="0">
+                        <div class="slider-value">
+                            <span>0%</span>
+                            <span id="probability-value">0%</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="custom-phase">Phase Angle:</label>
+                        <input type="range" id="custom-phase" min="0" max="360" value="0">
+                        <div class="slider-value">
+                            <span>0°</span>
+                            <span id="phase-value">0°</span>
+                            <span>360°</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button id="visualize-custom-qubit" class="action-button">Visualize Qubit State</button>
+                </div>
+            </div>
+            
 
             
             <div class="control-panel">
@@ -2396,45 +2433,53 @@
                 let phi = 0;   // Phase angle
                 let probability = 0; // Probability of |1⟩
                 
-                // For testing purposes - set a non-zero state to verify display
-                // Generate a deterministic but varying state based on qubit index
-                // This ensures all qubits have meaningful visualization values
-                
-                // Use qubit index to generate a unique but deterministic state
-                const qubitSeed = qubitIndex + 1; // Avoid multiplying by zero
-                
-                // Calculate probability from 0 to 1 based on qubit index
-                // Creates a wave-like pattern across qubits 
-                probability = Math.abs(Math.sin(qubitSeed * 0.1)) * 0.95;
-                
-                // Calculate theta based on probability (polar angle on Bloch sphere)
-                theta = Math.acos(Math.sqrt(1 - probability)) * 2;
-                
-                // Calculate phase angle (azimuthal angle on Bloch sphere)
-                // Varies from 0 to 2π based on qubit index
-                phi = (qubitSeed * Math.PI / 16) % (2 * Math.PI);
-                
-                // Special test cases for specific qubits
-                if (qubitIndex === 0) {
-                    // |0⟩ state with slight deviation
-                    theta = Math.PI / 4;
-                    phi = Math.PI / 6;
-                    probability = 0.15;
-                } else if (qubitIndex === 1) {
-                    // Superposition state
-                    theta = Math.PI / 2;
-                    phi = Math.PI / 3;
-                    probability = 0.5;
-                } else if (qubitIndex === 2) {
-                    // Near |1⟩ state
-                    theta = 3 * Math.PI / 4;
-                    phi = Math.PI / 2;
-                    probability = 0.85;
-                } else if (qubitIndex === 62) {
-                    // Special case for Q62 (mentioned in user feedback)
-                    theta = 2 * Math.PI / 3;
-                    phi = Math.PI / 4;
-                    probability = 0.75;
+                // Check if we have a custom state for this qubit
+                if (window.customQubitStates && window.customQubitStates[qubitIndex]) {
+                    // Use the custom state set by the user
+                    const customState = window.customQubitStates[qubitIndex];
+                    theta = customState.theta;
+                    phi = customState.phi;
+                    probability = customState.probability;
+                } else {
+                    // Generate a deterministic but varying state based on qubit index
+                    // This ensures all qubits have meaningful visualization values
+                    
+                    // Use qubit index to generate a unique but deterministic state
+                    const qubitSeed = qubitIndex + 1; // Avoid multiplying by zero
+                    
+                    // Calculate probability from 0 to 1 based on qubit index
+                    // Creates a wave-like pattern across qubits 
+                    probability = Math.abs(Math.sin(qubitSeed * 0.1)) * 0.95;
+                    
+                    // Calculate theta based on probability (polar angle on Bloch sphere)
+                    theta = Math.acos(Math.sqrt(1 - probability)) * 2;
+                    
+                    // Calculate phase angle (azimuthal angle on Bloch sphere)
+                    // Varies from 0 to 2π based on qubit index
+                    phi = (qubitSeed * Math.PI / 16) % (2 * Math.PI);
+                    
+                    // Special test cases for specific qubits
+                    if (qubitIndex === 0) {
+                        // |0⟩ state with slight deviation
+                        theta = Math.PI / 4;
+                        phi = Math.PI / 6;
+                        probability = 0.15;
+                    } else if (qubitIndex === 1) {
+                        // Superposition state
+                        theta = Math.PI / 2;
+                        phi = Math.PI / 3;
+                        probability = 0.5;
+                    } else if (qubitIndex === 2) {
+                        // Near |1⟩ state
+                        theta = 3 * Math.PI / 4;
+                        phi = Math.PI / 2;
+                        probability = 0.85;
+                    } else if (qubitIndex === 62) {
+                        // Special case for Q62 (mentioned in user feedback)
+                        theta = 2 * Math.PI / 3;
+                        phi = Math.PI / 4;
+                        probability = 0.75;
+                    }
                 }
                 
                 // Use the quantum engine state if available
@@ -2712,6 +2757,71 @@
             // Monitor window resize to update connections
             window.addEventListener('resize', () => {
                 updateQuantumGrid();
+            });
+            
+            // Initialize custom qubit visualization controls
+            const customProbSlider = document.getElementById('custom-probability');
+            const customPhaseSlider = document.getElementById('custom-phase');
+            const probValueDisplay = document.getElementById('probability-value');
+            const phaseValueDisplay = document.getElementById('phase-value');
+            const customQubitIndexInput = document.getElementById('custom-qubit-index');
+            const visualizeButton = document.getElementById('visualize-custom-qubit');
+            
+            // Update value displays when sliders change
+            customProbSlider.addEventListener('input', () => {
+                const probValue = customProbSlider.value;
+                probValueDisplay.textContent = `${probValue}%`;
+            });
+            
+            customPhaseSlider.addEventListener('input', () => {
+                const phaseValue = customPhaseSlider.value;
+                phaseValueDisplay.textContent = `${phaseValue}°`;
+            });
+            
+            // Apply custom visualization when button is clicked
+            visualizeButton.addEventListener('click', () => {
+                const qubitIndex = parseInt(customQubitIndexInput.value, 10);
+                
+                // Ensure the qubit index is within valid range
+                if (qubitIndex < 0 || qubitIndex >= qubitCount) {
+                    alert(`Qubit index must be between 0 and ${qubitCount-1}`);
+                    return;
+                }
+                
+                // Calculate state values from user inputs
+                const probability = parseFloat(customProbSlider.value) / 100;
+                const phaseRadians = (parseFloat(customPhaseSlider.value) * Math.PI) / 180;
+                
+                // Calculate theta from probability (polar angle on Bloch sphere)
+                const theta = Math.acos(Math.sqrt(1 - probability)) * 2;
+                
+                // Create a custom state object for visualization
+                const customState = {
+                    theta: theta,
+                    phi: phaseRadians,
+                    probability: probability
+                };
+                
+                // Store the custom state so it persists during qubit selection
+                if (!window.customQubitStates) {
+                    window.customQubitStates = {};
+                }
+                window.customQubitStates[qubitIndex] = customState;
+                
+                // Update dropdown to show the qubit we're customizing
+                const qubitSelector = document.getElementById('qubit-selector');
+                if (qubitSelector) {
+                    qubitSelector.value = qubitIndex;
+                    // Trigger change event to update visualization
+                    const event = new Event('change');
+                    qubitSelector.dispatchEvent(event);
+                } else {
+                    // Fall back to direct update if selector not found
+                    updateQubitVisualization(qubitIndex);
+                }
+                
+                // Provide feedback to the user
+                alert(`Qubit Q${qubitIndex} state updated: ${(probability * 100).toFixed(1)}% probability, ${customPhaseSlider.value}° phase`);
             });
         });
     </script>
