@@ -2769,16 +2769,73 @@
             const customQubitIndexInput = document.getElementById('custom-qubit-index');
             const visualizeButton = document.getElementById('visualize-custom-qubit');
             
+            // Initialize with meaningful values
+            customProbSlider.value = 50; // 50% probability
+            customPhaseSlider.value = 0; // 0 degree phase
+            probValueDisplay.textContent = `50%`;
+            phaseValueDisplay.textContent = `0°`;
+            
             // Update value displays when sliders change
             customProbSlider.addEventListener('input', () => {
                 const probValue = customProbSlider.value;
                 probValueDisplay.textContent = `${probValue}%`;
+                // Real-time preview in state display
+                updatePreviewState();
             });
             
             customPhaseSlider.addEventListener('input', () => {
                 const phaseValue = customPhaseSlider.value;
                 phaseValueDisplay.textContent = `${phaseValue}°`;
+                // Real-time preview in state display
+                updatePreviewState();
             });
+            
+            // Function to update preview state formula
+            function updatePreviewState() {
+                const probability = parseFloat(customProbSlider.value) / 100;
+                const phaseRadians = (parseFloat(customPhaseSlider.value) * Math.PI) / 180;
+                
+                // Calculate theta from probability
+                const theta = 2 * Math.asin(Math.sqrt(probability));
+                
+                // Calculate amplitudes 
+                const alpha = Math.cos(theta / 2).toFixed(3);
+                const betaMagnitude = Math.sin(theta / 2).toFixed(3);
+                
+                // Generate state formula
+                let stateFormula = `|ψ⟩ = ${alpha}|0⟩`;
+                
+                if (betaMagnitude > 0) {
+                    let betaTerm = betaMagnitude;
+                    if (phaseRadians !== 0) {
+                        const phaseDegrees = customPhaseSlider.value;
+                        betaTerm = `${betaMagnitude}e^{i${phaseDegrees}°}`;
+                    }
+                    stateFormula += ` + ${betaTerm}|1⟩`;
+                }
+                
+                // Display in the custom visualization panel as live preview
+                const previewElem = document.getElementById('preview-state');
+                if (!previewElem) {
+                    const previewDiv = document.createElement('div');
+                    previewDiv.id = 'preview-state';
+                    previewDiv.className = 'preview-state';
+                    previewDiv.style.marginTop = '15px';
+                    previewDiv.style.padding = '10px';
+                    previewDiv.style.backgroundColor = 'rgba(0, 183, 255, 0.1)';
+                    previewDiv.style.borderRadius = '5px';
+                    previewDiv.style.border = '1px solid rgba(0, 183, 255, 0.2)';
+                    previewDiv.style.fontFamily = 'monospace';
+                    
+                    const buttonGroup = document.querySelector('#custom-qubit-panel .button-group');
+                    buttonGroup.parentNode.insertBefore(previewDiv, buttonGroup);
+                }
+                
+                document.getElementById('preview-state').textContent = stateFormula;
+            }
+            
+            // Initialize preview state
+            updatePreviewState();
             
             // Apply custom visualization when button is clicked
             visualizeButton.addEventListener('click', () => {
@@ -2851,8 +2908,39 @@
                 }
                 window.customQubitStates[qubitIndex] = customState;
                 
-                // Update global quantum state if we have a quantum state manager
-                if (window.quantumGridData && window.quantumGridData.updateQubitState) {
+                // Update quantum data manager for integration with the engine
+                if (window.quantumGridData) {
+                    // Create update method if needed
+                    if (!window.quantumGridData.updateQubitState) {
+                        window.quantumGridData.updateQubitState = function(idx, state) {
+                            if (!this.customStates) {
+                                this.customStates = {};
+                            }
+                            this.customStates[idx] = state;
+                        };
+                    }
+                    
+                    // Ensure getQubitState uses our custom states
+                    if (!window.quantumGridData.getQubitStateHooked) {
+                        const originalGetQubitState = window.quantumGridData.getQubitState;
+                        window.quantumGridData.getQubitState = function(idx) {
+                            // First check our custom states
+                            if (window.customQubitStates && window.customQubitStates[idx]) {
+                                return window.customQubitStates[idx];
+                            }
+                            // Then check internal custom states
+                            if (this.customStates && this.customStates[idx]) {
+                                return this.customStates[idx]; 
+                            }
+                            // Finally use original if available
+                            if (originalGetQubitState) {
+                                return originalGetQubitState.call(this, idx);
+                            }
+                            return null;
+                        };
+                        window.quantumGridData.getQubitStateHooked = true;
+                    }
+                    
                     window.quantumGridData.updateQubitState(qubitIndex, customState);
                 }
                 
