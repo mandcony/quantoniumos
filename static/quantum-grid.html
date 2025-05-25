@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Arial', sans-serif;
-            background-color: #000;
+            background-color: #080808;
             color: #fff;
         }
         
@@ -19,12 +19,15 @@
         }
         
         header {
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.85);
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #222;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 100;
         }
         
         .logo {
@@ -32,6 +35,7 @@
             font-weight: 300;
             letter-spacing: 1px;
             color: #fff;
+            text-shadow: 0 0 10px rgba(0, 183, 255, 0.5);
         }
         
         .subtitle {
@@ -39,6 +43,10 @@
             opacity: 0.7;
             text-transform: uppercase;
             letter-spacing: 2px;
+            background: linear-gradient(90deg, #00b7ff, #0077ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-right: 15px;
         }
         
         .container {
@@ -48,35 +56,54 @@
         }
         
         .panel {
-            background-color: #111;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background-color: rgba(10, 15, 25, 0.8);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 183, 255, 0.1);
+            backdrop-filter: blur(5px);
         }
         
         .panel h2 {
             margin-top: 0;
-            font-weight: 300;
-            font-size: 18px;
+            font-weight: 400;
+            font-size: 22px;
             margin-bottom: 20px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 183, 255, 0.2);
+            padding-bottom: 12px;
+            color: #00b7ff;
+            display: flex;
+            align-items: center;
+        }
+        
+        .panel h2::before {
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 22px;
+            background: linear-gradient(to bottom, #00b7ff, #0066cc);
+            margin-right: 10px;
+            border-radius: 2px;
         }
         
         .panel p {
-            color: #aaa;
+            color: #bbb;
             margin-bottom: 20px;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 15px;
         }
         
         .quantum-grid-container {
             margin-top: 20px;
             margin-bottom: 20px;
             height: 600px;
-            background-color: #0a0a0a;
-            border-radius: 4px;
+            background-color: rgba(5, 10, 20, 0.9);
+            border-radius: 8px;
             position: relative;
             overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 183, 255, 0.1);
+            border: 1px solid rgba(0, 183, 255, 0.15);
         }
         
         .quantum-grid {
@@ -92,80 +119,106 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 30, 60, 0.2);
+            background-color: rgba(0, 30, 60, 0.1);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 183, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(0, 70, 120, 0.05) 0%, transparent 50%);
         }
         
         .quantum-cell {
-            background-color: rgba(0, 183, 255, 0.05);
-            border: 1px solid rgba(0, 183, 255, 0.1);
+            background-color: rgba(0, 183, 255, 0.03);
+            border: 1px solid rgba(0, 183, 255, 0.08);
             transition: all 0.3s ease;
             position: relative;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
         }
         
         .quantum-cell:hover {
-            background-color: rgba(0, 183, 255, 0.2);
+            background-color: rgba(0, 183, 255, 0.15);
+            box-shadow: 0 0 15px rgba(0, 183, 255, 0.3);
+            z-index: 2;
         }
         
         .quantum-cell.active {
-            background-color: rgba(0, 183, 255, 0.3);
+            background-color: rgba(0, 183, 255, 0.25);
+            box-shadow: 0 0 20px rgba(0, 183, 255, 0.4);
         }
         
         .control-panel {
-            background-color: #0a0a0a;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 15px;
+            background-color: rgba(5, 10, 20, 0.9);
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 20px;
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
+            border: 1px solid rgba(0, 183, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
         
         .control-group {
             margin-bottom: 15px;
             flex: 1;
             min-width: 200px;
+            position: relative;
         }
         
         .control-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 14px;
+            font-weight: 500;
+            color: #00b7ff;
+            text-shadow: 0 0 5px rgba(0, 183, 255, 0.3);
         }
         
         .control-group input[type="range"] {
             width: 100%;
-            background: #333;
-            height: 5px;
+            background: #0a1525;
+            height: 6px;
             -webkit-appearance: none;
             outline: none;
             border-radius: 5px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 183, 255, 0.2);
         }
         
         .control-group input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 15px;
-            height: 15px;
-            background: #00b7ff;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(to bottom, #00b7ff, #0066cc);
             border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 183, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.8);
         }
         
         .control-group input[type="number"] {
             width: 70px;
-            padding: 5px 8px;
-            background-color: #1a1a1a;
-            border: 1px solid #333;
+            padding: 8px 10px;
+            background-color: rgba(10, 20, 30, 0.8);
+            border: 1px solid rgba(0, 183, 255, 0.3);
             color: #fff;
-            border-radius: 3px;
+            border-radius: 5px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            font-family: monospace;
+            font-size: 14px;
         }
         
         .control-group select {
             width: 100%;
-            padding: 8px;
-            background-color: #1a1a1a;
-            border: 1px solid #333;
+            padding: 10px 12px;
+            background-color: rgba(10, 20, 30, 0.8);
+            border: 1px solid rgba(0, 183, 255, 0.3);
             color: #fff;
-            border-radius: 3px;
+            border-radius: 5px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='%2300b7ff' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
         }
         
         .slider-value {
@@ -173,31 +226,67 @@
             justify-content: space-between;
             font-size: 12px;
             margin-top: 5px;
+            color: #aaa;
+        }
+        
+        .slider-value span:nth-child(2) {
+            font-weight: bold;
+            color: #00b7ff;
+            text-shadow: 0 0 5px rgba(0, 183, 255, 0.5);
         }
         
         .button-group {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
         
         button {
-            background-color: #00475e;
+            background: linear-gradient(to bottom, #00475e, #003244);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 12px 22px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 0 0 5px rgba(0, 183, 255, 0.3);
+            border: 1px solid rgba(0, 183, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
         }
         
         button:hover {
-            background-color: #00b7ff;
+            background: linear-gradient(to bottom, #00b7ff, #0077cc);
+            box-shadow: 0 5px 15px rgba(0, 183, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
         
         button.active {
-            background-color: #00b7ff;
+            background: linear-gradient(to bottom, #00b7ff, #0077cc);
+            box-shadow: 0 0 15px rgba(0, 183, 255, 0.5);
         }
         
         .overlay {
@@ -206,14 +295,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(5, 10, 20, 0.85);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10;
+            z-index: 20;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s;
+            transition: opacity 0.4s ease;
+            backdrop-filter: blur(5px);
         }
         
         .overlay.active {
@@ -222,38 +312,70 @@
         }
         
         .overlay-content {
-            background: #111;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 500px;
+            background: rgba(10, 20, 35, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 183, 255, 0.2);
+            transform: translateY(20px);
+            transition: transform 0.4s ease;
+        }
+        
+        .overlay.active .overlay-content {
+            transform: translateY(0);
         }
         
         .overlay-content h3 {
             margin-top: 0;
             color: #00b7ff;
+            font-size: 22px;
+            font-weight: 400;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 183, 255, 0.3);
         }
         
         .state-display {
             font-family: monospace;
-            background-color: #0a0a0a;
-            border-radius: 4px;
-            padding: 15px;
-            margin-top: 15px;
+            background-color: rgba(5, 10, 20, 0.9);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
             overflow-x: auto;
             white-space: pre-wrap;
+            border: 1px solid rgba(0, 183, 255, 0.1);
+            color: #ddd;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
         }
         
         .info-panel {
-            background-color: rgba(0, 183, 255, 0.1);
-            border-left: 3px solid #00b7ff;
-            padding: 15px;
-            margin-bottom: 20px;
+            background-color: rgba(0, 183, 255, 0.05);
+            border-left: 4px solid #00b7ff;
+            padding: 18px;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .info-panel h3 {
             margin-top: 0;
-            font-size: 16px;
+            font-size: 18px;
+            color: #00b7ff;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-panel h3::before {
+            content: "ℹ️";
+            font-size: 20px;
             color: #00b7ff;
         }
         
@@ -272,46 +394,49 @@
         
         .connection-line {
             position: absolute;
-            background-color: rgba(0, 183, 255, 0.7);
-            height: 2px;
+            background: linear-gradient(to right, #00b7ff, #0077cc);
+            height: 3px;
             transform-origin: 0 0;
             z-index: 5;
             transition: opacity 0.3s;
+            box-shadow: 0 0 8px rgba(0, 183, 255, 0.5);
         }
         
         .qubit-node {
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background-color: #00b7ff;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle at center, #00b7ff 0%, #0066cc 100%);
             border-radius: 50%;
             z-index: 6;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 8px rgba(0, 183, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 183, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.7);
         }
         
         .qubit-node.entangled {
-            background-color: #b967ff;
-            box-shadow: 0 0 8px rgba(185, 103, 255, 0.8);
+            background: radial-gradient(circle at center, #b967ff 0%, #8a2be2 100%);
+            box-shadow: 0 0 15px rgba(185, 103, 255, 0.9);
         }
         
         .probability-wave {
             position: absolute;
             border-radius: 50%;
-            border: 2px solid rgba(0, 183, 255, 0.4);
+            border: 2px solid rgba(0, 183, 255, 0.5);
             transform: translate(-50%, -50%);
-            animation: wave-expand 2s infinite;
+            animation: wave-expand 2.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+            box-shadow: 0 0 10px rgba(0, 183, 255, 0.3);
         }
         
         @keyframes wave-expand {
             0% {
                 width: 0;
                 height: 0;
-                opacity: 0.8;
+                opacity: 0.9;
             }
             100% {
-                width: 100px;
-                height: 100px;
+                width: 120px;
+                height: 120px;
                 opacity: 0;
             }
         }
@@ -319,31 +444,46 @@
         /* Gate visualization */
         .gate-tooltip {
             position: absolute;
-            background-color: #000;
+            background-color: rgba(5, 10, 20, 0.95);
             color: #fff;
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 13px;
             z-index: 10;
             pointer-events: none;
             transform: translate(-50%, -100%);
-            margin-top: -10px;
+            margin-top: -12px;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s, transform 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 183, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        .gate-tooltip.visible {
+            opacity: 1;
+            transform: translate(-50%, -110%);
         }
         
         /* Detailed Qubit View Styles */
         .qubit-detail-panel {
-            margin-top: 20px;
+            margin-top: 25px;
             position: relative;
+            background-color: rgba(5, 10, 20, 0.8);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 183, 255, 0.1);
         }
         
         .qubit-display-controls {
             display: flex;
             gap: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
             align-items: center;
+            border-bottom: 1px solid rgba(0, 183, 255, 0.1);
+            padding-bottom: 15px;
         }
         
         .control-button {
@@ -351,27 +491,43 @@
         }
         
         .detail-control {
-            padding: 8px;
-            background-color: #1a1a1a;
-            border: 1px solid #333;
+            padding: 10px 12px;
+            background-color: rgba(10, 20, 30, 0.8);
+            border: 1px solid rgba(0, 183, 255, 0.3);
             color: #fff;
-            border-radius: 3px;
+            border-radius: 5px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
         }
         
         .detail-selector {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            background-color: rgba(10, 20, 30, 0.5);
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid rgba(0, 183, 255, 0.1);
+        }
+        
+        .detail-selector label {
+            color: #00b7ff;
+            font-weight: 500;
         }
         
         .detail-selector input {
-            width: 70px;
+            width: 80px;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 183, 255, 0.3);
+            color: #fff;
+            border-radius: 4px;
+            font-family: monospace;
         }
         
         .qubit-detail-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 25px;
             justify-content: space-around;
             padding: 20px 0;
             max-height: 600px;
@@ -384,142 +540,184 @@
         }
         
         .qubit-card {
-            width: 200px;
-            background: rgba(10, 10, 15, 0.8);
-            border: 1px solid rgba(0, 183, 255, 0.2);
-            border-radius: 8px;
-            padding: 15px;
+            width: 220px;
+            background: rgba(10, 15, 30, 0.9);
+            border: 1px solid rgba(0, 183, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
             position: relative;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .qubit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 183, 255, 0.3);
         }
         
         .qubit-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border-bottom: 1px solid rgba(0, 183, 255, 0.2);
-            padding-bottom: 8px;
+            padding-bottom: 12px;
         }
         
         .qubit-index {
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
             color: #00b7ff;
+            text-shadow: 0 0 10px rgba(0, 183, 255, 0.5);
         }
         
         .state-probabilities {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         .state-bar {
-            height: 20px;
-            margin: 5px 0;
-            border-radius: 3px;
-            background: #090909;
+            height: 24px;
+            margin: 8px 0;
+            border-radius: 5px;
+            background: rgba(5, 10, 15, 0.8);
             position: relative;
             overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
         }
         
         .state-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, #00475e 0%, #00b7ff 100%);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 0 10px rgba(0, 183, 255, 0.5);
         }
         
         .state-label {
             position: absolute;
             top: 50%;
-            left: 10px;
+            left: 12px;
             transform: translateY(-50%);
-            font-size: 12px;
+            font-size: 13px;
             color: white;
             mix-blend-mode: difference;
+            font-family: monospace;
+            z-index: 2;
         }
         
         .state-value {
             position: absolute;
             top: 50%;
-            right: 10px;
+            right: 12px;
             transform: translateY(-50%);
-            font-size: 12px;
+            font-size: 13px;
             color: white;
             mix-blend-mode: difference;
+            font-family: monospace;
+            z-index: 2;
         }
         
         .phase-info {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .phase-info h4 {
+            color: #00b7ff;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .phase-indicator {
             width: 100%;
-            height: 8px;
-            background: #090909;
-            border-radius: 4px;
+            height: 10px;
+            background: rgba(5, 10, 15, 0.8);
+            border-radius: 5px;
             position: relative;
-            margin-top: 5px;
+            margin-top: 8px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        
+        .phase-indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, 
+                #ff0000, #ff7f00, #ffff00, #00ff00, 
+                #0000ff, #4b0082, #8f00ff);
+            opacity: 0.2;
         }
         
         .phase-marker {
             position: absolute;
             top: -5px;
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             background: #00b7ff;
             transform: translateX(-50%);
             left: 0%;
-            transition: left 0.3s ease;
-            box-shadow: 0 0 5px rgba(0, 183, 255, 0.7);
+            transition: left 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 0 10px rgba(0, 183, 255, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            z-index: 2;
         }
         
         .bloch-sphere {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             margin: 0 auto;
             position: relative;
             border-radius: 50%;
-            background: radial-gradient(circle at center, #000 0%, #001a29 100%);
-            border: 1px solid rgba(0, 183, 255, 0.3);
+            background: radial-gradient(circle at center, #001525 0%, #000510 100%);
+            border: 1px solid rgba(0, 183, 255, 0.4);
             overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 183, 255, 0.2);
         }
         
         .bloch-sphere::before {
             content: '';
             position: absolute;
             top: 50%;
-            left: 50%;
+            left: 0;
             width: 100%;
             height: 1px;
-            background: rgba(0, 183, 255, 0.3);
-            transform-origin: center;
+            background: rgba(0, 183, 255, 0.4);
+            box-shadow: 0 0 5px rgba(0, 183, 255, 0.5);
         }
         
         .bloch-sphere::after {
             content: '';
             position: absolute;
-            top: 50%;
+            top: 0;
             left: 50%;
             width: 1px;
             height: 100%;
-            background: rgba(0, 183, 255, 0.3);
-            transform-origin: center;
+            background: rgba(0, 183, 255, 0.4);
+            box-shadow: 0 0 5px rgba(0, 183, 255, 0.5);
         }
         
         .qubit-vector {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 2px;
+            width: 3px;
             height: 0%;
-            background: #00b7ff;
+            background: linear-gradient(to top, #00b7ff, #0077cc);
             transform-origin: bottom center;
             transform: rotate(0deg);
-            box-shadow: 0 0 5px rgba(0, 183, 255, 0.7);
+            box-shadow: 0 0 10px rgba(0, 183, 255, 0.9);
             z-index: 2;
+            transition: height 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                        transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
         
         .qubit-vector::after {
@@ -530,10 +728,11 @@
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            border-bottom: 6px solid #00b7ff;
-            margin-top: -6px;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 8px solid #00b7ff;
+            margin-top: -8px;
+            filter: drop-shadow(0 0 3px rgba(0, 183, 255, 0.8));
         }
     </style>
     <script src="/static/quantum-matrix.js"></script>
