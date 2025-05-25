@@ -2085,10 +2085,82 @@
             return result;
         }
         
+        // Create detailed qubit visualizations
+        function createDetailedQubitViews() {
+            // Create container if it doesn't exist
+            const detailPanel = document.createElement('div');
+            detailPanel.className = 'qubit-detail-panel';
+            detailPanel.innerHTML = '<h3>Qubit State Visualization</h3>';
+            
+            // Create container for qubit cards
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'qubit-detail-container active';
+            detailPanel.appendChild(cardContainer);
+            
+            // Create visualizations for the first 8 qubits or fewer
+            const displayCount = Math.min(qubitCount, 8);
+            
+            for (let i = 0; i < displayCount; i++) {
+                const qubitCard = document.createElement('div');
+                qubitCard.className = 'qubit-card';
+                
+                const cardHeader = document.createElement('div');
+                cardHeader.className = 'qubit-card-header';
+                cardHeader.innerHTML = `<span class="qubit-index">Q${i}</span>`;
+                qubitCard.appendChild(cardHeader);
+                
+                // Create container for the Bloch sphere
+                const visualContainer = document.createElement('div');
+                visualContainer.className = 'qubit-visual-container';
+                qubitCard.appendChild(visualContainer);
+                
+                // Add enhanced Bloch sphere visualization
+                renderEnhancedBlochSphere(visualContainer, i);
+                
+                cardContainer.appendChild(qubitCard);
+            }
+            
+            // Add the detail panel to the page
+            document.querySelector('.container').appendChild(detailPanel);
+            
+            // Update qubit states when gates are applied
+            applyGateButton.addEventListener('click', () => {
+                // Wait for the state to be updated
+                setTimeout(() => {
+                    // Clear existing visualization
+                    document.querySelector('.qubit-detail-container').innerHTML = '';
+                    
+                    // Recreate the qubit cards with updated states
+                    for (let i = 0; i < displayCount; i++) {
+                        const qubitCard = document.createElement('div');
+                        qubitCard.className = 'qubit-card';
+                        
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'qubit-card-header';
+                        cardHeader.innerHTML = `<span class="qubit-index">Q${i}</span>`;
+                        qubitCard.appendChild(cardHeader);
+                        
+                        // Create container for the Bloch sphere
+                        const visualContainer = document.createElement('div');
+                        visualContainer.className = 'qubit-visual-container';
+                        qubitCard.appendChild(visualContainer);
+                        
+                        // Add enhanced Bloch sphere visualization
+                        renderEnhancedBlochSphere(visualContainer, i);
+                        
+                        document.querySelector('.qubit-detail-container').appendChild(qubitCard);
+                    }
+                }, 100);
+            });
+        }
+        
         // Initialize when window loads
         window.addEventListener('load', () => {
             updateQuantumGrid();
             updateStateDisplay();
+            
+            // Add the detailed qubit visualizations
+            createDetailedQubitViews();
             
             // Initialize the circuit designer
             initQuantumCircuitDesigner('circuit-designer-container');
