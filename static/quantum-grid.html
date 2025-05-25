@@ -709,33 +709,155 @@
         .bloch-state-label {
             position: absolute;
             font-family: monospace;
-            font-size: 12px;
+            font-size: 14px;
             color: #00b7ff;
             text-shadow: 0 0 5px rgba(0, 183, 255, 0.8);
+            z-index: 5;
         }
         
         .bloch-label-0 {
             top: 5px;
             left: 50%;
             transform: translateX(-50%);
+            font-weight: bold;
         }
         
         .bloch-label-1 {
             bottom: 5px;
             left: 50%;
             transform: translateX(-50%);
+            font-weight: bold;
         }
         
         .bloch-label-plus {
             top: 50%;
             right: 5px;
             transform: translateY(-50%);
+            font-weight: bold;
         }
         
         .bloch-label-minus {
             top: 50%;
             left: 5px;
             transform: translateY(-50%);
+            font-weight: bold;
+        }
+        
+        /* 3D Bloch sphere grid lines */
+        .bloch-sphere-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .bloch-circle-x, .bloch-circle-y {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 183, 255, 0.3);
+            top: 0;
+            left: 0;
+        }
+        
+        .bloch-circle-x {
+            transform: rotateX(60deg);
+        }
+        
+        .bloch-circle-y {
+            transform: rotateY(60deg);
+        }
+        
+        /* Qubit vector representation */
+        .qubit-vector {
+            position: absolute;
+            width: 2px;
+            height: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            transform: translateX(-50%);
+            transition: height 0.3s ease, transform 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+        
+        .qubit-vector::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgb(255, 255, 255);
+            border-radius: 50%;
+            top: -4px;
+            left: -3px;
+            box-shadow: 0 0 8px rgb(255, 255, 255);
+        }
+        
+        .qubit-vector.active {
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Probability indicator */
+        .probability-indicator {
+            position: absolute;
+            width: 14px;
+            height: 80px;
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 183, 255, 0.5);
+            right: -30px;
+            top: 40px;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        
+        .probability-fill {
+            position: absolute;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to top, rgb(0, 183, 255), rgb(100, 210, 255));
+            bottom: 0;
+            transition: height 0.3s ease;
+        }
+        
+        .probability-indicator span {
+            position: absolute;
+            font-size: 10px;
+            color: white;
+            right: 18px;
+            top: 35px;
+            transform: rotate(90deg);
+            white-space: nowrap;
+            text-shadow: 0 0 2px black;
+        }
+        
+        /* Phase indicator */
+        .phase-circle-indicator {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 183, 255, 0.5);
+            top: -36px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .phase-circle-fill {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgb(255, 200, 100);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 6px rgba(255, 200, 100, 0.8);
         }
         
         /* Probability circle indicator */
@@ -1455,6 +1577,140 @@
         // Update quantum grid
         function updateQuantumGrid() {
             initQuantumGrid();
+        }
+        
+        // Render enhanced Bloch sphere for a qubit
+        function renderEnhancedBlochSphere(container, qubitIndex) {
+            // Clear existing content
+            container.innerHTML = '';
+            
+            // Create the Bloch sphere with enhanced elements
+            const blochSphere = document.createElement('div');
+            blochSphere.className = 'bloch-sphere';
+            
+            // Add 3D grid lines for better visualization
+            const gridElement = document.createElement('div');
+            gridElement.className = 'bloch-sphere-grid';
+            
+            const circleX = document.createElement('div');
+            circleX.className = 'bloch-circle-x';
+            
+            const circleY = document.createElement('div');
+            circleY.className = 'bloch-circle-y';
+            
+            gridElement.appendChild(circleX);
+            gridElement.appendChild(circleY);
+            blochSphere.appendChild(gridElement);
+            
+            // Add state labels for better understanding
+            const labels = [
+                { class: 'bloch-label-0', text: '|0⟩' },
+                { class: 'bloch-label-1', text: '|1⟩' },
+                { class: 'bloch-label-plus', text: '|+⟩' },
+                { class: 'bloch-label-minus', text: '|-⟩' }
+            ];
+            
+            labels.forEach(label => {
+                const labelElement = document.createElement('div');
+                labelElement.className = 'bloch-state-label ' + label.class;
+                labelElement.textContent = label.text;
+                blochSphere.appendChild(labelElement);
+            });
+            
+            // Create the qubit state vector
+            const vector = document.createElement('div');
+            vector.className = 'qubit-vector active';
+            blochSphere.appendChild(vector);
+            
+            // Add probability indicator
+            const probIndicator = document.createElement('div');
+            probIndicator.className = 'probability-indicator';
+            
+            const probFill = document.createElement('div');
+            probFill.className = 'probability-fill';
+            probIndicator.appendChild(probFill);
+            
+            // Add probability percentage text
+            const probText = document.createElement('span');
+            probText.textContent = '0%';
+            probIndicator.appendChild(probText);
+            
+            blochSphere.appendChild(probIndicator);
+            
+            // Add phase indicator
+            const phaseIndicator = document.createElement('div');
+            phaseIndicator.className = 'phase-circle-indicator';
+            
+            const phaseDot = document.createElement('div');
+            phaseDot.className = 'phase-circle-fill';
+            phaseIndicator.appendChild(phaseDot);
+            
+            blochSphere.appendChild(phaseIndicator);
+            
+            // Add the completed Bloch sphere to the container
+            container.appendChild(blochSphere);
+            
+            // Calculate qubit state values based on gates applied
+            let theta = 0; // Polar angle (0 = |0⟩, π = |1⟩)
+            let phi = 0;   // Azimuthal angle (phase)
+            let probability = 0; // Probability of measuring |1⟩
+            
+            // Simplified simulation of qubit state
+            // In a real quantum system, this would be calculated from the quantum state vector
+            
+            // Check if this qubit has gates applied to it
+            const qubitGates = gateHistory.filter(g => 
+                g.target === qubitIndex || g.control === qubitIndex
+            );
+            
+            // Apply simplified effects based on gates
+            qubitGates.forEach(gate => {
+                if (gate.target === qubitIndex) {
+                    switch (gate.type) {
+                        case 'h': // Hadamard puts qubit in superposition
+                            theta = Math.PI / 2; // Equator of Bloch sphere
+                            phi = 0;
+                            probability = 0.5;
+                            break;
+                        case 'x': // X gate flips the state
+                            theta = Math.PI - theta;
+                            probability = 1 - probability;
+                            break;
+                        case 'z': // Z gate changes phase
+                            phi += Math.PI;
+                            break;
+                        case 'y': // Y gate combines X and Z effects
+                            theta = Math.PI - theta;
+                            phi += Math.PI;
+                            probability = 1 - probability;
+                            break;
+                    }
+                }
+                
+                // Simulate entanglement effects
+                if (gate.type === 'cx' || gate.type === 'cz') {
+                    if (gate.control === qubitIndex || gate.target === qubitIndex) {
+                        // For visualization, show entangled qubits with a slight phase shift
+                        phi += Math.PI / 4;
+                    }
+                }
+            });
+            
+            // Apply calculated values to the visualization
+            // Vector height represents distance from |0⟩ state
+            vector.style.height = `${theta / Math.PI * 100}%`;
+            
+            // Vector rotation represents phase
+            vector.style.transform = `rotate(${phi}rad)`;
+            
+            // Update probability indicator
+            probFill.style.height = `${probability * 100}%`;
+            probText.textContent = `${Math.round(probability * 100)}%`;
+            
+            // Update phase indicator
+            phaseDot.style.transform = `rotate(${phi}rad) translateX(7px)`;
+            
+            return blochSphere;
         }
         
         // Update state display
