@@ -44,6 +44,38 @@ if 'FLASK_ENV' not in os.environ:
 def create_app():
     app = Flask(__name__, static_folder='static')
     
+    # Block WordPress and admin probes before processing any requests
+    @app.before_request
+    def block_wp_admin():
+        """Block WordPress admin and common security probe attempts"""
+        blocked_paths = [
+            '/wp-admin/',
+            '/wp-login.php',
+            '/xmlrpc.php',
+            '/wp-content/',
+            '/wp-includes/',
+            '/wp-config.php',
+            '/admin/',
+            '/administrator/',
+            '/phpmyadmin/',
+            '/phpMyAdmin/',
+            '/mysql/',
+            '/database/',
+            '/.env',
+            '/config.php',
+            '/setup.php',
+            '/wp-json/',
+            '/readme.html',
+            '/license.txt'
+        ]
+        
+        request_path = request.path.lower()
+        for blocked_path in blocked_paths:
+            if request_path.startswith(blocked_path.lower()):
+                # Log the blocked attempt for security monitoring
+                logger.warning(f"Blocked probe attempt: {request.path} from {request.remote_addr}")
+                return "Access Denied", 403
+
     # Global middleware to intercept ALL routes, prevent caching, and enforce security
     @app.after_request
     def add_no_cache_headers(response):
