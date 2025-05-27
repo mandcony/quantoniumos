@@ -220,8 +220,8 @@ def configure_security(app: Flask):
             if suspicious_path in request_path:
                 # Log the suspicious activity
                 log_suspicious_activity(
-                    event_type="path_scanning",
-                    client_ip=request.remote_addr,
+                    activity_type="path_scanning",
+                    client_ip=request.remote_addr or "unknown",
                     resource=request.path,
                     message=f"Blocked suspicious path scan: {request.path}",
                     metadata={
@@ -239,14 +239,60 @@ def configure_security(app: Flask):
         for param in suspicious_params:
             if param in query_string:
                 log_suspicious_activity(
-                    event_type="malicious_parameters",
-                    client_ip=request.remote_addr,
+                    activity_type="malicious_parameters",
+                    client_ip=request.remote_addr or "unknown",
                     resource=request.path,
                     message=f"Blocked request with suspicious parameter: {param}",
                     metadata={
                         "user_agent": request.headers.get('User-Agent', 'Unknown'),
                         "query_string": request.query_string.decode('utf-8', errors='ignore'),
                         "matched_parameter": param
+                    }
+                )
+                abort(404)
+        
+        # Check for suspicious referrer patterns
+        referrer = request.referrer or ''
+        suspicious_referrers = [
+            '.google.fr', '.google.com.fake', '.bing.fake', '.yahoo.fake',
+            'malicious-site.com', 'phishing-site.org'
+        ]
+        
+        # Also check for fake search engine user agents
+        user_agent = request.headers.get('User-Agent', '').lower()
+        fake_bot_patterns = [
+            'googlebot' if 'google' not in referrer.lower() else '',
+            'bingbot' if 'bing' not in referrer.lower() else '',
+            'yandexbot' if 'yandex' not in referrer.lower() else ''
+        ]
+        
+        for suspicious_ref in suspicious_referrers:
+            if suspicious_ref in referrer.lower():
+                log_suspicious_activity(
+                    activity_type="suspicious_referrer",
+                    client_ip=request.remote_addr or "unknown",
+                    resource=request.path,
+                    message=f"Blocked request with suspicious referrer: {referrer}",
+                    metadata={
+                        "user_agent": user_agent,
+                        "referrer": referrer,
+                        "matched_pattern": suspicious_ref
+                    }
+                )
+                abort(404)
+        
+        # Check for bot impersonation
+        for bot_pattern in fake_bot_patterns:
+            if bot_pattern and bot_pattern in user_agent:
+                log_suspicious_activity(
+                    activity_type="bot_impersonation",
+                    client_ip=request.remote_addr or "unknown",
+                    resource=request.path,
+                    message=f"Blocked fake bot impersonation: {bot_pattern}",
+                    metadata={
+                        "user_agent": user_agent,
+                        "referrer": referrer,
+                        "impersonated_bot": bot_pattern
                     }
                 )
                 abort(404)
