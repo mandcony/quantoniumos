@@ -202,9 +202,55 @@ def configure_security(app: Flask):
         '/api/stream/wave'  # Streaming endpoints should not be rate limited
     ]
     
-    # Add CORS checking to before_request
+    # Add CORS checking and suspicious path filtering to before_request
     @app.before_request
     def before_request():
+        # Block suspicious scanning attempts
+        suspicious_paths = [
+            '/wp-admin/', '/wordpress/', '/wp-content/', '/wp-includes/',
+            '/admin/', '/administrator/', '/phpmyadmin/', '/phpMyAdmin/',
+            '/config.php', '/setup.php', '/install.php', '/wp-config.php',
+            '/.env', '/.git/', '/backup/', '/tmp/', '/temp/',
+            '/cgi-bin/', '/scripts/', '/HNAP1/', '/boaform/',
+            '/vendor/', '/node_modules/', '/uploads/', '/files/'
+        ]
+        
+        request_path = request.path.lower()
+        for suspicious_path in suspicious_paths:
+            if suspicious_path in request_path:
+                # Log the suspicious activity
+                log_suspicious_activity(
+                    event_type="path_scanning",
+                    client_ip=request.remote_addr,
+                    resource=request.path,
+                    message=f"Blocked suspicious path scan: {request.path}",
+                    metadata={
+                        "user_agent": request.headers.get('User-Agent', 'Unknown'),
+                        "method": request.method,
+                        "referrer": request.referrer,
+                        "matched_pattern": suspicious_path
+                    }
+                )
+                abort(404)  # Return 404 instead of 403 to not reveal blocking
+        
+        # Block requests with suspicious query parameters
+        suspicious_params = ['eval', 'exec', 'system', 'passthru', 'shell_exec', 'cmd', 'wget', 'curl']
+        query_string = request.query_string.decode('utf-8', errors='ignore').lower()
+        for param in suspicious_params:
+            if param in query_string:
+                log_suspicious_activity(
+                    event_type="malicious_parameters",
+                    client_ip=request.remote_addr,
+                    resource=request.path,
+                    message=f"Blocked request with suspicious parameter: {param}",
+                    metadata={
+                        "user_agent": request.headers.get('User-Agent', 'Unknown'),
+                        "query_string": request.query_string.decode('utf-8', errors='ignore'),
+                        "matched_parameter": param
+                    }
+                )
+                abort(404)
+        
         cors_check()
     
     # Add permissions policy header to all responses
