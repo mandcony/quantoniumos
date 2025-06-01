@@ -324,4 +324,4 @@ def get_rate_limit(identifier: str, limit: int, window: int):
 
 # Configuration flags
 REDIS_AVAILABLE = redis_cluster.redis_client is not None
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
+REDIS_URL = os.environ.get('REDIS_URL', '')
