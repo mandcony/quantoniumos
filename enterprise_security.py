@@ -57,10 +57,16 @@ class WebApplicationFirewall:
     
     def __init__(self):
         self.blocked_ips = set()
+        self.temp_banned_ips = {}  # IP -> ban_expiry_time
         self.suspicious_patterns = self._load_attack_patterns()
         self.request_tracking = {}
         self.ddos_threshold = 100  # requests per minute
         self.attack_threshold = 5   # suspicious requests before block
+        self.wordpress_patterns = [
+            '/wp-admin', '/wordpress', '/wp-content', '/wp-includes',
+            '/wp-login.php', '/wp-config.php', '/xmlrpc.php',
+            '.php', '/admin.php', '/login.php'
+        ]
     
     def _load_attack_patterns(self) -> List[str]:
         """Load known attack patterns"""
@@ -98,13 +104,40 @@ class WebApplicationFirewall:
         query_params = str(request_data.get('query_params', '')).lower()
         body = str(request_data.get('body', '')).lower()
         
-        # Check if IP is already blocked
+        # Check temporary bans first
+        current_time = time.time()
+        if client_ip in self.temp_banned_ips:
+            if current_time < self.temp_banned_ips[client_ip]:
+                return {
+                    'action': 'block',
+                    'reason': 'temporarily_banned',
+                    'threat_level': 'high',
+                    'connection': 'close'
+                }
+            else:
+                # Ban expired, remove from temporary ban list
+                del self.temp_banned_ips[client_ip]
+        
+        # Check if IP is permanently blocked
         if client_ip in self.blocked_ips:
             return {
                 'action': 'block',
                 'reason': 'ip_blocked',
                 'threat_level': 'critical'
             }
+        
+        # WordPress/PHP attack detection with immediate ban
+        for wp_pattern in self.wordpress_patterns:
+            if wp_pattern in path:
+                # Add to 30-minute temporary ban
+                self.temp_banned_ips[client_ip] = current_time + 1800  # 30 minutes
+                return {
+                    'action': 'block',
+                    'reason': 'wordpress_attack_attempt',
+                    'threat_level': 'high',
+                    'connection': 'close',
+                    'ban_duration': '30_minutes'
+                }
         
         # DDoS protection
         ddos_result = self._check_ddos_protection(client_ip)
