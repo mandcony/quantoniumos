@@ -127,23 +127,29 @@ def configure_security(app: Flask):
         session_cookie_http_only=True
     )
     
-    # Set up rate limiting with Redis for distributed systems
-    redis_url = os.environ.get('REDIS_URL')
+    # Set up rate limiting with Redis cluster for distributed systems
+    from redis_config import redis_cluster, REDIS_AVAILABLE
     
-    # Configure more detailed Redis options if available
-    if redis_url:
-        logger.info("Configuring Flask-Limiter with Redis backend")
-        storage_uri = redis_url
-        storage_options = {
-            "connection_pool": True,      # Use connection pooling
-            "socket_connect_timeout": 3,  # Timeout for initial connection
-            "socket_timeout": 3,          # Timeout for operations
-            "health_check_interval": 30   # Check health of connection periodically
-        }
-    else:
-        logger.warning("Redis URL not found. Using memory storage for rate limits - will not work across multiple instances.")
-        storage_uri = "memory://"
+    if REDIS_AVAILABLE and redis_cluster.redis_client:
+        logger.info("Configuring Flask-Limiter with Redis cluster backend")
+        storage_uri = redis_cluster.redis_client
         storage_options = {}
+    else:
+        # Fallback to Redis URL if cluster not available
+        redis_url = os.environ.get('REDIS_URL')
+        if redis_url:
+            logger.info("Configuring Flask-Limiter with Redis URL backend")
+            storage_uri = redis_url
+            storage_options = {
+                "connection_pool": True,
+                "socket_connect_timeout": 3,
+                "socket_timeout": 3,
+                "health_check_interval": 30
+            }
+        else:
+            logger.warning("Redis not available. Using memory storage for rate limits - will not work across multiple instances.")
+            storage_uri = "memory://"
+            storage_options = {}
     
     # More strict rate limits in production, more lenient in development
     if is_development:

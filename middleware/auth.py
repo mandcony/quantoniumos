@@ -30,8 +30,8 @@ except ImportError:
 # Configure logging
 logger = logging.getLogger("quantonium_auth")
 
-# Import Redis configuration with fallback mechanism
-from redis_config import get_redis_connection, get_rate_limit, REDIS_AVAILABLE, REDIS_URL
+# Import Redis cluster configuration
+from redis_config import redis_cluster, get_redis_connection, get_rate_limit, REDIS_AVAILABLE, REDIS_URL
 
 # Create a Redis-backed rate limiter middleware
 class RedisRateLimiter:
