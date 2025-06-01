@@ -32,11 +32,16 @@ class QuantumSafeKeyManager:
         """Get or create the master encryption key"""
         master_key_env = os.environ.get('QUANTONIUM_MASTER_KEY')
         if master_key_env:
-            return base64.b64decode(master_key_env.encode())
+            try:
+                return base64.b64decode(master_key_env.encode())
+            except Exception as e:
+                logger.warning(f"Invalid QUANTONIUM_MASTER_KEY format: {e}")
         
         # Generate new master key
         master_key = secrets.token_bytes(32)
-        logger.warning("Generated new master key - set QUANTONIUM_MASTER_KEY environment variable")
+        encoded_key = base64.b64encode(master_key).decode()
+        logger.warning(f"Generated new master key: {encoded_key}")
+        logger.warning("Set QUANTONIUM_MASTER_KEY environment variable to persist this key")
         return master_key
     
     def derive_key(self, salt: bytes, context: str = "default") -> bytes:
