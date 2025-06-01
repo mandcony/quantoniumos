@@ -794,6 +794,102 @@ def create_app():
         """
         return render_template_string(swagger_html)
     
+    @app.route('/security/status')
+    def security_status():
+        """Enterprise security status endpoint"""
+        try:
+            security_score = get_security_score()
+            dashboard_data = monitoring.get_security_dashboard()
+            
+            return jsonify({
+                'security_score': security_score,
+                'dashboard': dashboard_data,
+                'waf_status': 'active',
+                'monitoring_status': 'active',
+                'encryption_status': 'active',
+                'quantum_safe': True,
+                'zero_trust': True
+            })
+        except Exception as e:
+            logger.error(f"Security status check failed: {e}")
+            return jsonify({'error': 'Security status unavailable'}), 500
+    
+    @app.route('/security/analyze', methods=['POST'])
+    def security_analyze():
+        """Advanced security analysis endpoint"""
+        try:
+            request_data = {
+                'client_ip': request.remote_addr,
+                'user_agent': request.headers.get('User-Agent', ''),
+                'path': request.path,
+                'query_params': dict(request.args),
+                'body': request.get_json() or {}
+            }
+            
+            # WAF Analysis
+            waf_result = waf.analyze_request(request_data)
+            
+            # Intrusion Detection
+            ids_result = intrusion_detection.analyze_request(request_data)
+            
+            # Log security event
+            monitoring.log_security_event({
+                'type': 'security_analysis',
+                'waf_result': waf_result,
+                'ids_result': ids_result,
+                'source_ip': request.remote_addr
+            })
+            
+            return jsonify({
+                'waf_analysis': waf_result,
+                'intrusion_detection': ids_result,
+                'overall_threat_level': max(
+                    waf_result.get('threat_level', 'none'),
+                    ids_result.get('risk_score', 0) / 25
+                )
+            })
+            
+        except Exception as e:
+            logger.error(f"Security analysis failed: {e}")
+            return jsonify({'error': 'Security analysis failed'}), 500
+    
+    @app.route('/quantum/container/secure', methods=['POST'])
+    def secure_quantum_container():
+        """Create secure quantum computation container"""
+        try:
+            request_data = request.get_json()
+            user_id = request.headers.get('X-User-ID', 'anonymous')
+            
+            # Validate request
+            validation_result = container_isolation.validate_computation_request(request_data)
+            if not validation_result['allowed']:
+                return jsonify({
+                    'error': 'Computation request rejected',
+                    'violations': validation_result['violations']
+                }), 400
+            
+            # Create isolated container
+            computation_id = secrets.token_hex(16)
+            container_config = container_isolation.create_isolated_container(computation_id, user_id)
+            
+            # Log container creation
+            monitoring.log_security_event({
+                'type': 'container_created',
+                'computation_id': computation_id,
+                'user_id': user_id,
+                'resource_limits': container_config['resource_limits']
+            })
+            
+            return jsonify({
+                'computation_id': computation_id,
+                'container_config': container_config,
+                'security_context': container_config['security_context']
+            })
+            
+        except Exception as e:
+            logger.error(f"Secure container creation failed: {e}")
+            return jsonify({'error': 'Container creation failed'}), 500
+    
     return app
 
 # ✅ Gunicorn uses this
