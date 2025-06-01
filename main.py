@@ -12,7 +12,7 @@ import platform
 import json
 import secrets
 from datetime import datetime
-from flask import Flask, send_from_directory, redirect, jsonify, g, request, render_template_string, make_response
+from flask import Flask, send_from_directory, redirect, jsonify, g, request, render_template_string
 from flask_cors import CORS
 from routes import api
 from routes import encrypt, decrypt
@@ -52,30 +52,12 @@ def create_app():
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
-        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';"
-        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers["X-Frame-Options"] = "DENY"
-        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         return response
     
     # Global middleware to intercept routes for security and redirection
     @app.before_request
     def redirect_to_os():
         app.logger.info(f"Incoming request to: {request.path} with args: {request.args}")
-        
-        # WordPress/PHP attack blocking with immediate 403
-        wordpress_patterns = [
-            '/wp-admin', '/wordpress', '/wp-content', '/wp-includes',
-            '/wp-login.php', '/wp-config.php', '/xmlrpc.php',
-            '.php', '/admin.php', '/login.php', '/phpmyadmin'
-        ]
-        
-        for pattern in wordpress_patterns:
-            if pattern in request.path.lower():
-                response = make_response("Forbidden", 403)
-                response.headers['Connection'] = 'close'
-                return response
         
         # CRITICAL: If accessing the root URL, force serve the OS interface directly
         if request.path == '/':
