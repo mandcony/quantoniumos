@@ -127,6 +127,8 @@ def create_app():
     
     # Add rate limiter middleware
     from middleware.auth import RateLimiter
+    from enterprise_security import waf, monitoring, database_encryption, secret_manager, get_security_score
+    from quantum_security import quantum_key_manager, zero_trust_validator, container_isolation, intrusion_detection
     app.wsgi_app = RateLimiter(calls=30, period=60)(app.wsgi_app)
     
     # Add NIST 800-53 compliant security audit middleware
