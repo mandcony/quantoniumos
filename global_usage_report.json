@@ -1,9 +1,9 @@
 {
-  "total_requests": 70,
+  "total_requests": 49,
   "unique_countries": 2,
-  "unique_ips": 3,
+  "unique_ips": 2,
   "country_breakdown": {
-    "United States": 69,
+    "United States": 48,
     "Italy": 1
   },
   "ip_details": [
@@ -15,12 +15,7 @@
     [
       "162.84.145.191",
       "United States",
-      68
-    ],
-    [
-      "136.0.0.0",
-      "United States",
-      1
+      48
     ]
   ]
 }
