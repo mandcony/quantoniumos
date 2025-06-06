@@ -59,6 +59,24 @@ def create_app():
     def redirect_to_os():
         app.logger.info(f"Incoming request to: {request.path} with args: {request.args}")
         
+        # SECURITY: Block WordPress/PHP attacks immediately
+        wordpress_patterns = [
+            '/wp-admin', '/wp-login', '/wp-content', '/wp-includes', '/wordpress',
+            '/admin.php', '/login.php', '/about.php', '/wp.php', '/bypass.php',
+            '/content.php', '/fw.php', '/radio.php', '/simple.php', '/xmlrpc.php',
+            '/wp-config.php', '/wp-content/uploads'
+        ]
+        
+        for pattern in wordpress_patterns:
+            if pattern in request.path.lower():
+                app.logger.warning(f"BLOCKED WordPress attack attempt: {request.path} from {request.remote_addr}")
+                abort(403)
+        
+        # Block any .php file requests
+        if request.path.lower().endswith('.php'):
+            app.logger.warning(f"BLOCKED PHP file request: {request.path} from {request.remote_addr}")
+            abort(403)
+        
         # CRITICAL: If accessing the root URL, force serve the OS interface directly
         if request.path == '/':
             app.logger.warning("ROOT URL accessed - force serving quantum-os.html directly")
