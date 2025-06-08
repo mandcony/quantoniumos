@@ -87,9 +87,26 @@ def create_app():
             app.logger.info("Allowing API route")
             return None
             
-        # Always allow static files to be served
+        # Protect proprietary static files - require authentication
+        proprietary_files = [
+            '/static/quantum-matrix.js',
+            '/static/circuit-designer.js', 
+            '/static/resonance_analyzer/',
+            '/static/quantum-grid.js',
+            '/static/container-operations.html',
+            '/static/resonance-encrypt.html',
+            '/static/resonance-transform.html'
+        ]
+        
         if request.path.startswith('/static/'):
-            app.logger.info("Allowing static file")
+            # Check if this is a proprietary file
+            for prop_file in proprietary_files:
+                if prop_file in request.path:
+                    app.logger.warning(f"BLOCKED access to proprietary file: {request.path} from {request.remote_addr}")
+                    abort(403)
+            
+            # Allow non-proprietary static files (images, basic CSS, etc.)
+            app.logger.info("Allowing non-proprietary static file")
             return None
             
         # Always allow access to favicon.ico
