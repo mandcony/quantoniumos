@@ -82,6 +82,17 @@ def create_app():
             app.logger.warning("ROOT URL accessed - force serving quantum-os.html directly")
             return send_from_directory('static', 'quantum-os.html')
             
+        # Block PHP vulnerability probes immediately
+        php_attack_patterns = [
+            '.php', 'wp-', 'wordpress', 'admin', 'login', 'phpmyadmin',
+            'xmlrpc', 'acme-challenge', 'pki-validation', 'owlmailer'
+        ]
+        
+        for pattern in php_attack_patterns:
+            if pattern in request.path.lower():
+                app.logger.warning(f"BLOCKED PHP attack probe: {request.path} from {request.remote_addr}")
+                abort(403)
+        
         # Always allow API routes to function as normal
         if request.path.startswith('/api/'):
             app.logger.info("Allowing API route")
