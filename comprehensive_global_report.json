@@ -2,20 +2,15 @@
   "analysis_type": "comprehensive_global",
   "total_external_ips": 6,
   "ip_addresses": [
-    "0.0.0.0",
-    "137.0.0.0",
-    "134.0.0.0",
     "0.5.10.2",
     "0.99.7.1",
-    "206.55.217.10"
+    "0.0.0.0",
+    "137.0.0.0",
+    "162.84.145.191",
+    "134.0.0.0"
   ],
   "country_breakdown": {
     "Unknown": [
-      {
-        "ip": "0.0.0.0",
-        "region": "Unknown",
-        "city": "Unknown"
-      },
       {
         "ip": "0.5.10.2",
         "region": "Unknown",
@@ -23,6 +18,11 @@
       },
       {
         "ip": "0.99.7.1",
+        "region": "Unknown",
+        "city": "Unknown"
+      },
+      {
+        "ip": "0.0.0.0",
         "region": "Unknown",
         "city": "Unknown"
       }
@@ -34,9 +34,9 @@
         "city": "Montgomery"
       },
       {
-        "ip": "206.55.217.10",
+        "ip": "162.84.145.191",
         "region": "New York",
-        "city": "New York"
+        "city": "The Bronx"
       }
     ],
     "Italy": [
@@ -48,21 +48,6 @@
     ]
   },
   "geolocation_data": {
-    "0.0.0.0": {
-      "country": "Unknown",
-      "region": "Unknown",
-      "city": "Unknown"
-    },
-    "137.0.0.0": {
-      "country": "United States",
-      "region": "Alabama",
-      "city": "Montgomery"
-    },
-    "134.0.0.0": {
-      "country": "Italy",
-      "region": "Lombardy",
-      "city": "San Giuliano Milanese"
-    },
     "0.5.10.2": {
       "country": "Unknown",
       "region": "Unknown",
@@ -73,10 +58,25 @@
       "region": "Unknown",
       "city": "Unknown"
     },
-    "206.55.217.10": {
+    "0.0.0.0": {
+      "country": "Unknown",
+      "region": "Unknown",
+      "city": "Unknown"
+    },
+    "137.0.0.0": {
+      "country": "United States",
+      "region": "Alabama",
+      "city": "Montgomery"
+    },
+    "162.84.145.191": {
       "country": "United States",
       "region": "New York",
-      "city": "New York"
+      "city": "The Bronx"
+    },
+    "134.0.0.0": {
+      "country": "Italy",
+      "region": "Lombardy",
+      "city": "San Giuliano Milanese"
     }
   }
 }
