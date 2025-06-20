@@ -1,0 +1,366 @@
+/* === Optimized QSS for VSCode/Qt Development === */
+
+/* === Main Window & Dialogs === */
+QMainWindow#QSHLLFileExplorer, QDialog, QMainWindow#QVault {
+    background-color: rgba(248, 232, 198, 0.95); /* Fixed: Light Beige #F8E8C6 */
+    color: rgba(250, 238, 216, 1.0); /* Fixed: Soft Cream text opacity */
+    border: none;
+    min-width: 800px;
+    min-height: 600px;
+}
+
+/* === Desktop View === */
+QGraphicsView#DesktopView {
+    border: none;
+    background-color: transparent;
+}
+
+/* === Arch View (File Explorer) === */
+QGraphicsView#ArchView {
+    border: none;
+    background-color: transparent;
+}
+
+/* === Shaded Arch === */
+QGraphicsEllipseItem#ShadedArch {
+    border: none;
+    background-color: rgba(208, 181, 155, 0.2); /* Fixed: Dusty Tan #D0B59B */
+}
+
+/* === App Icons === */
+QLabel#AppIcon {
+    color: rgba(250, 238, 216, 0.8); /* Fixed: Consistent Soft Cream */
+    background: transparent;
+    border-radius: 10px;
+    padding: 3px;
+}
+
+QLabel#AppIcon:hover {
+    color: #F8E8C6; /* Light Beige on hover */
+    background-color: rgba(226, 207, 195, 0.3); /* Fixed: Muted Pink-Beige background */
+}
+
+/* === Clock Text === */
+QLabel#ClockItem {
+    color: #FFF5E1; /* Soft Cream */
+    font: bold 16pt "Segoe UI";
+    background: transparent;
+    padding: 5px;
+}
+
+/* === Q Logo === */
+QLabel#QLogo {
+    color: rgba(250, 238, 216, 0.6); /* Fixed: Consistent Soft Cream */
+    font: bold 300pt "Segoe UI";
+    background: transparent;
+    /* Note: Custom properties like rotation and scale-factor should be handled in Python code */
+}
+
+/* === Arrow Icon === */
+QLabel#ArrowIcon {
+    color: rgba(250, 238, 216, 0.5); /* Fixed: Consistent Soft Cream */
+    background: transparent;
+}
+
+/* === QDock Panel === */
+QFrame#QDockPanel {
+    background-color: rgba(248, 232, 198, 0.95); /* Light Beige #F8E8C6 */
+    border: 2px solid rgba(208, 181, 155, 0.8); /* Dusty Tan border #D0B59B */
+    border-radius: 12px;
+    /* Note: Use setFixedSize() in Python instead of fixed-height/fixed-width */
+    spacing: 15px;
+}
+
+/* === QDock Buttons === */
+QPushButton#DockButton {
+    background-color: rgba(163, 111, 90, 0.8); /* Fixed: Muted Terracotta #A36F5A */
+    color: #FFF5E1; /* Soft Cream */
+    border: 2px solid rgba(208, 181, 155, 0.8); /* Fixed: Dusty Tan outline */
+    border-radius: 10px;
+    /* Note: Use setIconSize() in Python instead of icon-size property */
+    min-width: 80px;
+    min-height: 80px;
+}
+
+QPushButton#DockButton:hover {
+    background-color: rgba(163, 111, 90, 1.0); /* Brighter Terracotta on hover */
+    border: 2px solid rgb(208, 181, 155); /* Fixed: Missing space in 'solid rgb' */
+    /* Note: QSS doesn't support box-shadow, use QGraphicsDropShadowEffect in Python */
+}
+
+QPushButton#DockButton:pressed {
+    background-color: rgba(130, 88, 72, 0.9); /* Darker Terracotta */
+    border: 2px solid #D0B59B;
+}
+
+/* === Close Button === */
+QPushButton#CloseButton {
+    background-color: rgba(163, 111, 90, 0.8); /* Muted Terracotta #A36F5A */
+    color: #FFF5E1; /* Soft Cream */
+    border: 2px solid rgba(208, 181, 155, 1.0); /* Dusty Tan */
+    border-radius: 10px;
+    min-width: 80px;
+    min-height: 80px;
+}
+
+QPushButton#CloseButton:hover {
+    background-color: rgba(163, 111, 90, 1.0); /* Full opacity Terracotta */
+    border: 2px solid #D0B59B;
+}
+
+QPushButton#CloseButton:pressed {
+    background-color: rgba(130, 88, 72, 0.8); /* Darker Terracotta */
+    border: 2px solid #D0B59B;
+}
+
+/* === QVault Text Editor === */
+QTextEdit#TextEditor {
+    background-color: rgba(226, 207, 195, 0.9); /* Muted Pink-Beige #E2CFC3 */
+    color: #FFF5E1; /* Soft Cream text */
+    border: 2px solid rgba(208, 181, 155, 0.7); /* Dusty Tan border */
+    border-radius: 8px;
+    padding: 10px;
+    font: 12pt "Segoe UI";
+    selection-background-color: rgba(163, 111, 90, 0.6); /* Selection highlight */
+}
+
+/* === QVault Save Button === */
+QPushButton#SaveButton {
+    background-color: rgba(163, 111, 90, 0.7); /* Muted Terracotta */
+    color: #FFF5E1; /* Soft Cream */
+    border: 2px solid rgba(208, 181, 155, 0.9); /* Dusty Tan outline */
+    border-radius: 8px;
+    padding: 10px;
+    font: bold 12pt "Segoe UI";
+    min-width: 150px;
+}
+
+QPushButton#SaveButton:hover {
+    background-color: rgba(163, 111, 90, 0.9); /* Brighter Terracotta on hover */
+    border: 2px solid #D0B59B; /* Dusty Tan full opacity */
+}
+
+QPushButton#SaveButton:pressed {
+    background-color: rgba(130, 88, 72, 0.8); /* Darker Terracotta */
+    border: 2px solid #D0B59B;
+}
+
+/* === General Styles === */
+QMainWindow, QDialog {
+    background-color: #F8E8C6; /* Light Beige */
+    color: #FFF5E1; /* Soft Cream text */
+}
+
+/* === Push Buttons (General) === */
+QPushButton {
+    background-color: rgba(163, 111, 90, 0.6); /* Default Terracotta */
+    color: #FFF5E1;
+    border: 1px solid rgba(208, 181, 155, 0.8);
+    padding: 8px;
+    font: bold 10pt "Segoe UI";
+    border-radius: 5px;
+}
+
+QPushButton:hover {
+    background-color: rgba(163, 111, 90, 0.8); /* Muted Terracotta on hover */
+    color: #FFF5E1;
+}
+
+QPushButton:pressed {
+    background-color: rgba(130, 88, 72, 0.8); /* Darker Terracotta */
+    color: #FFF5E1;
+}
+
+QPushButton:disabled {
+    background-color: rgba(163, 111, 90, 0.3);
+    color: rgba(250, 238, 216, 0.5);
+    border: 1px solid rgba(208, 181, 155, 0.4);
+}
+
+/* === Labels & Text === */
+QLabel {
+    color: #FFF5E1; /* Soft Cream text */
+    font: 10pt "Segoe UI";
+    background: transparent;
+}
+
+/* === App Name Labels === */
+QLabel#AppName {
+    color: #FFF5E1; /* Soft Cream */
+    font: 10pt "Segoe UI";
+    background: transparent;
+}
+
+/* === Header Labels === */
+QLabel#headerLabel {
+    background-color: rgba(208, 181, 155, 0.6); /* Dusty Tan */
+    color: #FFF5E1; /* Soft Cream */
+    font: bold 14pt "Segoe UI"; /* Fixed: Changed from Helvetica for consistency */
+    padding: 8px;
+    border-radius: 6px;
+}
+
+/* === Tree View (Root Folders and File List) === */
+QTreeView {
+    background-color: #F8E8C6; /* Light Beige */
+    alternate-background-color: rgba(248, 232, 198, 0.8); /* Alternating row color */
+    border: 1px solid rgba(208, 181, 155, 0.7); /* Dusty Tan border */
+    font: 10pt "Segoe UI";
+    color: #FFF5E1;
+    gridline-color: rgba(208, 181, 155, 0.3);
+    selection-background-color: rgba(163, 111, 90, 0.6);
+}
+
+QTreeView::item {
+    height: 24px;
+    border: none;
+}
+
+QTreeView::item:hover {
+    background-color: rgba(226, 207, 195, 0.6); /* Muted Pink-Beige on hover */
+    color: #FFF5E1;
+}
+
+QTreeView::item:selected {
+    background-color: rgba(163, 111, 90, 0.8);
+    color: #FFF5E1;
+}
+
+QTreeView::branch:has-siblings:!adjoins-item {
+    border-image: none;
+    border: none;
+}
+
+QTreeView::branch:has-siblings:adjoins-item {
+    border-image: none;
+    border: none;
+}
+
+QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+    border-image: none;
+    border: none;
+}
+
+/* === Scroll Bars === */
+QScrollBar:vertical {
+    background-color: transparent;
+    width: 12px; /* Slightly wider for better usability */
+    border-radius: 6px;
+}
+
+QScrollBar:horizontal {
+    background-color: transparent;
+    height: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+    background-color: rgba(208, 181, 155, 0.6); /* Dusty Tan */
+    border-radius: 6px;
+    min-height: 20px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:vertical:hover, QScrollBar::handle:horizontal:hover {
+    background-color: rgba(208, 181, 155, 0.8); /* Brighter Dusty Tan on hover */
+}
+
+QScrollBar::handle:vertical:pressed, QScrollBar::handle:horizontal:pressed {
+    background-color: rgba(208, 181, 155, 1.0);
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    border: none;
+    background: none;
+    width: 0px;
+    height: 0px;
+}
+
+QScrollBar::add-page, QScrollBar::sub-page {
+    background: none;
+}
+
+/* === Tooltips === */
+QToolTip {
+    background-color: rgba(226, 207, 195, 0.95); /* Muted Pink-Beige */
+    color: #FFF5E1; /* Soft Cream */
+    padding: 8px;
+    border-radius: 6px;
+    font: 11pt "Segoe UI";
+    border: 1px solid #D0B59B; /* Dusty Tan border */
+}
+
+/* === Menu Bar === */
+QMenuBar {
+    background-color: rgba(248, 232, 198, 0.9);
+    color: #FFF5E1;
+    border-bottom: 1px solid rgba(208, 181, 155, 0.5);
+}
+
+QMenuBar::item {
+    background: transparent;
+    padding: 4px 8px;
+}
+
+QMenuBar::item:selected {
+    background-color: rgba(163, 111, 90, 0.6);
+    border-radius: 4px;
+}
+
+QMenuBar::item:pressed {
+    background-color: rgba(163, 111, 90, 0.8);
+}
+
+/* === Menu === */
+QMenu {
+    background-color: rgba(248, 232, 198, 0.95);
+    color: #FFF5E1;
+    border: 1px solid rgba(208, 181, 155, 0.8);
+    border-radius: 6px;
+    padding: 4px;
+}
+
+QMenu::item {
+    padding: 6px 20px;
+    border-radius: 4px;
+}
+
+QMenu::item:selected {
+    background-color: rgba(163, 111, 90, 0.6);
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: rgba(208, 181, 155, 0.5);
+    margin: 4px 8px;
+}
+
+/* === Status Bar === */
+QStatusBar {
+    background-color: rgba(248, 232, 198, 0.9);
+    color: #FFF5E1;
+    border-top: 1px solid rgba(208, 181, 155, 0.5);
+}
+
+/* === Tab Widget === */
+QTabWidget::pane {
+    border: 1px solid rgba(208, 181, 155, 0.7);
+    background-color: rgba(248, 232, 198, 0.9);
+}
+
+QTabBar::tab {
+    background-color: rgba(208, 181, 155, 0.4);
+    color: #FFF5E1;
+    padding: 8px 16px;
+    margin-right: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+QTabBar::tab:selected {
+    background-color: rgba(163, 111, 90, 0.8);
+}
+
+QTabBar::tab:hover {
+    background-color: rgba(163, 111, 90, 0.6);
+}

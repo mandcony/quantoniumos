@@ -50,7 +50,7 @@ QLabel#ClockItem {
 
 /* === Q Logo === */
 QLabel#QLogo {
-    color: rgba(250, 238, 216, 0.6); /* Fixed: Consistent Soft Cream */
+    color: rgba(163, 111, 90, 0.8); /* Muted Terracotta like the 100x interface */
     font: bold 300pt "Segoe UI";
     background: transparent;
     /* Note: Custom properties like rotation and scale-factor should be handled in Python code */
