@@ -198,9 +198,26 @@ class QSHLLTaskManager(QDialog):
         topo_cpu = topo_mem = topo_disk = 0.0
         if self.topo_processes and monitor_resonance_states:
             try:
-                # Suppress resonance_manager prints
-                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                # Complete stdout/stderr suppression for resonance_manager
+                import os
+                import sys
+                
+                # Save original stdout/stderr
+                original_stdout = sys.stdout
+                original_stderr = sys.stderr
+                
+                # Redirect to devnull (complete silence)
+                devnull = open(os.devnull, 'w')
+                sys.stdout = devnull
+                sys.stderr = devnull
+                
+                try:
                     self.topo_processes = monitor_resonance_states(self.topo_processes, dt=0.1)  # type: ignore[arg-type]
+                finally:
+                    # Always restore stdout/stderr
+                    sys.stdout = original_stdout
+                    sys.stderr = original_stderr
+                    devnull.close()
 
                 topo_cpu = sum(p.priority.amplitude for p in self.topo_processes) / len(self.topo_processes) * 50  # type: ignore[attr-defined]
                 topo_mem = sum(abs(p.amplitude.real) for p in self.topo_processes) / len(self.topo_processes) * 50
