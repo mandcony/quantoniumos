@@ -121,7 +121,7 @@
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: rgba(0, 255, 200, 0.8);
+            color: rgba(172, 191, 255, 0.27);
             font-size: 24px;
             transition: transform 0.3s ease;
         }
@@ -301,10 +301,76 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(250, 238, 216, 0.71);
             font-size: 14px;
             text-align: center;
             z-index: 50;
+            background: rgba(226, 207, 195, 0.9);
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid rgba(208, 181, 155, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Scrollbar styling to match QSS */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(208, 181, 155, 0.6);
+            border-radius: 5px;
+            min-height: 20px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(208, 181, 155, 0.8);
+        }
+
+        /* Enhanced quantum particles with more variety */
+        .particle.quantum-wave {
+            background: rgba(172, 191, 255, 0.7);
+            width: 3px;
+            height: 3px;
+            animation: quantumWave 12s linear infinite;
+        }
+
+        .particle.energy-spark {
+            background: rgba(208, 181, 155, 0.8);
+            width: 1px;
+            height: 1px;
+            animation: energySpark 8s ease-in-out infinite;
+        }
+
+        @keyframes quantumWave {
+            0%, 100% {
+                transform: translateY(100vh) translateX(0) scale(1);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(80vh) translateX(var(--random-x)) scale(1.2);
+            }
+            80% {
+                opacity: 1;
+                transform: translateY(20vh) translateX(var(--random-x)) scale(0.8);
+            }
+        }
+
+        @keyframes energySpark {
+            0%, 100% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(50vh) scale(1.5);
+            }
         }
 
         /* Responsive design */
@@ -549,34 +615,51 @@
             
             createQuantumParticles() {
                 const particlesContainer = document.getElementById('particles');
-                const particleCount = 50;
+                const particleCount = 60; // Increased particle count
                 
                 for (let i = 0; i < particleCount; i++) {
                     setTimeout(() => {
                         const particle = document.createElement('div');
-                        particle.className = 'particle';
+                        
+                        // Vary particle types for enhanced effects
+                        const particleType = Math.random();
+                        if (particleType < 0.3) {
+                            particle.className = 'particle quantum-wave';
+                        } else if (particleType < 0.6) {
+                            particle.className = 'particle energy-spark';
+                        } else {
+                            particle.className = 'particle';
+                        }
                         
                         // Random starting position
                         particle.style.left = Math.random() * 100 + '%';
-                        particle.style.setProperty('--random-x', (Math.random() - 0.5) * 200 + 'px');
+                        particle.style.setProperty('--random-x', (Math.random() - 0.5) * 300 + 'px');
                         
-                        // Random delay and duration
-                        particle.style.animationDelay = Math.random() * 10 + 's';
-                        particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+                        // Enhanced random properties
+                        particle.style.animationDelay = Math.random() * 15 + 's';
+                        particle.style.animationDuration = (6 + Math.random() * 8) + 's';
+                        
+                        // Add subtle glow effect
+                        if (Math.random() < 0.2) {
+                            particle.style.boxShadow = '0 0 8px rgba(208, 181, 155, 0.6)';
+                        }
                         
                         particlesContainer.appendChild(particle);
                         
                         // Remove and recreate particle after animation
                         setTimeout(() => {
-                            particle.remove();
-                        }, 12000);
-                    }, i * 200);
+                            if (particle.parentNode) {
+                                particle.remove();
+                            }
+                        }, 15000);
+                    }, i * 150);
                 }
                 
-                // Continuously create new particles
-                setInterval(() => {
+                // Continuously create new particles with varying intervals
+                const nextInterval = 8000 + Math.random() * 4000;
+                setTimeout(() => {
                     this.createQuantumParticles();
-                }, 10000);
+                }, nextInterval);
             }
             
             startQuantumAnimations() {

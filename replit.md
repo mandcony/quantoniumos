@@ -93,10 +93,21 @@ QuantoniumOS is a hybrid computational framework that bridges classical and quan
 - **Secrets Management**: Environment-based configuration
 - **Vulnerability Scanning**: Automated dependency auditing
 
+## Recent Changes
+
+- June 20, 2025: Applied complete QSS (Qt Style Sheet) color scheme to QuantoniumOS 100x web interface
+  - Translated all QSS colors to CSS: Light Beige (#F8E8C6), Soft Cream (#FFF5E1), Dusty Tan (#D0B59B), Muted Terracotta (#A36F5A)
+  - Enhanced particle effects with quantum-wave and energy-spark variations
+  - Added proper scrollbar styling matching QSS design
+  - Improved help text styling with backdrop blur and proper colors
+  - Enhanced visual consistency across all UI elements
+
 ## Changelog
 
 - June 17, 2025. Initial setup
+- June 20, 2025. QSS color scheme integration completed
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Design preference: QSS-based beige/terracotta color scheme with transparency effects.
