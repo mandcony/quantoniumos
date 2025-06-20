@@ -435,6 +435,12 @@ def create_app():
     
     # Removed Qubit Visualizer - merged into the Quantum Grid
         
+    # Enhanced QuantoniumOS 100x Interface
+    @app.route('/quantonium-os-100x')
+    def quantonium_os_100x():
+        """Enhanced QuantoniumOS 100x web interface with beautiful styling"""
+        return send_from_directory('static', 'quantonium_os_web_100x.html')
+
     # Root route directly serves the QuantoniumOS interface
     @app.route('/')
     def root():
