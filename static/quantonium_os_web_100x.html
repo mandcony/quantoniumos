@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS 100x Enhanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            cursor: none;
+            background: linear-gradient(45deg, 
+                rgba(190, 255, 250, 0.4) 0%, 
+                rgba(248, 232, 198, 0.5) 25%,
+                rgba(226, 207, 195, 0.4) 50%,
+                rgba(208, 181, 155, 0.3) 75%,
+                rgba(163, 111, 90, 0.2) 100%);
+            background-size: 400% 400%;
+            animation: quantumFlow 8s ease-in-out infinite;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        @keyframes quantumFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .quantum-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, 
+                rgba(0, 200, 255, 0.1) 0%,
+                transparent 60%);
+            animation: quantumPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes quantumPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+
+        .q-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(200px, 30vw, 400px);
+            font-weight: bold;
+            color: rgba(0, 255, 200, 0.8);
+            text-shadow: 
+                0 0 20px rgba(0, 255, 200, 0.5),
+                0 0 40px rgba(0, 200, 255, 0.3),
+                0 0 60px rgba(0, 150, 255, 0.2);
+            animation: logoGlow 2s ease-in-out infinite alternate;
+            user-select: none;
+            z-index: 10;
+        }
+
+        @keyframes logoGlow {
+            from { 
+                text-shadow: 
+                    0 0 20px rgba(0, 255, 200, 0.5),
+                    0 0 40px rgba(0, 200, 255, 0.3),
+                    0 0 60px rgba(0, 150, 255, 0.2);
+            }
+            to { 
+                text-shadow: 
+                    0 0 30px rgba(0, 255, 200, 0.8),
+                    0 0 60px rgba(0, 200, 255, 0.6),
+                    0 0 90px rgba(0, 150, 255, 0.4);
+            }
+        }
+
+        .side-arch {
+            position: fixed;
+            left: -150px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 200px;
+            height: 80px;
+            background: rgba(0, 200, 255, 0.15);
+            border-radius: 0 40px 40px 0;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 200, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+        }
+
+        .side-arch:hover {
+            left: -120px;
+            background: rgba(0, 200, 255, 0.25);
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.4);
+        }
+
+        .side-arch.expanded {
+            left: 0;
+            width: 300px;
+            height: 80vh;
+            border-radius: 0 20px 20px 0;
+            background: rgba(10, 20, 40, 0.9);
+            backdrop-filter: blur(20px);
+        }
+
+        .arrow {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0, 255, 200, 0.8);
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .side-arch.expanded .arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 40px 20px;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .side-arch.expanded .apps-grid {
+            opacity: 1;
+        }
+
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background: rgba(20, 40, 80, 0.6);
+            border: 2px solid rgba(0, 200, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .app-icon:hover {
+            transform: scale(1.05);
+            background: rgba(40, 80, 160, 0.8);
+            border-color: rgba(0, 255, 200, 0.6);
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+        }
+
+        .app-icon:active {
+            transform: scale(0.95);
+        }
+
+        .app-icon-symbol {
+            font-size: 32px;
+            color: rgba(0, 220, 255, 0.9);
+            margin-bottom: 8px;
+        }
+
+        .app-icon-name {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        .clock {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(20, 20, 40, 0.8);
+            border: 2px solid rgba(0, 200, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(0, 200, 255, 0.2);
+            z-index: 50;
+        }
+
+        .performance-widget {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 280px;
+            background: rgba(20, 20, 40, 0.9);
+            border: 2px solid rgba(0, 200, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+            z-index: 50;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .performance-widget.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .performance-title {
+            color: rgba(0, 255, 200, 0.9);
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .metric {
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .metric-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(10, 10, 20, 0.8);
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 200, 255, 0.3);
+        }
+
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(0, 255, 100, 0.8) 0%, 
+                rgba(0, 200, 255, 0.8) 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 2px;
+        }
+
+        .quantum-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(0, 200, 255, 0.6);
+            border-radius: 50%;
+            animation: float 10s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(var(--random-x));
+                opacity: 0;
+            }
+        }
+
+        .help-text {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            text-align: center;
+            z-index: 50;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .side-arch.expanded {
+                width: 250px;
+            }
+            
+            .apps-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 30px 15px;
+            }
+            
+            .performance-widget {
+                width: 240px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quantum-overlay"></div>
+    
+    <div class="quantum-particles" id="particles"></div>
+    
+    <div class="q-logo">Q</div>
+    
+    <div class="side-arch" id="sideArch">
+        <div class="arrow">→</div>
+        <div class="apps-grid">
+            <a href="/resonance-encrypt?embedded=true" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">🔐</div>
+                <div class="app-icon-name">Resonance Encrypt</div>
+            </a>
+            <a href="/resonance-transform?embedded=true" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">🌊</div>
+                <div class="app-icon-name">RFT Transform</div>
+            </a>
+            <a href="/container-operations?embedded=true" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">📦</div>
+                <div class="app-icon-name">Containers</div>
+            </a>
+            <a href="/quantum-entropy?embedded=true" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">🎲</div>
+                <div class="app-icon-name">Quantum RNG</div>
+            </a>
+            <a href="/quantum-grid?embedded=true" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">⚡</div>
+                <div class="app-icon-name">Quantum Grid</div>
+            </a>
+            <a href="/quantum-benchmark?embedded=true" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">📊</div>
+                <div class="app-icon-name">Benchmarks</div>
+            </a>
+            <a href="/" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">🏠</div>
+                <div class="app-icon-name">Home</div>
+            </a>
+            <a href="/api/status" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">⚙️</div>
+                <div class="app-icon-name">API Status</div>
+            </a>
+            <a href="/api-docs" class="app-icon" target="_blank">
+                <div class="app-icon-symbol">📚</div>
+                <div class="app-icon-name">API Docs</div>
+            </a>
+        </div>
+    </div>
+    
+    <div class="clock" id="clock">
+        <div id="time">--:--</div>
+        <div id="date">-- --</div>
+    </div>
+    
+    <div class="performance-widget" id="performanceWidget">
+        <div class="performance-title">Quantum Performance</div>
+        <div class="metric">
+            <div class="metric-label">Efficiency</div>
+            <div class="metric-bar">
+                <div class="metric-fill" id="efficiency"></div>
+            </div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Stability</div>
+            <div class="metric-bar">
+                <div class="metric-fill" id="stability"></div>
+            </div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Coherence</div>
+            <div class="metric-bar">
+                <div class="metric-fill" id="coherence"></div>
+            </div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Entanglement</div>
+            <div class="metric-bar">
+                <div class="metric-fill" id="entanglement"></div>
+            </div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Integrity</div>
+            <div class="metric-bar">
+                <div class="metric-fill" id="integrity"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-text">
+        Press F12 to toggle performance • Click left edge to access apps • ESC for fullscreen
+    </div>
+
+    <script>
+        // Enhanced QuantoniumOS 100x JavaScript
+        class QuantumOS100x {
+            constructor() {
+                this.sideArch = document.getElementById('sideArch');
+                this.performanceWidget = document.getElementById('performanceWidget');
+                this.isArchExpanded = false;
+                this.isPerformanceVisible = false;
+                this.quantumMetrics = {
+                    efficiency: 85,
+                    stability: 92,
+                    coherence: 88,
+                    entanglement: 79,
+                    integrity: 94
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.startClock();
+                this.startQuantumMetrics();
+                this.createQuantumParticles();
+                this.startQuantumAnimations();
+            }
+            
+            setupEventListeners() {
+                // Side arch toggle
+                this.sideArch.addEventListener('click', () => this.toggleArch());
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'F12':
+                            e.preventDefault();
+                            this.togglePerformance();
+                            break;
+                        case 'Escape':
+                            this.toggleFullscreen();
+                            break;
+                    }
+                });
+                
+                // Close arch when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (this.isArchExpanded && !this.sideArch.contains(e.target)) {
+                        this.toggleArch();
+                    }
+                });
+            }
+            
+            toggleArch() {
+                this.isArchExpanded = !this.isArchExpanded;
+                this.sideArch.classList.toggle('expanded', this.isArchExpanded);
+                
+                // Add quantum expansion effect
+                if (this.isArchExpanded) {
+                    this.animateArchExpansion();
+                }
+            }
+            
+            animateArchExpansion() {
+                const icons = this.sideArch.querySelectorAll('.app-icon');
+                icons.forEach((icon, index) => {
+                    icon.style.animation = 'none';
+                    icon.style.opacity = '0';
+                    icon.style.transform = 'translateX(-50px)';
+                    
+                    setTimeout(() => {
+                        icon.style.transition = 'all 0.3s ease';
+                        icon.style.opacity = '1';
+                        icon.style.transform = 'translateX(0)';
+                    }, index * 50);
+                });
+            }
+            
+            togglePerformance() {
+                this.isPerformanceVisible = !this.isPerformanceVisible;
+                this.performanceWidget.classList.toggle('visible', this.isPerformanceVisible);
+            }
+            
+            toggleFullscreen() {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    document.documentElement.requestFullscreen();
+                }
+            }
+            
+            startClock() {
+                const updateClock = () => {
+                    const now = new Date();
+                    const timeOptions = { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true 
+                    };
+                    const dateOptions = { 
+                        month: 'short', 
+                        day: 'numeric' 
+                    };
+                    
+                    document.getElementById('time').textContent = now.toLocaleTimeString('en-US', timeOptions);
+                    document.getElementById('date').textContent = now.toLocaleDateString('en-US', dateOptions);
+                };
+                
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+            
+            startQuantumMetrics() {
+                const updateMetrics = () => {
+                    // Simulate quantum fluctuations
+                    Object.keys(this.quantumMetrics).forEach(metric => {
+                        const baseValue = this.quantumMetrics[metric];
+                        const fluctuation = (Math.sin(Date.now() / 1000 + Math.random()) * 5);
+                        const newValue = Math.max(70, Math.min(100, baseValue + fluctuation));
+                        
+                        const element = document.getElementById(metric);
+                        if (element) {
+                            element.style.width = newValue + '%';
+                        }
+                    });
+                };
+                
+                updateMetrics();
+                setInterval(updateMetrics, 200); // 100x faster updates
+            }
+            
+            createQuantumParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 50;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        
+                        // Random starting position
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.setProperty('--random-x', (Math.random() - 0.5) * 200 + 'px');
+                        
+                        // Random delay and duration
+                        particle.style.animationDelay = Math.random() * 10 + 's';
+                        particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+                        
+                        particlesContainer.appendChild(particle);
+                        
+                        // Remove and recreate particle after animation
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 12000);
+                    }, i * 200);
+                }
+                
+                // Continuously create new particles
+                setInterval(() => {
+                    this.createQuantumParticles();
+                }, 10000);
+            }
+            
+            startQuantumAnimations() {
+                // Add quantum interference patterns to the background
+                const overlay = document.querySelector('.quantum-overlay');
+                let phase = 0;
+                
+                const animateQuantumField = () => {
+                    phase += 0.02;
+                    const intensity = 0.3 + 0.3 * Math.sin(phase);
+                    overlay.style.opacity = intensity;
+                    requestAnimationFrame(animateQuantumField);
+                };
+                
+                animateQuantumField();
+                
+                // Add quantum logo pulsing
+                const logo = document.querySelector('.q-logo');
+                let logoPhase = 0;
+                
+                const animateLogo = () => {
+                    logoPhase += 0.01;
+                    const scale = 1 + 0.05 * Math.sin(logoPhase);
+                    logo.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                    requestAnimationFrame(animateLogo);
+                };
+                
+                animateLogo();
+            }
+        }
+        
+        // Initialize QuantumOS 100x when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            new QuantumOS100x();
+        });
+        
+        // Add quantum cursor trail effect
+        document.addEventListener('mousemove', (e) => {
+            const trail = document.createElement('div');
+            trail.style.position = 'fixed';
+            trail.style.left = e.clientX + 'px';
+            trail.style.top = e.clientY + 'px';
+            trail.style.width = '4px';
+            trail.style.height = '4px';
+            trail.style.background = 'rgba(0, 200, 255, 0.6)';
+            trail.style.borderRadius = '50%';
+            trail.style.pointerEvents = 'none';
+            trail.style.zIndex = '1000';
+            trail.style.transition = 'all 0.5s ease-out';
+            
+            document.body.appendChild(trail);
+            
+            setTimeout(() => {
+                trail.style.opacity = '0';
+                trail.style.transform = 'scale(0)';
+            }, 50);
+            
+            setTimeout(() => {
+                trail.remove();
+            }, 550);
+        });
+    </script>
+</body>
+</html>
