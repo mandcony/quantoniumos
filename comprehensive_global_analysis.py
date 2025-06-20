@@ -4,154 +4,234 @@ Analyzes all available data sources to determine complete international usage
 """
 
 import os
+import re
 import json
-import subprocess
 import requests
-from pathlib import Path
-from collections import defaultdict
+from datetime import datetime, timedelta
+from collections import defaultdict, Counter
+from typing import Dict, List, Set, Any
+import gzip
+import glob
 
 def extract_all_ip_sources():
     """Extract IPs from all possible sources"""
-    ips = set()
+    all_ips = set()
+    ip_sources = defaultdict(list)
     
-    # Check all log files
-    log_paths = [
-        'logs/',
-        'attached_assets/',
-        '/var/log/',
-        '/tmp/',
-        './'
+    # Known user IPs to exclude (Bronx/Juilliard)
+    known_user_ips = {
+        '206.55.217.10',  # Bronx location
+        '162.84.145.191', # Juilliard location
+        '10.83.0.153',    # Internal Replit
+        '10.83.6.20',     # Internal Replit
+        '10.83.10.77',    # Internal Replit
+        '172.31.128.92',  # Internal container
+        '172.31.128.105', # Internal container
+    }
+    
+    # Search all log files
+    log_patterns = [
+        'logs/*.log',
+        'logs/**/*.log',
+        'attached_assets/logs/*.log',
+        'attached_assets/logs/**/*.log',
+        '*.log',
+        'app.log'
     ]
     
-    for log_dir in log_paths:
-        if os.path.exists(log_dir):
-            for root, dirs, files in os.walk(log_dir):
-                for file in files:
-                    if file.endswith('.log') or 'access' in file or 'analytics' in file:
-                        file_path = os.path.join(root, file)
-                        try:
-                            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                                content = f.read()
-                                # Extract IP patterns
-                                import re
-                                ip_pattern = r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
-                                found_ips = re.findall(ip_pattern, content)
-                                for ip in found_ips:
-                                    # Filter out local/private IPs
-                                    if not (ip.startswith('127.') or 
-                                           ip.startswith('172.31.') or 
-                                           ip.startswith('10.') or
-                                           ip.startswith('192.168.')):
-                                        ips.add(ip)
-                        except Exception:
-                            continue
+    for pattern in log_patterns:
+        for log_file in glob.glob(pattern, recursive=True):
+            try:
+                print(f"Analyzing: {log_file}")
+                
+                # Handle both regular and gzipped files
+                if log_file.endswith('.gz'):
+                    with gzip.open(log_file, 'rt', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                else:
+                    with open(log_file, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                
+                # Extract IPs from various log formats
+                ip_patterns = [
+                    r'"X-Forwarded-For":\s*"([^,\s"]+)',
+                    r'X-Forwarded-For:\s*([^,\s]+)',
+                    r'client_ip":\s*"([^"]+)',
+                    r'source_ip":\s*"([^"]+)',
+                    r'IP:\s*(\d+\.\d+\.\d+\.\d+)',
+                    r'(\d+\.\d+\.\d+\.\d+).*GET',
+                    r'(\d+\.\d+\.\d+\.\d+).*POST',
+                ]
+                
+                for pattern in ip_patterns:
+                    matches = re.findall(pattern, content)
+                    for ip in matches:
+                        ip = ip.strip()
+                        if ip and ip not in known_user_ips and not ip.startswith('10.') and not ip.startswith('172.'):
+                            all_ips.add(ip)
+                            ip_sources[ip].append(log_file)
+                            
+            except Exception as e:
+                print(f"Error reading {log_file}: {e}")
     
-    # Check environment variables for deployment analytics
-    replit_domains = os.environ.get('REPLIT_DOMAINS', '')
-    if replit_domains:
-        print(f"Deployment domains: {replit_domains}")
-    
-    # Check for any cached analytics data
-    cache_paths = ['.cache/', '/tmp/', './logs/']
-    for cache_dir in cache_paths:
-        if os.path.exists(cache_dir):
-            for root, dirs, files in os.walk(cache_dir):
-                for file in files:
-                    if 'analytics' in file or 'usage' in file or 'stats' in file:
-                        print(f"Found analytics file: {os.path.join(root, file)}")
-    
-    return list(ips)
+    return all_ips, ip_sources
 
-def get_country_data(ip_list):
+def get_country_data(ip_list: Set[str]) -> Dict[str, Dict]:
     """Get country information for IP addresses"""
     country_data = {}
     
     for ip in ip_list:
         try:
-            # Use ip-api.com for geolocation
-            response = requests.get(f"http://ip-api.com/json/{ip}?fields=country,regionName,city", timeout=5)
+            # Use ipapi.co for geolocation (free tier)
+            response = requests.get(f'https://ipapi.co/{ip}/json/', timeout=5)
             if response.status_code == 200:
                 data = response.json()
                 country_data[ip] = {
-                    'country': data.get('country', 'Unknown'),
-                    'region': data.get('regionName', 'Unknown'),
-                    'city': data.get('city', 'Unknown')
+                    'country': data.get('country_name', 'Unknown'),
+                    'country_code': data.get('country_code', 'XX'),
+                    'city': data.get('city', 'Unknown'),
+                    'region': data.get('region', 'Unknown'),
+                    'timezone': data.get('timezone', 'Unknown'),
+                    'org': data.get('org', 'Unknown'),
+                    'latitude': data.get('latitude'),
+                    'longitude': data.get('longitude')
                 }
+                print(f"IP {ip}: {data.get('country_name', 'Unknown')}")
             else:
-                country_data[ip] = {'country': 'Unknown', 'region': 'Unknown', 'city': 'Unknown'}
+                print(f"Failed to get location for {ip}")
+                country_data[ip] = {'country': 'Unknown', 'country_code': 'XX'}
         except Exception as e:
-            print(f"Error looking up {ip}: {e}")
-            country_data[ip] = {'country': 'Unknown', 'region': 'Unknown', 'city': 'Unknown'}
+            print(f"Error getting location for {ip}: {e}")
+            country_data[ip] = {'country': 'Unknown', 'country_code': 'XX'}
     
     return country_data
 
 def analyze_replit_analytics():
     """Check for Replit deployment analytics"""
-    try:
-        # Check if we can access deployment stats
-        deployment_url = os.environ.get('REPLIT_DEV_DOMAIN', '')
-        if deployment_url:
-            print(f"Deployment URL: {deployment_url}")
-            
-        # Look for any Replit-specific analytics files
-        replit_files = ['.replit', 'replit.nix', '.config/']
-        for file_path in replit_files:
-            if os.path.exists(file_path):
-                print(f"Found Replit config: {file_path}")
+    analytics_data = {}
+    
+    # Check if there are any Replit-specific analytics files
+    replit_files = [
+        '.replit',
+        'replit.nix',
+        '.replit.json'
+    ]
+    
+    for file_path in replit_files:
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r') as f:
+                    content = f.read()
+                    analytics_data[file_path] = len(content.split('\n'))
+            except:
+                pass
+    
+    return analytics_data
+
+def count_unique_requests(ip_sources: Dict[str, List[str]]) -> Dict[str, int]:
+    """Count unique requests per IP"""
+    request_counts = {}
+    
+    for ip, sources in ip_sources.items():
+        total_requests = 0
+        
+        for source_file in sources:
+            try:
+                if source_file.endswith('.gz'):
+                    with gzip.open(source_file, 'rt', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                else:
+                    with open(source_file, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
                 
-    except Exception as e:
-        print(f"Error checking Replit analytics: {e}")
+                # Count occurrences of this IP in the file
+                ip_count = content.count(ip)
+                total_requests += ip_count
+                
+            except Exception as e:
+                print(f"Error counting requests in {source_file}: {e}")
+        
+        request_counts[ip] = total_requests
+    
+    return request_counts
 
 def generate_comprehensive_report():
     """Generate comprehensive global usage report"""
-    print("🌍 COMPREHENSIVE QUANTONIUMOS GLOBAL ANALYSIS")
-    print("=" * 60)
+    print("QuantoniumOS Global Usage Analysis")
+    print("=" * 50)
     
-    # Extract all possible IP sources
-    all_ips = extract_all_ip_sources()
-    print(f"📊 Total unique external IPs found: {len(all_ips)}")
+    # Extract all external IPs
+    external_ips, ip_sources = extract_all_ip_sources()
     
-    if all_ips:
-        print("\n🔍 IDENTIFIED IP ADDRESSES:")
-        for ip in sorted(all_ips):
-            print(f"  - {ip}")
-        
-        # Get country data
-        print("\n🌐 GEOLOCATION ANALYSIS:")
-        country_data = get_country_data(all_ips)
-        
-        countries = defaultdict(list)
-        for ip, data in country_data.items():
-            countries[data['country']].append({
-                'ip': ip,
-                'region': data['region'],
-                'city': data['city']
-            })
-        
-        print(f"\n📋 COUNTRIES WITH CONFIRMED USAGE:")
-        for country, locations in countries.items():
-            print(f"\n🏳️  {country} ({len(locations)} IP{'s' if len(locations) > 1 else ''})")
-            for loc in locations:
-                print(f"    • {loc['ip']} - {loc['city']}, {loc['region']}")
+    if not external_ips:
+        print("No external users found in current logs")
+        print("This may be due to log rotation or recent system reset")
+        return
     
-    # Check Replit analytics
-    print("\n🚀 DEPLOYMENT ANALYTICS:")
-    analyze_replit_analytics()
+    print(f"Found {len(external_ips)} unique external IP addresses")
     
-    # Save comprehensive report
-    report_data = {
-        'analysis_type': 'comprehensive_global',
-        'total_external_ips': len(all_ips),
-        'ip_addresses': all_ips,
-        'country_breakdown': dict(countries) if all_ips else {},
-        'geolocation_data': country_data if all_ips else {}
+    # Get geographical data
+    print("\nGetting geographical information...")
+    country_data = get_country_data(external_ips)
+    
+    # Count requests per IP
+    print("\nCounting requests per IP...")
+    request_counts = count_unique_requests(ip_sources)
+    
+    # Generate summary statistics
+    countries = Counter()
+    total_requests = 0
+    
+    for ip in external_ips:
+        country = country_data.get(ip, {}).get('country', 'Unknown')
+        countries[country] += 1
+        total_requests += request_counts.get(ip, 0)
+    
+    # Create comprehensive report
+    report = {
+        'analysis_date': datetime.now().isoformat(),
+        'summary': {
+            'total_external_users': len(external_ips),
+            'total_countries': len(countries),
+            'total_requests': total_requests,
+            'average_requests_per_user': total_requests / len(external_ips) if external_ips else 0
+        },
+        'countries': dict(countries),
+        'detailed_users': []
     }
     
-    with open('comprehensive_global_report.json', 'w') as f:
-        json.dump(report_data, f, indent=2)
+    # Add detailed user information
+    for ip in sorted(external_ips):
+        user_data = country_data.get(ip, {})
+        user_data['ip'] = ip
+        user_data['request_count'] = request_counts.get(ip, 0)
+        user_data['log_sources'] = ip_sources.get(ip, [])
+        report['detailed_users'].append(user_data)
     
-    print(f"\n✅ Comprehensive report saved to 'comprehensive_global_report.json'")
-    return report_data
+    # Save report
+    with open('comprehensive_global_report.json', 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    # Print summary
+    print("\n" + "=" * 50)
+    print("GLOBAL USAGE SUMMARY")
+    print("=" * 50)
+    print(f"Total External Users: {len(external_ips)}")
+    print(f"Total Countries: {len(countries)}")
+    print(f"Total Requests: {total_requests:,}")
+    
+    if countries:
+        print("\nTop Countries:")
+        for country, count in countries.most_common(10):
+            print(f"  {country}: {count} users")
+    
+    print("\nDetailed User Information:")
+    for user in sorted(report['detailed_users'], key=lambda x: x['request_count'], reverse=True):
+        print(f"  {user['ip']} ({user.get('country', 'Unknown')}): {user['request_count']} requests")
+    
+    print(f"\nReport saved to: comprehensive_global_report.json")
+    
+    return report
 
 if __name__ == "__main__":
-    generate_comprehensive_report()
+    report = generate_comprehensive_report()
