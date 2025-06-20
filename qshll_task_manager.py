@@ -83,7 +83,9 @@ if ENGINE_DLL is None:
 
 # Import resonance manager
 try:
+    sys.path.append('attached_assets')
     from resonance_manager import Process, monitor_resonance_states  # type: ignore
+    logger.info("Successfully imported silent resonance_manager")
 except ImportError as exc:
     logger.warning("Failed to import resonance_manager: %s", exc)
     Process = None  # type: ignore[assignment]
