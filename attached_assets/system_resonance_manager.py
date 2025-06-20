@@ -30,7 +30,7 @@ def monitor_resonance_states(processes, dt):
     freq_val = cfg.data.get("resonance_frequency", 1.0)
     system_freq = WaveNumber(freq_val, phase=0.0)
     
-    print(f"[Resonance Manager] freq={freq_val}, dt={dt}")
+    # print(f"[Resonance Manager] freq={freq_val}, dt={dt}")  # Silenced for clean terminal output
     for p in processes:
         # Increment time for oscillation
         p.time += dt
