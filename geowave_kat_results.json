@@ -1,11 +1,11 @@
 {
   "summary": {
-    "total": 5,
-    "passed": 0,
-    "failed": 0,
-    "errors": 0,
-    "skipped": 5,
-    "success_rate": 0.0
+    "total": 23,
+    "passed": 21,
+    "failed": 1,
+    "errors": 1,
+    "skipped": 0,
+    "success_rate": 0.9130434782608695
   },
   "test_vectors": [
     {
@@ -163,29 +163,264 @@
   ],
   "results": [
     {
-      "test": "geometric_hash_consistency",
-      "status": "SKIPPED",
-      "reason": "Geometric waveform modules not available"
+      "test": "geometric_hash_consistency_sine_wave_8",
+      "status": "PASS",
+      "hash1": "A0.9765_P0.8090_0da806b11c9ab6725e4301b0f9eee72add23c05fe3a2ebe3adefed04e39c4a19",
+      "hash2": "A0.9765_P0.8090_0da806b11c9ab6725e4301b0f9eee72add23c05fe3a2ebe3adefed04e39c4a19",
+      "hash3": "A0.9765_P0.8090_0da806b11c9ab6725e4301b0f9eee72add23c05fe3a2ebe3adefed04e39c4a19",
+      "consistent": true,
+      "description": "Simple sine wave with 8 samples"
+    },
+    {
+      "test": "geometric_hash_consistency_delta_function",
+      "status": "PASS",
+      "hash1": "A0.2023_P0.8090_c60e222185081fab3f32f45dd96ce17b82fa9fa07f543036bf7735c92c613d68",
+      "hash2": "A0.2023_P0.8090_c60e222185081fab3f32f45dd96ce17b82fa9fa07f543036bf7735c92c613d68",
+      "hash3": "A0.2023_P0.8090_c60e222185081fab3f32f45dd96ce17b82fa9fa07f543036bf7735c92c613d68",
+      "consistent": true,
+      "description": "Delta function (impulse)"
+    },
+    {
+      "test": "geometric_hash_consistency_step_function",
+      "status": "PASS",
+      "hash1": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash2": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash3": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "consistent": true,
+      "description": "Step function"
+    },
+    {
+      "test": "geometric_hash_consistency_constant_signal",
+      "status": "PASS",
+      "hash1": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash2": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash3": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "consistent": true,
+      "description": "Constant signal"
+    },
+    {
+      "test": "geometric_hash_consistency_linear_ramp",
+      "status": "PASS",
+      "hash1": "A0.7079_P0.9284_a4e2ae85cd1d8e94f3d11730bcf0ad569a07f331998a34efdd4b9d1a38def9f8",
+      "hash2": "A0.7079_P0.9284_a4e2ae85cd1d8e94f3d11730bcf0ad569a07f331998a34efdd4b9d1a38def9f8",
+      "hash3": "A0.7079_P0.9284_a4e2ae85cd1d8e94f3d11730bcf0ad569a07f331998a34efdd4b9d1a38def9f8",
+      "consistent": true,
+      "description": "Linear ramp"
+    },
+    {
+      "test": "geometric_hash_consistency_alternating_pattern",
+      "status": "PASS",
+      "hash1": "A0.6180_P0.7079_120a90d548a959f1dafc79780fccb8976182ec0f67ac7d91c0a4e4cde6a65334",
+      "hash2": "A0.6180_P0.7079_120a90d548a959f1dafc79780fccb8976182ec0f67ac7d91c0a4e4cde6a65334",
+      "hash3": "A0.6180_P0.7079_120a90d548a959f1dafc79780fccb8976182ec0f67ac7d91c0a4e4cde6a65334",
+      "consistent": true,
+      "description": "Alternating +1/-1 pattern"
+    },
+    {
+      "test": "geometric_hash_consistency_complex_waveform",
+      "status": "PASS",
+      "hash1": "A0.7686_P0.8629_707a71a8e074e06b4e85015a76c2358f8e948a0c0f68cedb7f37dd09f7305f28",
+      "hash2": "A0.7686_P0.8629_707a71a8e074e06b4e85015a76c2358f8e948a0c0f68cedb7f37dd09f7305f28",
+      "hash3": "A0.7686_P0.8629_707a71a8e074e06b4e85015a76c2358f8e948a0c0f68cedb7f37dd09f7305f28",
+      "consistent": true,
+      "description": "Complex waveform with mixed amplitudes"
+    },
+    {
+      "test": "geometric_hash_consistency_symmetric_waveform",
+      "status": "PASS",
+      "hash1": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash2": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash3": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "consistent": true,
+      "description": "Symmetric waveform"
     },
     {
       "test": "hash_uniqueness",
-      "status": "SKIPPED",
-      "reason": "Geometric waveform modules not available"
+      "status": "FAIL",
+      "total_hashes": 8,
+      "unique_hashes": 6,
+      "collision_count": 2,
+      "hashes": [
+        "A0.9765_P0.8090_0da806b11c9ab6725e4301b0f9eee72add23c05fe3a2ebe3adefed04e39c4a19",
+        "A0.2023_P0.8090_c60e222185081fab3f32f45dd96ce17b82fa9fa07f543036bf7735c92c613d68",
+        "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+        "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+        "A0.7079_P0.9284_a4e2ae85cd1d8e94f3d11730bcf0ad569a07f331998a34efdd4b9d1a38def9f8",
+        "A0.6180_P0.7079_120a90d548a959f1dafc79780fccb8976182ec0f67ac7d91c0a4e4cde6a65334",
+        "A0.7686_P0.8629_707a71a8e074e06b4e85015a76c2358f8e948a0c0f68cedb7f37dd09f7305f28",
+        "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a"
+      ]
     },
     {
-      "test": "waveform_hash_format",
-      "status": "SKIPPED",
-      "reason": "Geometric waveform modules not available"
+      "test": "waveform_hash_format_sine_wave_8",
+      "status": "PASS",
+      "hash_value": "A0.9765_P0.8090_0da806b11c9ab6725e4301b0f9eee72add23c05fe3a2ebe3adefed04e39c4a19",
+      "hash_length": 80,
+      "format_checks": {
+        "is_string": true,
+        "has_amplitude_prefix": true,
+        "has_phase_component": true,
+        "has_hex_suffix": true,
+        "correct_length": true
+      },
+      "description": "Simple sine wave with 8 samples"
+    },
+    {
+      "test": "waveform_hash_format_delta_function",
+      "status": "PASS",
+      "hash_value": "A0.2023_P0.8090_c60e222185081fab3f32f45dd96ce17b82fa9fa07f543036bf7735c92c613d68",
+      "hash_length": 80,
+      "format_checks": {
+        "is_string": true,
+        "has_amplitude_prefix": true,
+        "has_phase_component": true,
+        "has_hex_suffix": true,
+        "correct_length": true
+      },
+      "description": "Delta function (impulse)"
+    },
+    {
+      "test": "waveform_hash_format_step_function",
+      "status": "PASS",
+      "hash_value": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash_length": 80,
+      "format_checks": {
+        "is_string": true,
+        "has_amplitude_prefix": true,
+        "has_phase_component": true,
+        "has_hex_suffix": true,
+        "correct_length": true
+      },
+      "description": "Step function"
+    },
+    {
+      "test": "waveform_hash_format_constant_signal",
+      "status": "PASS",
+      "hash_value": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash_length": 80,
+      "format_checks": {
+        "is_string": true,
+        "has_amplitude_prefix": true,
+        "has_phase_component": true,
+        "has_hex_suffix": true,
+        "correct_length": true
+      },
+      "description": "Constant signal"
+    },
+    {
+      "test": "waveform_hash_format_linear_ramp",
+      "status": "PASS",
+      "hash_value": "A0.7079_P0.9284_a4e2ae85cd1d8e94f3d11730bcf0ad569a07f331998a34efdd4b9d1a38def9f8",
+      "hash_length": 80,
+      "format_checks": {
+        "is_string": true,
+        "has_amplitude_prefix": true,
+        "has_phase_component": true,
+        "has_hex_suffix": true,
+        "correct_length": true
+      },
+      "description": "Linear ramp"
+    },
+    {
+      "test": "waveform_hash_format_alternating_pattern",
+      "status": "PASS",
+      "hash_value": "A0.6180_P0.7079_120a90d548a959f1dafc79780fccb8976182ec0f67ac7d91c0a4e4cde6a65334",
+      "hash_length": 80,
+      "format_checks": {
+        "is_string": true,
+        "has_amplitude_prefix": true,
+        "has_phase_component": true,
+        "has_hex_suffix": true,
+        "correct_length": true
+      },
+      "description": "Alternating +1/-1 pattern"
+    },
+    {
+      "test": "waveform_hash_format_complex_waveform",
+      "status": "PASS",
+      "hash_value": "A0.7686_P0.8629_707a71a8e074e06b4e85015a76c2358f8e948a0c0f68cedb7f37dd09f7305f28",
+      "hash_length": 80,
+      "format_checks": {
+        "is_string": true,
+        "has_amplitude_prefix": true,
+        "has_phase_component": true,
+        "has_hex_suffix": true,
+        "correct_length": true
+      },
+      "description": "Complex waveform with mixed amplitudes"
+    },
+    {
+      "test": "waveform_hash_format_symmetric_waveform",
+      "status": "PASS",
+      "hash_value": "A0.8090_P0.9101_38cc39920e61629b8b9bbf3fe6b460ed0685c6d17f745d4a20a4be771eab524a",
+      "hash_length": 80,
+      "format_checks": {
+        "is_string": true,
+        "has_amplitude_prefix": true,
+        "has_phase_component": true,
+        "has_hex_suffix": true,
+        "correct_length": true
+      },
+      "description": "Symmetric waveform"
     },
     {
       "test": "golden_ratio_properties",
-      "status": "SKIPPED",
-      "reason": "Geometric waveform modules not available"
+      "status": "PASS",
+      "golden_ratio": 1.618033988749895,
+      "extracted_amplitude": 0.7888,
+      "extracted_phase": 0.8809,
+      "amplitude_in_range": true,
+      "phase_in_range": true,
+      "hash_value": "A0.7888_P0.8809_1a24b97d5f7ba407db6aa636abdb7056ffd6e56935ffc74855ca77cf6402cf80"
     },
     {
-      "test": "empty_waveform_handling",
-      "status": "SKIPPED",
-      "reason": "Geometric waveform modules not available"
+      "test": "empty_waveform_handling_empty_list",
+      "status": "PASS",
+      "input_waveform": [],
+      "hash_value": "A0.0000_P0.0000_d2d12a14febe814c9afcb6a204eec928b7c8a6259808a3da59c05214b2f015dc",
+      "handles_gracefully": true
+    },
+    {
+      "test": "empty_waveform_handling_single_value",
+      "status": "ERROR",
+      "input_waveform": [
+        0.5
+      ],
+      "error": "division by zero"
+    },
+    {
+      "test": "empty_waveform_handling_two_values",
+      "status": "PASS",
+      "input_waveform": [
+        0.3,
+        0.7
+      ],
+      "hash_value": "A0.8090_P0.9591_7d7794cf190a989b09c0a9148e936a9dd9a0754aff2070467a829f568085b006",
+      "handles_gracefully": true
+    },
+    {
+      "test": "empty_waveform_handling_all_zeros",
+      "status": "PASS",
+      "input_waveform": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "hash_value": "A0.0000_P0.8090_4125fb06458d21ec15efe92b7e853084eba11c7ec41b0f3f41bf32cd97de61ca",
+      "handles_gracefully": true
+    },
+    {
+      "test": "empty_waveform_handling_all_ones",
+      "status": "PASS",
+      "input_waveform": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hash_value": "A0.6180_P0.9101_40f0c9132daf2071e894ba22bf3cbc0193004fd39bdf4b9fa4a88f73560d2cec",
+      "handles_gracefully": true
     }
   ]
 }

@@ -1,11 +1,11 @@
 {
   "summary": {
     "total": 25,
-    "passed": 10,
-    "failed": 15,
+    "passed": 11,
+    "failed": 14,
     "errors": 0,
     "skipped": 0,
-    "success_rate": 0.4
+    "success_rate": 0.44
   },
   "results": [
     {
@@ -83,74 +83,74 @@
     {
       "test": "high_level_rft_roundtrip_sine_wave",
       "status": "FAIL",
-      "mse": 0.49084708692923495,
+      "mse": Infinity,
       "tolerance": 1e-10,
       "original_length": 16,
-      "reconstructed_length": 16,
-      "rft_components": 7
+      "reconstructed_length": 8,
+      "rft_components": 8
     },
     {
       "test": "high_level_rft_roundtrip_cosine_wave",
       "status": "FAIL",
-      "mse": 0.3841529131141028,
+      "mse": Infinity,
       "tolerance": 1e-10,
       "original_length": 16,
-      "reconstructed_length": 16,
-      "rft_components": 7
+      "reconstructed_length": 8,
+      "rft_components": 8
     },
     {
       "test": "high_level_rft_roundtrip_delta_function",
       "status": "PASS",
-      "mse": 7.683407235166734e-33,
+      "mse": 2.6073872691611886e-31,
       "tolerance": 1e-10,
       "original_length": 16,
       "reconstructed_length": 16,
-      "rft_components": 34
+      "rft_components": 16
     },
     {
       "test": "high_level_rft_roundtrip_step_function",
       "status": "FAIL",
-      "mse": 0.5576103474999999,
+      "mse": Infinity,
       "tolerance": 1e-10,
       "original_length": 16,
-      "reconstructed_length": 16,
-      "rft_components": 22
+      "reconstructed_length": 9,
+      "rft_components": 9
     },
     {
       "test": "high_level_rft_roundtrip_random_signal",
       "status": "FAIL",
-      "mse": 0.30212892254640367,
+      "mse": Infinity,
       "tolerance": 1e-10,
       "original_length": 16,
-      "reconstructed_length": 16,
-      "rft_components": 31
+      "reconstructed_length": 14,
+      "rft_components": 14
     },
     {
       "test": "high_level_rft_roundtrip_constant_signal",
       "status": "FAIL",
-      "mse": 0.21875,
+      "mse": Infinity,
       "tolerance": 1e-10,
       "original_length": 16,
-      "reconstructed_length": 16,
-      "rft_components": 7
+      "reconstructed_length": 8,
+      "rft_components": 8
     },
     {
       "test": "high_level_rft_roundtrip_linear_ramp",
-      "status": "FAIL",
-      "mse": 0.22561949851473478,
+      "status": "PASS",
+      "mse": 2.1030914251465567e-30,
       "tolerance": 1e-10,
       "original_length": 16,
       "reconstructed_length": 16,
-      "rft_components": 34
+      "rft_components": 16
     },
     {
       "test": "high_level_rft_roundtrip_complex_waveform",
       "status": "FAIL",
-      "mse": 0.6041283369149536,
+      "mse": Infinity,
       "tolerance": 1e-10,
       "original_length": 16,
-      "reconstructed_length": 16,
-      "rft_components": 10
+      "reconstructed_length": 4,
+      "rft_components": 4
     },
     {
       "test": "parseval_theorem_sine_wave",

@@ -1,129 +1,212 @@
 """
-Quantonium OS - Geometric Waveform Hash Module
+Geometric Waveform Hash - Patent-protected geometric waveform hashing
+USPTO Application #19/169,399
 
-Implements waveform-based hash generation and verification for resonance encryption.
+This module implements patent-protected geometric waveform hashing using
+golden ratio optimization and cryptographic-strength hash functions.
 """
 
 import hashlib
 import math
-import hmac
+from typing import List, Dict, Any, Optional
+import logging
 
-def generate_waveform_hash(A, phi, precision=6):
+logger = logging.getLogger(__name__)
+
+# Golden ratio constant
+PHI = (1 + math.sqrt(5)) / 2
+
+# Try to import C++ accelerated module
+try:
+    from core.pybind_interface import GeometricWaveformHash as CppGeometricWaveformHash
+    CPP_AVAILABLE = True
+    logger.info("C++ geometric waveform hash module loaded successfully")
+except ImportError:
+    CPP_AVAILABLE = False
+    logger.warning("C++ module not available, using Python implementation")
+
+class GeometricWaveformHash:
     """
-    Generate a unique hash from amplitude and phase values.
+    Patent-protected geometric waveform hashing with golden ratio optimization.
+    """
+    
+    def __init__(self, waveform: List[float]):
+        self.waveform = waveform
+        self.amplitude = 0.0
+        self.phase = 0.0
+        self.calculate_geometric_properties()
+    
+    def calculate_geometric_properties(self):
+        """Calculate geometric properties of the waveform."""
+        if not self.waveform:
+            self.amplitude = 0.0
+            self.phase = 0.0
+            return
+        
+        # Calculate amplitude as average absolute value
+        self.amplitude = sum(abs(x) for x in self.waveform) / len(self.waveform)
+        
+        # Calculate phase using geometric phase analysis
+        even_sum = sum(self.waveform[i] for i in range(0, len(self.waveform), 2))
+        odd_sum = sum(self.waveform[i] for i in range(1, len(self.waveform), 2))
+        
+        if len(self.waveform) % 2 == 0:
+            even_sum /= (len(self.waveform) // 2)
+            odd_sum /= (len(self.waveform) // 2)
+        else:
+            even_sum /= (len(self.waveform) // 2 + 1)
+            odd_sum /= (len(self.waveform) // 2)
+        
+        self.phase = math.atan2(odd_sum, even_sum) / (2 * math.pi)
+        self.phase = (self.phase + 1.0) / 2.0  # Normalize to [0,1]
+        
+        # Apply patent-protected golden ratio optimization
+        self.amplitude = (self.amplitude * PHI) % 1.0
+        self.phase = (self.phase * PHI) % 1.0
+    
+    def generate_hash(self) -> str:
+        """Generate cryptographic hash of the geometric waveform."""
+        # Generate 64-point waveform samples
+        samples = []
+        for i in range(64):
+            t = i / 64.0
+            value = self.amplitude * math.sin(2 * math.pi * t + self.phase * 2 * math.pi)
+            samples.append(round(value, 6))  # 6 decimal precision
+        
+        # Create hash input string
+        sample_str = '_'.join(str(s) for s in samples)
+        
+        # Generate SHA-256 hash
+        sha256_hash = hashlib.sha256(sample_str.encode()).hexdigest()
+        
+        # Format final hash
+        hash_str = f"A{self.amplitude:.4f}_P{self.phase:.4f}_{sha256_hash}"
+        
+        return hash_str
+    
+    def verify_hash(self, hash_str: str) -> bool:
+        """Verify if the provided hash matches the current waveform."""
+        return hash_str == self.generate_hash()
+    
+    def get_amplitude(self) -> float:
+        """Get the calculated amplitude."""
+        return self.amplitude
+    
+    def get_phase(self) -> float:
+        """Get the calculated phase."""
+        return self.phase
+
+def geometric_waveform_hash(waveform: List[float]) -> str:
+    """
+    Generate geometric waveform hash using patent-protected algorithms.
     
     Args:
-        A (float): Amplitude value (0.0-1.0)
-        phi (float): Phase value (0.0-1.0)
-        precision (int): Precision for hash generation
+        waveform: Input waveform as list of float values
         
     Returns:
-        str: A unique hash representing the waveform parameters
+        Cryptographic hash string with geometric properties
     """
-    # Normalize inputs to ensure they're within range
-    A = max(0.0, min(1.0, float(A)))
-    phi = max(0.0, min(1.0, float(phi)))
-    
-    # Generate wave pattern samples based on A and phi
-    samples = []
-    for i in range(64):
-        # Calculate sample point using sine wave with phase and amplitude
-        t = i / 64.0
-        value = A * math.sin(2 * math.pi * t + phi * 2 * math.pi)
-        # Round to precision to ensure consistent results
-        value = round(value, precision)
-        samples.append(value)
-    
-    # Create a unique representation from the samples
-    sample_str = "_".join([str(sample) for sample in samples])
-    
-    # Create a SHA-256 hash of the sample pattern
-    wave_hash = hashlib.sha256(sample_str.encode()).hexdigest()
-    
-    # Add the parameters as a prefix for better traceability
-    param_prefix = f"A{A:.4f}_P{phi:.4f}_"
-    
-    return param_prefix + wave_hash
-
-def geometric_waveform_hash(waveform_data):
-    """
-    Generate geometric waveform hash for patent-protected algorithm.
-    
-    Args:
-        waveform_data: List of float values representing waveform
-        
-    Returns:
-        str: Geometric hash with patent-protected algorithm
-    """
-    if not waveform_data:
-        return "empty_waveform_hash"
-    
-    # Convert to amplitude and phase using geometric principles
-    A = sum(abs(x) for x in waveform_data) / len(waveform_data)
-    phi = math.atan2(sum(waveform_data[1::2]), sum(waveform_data[::2])) / (2 * math.pi)
-    phi = (phi + 1) / 2  # Normalize to [0,1]
-    
-    # Apply golden ratio optimization
-    golden_ratio = (1 + math.sqrt(5)) / 2
-    A = A * golden_ratio % 1.0
-    phi = phi * golden_ratio % 1.0
-    
-    return generate_waveform_hash(A, phi)
-
-def verify_waveform_hash(wave_hash, A, phi):
-    """
-    Verify that a waveform hash was generated from the given A and phi values.
-    
-    Args:
-        wave_hash (str): Hash to verify
-        A (float): Amplitude value to check against
-        phi (float): Phase value to check against
-        
-    Returns:
-        bool: True if the hash matches the parameters, False otherwise
-    """
-    # Generate a new hash with the provided parameters
-    expected_hash = generate_waveform_hash(A, phi)
-    
-    # Use constant-time comparison to prevent timing attacks
-    return hmac.compare_digest(wave_hash, expected_hash)
-
-def extract_parameters_from_hash(wave_hash):
-    """
-    Extract amplitude and phase values from a geometric hash.
-    
-    Args:
-        wave_hash (str): Hash containing amplitude and phase info
-        
-    Returns:
-        tuple: (amplitude, phase) extracted from the hash, or (None, None) if invalid
-    """
-    try:
-        # First, try the original format: A{amplitude}_P{phase}_{hash}
-        parts = wave_hash.split('_')
-        if len(parts) >= 3 and parts[0].startswith('A') and parts[1].startswith('P'):
-            amplitude = float(parts[0][1:])
-            phase = float(parts[1][1:])
-            return amplitude, phase
-        
-        # If not in the original format, handle it as Base64-encoded data
-        # Use a deterministic approach to extract amplitude and phase
-        import hashlib
-        import base64
-        
+    if CPP_AVAILABLE:
+        # Use C++ implementation for performance
         try:
-            # If it looks like base64, try to convert it to a more stable hash
-            hash_bytes = wave_hash.encode('utf-8')
-            hash_digest = hashlib.sha256(hash_bytes).hexdigest()
-            
-            # Extract amplitude and phase as deterministic values from the hash
-            amplitude = float(int(hash_digest[:8], 16) % 1000) / 1000  # 0.0-1.0 range
-            phase = float(int(hash_digest[8:16], 16) % 1000) / 1000    # 0.0-1.0 range
-            
-            return amplitude, phase
-        except Exception:
-            # In case of any parsing error, return default values
-            return 0.5, 0.5
-            
-    except (ValueError, IndexError):
-        return None, None
+            cpp_hasher = CppGeometricWaveformHash(waveform)
+            return cpp_hasher.generate_hash()
+        except Exception as e:
+            logger.warning(f"C++ implementation failed: {e}, falling back to Python")
+    
+    # Use Python implementation
+    hasher = GeometricWaveformHash(waveform)
+    return hasher.generate_hash()
+
+def generate_waveform_hash(waveform: List[float]) -> str:
+    """Alias for geometric_waveform_hash for compatibility."""
+    return geometric_waveform_hash(waveform)
+
+def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
+    """
+    Verify if the provided hash matches the waveform.
+    
+    Args:
+        waveform: Input waveform as list of float values
+        hash_str: Hash string to verify
+        
+    Returns:
+        True if hash matches, False otherwise
+    """
+    if CPP_AVAILABLE:
+        try:
+            cpp_hasher = CppGeometricWaveformHash(waveform)
+            return cpp_hasher.verify_hash(hash_str)
+        except Exception as e:
+            logger.warning(f"C++ verification failed: {e}, falling back to Python")
+    
+    # Use Python implementation
+    hasher = GeometricWaveformHash(waveform)
+    return hasher.verify_hash(hash_str)
+
+def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
+    """
+    Extract geometric properties from waveform.
+    
+    Args:
+        waveform: Input waveform as list of float values
+        
+    Returns:
+        Dictionary with amplitude, phase, and other properties
+    """
+    if CPP_AVAILABLE:
+        try:
+            cpp_hasher = CppGeometricWaveformHash(waveform)
+            return {
+                'amplitude': cpp_hasher.get_amplitude(),
+                'phase': cpp_hasher.get_phase(),
+                'golden_ratio': PHI,
+                'waveform_length': len(waveform)
+            }
+        except Exception as e:
+            logger.warning(f"C++ properties extraction failed: {e}, falling back to Python")
+    
+    # Use Python implementation
+    hasher = GeometricWaveformHash(waveform)
+    return {
+        'amplitude': hasher.get_amplitude(),
+        'phase': hasher.get_phase(),
+        'golden_ratio': PHI,
+        'waveform_length': len(waveform)
+    }
+
+# Performance benchmark function
+def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) -> Dict[str, Any]:
+    """
+    Benchmark geometric waveform hashing performance.
+    
+    Args:
+        waveform_size: Size of test waveform
+        iterations: Number of iterations to run
+        
+    Returns:
+        Performance metrics dictionary
+    """
+    import time
+    
+    # Generate test waveform
+    test_waveform = [math.sin(2 * math.pi * i / waveform_size) * 0.5 
+                    for i in range(waveform_size)]
+    
+    # Benchmark hashing
+    start_time = time.time()
+    for _ in range(iterations):
+        geometric_waveform_hash(test_waveform)
+    end_time = time.time()
+    
+    avg_time = (end_time - start_time) / iterations
+    ops_per_second = 1.0 / avg_time if avg_time > 0 else 0
+    
+    return {
+        'waveform_size': waveform_size,
+        'iterations': iterations,
+        'average_time_seconds': avg_time,
+        'operations_per_second': ops_per_second,
+        'cpp_available': CPP_AVAILABLE,
+        'golden_ratio': PHI
+    }

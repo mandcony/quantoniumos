@@ -19,7 +19,6 @@ try:
         generate_waveform_hash,
         verify_waveform_hash
     )
-    from encryption.resonance_encrypt import resonance_encrypt
     GEOWAVE_AVAILABLE = True
 except ImportError:
     GEOWAVE_AVAILABLE = False

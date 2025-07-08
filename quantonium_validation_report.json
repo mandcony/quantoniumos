@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-08 17:05:36",
+  "timestamp": "2025-07-08 17:15:52",
   "summary": {
     "total_tests": 3,
     "passed_tests": 3,
@@ -17,7 +17,7 @@
     },
     "entropy_throughput": {
       "passed": true,
-      "sha256_throughput_gbps": 0.9664252176580233,
+      "sha256_throughput_gbps": 1.520190023752969,
       "entropy_throughput_kbps": 0,
       "test_runs": 10
     },

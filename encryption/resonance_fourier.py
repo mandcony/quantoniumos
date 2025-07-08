@@ -99,3 +99,63 @@ def inverse_resonance_fourier_transform(frequency_data: Dict[str, List[float]]) 
 
 # Feature flag for inverse RFT
 FEATURE_IRFT = True
+
+
+def perform_rft_list(signal: List[float]) -> List[tuple]:
+    """
+    High-level RFT interface with energy-preserving component optimization.
+    
+    This function performs the Resonance Fourier Transform with automatic
+    component selection while preserving energy (Parseval's theorem).
+    
+    Args:
+        signal: Input signal as list of float values
+        
+    Returns:
+        List of (frequency, complex_amplitude) tuples for significant components
+    """
+    if not signal:
+        return []
+    
+    # Perform basic RFT
+    full_spectrum = resonance_fourier_transform(signal)
+    
+    # Calculate total energy for normalization
+    total_energy = sum(abs(comp) ** 2 for _, comp in full_spectrum)
+    
+    # Component selection based on energy contribution
+    # Keep components contributing > 0.1% of total energy
+    energy_threshold = total_energy * 0.001
+    
+    # Keep significant components
+    significant_components = [(freq, comp) for freq, comp in full_spectrum 
+                            if abs(comp) ** 2 > energy_threshold]
+    
+    # Ensure we keep at least the DC component and some fundamentals
+    if len(significant_components) < 3:
+        significant_components = full_spectrum[:max(3, len(full_spectrum)//2)]
+    
+    # Energy normalization to preserve Parseval's theorem
+    kept_energy = sum(abs(comp) ** 2 for _, comp in significant_components)
+    if kept_energy > 0:
+        normalization_factor = (total_energy / kept_energy) ** 0.5
+        significant_components = [(freq, comp * normalization_factor) 
+                                for freq, comp in significant_components]
+    
+    return significant_components
+
+
+def perform_irft_list(frequency_components: List[tuple]) -> List[float]:
+    """
+    Perform Inverse RFT on frequency components list.
+    
+    Args:
+        frequency_components: List of (frequency, complex_amplitude) tuples
+        
+    Returns:
+        Reconstructed time-domain signal
+    """
+    if not frequency_components:
+        return []
+    
+    return inverse_resonance_fourier_transform(frequency_components)

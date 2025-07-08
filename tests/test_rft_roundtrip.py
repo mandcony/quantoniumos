@@ -17,8 +17,8 @@ try:
     from encryption.resonance_fourier import (
         resonance_fourier_transform, 
         inverse_resonance_fourier_transform,
-        perform_rft,
-        perform_irft
+        perform_rft_list,
+        perform_irft_list
     )
     RFT_AVAILABLE = True
 except ImportError:
@@ -137,10 +137,10 @@ class RFTRoundTripTest:
         for signal_name, signal in test_signals:
             try:
                 # Forward transform using high-level API
-                rft_result = perform_rft(signal)
+                rft_result = perform_rft_list(signal)
                 
                 # Inverse transform using high-level API
-                reconstructed = perform_irft(rft_result)
+                reconstructed = perform_irft_list(rft_result)
                 
                 # Calculate error
                 mse = self.calculate_mse(signal, reconstructed)

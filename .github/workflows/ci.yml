@@ -46,42 +46,69 @@ jobs:
     
     - name: Run Performance Benchmarks
       run: |
+        python benchmark_throughput.py
+        
+    - name: Generate CI Artifacts
+      run: |
+        mkdir -p ci_artifacts
+        
+        # Copy all JSON reports
+        cp *.json ci_artifacts/ || echo "No JSON files found"
+        
+        # Create CSV throughput report
         python -c "
-        import time
-        import hashlib
+        import json
+        import csv
+        from datetime import datetime
+        
+        # Generate CSV from benchmark results
+        try:
+            with open('benchmark_throughput_report.json', 'r') as f:
+                data = json.load(f)
+            
+            # Create CSV file
+            with open('ci_artifacts/throughput_results.csv', 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['timestamp', 'python_version', 'sha256_throughput_gbps', 'test_data_mb', 'runs'])
+                
+                sha256_data = data['benchmarks']['sha256']
+                writer.writerow([
+                    data['system_info']['timestamp'],
+                    '${{ matrix.python-version }}',
+                    sha256_data['throughput_gbps'],
+                    sha256_data['data_size_mb'],
+                    sha256_data['runs']
+                ])
+                
+            print('CSV throughput report generated')
+        except Exception as e:
+            print(f'Error generating CSV: {e}')
+        "
+        
+        # Create validation summary
+        python -c "
         import json
         from datetime import datetime
         
-        # SHA-256 throughput benchmark
-        data_size = 10 * 1024 * 1024  # 10 MB
-        test_data = b'a' * data_size
-        runs = 5
-        
-        times = []
-        for _ in range(runs):
-            start = time.time()
-            hashlib.sha256(test_data).hexdigest()
-            end = time.time()
-            times.append(end - start)
-        
-        avg_time = sum(times) / len(times)
-        throughput_mbps = (data_size / (1024 * 1024)) / avg_time
-        throughput_gbps = throughput_mbps / 1024
-        
-        benchmark_result = {
-            'timestamp': datetime.now().isoformat(),
+        summary = {
+            'ci_run_timestamp': datetime.now().isoformat(),
             'python_version': '${{ matrix.python-version }}',
-            'sha256_throughput_mbps': throughput_mbps,
-            'sha256_throughput_gbps': throughput_gbps,
-            'test_data_size_mb': data_size / (1024 * 1024),
-            'runs': runs,
-            'individual_times': times
+            'github_sha': '${{ github.sha }}',
+            'github_ref': '${{ github.ref }}',
+            'validation_files': [
+                'quantonium_validation_report.json',
+                'rft_roundtrip_test_results.json', 
+                'geowave_kat_results.json',
+                'benchmark_throughput_report.json'
+            ],
+            'patent_application': 'USPTO #19/169,399',
+            'repository': 'quantonium-os'
         }
         
-        with open('benchmark_results.json', 'w') as f:
-            json.dump(benchmark_result, f, indent=2)
+        with open('ci_artifacts/validation_summary.json', 'w') as f:
+            json.dump(summary, f, indent=2)
         
-        print(f'SHA-256 Throughput: {throughput_gbps:.3f} GB/s')
+        print('Validation summary created')
         "
     
     - name: Upload test results
@@ -90,10 +117,18 @@ jobs:
       with:
         name: test-results-python-${{ matrix.python-version }}
         path: |
+          ci_artifacts/
           quantonium_validation_report.json
           rft_roundtrip_test_results.json
           geowave_kat_results.json
-          benchmark_results.json
+          benchmark_throughput_report.json
+          
+    - name: Upload throughput CSV
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: throughput-csv-python-${{ matrix.python-version }}
+        path: ci_artifacts/throughput_results.csv
     
     - name: Generate coverage report
       run: |
