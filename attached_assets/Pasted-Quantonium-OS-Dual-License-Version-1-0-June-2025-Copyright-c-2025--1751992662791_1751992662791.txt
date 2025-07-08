@@ -1,0 +1,80 @@
+Quantonium OS Dual License
+==========================
+
+Version 1.0 – June 2025  
+Copyright (c) 2025 Luis Minier
+
+Patent Pending – USPTO Application #19/169,399
+
+**DUAL LICENSING STRUCTURE**
+This software is available under two distinct license options:
+
+---
+
+## OPTION 1: NON-COMMERCIAL LICENSE (FREE)
+
+### Permitted Uses (No License Fee Required):
+- **Academic and Research Use**: Universities, research institutions, educational purposes
+- **Personal Projects**: Individual hobby and experimental projects  
+- **Open Source**: Non-profit open-source software development
+- **Scientific Validation**: Research publications, peer review, algorithm verification
+- **Startup Development**: Pre-revenue startups with <$100K annual revenue
+
+### Conditions:
+- Attribution to original author must be maintained
+- This license notice must remain in all copies
+- Any modifications must be clearly documented
+- Cannot be used for commercial profit or revenue generation
+
+---
+
+## OPTION 2: COMMERCIAL LICENSE (PAID)
+
+### Commercial Use Requires Separate License:
+- **Enterprise Software**: Integration into commercial products or services
+- **Cloud Platforms**: SaaS, PaaS, or hosted service implementations  
+- **Revenue Generation**: Any use that generates direct or indirect revenue
+- **Consulting Services**: Professional services using this technology
+- **Government Contracts**: Public sector commercial implementations
+- **Corporate R&D**: Commercial research and development projects
+
+### Commercial License Benefits:
+- Full commercial usage rights
+- Priority technical support
+- Custom implementation assistance  
+- Patent license grant for covered implementations
+- Indemnification protection
+
+### To Purchase Commercial License:
+Contact: luisminier79@gmail.com
+- Enterprise licenses starting at $10,000/year
+- Custom pricing for specific use cases
+- Volume discounts available
+
+3. AI and Autonomy Ethics Clause
+--------------------------------
+The software may **not** be used in:
+- Agentic autonomous systems that make decisions without meaningful human oversight
+- Military, surveillance, or predictive policing systems
+- Any deployment that violates human autonomy, dignity, or civil liberties
+
+4. Modification and Redistribution
+----------------------------------
+You may fork, modify, and redistribute the software under the following conditions:
+- This license text and authorship must remain intact and clearly visible
+- You must not misrepresent the origin of the software
+- Any substantial modification must be clearly documented
+
+5. Patent Notice
+----------------
+This software contains implementations of ideas, systems, and algorithms currently under **U.S. patent application #19/169,399**.  
+**No patent license is granted under this agreement.** All patent rights are expressly reserved by the author.
+
+6. Disclaimer of Warranty
+-------------------------
+This software is provided "as is", without warranty of any kind, express or implied. The author shall not be liable for any claim, damages, or other liability arising from its use.
+
+---
+
+For licensing, partnerships, or questions, contact:  
+Luis Minier – luisminier79@gmail.com

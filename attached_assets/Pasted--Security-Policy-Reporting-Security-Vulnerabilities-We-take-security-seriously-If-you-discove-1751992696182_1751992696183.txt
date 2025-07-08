@@ -110,4 +110,4 @@ We appreciate responsible disclosure and will acknowledge security researchers w
 
 ---
 
-*This security policy is effective as of July 8, 2025 and may be updated as needed.*
+*This security policy is effective as of July 7, 2025 and may be updated as needed.*

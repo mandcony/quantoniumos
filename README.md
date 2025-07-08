@@ -1,11 +1,13 @@
-# Quantonium OS Cloud Runtime
+# Quantonium OS - Quantum Desktop Environment
 
-[View Technical Paper](QuantoniumOS_Technical_Paper.pdf)
+[![License: Academic Research](https://img.shields.io/badge/License-Academic%20Research-blue.svg)](LICENSE)
+[![Patent: Pending](https://img.shields.io/badge/Patent-USPTO%20%2319%2F169%2C399-orange.svg)](https://patents.uspto.gov/)
+[![Version](https://img.shields.io/badge/Version-0.3.0--rc1-blue)](https://github.com/luisminier/quantonium-os)
+[![API Status](https://img.shields.io/badge/API-Stable-brightgreen)](https://quantonium-os.replit.app/health)
 
-A secure, high-performance quantum-inspired API for symbolic computing with advanced HPC modules.
+[View Technical Paper](QuantoniumOS_Technical_Paper.pdf) | [FFT Performance Validation](QUANTONIUM_FFT_PERFORMANCE_VALIDATION.md) | [Visual Wave Encryption](VISUAL_WAVE_ENCRYPTION_GUIDE.md)
 
-![Version](https://img.shields.io/badge/Version-0.3.0--rc1-blue)
-![API Status](https://img.shields.io/badge/API-Stable-brightgreen)
+A cutting-edge quantum computing operating system that provides an advanced, visually immersive desktop environment for quantum computing research and development.
 
 ## Security Status
 ![Seccomp Enforced](https://img.shields.io/badge/Seccomp-Enforced-brightgreen) 
@@ -17,9 +19,73 @@ A secure, high-performance quantum-inspired API for symbolic computing with adva
 ![Container Signed](https://img.shields.io/badge/Container-Signed-brightgreen)
 ![OpenAPI Spec](https://img.shields.io/badge/OpenAPI-Available-brightgreen)
 
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/luisminier/quantonium-os.git
+cd quantonium-os
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up environment variables
+export DATABASE_URL="postgresql://user:password@localhost/quantonium_db"
+
+# Start the application
+python main.py
+```
+
+### Usage Examples
+
+```bash
+# Run with gunicorn for production
+gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
+
+# Development mode
+python main.py
+```
+
+### API Endpoints
+
+```python
+# Get quantum state
+GET /api/quantum/state
+# Returns: {"amplitude":"0.051","coherence":"5.4","entangledProcesses":42,"qubits":100,"resonance":"active"}
+
+# Encrypt data using resonance
+POST /api/encrypt
+# Body: {"plaintext": "text to encrypt"}
+
+# Real-time system stats
+GET /health
+# Returns: {"status": "healthy", "redis_available": true, "database_connected": true}
+```
+
+## 🎯 Why This Matters
+
+QuantoniumOS represents a breakthrough in quantum computing accessibility, providing:
+
+- **Real Hardware Integration**: Authentic entropy collection from system hardware
+- **Patent-Protected Algorithms**: USPTO Application #19/169,399 geometric waveform hashing
+- **Academic Research Platform**: Open-source foundation for quantum computing research
+- **Production-Ready**: Enterprise-grade security and cross-platform deployment
+
+## 🔬 Academic Research Focus
+
+This project is open-sourced specifically for **academic research and validation**. We encourage universities, research institutions, and independent scientists to:
+
+- Study the symbolic computing architectures
+- Validate the resonance-based computation methods
+- Extend the quantum simulation frameworks
+- Research non-agentic AI implementations
+- Contribute to symbolic entropy theory
+
 ## Overview
 
-Quantonium OS Cloud Runtime provides a Flask-based API for accessing quantum-inspired computational resources. The system leverages advanced authentication, protected modules, and resonance-based computational techniques to deliver secure, high-performance symbolic computing.
+QuantoniumOS provides a Flask-based API for accessing quantum-inspired computational resources. The system leverages advanced authentication, protected modules, and resonance-based computational techniques to deliver secure, high-performance symbolic computing.
 
 ## Key Features
 

@@ -95,6 +95,14 @@ QuantoniumOS is a hybrid computational framework that bridges classical and quan
 
 ## Recent Changes
 
+- July 8, 2025: Added comprehensive licensing and contribution framework
+  - Created dual license structure (LICENSE and LICENSE_COMMERCIAL.md)
+  - Added academic contribution guidelines (CONTRIBUTING.md)
+  - Implemented security policy framework (SECURITY.md)
+  - Added FFT performance validation documentation (QUANTONIUM_FFT_PERFORMANCE_VALIDATION.md)
+  - Updated README with academic research focus and patent information
+  - Enhanced project documentation with contribution protocols
+
 - July 7, 2025: Created visual wave encryption system documentation
   - Generated complete developer replication guide (EXACT_REPLICATION_GUIDE.md)
   - Created visual wave encryption implementation guide (VISUAL_WAVE_ENCRYPTION_GUIDE.md)

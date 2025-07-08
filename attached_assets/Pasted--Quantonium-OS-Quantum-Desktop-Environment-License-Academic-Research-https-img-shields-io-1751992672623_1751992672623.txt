@@ -1,0 +1,252 @@
+# Quantonium OS - Quantum Desktop Environment
+
+[![License: Academic Research](https://img.shields.io/badge/License-Academic%20Research-blue.svg)](LICENSE)
+[![Patent: Pending](https://img.shields.io/badge/Patent-USPTO%20%2319%2F169%2C399-orange.svg)](https://patents.uspto.gov/)
+
+A cutting-edge quantum computing operating system that provides an advanced, visually immersive desktop environment for quantum computing research and development.
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/username/quantonium-os.git
+cd quantonium-os
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your DATABASE_URL
+
+# Start the application
+npm run dev
+```
+
+### Usage Examples
+
+```bash
+# Run with quantum microservice
+./start-quantum-services.sh
+
+# Windows users
+start-quantum-services.bat
+
+# macOS users
+./start-quantum-services.command
+```
+
+### API Endpoints
+
+```javascript
+// Get quantum state
+GET /api/quantum/state
+// Returns: {"amplitude":"0.051","coherence":"5.4","entangledProcesses":42,"qubits":100,"resonance":"active"}
+
+// Encrypt data using resonance
+POST /api/quantum/encrypt
+// Body: {"data": "text", "frequency": 440}
+
+// Real-time system stats
+GET /api/system/stats
+// Returns: {"cpu":100,"memory":61,"quantumLoad":0,"processes":156}
+```
+
+## 🎯 Why This Matters
+
+QuantoniumOS represents a breakthrough in quantum computing accessibility, providing:
+
+- **Real Hardware Integration**: Authentic entropy collection from system hardware
+- **Patent-Protected Algorithms**: USPTO Application #19/169,399 geometric waveform hashing
+- **Academic Research Platform**: Open-source foundation for quantum computing research
+- **Production-Ready**: Enterprise-grade security and cross-platform deployment
+
+## 🔬 Academic Research Focus
+
+This project is open-sourced specifically for **academic research and validation**. We encourage universities, research institutions, and independent scientists to:
+
+- Study the symbolic computing architectures
+- Validate the resonance-based computation methods
+- Extend the quantum simulation frameworks
+- Research non-agentic AI implementations
+- Contribute to symbolic entropy theory
+
+## 🧪 Core Research Areas
+
+### Resonance Fourier Transform (RFT) Engine
+- **Patent Pending**: USPTO Application #19/169,399
+- Real implementation of symbolic compression algorithms
+- Geometric waveform hashing for post-quantum cryptography
+- Topological preservation in quantum state transformations
+
+### Symbolic Computing Framework
+- Dual-valued hybrid qubits with algebraic symbol tracking
+- Non-binary logic processing with amplitude-phase interactions
+- Fault-tolerant geometric data storage using tetrahedral lattices
+
+### Hardware Entropy Collection
+- Authentic entropy from `/dev/urandom`, timing jitter, CPU counters
+- Real-time cryptographic benchmarking (SHA-256 throughput)
+- Hardware performance integration for genuine quantum metrics
+
+## 🏗️ Architecture
+
+### Frontend (React + TypeScript)
+- Quantum desktop environment with 11 specialized applications
+- Real-time 3D visualization using Three.js and WebGL
+- Authentic system performance monitoring
+- Baby blue UI with dark blue fonts for optimal readability
+
+### Backend (Node.js + Express)
+- PostgreSQL database with Drizzle ORM for quantum state persistence
+- Flask microservice for advanced Python-based quantum operations
+- Real filesystem integration for genuine file analysis
+
+### Quantum Applications
+1. **Resonance Encryption** - Patent-protected quantum encryption with visual wave rendering
+2. **Q-Vault** - Secure quantum data storage with topological hashing
+3. **Q-Notes** - Quantum-enhanced note-taking with symbolic compression
+4. **Q-Browser** - Real web browsing with quantum-enhanced security
+5. **Waveform Generator** - Multi-type wave synthesis (sine, square, triangle, sawtooth)
+6. **Quantum Grid** - 512-qubit quantum simulator with real-time visualization
+7. **Quantum Energy Generator** - Hardware entropy collection and analysis
+8. **Q-Wave Debugger** - 3D quantum resonance visualization with Three.js
+9. **Q-Wave Composer** - Symbolic signal compression and topological preservation
+10. **QSHLL Settings** - Quantum system configuration and optimization
+11. **File Manager** - Real filesystem integration with quantum file analysis
+
+## 🧪 Testing
+
+The project includes comprehensive testing infrastructure:
+
+```bash
+# Run RFT engine tests
+tsx server/rft-engine-tests.ts
+
+# Security audit
+bash scripts/security-check.sh
+
+# Dependency vulnerability check
+npm audit --audit-level=moderate
+```
+
+**Current Test Coverage:**
+- ✅ RFT Engine edge cases and mathematical validation (server/rft-engine-tests.ts)
+- ✅ Quantum encryption/decryption algorithms
+- ✅ Geometric container boundary testing
+- ✅ Security sanitization validation (scripts/security-check.sh)
+- ⚠️ Frontend component tests (pending implementation)
+- ⚠️ API endpoint integration tests (pending implementation)
+
+## 📸 Screenshots
+
+![Quantum Desktop Environment](screenshots/desktop.png)
+![Resonance Encryption Interface](screenshots/encryption.png)
+![3D Quantum Visualization](screenshots/quantum-3d.png)
+
+*Note: Screenshots will be added in the next release*
+
+## 📊 Research Validation
+
+### Mathematical Foundations
+```
+Forward RFT: RFT_k = Σ A_n * e^{iϕ_n} * e^{-2πikn/N}
+Inverse RFT: W_n = (1/N) Σ RFT_k * e^{2πikn/N}
+Symbolic XOR: C_i = D_i ⊕ H(W_i), where H(W_i) = mod(A_i * cos(ϕ_i), p)
+Entropy Function: H(W) = -Σ p_i log(p_i) where p_i = A_i² / Σ A_j²
+```
+
+### Quantum Mechanics Integration
+- Hadamard Gate: `H|ψ⟩ = (1/√2) * [[1, 1], [1, -1]] * [α, β]`
+- Multi-qubit state management with real decoherence simulation
+- Grover-style resonance search algorithms
+
+## 🚀 Installation & Development
+
+### Prerequisites
+- Node.js 20+ 
+- PostgreSQL database
+- Python 3.11+ (for quantum microservices)
+
+### Quick Start
+```bash
+# Clone repository
+git clone [repository-url]
+cd quantonium-os
+
+# Install dependencies
+npm install
+
+# Set up database
+npm run db:push
+
+# Start development server
+npm run dev
+```
+
+### Desktop Application
+```bash
+# Build Electron desktop app
+npm run build:desktop
+
+# Create Windows executable
+npm run build:exe
+```
+
+## 📖 Research Papers & References
+
+This implementation is based on peer-reviewed research in:
+- Symbolic resonance computing methodologies
+- Post-quantum cryptographic frameworks  
+- Non-binary quantum logic systems
+- Geometric data storage architectures
+
+For academic citations and detailed mathematical proofs, see the `docs/` directory.
+
+## 🤝 Contributing to Research
+
+We welcome academic contributions! Please:
+
+1. Fork the repository
+2. Create a feature branch for your research
+3. Document your mathematical approaches
+4. Submit pull requests with detailed explanations
+5. Include validation tests for new algorithms
+
+## 📄 Dual License & Patents
+
+Quantonium OS uses a **dual licensing model**:
+
+### 🆓 **Non-Commercial License (FREE)**
+- Academic research and education
+- Personal hobby projects  
+- Open-source development
+- Scientific validation and publications
+- Pre-revenue startups (<$100K/year)
+
+### 💼 **Commercial License (PAID)**
+- Enterprise software integration  
+- SaaS and cloud platforms
+- Revenue-generating applications
+- Professional consulting services
+- Government and corporate contracts
+
+**Commercial licenses**: $25,000/year (startups) to $100,000/year + revenue share (enterprise)
+**Contact**: luisminier79@gmail.com | **Guide**: [COMMERCIAL_LICENSE_GUIDE.md](COMMERCIAL_LICENSE_GUIDE.md)
+
+**Patent Protection**: USPTO Application #19/169,399 (pending)  
+**Ethics**: Prohibited for autonomous AI systems, surveillance, or military use
+
+## 📞 Academic Collaboration
+
+For research partnerships, algorithm validation, or academic licensing:
+
+**Luis Minier**  
+Email: luisminier79@gmail.com  
+Research Focus: Symbolic Computing, Quantum Algorithms, Non-Agentic AI
+
+---
+
+*This project represents cutting-edge research in symbolic quantum computing. Academic institutions are encouraged to study, validate, and extend these implementations for the advancement of computational science.*
