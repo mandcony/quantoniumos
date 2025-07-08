@@ -1,3 +1,4 @@
+import pytest
 #!/usr/bin/env python3
 """
 Geometric Waveform Cipher Known-Answer Tests (KATs)

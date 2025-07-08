@@ -1,128 +1,39 @@
 {
+  "timestamp": "2025-07-08T17:33:13.650786",
+  "patent_application": "USPTO #19/169,399",
+  "sha256_benchmark": {
+    "test_name": "sha256_throughput",
+    "data_size_mb": 100,
+    "runs": 5,
+    "individual_times": [
+      0.06802201271057129,
+      0.06461143493652344,
+      0.06572365760803223,
+      0.06478095054626465,
+      0.0631096363067627
+    ],
+    "average_time_seconds": 0.06524953842163086,
+    "throughput_mbps": 1532.5778912613582,
+    "throughput_gbps": 1.4966580969349201,
+    "min_time": 0.0631096363067627,
+    "max_time": 0.06802201271057129,
+    "std_dev": 0.0016197119744950541
+  },
+  "rft_benchmark": {
+    "test_name": "rft_performance",
+    "status": "available"
+  },
+  "geometric_hash_benchmark": {
+    "test_name": "geometric_hash_performance",
+    "status": "available"
+  },
+  "quantum_simulation": {
+    "test_name": "quantum_simulation_performance",
+    "status": "not_available"
+  },
   "system_info": {
-    "timestamp": "2025-07-08T17:25:39.653608",
-    "python_version": "3.11.10 (main, Sep  7 2024, 01:03:31) [GCC 13.3.0]",
-    "platform": "posix",
-    "environment": "local"
-  },
-  "benchmarks": {
-    "sha256": {
-      "test_name": "sha256_throughput",
-      "data_size_mb": 100,
-      "runs": 5,
-      "individual_times": [
-        0.06334137916564941,
-        0.06318497657775879,
-        0.06310892105102539,
-        0.06363129615783691,
-        0.0635840892791748
-      ],
-      "average_time_seconds": 0.06337013244628906,
-      "throughput_mbps": 1578.0304717645572,
-      "throughput_gbps": 1.5410453825825754,
-      "min_time": 0.06310892105102539,
-      "max_time": 0.06363129615783691,
-      "std_dev": 0.000208482541418836
-    },
-    "rft": {
-      "test_name": "rft_performance",
-      "status": "available",
-      "results": {
-        "size_16": {
-          "signal_size": 16,
-          "runs": 1000,
-          "avg_time_seconds": 3.274106979370117e-05,
-          "ops_per_second": 30542.6794634665,
-          "complexity": "O(N log \u03c6) where N=16"
-        },
-        "size_32": {
-          "signal_size": 32,
-          "runs": 1000,
-          "avg_time_seconds": 2.0723819732666015e-05,
-          "ops_per_second": 48253.65270012195,
-          "complexity": "O(N log \u03c6) where N=32"
-        },
-        "size_64": {
-          "signal_size": 64,
-          "runs": 1000,
-          "avg_time_seconds": 2.37734317779541e-05,
-          "ops_per_second": 42063.762999809456,
-          "complexity": "O(N log \u03c6) where N=64"
-        },
-        "size_128": {
-          "signal_size": 128,
-          "runs": 100,
-          "avg_time_seconds": 2.7015209197998047e-05,
-          "ops_per_second": 37016.18568528815,
-          "complexity": "O(N log \u03c6) where N=128"
-        },
-        "size_256": {
-          "signal_size": 256,
-          "runs": 100,
-          "avg_time_seconds": 3.659248352050781e-05,
-          "ops_per_second": 27328.01667969768,
-          "complexity": "O(N log \u03c6) where N=256"
-        },
-        "size_512": {
-          "signal_size": 512,
-          "runs": 100,
-          "avg_time_seconds": 5.556106567382812e-05,
-          "ops_per_second": 17998.21489872983,
-          "complexity": "O(N log \u03c6) where N=512"
-        }
-      }
-    },
-    "geometric_hash": {
-      "test_name": "geometric_hash_performance",
-      "status": "available",
-      "results": {
-        "size_8": {
-          "waveform_size": 8,
-          "runs": 10000,
-          "avg_time_seconds": 7.254893779754639e-05,
-          "ops_per_second": 13783.799327160103,
-          "golden_ratio_optimized": true
-        },
-        "size_16": {
-          "waveform_size": 16,
-          "runs": 10000,
-          "avg_time_seconds": 7.406771183013917e-05,
-          "ops_per_second": 13501.159618557114,
-          "golden_ratio_optimized": true
-        },
-        "size_32": {
-          "waveform_size": 32,
-          "runs": 10000,
-          "avg_time_seconds": 7.728731632232666e-05,
-          "ops_per_second": 12938.733644593134,
-          "golden_ratio_optimized": true
-        },
-        "size_64": {
-          "waveform_size": 64,
-          "runs": 1000,
-          "avg_time_seconds": 7.87663459777832e-05,
-          "ops_per_second": 12695.777461633925,
-          "golden_ratio_optimized": true
-        },
-        "size_128": {
-          "waveform_size": 128,
-          "runs": 1000,
-          "avg_time_seconds": 8.744716644287109e-05,
-          "ops_per_second": 11435.476307323192,
-          "golden_ratio_optimized": true
-        }
-      }
-    },
-    "quantum_simulation": {
-      "test_name": "quantum_simulation_performance",
-      "status": "not_available",
-      "reason": "Quantum engine modules not imported"
-    }
-  },
-  "summary": {
-    "total_benchmarks": 4,
-    "available_benchmarks": 3,
-    "patent_application": "USPTO #19/169,399",
-    "validation_status": "automated_ci_benchmark"
+    "platform": "linux",
+    "python_version": "3.11.10",
+    "cpu_count": 8
   }
 }
