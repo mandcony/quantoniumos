@@ -1,0 +1,191 @@
+{
+  "summary": {
+    "total": 5,
+    "passed": 0,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 5,
+    "success_rate": 0.0
+  },
+  "test_vectors": [
+    {
+      "name": "sine_wave_8",
+      "input": [
+        0.0,
+        0.707,
+        1.0,
+        0.707,
+        0.0,
+        -0.707,
+        -1.0,
+        -0.707
+      ],
+      "expected_amplitude": 0.707,
+      "expected_phase_range": [
+        0.0,
+        1.0
+      ],
+      "description": "Simple sine wave with 8 samples"
+    },
+    {
+      "name": "delta_function",
+      "input": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected_amplitude": 0.125,
+      "expected_phase_range": [
+        0.0,
+        1.0
+      ],
+      "description": "Delta function (impulse)"
+    },
+    {
+      "name": "step_function",
+      "input": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "expected_amplitude": 0.5,
+      "expected_phase_range": [
+        0.0,
+        1.0
+      ],
+      "description": "Step function"
+    },
+    {
+      "name": "constant_signal",
+      "input": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ],
+      "expected_amplitude": 0.5,
+      "expected_phase_range": [
+        0.0,
+        1.0
+      ],
+      "description": "Constant signal"
+    },
+    {
+      "name": "linear_ramp",
+      "input": [
+        0.0,
+        0.125,
+        0.25,
+        0.375,
+        0.5,
+        0.625,
+        0.75,
+        0.875
+      ],
+      "expected_amplitude": 0.4375,
+      "expected_phase_range": [
+        0.0,
+        1.0
+      ],
+      "description": "Linear ramp"
+    },
+    {
+      "name": "alternating_pattern",
+      "input": [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      "expected_amplitude": 1.0,
+      "expected_phase_range": [
+        0.0,
+        1.0
+      ],
+      "description": "Alternating +1/-1 pattern"
+    },
+    {
+      "name": "complex_waveform",
+      "input": [
+        0.5,
+        0.8,
+        0.3,
+        -0.2,
+        0.9,
+        -0.4,
+        0.1,
+        0.6
+      ],
+      "expected_amplitude": 0.45,
+      "expected_phase_range": [
+        0.0,
+        1.0
+      ],
+      "description": "Complex waveform with mixed amplitudes"
+    },
+    {
+      "name": "symmetric_waveform",
+      "input": [
+        0.1,
+        0.3,
+        0.7,
+        0.9,
+        0.9,
+        0.7,
+        0.3,
+        0.1
+      ],
+      "expected_amplitude": 0.5,
+      "expected_phase_range": [
+        0.0,
+        1.0
+      ],
+      "description": "Symmetric waveform"
+    }
+  ],
+  "results": [
+    {
+      "test": "geometric_hash_consistency",
+      "status": "SKIPPED",
+      "reason": "Geometric waveform modules not available"
+    },
+    {
+      "test": "hash_uniqueness",
+      "status": "SKIPPED",
+      "reason": "Geometric waveform modules not available"
+    },
+    {
+      "test": "waveform_hash_format",
+      "status": "SKIPPED",
+      "reason": "Geometric waveform modules not available"
+    },
+    {
+      "test": "golden_ratio_properties",
+      "status": "SKIPPED",
+      "reason": "Geometric waveform modules not available"
+    },
+    {
+      "test": "empty_waveform_handling",
+      "status": "SKIPPED",
+      "reason": "Geometric waveform modules not available"
+    }
+  ]
+}

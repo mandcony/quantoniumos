@@ -1,0 +1,92 @@
+{
+  "system_info": {
+    "timestamp": "2025-07-08T17:06:27.990987",
+    "python_version": "3.11.10 (main, Sep  7 2024, 01:03:31) [GCC 13.3.0]",
+    "platform": "posix",
+    "environment": "local"
+  },
+  "benchmarks": {
+    "sha256": {
+      "test_name": "sha256_throughput",
+      "data_size_mb": 100,
+      "runs": 5,
+      "individual_times": [
+        0.0643150806427002,
+        0.07352781295776367,
+        0.07637739181518555,
+        0.07239317893981934,
+        0.07383251190185547
+      ],
+      "average_time_seconds": 0.07208919525146484,
+      "throughput_mbps": 1387.1704303422366,
+      "throughput_gbps": 1.3546586233810904,
+      "min_time": 0.0643150806427002,
+      "max_time": 0.07637739181518555,
+      "std_dev": 0.0040994308788051366
+    },
+    "rft": {
+      "test_name": "rft_performance",
+      "status": "available",
+      "results": {
+        "size_16": {
+          "signal_size": 16,
+          "runs": 1000,
+          "avg_time_seconds": 5.646109580993652e-05,
+          "ops_per_second": 17711.310516648016,
+          "complexity": "O(N log \u03c6) where N=16"
+        },
+        "size_32": {
+          "signal_size": 32,
+          "runs": 1000,
+          "avg_time_seconds": 3.512430191040039e-05,
+          "ops_per_second": 28470.316721195748,
+          "complexity": "O(N log \u03c6) where N=32"
+        },
+        "size_64": {
+          "signal_size": 64,
+          "runs": 1000,
+          "avg_time_seconds": 5.202865600585937e-05,
+          "ops_per_second": 19220.177432363078,
+          "complexity": "O(N log \u03c6) where N=64"
+        },
+        "size_128": {
+          "signal_size": 128,
+          "runs": 100,
+          "avg_time_seconds": 4.447460174560547e-05,
+          "ops_per_second": 22484.74321861263,
+          "complexity": "O(N log \u03c6) where N=128"
+        },
+        "size_256": {
+          "signal_size": 256,
+          "runs": 100,
+          "avg_time_seconds": 6.87408447265625e-05,
+          "ops_per_second": 14547.391786903441,
+          "complexity": "O(N log \u03c6) where N=256"
+        },
+        "size_512": {
+          "signal_size": 512,
+          "runs": 100,
+          "avg_time_seconds": 0.00019015550613403322,
+          "ops_per_second": 5258.853768321275,
+          "complexity": "O(N log \u03c6) where N=512"
+        }
+      }
+    },
+    "geometric_hash": {
+      "test_name": "geometric_hash_performance",
+      "status": "not_available",
+      "reason": "Geometric hash modules not imported"
+    },
+    "quantum_simulation": {
+      "test_name": "quantum_simulation_performance",
+      "status": "not_available",
+      "reason": "Quantum engine modules not imported"
+    }
+  },
+  "summary": {
+    "total_benchmarks": 4,
+    "available_benchmarks": 2,
+    "patent_application": "USPTO #19/169,399",
+    "validation_status": "automated_ci_benchmark"
+  }
+}

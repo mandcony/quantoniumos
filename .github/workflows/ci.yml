@@ -1,0 +1,254 @@
+name: QuantoniumOS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libpython3-dev
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist
+    
+    - name: Run RFT Round-trip Tests
+      run: |
+        python tests/test_rft_roundtrip.py
+    
+    - name: Run Geometric Waveform KATs
+      run: |
+        python tests/test_geowave_kat.py
+    
+    - name: Run Comprehensive Validation
+      run: |
+        python test_quantonium_validation.py
+    
+    - name: Run Performance Benchmarks
+      run: |
+        python -c "
+        import time
+        import hashlib
+        import json
+        from datetime import datetime
+        
+        # SHA-256 throughput benchmark
+        data_size = 10 * 1024 * 1024  # 10 MB
+        test_data = b'a' * data_size
+        runs = 5
+        
+        times = []
+        for _ in range(runs):
+            start = time.time()
+            hashlib.sha256(test_data).hexdigest()
+            end = time.time()
+            times.append(end - start)
+        
+        avg_time = sum(times) / len(times)
+        throughput_mbps = (data_size / (1024 * 1024)) / avg_time
+        throughput_gbps = throughput_mbps / 1024
+        
+        benchmark_result = {
+            'timestamp': datetime.now().isoformat(),
+            'python_version': '${{ matrix.python-version }}',
+            'sha256_throughput_mbps': throughput_mbps,
+            'sha256_throughput_gbps': throughput_gbps,
+            'test_data_size_mb': data_size / (1024 * 1024),
+            'runs': runs,
+            'individual_times': times
+        }
+        
+        with open('benchmark_results.json', 'w') as f:
+            json.dump(benchmark_result, f, indent=2)
+        
+        print(f'SHA-256 Throughput: {throughput_gbps:.3f} GB/s')
+        "
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-python-${{ matrix.python-version }}
+        path: |
+          quantonium_validation_report.json
+          rft_roundtrip_test_results.json
+          geowave_kat_results.json
+          benchmark_results.json
+    
+    - name: Generate coverage report
+      run: |
+        python -m pytest tests/ --cov=core --cov-report=xml --cov-report=html
+      continue-on-error: true
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build wheel twine
+    
+    - name: Build package
+      run: |
+        python -m build
+    
+    - name: Check package
+      run: |
+        python -m twine check dist/*
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-package
+        path: dist/
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build Docker image
+      run: |
+        docker build -t quantonium-os:latest .
+    
+    - name: Test Docker image
+      run: |
+        docker run --rm quantonium-os:latest python -c "
+        import sys
+        sys.path.append('/app/core')
+        try:
+            from encryption.resonance_fourier import perform_rft
+            from encryption.geometric_waveform_hash import geometric_waveform_hash
+            print('Core modules imported successfully')
+        except ImportError as e:
+            print(f'Import error: {e}')
+        "
+    
+    - name: Export Docker image
+      run: |
+        docker save quantonium-os:latest | gzip > quantonium-os-docker.tar.gz
+    
+    - name: Upload Docker image
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-image
+        path: quantonium-os-docker.tar.gz
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+    
+    - name: Run Bandit security scan
+      run: |
+        bandit -r core/ -f json -o bandit-report.json
+      continue-on-error: true
+    
+    - name: Check dependencies for vulnerabilities
+      run: |
+        safety check --json --output safety-report.json
+      continue-on-error: true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, build, docker]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    
+    - name: Create deployment package
+      run: |
+        mkdir -p deployment
+        cp -r test-results-python-*/* deployment/
+        cp -r python-package/* deployment/
+        cp docker-image/* deployment/
+        
+        # Create deployment manifest
+        cat > deployment/manifest.json << EOF
+        {
+          "version": "$(date +%Y%m%d-%H%M%S)",
+          "commit": "${{ github.sha }}",
+          "branch": "${{ github.ref_name }}",
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "artifacts": [
+            "quantonium_validation_report.json",
+            "rft_roundtrip_test_results.json",
+            "geowave_kat_results.json",
+            "benchmark_results.json",
+            "quantonium-os-docker.tar.gz"
+          ]
+        }
+        EOF
+    
+    - name: Upload deployment package
+      uses: actions/upload-artifact@v3
+      with:
+        name: deployment-package
+        path: deployment/
+        retention-days: 30

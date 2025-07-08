@@ -1,0 +1,230 @@
+{
+  "summary": {
+    "total": 25,
+    "passed": 10,
+    "failed": 15,
+    "errors": 0,
+    "skipped": 0,
+    "success_rate": 0.4
+  },
+  "results": [
+    {
+      "test": "basic_rft_roundtrip_sine_wave",
+      "status": "PASS",
+      "mse": 1.829389293781705e-30,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "frequency_components": 16
+    },
+    {
+      "test": "basic_rft_roundtrip_cosine_wave",
+      "status": "PASS",
+      "mse": 4.088846138231761e-30,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "frequency_components": 16
+    },
+    {
+      "test": "basic_rft_roundtrip_delta_function",
+      "status": "PASS",
+      "mse": 2.6073872691611886e-31,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "frequency_components": 16
+    },
+    {
+      "test": "basic_rft_roundtrip_step_function",
+      "status": "PASS",
+      "mse": 3.042466764786969e-30,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "frequency_components": 16
+    },
+    {
+      "test": "basic_rft_roundtrip_random_signal",
+      "status": "PASS",
+      "mse": 4.503426063084978e-31,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "frequency_components": 16
+    },
+    {
+      "test": "basic_rft_roundtrip_constant_signal",
+      "status": "PASS",
+      "mse": 7.137496373899096e-31,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "frequency_components": 16
+    },
+    {
+      "test": "basic_rft_roundtrip_linear_ramp",
+      "status": "PASS",
+      "mse": 2.1030914251465567e-30,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "frequency_components": 16
+    },
+    {
+      "test": "basic_rft_roundtrip_complex_waveform",
+      "status": "PASS",
+      "mse": 9.012003988771193e-30,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "frequency_components": 16
+    },
+    {
+      "test": "high_level_rft_roundtrip_sine_wave",
+      "status": "FAIL",
+      "mse": 0.49084708692923495,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "rft_components": 7
+    },
+    {
+      "test": "high_level_rft_roundtrip_cosine_wave",
+      "status": "FAIL",
+      "mse": 0.3841529131141028,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "rft_components": 7
+    },
+    {
+      "test": "high_level_rft_roundtrip_delta_function",
+      "status": "PASS",
+      "mse": 7.683407235166734e-33,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "rft_components": 34
+    },
+    {
+      "test": "high_level_rft_roundtrip_step_function",
+      "status": "FAIL",
+      "mse": 0.5576103474999999,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "rft_components": 22
+    },
+    {
+      "test": "high_level_rft_roundtrip_random_signal",
+      "status": "FAIL",
+      "mse": 0.30212892254640367,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "rft_components": 31
+    },
+    {
+      "test": "high_level_rft_roundtrip_constant_signal",
+      "status": "FAIL",
+      "mse": 0.21875,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "rft_components": 7
+    },
+    {
+      "test": "high_level_rft_roundtrip_linear_ramp",
+      "status": "FAIL",
+      "mse": 0.22561949851473478,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "rft_components": 34
+    },
+    {
+      "test": "high_level_rft_roundtrip_complex_waveform",
+      "status": "FAIL",
+      "mse": 0.6041283369149536,
+      "tolerance": 1e-10,
+      "original_length": 16,
+      "reconstructed_length": 16,
+      "rft_components": 10
+    },
+    {
+      "test": "parseval_theorem_sine_wave",
+      "status": "FAIL",
+      "time_energy": 8.0,
+      "freq_energy": 0.5000000000000004,
+      "energy_difference": 7.5,
+      "tolerance": 1e-10
+    },
+    {
+      "test": "parseval_theorem_cosine_wave",
+      "status": "FAIL",
+      "time_energy": 8.0,
+      "freq_energy": 0.49999999999999944,
+      "energy_difference": 7.500000000000001,
+      "tolerance": 1e-10
+    },
+    {
+      "test": "parseval_theorem_delta_function",
+      "status": "FAIL",
+      "time_energy": 1.0,
+      "freq_energy": 0.0625,
+      "energy_difference": 0.9375,
+      "tolerance": 1e-10
+    },
+    {
+      "test": "parseval_theorem_step_function",
+      "status": "FAIL",
+      "time_energy": 8.0,
+      "freq_energy": 0.5000000000000003,
+      "energy_difference": 7.5,
+      "tolerance": 1e-10
+    },
+    {
+      "test": "parseval_theorem_random_signal",
+      "status": "FAIL",
+      "time_energy": 4.53,
+      "freq_energy": 0.28312499999999996,
+      "energy_difference": 4.246875,
+      "tolerance": 1e-10
+    },
+    {
+      "test": "parseval_theorem_constant_signal",
+      "status": "FAIL",
+      "time_energy": 4.0,
+      "freq_energy": 0.25,
+      "energy_difference": 3.75,
+      "tolerance": 1e-10
+    },
+    {
+      "test": "parseval_theorem_linear_ramp",
+      "status": "FAIL",
+      "time_energy": 5.511111111111111,
+      "freq_energy": 0.34444444444444444,
+      "energy_difference": 5.166666666666667,
+      "tolerance": 1e-10
+    },
+    {
+      "test": "parseval_theorem_complex_waveform",
+      "status": "FAIL",
+      "time_energy": 10.000000000000004,
+      "freq_energy": 0.6249999999999991,
+      "energy_difference": 9.375000000000004,
+      "tolerance": 1e-10
+    },
+    {
+      "test": "linearity_property",
+      "status": "PASS",
+      "max_difference": 1.795082599270266e-16,
+      "tolerance": 1e-10,
+      "scaling_factors": [
+        2.0,
+        3.0
+      ]
+    }
+  ]
+}
