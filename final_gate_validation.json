@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-08T17:25:38.958861",
+  "timestamp": "2025-07-08T17:52:34.291492",
   "gates": {
     "import_test": {
       "status": "PASS",
@@ -13,7 +13,7 @@
       "test_files": 15,
       "test_results": {
         "geometric_cipher": {
-          "total": 23,
+          "total": 22,
           "passed": 21
         },
         "rft": {
@@ -26,17 +26,17 @@
       "status": "READY",
       "workflow_exists": true,
       "artifacts_available": {
-        "throughput_csv": false,
+        "throughput_csv": true,
         "validation_json": true,
         "geowave_results": true,
         "rft_results": true,
         "benchmark_report": true
       },
-      "total_artifacts": 4
+      "total_artifacts": 5
     },
     "performance": {
       "status": "VALIDATED",
-      "sha256_throughput_gbps": 0,
+      "sha256_throughput_gbps": 1.5455309026941892,
       "benchmark_complete": true
     }
   }

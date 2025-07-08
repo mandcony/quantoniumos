@@ -117,8 +117,22 @@ def perform_rft_list(signal: List[float]) -> List[tuple]:
     if not signal:
         return []
     
+    # Store original signal length for reconstruction
+    original_signal_length = len(signal)
+    
     # Perform basic RFT
-    full_spectrum = resonance_fourier_transform(signal)
+    rft_result = resonance_fourier_transform(signal)
+    
+    # Convert to list of tuples
+    frequencies = rft_result["frequencies"]
+    amplitudes = rft_result["amplitudes"]
+    phases = rft_result["phases"]
+    
+    # Create complex amplitudes from magnitude and phase
+    full_spectrum = []
+    for i in range(len(frequencies)):
+        complex_amp = amplitudes[i] * np.exp(1j * phases[i])
+        full_spectrum.append((frequencies[i], complex_amp))
     
     # Calculate total energy for normalization
     total_energy = sum(abs(comp) ** 2 for _, comp in full_spectrum)
@@ -142,6 +156,10 @@ def perform_rft_list(signal: List[float]) -> List[tuple]:
         significant_components = [(freq, comp * normalization_factor) 
                                 for freq, comp in significant_components]
     
+    # Add metadata about original signal length as a special marker
+    # This is needed for proper reconstruction
+    significant_components.append((-1.0, complex(original_signal_length, 0)))
+    
     return significant_components
 
 
@@ -158,40 +176,57 @@ def perform_irft_list(frequency_components: List[tuple]) -> List[float]:
     if not frequency_components:
         return []
     
+    # Extract original signal length from metadata
+    original_signal_length = None
+    actual_components = []
+    
+    for freq, complex_amp in frequency_components:
+        if freq == -1.0:  # Special marker for metadata
+            original_signal_length = int(complex_amp.real)
+        else:
+            actual_components.append((freq, complex_amp))
+    
+    # If no metadata, use the component count
+    if original_signal_length is None:
+        original_signal_length = len(actual_components) * 2 - 2
+    
     # Convert list of tuples to the expected dictionary format
     frequencies = []
     amplitudes = []
     phases = []
     
-    for freq, complex_amp in frequency_components:
+    for freq, complex_amp in actual_components:
         frequencies.append(freq)
         amplitudes.append(abs(complex_amp))
         phases.append(np.angle(complex_amp))
     
+    # Ensure we have enough frequency components for the desired output length
+    # Pad with zeros if necessary
+    n_freqs_needed = (original_signal_length // 2) + 1
+    while len(frequencies) < n_freqs_needed:
+        frequencies.append(frequencies[-1] + 0.125 if frequencies else 0.0)
+        amplitudes.append(0.0)
+        phases.append(0.0)
+    
     freq_data = {
-        "frequencies": frequencies,
-        "amplitudes": amplitudes,
-        "phases": phases
+        "frequencies": frequencies[:n_freqs_needed],
+        "amplitudes": amplitudes[:n_freqs_needed],
+        "phases": phases[:n_freqs_needed]
     }
     
-    # Get the reconstructed signal
-    result = inverse_resonance_fourier_transform(freq_data)
+    # Perform inverse transform with correct output length
+    complex_data = np.array(amplitudes[:n_freqs_needed]) * np.exp(1j * np.array(phases[:n_freqs_needed]))
+    reconstructed = np.fft.irfft(complex_data, n=original_signal_length).tolist()
     
-    if result.get("success"):
-        reconstructed = result["waveform"]
-        
-        # Energy renormalization to satisfy Parseval's theorem
-        # Calculate the energy scaling factor based on component pruning
-        original_length = len(reconstructed)
-        used_components = len(frequency_components)
-        
-        # If we're using fewer components than the original signal length,
-        # we need to scale to preserve energy
-        if used_components > 0 and used_components < original_length:
-            # Energy scaling factor
-            scale_factor = np.sqrt(original_length / used_components)
-            reconstructed = [x * scale_factor for x in reconstructed]
-        
-        return reconstructed
-    else:
-        return []
+    # Energy renormalization to satisfy Parseval's theorem
+    # If we're using fewer components than the full spectrum,
+    # we need to scale to preserve energy
+    used_components = len(actual_components)
+    full_spectrum_size = n_freqs_needed
+    
+    if used_components > 0 and used_components < full_spectrum_size:
+        # Energy back-scaling: multiply by N/k to preserve total energy
+        scale_factor = full_spectrum_size / used_components
+        reconstructed = [x * scale_factor for x in reconstructed]
+    
+    return reconstructed

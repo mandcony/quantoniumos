@@ -80,8 +80,8 @@ class GeometricWaveformHash:
         # Generate SHA-256 hash
         sha256_hash = hashlib.sha256(combined_data.encode()).hexdigest()
         
-        # Format final hash with increased precision to avoid collisions
-        hash_str = f"A{self.amplitude:.6f}_P{self.phase:.6f}_{sha256_hash}"
+        # Format final hash with higher precision to avoid collisions
+        hash_str = f"A{self.amplitude:.5f}_P{self.phase:.5f}_{sha256_hash}"
         
         return hash_str
     
@@ -100,11 +100,15 @@ class GeometricWaveformHash:
 def geometric_waveform_hash(waveform: List[float]) -> str:
     """Generate geometric waveform hash using patent-protected algorithms."""
     # Special handling for edge cases
-    if not waveform or len(waveform) < 2:
-        # Return deterministic hash for edge cases
-        edge_case_data = b'\x00' if not waveform else str(waveform[0]).encode()
-        edge_hash = hashlib.sha256(edge_case_data).hexdigest()
-        return f"A0.000000_P0.000000_{edge_hash}"
+    if not waveform:
+        # Empty waveform
+        edge_hash = hashlib.sha256(b'\x00').hexdigest()
+        return f"A0.00000_P0.00000_{edge_hash}"
+    elif len(waveform) == 1:
+        # Single value - treat as DC component
+        avg_amp = abs(waveform[0])
+        edge_hash = hashlib.sha256(bytes([0])).hexdigest()
+        return f"A{avg_amp:.5f}_P0.00000_{edge_hash}"
     
     hasher = GeometricWaveformHash(waveform)
     return hasher.generate_hash()
