@@ -45,6 +45,31 @@ def generate_waveform_hash(A, phi, precision=6):
     
     return param_prefix + wave_hash
 
+def geometric_waveform_hash(waveform_data):
+    """
+    Generate geometric waveform hash for patent-protected algorithm.
+    
+    Args:
+        waveform_data: List of float values representing waveform
+        
+    Returns:
+        str: Geometric hash with patent-protected algorithm
+    """
+    if not waveform_data:
+        return "empty_waveform_hash"
+    
+    # Convert to amplitude and phase using geometric principles
+    A = sum(abs(x) for x in waveform_data) / len(waveform_data)
+    phi = math.atan2(sum(waveform_data[1::2]), sum(waveform_data[::2])) / (2 * math.pi)
+    phi = (phi + 1) / 2  # Normalize to [0,1]
+    
+    # Apply golden ratio optimization
+    golden_ratio = (1 + math.sqrt(5)) / 2
+    A = A * golden_ratio % 1.0
+    phi = phi * golden_ratio % 1.0
+    
+    return generate_waveform_hash(A, phi)
+
 def verify_waveform_hash(wave_hash, A, phi):
     """
     Verify that a waveform hash was generated from the given A and phi values.

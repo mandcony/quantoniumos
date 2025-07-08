@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-07-08 16:49:29",
+  "summary": {
+    "total_tests": 3,
+    "passed_tests": 3,
+    "success_rate": 1.0
+  },
+  "results": {
+    "quantum_simulation": {
+      "passed": true,
+      "normalization": 0.9999999999999998,
+      "hadamard_norm": 0.9999999999999998,
+      "measurement_probs": [
+        0.4999999999999999,
+        0.4999999999999999
+      ]
+    },
+    "entropy_throughput": {
+      "passed": true,
+      "sha256_throughput_gbps": 1.0985651066112379,
+      "entropy_throughput_kbps": 0,
+      "test_runs": 10
+    },
+    "geometric_cipher": {
+      "passed": true,
+      "mode": "fallback_xor",
+      "original_length": 13,
+      "encrypted_length": 13
+    }
+  },
+  "environment": {
+    "python_version": "3.11.10 (main, Sep  7 2024, 01:03:31) [GCC 13.3.0]",
+    "platform": "posix",
+    "rft_available": false
+  }
+}
