@@ -29,6 +29,12 @@ class GeometricWaveformHash:
             self.phase = 0.0
             return
         
+        # Guard against single-value edge case
+        if len(self.waveform) < 2:
+            self.amplitude = 0.0
+            self.phase = 0.0
+            return
+        
         # Calculate amplitude as average absolute value
         self.amplitude = sum(abs(x) for x in self.waveform) / len(self.waveform)
         
@@ -39,13 +45,13 @@ class GeometricWaveformHash:
             even_sum = sum(self.waveform[i] for i in range(0, len(self.waveform), 2))
             odd_sum = sum(self.waveform[i] for i in range(1, len(self.waveform), 2))
             
-            if len(self.waveform) % 2 == 0:
-                even_sum /= (len(self.waveform) // 2)
-                odd_sum /= (len(self.waveform) // 2)
-            else:
-                even_sum /= (len(self.waveform) // 2 + 1)
-                if len(self.waveform) > 1:
-                    odd_sum /= (len(self.waveform) // 2)
+            even_count = (len(self.waveform) + 1) // 2
+            odd_count = len(self.waveform) // 2
+            
+            if even_count > 0:
+                even_sum /= even_count
+            if odd_count > 0:
+                odd_sum /= odd_count
             
             if even_sum == 0 and odd_sum == 0:
                 self.phase = 0.0
@@ -66,14 +72,16 @@ class GeometricWaveformHash:
             value = self.amplitude * math.sin(2 * math.pi * t + self.phase * 2 * math.pi)
             samples.append(round(value, 6))
         
-        # Create hash input string
+        # Create hash input string including original waveform to ensure uniqueness
+        waveform_str = '_'.join(f"{x:.6f}" for x in self.waveform)
         sample_str = '_'.join(str(s) for s in samples)
+        combined_data = f"{waveform_str}|{sample_str}|{self.amplitude:.8f}|{self.phase:.8f}"
         
         # Generate SHA-256 hash
-        sha256_hash = hashlib.sha256(sample_str.encode()).hexdigest()
+        sha256_hash = hashlib.sha256(combined_data.encode()).hexdigest()
         
-        # Format final hash
-        hash_str = f"A{self.amplitude:.4f}_P{self.phase:.4f}_{sha256_hash}"
+        # Format final hash with increased precision to avoid collisions
+        hash_str = f"A{self.amplitude:.6f}_P{self.phase:.6f}_{sha256_hash}"
         
         return hash_str
     
@@ -91,6 +99,13 @@ class GeometricWaveformHash:
 
 def geometric_waveform_hash(waveform: List[float]) -> str:
     """Generate geometric waveform hash using patent-protected algorithms."""
+    # Special handling for edge cases
+    if not waveform or len(waveform) < 2:
+        # Return deterministic hash for edge cases
+        edge_case_data = b'\x00' if not waveform else str(waveform[0]).encode()
+        edge_hash = hashlib.sha256(edge_case_data).hexdigest()
+        return f"A0.000000_P0.000000_{edge_hash}"
+    
     hasher = GeometricWaveformHash(waveform)
     return hasher.generate_hash()
 

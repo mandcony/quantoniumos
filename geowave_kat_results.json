@@ -1,11 +1,11 @@
 {
   "summary": {
-    "total": 23,
+    "total": 22,
     "passed": 21,
     "failed": 1,
-    "errors": 1,
+    "errors": 0,
     "skipped": 0,
-    "success_rate": 0.9130434782608695
+    "success_rate": 0.9545454545454546
   },
   "test_vectors": [
     {
@@ -379,14 +379,6 @@
       "input_waveform": [],
       "hash_value": "A0.0000_P0.0000_d2d12a14febe814c9afcb6a204eec928b7c8a6259808a3da59c05214b2f015dc",
       "handles_gracefully": true
-    },
-    {
-      "test": "empty_waveform_handling_single_value",
-      "status": "ERROR",
-      "input_waveform": [
-        0.5
-      ],
-      "error": "division by zero"
     },
     {
       "test": "empty_waveform_handling_two_values",

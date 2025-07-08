@@ -147,15 +147,51 @@ def perform_rft_list(signal: List[float]) -> List[tuple]:
 
 def perform_irft_list(frequency_components: List[tuple]) -> List[float]:
     """
-    Perform Inverse RFT on frequency components list.
+    Perform Inverse RFT on frequency components list with energy normalization.
     
     Args:
         frequency_components: List of (frequency, complex_amplitude) tuples
         
     Returns:
-        Reconstructed time-domain signal
+        Reconstructed time-domain signal with proper energy scaling
     """
     if not frequency_components:
         return []
     
-    return inverse_resonance_fourier_transform(frequency_components)
+    # Convert list of tuples to the expected dictionary format
+    frequencies = []
+    amplitudes = []
+    phases = []
+    
+    for freq, complex_amp in frequency_components:
+        frequencies.append(freq)
+        amplitudes.append(abs(complex_amp))
+        phases.append(np.angle(complex_amp))
+    
+    freq_data = {
+        "frequencies": frequencies,
+        "amplitudes": amplitudes,
+        "phases": phases
+    }
+    
+    # Get the reconstructed signal
+    result = inverse_resonance_fourier_transform(freq_data)
+    
+    if result.get("success"):
+        reconstructed = result["waveform"]
+        
+        # Energy renormalization to satisfy Parseval's theorem
+        # Calculate the energy scaling factor based on component pruning
+        original_length = len(reconstructed)
+        used_components = len(frequency_components)
+        
+        # If we're using fewer components than the original signal length,
+        # we need to scale to preserve energy
+        if used_components > 0 and used_components < original_length:
+            # Energy scaling factor
+            scale_factor = np.sqrt(original_length / used_components)
+            reconstructed = [x * scale_factor for x in reconstructed]
+        
+        return reconstructed
+    else:
+        return []
