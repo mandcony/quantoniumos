@@ -1,0 +1,38 @@
+QUANTONIUM OS COMMERCIAL LICENSE AGREEMENT
+
+This is a commercial license header for Quantonium OS.
+
+COMMERCIAL USAGE TERMS:
+For commercial use of Quantonium OS, including but not limited to:
+- Enterprise software integration
+- Cloud platform implementations  
+- Revenue-generating applications
+- Commercial research and development
+- Government contracts
+- Consulting services
+
+A separate commercial license is required.
+
+CONTACT FOR COMMERCIAL LICENSING:
+Email: luisminier79@gmail.com
+Subject: Quantonium OS Commercial License Request
+
+PRICING STRUCTURE:
+- Enterprise License: Starting at $10,000/year
+- Cloud Platform License: Custom pricing
+- Government License: Contact for pricing
+- Startup License: Reduced rates for qualifying startups
+
+INCLUDED WITH COMMERCIAL LICENSE:
+- Full commercial usage rights
+- Priority technical support
+- Custom implementation assistance
+- Patent license grant for covered implementations  
+- Indemnification protection
+- Access to commercial-only features
+
+COPYRIGHT AND PATENT:
+© 2025 Luis Minier
+Patent Pending: USPTO Application #19/169,399
+
+For detailed terms and conditions, contact luisminier79@gmail.com

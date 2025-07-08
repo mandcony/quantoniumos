@@ -1,6 +1,8 @@
 # Quantonium OS - Quantum Desktop Environment
 
-[![License: Academic Research](https://img.shields.io/badge/License-Academic%20Research-blue.svg)](LICENSE)
+[![License: Dual Licensed](https://img.shields.io/badge/License-Dual%20Licensed-blue.svg)](LICENSE)
+[![Academic License](https://img.shields.io/badge/Academic-Free-brightgreen.svg)](LICENSE-AEC.txt)
+[![Commercial License](https://img.shields.io/badge/Commercial-Contact%20Us-orange.svg)](LICENSE-COM.txt)
 [![Patent: Pending](https://img.shields.io/badge/Patent-USPTO%20%2319%2F169%2C399-orange.svg)](https://patents.uspto.gov/)
 [![Version](https://img.shields.io/badge/Version-0.3.0--rc1-blue)](https://github.com/luisminier/quantonium-os)
 [![API Status](https://img.shields.io/badge/API-Stable-brightgreen)](https://quantonium-os.replit.app/health)
@@ -82,6 +84,29 @@ This project is open-sourced specifically for **academic research and validation
 - Extend the quantum simulation frameworks
 - Research non-agentic AI implementations
 - Contribute to symbolic entropy theory
+
+## 📄 Dual Licensing
+
+QuantoniumOS is dual-licensed to support both academic research and commercial applications:
+
+### 🎓 Academic & Research Use (FREE)
+- Universities and research institutions
+- Personal hobby projects
+- Open-source development
+- Pre-revenue startups (<$100K annual revenue)
+
+**License:** [LICENSE-AEC.txt](LICENSE-AEC.txt)
+
+### 🏢 Commercial Use (PAID)
+- Enterprise software integration
+- Cloud platform implementations
+- Revenue-generating applications
+- Government contracts
+- Consulting services
+
+**License:** [LICENSE-COM.txt](LICENSE-COM.txt)  
+**Pricing Guide:** [docs/COMMERCIAL_LICENSE_GUIDE.md](docs/COMMERCIAL_LICENSE_GUIDE.md)  
+**Contact:** luisminier79@gmail.com
 
 ## Overview
 
