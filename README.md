@@ -413,4 +413,9 @@ This will output a summary of syscalls used, which can be used to refine the pro
 
 ## License
 
-Proprietary - All rights reserved
+This project is dual-licensed - see [LICENSE](LICENSE) for details.
+
+- **Academic & Research Use**: Free under [LICENSE-AEC.txt](LICENSE-AEC.txt)  
+- **Commercial Use**: Paid license required - see [LICENSE-COM.txt](LICENSE-COM.txt)
+
+For commercial licensing inquiries: luisminier79@gmail.com
