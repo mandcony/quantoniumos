@@ -140,7 +140,7 @@ We're open to custom licensing arrangements for:
 - Response time: 24 hours
 
 **Technical Questions:**
-- GitHub Issues: [github.com/luisminier/quantonium-os](https://github.com/luisminier/quantonium-os)
+- GitHub Issues: [github.com/mandcony/quantoniumos](https://github.com/mandcony/quantoniumos)
 - Documentation: See project README
 
 **Legal & Compliance:**

@@ -4,7 +4,7 @@
 [![Academic License](https://img.shields.io/badge/Academic-Free-brightgreen.svg)](LICENSE-AEC.txt)
 [![Commercial License](https://img.shields.io/badge/Commercial-Contact%20Us-orange.svg)](LICENSE-COM.txt)
 [![Patent: Pending](https://img.shields.io/badge/Patent-USPTO%20%2319%2F169%2C399-orange.svg)](https://patents.uspto.gov/)
-[![Version](https://img.shields.io/badge/Version-0.3.0--rc1-blue)](https://github.com/luisminier/quantonium-os)
+[![Version](https://img.shields.io/badge/Version-0.3.0--rc1-blue)](https://github.com/mandcony/quantoniumos)
 [![API Status](https://img.shields.io/badge/API-Stable-brightgreen)](https://quantonium-os.replit.app/health)
 
 [View Technical Paper](QuantoniumOS_Technical_Paper.pdf) | [FFT Performance Validation](QUANTONIUM_FFT_PERFORMANCE_VALIDATION.md) | [Visual Wave Encryption](VISUAL_WAVE_ENCRYPTION_GUIDE.md)
@@ -27,8 +27,8 @@ A cutting-edge quantum computing operating system that provides an advanced, vis
 
 ```bash
 # Clone the repository
-git clone https://github.com/luisminier/quantonium-os.git
-cd quantonium-os
+git clone https://github.com/mandcony/quantoniumos.git
+cd quantoniumos
 
 # Install dependencies
 pip install -r requirements.txt
