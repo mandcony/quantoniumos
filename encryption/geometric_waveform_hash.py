@@ -204,3 +204,23 @@ def wave_hash(waveform: List[float]) -> str:
 def extract_wave_parameters(waveform: List[float]) -> Dict[str, float]:
     """Legacy alias for get_waveform_properties.""" 
     return get_waveform_properties(waveform)
+
+def calculate_waveform_coherence(waveform: List[float]) -> float:
+    """
+    Calculate waveform coherence as a measure of signal quality.
+    Returns a value between 0 and 1 indicating coherence level.
+    """
+    if len(waveform) < 2:
+        return 0.0
+    
+    # Calculate amplitude variance as a coherence metric
+    amplitudes = [abs(x) for x in waveform]
+    mean_amp = sum(amplitudes) / len(amplitudes)
+    
+    if mean_amp == 0:
+        return 0.0
+    
+    variance = sum((amp - mean_amp)**2 for amp in amplitudes) / len(amplitudes)
+    coherence = 1.0 - min(variance / (mean_amp**2), 1.0)
+    
+    return coherence

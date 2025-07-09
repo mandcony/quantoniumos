@@ -190,7 +190,7 @@
       "status": "XFAIL",
       "reason": "Parseval theorem implementation pending; see issue #43",
       "time_energy": 8.0,
-      "freq_energy": 0.5000000000000003,
+      "freq_energy": 0.5000000000000004,
       "energy_difference": 7.5,
       "tolerance": 1e-10
     },
@@ -217,7 +217,7 @@
       "status": "XFAIL",
       "reason": "Parseval theorem implementation pending; see issue #43",
       "time_energy": 5.511111111111111,
-      "freq_energy": 0.34444444444444444,
+      "freq_energy": 0.3444444444444444,
       "energy_difference": 5.166666666666667,
       "tolerance": 1e-10
     },
@@ -226,7 +226,7 @@
       "status": "XFAIL",
       "reason": "Parseval theorem implementation pending; see issue #43",
       "time_energy": 10.000000000000004,
-      "freq_energy": 0.6249999999999991,
+      "freq_energy": 0.6249999999999992,
       "energy_difference": 9.375000000000004,
       "tolerance": 1e-10
     },

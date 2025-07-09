@@ -333,6 +333,8 @@ class QuantoniumValidator:
         
         print(f"\nDetailed report saved to: quantonium_analysis_report.json")
         
+        return passed_tests / total_tests if total_tests > 0 else 0
+        
     def run_all_tests(self):
         """Run all validation tests"""
         print("QUANTONIUM OS COMPREHENSIVE VALIDATION")

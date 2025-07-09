@@ -1,23 +1,23 @@
 {
-  "timestamp": "2025-07-08T17:52:36.247658",
+  "timestamp": "2025-07-09T12:23:00.159133",
   "patent_application": "USPTO #19/169,399",
   "sha256_benchmark": {
     "test_name": "sha256_throughput",
     "data_size_mb": 100,
     "runs": 5,
     "individual_times": [
-      0.06361961364746094,
-      0.06311964988708496,
-      0.06297945976257324,
-      0.06316828727722168,
-      0.06304407119750977
+      0.06927728652954102,
+      0.06760287284851074,
+      0.06731939315795898,
+      0.06630921363830566,
+      0.06627869606018066
     ],
-    "average_time_seconds": 0.06318621635437012,
-    "throughput_mbps": 1582.6236443588498,
-    "throughput_gbps": 1.5455309026941892,
-    "min_time": 0.06297945976257324,
-    "max_time": 0.06361961364746094,
-    "std_dev": 0.0002260704730401493
+    "average_time_seconds": 0.06735749244689941,
+    "throughput_mbps": 1484.6158365950748,
+    "throughput_gbps": 1.4498201529248778,
+    "min_time": 0.06627869606018066,
+    "max_time": 0.06927728652954102,
+    "std_dev": 0.0010963541874415015
   },
   "rft_benchmark": {
     "test_name": "rft_performance",
@@ -33,7 +33,7 @@
   },
   "system_info": {
     "platform": "linux",
-    "python_version": "3.11.10",
-    "cpu_count": 8
+    "python_version": "3.12.1",
+    "cpu_count": 2
   }
 }

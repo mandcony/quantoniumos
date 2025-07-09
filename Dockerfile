@@ -12,11 +12,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only the dependency files first to leverage Docker layer caching
-COPY pyproject.toml ./
+COPY requirements.txt ./
 
 # Install dependencies
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir .
+    && pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code
 COPY . .

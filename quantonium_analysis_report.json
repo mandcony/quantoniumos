@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-07-08 17:15:52",
+  "timestamp": "2025-07-09 12:22:50",
   "summary": {
     "total_tests": 3,
     "passed_tests": 3,
@@ -17,7 +17,7 @@
     },
     "entropy_throughput": {
       "passed": true,
-      "sha256_throughput_gbps": 1.520190023752969,
+      "sha256_throughput_gbps": 1.4289701367569076,
       "entropy_throughput_kbps": 0,
       "test_runs": 10
     },
@@ -29,7 +29,7 @@
     }
   },
   "environment": {
-    "python_version": "3.11.10 (main, Sep  7 2024, 01:03:31) [GCC 13.3.0]",
+    "python_version": "3.12.1 (main, May 30 2025, 12:50:35) [GCC 13.3.0]",
     "platform": "posix",
     "rft_available": false
   }
