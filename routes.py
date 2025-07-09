@@ -286,19 +286,19 @@ def get_legacy_container_parameters():
         
         # Use the extract_parameters_from_hash function to get amplitude and phase
         from core.encryption.geometric_waveform_hash import extract_parameters_from_hash
-        amplitude, phase = extract_parameters_from_hash(hash_value)
+        params = extract_parameters_from_hash(hash_value)
         
-        if amplitude is None or phase is None:
+        if not params or params.get('amplitude') is None or params.get('phase') is None:
             return jsonify(sign_response({
                 "success": False,
-                "message": "Invalid hash format or unable to extract parameters"
+                "message": "Invalid hash format"
             }))
         
         # Return the parameters
         response = {
             "success": True,
-            "amplitude": amplitude,
-            "phase": phase
+            "amplitude": params['amplitude'],
+            "phase": params['phase']
         }
         
         # Add key_id if available
@@ -311,6 +311,12 @@ def get_legacy_container_parameters():
             "success": False,
             "message": f"Error: {str(e)}"
         }))
+
+# Alias for legacy container parameters endpoint
+@api.route("/container/parameters", methods=["POST"])
+def container_parameters_alias():
+    """Alias for legacy container parameters extraction"""
+    return get_legacy_container_parameters()
 
 # Alias for benchmark compatibility
 @api.route("/unlock", methods=["POST"])
@@ -333,8 +339,8 @@ def stream_wave():
     # Configure the response with proper SSE headers
     response = Response(
         stream_with_context(get_stream()),
-        mimetype="text/event-stream",
         headers={
+            "Content-Type": "text/event-stream",  # Set explicitly to avoid charset addition
             "Cache-Control": "no-cache",
             "X-Accel-Buffering": "no",
             "Connection": "keep-alive"

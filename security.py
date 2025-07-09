@@ -22,9 +22,11 @@ from utils.security_logger import (
 logger = logging.getLogger("quantonium_security")
 logger.setLevel(logging.INFO)
 
-# CSP policy that allows iframe embedding from the same site
+# CSP policy that provides comprehensive security
 CSP_POLICY = {
-    'frame-ancestors': ["'self'"]  # Allow same-origin embedding
+    'default-src': ["'self'"],  # Only allow resources from same origin by default
+    'frame-ancestors': ["'none'"],  # Prevent iframe embedding (clickjacking protection)
+    'img-src': ["'self'", "https:"]  # Allow images from same origin and HTTPS sources
 }
 
 # Configure CORS
