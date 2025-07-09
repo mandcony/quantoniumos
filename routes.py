@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 
 from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
+from pydantic import ValidationError
 from core.protected.symbolic_interface import get_interface
 from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
 from utils import sign_response
@@ -58,7 +59,11 @@ def root_status():
 @api.route("/encrypt", methods=["POST"])
 def encrypt():
     """Encrypt data using resonance techniques"""
-    data = EncryptRequest(**request.get_json())
+    try:
+        data = EncryptRequest(**request.get_json())
+    except ValidationError as e:
+        return jsonify({"error": "Invalid input", "details": e.errors()}), 400
+
     result = symbolic.encrypt(data.plaintext, data.key)
     
     # Check wave coherence for tamper detection
@@ -94,7 +99,10 @@ def encrypt():
 @api.route("/decrypt", methods=["POST"])
 def decrypt():
     """Decrypt data using resonance techniques"""
-    data = DecryptRequest(**request.get_json())
+    try:
+        data = DecryptRequest(**request.get_json())
+    except ValidationError as e:
+        return jsonify({"error": "Invalid input", "details": e.errors()}), 400
     result = symbolic.decrypt(data.ciphertext, data.key)
     
     # Update the wave visualization data with this decryption operation
@@ -114,7 +122,10 @@ def decrypt():
 @api.route("/simulate/rft", methods=["POST"])
 def simulate_rft():
     """Perform Resonance Fourier Transform on waveform data"""
-    data = RFTRequest(**request.get_json())
+    try:
+        data = RFTRequest(**request.get_json())
+    except ValidationError as e:
+        return jsonify({"error": "Invalid input", "details": e.errors()}), 400
     result = symbolic.analyze_waveform(data.waveform)
     
     # Include the API key ID in response for audit purposes
@@ -137,7 +148,10 @@ def rft_alias():
 @api.route("/entropy/sample", methods=["POST"])
 def sample_entropy():
     """Generate quantum-inspired entropy"""
-    data = EntropyRequest(**request.get_json())
+    try:
+        data = EntropyRequest(**request.get_json())
+    except ValidationError as e:
+        return jsonify({"error": "Invalid input", "details": e.errors()}), 400
     result = symbolic.get_entropy(data.amount)
     
     # Include the API key ID in response for audit purposes
@@ -178,7 +192,10 @@ def extract_container_parameters():
 @api.route("/container/unlock", methods=["POST"])
 def unlock():
     """Unlock symbolic containers using waveform, hash, and encryption key"""
-    data = ContainerUnlockRequest(**request.get_json())
+    try:
+        data = ContainerUnlockRequest(**request.get_json())
+    except ValidationError as e:
+        return jsonify({"error": "Invalid input", "details": e.errors()}), 400
     
     # Look up the container using the hash key
     from orchestration.resonance_manager import check_container_access, get_container_by_hash, verify_container_key

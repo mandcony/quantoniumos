@@ -80,12 +80,40 @@ class QuantoniumRedisCluster:
             # Test connection
             self.redis_client.ping()
             logger.info("Redis cluster connection established successfully")
+            self._check_and_enforce_security()
             return True
             
         except (ConnectionError, TimeoutError) as e:
             logger.error(f"Failed to connect to Redis cluster: {e}")
             return False
     
+    def _check_and_enforce_security(self):
+        """Check Redis configuration for security best practices."""
+        if not self.redis_client:
+            return
+
+        try:
+            # Check if FLUSHDB and FLUSHALL are disabled
+            config = self.redis_client.config_get('rename-command')
+            renamed_commands = config.get('rename-command', '')
+            
+            if isinstance(renamed_commands, dict): # redis-py >= 4.2
+                if 'FLUSHDB' not in renamed_commands or renamed_commands.get('FLUSHDB') != '':
+                    logger.critical("SECURITY WARNING: Redis command 'FLUSHDB' is not disabled. It is highly recommended to disable it in production by setting 'rename-command FLUSHDB \"\"' in your redis.conf.")
+                if 'FLUSHALL' not in renamed_commands or renamed_commands.get('FLUSHALL') != '':
+                    logger.critical("SECURITY WARNING: Redis command 'FLUSHALL' is not disabled. It is highly recommended to disable it in production by setting 'rename-command FLUSHALL \"\"' in your redis.conf.")
+            
+            # Fallback for older redis-py or different response formats
+            elif isinstance(renamed_commands, str) and renamed_commands:
+                 commands = dict(zip(renamed_commands.split(',')[::2], renamed_commands.split(',')[1::2]))
+                 if commands.get('FLUSHDB') != '':
+                     logger.critical("SECURITY WARNING: Redis command 'FLUSHDB' is not disabled.")
+                 if commands.get('FLUSHALL') != '':
+                     logger.critical("SECURITY WARNING: Redis command 'FLUSHALL' is not disabled.")
+
+        except Exception as e:
+            logger.error(f"Could not check Redis security configuration: {e}")
+
     def get_rate_limit_key(self, identifier: str, endpoint: str) -> str:
         """Generate rate limit key for distributed tracking"""
         return f"quantonium:ratelimit:{endpoint}:{identifier}"

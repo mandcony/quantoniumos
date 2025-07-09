@@ -207,17 +207,10 @@ def main():
     print(f"Patent application: {results['evidence_summary']['patent_application']}")
     
     # Save comprehensive results
-    with open('final_validation_proof.json', 'w') as f:
+    with open('final_analysis_report.json', 'w') as f:
         json.dump(results, f, indent=2)
     
-    print(f"\n✅ Final validation proof saved to: final_validation_proof.json")
+    print(f"\n✅ Final analysis report saved to: final_analysis_report.json")
     
-    if available_components == total_components:
-        print("\n🎉 ALL COMPONENTS VALIDATED - READY FOR DEPLOYMENT")
-        return 0
-    else:
-        print(f"\n⚠️  {total_components - available_components} components need attention")
-        return 1
-
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -42,7 +42,7 @@ jobs:
     
     - name: Run Comprehensive Validation
       run: |
-        python test_quantonium_validation.py
+        python test_quantonium_analysis.py
     
     - name: Run Performance Benchmarks
       run: |
@@ -96,7 +96,7 @@ jobs:
             'github_sha': '${{ github.sha }}',
             'github_ref': '${{ github.ref }}',
             'validation_files': [
-                'quantonium_validation_report.json',
+                'quantonium_analysis_report.json',
                 'rft_roundtrip_test_results.json', 
                 'geowave_kat_results.json',
                 'benchmark_throughput_report.json'
@@ -118,7 +118,7 @@ jobs:
         name: test-results-python-${{ matrix.python-version }}
         path: |
           ci_artifacts/
-          quantonium_validation_report.json
+          quantonium_analysis_report.json
           rft_roundtrip_test_results.json
           geowave_kat_results.json
           benchmark_throughput_report.json
@@ -272,7 +272,7 @@ jobs:
           "branch": "${{ github.ref_name }}",
           "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
           "artifacts": [
-            "quantonium_validation_report.json",
+            "quantonium_analysis_report.json",
             "rft_roundtrip_test_results.json",
             "geowave_kat_results.json",
             "benchmark_results.json",
@@ -287,3 +287,34 @@ jobs:
         name: deployment-package
         path: deployment/
         retention-days: 30
+
+  test-and-analyze:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev] # Assuming you add a dev extra for analysis tools
+
+    - name: Lint with ruff
+      run: |
+        ruff check .
+
+    - name: Analyze with bandit
+      run: |
+        bandit -r .
+
+    - name: Check types with mypy
+      run: |
+        mypy . --ignore-missing-imports
+
+    - name: Test with pytest and generate coverage report
+      run: |
+        pytest --cov=./ --cov-report=xml

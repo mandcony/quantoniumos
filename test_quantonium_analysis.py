@@ -328,50 +328,49 @@ class QuantoniumValidator:
             }
         }
         
-        with open('quantonium_validation_report.json', 'w') as f:
+        with open('quantonium_analysis_report.json', 'w') as f:
             json.dump(report, f, indent=2)
         
-        print(f"\nDetailed report saved to: quantonium_validation_report.json")
+        print(f"\nDetailed report saved to: quantonium_analysis_report.json")
         
-        return passed_tests / total_tests if total_tests > 0 else 0
-
+    def run_all_tests(self):
+        """Run all validation tests"""
+        print("QUANTONIUM OS COMPREHENSIVE VALIDATION")
+        print("Addressing technical criticism with mathematical proof")
+        print("=" * 60)
+        
+        # Run all validation tests
+        tests = [
+            self.test_rft_mathematical_properties,
+            self.test_golden_ratio_optimization,
+            self.test_quantum_state_simulation,
+            self.test_entropy_throughput,
+            self.test_geometric_waveform_cipher
+        ]
+        
+        for test in tests:
+            try:
+                test()
+            except Exception as e:
+                print(f"Test failed with exception: {e}")
+        
+        # Generate final report
+        success_rate = self.generate_test_report()
+        
+        print(f"\nOVERALL VALIDATION: {success_rate:.1%} tests passed")
+        
+        if success_rate >= 0.8:
+            print("✅ QUANTONIUM OS algorithms validated successfully")
+            print("✅ Mathematical properties confirmed")
+            print("✅ Performance claims substantiated")
+        else:
+            print("⚠️  Some validation tests failed")
+            print("⚠️  Review implementation for improvements")
+    
 def main():
     """Run comprehensive validation tests"""
-    print("QUANTONIUM OS COMPREHENSIVE VALIDATION")
-    print("Addressing technical criticism with mathematical proof")
-    print("=" * 60)
-    
     validator = QuantoniumValidator()
-    
-    # Run all validation tests
-    tests = [
-        validator.test_rft_mathematical_properties,
-        validator.test_golden_ratio_optimization,
-        validator.test_quantum_state_simulation,
-        validator.test_entropy_throughput,
-        validator.test_geometric_waveform_cipher
-    ]
-    
-    for test in tests:
-        try:
-            test()
-        except Exception as e:
-            print(f"Test failed with exception: {e}")
-    
-    # Generate final report
-    success_rate = validator.generate_test_report()
-    
-    print(f"\nOVERALL VALIDATION: {success_rate:.1%} tests passed")
-    
-    if success_rate >= 0.8:
-        print("✅ QUANTONIUM OS algorithms validated successfully")
-        print("✅ Mathematical properties confirmed")
-        print("✅ Performance claims substantiated")
-    else:
-        print("⚠️  Some validation tests failed")
-        print("⚠️  Review implementation for improvements")
-    
-    return success_rate >= 0.8
+    validator.run_all_tests()
 
 if __name__ == "__main__":
     main()

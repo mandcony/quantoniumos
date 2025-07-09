@@ -5,8 +5,10 @@ USPTO Application #19/169,399
 
 import hashlib
 import math
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import logging
+import os
+import hmac
 
 logger = logging.getLogger(__name__)
 
@@ -14,10 +16,27 @@ logger = logging.getLogger(__name__)
 PHI = (1 + math.sqrt(5)) / 2
 
 class GeometricWaveformHash:
-    """Patent-protected geometric waveform hashing with golden ratio optimization."""
+    """
+    Patent-protected geometric waveform hashing with golden ratio optimization.
     
-    def __init__(self, waveform: List[float]):
+    This implementation includes a nonce to salt the hash, enhancing security against
+    predictability and collision attacks. The nonce should be a cryptographically
+    secure random byte string.
+    """
+    
+    def __init__(self, waveform: List[float], nonce: Optional[bytes] = None):
+        """
+        Initializes the hash generator.
+        
+        Args:
+            waveform (List[float]): The input signal.
+            nonce (Optional[bytes]): A random byte string used to salt the hash.
+                                     It is highly recommended to provide a nonce of
+                                     at least 16 bytes from a secure random source
+                                     (e.g., os.urandom(16)).
+        """
         self.waveform = waveform
+        self.nonce = nonce
         self.amplitude = 0.0
         self.phase = 0.0
         self.calculate_geometric_properties()
@@ -59,35 +78,57 @@ class GeometricWaveformHash:
                 self.phase = math.atan2(odd_sum, even_sum) / (2 * math.pi)
                 self.phase = (self.phase + 1.0) / 2.0  # Normalize to [0,1]
         
+        # If a nonce is provided, use it to perturb the geometric properties
+        # before applying the final golden ratio optimization. This salts the hash.
+        if self.nonce:
+            # Use the nonce to create a reproducible but unpredictable perturbation.
+            # The nonce is converted to an integer and used to derive two salt values.
+            if len(self.nonce) < 8:
+                raise ValueError("Nonce must be at least 8 bytes long for effective salting.")
+            
+            nonce_int = int.from_bytes(self.nonce, 'big')
+            
+            # Derive two independent salt values from the nonce.
+            salt1 = (nonce_int & 0xFFFFFFFF) / 0xFFFFFFFF  # Lower 32 bits
+            salt2 = ((nonce_int >> 32) & 0xFFFFFFFF) / 0xFFFFFFFF  # Next 32 bits
+            
+            self.amplitude = (self.amplitude + salt1)
+            self.phase = (self.phase + salt2)
+
         # Apply patent-protected golden ratio optimization
         self.amplitude = (self.amplitude * PHI) % 1.0
         self.phase = (self.phase * PHI) % 1.0
     
     def generate_hash(self) -> str:
-        """Generate cryptographic hash of the geometric waveform."""
-        # Generate 64-point waveform samples
-        samples = []
-        for i in range(64):
-            t = i / 64.0
-            value = self.amplitude * math.sin(2 * math.pi * t + self.phase * 2 * math.pi)
-            samples.append(round(value, 6))
+        """
+        Generate a cryptographic hash using an HMAC-SHA256 construction.
         
-        # Create hash input string including original waveform to ensure uniqueness
-        waveform_str = '_'.join(f"{x:.6f}" for x in self.waveform)
-        sample_str = '_'.join(str(s) for s in samples)
-        combined_data = f"{waveform_str}|{sample_str}|{self.amplitude:.8f}|{self.phase:.8f}"
+        The key is derived from the waveform's geometric properties (amplitude, phase)
+        and the optional nonce. The message is the waveform data itself. This binds the
+        waveform data to its geometric features, preventing collisions even if the
+        geometric prefix is identical.
+        """
+        # The key for the HMAC is a combination of the geometric properties and the nonce.
+        # This ensures that the hash is salted and tied to the waveform's unique geometry.
+        nonce_hex = self.nonce.hex() if self.nonce else ""
+        hmac_key = f"{self.amplitude:.17f}|{self.phase:.17f}|{nonce_hex}".encode('utf-8')
         
-        # Generate SHA-256 hash
-        sha256_hash = hashlib.sha256(combined_data.encode()).hexdigest()
+        # The message is the string representation of the raw waveform data.
+        waveform_str = '_'.join(f"{x:.17f}" for x in self.waveform)
+        hmac_message = waveform_str.encode('utf-8')
         
-        # Format final hash with higher precision to avoid collisions
-        hash_str = f"A{self.amplitude:.5f}_P{self.phase:.5f}_{sha256_hash}"
+        # Compute the HMAC-SHA256 digest.
+        hmac_digest = hmac.new(hmac_key, hmac_message, hashlib.sha256).hexdigest()
+        
+        # The final hash string includes a prefix of the geometric properties for
+        # quick filtering, but the security is guaranteed by the HMAC digest.
+        hash_str = f"A{self.amplitude:.5f}_P{self.phase:.5f}_{hmac_digest}"
         
         return hash_str
     
     def verify_hash(self, hash_str: str) -> bool:
         """Verify if the provided hash matches the current waveform."""
-        return hash_str == self.generate_hash()
+        return hmac.compare_digest(hash_str, self.generate_hash())
     
     def get_amplitude(self) -> float:
         """Get the calculated amplitude."""
@@ -97,20 +138,19 @@ class GeometricWaveformHash:
         """Get the calculated phase."""
         return self.phase
 
-def geometric_waveform_hash(waveform: List[float]) -> str:
-    """Generate geometric waveform hash using patent-protected algorithms."""
-    # Special handling for edge cases
-    if not waveform:
-        # Empty waveform
-        edge_hash = hashlib.sha256(b'\x00').hexdigest()
-        return f"A0.00000_P0.00000_{edge_hash}"
-    elif len(waveform) == 1:
-        # Single value - treat as DC component
-        avg_amp = abs(waveform[0])
-        edge_hash = hashlib.sha256(bytes([0])).hexdigest()
-        return f"A{avg_amp:.5f}_P0.00000_{edge_hash}"
-    
-    hasher = GeometricWaveformHash(waveform)
+def geometric_waveform_hash(waveform: List[float], nonce: Optional[bytes] = None) -> str:
+    """
+    Convenience function to compute the geometric waveform hash.
+
+    Args:
+        waveform (List[float]): The input signal.
+        nonce (Optional[bytes]): An optional nonce for salting. It is recommended
+                                 to use os.urandom(16) to generate a secure nonce.
+
+    Returns:
+        str: The computed hash string.
+    """
+    hasher = GeometricWaveformHash(waveform, nonce)
     return hasher.generate_hash()
 
 def generate_waveform_hash(waveform: List[float]) -> str:

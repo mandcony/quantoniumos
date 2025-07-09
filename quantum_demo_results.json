@@ -1,0 +1,182 @@
+{
+  "timestamp": "2025-07-08T19:24:10.000655",
+  "demonstrations": {
+    "superposition": {
+      "normalization": 0.9999999999999998,
+      "phases": [
+        {
+          "time": 0,
+          "state_0": {
+            "real": 0.7071067811865475,
+            "imag": 0.0
+          },
+          "state_1": {
+            "real": 0.7071067811865475,
+            "imag": 0.0
+          },
+          "probability_0": 0.4999999999999999,
+          "probability_1": 0.4999999999999999
+        },
+        {
+          "time": 1,
+          "state_0": {
+            "real": -0.03338965026973937,
+            "imag": 0.7063180100031886
+          },
+          "state_1": {
+            "real": -0.6123671732706494,
+            "imag": 0.3535625052243441
+          },
+          "probability_0": 0.4999999999999999,
+          "probability_1": 0.4999999999999999
+        },
+        {
+          "time": 2,
+          "state_0": {
+            "real": -0.7039534561872745,
+            "imag": -0.066704808837077
+          },
+          "state_1": {
+            "real": 0.35353516109615707,
+            "imag": -0.6123829601390899
+          },
+          "probability_0": 0.4999999999999999,
+          "probability_1": 0.4999999999999999
+        },
+        {
+          "time": 3,
+          "state_0": {
+            "real": 0.09987115018924421,
+            "imag": -0.7000183950153577
+          },
+          "state_1": {
+            "real": 3.157414386774793e-05,
+            "imag": 0.7071067804816139
+          },
+          "probability_0": 0.4999999999999999,
+          "probability_1": 0.4999999999999999
+        },
+        {
+          "time": 4,
+          "state_0": {
+            "real": 0.694521605537335,
+            "imag": 0.1328146808219726
+          },
+          "state_1": {
+            "real": -0.35358984864757936,
+            "imag": -0.6123513851812388
+          },
+          "probability_0": 0.5000000000000001,
+          "probability_1": 0.4999999999999999
+        }
+      ],
+      "superposition_valid": true
+    },
+    "entanglement": {
+      "correlation_rate": 0.3,
+      "measurements": [
+        {
+          "measurement": 0,
+          "qubit_a": 1,
+          "qubit_b": 1,
+          "correlated": true
+        },
+        {
+          "measurement": 1,
+          "qubit_a": 1,
+          "qubit_b": 0,
+          "correlated": false
+        },
+        {
+          "measurement": 2,
+          "qubit_a": 1,
+          "qubit_b": 1,
+          "correlated": true
+        },
+        {
+          "measurement": 3,
+          "qubit_a": 1,
+          "qubit_b": 0,
+          "correlated": false
+        },
+        {
+          "measurement": 4,
+          "qubit_a": 0,
+          "qubit_b": 0,
+          "correlated": true
+        }
+      ],
+      "entanglement_detected": false
+    },
+    "interference": {
+      "contrast": 0.9909074225312468,
+      "max_intensity": 1.1,
+      "min_intensity": 0.00502375705793108,
+      "interference_detected": true,
+      "pattern_sample": [
+        {
+          "position": 0.0,
+          "amplitude": 1.0,
+          "intensity": 1.1,
+          "phase_diff": 0.0
+        },
+        {
+          "position": 0.1,
+          "amplitude": 0.7176678693081286,
+          "intensity": 0.7884972645842355,
+          "phase_diff": 1.1203851518539378
+        },
+        {
+          "position": 0.2,
+          "amplitude": 0.1979094622327854,
+          "intensity": 0.21667315282747013,
+          "phase_diff": 2.2195340873620597
+        },
+        {
+          "position": 0.30000000000000004,
+          "amplitude": 0.004615521714398387,
+          "intensity": 0.00502375705793108,
+          "phase_diff": 3.2775726559421523
+        },
+        {
+          "position": 0.4,
+          "amplitude": 0.2892437617660995,
+          "intensity": 0.3123186745775851,
+          "phase_diff": 4.2772764198564825
+        }
+      ]
+    },
+    "tunneling": {
+      "barrier_height": 5.0,
+      "quantum_events": 5,
+      "tunneling_demonstrated": true,
+      "results": [
+        {
+          "energy": 1.0,
+          "transmission": 1.2146837713855102e-05,
+          "classical_allowed": false
+        },
+        {
+          "energy": 2.0,
+          "transmission": 5.0033183018629854e-05,
+          "classical_allowed": false
+        },
+        {
+          "energy": 3.0,
+          "transmission": 0.0003402006730444226,
+          "classical_allowed": false
+        },
+        {
+          "energy": 4.0,
+          "transmission": 0.0038366204480475502,
+          "classical_allowed": false
+        },
+        {
+          "energy": 4.5,
+          "transmission": 0.019308367321167207,
+          "classical_allowed": false
+        }
+      ]
+    }
+  }
+}

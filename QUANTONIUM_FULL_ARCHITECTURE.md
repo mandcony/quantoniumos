@@ -155,6 +155,18 @@ class AdvancedMonitoring:
 - Isolated computation
 - Resource management
 
+### 6.1. 100-Qubit State-Vector Simulator
+
+The quantum simulator is a key component of the QuantoniumOS backend. It employs a hybrid strategy to balance performance and resource consumption, enabling the simulation of a high number of qubits on a single node.
+
+#### Simulation Strategy:
+- **Dense State-Vector Simulation (for N ≤ 28 qubits):** For circuits with 28 or fewer qubits, the simulator uses a standard dense state-vector representation. The state of the system is stored as a complex vector of size 2^N, allowing for precise and fast operations on smaller quantum systems.
+- **Sparse State-Vector Simulation (for N > 28 qubits):** When the number of qubits exceeds 28, the memory requirements for a dense vector become prohibitive. The simulator automatically switches to a sparse representation. In this mode, only the non-zero amplitudes of the state vector are stored in a dictionary or a similar hash map structure. This approach is highly effective for quantum states that are not maximally entangled and have a limited number of significant basis states.
+
+#### Resource Bounds:
+- The sparse simulator is configured with a maximum limit of **10^6 (one million) non-zero states**. If a simulation exceeds this limit, it will terminate with an error, preventing uncontrolled memory consumption. This bound allows for the simulation of large, but not fully random, quantum circuits, which is typical for many quantum algorithms.
+- This hybrid approach allows QuantoniumOS to claim support for up to 100 qubits under the condition that the quantum state remains sparse enough to fit within the defined resource limits.
+
 ### 7. Applications (`apps/`)
 
 #### Quantum Applications:

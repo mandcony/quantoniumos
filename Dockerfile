@@ -58,4 +58,4 @@ USER quant
 EXPOSE 5000
 
 # Run with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--limit-request-line", "16384", "--reuse-port", "--reload", "main:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--worker-class", "gevent", "--limit-request-line", "16384", "--reuse-port", "--reload", "app:app"]

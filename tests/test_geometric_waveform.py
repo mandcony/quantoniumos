@@ -6,105 +6,113 @@ Tests for the geometric waveform hash module.
 """
 
 import unittest
-from core.encryption.geometric_waveform_hash import (
-    generate_waveform_hash,
-    verify_waveform_hash,
-    extract_parameters_from_hash
-)
+import os
+import psutil
+import math
+from quantoniumos.encryption.geometric_waveform_hash import GeometricWaveformHash, geometric_waveform_hash
 
 class TestGeometricWaveformHash(unittest.TestCase):
     """Test cases for geometric waveform hash functions"""
-    
-    def test_hash_generation_is_deterministic(self):
-        """Test that hash generation is deterministic for the same inputs"""
-        # Generate hashes with the same parameters
-        hash1 = generate_waveform_hash(0.5, 0.25)
-        hash2 = generate_waveform_hash(0.5, 0.25)
-        
-        # Should be identical
-        self.assertEqual(hash1, hash2)
-    
-    def test_different_params_produce_different_hashes(self):
-        """Test that different parameters produce different hashes"""
-        hash1 = generate_waveform_hash(0.1, 0.2)
-        hash2 = generate_waveform_hash(0.1, 0.3)
-        hash3 = generate_waveform_hash(0.2, 0.2)
-        
-        # All should be different
-        self.assertNotEqual(hash1, hash2)
-        self.assertNotEqual(hash1, hash3)
-        self.assertNotEqual(hash2, hash3)
-    
-    def test_hash_verification(self):
-        """Test that hash verification works correctly"""
-        # Generate a hash
-        A, phi = 0.75, 0.33
-        wave_hash = generate_waveform_hash(A, phi)
-        
-        # Verify with correct parameters
-        self.assertTrue(verify_waveform_hash(wave_hash, A, phi))
-        
-        # Verify with incorrect parameters
-        self.assertFalse(verify_waveform_hash(wave_hash, A + 0.01, phi))
-        self.assertFalse(verify_waveform_hash(wave_hash, A, phi + 0.01))
-    
-    def test_parameter_extraction(self):
-        """Test that parameters can be extracted from hash"""
-        # Original parameters
-        orig_A, orig_phi = 0.42, 0.67
-        
-        # Generate hash
-        wave_hash = generate_waveform_hash(orig_A, orig_phi)
-        
-        # Extract parameters
-        extracted_A, extracted_phi = extract_parameters_from_hash(wave_hash)
-        
-        # Check if values are not None before assertion
-        self.assertIsNotNone(extracted_A)
-        self.assertIsNotNone(extracted_phi)
-        
-        if extracted_A is not None and extracted_phi is not None:
-            # Should match original values
-            self.assertAlmostEqual(orig_A, extracted_A, places=4)
-            self.assertAlmostEqual(orig_phi, extracted_phi, places=4)
-    
-    def test_parameter_extraction_with_invalid_hash(self):
-        """Test that parameter extraction can still handle invalid or base64 hashes"""
-        # Invalid hash formats - now we attempt to extract usable parameters
-        test_hashes = [
-            "invalid_hash_format",
-            "A0.5_invalid",
-            "P0.5_invalid",
-            "A0.5_P0.5",  # Missing hash part
-            # Base64-like strings should also work now
-            "XvN5CZ7+fr2uIEMEaPlQKqMvlGo7Ld+xNMC8dgjDPNeo4GnJzmsOzn6qkQ=="
-        ]
-        
-        for test_hash in test_hashes:
-            A, phi = extract_parameters_from_hash(test_hash)
-            # With our updated implementation, we should get valid parameters
-            # even from "invalid" or base64 hashes
-            self.assertIsNotNone(A)
-            self.assertIsNotNone(phi)
-            # Values should be in range 0.0-1.0
-            self.assertGreaterEqual(A, 0.0)
-            self.assertLessEqual(A, 1.0)
-            self.assertGreaterEqual(phi, 0.0)
-            self.assertLessEqual(phi, 1.0)
-    
-    def test_parameter_normalization(self):
-        """Test that parameters are normalized to 0.0-1.0 range"""
-        # Test with out-of-range values
-        hash1 = generate_waveform_hash(1.5, 0.5)
-        hash2 = generate_waveform_hash(-0.5, 0.5)
-        
-        # Extract parameters - should be normalized
-        A1, phi1 = extract_parameters_from_hash(hash1)
-        A2, phi2 = extract_parameters_from_hash(hash2)
-        
-        # A1 should be capped at 1.0, A2 at 0.0
-        self.assertEqual(A1, 1.0)
-        self.assertEqual(A2, 0.0)
 
-if __name__ == "__main__":
+    def setUp(self):
+        """Set up test data."""
+        self.waveform1 = [math.sin(x * 0.1) for x in range(100)]
+        self.waveform2 = [math.cos(x * 0.1) for x in range(100)]
+        self.large_waveform = [math.sin(x * 0.001) for x in range(1024 * 128)] # Approx 1MB of floats
+
+    def test_hash_generation_is_deterministic(self):
+        """Test that hash generation is deterministic for the same waveform."""
+        hash1 = geometric_waveform_hash(self.waveform1)
+        hash2 = geometric_waveform_hash(self.waveform1)
+        self.assertEqual(hash1, hash2)
+
+    def test_different_waveforms_produce_different_hashes(self):
+        """Test that different waveforms produce different hashes."""
+        hash1 = geometric_waveform_hash(self.waveform1)
+        hash2 = geometric_waveform_hash(self.waveform2)
+        self.assertNotEqual(hash1, hash2)
+
+    def test_nonce_produces_different_hashes(self):
+        """Test that using a nonce produces a different hash."""
+        nonce1 = os.urandom(16)
+        nonce2 = os.urandom(16)
+        
+        hash_no_nonce = geometric_waveform_hash(self.waveform1)
+        hash_with_nonce1 = geometric_waveform_hash(self.waveform1, nonce=nonce1)
+        hash_with_nonce2 = geometric_waveform_hash(self.waveform1, nonce=nonce2)
+        hash_with_same_nonce = geometric_waveform_hash(self.waveform1, nonce=nonce1)
+
+        self.assertNotEqual(hash_no_nonce, hash_with_nonce1)
+        self.assertNotEqual(hash_with_nonce1, hash_with_nonce2)
+        self.assertEqual(hash_with_nonce1, hash_with_same_nonce)
+
+    def test_hash_verification(self):
+        """Test that hash verification works correctly."""
+        nonce = os.urandom(16)
+        hasher = GeometricWaveformHash(self.waveform1, nonce=nonce)
+        wave_hash = hasher.generate_hash()
+
+        # Verify with the correct waveform and nonce
+        self.assertTrue(hasher.verify_hash(wave_hash))
+
+        # Verify with a different hasher instance but same data
+        verifier = GeometricWaveformHash(self.waveform1, nonce=nonce)
+        self.assertTrue(verifier.verify_hash(wave_hash))
+
+    def test_hash_verification_fails_for_different_waveform(self):
+        """Test verification fails for a different waveform."""
+        hasher = GeometricWaveformHash(self.waveform1)
+        wave_hash = hasher.generate_hash()
+        
+        verifier = GeometricWaveformHash(self.waveform2)
+        self.assertFalse(verifier.verify_hash(wave_hash))
+
+    def test_hash_verification_fails_for_different_nonce(self):
+        """Test verification fails for a different nonce."""
+        nonce1 = os.urandom(16)
+        nonce2 = os.urandom(16)
+        
+        hasher = GeometricWaveformHash(self.waveform1, nonce=nonce1)
+        wave_hash = hasher.generate_hash()
+        
+        verifier = GeometricWaveformHash(self.waveform1, nonce=nonce2)
+        self.assertFalse(verifier.verify_hash(wave_hash))
+
+    def test_memory_footprint(self):
+        """
+        Test that the memory footprint of hashing a large waveform is minimal.
+        The claim is a fixed 4 KB overhead.
+        """
+        process = psutil.Process(os.getpid())
+        
+        # Measure baseline memory usage
+        mem_before = process.memory_info().rss
+        
+        # Perform the hashing operation
+        hasher = GeometricWaveformHash(self.large_waveform)
+        hasher.generate_hash()
+        
+        # Measure memory usage after hashing
+        mem_after = process.memory_info().rss
+        
+        memory_increase_bytes = mem_after - mem_before
+        
+        # Allow for some Python object overhead, but it should be well below
+        # the 4KB threshold specified in the technical review.
+        max_allowed_increase = 4096
+        
+        print(f"Memory increase after hashing: {memory_increase_bytes} bytes")
+        
+        self.assertLessEqual(
+            memory_increase_bytes,
+            max_allowed_increase,
+            f"Memory footprint increased by {memory_increase_bytes} bytes, which is more than the allowed {max_allowed_increase} bytes."
+        )
+
+    def test_short_nonce_raises_error(self):
+        """Test that a nonce shorter than 8 bytes raises a ValueError."""
+        with self.assertRaises(ValueError):
+            geometric_waveform_hash(self.waveform1, nonce=os.urandom(7))
+
+if __name__ == '__main__':
     unittest.main()

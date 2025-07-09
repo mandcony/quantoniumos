@@ -8,15 +8,21 @@ import os
 import uuid
 import secrets
 from datetime import datetime, timedelta
+from typing import Dict, Any, List
 import jwt
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from auth.secret_manager import encrypt_secret, decrypt_secret, generate_jwt_secret, schedule_key_rotation
+from auth.secret_manager import encrypt_secret, decrypt_secret, generate_jwt_secret
 
 db = SQLAlchemy()
+
+# --- Key Management Constants ---
+ACTIVE_KEY_STATUS = "active"
+SUPERSEDED_KEY_STATUS = "superseded"
+REVOKED_KEY_STATUS = "revoked"
 
 class APIKey(db.Model):
     """API Key model for authenticated API access"""
@@ -47,8 +53,9 @@ class APIKey(db.Model):
     # Usage statistics
     use_count = Column(Integer, default=0)
     
-    # JWT secret used for signing tokens
-    jwt_secret = Column(Text, nullable=False)
+    # JWT secret management for key rotation
+    # Stores a list of dictionaries: [{"kid": "...", "secret": "...", "status": "...", "expires": "..."}]
+    jwt_secrets = Column(JSON, nullable=False)
     
     # Audit log relationship - one key can have many audit logs
     audit_logs = relationship("APIKeyAuditLog", back_populates="api_key")
@@ -86,6 +93,16 @@ class APIKey(db.Model):
         jwt_secret = generate_jwt_secret()
         encrypted_jwt_secret = encrypt_secret(jwt_secret)
         
+        # Create the initial secret entry with a unique key ID (kid)
+        kid = str(uuid.uuid4())
+        secrets_list = [{
+            "kid": kid,
+            "secret": encrypted_jwt_secret,
+            "status": ACTIVE_KEY_STATUS,
+            "created": datetime.utcnow().isoformat(),
+            "expires": (datetime.utcnow() + timedelta(days=90)).isoformat()
+        }]
+        
         # Calculate expiration
         expires_at = None
         if expires_in_days:
@@ -100,14 +117,8 @@ class APIKey(db.Model):
             is_admin=is_admin,
             permissions=permissions,
             expires_at=expires_at,
-            jwt_secret=encrypted_jwt_secret
+            jwt_secrets=secrets_list
         )
-        
-        # Schedule key rotation if expiration is set
-        if expires_in_days:
-            # Schedule at 75% of expiry time or 90 days, whichever is shorter
-            rotation_days = min(int(expires_in_days * 0.75), 90)
-            schedule_key_rotation(str(uuid.uuid4()), rotation_days)
         
         # Add and return
         db.session.add(key)
@@ -143,9 +154,15 @@ class APIKey(db.Model):
         now = datetime.utcnow()
         expiry = now + timedelta(minutes=expiry_minutes)
         
+        active_secret_info = self.get_active_secret()
+        if not active_secret_info:
+            raise ValueError("No active JWT secret found for this API key.")
+
+        kid = active_secret_info['kid']
+        
         payload = {
             'sub': self.key_id,
-            'kid': self.key_id,
+            'kid': kid, # Use the specific kid for this secret
             'prefix': self.key_prefix, 
             'permissions': self.permissions,
             'is_admin': self.is_admin,
@@ -154,71 +171,96 @@ class APIKey(db.Model):
         }
         
         # Decrypt the JWT secret for use
-        secret = decrypt_secret(self.jwt_secret)
+        secret = decrypt_secret(active_secret_info['secret'])
         if not secret:
-            # Fallback to using the encrypted value directly if decryption fails
-            # This maintains backward compatibility with existing keys
-            secret = self.jwt_secret
+            raise ValueError("Failed to decrypt JWT secret.")
             
         token = jwt.encode(
             payload,
             secret,
-            algorithm='HS256'
+            algorithm='HS256',
+            headers={'kid': kid} # Explicitly set kid in header
         )
         
         return token
     
-    def verify_token(self, token):
-        """Verify a JWT token created by this key"""
+    def get_secret_by_kid(self, kid: str) -> Dict[str, Any]:
+        """Find a secret dictionary by its kid."""
+        for secret_info in self.jwt_secrets:
+            if secret_info.get("kid") == kid:
+                return secret_info
+        return None
+
+    def get_active_secret(self) -> Dict[str, Any]:
+        """Get the currently active secret."""
+        for secret_info in self.jwt_secrets:
+            if secret_info.get("status") == ACTIVE_KEY_STATUS:
+                return secret_info
+        return None
+
+    def verify_token(self, token: str, required_kid: str) -> Dict[str, Any]:
+        """Verify a JWT token created by this key, ensuring the KID matches."""
         try:
+            secret_info = self.get_secret_by_kid(required_kid)
+            if not secret_info:
+                return None # KID from token not found for this API key
+
             # Decrypt the JWT secret for verification
-            secret = decrypt_secret(self.jwt_secret)
+            secret = decrypt_secret(secret_info['secret'])
             if not secret:
-                # Fallback to using the encrypted value directly if decryption fails
-                # This maintains backward compatibility with existing keys
-                secret = self.jwt_secret
+                return None # Decryption failed
                 
             payload = jwt.decode(
                 token,
                 secret,
-                algorithms=['HS256']
+                algorithms=['HS256'],
+                options={"require": ["exp", "iat", "sub", "kid"]}
             )
             
             # Basic validation
-            if payload['sub'] != self.key_id:
-                return False
+            if payload['sub'] != self.key_id or payload['kid'] != required_kid:
+                return None
                 
             # Check if key was revoked after token was issued
             if self.revoked and self.revoked_at:
                 token_iat = datetime.utcfromtimestamp(payload['iat'])
                 if token_iat < self.revoked_at:
-                    return False
+                    return None
             
             return payload
         except jwt.PyJWTError:
-            return False
+            return None
             
-    def rotate(self, keep_name=True):
+    def rotate_jwt_secret(self) -> str:
         """
-        Rotate this API key, generating a new one to replace it
-        Returns the new API key
+        Rotates the JWT secret for this API key.
+        The old key is marked as 'superseded' and a new 'active' key is created.
+        Returns the KID of the new active secret.
         """
-        # Create a new key with the same attributes
-        new_key, raw_key = self.__class__.create(
-            name=self.name if keep_name else f"{self.name} (Rotated)",
-            description=f"Rotated from key {self.key_id} on {datetime.utcnow().isoformat()}",
-            expires_in_days=(self.expires_at - datetime.utcnow()).days if self.expires_at else None,
-            permissions=self.permissions,
-            is_admin=self.is_admin
-        )
+        now = datetime.utcnow()
+        new_kid = str(uuid.uuid4())
+        new_secret = encrypt_secret(generate_jwt_secret())
         
-        # Mark the old key as rotated
-        self.description = f"{self.description or ''}\nRotated to {new_key.key_id} on {datetime.utcnow().isoformat()}"
-        self.is_active = False
+        new_secrets_list = []
+        for s in self.jwt_secrets:
+            if s['status'] == ACTIVE_KEY_STATUS:
+                s['status'] = SUPERSEDED_KEY_STATUS
+                s['expires'] = (now + timedelta(days=7)).isoformat() # Grace period for old tokens
+            new_secrets_list.append(s)
+            
+        new_secrets_list.append({
+            "kid": new_kid,
+            "secret": new_secret,
+            "status": ACTIVE_KEY_STATUS,
+            "created": now.isoformat(),
+            "expires": (now + timedelta(days=90)).isoformat()
+        })
+        
+        # Prune old superseded keys
+        self.jwt_secrets = [s for s in new_secrets_list if datetime.fromisoformat(s['expires']) > now]
         db.session.commit()
-        
-        return new_key, raw_key
-    
+        return new_kid
+
     def has_permission(self, permission):
         """Check if this key has a specific permission"""
         if not self.is_active or self.revoked:

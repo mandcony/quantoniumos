@@ -11,7 +11,7 @@ services:
     read_only: true  # Run container in read-only mode
     security_opt:
       - no-new-privileges:true  # Prevent privilege escalation
-      - seccomp:./seccomp.json  # Apply seccomp profile
+      - seccomp:./docs/security/seccomp.json  # Apply seccomp profile
     cap_drop:
       - ALL  # Drop all capabilities
     cap_add: []  # Don't add any capabilities back

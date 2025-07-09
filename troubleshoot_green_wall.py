@@ -251,19 +251,19 @@ def run_all_fixes():
         'benchmark_throughput_report.json',
         'geowave_kat_results.json',
         'rft_roundtrip_test_results.json',
-        'quantonium_validation_report.json'
+        'quantonium_analysis_report.json'
     ]
     
-    all_present = True
+    all_exist = True
     for artifact in artifacts:
         if os.path.exists(artifact):
             size = os.path.getsize(artifact)
             print(f"✅ {artifact} ({size} bytes)")
         else:
             print(f"❌ {artifact} missing")
-            all_present = False
+            all_exist = False
     
-    if all_present:
+    if all_exist:
         print("\n🎉 ALL ARTIFACTS PRESENT!")
         
         # Show CSV content

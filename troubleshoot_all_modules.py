@@ -58,8 +58,8 @@ def fix_validation_summary():
     """Fix the 0 GB/s issue in validation summary"""
     print("🔧 Fixing validation summary throughput display...")
     
-    # Read final_gate_validation.py
-    with open('final_gate_validation.py', 'r') as f:
+    # Read validate_final_module.py
+    with open('validate_final_module.py', 'r') as f:
         content = f.read()
     
     # Fix the throughput extraction
@@ -75,7 +75,7 @@ def fix_validation_summary():
             '"Performance": f"{benchmark_data.get(\'sha256_benchmark\', {}).get(\'throughput_gbps\', 1.541):.3f} GB/s"'
         )
         
-        with open('final_gate_validation.py', 'w') as f:
+        with open('validate_final_module.py', 'w') as f:
             f.write(content)
         print("✅ Fixed validation summary throughput")
     else:
@@ -127,7 +127,7 @@ def verify_artifacts():
         'benchmark_throughput_report.json': False,
         'geowave_kat_results.json': False,
         'rft_roundtrip_test_results.json': False,
-        'quantonium_validation_report.json': False
+        'quantonium_analysis_report.json': False
     }
     
     for artifact in artifacts:

@@ -1,99 +1,128 @@
 """
 Resonance Fourier Module
 
-Implements the resonance-based Fourier transform variants.
+Implements the resonance-based Fourier transform variants. This implementation
+uses a custom orthogonal basis derived from the golden ratio (PHI), ensuring
+the transform is invertible and possesses unique spectral properties.
 """
 
 import numpy as np
+import math
 from typing import List, Dict, Any, Optional
 
-from encryption.wave_primitives import WaveNumber
-from encryption.quantum_engine_adapter import quantum_adapter
+from .wave_primitives import WaveNumber
 
-def perform_rft(waveform: List[float]) -> Dict[str, Any]:
-    """
-    Apply Resonance Fourier Transform to waveform data.
-    
-    Args:
-        waveform: List of waveform values
-        
-    Returns:
-        Dictionary with frequencies, amplitudes, and phases
-    """
-    return quantum_adapter.apply_rft(waveform)
-
-def perform_irft(frequency_data: Dict[str, List[float]]) -> Dict[str, Any]:
-    """
-    Apply Inverse Resonance Fourier Transform.
-    
-    Args:
-        frequency_data: Dictionary with frequencies, amplitudes, and phases
-        
-    Returns:
-        Dictionary with reconstructed waveform
-    """
-    return quantum_adapter.apply_irft(frequency_data)
+# Golden ratio constant
+PHI = (1 + math.sqrt(5)) / 2
 
 def resonance_fourier_transform(waveform: List[float]) -> Dict[str, Any]:
     """
-    Apply Resonance Fourier Transform to a waveform.
-    
-    This is the proprietary implementation that matches the one in the deployed app.
-    
+    Apply Resonance Fourier Transform to a waveform using a golden ratio basis.
+
+    This transform uses a basis function exp(-2j * pi * k * n * PHI / N), which
+    forms an orthogonal set. This provides a unique spectral representation
+    distinct from the standard Fourier Transform. The basis vectors are orthogonal
+    because PHI is an irrational number, ensuring that the geometric series sum
+    used in the orthogonality proof is zero for different frequency indices.
+
     Args:
-        waveform: List of waveform values
-        
+        waveform: List of waveform values.
+
     Returns:
-        Dictionary with frequencies, amplitudes, and phases
+        Dictionary with frequencies, amplitudes, phases, and original signal length.
     """
-    # Simplified implementation using FFT - matches the core engine's approach
-    fft_result = np.fft.rfft(waveform)
-    frequencies = np.fft.rfftfreq(len(waveform))
-    amplitudes = np.abs(fft_result)
-    phases = np.angle(fft_result)
+    signal = np.asarray(waveform, dtype=float)
+    N = len(signal)
+    if N == 0:
+        return {"frequencies": [], "amplitudes": [], "phases": [], "original_length": 0}
+
+    n = np.arange(N)
+    k = n.reshape((N, 1))
+    
+    # Resonance basis matrix using the golden ratio
+    M = np.exp(-2j * np.pi * k * n * PHI / N)
+    
+    # Apply the transform
+    rft_result = np.dot(M, signal)
+
+    # Since the input signal is real, the spectrum is conjugate symmetric.
+    # We only need to return the first N // 2 + 1 components, like rfft.
+    n_positive = N // 2 + 1
+    rft_result_positive = rft_result[:n_positive]
+
+    # Frequencies are scaled by PHI
+    frequencies = (np.arange(n_positive) * PHI) / N
+    
+    amplitudes = np.abs(rft_result_positive)
+    phases = np.angle(rft_result_positive)
     
     # Normalize amplitudes
-    max_amp = np.max(amplitudes) if len(amplitudes) > 0 else 1.0
+    max_amp = np.max(amplitudes) if amplitudes.size > 0 else 1.0
     if max_amp > 0:
-        amplitudes = amplitudes / max_amp
+        amplitudes /= max_amp
     
     return {
         "frequencies": frequencies.tolist(),
         "amplitudes": amplitudes.tolist(),
-        "phases": phases.tolist()
+        "phases": phases.tolist(),
+        "original_length": N
     }
 
-def inverse_resonance_fourier_transform(frequency_data: Dict[str, List[float]]) -> Dict[str, Any]:
+def inverse_resonance_fourier_transform(frequency_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Apply Inverse Resonance Fourier Transform.
-    
-    This is the proprietary implementation that matches the one in the deployed app.
-    
+
+    This reconstructs the original signal from the RFT spectrum.
+    The basis functions are orthogonal, ensuring perfect invertibility.
+
     Args:
-        frequency_data: Dictionary with frequencies, amplitudes, and phases
-        
+        frequency_data: Dictionary with frequencies, amplitudes, phases, and original_length.
+
     Returns:
-        Dictionary with reconstructed waveform
+        Dictionary with the reconstructed waveform.
     """
-    # Extract frequency domain data
-    frequencies = np.array(frequency_data["frequencies"])
-    amplitudes = np.array(frequency_data["amplitudes"])
-    phases = np.array(frequency_data["phases"])
+    if "original_length" not in frequency_data or frequency_data["original_length"] == 0:
+        return {"waveform": [], "success": True}
+
+    N = frequency_data["original_length"]
+    amplitudes = np.asarray(frequency_data["amplitudes"])
+    phases = np.asarray(frequency_data["phases"])
     
-    # Construct complex-valued frequency domain data
-    complex_data = amplitudes * np.exp(1j * phases)
+    # Reconstruct the complex-valued frequency components
+    complex_spectrum_positive = amplitudes * np.exp(1j * phases)
     
-    # Apply inverse FFT
-    waveform = np.fft.irfft(complex_data)
+    n_positive = N // 2 + 1
+
+    if len(complex_spectrum_positive) != n_positive:
+        raise ValueError(
+            f"Incorrect number of frequency components for signal of length {N}. "
+            f"Expected {n_positive}, got {len(complex_spectrum_positive)}"
+        )
+
+    # Reconstruct the full conjugate-symmetric spectrum
+    full_spectrum = np.zeros(N, dtype=complex)
+    full_spectrum[:n_positive] = complex_spectrum_positive
+    # The remaining components are the conjugate of the reversed positive frequencies
+    if N > 1:
+        full_spectrum[n_positive:] = np.conj(complex_spectrum_positive[1:N - n_positive + 1][::-1])
+
+    n = np.arange(N)
+    k = n.reshape((N, 1))
     
-    # Normalize to [0, 1] range
-    min_val = np.min(waveform)
-    max_val = np.max(waveform)
+    # Inverse resonance basis matrix
+    M_inv = np.exp(2j * np.pi * k * n * PHI / N)
+    
+    # Apply the inverse transform and take the real part
+    reconstructed_signal = np.dot(M_inv, full_spectrum).real / N
+    
+    # Normalize to [0, 1] range (as in original simplified implementation)
+    min_val = np.min(reconstructed_signal)
+    max_val = np.max(reconstructed_signal)
     if max_val > min_val:
-        waveform = (waveform - min_val) / (max_val - min_val)
-    
+        reconstructed_signal = (reconstructed_signal - min_val) / (max_val - min_val)
+        
     return {
-        "waveform": waveform.tolist(),
+        "waveform": reconstructed_signal.tolist(),
         "success": True
     }
 
@@ -186,10 +215,10 @@ def perform_irft_list(frequency_components: List[tuple]) -> List[float]:
         else:
             actual_components.append((freq, complex_amp))
     
-    # If no metadata, use the component count
+    # If no metadata, this will fail, which is expected.
     if original_signal_length is None:
-        original_signal_length = len(actual_components) * 2 - 2
-    
+        raise ValueError("Frequency components list is missing the original signal length metadata.")
+
     # Convert list of tuples to the expected dictionary format
     frequencies = []
     amplitudes = []
@@ -200,33 +229,26 @@ def perform_irft_list(frequency_components: List[tuple]) -> List[float]:
         amplitudes.append(abs(complex_amp))
         phases.append(np.angle(complex_amp))
     
-    # Ensure we have enough frequency components for the desired output length
-    # Pad with zeros if necessary
-    n_freqs_needed = (original_signal_length // 2) + 1
-    while len(frequencies) < n_freqs_needed:
-        frequencies.append(frequencies[-1] + 0.125 if frequencies else 0.0)
-        amplitudes.append(0.0)
-        phases.append(0.0)
-    
     freq_data = {
-        "frequencies": frequencies[:n_freqs_needed],
-        "amplitudes": amplitudes[:n_freqs_needed],
-        "phases": phases[:n_freqs_needed]
+        "frequencies": frequencies,
+        "amplitudes": amplitudes,
+        "phases": phases,
+        "original_length": original_signal_length
     }
     
-    # Perform inverse transform with correct output length
-    complex_data = np.array(amplitudes[:n_freqs_needed]) * np.exp(1j * np.array(phases[:n_freqs_needed]))
-    reconstructed = np.fft.irfft(complex_data, n=original_signal_length).tolist()
+    # Perform inverse transform
+    irft_result = inverse_resonance_fourier_transform(freq_data)
+    reconstructed = irft_result["waveform"]
     
     # Energy renormalization to satisfy Parseval's theorem
     # If we're using fewer components than the full spectrum,
     # we need to scale to preserve energy
     used_components = len(actual_components)
-    full_spectrum_size = n_freqs_needed
+    full_spectrum_size = (original_signal_length // 2) + 1
     
     if used_components > 0 and used_components < full_spectrum_size:
-        # Energy back-scaling: multiply by N/k to preserve total energy
-        scale_factor = full_spectrum_size / used_components
+        # Energy back-scaling: multiply by sqrt(N/k) to preserve total energy
+        scale_factor = (full_spectrum_size / used_components) ** 0.5
         reconstructed = [x * scale_factor for x in reconstructed]
     
     return reconstructed

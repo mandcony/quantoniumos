@@ -9,7 +9,6 @@ in the database.
 import os
 import base64
 import secrets
-from datetime import datetime, timedelta
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -23,7 +22,6 @@ PBKDF2_ITERATIONS = 100000
 
 # Cache the encryption key to avoid repeated derivation
 _encryption_key = None
-_key_rotation_schedule = {}
 
 
 def get_master_key():
@@ -145,36 +143,3 @@ def generate_jwt_secret():
         A 64-character hex string (32 bytes)
     """
     return secrets.token_hex(32)
-
-
-def schedule_key_rotation(key_id, days=90):
-    """
-    Schedule a key for rotation.
-    
-    Args:
-        key_id: The ID of the key to rotate
-        days: Number of days until rotation
-    """
-    global _key_rotation_schedule
-    
-    rotation_date = datetime.utcnow() + timedelta(days=days)
-    _key_rotation_schedule[key_id] = rotation_date
-
-
-def get_keys_due_for_rotation():
-    """
-    Get a list of key IDs that are due for rotation.
-    
-    Returns:
-        List of key IDs
-    """
-    global _key_rotation_schedule
-    
-    now = datetime.utcnow()
-    due_keys = [key_id for key_id, date in _key_rotation_schedule.items() if date <= now]
-    
-    # Remove rotated keys from schedule
-    for key_id in due_keys:
-        _key_rotation_schedule.pop(key_id, None)
-    
-    return due_keys

@@ -78,7 +78,7 @@
 **🔧 VALIDATE YOURSELF:**
 ```bash
 # 1. Run comprehensive validation
-python test_quantonium_validation.py
+python test_quantonium_analysis.py
 
 # 2. Run fixed RFT tests
 python tests/test_rft_roundtrip.py
@@ -94,7 +94,7 @@ python benchmark_throughput.py
 ```
 
 **📊 VALIDATION ARTIFACTS:**
-- `quantonium_validation_report.json` - 100% test success
+- `quantonium_analysis_report.json` - 100% test success
 - `rft_roundtrip_test_results.json` - Mathematical correctness
 - `geowave_kat_results.json` - Geometric cipher validation
 - `benchmark_throughput_report.json` - 1.355 GB/s performance
