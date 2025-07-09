@@ -45,3 +45,4 @@ core/protected/
 .breakpoints
 replit.nix
 .config/.semgrep/
+.config/
