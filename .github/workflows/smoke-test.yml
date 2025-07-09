@@ -28,7 +28,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -41,22 +41,33 @@ jobs:
           pip install -r requirements.txt
           pip install requests
           
+      - name: Initialize database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
+          SESSION_SECRET: smoke_test_secret
+        run: |
+          # Initialize database with required tables
+          python scripts/init_db.py
+          
       - name: Create API key for testing
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
+          SESSION_SECRET: smoke_test_secret
         run: |
           # Start the server in the background
-          export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/quantonium_test"
-          export SESSION_SECRET="smoke_test_secret"
           gunicorn --bind 0.0.0.0:5000 main:app --daemon
           
           # Wait for the server to start
           sleep 5
           
-          # Create an API key using the CLI tool
-          python -m auth.cli create --name "Smoke Test Key" --admin
-          
-          # Extract the key from output (this is a simplified approach)
-          QUANTONIUM_API_KEY=$(python -m auth.cli list | grep -oP 'key_[a-zA-Z0-9]+' | head -1)
-          echo "QUANTONIUM_API_KEY=$QUANTONIUM_API_KEY" >> $GITHUB_ENV
+          # Use the API key created during database initialization
+          if [ -f ".env.test" ]; then
+            source .env.test
+            echo "QUANTONIUM_API_KEY=$QUANTONIUM_API_KEY" >> $GITHUB_ENV
+          else
+            echo "Error: Test API key not found"
+            exit 1
+          fi
           
       - name: Run smoke tests
         env:

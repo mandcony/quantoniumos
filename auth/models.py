@@ -49,6 +49,7 @@ class APIKey(db.Model):
     expires_at = Column(DateTime, nullable=True)
     revoked_at = Column(DateTime, nullable=True)
     last_used_at = Column(DateTime, nullable=True)
+    last_rotated_at = Column(DateTime, nullable=True)
     
     # Usage statistics
     use_count = Column(Integer, default=0)
@@ -123,6 +124,13 @@ class APIKey(db.Model):
         # Add and return
         db.session.add(key)
         db.session.commit()
+        
+        # Log the creation of the API key
+        APIKeyAuditLog.log(
+            api_key=key,
+            action="created",
+            details="API key created"
+        )
         
         return key, raw_key
     
@@ -261,6 +269,65 @@ class APIKey(db.Model):
         db.session.commit()
         return new_kid
 
+    def rotate(self):
+        """
+        Rotate the API key by creating a new key and deactivating the old one.
+        
+        Returns:
+            Tuple of (new APIKey object, new raw key)
+        """
+        # Generate new key material
+        new_raw_key = self.generate_key()
+        new_key_prefix = new_raw_key.split('.')[0]
+        new_key_hash = generate_password_hash(new_raw_key)
+
+        # Create a new JWT secret for the new key and encrypt it
+        jwt_secret = generate_jwt_secret()
+        encrypted_jwt_secret = encrypt_secret(jwt_secret)
+        kid = str(uuid.uuid4())
+        secrets_list = [{
+            "kid": kid,
+            "secret": encrypted_jwt_secret,
+            "status": ACTIVE_KEY_STATUS,
+            "created": datetime.utcnow().isoformat(),
+            "expires": (datetime.utcnow() + timedelta(days=90)).isoformat()
+        }]
+
+        # Create new key record with same permissions and metadata
+        new_key = APIKey(
+            key_prefix=new_key_prefix,
+            key_hash=new_key_hash,
+            name=f"{self.name} (rotated)",
+            description=f"Rotated from key {self.key_id} at {datetime.utcnow().isoformat()}",
+            is_admin=self.is_admin,
+            permissions=self.permissions,
+            rate_limit=self.rate_limit,
+            jwt_secrets=secrets_list
+        )
+
+        # Deactivate the old key
+        self.is_active = False
+        self.revoked = True
+        self.revoked_at = datetime.utcnow()
+        
+        # Add the new key and update old key
+        db.session.add(new_key)
+        db.session.commit()
+
+        # Log the rotation event
+        APIKeyAuditLog.log(
+            api_key=self,
+            action="rotated",
+            details=f"Key rotated to new key {new_key.key_id}"
+        )
+        APIKeyAuditLog.log(
+            api_key=new_key,
+            action="created",
+            details=f"Created by rotation from key {self.key_id}"
+        )
+
+        return new_key, new_raw_key
+    
     def has_permission(self, permission):
         """Check if this key has a specific permission"""
         if not self.is_active or self.revoked:

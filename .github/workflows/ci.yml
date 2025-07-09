@@ -112,7 +112,7 @@ jobs:
         "
     
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results-python-${{ matrix.python-version }}
@@ -124,7 +124,7 @@ jobs:
           benchmark_throughput_report.json
           
     - name: Upload throughput CSV
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: throughput-csv-python-${{ matrix.python-version }}
@@ -169,7 +169,7 @@ jobs:
         python -m twine check dist/*
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: python-package
         path: dist/
@@ -206,7 +206,7 @@ jobs:
         docker save quantonium-os:latest | gzip > quantonium-os-docker.tar.gz
     
     - name: Upload Docker image
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: docker-image
         path: quantonium-os-docker.tar.gz
@@ -238,7 +238,7 @@ jobs:
       continue-on-error: true
     
     - name: Upload security reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: security-reports
@@ -255,7 +255,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
     
     - name: Create deployment package
       run: |
@@ -282,7 +282,7 @@ jobs:
         EOF
     
     - name: Upload deployment package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: deployment-package
         path: deployment/
@@ -291,12 +291,10 @@ jobs:
   test-and-analyze:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.11"
+    - uses: actions/checkout@v4      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
 
     - name: Install dependencies
       run: |

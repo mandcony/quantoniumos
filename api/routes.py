@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException, Depends
 from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 # Import internal modules
 from api.symbolic_interface import get_symbolic_engine
@@ -44,13 +44,14 @@ class EncryptRequest(BaseModel):
     plaintext: str = Field(..., min_length=32, max_length=32, description="128-bit hex plaintext")
     key: str = Field(..., min_length=32, max_length=32, description="128-bit hex key")
     
-    @validator('plaintext', 'key')
-    def validate_hex(cls, v):
+    @field_validator('plaintext', 'key')
+    @classmethod
+    def validate_hex(cls, v: str) -> str:
         # Ensure input is valid hexadecimal
         try:
-            int(v, 16)
+            bytes.fromhex(v)
         except ValueError:
-            raise ValueError("Must be valid hexadecimal")
+            raise ValueError("must be a valid 32-character hex string")
         return v
 
 class AnalyzeRequest(BaseModel):

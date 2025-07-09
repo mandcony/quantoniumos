@@ -18,8 +18,8 @@ import time
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import the necessary modules
-from encryption.resonance_encrypt import encrypt_symbolic, decrypt_symbolic
-from encryption.geometric_waveform_hash import wave_hash
+from core.encryption.resonance_encrypt import encrypt_symbolic, decrypt_symbolic
+from core.encryption.geometric_waveform_hash import wave_hash
 from orchestration.resonance_manager import (
     register_container,
     get_container_by_hash,

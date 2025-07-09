@@ -19,7 +19,12 @@ import hashlib
 import hmac
 import base64
 import binascii
+import logging
 from typing import Dict, Any, List, Union
+
+# Configure logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Import our waveform hash module
 from encryption.geometric_waveform_hash import wave_hash, extract_wave_parameters
@@ -141,15 +146,11 @@ def encrypt_symbolic(plaintext: str, key: str) -> Dict[str, Any]:
             raise ValueError("Plaintext must be a string")
         if not isinstance(key, str):
             raise ValueError("Key must be a string")
-        
+
         # For testing with hex inputs (from the tests)
-        try:
-            if all(c in '0123456789abcdefABCDEF' for c in plaintext):
-                pt_bytes = bytes.fromhex(plaintext)
-            else:
-                pt_bytes = plaintext.encode('utf-8')
-        except (ValueError, binascii.Error):
-            # Not hex, treat as regular text
+        if all(c in '0123456789abcdefABCDEF' for c in plaintext):
+            pt_bytes = bytes.fromhex(plaintext)
+        else:
             pt_bytes = plaintext.encode('utf-8')
         
         key_bytes = key.encode('utf-8')
@@ -172,35 +173,45 @@ def encrypt_symbolic(plaintext: str, key: str) -> Dict[str, Any]:
             # Use wave parameters to modulate the byte
             amp = int(wave['amplitude'] * 255)
             phase = int(wave['phase'] * 255)
-            freq = int(wave['frequency'])
+            freq = int(wave.get('frequency', 0.5) * 255)  # Default to 0.5 if not present
             
             # Complex mixing operation (proprietary algorithm)
             # This ensures 1-bit changes in input cause significant
             # changes in output (avalanche effect)
-            mixed[i] = (b ^ key_hash[i % 32] ^ (amp + phase)) % 256
+            mixed[i] = (b ^ key_hash[i % 32] ^ (amp + phase + freq)) % 256
+        
+        # Convert mixed bytearray to bytes for HMAC
+        mixed_bytes = bytes(mixed)
         
         # Final HMAC using the key
-        hmac_obj = hmac.new(key_hash, mixed, hashlib.sha256)
+        hmac_obj = hmac.new(key_hash, mixed_bytes, hashlib.sha256)
         hmac_digest = hmac_obj.digest()
         
         # Combine mixed data and HMAC for integrity verification
-        combined = mixed + hmac_digest
+        combined = mixed_bytes + hmac_digest  # Now both are bytes
         
-        # Create the ciphertext as the final hash which will also
-        # serve as the container identifier
+        # Create the ciphertext hash
         ciphertext = wave_hash(combined)
+        
+        # Create the container hash
+        # We use a different seed for the container hash to ensure
+        # it's distinct from but deterministically linked to the ciphertext
+        container_seed = key_hash + mixed_bytes + hmac_digest  # All bytes
+        container_hash = wave_hash(container_seed)
         
         # For test purposes, we ensure deterministic behavior
         return {
             "ciphertext": ciphertext,
+            "hash": container_hash,
             "success": True
         }
-        
     except Exception as e:
-        print(f"Encryption error: {e}")
+        # Ensure we always return a dict with the hash key on error
+        logger.error(f"Encryption error: {str(e)}")
         return {
-            "success": False,
-            "error": str(e)
+            "error": str(e),
+            "hash": None,
+            "success": False
         }
 
 

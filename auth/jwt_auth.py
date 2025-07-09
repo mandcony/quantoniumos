@@ -75,11 +75,12 @@ def verify_token(token):
         return None, None
     
     try:
-        # Decode without verification to get the key ID
+        # Decode without verification to get the key ID and kid
         unverified = jwt.decode(token, options={"verify_signature": False})
         key_id = unverified.get('sub')
+        kid = unverified.get('kid')
         
-        if not key_id:
+        if not key_id or not kid:
             return None, None
         
         # Find the key
@@ -89,7 +90,7 @@ def verify_token(token):
             return None, None
         
         # Verify with the key's secret, ensuring kid matches
-        payload = key.verify_token(token, required_kid=key_id)
+        payload = key.verify_token(token, required_kid=kid)
         
         if not payload:
             return None, None
@@ -99,7 +100,7 @@ def verify_token(token):
         
         return key, payload
         
-    except jwt.PyJWTError:
+    except jwt.InvalidTokenError:
         return None, None
 
 def get_current_api_key():

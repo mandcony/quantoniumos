@@ -17,6 +17,7 @@ from werkzeug.security import check_password_hash
 # Import authentication modules
 from auth.models import db, APIKey, APIKeyAuditLog
 from auth.jwt_auth import authenticate_key, verify_token, get_current_api_key
+from auth.secret_manager import decrypt_secret
 
 class TestAuthentication(unittest.TestCase):
     """Test suite for the authentication framework"""
@@ -166,15 +167,21 @@ class TestAuthentication(unittest.TestCase):
             # Create token with custom payload including very short expiry
             now = datetime.utcnow()
             exp = now + timedelta(seconds=1)
+            active_secret_info = expired_key.get_active_secret()
+            secret = decrypt_secret(active_secret_info['secret'])
+            kid = active_secret_info['kid']
+            
             payload = {
                 'sub': expired_key.key_id,
+                'kid': kid,
                 'exp': exp,
                 'iat': now
             }
             short_token = jwt.encode(
-                payload, 
-                expired_key.jwt_secret, 
-                algorithm='HS256'
+                payload,
+                secret,
+                algorithm='HS256',
+                headers={'kid': kid}
             )
             
             # Wait for token to expire

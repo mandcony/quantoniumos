@@ -14,9 +14,9 @@ import random
 from datetime import datetime
 from typing import Dict, List, Any, Tuple, Optional
 
-# Will import these when modules are defined
-# from encryption.resonance_encrypt import encrypt_symbolic
-# from encryption.geometric_waveform_hash import wave_hash
+# Import encryption modules
+from core.encryption.resonance_encrypt import encrypt_symbolic
+from core.encryption.geometric_waveform_hash import wave_hash
 
 logger = logging.getLogger("quantonium_api.manager")
 

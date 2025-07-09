@@ -5,7 +5,7 @@ Defines Pydantic-style request schemas for symbolic endpoints and quantum API.
 Includes comprehensive validation for all API inputs.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Dict, Any, Optional, Union
 import re
 import base64
@@ -33,7 +33,8 @@ class EncryptRequest(BaseModel):
         description="Encryption key"
     )
     
-    @validator('plaintext')
+    @field_validator('plaintext')
+    @classmethod
     def validate_plaintext(cls, v):
         if not v.strip():
             raise ValueError("Plaintext cannot be empty or whitespace")
@@ -41,7 +42,8 @@ class EncryptRequest(BaseModel):
             raise ValueError(f"Plaintext too long (max {MAX_PLAINTEXT_LENGTH} characters)")
         return v
     
-    @validator('key')
+    @field_validator('key')
+    @classmethod
     def validate_key(cls, v):
         if not v.strip():
             raise ValueError("Key cannot be empty or whitespace")
@@ -59,7 +61,8 @@ class RFTRequest(BaseModel):
         description="Waveform data as a list of floating point values"
     )
     
-    @validator('waveform')
+    @field_validator('waveform')
+    @classmethod
     def validate_waveform(cls, v):
         # Check length
         if len(v) < MIN_WAVEFORM_LENGTH:
@@ -96,7 +99,8 @@ class DecryptRequest(BaseModel):
         description="Decryption key"
     )
     
-    @validator('ciphertext')
+    @field_validator('ciphertext')
+    @classmethod
     def validate_ciphertext(cls, v):
         if not v:
             raise ValueError("Ciphertext cannot be empty")
@@ -113,7 +117,8 @@ class DecryptRequest(BaseModel):
             raise ValueError("Ciphertext must be valid base64 encoded data")
         return v
         
-    @validator('key')
+    @field_validator('key')
+    @classmethod
     def validate_key(cls, v):
         if not v.strip():
             raise ValueError("Key cannot be empty or whitespace")
@@ -141,7 +146,8 @@ class ContainerUnlockRequest(BaseModel):
         description="Decryption key"
     )
     
-    @validator('waveform')
+    @field_validator('waveform')
+    @classmethod
     def validate_waveform(cls, v):
         # Check length
         if len(v) < MIN_WAVEFORM_LENGTH:
@@ -155,7 +161,8 @@ class ContainerUnlockRequest(BaseModel):
                 raise ValueError(f"Waveform values must be between 0.0 and 1.0, got {val}")
         return v
         
-    @validator('hash')
+    @field_validator('hash')
+    @classmethod
     def validate_hash(cls, v):
         if not v:
             raise ValueError("Hash cannot be empty")
@@ -165,7 +172,8 @@ class ContainerUnlockRequest(BaseModel):
             raise ValueError("Hash contains invalid characters")
         return v
         
-    @validator('key')
+    @field_validator('key')
+    @classmethod
     def validate_key(cls, v):
         if not v.strip():
             raise ValueError("Key cannot be empty or whitespace")
@@ -193,7 +201,8 @@ class SignRequest(BaseModel):
         description="Whether to include phase information in signature"
     )
     
-    @validator('message')
+    @field_validator('message')
+    @classmethod
     def validate_message(cls, v):
         if not v.strip():
             raise ValueError("Message cannot be empty or whitespace")
@@ -201,7 +210,8 @@ class SignRequest(BaseModel):
             raise ValueError(f"Message too long (max {MAX_PLAINTEXT_LENGTH} characters)")
         return v
         
-    @validator('key')
+    @field_validator('key')
+    @classmethod
     def validate_key(cls, v):
         if not v.strip():
             raise ValueError("Key cannot be empty or whitespace")
@@ -234,7 +244,8 @@ class VerifyRequest(BaseModel):
         description="Whether phase information was used in signature"
     )
     
-    @validator('message')
+    @field_validator('message')
+    @classmethod
     def validate_message(cls, v):
         if not v.strip():
             raise ValueError("Message cannot be empty or whitespace")
@@ -242,7 +253,8 @@ class VerifyRequest(BaseModel):
             raise ValueError(f"Message too long (max {MAX_PLAINTEXT_LENGTH} characters)")
         return v
         
-    @validator('signature')
+    @field_validator('signature')
+    @classmethod
     def validate_signature(cls, v):
         if not v:
             raise ValueError("Signature cannot be empty")
@@ -252,7 +264,8 @@ class VerifyRequest(BaseModel):
             raise ValueError("Signature contains invalid characters")
         return v
         
-    @validator('key')
+    @field_validator('key')
+    @classmethod
     def validate_key(cls, v):
         if not v.strip():
             raise ValueError("Key cannot be empty or whitespace")
@@ -274,7 +287,8 @@ class IRFTRequest(BaseModel):
         description="Frequency domain data with frequencies, amplitudes, and phases"
     )
     
-    @validator('frequency_data')
+    @field_validator('frequency_data')
+    @classmethod
     def validate_frequency_data(cls, v):
         # Check required keys
         required_keys = ['frequencies', 'amplitudes', 'phases']
@@ -332,7 +346,8 @@ class QuantumCircuitRequest(BaseModel):
         description="Number of qubits to use in the circuit (1-150)"
     )
     
-    @validator('circuit')
+    @field_validator('circuit')
+    @classmethod
     def validate_circuit(cls, v, values):
         # Check that circuit has gates
         if 'gates' not in v:

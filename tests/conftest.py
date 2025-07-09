@@ -4,6 +4,11 @@ Marks tests as xfail for known issues under active development.
 """
 
 import pytest
+import sys
+import os
+
+# Add the quantoniumos directory to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # List of test names that should be marked as xfail
 XFAIL_TESTS = [
@@ -30,13 +35,4 @@ XFAIL_TESTS = [
     "test_empty_waveform_handling_single_value"
 ]
 
-def pytest_collection_modifyitems(config, items):
-    """Mark specific tests as xfail."""
-    for item in items:
-        if item.name in XFAIL_TESTS:
-            item.add_marker(
-                pytest.mark.xfail(
-                    reason="Energy preservation optimization in progress - see GitHub issue #1",
-                    strict=False
-                )
-            )
+# Temporarily remove pytest_collection_modify_items hook to debug internal error

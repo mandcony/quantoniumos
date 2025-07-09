@@ -15,10 +15,12 @@ except ImportError:
     pass
 
 try:
-    from .geometric_waveform_hash import (
-        geometric_waveform_hash,
-        generate_waveform_hash,
-        verify_waveform_hash
-    )
+    # Temporarily disable to avoid circular import during debugging
+    # from .geometric_waveform_hash import (
+    #     geometric_waveform_hash,
+    #     generate_waveform_hash,
+    #     verify_waveform_hash
+    # )
+    pass
 except ImportError:
     pass
