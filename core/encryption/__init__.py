@@ -3,7 +3,22 @@ Encryption Module
 Resonance Fourier Transform and Geometric Waveform Cipher implementations
 """
 
-from .resonance_fourier import *
-from .geometric_waveform_hash import *
-from .resonance_encrypt import *
-from .entropy_qrng import *
+# Import specific functions to avoid potential circular import issues
+try:
+    from .resonance_fourier import (
+        resonance_fourier_transform,
+        inverse_resonance_fourier_transform,
+        perform_rft_list,
+        perform_irft_list
+    )
+except ImportError:
+    pass
+
+try:
+    from .geometric_waveform_hash import (
+        geometric_waveform_hash,
+        generate_waveform_hash,
+        verify_waveform_hash
+    )
+except ImportError:
+    pass

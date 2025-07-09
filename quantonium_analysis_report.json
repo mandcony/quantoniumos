@@ -1,11 +1,28 @@
 {
-  "timestamp": "2025-07-09 12:22:50",
+  "timestamp": "2025-07-09 12:50:57",
   "summary": {
-    "total_tests": 3,
-    "passed_tests": 3,
-    "success_rate": 1.0
+    "total_tests": 5,
+    "passed_tests": 4,
+    "success_rate": 0.8
   },
   "results": {
+    "rft_invertibility": {
+      "passed": true,
+      "mse": 3.2124511472379094e-31,
+      "original_length": 8,
+      "reconstructed_length": 8
+    },
+    "golden_ratio_optimization": {
+      "passed": false,
+      "avg_complexity": 4.1324205759051,
+      "timing_results": {
+        "16": 0.00011777877807617188,
+        "32": 0.00032401084899902344,
+        "64": 0.0010433197021484375,
+        "128": 0.004071950912475586,
+        "256": 0.027101993560791016
+      }
+    },
     "quantum_simulation": {
       "passed": true,
       "normalization": 0.9999999999999998,
@@ -17,20 +34,20 @@
     },
     "entropy_throughput": {
       "passed": true,
-      "sha256_throughput_gbps": 1.4289701367569076,
-      "entropy_throughput_kbps": 0,
+      "sha256_throughput_gbps": 0.7081481993741463,
+      "entropy_throughput_kbps": 242.92273832966524,
       "test_runs": 10
     },
     "geometric_cipher": {
       "passed": true,
-      "mode": "fallback_xor",
-      "original_length": 13,
-      "encrypted_length": 13
+      "mode": "geometric_waveform",
+      "hash_result": "A0.6261_P0.9139_ec033e46f94ae1b23ced43e5b951ec258456068295094df117fe8627abdf69cf",
+      "encrypted_length": 64
     }
   },
   "environment": {
     "python_version": "3.12.1 (main, May 30 2025, 12:50:35) [GCC 13.3.0]",
     "platform": "posix",
-    "rft_available": false
+    "rft_available": true
   }
 }
