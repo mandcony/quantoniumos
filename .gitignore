@@ -44,3 +44,4 @@ core/protected/
 .replit
 .breakpoints
 replit.nix
+.config/.semgrep/
