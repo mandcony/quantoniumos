@@ -150,15 +150,17 @@ jobs:
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
 
-  sign-and-push:
+  build-sign-push:
     runs-on: ubuntu-latest
-    needs: scan
+    needs: [test, scan]
     permissions:
       contents: read
       packages: write
       id-token: write
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Install cosign
         uses: sigstore/cosign-installer@v3.3.0
       - name: Set up Docker Buildx

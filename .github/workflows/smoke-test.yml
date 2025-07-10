@@ -10,6 +10,8 @@ on:
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     
     services:
       postgres:
@@ -45,7 +47,6 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
           SESSION_SECRET: smoke_test_secret
-          PYTHONPATH: ${{ github.workspace }}
         run: |
           # Initialize database with required tables
           python scripts/init_db.py
@@ -54,7 +55,6 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
           SESSION_SECRET: smoke_test_secret
-          PYTHONPATH: ${{ github.workspace }}
         run: |
           # Start the server in the background
           gunicorn --bind 0.0.0.0:5000 main:app --daemon
@@ -74,7 +74,6 @@ jobs:
       - name: Run smoke tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
-          PYTHONPATH: ${{ github.workspace }}
         run: |
           # Run the smoke tests
           python scripts/smoke_test.py --url http://localhost:5000 --verbose
