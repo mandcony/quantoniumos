@@ -5,7 +5,7 @@ psycopg2-binary==2.9.9
 pydantic==2.8.2
 flask-wtf==1.2.1
 requests==2.32.4
-flask-cors==4.0.2
+flask-cors==6.0.0
 numpy==1.26.4
 cryptography==44.0.1
 pybind11==2.13.1
@@ -31,3 +31,4 @@ sqlalchemy==2.0.31
 flask-migrate==4.0.7
 email-validator==2.1.1
 flask-login==0.6.3
+starlette==0.40.0
