@@ -1,10 +1,11 @@
-name: Secure CI/CD Pipeline
+name: Secure CI/CD Pipeline (DISABLED)
 
 on:
-  push:
-    branches: [ "main", "sec/*" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:  # Only run manually
+  # push:
+  #   branches: [ "main", "sec/*" ]
+  # pull_request:
+  #   branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io
