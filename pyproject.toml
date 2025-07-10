@@ -69,7 +69,6 @@ isort = "==5.13.2"
 flake8 = "==7.1.0"
 sqlalchemy = "==2.0.31"
 flask-migrate = "==4.0.7"
-starlette = "==0.40.0"
 
 [build-system]
 requires = ["setuptools>=65.5.1", "pybind11>=2.13.0"]

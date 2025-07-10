@@ -120,6 +120,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build Docker image
+        id: build_push
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -133,15 +134,6 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          load: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          cache-from: type=gha
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -172,6 +164,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
+        id: build_push
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -180,7 +173,7 @@ jobs:
           cache-from: type=gha
       - name: Sign the images with GitHub OIDC Token
         env:
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          DIGEST: ${{ steps.build_push.outputs.digest }}
           TAGS: ${{ steps.meta.outputs.tags }}
         run: |
           cosign sign --yes \

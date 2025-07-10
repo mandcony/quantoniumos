@@ -32,4 +32,3 @@ pandas==2.2.2
 notion-client==2.2.0
 sqlalchemy==2.0.31
 flask-migrate==4.0.7
-starlette==0.40.0

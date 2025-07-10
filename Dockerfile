@@ -3,6 +3,9 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
+# Set PYTHONPATH environment variable
+ENV PYTHONPATH="/app:${PYTHONPATH}"
+
 # Install build dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \

@@ -57,7 +57,7 @@ jobs:
           SESSION_SECRET: smoke_test_secret
         run: |
           # Start the server in the background
-          gunicorn --bind 0.0.0.0:5000 main:app --daemon
+          uvicorn main:app --host 0.0.0.0 --port 5000 &
           
           # Wait for the server to start
           sleep 5
@@ -80,7 +80,9 @@ jobs:
           
       - name: Run OpenAPI validation
         run: |
-          # Install openapi-validator
+          # Install Node.js and swagger-cli
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
           npm install -g @apidevtools/swagger-cli
           
           # Validate the OpenAPI spec
