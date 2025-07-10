@@ -44,8 +44,6 @@ def signal_handler(sig, frame):
 
 def cleanup_processes():
     """Clean up any running processes."""
-    global web_process, desktop_process
-    
     if web_process:
         logger.info("Terminating web API process...")
         try:

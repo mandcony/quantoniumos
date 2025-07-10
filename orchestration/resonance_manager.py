@@ -228,8 +228,6 @@ def register_container(hash_value: str, plaintext: str, ciphertext: str, key: st
     Returns:
         True if registration succeeded, False otherwise
     """
-    global container_registry
-    
     if not hash_value:
         logger.error("Invalid container hash (empty)")
         return False

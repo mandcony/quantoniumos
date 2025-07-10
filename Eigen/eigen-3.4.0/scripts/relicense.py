@@ -51,18 +51,17 @@ def update(text):
 rootdir = sys.argv[1]
 for root, sub_folders, files in os.walk(rootdir):
     for basename in files:
-        if basename in exclusions:
-          print('SKIPPED', filename)
-          continue
         filename = os.path.join(root, basename)
-        fo = file(filename)
-        text = fo.read()
-        fo.close()
+        if basename in exclusions:
+            print('SKIPPED', filename)
+            continue
+        with open(filename) as fo:
+            text = fo.read()
 
         text, updated = update(text)
         if updated:
-          with open(filename, "w") as fo:
-            fo.write(text)
-          print('UPDATED', filename)
+            with open(filename, "w") as fo:
+                fo.write(text)
+            print('UPDATED', filename)
         else:
-          print('       ', filename)
+            print('       ', filename)
