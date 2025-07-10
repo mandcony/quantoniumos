@@ -63,67 +63,63 @@ def update_oscillator():
     Update the oscillator state using the drift model:
     dφ = (τ_n ⊕ τ_{n-1}) mod π
     """
-    global _oscillator_state
-    
     if _oscillator_state is None:
         init_oscillator()
-    
+
     # Get current state
     state = _oscillator_state["state"]
     phases = _oscillator_state["phases"]
     counter = _oscillator_state["counter"]
-    
+
     # Update each phase value
     for i in range(16):
         prev_i = (i - 1) % 16
-        
+
         # Calculate phase change using XOR of adjacent cells
         # and current cell's state value
         xor_val = int(state[i]) ^ int(state[prev_i])
-        
+
         # Convert to phase change
         d_phase = (xor_val / 255.0) * np.pi
-        
+
         # Apply drift model: exclusive-or with previous phase
         phases[i] = (phases[i] + d_phase) % np.pi
-        
+
         # Update state based on phase
         state[i] = int((phases[i] / np.pi) * 255)
-    
+
     # Update counter and timestamp
     _oscillator_state["counter"] += 1
     _oscillator_state["last_update"] = time.time()
-    
+
     return _oscillator_state
 
 def sample_entropy(num_bytes: int = 32) -> bytes:
     """
     Sample entropy from the quantum oscillator
-    
+
     Args:
         num_bytes: Number of bytes to generate
-        
+
     Returns:
         Random bytes from the quantum oscillator
     """
-    global _oscillator_state
-    
     if _oscillator_state is None:
         init_oscillator()
-    
+
     # Number of update iterations needed
     iterations = (num_bytes + 15) // 16
-    
+
     # Collect entropy
     entropy_bytes = bytearray()
-    
+
     for _ in range(iterations):
         # Update oscillator
         update_oscillator()
-        
+
         # Add current state to entropy
         entropy_bytes.extend(_oscillator_state["state"])
-    
+
     # Truncate to requested size
     return bytes(entropy_bytes[:num_bytes])
 
