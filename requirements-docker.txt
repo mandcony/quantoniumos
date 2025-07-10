@@ -1,12 +1,15 @@
-flask==3.1.0
+flask==3.0.3
 flask-sqlalchemy==3.1.1
-gunicorn==23.0.0
-psycopg2-binary==2.9.10
-pydantic==2.11.3
-flask-wtf==1.2.2
+gunicorn==22.0.0
+psycopg2-binary==2.9.9
+pydantic==2.8.2
+flask-wtf==1.2.1
 requests==2.32.3
-flask-cors==5.0.1
-numpy==2.2.4
-cryptography==44.0.2
-pyjwt==2.10.1
-sqlalchemy==2.0.0
+flask-cors==4.0.1
+numpy==1.26.4
+cryptography==43.0.0
+pyjwt==2.8.0
+sqlalchemy==2.0.31
+redis==5.0.7
+# Added for compatibility
+werkzeug==3.0.3
