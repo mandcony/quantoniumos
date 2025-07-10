@@ -1,0 +1,73 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, sec/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: quantonium:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Dockle security scan
+        uses: erzz/dockle-action@v1
+        with:
+          image: quantonium:latest
+          exit-code: 1
+          level: WARN
+          
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: quantonium:latest
+          format: 'table'
+          exit-code: 1
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+          
+      - name: Run seccomp validation
+        run: |
+          # Start the container with seccomp profile
+          docker run -d --name quantonium-test \
+            --security-opt seccomp:./seccomp.json \
+            --cap-drop=ALL \
+            quantonium:latest
+          
+          # Give it a few seconds to start
+          sleep 5
+          
+          # Run a simple test to verify seccomp is working
+          # This test tries to use ptrace syscall and should fail
+          TEST_RESULT=$(docker exec quantonium-test bash -c "python3 -c 'import ctypes; try: ctypes.CDLL(None).ptrace(0, 0, 0, 0); print(\"FAIL: Ptrace allowed\"); exit(1); except Exception as e: print(\"PASS: Ptrace blocked\"); exit(0);'" || echo "Container test failed")
+          
+          # Clean up the container
+          docker stop quantonium-test
+          docker rm quantonium-test
+          
+          # Check if the test passed
+          if [[ $TEST_RESULT == *"PASS"* ]]; then
+            echo "✅ Seccomp profile validation passed"
+            exit 0
+          else
+            echo "❌ Seccomp profile validation failed"
+            echo "Test result: $TEST_RESULT"
+            exit 1
+          fi

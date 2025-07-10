@@ -1,0 +1,105 @@
+name: API Smoke Tests
+
+on:
+  push:
+    branches: [ main, release/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: quantonium_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install requests
+          
+      - name: Initialize database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
+          SESSION_SECRET: smoke_test_secret
+        run: |
+          # Initialize database with required tables
+          python scripts/init_db.py
+          
+      - name: Create API key for testing
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
+          SESSION_SECRET: smoke_test_secret
+        run: |
+          # Start the server in the background
+          uvicorn main:app --host 0.0.0.0 --port 5000 &
+          
+          # Wait for the server to start
+          sleep 5
+          
+          # Use the API key created during database initialization
+          if [ -f ".env.test" ]; then
+            source .env.test
+            echo "QUANTONIUM_API_KEY=$QUANTONIUM_API_KEY" >> $GITHUB_ENV
+          else
+            echo "Error: Test API key not found"
+            exit 1
+          fi
+          
+      - name: Run smoke tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quantonium_test
+        run: |
+          # Run the smoke tests
+          python scripts/smoke_test.py --url http://localhost:5000 --verbose
+          
+      - name: Run OpenAPI validation
+        run: |
+          # Install Node.js and swagger-cli
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          npm install -g @apidevtools/swagger-cli
+          
+          # Validate the OpenAPI spec
+          swagger-cli validate openapi.json
+          
+      - name: Test API docs accessibility
+        run: |
+          # Check that the docs endpoint returns 200
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/docs | grep 200
+          
+      - name: Check server logs for errors
+        if: always()
+        run: |
+          # Check server logs for errors (specific to your logging setup)
+          echo "Server Logs:"
+          if [ -d "logs" ]; then
+            cat logs/*.log || echo "No log files found"
+          else
+            echo "No logs directory found"
+          fi

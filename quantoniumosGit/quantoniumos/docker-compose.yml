@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  quantonium:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: quantonium:latest
+    container_name: quantonium-runtime
+    restart: unless-stopped
+    read_only: true  # Run container in read-only mode
+    security_opt:
+      - no-new-privileges:true  # Prevent privilege escalation
+      - seccomp:./docs/security/seccomp.json  # Apply seccomp profile
+    cap_drop:
+      - ALL  # Drop all capabilities
+    cap_add: []  # Don't add any capabilities back
+    pid: "container"  # Isolate the process namespace
+    user: "quant:1001"  # Run as non-root user
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - QUANTONIUM_API_KEY=${QUANTONIUM_API_KEY:-default_dev_key_please_change}
+      - SESSION_SECRET=${SESSION_SECRET:-default_dev_secret_please_change}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@db:5432/quantonium}
+    ports:
+      - "5000:5000"
+    volumes:
+      - tmpfs_logs:/app/logs:rw  # Mount logs as tmpfs volume
+      - tmpfs_tmp:/tmp:rw  # Mount tmp as tmpfs volume
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      - db
+    networks:
+      - quantonium-network
+
+  db:
+    image: postgres:16-alpine@sha256:7cd0e763dc41911b926b94091f2f557b9d2143ddd348cd8dbaaae0d85474a14e
+    container_name: quantonium-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=quantonium
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - quantonium-network
+
+volumes:
+  postgres_data:
+    driver: local
+  tmpfs_logs:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  tmpfs_tmp:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+
+networks:
+  quantonium-network:
+    driver: bridge
