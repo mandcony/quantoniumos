@@ -13,3 +13,4 @@ sqlalchemy==2.0.31
 redis==5.0.7
 # Added for compatibility
 werkzeug==3.0.3
+pybind11==2.13.1
