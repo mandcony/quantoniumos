@@ -32,7 +32,7 @@ jobs:
         with:
           image: quantonium:latest
           exit-code: 1
-          exit-level: WARN
+          level: WARN
           
       - name: Run Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
