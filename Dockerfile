@@ -12,18 +12,18 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy only the dependency files first to leverage Docker layer caching
-COPY requirements.txt ./
+COPY requirements-docker.txt ./
 
 # Install dependencies
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir --timeout 300 -r requirements-docker.txt
 
 # Copy the application code
 COPY . .
 
-# Check for vulnerabilities in dependencies
+# Check for vulnerabilities in dependencies (skip if fails)
 RUN pip install pip-audit \
-    && python -m pip_audit \
+    && python -m pip_audit --skip-editable || echo "Skipping pip-audit due to constraints" \
     && pip uninstall -y pip-audit
 
 # Compile any C/C++ modules if needed

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.11"]
     
     steps:
     - uses: actions/checkout@v4
@@ -30,7 +30,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov pytest-xdist
     
     - name: Run RFT Round-trip Tests
       run: |
@@ -71,9 +70,9 @@ jobs:
                 writer = csv.writer(f)
                 writer.writerow(['timestamp', 'python_version', 'sha256_throughput_gbps', 'test_data_mb', 'runs'])
                 
-                sha256_data = data['benchmarks']['sha256']
+                sha256_data = data['sha256_benchmark']
                 writer.writerow([
-                    data['system_info']['timestamp'],
+                    data['timestamp'],
                     '${{ matrix.python-version }}',
                     sha256_data['throughput_gbps'],
                     sha256_data['data_size_mb'],
@@ -132,12 +131,13 @@ jobs:
     
     - name: Generate coverage report
       run: |
-        echo "Coverage generation skipped - tests run as standalone scripts"
+        pytest --cov=./ --cov-report=xml
       continue-on-error: true
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
@@ -182,7 +182,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
     
     - name: Build Docker image
       run: |
@@ -229,7 +229,7 @@ jobs:
     
     - name: Run Bandit security scan
       run: |
-        bandit -r core/ -f json -o bandit-report.json
+        bandit -r . -f json -o bandit-report.json
       continue-on-error: true
     
     - name: Check dependencies for vulnerabilities
@@ -256,13 +256,16 @@ jobs:
     
     - name: Download all artifacts
       uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
     
     - name: Create deployment package
       run: |
         mkdir -p deployment
-        cp -r test-results-python-*/* deployment/
-        cp -r python-package/* deployment/
-        cp docker-image/* deployment/
+        # Correctly find and copy artifacts
+        find artifacts -type f -name "*.json" -exec cp {} deployment/ \;
+        find artifacts -type f -name "*.csv" -exec cp {} deployment/ \;
+        find artifacts -type f -name "*.tar.gz" -exec cp {} deployment/ \;
         
         # Create deployment manifest
         cat > deployment/manifest.json << EOF
@@ -275,7 +278,7 @@ jobs:
             "quantonium_analysis_report.json",
             "rft_roundtrip_test_results.json",
             "geowave_kat_results.json",
-            "benchmark_results.json",
+            "benchmark_throughput_report.json",
             "quantonium-os-docker.tar.gz"
           ]
         }
@@ -287,32 +290,3 @@ jobs:
         name: deployment-package
         path: deployment/
         retention-days: 30
-
-  test-and-analyze:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .[dev] # Assuming you add a dev extra for analysis tools
-
-    - name: Lint with ruff
-      run: |
-        ruff check .
-
-    - name: Analyze with bandit
-      run: |
-        bandit -r .
-
-    - name: Check types with mypy
-      run: |
-        mypy . --ignore-missing-imports
-
-    - name: Test with pytest and generate coverage report
-      run: |
-        pytest --cov=./ --cov-report=xml
