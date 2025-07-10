@@ -6,7 +6,7 @@ Builds the complete package including C++ extensions
 import pybind11
 from pybind11 import get_cmake_dir
 from pybind11.setup_helpers import Pybind11Extension, build_ext
-from setuptools import Extension, setup
+from setuptools import Extension, setup, find_packages
 
 # Define the C++ extension
 ext_modules = [
@@ -34,13 +34,7 @@ setup(
     author="QuantoniumOS Development Team",
     author_email="dev@quantonium.io",
     url="https://github.com/quantonium/quantonium-os",
-    packages=[
-        "core",
-        "core.encryption",
-        "core.protected",
-        "core.HPC",
-        "tests",
-    ],
+    packages=find_packages(exclude=["tests.*", "tests"]),
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},
     python_requires=">=3.9",
