@@ -61,5 +61,9 @@ USER quant
 # Expose the port the app runs on
 EXPOSE 5000
 
+# Add healthcheck to verify container is healthy
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
+
 # Run with gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--worker-class", "gevent", "--limit-request-line", "16384", "--reuse-port", "--reload", "app:app"]

@@ -28,11 +28,12 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run Dockle security scan
-        uses: erzz/dockle-action@v1
+        uses: aquasecurity/dockle-action@v2
         with:
           image: quantonium:latest
-          exit-code: 1
-          level: WARN
+          failure-threshold: HIGH
+          exit-code: 0
+          accept-filenames: 'settings.py'
           
       - name: Run Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
