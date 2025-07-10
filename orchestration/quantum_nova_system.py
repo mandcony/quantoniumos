@@ -5,20 +5,21 @@ Orchestrates symbolic resonance cycles, qubit state mapping, and phase-space evo
 """
 
 import json
-import math
 import logging
-from typing import Dict, List
-import sys
+import math
 import os
+import sys
+from typing import Dict, List
 
 # Add core to the path to access encryption modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from core.encryption.resonance_fourier import resonance_fourier_transform
-from orchestration.symbolic_projection_layer import project_symbolic_state
 from orchestration.symbolic_container import SymbolicContainer
+from orchestration.symbolic_projection_layer import project_symbolic_state
 
 logger = logging.getLogger("QuantumNovaSystem")
+
 
 class QuantumNovaSystem:
     def __init__(self):
@@ -74,19 +75,18 @@ class QuantumNovaSystem:
             success = False
         return success
 
+
 def initialize_qns(key):
     """
     Initialize a Quantum Nova System instance with the given key.
     """
     qns = QuantumNovaSystem()
     # Initialize container with key-derived waveform
-    key_bytes = key.encode('utf-8')
-    waveform = [
-        sum(key_bytes) / 255.0,
-        sum(key_bytes[::2]) / 255.0
-    ]
+    key_bytes = key.encode("utf-8")
+    waveform = [sum(key_bytes) / 255.0, sum(key_bytes[::2]) / 255.0]
     qns.initialize_container("primary", waveform)
     return qns
+
 
 def apply_quantum_transform(data, qns_instance):
     """
@@ -94,22 +94,24 @@ def apply_quantum_transform(data, qns_instance):
     """
     if not isinstance(qns_instance, QuantumNovaSystem):
         raise TypeError("Invalid QNS instance")
-    
+
     # Transform data based on quantum states
     key = "primary"
     qns_instance.evolve_phase_space(key)
     state = qns_instance.export_nova_state()
-    
+
     transformed_data = data
     if key in state:
         amp_factor = state[key]
         transformed_data = f"{data}-{amp_factor:.4f}"
-    
+
     return transformed_data
+
 
 def get_quantum_entropy_stream(size):
     """
     Get a quantum entropy stream of the specified size.
     """
     from core.encryption.entropy_qrng import generate_entropy
+
     return generate_entropy(amount=size)

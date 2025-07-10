@@ -5,14 +5,18 @@ This module provides tests for the numerical stability and performance of the
 Resonance Fourier Transform (RFT) implementation.
 """
 
-import unittest
-import numpy as np
-import time
 import math
-from quantoniumos.encryption.resonance_fourier import resonance_fourier_transform, inverse_resonance_fourier_transform
+import time
+import unittest
+
+import numpy as np
+
+from quantoniumos.encryption.resonance_fourier import (
+    inverse_resonance_fourier_transform, resonance_fourier_transform)
 
 # Golden ratio constant
 PHI = (1 + math.sqrt(5)) / 2
+
 
 class TestRFTStabilityAndPerformance(unittest.TestCase):
     """
@@ -30,24 +34,24 @@ class TestRFTStabilityAndPerformance(unittest.TestCase):
         # Test only smaller signal lengths where RFT remains numerically stable
         # Larger sizes show exponential condition number growth due to golden ratio factor
         signal_lengths = [16, 32]  # Limited to smaller sizes for stability
-        
+
         for N in signal_lengths:
             # Construct the RFT matrix
             n = np.arange(N)
             k = n.reshape((N, 1))
             rft_matrix = np.exp(-2j * np.pi * k * n * PHI / N)
-            
+
             # Construct the standard DFT matrix for comparison
             dft_matrix = np.exp(-2j * np.pi * k * n / N)
-            
+
             # Calculate condition numbers
             cond_rft = np.linalg.cond(rft_matrix)
             cond_dft = np.linalg.cond(dft_matrix)
-            
+
             print(f"Signal Length (N={N}):")
             print(f"  - RFT Matrix Condition Number: {cond_rft:.4f}")
             print(f"  - DFT Matrix Condition Number: {cond_dft:.4f}")
-            
+
             # The condition number of the RFT matrix should be comparable to the DFT matrix.
             # A large deviation might indicate potential numerical instability.
             # For a unitary matrix (like DFT), the condition number is 1.
@@ -56,8 +60,11 @@ class TestRFTStabilityAndPerformance(unittest.TestCase):
             # We will check that the condition number is not excessively large.
             # Adjusted threshold based on empirical results - RFT with golden ratio factor
             # produces higher condition numbers but is still numerically stable for practical use
-            self.assertLess(cond_rft, 20000,
-                            f"RFT condition number {cond_rft} is excessively large for N={N}")
+            self.assertLess(
+                cond_rft,
+                20000,
+                f"RFT condition number {cond_rft} is excessively large for N={N}",
+            )
 
     def test_rft_performance_vs_fft(self):
         """
@@ -66,10 +73,10 @@ class TestRFTStabilityAndPerformance(unittest.TestCase):
         """
         print("\n--- RFT vs. FFT Performance Benchmark ---")
         signal_lengths = [256, 512, 1024, 2048, 4096]
-        
+
         for N in signal_lengths:
             waveform = np.random.rand(N)
-            
+
             # Benchmark RFT
             start_time_rft = time.time()
             rft_result = resonance_fourier_transform(waveform.tolist())
@@ -81,11 +88,11 @@ class TestRFTStabilityAndPerformance(unittest.TestCase):
             fft_result = np.fft.fft(waveform)
             end_time_fft = time.time()
             duration_fft = (end_time_fft - start_time_fft) * 1000  # milliseconds
-            
+
             print(f"Signal Length (N={N}):")
             print(f"  - RFT execution time: {duration_rft:.4f} ms")
             print(f"  - FFT execution time: {duration_fft:.4f} ms")
-            
+
             # Note: We expect the custom RFT (a direct matrix multiplication) to be
             # slower than the highly optimized FFT algorithm. This test provides
             # the data to make informed claims about performance.
@@ -99,27 +106,28 @@ class TestRFTStabilityAndPerformance(unittest.TestCase):
         """
         print("\n--- RFT Invertibility Precision Test ---")
         signal_lengths = [32, 128, 512]
-        
+
         for N in signal_lengths:
             original_signal = np.random.rand(N)
-            
+
             # Forward transform
             rft_data = resonance_fourier_transform(original_signal.tolist())
-            
+
             # Inverse transform
             irft_result = inverse_resonance_fourier_transform(rft_data)
             reconstructed_signal = np.asarray(irft_result["waveform"])
-            
+
             # Calculate Mean Squared Error (MSE)
-            mse = np.mean((original_signal - reconstructed_signal)**2)
-            
+            mse = np.mean((original_signal - reconstructed_signal) ** 2)
+
             print(f"Signal Length (N={N}):")
             print(f"  - Reconstruction Mean Squared Error (MSE): {mse:.2e}")
-            
+
             # The reconstruction error should be very close to zero, limited by
             # floating-point precision. A larger tolerance is set to account for the
             # inherent numerical error in the non-unitary RFT.
             self.assertLess(mse, 1e-1, f"High reconstruction error for N={N}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

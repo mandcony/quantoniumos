@@ -5,11 +5,15 @@ Quantonium OS - Geometric Waveform Hash Test Suite
 Tests for the geometric waveform hash module.
 """
 
-import unittest
-import os
-import psutil
 import math
-from core.encryption.geometric_waveform_hash import GeometricWaveformHash, geometric_waveform_hash
+import os
+import unittest
+
+import psutil
+
+from core.encryption.geometric_waveform_hash import (GeometricWaveformHash,
+                                                     geometric_waveform_hash)
+
 
 class TestGeometricWaveformHash(unittest.TestCase):
     """Test cases for geometric waveform hash functions"""
@@ -18,7 +22,9 @@ class TestGeometricWaveformHash(unittest.TestCase):
         """Set up test data."""
         self.waveform1 = [math.sin(x * 0.1) for x in range(100)]
         self.waveform2 = [math.cos(x * 0.1) for x in range(100)]
-        self.large_waveform = [math.sin(x * 0.001) for x in range(1024 * 128)] # Approx 1MB of floats
+        self.large_waveform = [
+            math.sin(x * 0.001) for x in range(1024 * 128)
+        ]  # Approx 1MB of floats
 
     def test_hash_generation_is_deterministic(self):
         """Test that hash generation is deterministic for the same waveform."""
@@ -36,7 +42,7 @@ class TestGeometricWaveformHash(unittest.TestCase):
         """Test that using a nonce produces a different hash."""
         nonce1 = os.urandom(16)
         nonce2 = os.urandom(16)
-        
+
         hash_no_nonce = geometric_waveform_hash(self.waveform1)
         hash_with_nonce1 = geometric_waveform_hash(self.waveform1, nonce=nonce1)
         hash_with_nonce2 = geometric_waveform_hash(self.waveform1, nonce=nonce2)
@@ -63,7 +69,7 @@ class TestGeometricWaveformHash(unittest.TestCase):
         """Test verification fails for a different waveform."""
         hasher = GeometricWaveformHash(self.waveform1)
         wave_hash = hasher.generate_hash()
-        
+
         verifier = GeometricWaveformHash(self.waveform2)
         self.assertFalse(verifier.verify_hash(wave_hash))
 
@@ -71,10 +77,10 @@ class TestGeometricWaveformHash(unittest.TestCase):
         """Test verification fails for a different nonce."""
         nonce1 = os.urandom(16)
         nonce2 = os.urandom(16)
-        
+
         hasher = GeometricWaveformHash(self.waveform1, nonce=nonce1)
         wave_hash = hasher.generate_hash()
-        
+
         verifier = GeometricWaveformHash(self.waveform1, nonce=nonce2)
         self.assertFalse(verifier.verify_hash(wave_hash))
 
@@ -85,34 +91,34 @@ class TestGeometricWaveformHash(unittest.TestCase):
         """
         import gc
         import sys
-        
+
         # Force garbage collection to get a clean baseline
         gc.collect()
-        
+
         # Measure the actual object memory footprint, not process memory
         # Create hasher and measure its memory usage directly
         hasher = GeometricWaveformHash(self.large_waveform)
         hash_result = hasher.generate_hash()
-        
+
         # Calculate actual memory footprint of the hasher object
         hasher_memory = sys.getsizeof(hasher) + sys.getsizeof(hasher.__dict__)
-        
+
         # Add memory for the stored attributes
         for key, value in hasher.__dict__.items():
             hasher_memory += sys.getsizeof(key) + sys.getsizeof(value)
-        
+
         # Allow for some Python object overhead, but it should be well below
         # the 4KB threshold specified in the technical review.
         max_allowed_increase = 4096
-        
+
         print(f"Hasher object memory footprint: {hasher_memory} bytes")
         print(f"Hash result length: {len(hash_result)} characters")
         print(f"Hasher attributes: {list(hasher.__dict__.keys())}")
-        
+
         self.assertLessEqual(
             hasher_memory,
             max_allowed_increase,
-            f"Memory footprint of hasher object is {hasher_memory} bytes, which is more than the allowed {max_allowed_increase} bytes."
+            f"Memory footprint of hasher object is {hasher_memory} bytes, which is more than the allowed {max_allowed_increase} bytes.",
         )
 
     def test_short_nonce_raises_error(self):
@@ -120,5 +126,6 @@ class TestGeometricWaveformHash(unittest.TestCase):
         with self.assertRaises(ValueError):
             geometric_waveform_hash(self.waveform1, nonce=os.urandom(7))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

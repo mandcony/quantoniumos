@@ -4,8 +4,10 @@ Quantonium OS - Quantum Search Module
 Symbolic Grover-style resonance search engine using amplitude and phase variance matching.
 """
 
-import numpy as np
 from typing import List, Tuple
+
+import numpy as np
+
 
 # -----------------------------------------------------------------------------
 # Symbolic Container Metadata
@@ -23,6 +25,7 @@ class SymbolicContainerMetadata:
     def __repr__(self):
         return f"<{self.label}: A={self.mean_amp}, φ={self.phase_var}>"
 
+
 # -----------------------------------------------------------------------------
 # Grover-style Symbolic Resonance Matcher
 # -----------------------------------------------------------------------------
@@ -33,7 +36,9 @@ class QuantumSearch:
         """
         self.containers = containers
 
-    def search(self, target_amp: float, target_phi: float, threshold: float = 0.01) -> Tuple[SymbolicContainerMetadata, float]:
+    def search(
+        self, target_amp: float, target_phi: float, threshold: float = 0.01
+    ) -> Tuple[SymbolicContainerMetadata, float]:
         """
         Search for containers matching the target amplitude and phase.
         """
@@ -43,6 +48,7 @@ class QuantumSearch:
             if amp_match and phi_match:
                 return c, 1.0  # confidence score
         return None, 0.0
+
 
 # -----------------------------------------------------------------------------
 # Test Example

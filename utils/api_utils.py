@@ -8,12 +8,14 @@ Includes:
 """
 
 import hashlib
-import time
 import os
-from flask import request, jsonify
+import time
+
+from flask import jsonify, request
 
 API_KEY_HEADER = "X-API-Key"
 API_SECRET = os.environ.get("QUANTONIUM_API_KEY", "default_dev_key")  # Replit Secrets
+
 
 def validate_api_key(req: request) -> bool:
     """
@@ -24,6 +26,7 @@ def validate_api_key(req: request) -> bool:
     """
     key = req.headers.get(API_KEY_HEADER)
     return key == API_SECRET
+
 
 def sign_response(payload: dict) -> dict:
     """
@@ -43,6 +46,7 @@ def sign_response(payload: dict) -> dict:
 
     payload["sha256"] = hash_digest
     return payload
+
 
 def reject_unauthorized():
     return jsonify({"error": "Unauthorized", "code": 403}), 403

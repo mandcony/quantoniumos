@@ -6,8 +6,10 @@ Implements geometric containers for secure data storage with waveform-based acce
 
 import hashlib
 import json
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+
 
 class GeometricContainer:
     def __init__(self, label):
@@ -26,10 +28,12 @@ class GeometricContainer:
         Seal the container with data from a file.
         """
         try:
-            content = Path(filepath).read_text(encoding='utf-8')
+            content = Path(filepath).read_text(encoding="utf-8")
             self.A = sum(ord(c) for c in content) % 256
-            self.phi = sum(ord(c)**2 for c in content) % 360
-            self.waveform_hash = hashlib.sha256(f"{self.A}{self.phi}".encode()).hexdigest()
+            self.phi = sum(ord(c) ** 2 for c in content) % 360
+            self.waveform_hash = hashlib.sha256(
+                f"{self.A}{self.phi}".encode()
+            ).hexdigest()
             self.locked = True
             return True
         except Exception as e:
@@ -51,10 +55,13 @@ class GeometricContainer:
         """
         Convert the container to JSON.
         """
-        return json.dumps({
-            "label": self.label,
-            "locked": self.locked,
-            "hash": self.waveform_hash,
-            "A": self.A,
-            "phi": self.phi
-        }, indent=4)
+        return json.dumps(
+            {
+                "label": self.label,
+                "locked": self.locked,
+                "hash": self.waveform_hash,
+                "A": self.A,
+                "phi": self.phi,
+            },
+            indent=4,
+        )

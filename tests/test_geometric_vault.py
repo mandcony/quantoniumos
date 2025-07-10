@@ -1,4 +1,8 @@
-import sys, pathlib, os, tempfile
+import os
+import pathlib
+import sys
+import tempfile
+
 _ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
@@ -7,6 +11,7 @@ if _QOS.exists() and str(_QOS) not in sys.path:
     sys.path.insert(0, str(_QOS))
 
 from orchestration.symbolic_container import SymbolicContainer, hash_file
+
 
 def test_symbolic_container_seal_unlock():
     # create temporary validation file

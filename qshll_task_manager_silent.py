@@ -14,7 +14,7 @@ import os
 import sys
 import threading
 from pathlib import Path
-from typing import List, Tuple, Optional, Any
+from typing import Any, List, Optional, Tuple
 
 # Conditional imports with fallbacks
 try:
@@ -28,11 +28,12 @@ except ImportError:
     psutil = None
 
 try:
-    from PyQt5.QtCore import QTimer, Qt
-    from PyQt5.QtWidgets import (
-        QApplication, QDialog, QHeaderView, QProgressBar, QPushButton,
-        QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
-    )
+    from PyQt5.QtCore import Qt, QTimer
+    from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView,
+                                 QProgressBar, QPushButton, QTableWidget,
+                                 QTableWidgetItem, QTabWidget, QVBoxLayout,
+                                 QWidget)
+
     PYQT5_AVAILABLE = True
 except ImportError:
     PYQT5_AVAILABLE = False
@@ -41,27 +42,29 @@ except ImportError:
 # Silent Output Context Manager
 ######################################################################
 
+
 class SilentContext:
     """Context manager that completely silences all output from resonance manager."""
-    
+
     def __init__(self):
         self.original_stdout = None
         self.original_stderr = None
         self.devnull = None
-        
+
     def __enter__(self):
         self.original_stdout = sys.stdout
         self.original_stderr = sys.stderr
-        self.devnull = open(os.devnull, 'w')
+        self.devnull = open(os.devnull, "w")
         sys.stdout = self.devnull
         sys.stderr = self.devnull
         return self
-        
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         sys.stdout = self.original_stdout
         sys.stderr = self.original_stderr
         if self.devnull:
             self.devnull.close()
+
 
 ######################################################################
 # Logging Setup
@@ -89,8 +92,9 @@ try:
     resman_dir = Path(r"C:\quantonium_v2\orchestration")
     if resman_dir.exists():
         sys.path.append(str(resman_dir))
-    
+
     from resonance_manager import Process, monitor_resonance_states
+
     logger.info("Successfully imported resonance_manager")
 except ImportError as exc:
     logger.warning(f"Resonance manager not available: {exc}")
@@ -100,10 +104,19 @@ except ImportError as exc:
 ######################################################################
 
 if PYQT5_AVAILABLE:
+
     class QSHLLTaskManager(QDialog):
         """Silent PyQt5 task manager with topological metrics."""
 
-        DATA_COLUMNS = ["Time", "CPU%", "Memory%", "Disk%", "Topo CPU", "Topo Memory", "Topo Disk"]
+        DATA_COLUMNS = [
+            "Time",
+            "CPU%",
+            "Memory%",
+            "Disk%",
+            "Topo CPU",
+            "Topo Memory",
+            "Topo Disk",
+        ]
 
         def __init__(self):
             super().__init__()
@@ -117,7 +130,7 @@ if PYQT5_AVAILABLE:
 
             # Processes tab
             self._setup_processes_tab()
-            
+
             # Performance tab
             self._setup_performance_tab()
 
@@ -134,36 +147,38 @@ if PYQT5_AVAILABLE:
             self.timer = QTimer(self)
             self.timer.timeout.connect(self.poll_data)
             self.timer.start(2000)  # Update every 2 seconds
-            
+
             logger.info("Task Manager initialized successfully")
 
         def _setup_processes_tab(self):
             """Setup the processes monitoring tab."""
             self.processes_tab = QWidget()
             self.tabs.addTab(self.processes_tab, "Processes")
-            
+
             proc_layout = QVBoxLayout(self.processes_tab)
             self.process_table = QTableWidget(0, 4)
-            self.process_table.setHorizontalHeaderLabels(["Process Name", "PID", "CPU%", "Memory%"])
+            self.process_table.setHorizontalHeaderLabels(
+                ["Process Name", "PID", "CPU%", "Memory%"]
+            )
             self.process_table.setSortingEnabled(True)
-            
+
             if self.process_table.horizontalHeader():
                 self.process_table.horizontalHeader().setStretchLastSection(True)
-            
+
             proc_layout.addWidget(self.process_table)
 
         def _setup_performance_tab(self):
             """Setup the performance monitoring tab."""
             self.performance_tab = QWidget()
             self.tabs.addTab(self.performance_tab, "Performance")
-            
+
             perf_layout = QVBoxLayout(self.performance_tab)
             self.system_table = QTableWidget(0, len(self.DATA_COLUMNS))
             self.system_table.setHorizontalHeaderLabels(self.DATA_COLUMNS)
-            
+
             if self.system_table.horizontalHeader():
                 self.system_table.horizontalHeader().setStretchLastSection(True)
-            
+
             perf_layout.addWidget(self.system_table)
 
             # Export button
@@ -174,12 +189,17 @@ if PYQT5_AVAILABLE:
         def _setup_topological_processes(self):
             """Initialize topological processes for resonance calculations."""
             self.topo_processes = None
-            
+
             if Process and monitor_resonance_states:
                 try:
                     vertices = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]
                     self.topo_processes = [
-                        Process(i, priority=1.0, amplitude=complex(1.0, 0), vertices=vertices)
+                        Process(
+                            i,
+                            priority=1.0,
+                            amplitude=complex(1.0, 0),
+                            vertices=vertices,
+                        )
                         for i in range(3)
                     ]
                     logger.info("Topological processes initialized")
@@ -200,16 +220,24 @@ if PYQT5_AVAILABLE:
                 return
 
             rows = []
-            for proc in psutil.process_iter(attrs=["pid", "name", "cpu_percent", "memory_percent"]):
+            for proc in psutil.process_iter(
+                attrs=["pid", "name", "cpu_percent", "memory_percent"]
+            ):
                 try:
                     info = proc.info
-                    rows.append((
-                        info["name"] or "Unknown",
-                        info["pid"] or 0,
-                        info["cpu_percent"] or 0.0,
-                        info["memory_percent"] or 0.0
-                    ))
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    rows.append(
+                        (
+                            info["name"] or "Unknown",
+                            info["pid"] or 0,
+                            info["cpu_percent"] or 0.0,
+                            info["memory_percent"] or 0.0,
+                        )
+                    )
+                except (
+                    psutil.NoSuchProcess,
+                    psutil.AccessDenied,
+                    psutil.ZombieProcess,
+                ):
                     continue
 
             self.process_table.setRowCount(len(rows))
@@ -227,7 +255,7 @@ if PYQT5_AVAILABLE:
             # Get system metrics
             cpu_percent = psutil.cpu_percent()
             memory = psutil.virtual_memory()
-            
+
             try:
                 disk = psutil.disk_usage("/")
                 disk_percent = disk.percent
@@ -239,29 +267,62 @@ if PYQT5_AVAILABLE:
             if self.topo_processes and monitor_resonance_states:
                 try:
                     with SilentContext():
-                        self.topo_processes = monitor_resonance_states(self.topo_processes, dt=0.1)
+                        self.topo_processes = monitor_resonance_states(
+                            self.topo_processes, dt=0.1
+                        )
 
                     # Extract metrics from topological processes
                     if self.topo_processes:
-                        topo_cpu = sum(getattr(p.priority, 'amplitude', 1.0) for p in self.topo_processes) / len(self.topo_processes) * 50
-                        topo_mem = sum(abs(getattr(p.amplitude, 'real', 1.0)) for p in self.topo_processes) / len(self.topo_processes) * 50
-                        topo_disk = sum(getattr(p, 'resonance', 1.0) for p in self.topo_processes) / len(self.topo_processes) * 100
-                        
+                        topo_cpu = (
+                            sum(
+                                getattr(p.priority, "amplitude", 1.0)
+                                for p in self.topo_processes
+                            )
+                            / len(self.topo_processes)
+                            * 50
+                        )
+                        topo_mem = (
+                            sum(
+                                abs(getattr(p.amplitude, "real", 1.0))
+                                for p in self.topo_processes
+                            )
+                            / len(self.topo_processes)
+                            * 50
+                        )
+                        topo_disk = (
+                            sum(
+                                getattr(p, "resonance", 1.0)
+                                for p in self.topo_processes
+                            )
+                            / len(self.topo_processes)
+                            * 100
+                        )
+
                 except Exception as exc:
                     logger.error(f"Error in topological calculations: {exc}")
 
             # Create new data row
             current_time = datetime.datetime.now().strftime("%H:%M:%S")
-            new_row_data = [current_time, cpu_percent, memory.percent, disk_percent, topo_cpu, topo_mem, topo_disk]
+            new_row_data = [
+                current_time,
+                cpu_percent,
+                memory.percent,
+                disk_percent,
+                topo_cpu,
+                topo_mem,
+                topo_disk,
+            ]
 
             # Update data storage
-            if pd and hasattr(self, 'system_df'):
+            if pd and hasattr(self, "system_df"):
                 new_row = pd.DataFrame([new_row_data], columns=self.DATA_COLUMNS)
-                self.system_df = pd.concat([self.system_df, new_row], ignore_index=True).tail(60)
+                self.system_df = pd.concat(
+                    [self.system_df, new_row], ignore_index=True
+                ).tail(60)
                 data_rows = self.system_df.values.tolist()
             else:
                 # Fallback to list storage
-                if not hasattr(self, 'system_data'):
+                if not hasattr(self, "system_data"):
                     self.system_data = []
                 self.system_data.append(new_row_data)
                 self.system_data = self.system_data[-60:]  # Keep last 60 entries
@@ -271,31 +332,37 @@ if PYQT5_AVAILABLE:
             self.system_table.setRowCount(len(data_rows))
             for i, row in enumerate(data_rows):
                 for j, val in enumerate(row):
-                    display_val = f"{val:.2f}" if isinstance(val, (int, float)) and j > 0 else str(val)
+                    display_val = (
+                        f"{val:.2f}"
+                        if isinstance(val, (int, float)) and j > 0
+                        else str(val)
+                    )
                     self.system_table.setItem(i, j, QTableWidgetItem(display_val))
 
         def export_data_to_csv(self):
             """Export performance data to CSV file."""
             csv_path = Path(__file__).with_name("quantonium_performance_metrics.csv")
             try:
-                if pd and hasattr(self, 'system_df'):
+                if pd and hasattr(self, "system_df"):
                     self.system_df.to_csv(csv_path, index=False)
                 else:
                     # Fallback CSV writing
-                    with open(csv_path, 'w') as f:
-                        f.write(','.join(self.DATA_COLUMNS) + '\n')
-                        for row in getattr(self, 'system_data', []):
-                            f.write(','.join(str(val) for val in row) + '\n')
-                
+                    with open(csv_path, "w") as f:
+                        f.write(",".join(self.DATA_COLUMNS) + "\n")
+                        for row in getattr(self, "system_data", []):
+                            f.write(",".join(str(val) for val in row) + "\n")
+
                 logger.info(f"Performance data exported to {csv_path}")
                 print(f"Data exported to {csv_path}")
             except Exception as exc:
                 logger.error(f"Error exporting data: {exc}")
                 print(f"Export failed: {exc}")
 
+
 ######################################################################
 # Command Line Interface
 ######################################################################
+
 
 def main() -> None:
     """Launch the silent task manager."""
@@ -312,7 +379,7 @@ def main() -> None:
     app = QApplication(sys.argv)
     window = QSHLLTaskManager()
     window.show()
-    
+
     try:
         sys.exit(app.exec_())
     except KeyboardInterrupt:
@@ -321,25 +388,30 @@ def main() -> None:
         logger.error(f"Unexpected error: {exc}")
         sys.exit(1)
 
+
 def console_mode():
     """Simple console-based monitoring when GUI is not available."""
     if not psutil:
         print("System monitoring requires psutil. Please install it.")
         return
-        
+
     print("QSHLL Task Manager - Console Mode")
     print("Press Ctrl+C to exit")
-    
+
     try:
         while True:
             cpu = psutil.cpu_percent()
             memory = psutil.virtual_memory()
-            print(f"CPU: {cpu:5.1f}% | Memory: {memory.percent:5.1f}% | Available: {memory.available // (1024**3):2d}GB")
-            
+            print(
+                f"CPU: {cpu:5.1f}% | Memory: {memory.percent:5.1f}% | Available: {memory.available // (1024**3):2d}GB"
+            )
+
             import time
+
             time.sleep(2)
     except KeyboardInterrupt:
         print("\nTask Manager stopped.")
+
 
 if __name__ == "__main__":
     main()

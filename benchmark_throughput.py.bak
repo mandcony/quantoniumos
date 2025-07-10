@@ -4,13 +4,13 @@ QuantoniumOS Automated Throughput Benchmark
 Generates CI artifact for performance validation
 """
 
-import time
 import hashlib
 import json
-import sys
 import os
+import sys
+import time
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 # Add core modules to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'core'))
@@ -53,7 +53,7 @@ def benchmark_rft_performance() -> Dict[str, Any]:
     """Benchmark RFT performance if available"""
     try:
         from encryption.resonance_fourier import resonance_fourier_transform
-        
+
         # Test with various signal sizes
         signal_sizes = [16, 32, 64, 128, 256, 512]
         results = {}
@@ -98,7 +98,7 @@ def benchmark_geometric_hash_performance() -> Dict[str, Any]:
     """Benchmark geometric waveform hashing if available"""
     try:
         from encryption.geometric_waveform_hash import geometric_waveform_hash
-        
+
         # Test with various waveform sizes
         waveform_sizes = [8, 16, 32, 64, 128]
         results = {}
@@ -143,7 +143,7 @@ def benchmark_quantum_simulation() -> Dict[str, Any]:
     """Benchmark quantum state simulation"""
     try:
         from protected.quantum_engine import QuantumEngine
-        
+
         # Test quantum state operations
         qubits = [1, 2, 3, 4, 5]
         results = {}

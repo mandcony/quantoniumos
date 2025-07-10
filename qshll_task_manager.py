@@ -12,31 +12,22 @@ discarded.  Everything else remains unchanged.
 
 from __future__ import annotations
 
+import contextlib
 import ctypes
 import datetime
+import io
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import List, Tuple
-import contextlib
-import io
 
 import pandas as pd
 import psutil  # type: ignore
-from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtWidgets import (
-    QApplication,
-    QDialog,
-    QHeaderView,
-    QProgressBar,
-    QPushButton,
-    QTabWidget,
-    QTableWidget,
-    QTableWidgetItem,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtWidgets import (QApplication, QDialog, QHeaderView, QProgressBar,
+                             QPushButton, QTableWidget, QTableWidgetItem,
+                             QTabWidget, QVBoxLayout, QWidget)
 
 ######################################################################
 # 1. Logging                                                          #
@@ -79,12 +70,16 @@ for _cand in ("engine_core.pyd", "engine_core.dll"):
         logger.warning("Attempt to load %s failed: %s", _cand, exc)
 
 if ENGINE_DLL is None:
-    logger.warning("All attempts to load engine_core binary failed – proceeding without native core")
+    logger.warning(
+        "All attempts to load engine_core binary failed – proceeding without native core"
+    )
 
 # Import resonance manager
 try:
-    sys.path.append('attached_assets')
-    from resonance_manager import Process, monitor_resonance_states  # type: ignore
+    sys.path.append("attached_assets")
+    from resonance_manager import (Process,  # type: ignore
+                                   monitor_resonance_states)
+
     logger.info("Successfully imported silent resonance_manager")
 except ImportError as exc:
     logger.warning("Failed to import resonance_manager: %s", exc)
@@ -94,6 +89,7 @@ except ImportError as exc:
 ######################################################################
 # 3. Task‑manager GUI                                                 #
 ######################################################################
+
 
 class QSHLLTaskManager(QDialog):
     """PyQt5 task‑manager clone with optional topological metrics."""
@@ -125,7 +121,9 @@ class QSHLLTaskManager(QDialog):
         self.tabs.addTab(self.processes_tab, "Processes")
         proc_layout = QVBoxLayout(self.processes_tab)
         self.process_table = QTableWidget(0, 4)
-        self.process_table.setHorizontalHeaderLabels(["Process Name", "PID", "CPU%", "Memory%"])
+        self.process_table.setHorizontalHeaderLabels(
+            ["Process Name", "PID", "CPU%", "Memory%"]
+        )
         self.process_table.setSortingEnabled(True)
         self.process_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         proc_layout.addWidget(self.process_table)
@@ -155,7 +153,9 @@ class QSHLLTaskManager(QDialog):
             ]
         else:
             self.topo_processes = None
-            logger.warning("Topological metrics unavailable – resonance_manager missing")
+            logger.warning(
+                "Topological metrics unavailable – resonance_manager missing"
+            )
 
         # Timer
         self.timer = QTimer(self)
@@ -174,9 +174,18 @@ class QSHLLTaskManager(QDialog):
     # ..................................................................
     def _update_process_table(self):
         rows: List[Tuple[str, int, float, float]] = []
-        for proc in psutil.process_iter(attrs=["pid", "name", "cpu_percent", "memory_percent"]):
+        for proc in psutil.process_iter(
+            attrs=["pid", "name", "cpu_percent", "memory_percent"]
+        ):
             try:
-                rows.append((proc.info["name"], proc.info["pid"], proc.info["cpu_percent"], proc.info["memory_percent"]))
+                rows.append(
+                    (
+                        proc.info["name"],
+                        proc.info["pid"],
+                        proc.info["cpu_percent"],
+                        proc.info["memory_percent"],
+                    )
+                )
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
 
@@ -185,10 +194,16 @@ class QSHLLTaskManager(QDialog):
             self.process_table.setItem(i, 0, QTableWidgetItem(name))
             self.process_table.setItem(i, 1, QTableWidgetItem(str(pid)))
 
-            cpu_bar = QProgressBar(); cpu_bar.setMaximum(100); cpu_bar.setValue(min(int(cpu), 100)); cpu_bar.setFormat(f"{cpu:.1f}%")
+            cpu_bar = QProgressBar()
+            cpu_bar.setMaximum(100)
+            cpu_bar.setValue(min(int(cpu), 100))
+            cpu_bar.setFormat(f"{cpu:.1f}%")
             self.process_table.setCellWidget(i, 2, cpu_bar)
 
-            mem_bar = QProgressBar(); mem_bar.setMaximum(100); mem_bar.setValue(min(int(mem), 100)); mem_bar.setFormat(f"{mem:.1f}%")
+            mem_bar = QProgressBar()
+            mem_bar.setMaximum(100)
+            mem_bar.setValue(min(int(mem), 100))
+            mem_bar.setFormat(f"{mem:.1f}%")
             self.process_table.setCellWidget(i, 3, mem_bar)
 
     # ..................................................................
@@ -203,16 +218,16 @@ class QSHLLTaskManager(QDialog):
                 # Complete stdout/stderr suppression for resonance_manager
                 import os
                 import sys
-                
+
                 # Save original stdout/stderr
                 original_stdout = sys.stdout
                 original_stderr = sys.stderr
-                
+
                 # Redirect to devnull (complete silence)
-                devnull = open(os.devnull, 'w')
+                devnull = open(os.devnull, "w")
                 sys.stdout = devnull
                 sys.stderr = devnull
-                
+
                 try:
                     self.topo_processes = monitor_resonance_states(self.topo_processes, dt=0.1)  # type: ignore[arg-type]
                 finally:
@@ -222,18 +237,47 @@ class QSHLLTaskManager(QDialog):
                     devnull.close()
 
                 topo_cpu = sum(p.priority.amplitude for p in self.topo_processes) / len(self.topo_processes) * 50  # type: ignore[attr-defined]
-                topo_mem = sum(abs(p.amplitude.real) for p in self.topo_processes) / len(self.topo_processes) * 50
-                topo_disk = sum(p.resonance for p in self.topo_processes) / len(self.topo_processes) * 100
+                topo_mem = (
+                    sum(abs(p.amplitude.real) for p in self.topo_processes)
+                    / len(self.topo_processes)
+                    * 50
+                )
+                topo_disk = (
+                    sum(p.resonance for p in self.topo_processes)
+                    / len(self.topo_processes)
+                    * 100
+                )
             except Exception as exc:
                 logger.error("Error in monitor_resonance_states: %s", exc)
 
-        new_row = pd.DataFrame([[datetime.datetime.now().strftime("%H:%M:%S"), cpu_percent, memory.percent, disk.percent, topo_cpu, topo_mem, topo_disk]], columns=self.DATA_COLUMNS)
-        self.system_df = pd.concat([self.system_df, new_row], ignore_index=True).tail(60)
+        new_row = pd.DataFrame(
+            [
+                [
+                    datetime.datetime.now().strftime("%H:%M:%S"),
+                    cpu_percent,
+                    memory.percent,
+                    disk.percent,
+                    topo_cpu,
+                    topo_mem,
+                    topo_disk,
+                ]
+            ],
+            columns=self.DATA_COLUMNS,
+        )
+        self.system_df = pd.concat([self.system_df, new_row], ignore_index=True).tail(
+            60
+        )
 
         self.system_table.setRowCount(len(self.system_df))
         for i, row in self.system_df.iterrows():
             for j, val in enumerate(row):
-                self.system_table.setItem(i, j, QTableWidgetItem(f"{val:.2f}" if isinstance(val, float) else str(val)))
+                self.system_table.setItem(
+                    i,
+                    j,
+                    QTableWidgetItem(
+                        f"{val:.2f}" if isinstance(val, float) else str(val)
+                    ),
+                )
 
     # ------------------------------------------------------------------
     def export_data_to_csv(self):
@@ -244,16 +288,18 @@ class QSHLLTaskManager(QDialog):
         except Exception as exc:
             logger.error("Error exporting data: %s", exc)
 
+
 ######################################################################
 # 4. CLI entry point                                                  #
 ######################################################################
+
 
 def main() -> None:
     """Launch the Task Manager GUI."""
     app = QApplication(sys.argv)
     window = QSHLLTaskManager()
     window.show()
-    
+
     try:
         sys.exit(app.exec_())
     except KeyboardInterrupt:
@@ -261,6 +307,7 @@ def main() -> None:
     except Exception as exc:
         logger.error("Unexpected error during execution: %s", exc)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

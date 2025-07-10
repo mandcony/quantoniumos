@@ -1,4 +1,7 @@
-import sys, pathlib, os
+import os
+import pathlib
+import sys
+
 _ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
@@ -8,13 +11,16 @@ if _QOS.exists() and str(_QOS) not in sys.path:
 
 from encryption.resonance_encrypt import encrypt_symbolic
 
+
 def _hex32() -> str:
     return os.urandom(16).hex()
+
 
 def _bit_flip(hex_str: str, bit_index: int) -> str:
     b = bytearray.fromhex(hex_str)
     b[bit_index // 8] ^= 1 << (bit_index % 8)
     return b.hex()
+
 
 def test_xor_avalanche_effect():
     pt = _hex32()
@@ -22,7 +28,7 @@ def test_xor_avalanche_effect():
     baseline = encrypt_symbolic(pt, key)["ciphertext"]
 
     changed = 0
-    for bit in range(16):          # flip first 16 bits
+    for bit in range(16):  # flip first 16 bits
         pt_mut = _bit_flip(pt, bit)
         ct = encrypt_symbolic(pt_mut, key)["ciphertext"]
         if ct != baseline:

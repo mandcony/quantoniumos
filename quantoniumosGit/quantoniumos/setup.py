@@ -3,10 +3,10 @@ QuantoniumOS Setup Script
 Builds the complete package including C++ extensions
 """
 
-from setuptools import setup, Extension
-from pybind11.setup_helpers import Pybind11Extension, build_ext
-from pybind11 import get_cmake_dir
 import pybind11
+from pybind11 import get_cmake_dir
+from pybind11.setup_helpers import Pybind11Extension, build_ext
+from setuptools import Extension, setup
 
 # Define the C++ extension
 ext_modules = [
@@ -37,7 +37,7 @@ setup(
     packages=[
         "core",
         "core.encryption",
-        "core.protected", 
+        "core.protected",
         "core.HPC",
         "tests",
     ],

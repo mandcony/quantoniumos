@@ -6,18 +6,19 @@ Quantum Link module. Replace with actual implementation from quantonium_v2.zip
 for production use.
 """
 
-import math
 import logging
+import math
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class QuantumLink:
     def __init__(self):
         self.components = []
 
     def add_component(self, comp):
-        if hasattr(comp, 'amplitude'):
+        if hasattr(comp, "amplitude"):
             self.components.append(comp)
         else:
             logger.warning("⚠️ Component missing amplitude attribute")

@@ -5,12 +5,9 @@ Resonance Fourier Transform and Geometric Waveform Cipher implementations
 
 # Import specific functions to avoid potential circular import issues
 try:
-    from .resonance_fourier import (
-        resonance_fourier_transform,
-        inverse_resonance_fourier_transform,
-        perform_rft_list,
-        perform_irft_list
-    )
+    from .resonance_fourier import (inverse_resonance_fourier_transform,
+                                    perform_irft_list, perform_rft_list,
+                                    resonance_fourier_transform)
 except ImportError:
     pass
 

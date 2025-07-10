@@ -3,17 +3,18 @@
 Complete fix for achieving green wall status
 """
 
+import hashlib
+import json
 import os
 import sys
-import json
 import time
-import hashlib
 from datetime import datetime
+
 
 def create_fixed_benchmark():
     """Create a working benchmark_throughput.py"""
     print("Creating fixed benchmark_throughput.py...")
-    
+
     benchmark_code = '''#!/usr/bin/env python3
 """
 QuantoniumOS Automated Throughput Benchmark
@@ -157,103 +158,110 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 '''
-    
+
     # Backup old file
-    if os.path.exists('benchmark_throughput.py'):
-        os.rename('benchmark_throughput.py', 'benchmark_throughput.py.bak')
-    
-    with open('benchmark_throughput.py', 'w') as f:
+    if os.path.exists("benchmark_throughput.py"):
+        os.rename("benchmark_throughput.py", "benchmark_throughput.py.bak")
+
+    with open("benchmark_throughput.py", "w") as f:
         f.write(benchmark_code)
-    
+
     print("✅ Created fixed benchmark_throughput.py")
+
 
 def update_test_files_with_xfail():
     """Update test files to mark failing tests as xfail"""
     print("\nUpdating test files with xfail markers...")
-    
+
     # Update RFT test
-    if os.path.exists('tests/test_rft_roundtrip.py'):
-        with open('tests/test_rft_roundtrip.py', 'r') as f:
+    if os.path.exists("tests/test_rft_roundtrip.py"):
+        with open("tests/test_rft_roundtrip.py", "r") as f:
             content = f.read()
-        
+
         # Add pytest import if not present
-        if 'import pytest' not in content:
-            content = 'import pytest\n' + content
-        
+        if "import pytest" not in content:
+            content = "import pytest\n" + content
+
         # Mark high-level tests as xfail
         xfail_tests = [
-            'test_high_level_rft_roundtrip_sine_wave',
-            'test_high_level_rft_roundtrip_cosine_wave',
-            'test_high_level_rft_roundtrip_step_function',
-            'test_high_level_rft_roundtrip_random_signal',
-            'test_high_level_rft_roundtrip_constant_signal',
-            'test_high_level_rft_roundtrip_complex_waveform',
-            'test_parseval_theorem_sine_wave',
-            'test_parseval_theorem_cosine_wave',
-            'test_parseval_theorem_delta_function',
-            'test_parseval_theorem_step_function',
-            'test_parseval_theorem_random_signal',
-            'test_parseval_theorem_constant_signal',
-            'test_parseval_theorem_linear_ramp',
-            'test_parseval_theorem_complex_waveform'
+            "test_high_level_rft_roundtrip_sine_wave",
+            "test_high_level_rft_roundtrip_cosine_wave",
+            "test_high_level_rft_roundtrip_step_function",
+            "test_high_level_rft_roundtrip_random_signal",
+            "test_high_level_rft_roundtrip_constant_signal",
+            "test_high_level_rft_roundtrip_complex_waveform",
+            "test_parseval_theorem_sine_wave",
+            "test_parseval_theorem_cosine_wave",
+            "test_parseval_theorem_delta_function",
+            "test_parseval_theorem_step_function",
+            "test_parseval_theorem_random_signal",
+            "test_parseval_theorem_constant_signal",
+            "test_parseval_theorem_linear_ramp",
+            "test_parseval_theorem_complex_waveform",
         ]
-        
+
         for test_name in xfail_tests:
             # Add xfail decorator before test
-            pattern = f'def {test_name}\\('
+            pattern = f"def {test_name}\\("
             replacement = f'@pytest.mark.xfail(reason="Energy preservation optimization in progress - see GitHub issue #1", strict=False)\ndef {test_name}('
-            if '@pytest.mark.xfail' not in content.split(pattern)[0][-100:]:  # Check if not already marked
+            if (
+                "@pytest.mark.xfail" not in content.split(pattern)[0][-100:]
+            ):  # Check if not already marked
                 content = content.replace(pattern, replacement)
-        
-        with open('tests/test_rft_roundtrip.py', 'w') as f:
+
+        with open("tests/test_rft_roundtrip.py", "w") as f:
             f.write(content)
         print("✅ Updated test_rft_roundtrip.py with xfail markers")
-    
+
     # Update geometric test
-    if os.path.exists('tests/test_geowave_kat.py'):
-        with open('tests/test_geowave_kat.py', 'r') as f:
+    if os.path.exists("tests/test_geowave_kat.py"):
+        with open("tests/test_geowave_kat.py", "r") as f:
             content = f.read()
-        
-        if 'import pytest' not in content:
-            content = 'import pytest\n' + content
-        
+
+        if "import pytest" not in content:
+            content = "import pytest\n" + content
+
         # Mark failing tests as xfail
-        xfail_tests = ['test_hash_uniqueness', 'test_empty_waveform_handling_single_value']
-        
+        xfail_tests = [
+            "test_hash_uniqueness",
+            "test_empty_waveform_handling_single_value",
+        ]
+
         for test_name in xfail_tests:
-            pattern = f'def {test_name}\\('
+            pattern = f"def {test_name}\\("
             replacement = f'@pytest.mark.xfail(reason="Edge case handling in progress", strict=False)\ndef {test_name}('
-            if '@pytest.mark.xfail' not in content.split(pattern)[0][-100:]:
+            if "@pytest.mark.xfail" not in content.split(pattern)[0][-100:]:
                 content = content.replace(pattern, replacement)
-        
-        with open('tests/test_geowave_kat.py', 'w') as f:
+
+        with open("tests/test_geowave_kat.py", "w") as f:
             f.write(content)
         print("✅ Updated test_geowave_kat.py with xfail markers")
+
 
 def run_all_fixes():
     """Run all fixes and generate artifacts"""
     print("🚀 Running complete green wall fix...")
-    
+
     # Create fixed benchmark
     create_fixed_benchmark()
-    
+
     # Update test files
     update_test_files_with_xfail()
-    
+
     # Run benchmark to generate artifacts
     print("\n📊 Running benchmark to generate artifacts...")
     os.system(f"{sys.executable} benchmark_throughput.py")
-    
+
     # Verify artifacts
     print("\n✅ Verifying artifacts...")
     artifacts = [
-        'throughput_results.csv',
-        'benchmark_throughput_report.json',
-        'geowave_kat_results.json',
-        'rft_roundtrip_test_results.json',
-        'quantonium_analysis_report.json'
+        "throughput_results.csv",
+        "benchmark_throughput_report.json",
+        "geowave_kat_results.json",
+        "rft_roundtrip_test_results.json",
+        "quantonium_analysis_report.json",
     ]
-    
+
     all_exist = True
     for artifact in artifacts:
         if os.path.exists(artifact):
@@ -262,17 +270,17 @@ def run_all_fixes():
         else:
             print(f"❌ {artifact} missing")
             all_exist = False
-    
+
     if all_exist:
         print("\n🎉 ALL ARTIFACTS PRESENT!")
-        
+
         # Show CSV content
         print("\n📄 CSV Preview:")
-        with open('throughput_results.csv', 'r') as f:
+        with open("throughput_results.csv", "r") as f:
             for i, line in enumerate(f):
                 if i < 5:
                     print(f"  {line.strip()}")
-        
+
         print("\n✅ READY FOR GREEN WALL PUSH!")
         print("\nNext steps:")
         print("1. Run: pytest -q")
@@ -280,6 +288,7 @@ def run_all_fixes():
         print("3. Push with: git tag v0.5.0 && git push --tags")
     else:
         print("\n⚠️  Some artifacts missing")
+
 
 if __name__ == "__main__":
     run_all_fixes()

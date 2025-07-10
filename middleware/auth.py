@@ -5,17 +5,18 @@ Implements authentication and rate limiting middleware for the API.
 This module provides Redis-backed distributed rate limiting and JWT authentication.
 """
 
-import os
-import time
 import json
 import logging
+import os
+import time
 from functools import wraps
 
 # Try importing Flask-related modules, fallback gracefully if not available
 try:
-    from flask import request, jsonify, g, current_app
+    from flask import current_app, g, jsonify, request
     from flask_limiter import Limiter
     from flask_limiter.util import get_remote_address
+
     FLASK_AVAILABLE = True
 except ImportError:
     # Set placeholders for Flask objects if Flask is not available
@@ -31,23 +32,25 @@ except ImportError:
 logger = logging.getLogger("quantonium_auth")
 
 # Import Redis cluster configuration
-from redis_config import redis_cluster, get_redis_connection, get_rate_limit, REDIS_AVAILABLE, REDIS_URL
+from redis_config import (REDIS_AVAILABLE, REDIS_URL, get_rate_limit,
+                          get_redis_connection, redis_cluster)
+
 
 # Create a Redis-backed rate limiter middleware
 class RedisRateLimiter:
     """
     Redis-backed distributed rate limiter for Flask applications.
     This complements the main rate limiter from flask_limiter in security.py.
-    
+
     This middleware provides IP-based rate limiting at the WSGI level
     before the request even reaches the Flask application, using Redis
     as a distributed storage backend for better scalability.
     """
-    
-    def __init__(self, redis_url=None, calls=30, period=60, redis_prefix='ratelimit:'):
+
+    def __init__(self, redis_url=None, calls=30, period=60, redis_prefix="ratelimit:"):
         """
         Initialize the Redis rate limiter.
-        
+
         Args:
             redis_url: Redis connection URL (not used - we use centralized connection)
             calls: Number of calls allowed
@@ -58,78 +61,83 @@ class RedisRateLimiter:
         self.period = period
         self.prefix = redis_prefix
         self.redis_client = get_redis_connection()
-        
+
         if self.redis_client:
             logger.info("Using centralized Redis connection for rate limiting")
         else:
-            logger.warning("Redis not available for rate limiting - will accept all requests")
-    
+            logger.warning(
+                "Redis not available for rate limiting - will accept all requests"
+            )
+
     def check_rate_limit(self, client_ip):
         """
         Check if a client has exceeded rate limit and update counter
-        
+
         Args:
             client_ip: Client IP address
-            
+
         Returns:
             Tuple of (exceeded, remaining)
         """
         # Use our central redis_config module for rate limiting
-        result = get_rate_limit(client_ip, self.calls, self.period) 
-        
+        result = get_rate_limit(client_ip, self.calls, self.period)
+
         # If Redis isn't available or there was an error, always allow the request
         if result is None:
             return False, self.calls
-        
+
         # Unpack result from redis_config.get_rate_limit
         exceeded, remaining, reset_time = result
         return exceeded, remaining
-    
+
     def __call__(self, app):
         """
         Apply rate limiting to the Flask application.
-        
+
         Args:
             app: Flask application
-            
+
         Returns:
             A WSGI middleware that wraps the Flask application
         """
+
         def middleware(environ, start_response):
             # Get client IP
-            client_ip = environ.get('REMOTE_ADDR', 'unknown')
-            
+            client_ip = environ.get("REMOTE_ADDR", "unknown")
+
             # Only apply rate limiting if Redis is available
             if self.redis_client:
                 exceeded, remaining = self.check_rate_limit(client_ip)
-                
+
                 if exceeded:
                     # Rate limit exceeded
                     headers = [
-                        ('Content-Type', 'application/json'),
-                        ('Retry-After', str(self.period)),
-                        ('X-RateLimit-Limit', str(self.calls)),
-                        ('X-RateLimit-Remaining', '0'),
-                        ('X-RateLimit-Reset', str(int(time.time()) + self.period))
+                        ("Content-Type", "application/json"),
+                        ("Retry-After", str(self.period)),
+                        ("X-RateLimit-Limit", str(self.calls)),
+                        ("X-RateLimit-Remaining", "0"),
+                        ("X-RateLimit-Reset", str(int(time.time()) + self.period)),
                     ]
-                    start_response('429 Too Many Requests', headers)
+                    start_response("429 Too Many Requests", headers)
                     return [b'{"error": "Rate limit exceeded. Try again later."}']
-                
+
                 # Add rate limit headers for passing requests too
                 def custom_start_response(status, headers, exc_info=None):
-                    headers.extend([
-                        ('X-RateLimit-Limit', str(self.calls)),
-                        ('X-RateLimit-Remaining', str(max(0, remaining))),
-                        ('X-RateLimit-Reset', str(int(time.time()) + self.period))
-                    ])
+                    headers.extend(
+                        [
+                            ("X-RateLimit-Limit", str(self.calls)),
+                            ("X-RateLimit-Remaining", str(max(0, remaining))),
+                            ("X-RateLimit-Reset", str(int(time.time()) + self.period)),
+                        ]
+                    )
                     return start_response(status, headers, exc_info)
-                
+
                 # Pass through to the application with our custom start_response
                 return app(environ, custom_start_response)
-            
+
             # Fallback to standard behavior if Redis is not available
             return app(environ, start_response)
-        
+
         return middleware
 
 
@@ -138,15 +146,15 @@ class MemoryRateLimiter:
     """
     Memory-based rate limiter for Flask applications.
     This complements the main rate limiter from flask_limiter in security.py.
-    
+
     This middleware provides IP-based rate limiting at the WSGI level
     before the request even reaches the Flask application.
     """
-    
+
     def __init__(self, calls=30, period=60):
         """
         Initialize the rate limiter.
-        
+
         Args:
             calls: Number of calls allowed
             period: Time period in seconds
@@ -154,68 +162,70 @@ class MemoryRateLimiter:
         self.calls = calls
         self.period = period
         self.clients = {}
-        logger.warning("Using in-memory rate limiter. This does not scale across multiple instances.")
-        
+        logger.warning(
+            "Using in-memory rate limiter. This does not scale across multiple instances."
+        )
+
     def __call__(self, app):
         """
         Apply rate limiting to the Flask application.
-        
+
         Args:
             app: Flask application
-            
+
         Returns:
             A WSGI middleware that wraps the Flask application
         """
+
         def middleware(environ, start_response):
             # Get client IP
-            client_ip = environ.get('REMOTE_ADDR', 'unknown')
-            
+            client_ip = environ.get("REMOTE_ADDR", "unknown")
+
             # Get current time
             current_time = time.time()
-            
+
             # Clean up old entries
             for ip in list(self.clients.keys()):
-                if current_time - self.clients[ip]['timestamp'] > self.period:
+                if current_time - self.clients[ip]["timestamp"] > self.period:
                     del self.clients[ip]
-            
+
             # Check if client has exceeded rate limit
             if client_ip in self.clients:
                 client = self.clients[client_ip]
-                if client['count'] >= self.calls:
+                if client["count"] >= self.calls:
                     # Rate limit exceeded
                     headers = [
-                        ('Content-Type', 'application/json'),
-                        ('Retry-After', str(self.period)),
-                        ('X-RateLimit-Limit', str(self.calls)),
-                        ('X-RateLimit-Remaining', '0'),
-                        ('X-RateLimit-Reset', str(int(current_time) + self.period))
+                        ("Content-Type", "application/json"),
+                        ("Retry-After", str(self.period)),
+                        ("X-RateLimit-Limit", str(self.calls)),
+                        ("X-RateLimit-Remaining", "0"),
+                        ("X-RateLimit-Reset", str(int(current_time) + self.period)),
                     ]
-                    start_response('429 Too Many Requests', headers)
+                    start_response("429 Too Many Requests", headers)
                     return [b'{"error": "Rate limit exceeded. Try again later."}']
-                
+
                 # Increment count
-                client['count'] += 1
-                remaining = max(0, self.calls - client['count'])
+                client["count"] += 1
+                remaining = max(0, self.calls - client["count"])
             else:
                 # Add new client
-                self.clients[client_ip] = {
-                    'count': 1,
-                    'timestamp': current_time
-                }
+                self.clients[client_ip] = {"count": 1, "timestamp": current_time}
                 remaining = self.calls - 1
-            
+
             # Add rate limit headers
             def custom_start_response(status, headers, exc_info=None):
-                headers.extend([
-                    ('X-RateLimit-Limit', str(self.calls)),
-                    ('X-RateLimit-Remaining', str(remaining)),
-                    ('X-RateLimit-Reset', str(int(current_time) + self.period))
-                ])
+                headers.extend(
+                    [
+                        ("X-RateLimit-Limit", str(self.calls)),
+                        ("X-RateLimit-Remaining", str(remaining)),
+                        ("X-RateLimit-Reset", str(int(current_time) + self.period)),
+                    ]
+                )
                 return start_response(status, headers, exc_info)
-            
+
             # Pass through to the application with custom headers
             return app(environ, custom_start_response)
-        
+
         return middleware
 
 
@@ -224,11 +234,11 @@ def RateLimiter(calls=30, period=60):
     """
     Factory function that returns the appropriate rate limiter based on availability.
     Will use Redis if available, otherwise falls back to in-memory.
-    
+
     Args:
         calls: Number of calls allowed
         period: Time period in seconds
-        
+
     Returns:
         A rate limiter instance
     """
@@ -237,23 +247,26 @@ def RateLimiter(calls=30, period=60):
             # Test Redis connection and return Redis-backed limiter if successful
             limiter = RedisRateLimiter(calls=calls, period=period)
             if limiter.redis_client:
-                logger.info(f"Using Redis-backed rate limiter ({calls} requests per {period}s)")
+                logger.info(
+                    f"Using Redis-backed rate limiter ({calls} requests per {period}s)"
+                )
                 return limiter
         except Exception as e:
             logger.error(f"Error initializing Redis rate limiter: {e}")
             logger.info("Falling back to in-memory rate limiter")
-    
+
     # Fallback to in-memory rate limiter
     return MemoryRateLimiter(calls, period)
+
 
 # Decorator for requiring JWT authentication
 def require_jwt_auth(f):
     """
     Decorator to require JWT authentication for a route.
-    
+
     Args:
         f: Function to decorate
-        
+
     Returns:
         Decorated function
     """
@@ -262,32 +275,35 @@ def require_jwt_auth(f):
         logger.error("Flask is not available. JWT authentication will not work.")
         # Return a pass-through decorator
         return f
-    
+
     @wraps(f)
     def decorated(*args, **kwargs):
         # Check for Authorization header
-        auth_header = request.headers.get('Authorization')
+        auth_header = request.headers.get("Authorization")
         if not auth_header:
-            return jsonify({'error': 'Missing Authorization header'}), 401
-        
+            return jsonify({"error": "Missing Authorization header"}), 401
+
         # Check that it's a Bearer token
         parts = auth_header.split()
-        if parts[0].lower() != 'bearer':
-            return jsonify({'error': 'Authorization header must start with Bearer'}), 401
-        
+        if parts[0].lower() != "bearer":
+            return (
+                jsonify({"error": "Authorization header must start with Bearer"}),
+                401,
+            )
+
         if len(parts) == 1:
-            return jsonify({'error': 'Token not found'}), 401
-        
+            return jsonify({"error": "Token not found"}), 401
+
         if len(parts) > 2:
-            return jsonify({'error': 'Authorization header must be Bearer token'}), 401
-        
+            return jsonify({"error": "Authorization header must be Bearer token"}), 401
+
         token = parts[1]
-        
+
         # Validate token
         # This is where you would validate the JWT token
         # For now, just accept any token
-        g.user = {'id': 1, 'username': 'testuser'}
-        
+        g.user = {"id": 1, "username": "testuser"}
+
         return f(*args, **kwargs)
-    
+
     return decorated

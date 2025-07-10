@@ -11,7 +11,7 @@
 #
 # Make the long-awaited conversion to MPL.
 
-lgpl3_header = '''
+lgpl3_header = """
 // Eigen is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
@@ -30,7 +30,7 @@ lgpl3_header = '''
 // You should have received a copy of the GNU Lesser General Public
 // License and a copy of the GNU General Public License along with
 // Eigen. If not, see <http://www.gnu.org/licenses/>.
-'''
+"""
 
 mpl2_header = """
 // This Source Code Form is subject to the terms of the Mozilla
@@ -41,19 +41,21 @@ mpl2_header = """
 import os
 import sys
 
-exclusions = set(['relicense.py'])
+exclusions = set(["relicense.py"])
+
 
 def update(text):
-  if text.find(lgpl3_header) == -1:
-    return text, False
-  return text.replace(lgpl3_header, mpl2_header), True
+    if text.find(lgpl3_header) == -1:
+        return text, False
+    return text.replace(lgpl3_header, mpl2_header), True
+
 
 rootdir = sys.argv[1]
 for root, sub_folders, files in os.walk(rootdir):
     for basename in files:
         filename = os.path.join(root, basename)
         if basename in exclusions:
-            print('SKIPPED', filename)
+            print("SKIPPED", filename)
             continue
         with open(filename) as fo:
             text = fo.read()
@@ -62,6 +64,6 @@ for root, sub_folders, files in os.walk(rootdir):
         if updated:
             with open(filename, "w") as fo:
                 fo.write(text)
-            print('UPDATED', filename)
+            print("UPDATED", filename)
         else:
-            print('       ', filename)
+            print("       ", filename)
