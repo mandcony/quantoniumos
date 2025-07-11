@@ -388,4 +388,5 @@ This will output a summary of syscalls used, which can be used to refine the pro
 
 ## License
 
-Proprietary - All rights reserved
+Proprietary - All rights reservedT r i g g e r i n g   m i n i m a l   p i p e l i n e  
+ 
