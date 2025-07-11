@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM python:3.11-slim@sha256:699ff01b9bbfc23dd0de1fc3736629895529dc3c59f8a1ceb173a7cae8a92a78 AS builder
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
@@ -30,7 +30,7 @@ RUN pip install pip-audit \
 RUN if [ -f build_engine.sh ]; then chmod +x build_engine.sh && ./build_engine.sh; fi
 
 # Stage 2: Runtime stage
-FROM python:3.11-slim@sha256:699ff01b9bbfc23dd0de1fc3736629895529dc3c59f8a1ceb173a7cae8a92a78
+FROM python:3.11-slim
 
 # Create non-root user
 RUN groupadd -r quant --gid=1001 && \

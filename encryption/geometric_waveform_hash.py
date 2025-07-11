@@ -164,3 +164,58 @@ def wave_hash(waveform: List[float]) -> str:
 def extract_wave_parameters(waveform: List[float]) -> Dict[str, float]:
     """Legacy alias for get_waveform_properties.""" 
     return get_waveform_properties(waveform)
+
+def calculate_waveform_coherence(waveform1: List[float], waveform2: List[float]) -> float:
+    """Calculate coherence between two waveforms using cross-correlation."""
+    if not waveform1 or not waveform2:
+        return 0.0
+    
+    # Normalize waveforms to same length
+    min_len = min(len(waveform1), len(waveform2))
+    w1 = waveform1[:min_len]
+    w2 = waveform2[:min_len]
+    
+    if min_len == 0:
+        return 0.0
+    
+    # Calculate cross-correlation
+    correlation = sum(a * b for a, b in zip(w1, w2))
+    
+    # Calculate magnitudes
+    mag1 = math.sqrt(sum(a * a for a in w1))
+    mag2 = math.sqrt(sum(b * b for b in w2))
+    
+    if mag1 == 0 or mag2 == 0:
+        return 0.0
+    
+    # Return normalized correlation coefficient
+    return correlation / (mag1 * mag2)
+
+def extract_parameters_from_hash(hash_value: str) -> tuple:
+    """Extract amplitude and phase parameters from a geometric hash."""
+    try:
+        # Convert hash to bytes
+        hash_bytes = bytes.fromhex(hash_value)
+        
+        # Extract first 8 bytes for amplitude, next 8 for phase
+        if len(hash_bytes) < 16:
+            # Pad with zeros if hash is too short
+            hash_bytes = hash_bytes + b'\x00' * (16 - len(hash_bytes))
+        
+        # Convert bytes to floats using geometric transformation
+        amp_bytes = hash_bytes[:8]
+        phase_bytes = hash_bytes[8:16]
+        
+        # Calculate amplitude (0.0 to 2.0)
+        amp_sum = sum(amp_bytes)
+        amplitude = (amp_sum % 200) / 100.0
+        
+        # Calculate phase (0.0 to 2π)
+        phase_sum = sum(phase_bytes)
+        phase = (phase_sum % 628) / 100.0  # 628 ≈ 2π * 100
+        
+        return amplitude, phase
+        
+    except Exception as e:
+        logger.error(f"Error extracting parameters from hash: {e}")
+        return 1.0, 0.0  # Default values

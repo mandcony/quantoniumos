@@ -554,13 +554,6 @@ def create_app():
             "uptime_s": uptime_seconds
         })
         
-    # Simple health check for deployment verification
-    @app.route('/health')
-    def health():
-        """Simple health check endpoint for deployment testing."""
-        app.logger.info("Health check endpoint accessed")
-        return jsonify({"status": "ok"})
-    
     # Launch the desktop resonance analyzer application
     @app.route('/api/launch-desktop-analyzer', methods=['POST'])
     def launch_desktop_analyzer():

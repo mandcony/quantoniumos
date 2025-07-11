@@ -70,3 +70,31 @@ def wait_for_health_check(base_url, timeout=60, interval=2):
     
     logger.error(f"❌ Server at {base_url} did not become available within {timeout}s")
     return False
+
+def test_basic_imports():
+    """Test that basic imports work - minimal test for CI pipeline"""
+    import flask
+    import json
+    import requests
+    assert True  # Basic test to ensure pytest can run
+
+def test_environment_setup():
+    """Test that environment is set up correctly"""
+    import sys
+    import os
+    
+    # Check Python version
+    assert sys.version_info >= (3, 9), "Python 3.9+ required"
+    
+    # Check that we're in the right directory
+    assert os.path.exists("main.py"), "main.py should exist"
+    assert os.path.exists("requirements.txt"), "requirements.txt should exist"
+
+def test_test_utils_functions():
+    """Test that test utility functions work"""
+    api_key = get_api_key_from_env()
+    headers = get_test_headers()
+    
+    # These should not crash
+    assert isinstance(headers, dict)
+    assert "Content-Type" in headers
