@@ -262,3 +262,52 @@ jobs:
             benchmark_throughput_report.json
             throughput_results.csv
           retention-days: 7
+
+  phase8-security-scanning:
+    name: "🔒 Phase 8: Security Scanning"
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: phase7-performance-benchmarking
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install Security Tools
+        timeout-minutes: 2
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety bandit
+      - name: Scan Python Dependencies
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          echo "🔍 Scanning Python dependencies for vulnerabilities..."
+          safety check -r requirements.txt --output text --full-report=no || echo "⚠️ Dependency vulnerabilities detected"
+      - name: Run SAST Analysis
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          echo "🔍 Running static code security analysis..."
+          bandit -r . -x ./tests,./venv,./docs,./.git -lll || echo "⚠️ Security issues detected in code"
+      - name: Generate Security Report
+        run: |
+          echo "Security Scan Summary" > security-report.txt
+          echo "====================" >> security-report.txt
+          echo "Date: $(date)" >> security-report.txt
+          echo "" >> security-report.txt
+          echo "1. Dependency Security Scan: See above for results." >> security-report.txt
+          echo "2. Static Code Security Analysis: See above for results." >> security-report.txt
+          echo "" >> security-report.txt
+          echo "Note: This is an automated security scan. Manual review is recommended." >> security-report.txt
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report.txt
+          retention-days: 7
