@@ -950,6 +950,43 @@ def create_app():
             logger.error(f"Secure container creation failed: {e}")
             return jsonify({'error': 'Container creation failed'}), 500
     
+    # Health check endpoint for CI/CD and monitoring
+    @app.route('/health', methods=['GET'])
+    def health_check():
+        """Health check endpoint for CI/CD and monitoring"""
+        try:
+            # Check database connection if available
+            db_status = "connected"
+            try:
+                # Simple database ping
+                with app.app_context():
+                    db.engine.execute("SELECT 1")
+            except Exception as e:
+                db_status = f"error: {str(e)}"
+            
+            uptime_seconds = time.time() - APP_START_TIME
+            
+            health_data = {
+                "status": "healthy",
+                "timestamp": datetime.utcnow().isoformat(),
+                "version": APP_VERSION,
+                "uptime_seconds": uptime_seconds,
+                "database": db_status,
+                "python_version": platform.python_version(),
+                "platform": platform.system()
+            }
+            
+            return jsonify(health_data), 200
+            
+        except Exception as e:
+            error_data = {
+                "status": "unhealthy",
+                "timestamp": datetime.utcnow().isoformat(),
+                "error": str(e),
+                "version": APP_VERSION
+            }
+            return jsonify(error_data), 503
+
     return app
 
 # ✅ Gunicorn uses this

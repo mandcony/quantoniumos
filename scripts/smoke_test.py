@@ -16,6 +16,10 @@ import argparse
 import logging
 from datetime import datetime
 
+# Add tests directory to path for shared utilities
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tests'))
+from test_utils import get_auth_token, get_test_headers, wait_for_health_check
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -35,6 +39,25 @@ def setup_args():
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     return parser.parse_args()
 
+def wait_for_server(base_url, timeout=60, interval=2):
+    """Wait for server to be available"""
+    logger.info(f"Waiting for server at {base_url}...")
+    start_time = time.time()
+    
+    while time.time() - start_time < timeout:
+        try:
+            response = requests.get(f"{base_url}/health", timeout=5)
+            if response.status_code == 200:
+                logger.info("✅ Server is ready!")
+                return True
+        except requests.RequestException:
+            pass
+        
+        time.sleep(interval)
+    
+    logger.error(f"❌ Server at {base_url} did not become available within {timeout}s")
+    return False
+
 def get_api_key(args):
     """Get API key from args or environment"""
     if args.api_key:
@@ -50,41 +73,6 @@ def get_api_key(args):
     
     logger.error("No API key provided. Set QUANTONIUM_API_KEY environment variable or use --api-key")
     sys.exit(1)
-
-def get_auth_token(base_url, api_key):
-    """Get JWT token using API key"""
-    if not api_key:
-        return None
-    
-    headers = {
-        "Content-Type": "application/json",
-        "X-API-Key": api_key
-    }
-    
-    try:
-        response = requests.post(f"{base_url}/api/auth/token", headers=headers)
-        if response.status_code != 200:
-            logger.error(f"Failed to get auth token: {response.status_code}")
-            logger.error(response.text)
-            return None
-            
-        token_data = response.json()
-        logger.info(f"Successfully acquired auth token for key {token_data.get('key_id')}")
-        return token_data.get("token")
-    except Exception as e:
-        logger.error(f"Error getting auth token: {str(e)}")
-        return None
-
-def get_headers(token=None, api_key=None):
-    """Get request headers with authentication"""
-    headers = {"Content-Type": "application/json"}
-    
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    elif api_key:
-        headers["X-API-Key"] = api_key
-        
-    return headers
 
 def test_health_check(base_url):
     """Test the health check endpoint"""
@@ -216,7 +204,7 @@ def run_tests(args):
     base_url = args.url.rstrip('/')
     api_key = get_api_key(args) if not args.skip_auth else None
     token = get_auth_token(base_url, api_key) if api_key else None
-    headers = get_headers(token, api_key)
+    headers = get_test_headers(base_url, api_key, token)
     
     results = {}
     

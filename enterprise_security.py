@@ -32,8 +32,10 @@ class DatabaseEncryption:
         
         # Generate new key
         new_key = Fernet.generate_key()
-        logger.warning(f"Generated new database encryption key: {base64.b64encode(new_key).decode()}")
+        key_display = base64.b64encode(new_key).decode()[:12] + "***REDACTED***"
+        logger.warning(f"Generated new database encryption key: {key_display}")
         logger.warning("Set DATABASE_ENCRYPTION_KEY environment variable to persist this key")
+        logger.warning("Full key has been generated but not logged for security")
         return new_key
     
     def encrypt_sensitive_data(self, data: str) -> str:

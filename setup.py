@@ -3,6 +3,7 @@ QuantoniumOS Setup Script
 Builds the complete package including C++ extensions
 """
 
+import os
 from setuptools import setup, Extension
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from pybind11 import get_cmake_dir
@@ -29,7 +30,7 @@ setup(
     name="quantonium-os",
     version="0.3.0-rc1",
     description="Quantum-inspired computational framework with patent-protected algorithms",
-    long_description=open("README.md").read(),
+    long_description=open("README.md", encoding="utf-8").read() if os.path.exists("README.md") else "QuantoniumOS - Quantum-inspired computational framework",
     long_description_content_type="text/markdown",
     author="QuantoniumOS Development Team",
     author_email="dev@quantonium.io",
