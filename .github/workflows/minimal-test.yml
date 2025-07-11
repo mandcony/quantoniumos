@@ -214,3 +214,51 @@ jobs:
           name: documentation
           path: docs/_build/html
           retention-days: 7
+
+  phase7-performance-benchmarking:
+    name: "⚡ Phase 7: Performance Benchmarking"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: phase6-documentation
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Run Performance Benchmarks
+        run: |
+          echo "Running performance benchmarks..."
+          # Run the benchmark script with a smaller data size for CI
+          python benchmark_throughput.py
+          
+          echo "Validating benchmark results..."
+          # Ensure the benchmark results exist
+          if [ -f "benchmark_throughput_report.json" ] && [ -f "throughput_results.csv" ]; then
+            echo "✅ Benchmark results generated successfully"
+            cat throughput_results.csv
+          else
+            echo "❌ Failed to generate benchmark results"
+            exit 1
+          fi
+          
+          echo "✅ Phase 7: Performance benchmarking completed"
+      
+      - name: Upload Benchmark Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-results
+          path: |
+            benchmark_throughput_report.json
+            throughput_results.csv
+          retention-days: 7
