@@ -86,10 +86,13 @@ jobs:
           tags: quantoniumos:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          # Add build args to skip problematic steps
+          # Add build args and build flags
           build-args: |
             SKIP_BUILD_ENGINE=1
             SKIP_TESTS=1
+            DEBIAN_FRONTEND=noninteractive
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
       
       - name: Test Docker Image
         run: |
