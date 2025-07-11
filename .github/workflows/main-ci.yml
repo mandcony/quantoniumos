@@ -169,7 +169,7 @@ jobs:
       
       # FAIL-SAFE: Upload results even if tests fail
       - name: "📊 Upload test results"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results-${{ matrix.python-version }}
@@ -364,7 +364,7 @@ jobs:
         timeout-minutes: 3
       
       - name: "📤 Upload build artifacts"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-package
           path: dist/
@@ -437,7 +437,7 @@ jobs:
         timeout-minutes: 2
       
       - name: "📤 Upload Docker artifact"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-image
           path: quantonium-os-docker.tar.gz

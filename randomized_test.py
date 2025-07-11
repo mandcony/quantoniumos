@@ -21,7 +21,7 @@ from typing import List, Dict, Any
 BASE_URL = "http://localhost:5000"
 
 # API Key (in production, use environment variable)
-API_KEY = "default_dev_key"
+API_KEY = "dev-key-only-not-secret"
 
 # Headers for API requests
 headers = {

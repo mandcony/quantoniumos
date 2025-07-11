@@ -13,7 +13,7 @@ import requests
 
 # Base configuration
 BASE_URL = "http://localhost:5000"
-DEFAULT_API_KEY = "default_dev_key"
+DEFAULT_API_KEY = "dev-key-only-not-secret"
 
 # Get API key from environment or use default
 API_KEY = os.environ.get("QUANTONIUM_API_KEY", DEFAULT_API_KEY)
