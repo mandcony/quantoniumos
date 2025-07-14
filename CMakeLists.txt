@@ -69,27 +69,27 @@ endif()
 
 # Compiler-specific flags for robustness
 if(MSVC)
-    target_compile_options(robust_test_symbolic PRIVATE /W4 /EHsc)
+    target_compile_options(test_geowave_kat PRIVATE /W4 /EHsc)
     # Disable specific warnings that Eigen triggers
-    target_compile_options(robust_test_symbolic PRIVATE /wd4127 /wd4996)
+    target_compile_options(test_geowave_kat PRIVATE /wd4127 /wd4996)
 else()
-    target_compile_options(robust_test_symbolic PRIVATE -Wall -Wextra -O2)
+    target_compile_options(test_geowave_kat PRIVATE -Wall -Wextra -O2)
     # Disable Eigen-specific warnings
-    target_compile_options(robust_test_symbolic PRIVATE -Wno-deprecated-declarations)
+    target_compile_options(test_geowave_kat PRIVATE -Wno-deprecated-declarations)
 endif()
 
 # Test target
 enable_testing()
-add_test(NAME symbolic_tests COMMAND robust_test_symbolic)
+add_test(NAME symbolic_tests COMMAND test_geowave_kat)
 
 # Custom target for quick build verification
 add_custom_target(verify_build
-    COMMAND ${CMAKE_COMMAND} --build . --target robust_test_symbolic
+    COMMAND ${CMAKE_COMMAND} --build . --target test_geowave_kat
     COMMENT "Verifying C++ build can complete"
 )
 
 # Install rules (optional)
-install(TARGETS robust_test_symbolic
+install(TARGETS test_geowave_kat
     RUNTIME DESTINATION bin
 )
 

@@ -66,11 +66,12 @@ jobs:
           
       - name: Build C++ components
         run: |
-          cmake --build build --config Release
+          cmake --build build --config Release --target test_geowave_kat
           
       - name: Run C++ tests
         run: |
           cd build
+          ctest -V
           echo "C++ build completed successfully"
 
   # Step 3: Integration validation
