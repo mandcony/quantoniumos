@@ -60,7 +60,11 @@ EXPORT void encode_resonance(const char* data, char* out, int* out_len) {
     std::string result;
     
     // Simple but non-trivial encoding: XOR with rotating key + hex encoding
-    const char* key = "QuantoniumKey";
+    // Note: This is for demonstration purposes only - not cryptographically secure
+    const char* key = std::getenv("QUANTONIUM_ENCODING_KEY");
+    if (!key) {
+        key = "DefaultDemoKey";  // Fallback for development
+    }
     int key_len = strlen(key);
     
     for (size_t i = 0; i < input.length(); i++) {
@@ -87,7 +91,10 @@ EXPORT void decode_resonance(const char* encoded_data, char* out, int* out_len) 
     std::string encoded(encoded_data);
     std::string decoded;
     
-    const char* key = "QuantoniumKey";
+    const char* key = std::getenv("QUANTONIUM_ENCODING_KEY");
+    if (!key) {
+        key = "DefaultDemoKey";  // Fallback for development
+    }
     int key_len = strlen(key);
     
     // Decode hex pairs back to characters
