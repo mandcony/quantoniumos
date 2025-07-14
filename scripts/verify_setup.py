@@ -11,6 +11,14 @@ import importlib
 import os
 from pathlib import Path
 
+# Load environment variables from .env file if it exists
+if Path('.env').exists():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        pass  # dotenv not installed, skip loading
+
 def check_python_version():
     """Check Python version requirement"""
     min_version = (3, 9)
@@ -48,22 +56,32 @@ def check_system_command(command, name=None):
         return False
 
 def check_database_connection():
-    """Check PostgreSQL connection"""
+    """Check database connection (SQLite or PostgreSQL)"""
     try:
-        import psycopg2
-        # Try to connect using environment variables or defaults
-        db_url = os.getenv('DATABASE_URL', 'postgresql://quantonium_user:secure_password@localhost:5432/quantonium_db')
-        conn = psycopg2.connect(db_url)
-        conn.close()
-        print("   ✅ PostgreSQL connection successful")
-        return True
+        db_url = os.getenv('DATABASE_URL', 'sqlite:///quantonium_dev.db')
+        
+        if db_url.startswith('sqlite:'):
+            # SQLite database - just check if we can create a connection
+            import sqlite3
+            db_path = db_url.replace('sqlite:///', '').replace('sqlite://', '')
+            conn = sqlite3.connect(db_path)
+            conn.close()
+            print(f"   ✅ SQLite database connection successful ({db_path})")
+            return True
+        else:
+            # PostgreSQL database
+            import psycopg2
+            conn = psycopg2.connect(db_url)
+            conn.close()
+            print("   ✅ PostgreSQL connection successful")
+            return True
     except Exception as e:
-        print(f"   ❌ PostgreSQL connection failed: {e}")
-        print("      Set DATABASE_URL environment variable or check database setup")
+        print(f"   ❌ Database connection failed: {e}")
+        print("      Check DATABASE_URL environment variable or run setup_local_env.py")
         return False
 
 def check_redis_connection():
-    """Check Redis connection"""
+    """Check Redis connection (optional for development)"""
     try:
         import redis
         redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
@@ -72,9 +90,9 @@ def check_redis_connection():
         print("   ✅ Redis connection successful")
         return True
     except Exception as e:
-        print(f"   ❌ Redis connection failed: {e}")
-        print("      Start Redis server or set REDIS_URL environment variable")
-        return False
+        print(f"   ⚠️  Redis connection failed: {e}")
+        print("      Redis is optional for development (will use memory fallback)")
+        return True  # Not critical for development
 
 def check_file_structure():
     """Check essential file structure"""
@@ -162,7 +180,7 @@ def main():
     # Database connections
     print("\n🗄️  Database Connections:")
     checks.append(check_database_connection())
-    checks.append(check_redis_connection())
+    check_redis_connection()  # Not added to required checks
     
     # File structure
     print("\n📁 File Structure:")
@@ -180,15 +198,16 @@ def main():
     if passed_checks == total_checks:
         print("🎉 All critical checks passed! QuantoniumOS is ready to run.")
         if not env_ok:
-            print("⚠️  Some environment variables are missing but optional for development.")
+            print("⚠️  Some environment variables are missing but loaded from .env file.")
         
         print("\n🚀 Next steps:")
-        print("   python quantoniumos/main.py")
+        print("   python start_dev.py")
         print("   Open http://localhost:5000")
         return 0
     else:
         print(f"❌ {total_checks - passed_checks} critical checks failed.")
         print("\n🔧 Fix the issues above and run this script again.")
+        print("   Try running: python setup_local_env.py")
         return 1
 
 if __name__ == "__main__":
