@@ -1,8 +1,17 @@
 # QuantoniumOS Developer Guide
 
-## 🚀 Quick Start (Just Want to Run It?)
+## Quick Start (Just Want to Run It?) 🚀
 
-**Get QuantoniumOS running in 5 minutes:**
+**Get QuantoniumOS runn- [Quick Start (Just Want to Run It?) 🚀](#quick-start-just-want-to-run-it-)
+- [Architecture Overview 🏗️](#architecture-overview-️)
+- [Full Installation 🛠️](#full-installation-️)
+- [Development Setup (Want to Contribute?) 🔧](#development-setup-want-to-contribute-)
+- [Testing & Quality Assurance 🧪](#testing--quality-assurance-)
+- [API Reference & Documentation 📡](#api-reference--documentation-)
+- [Deployment 🚀](#deployment-)
+- [Contributing & Development Workflow 🤝](#contributing--development-workflow-)
+- [Troubleshooting & Common Issues 🔧](#troubleshooting--common-issues-)
+- [Additional Resources 📚](#additional-resources-)inutes:**
 
 ```bash
 # 1. Clone and setup
@@ -23,7 +32,7 @@ python start_dev.py
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview 🏗️
 
 ```
                     QuantoniumOS System Architecture
@@ -112,7 +121,7 @@ python start_dev.py
 
 ---
 
-## 🛠️ Full Installation
+## Full Installation 🛠️
 
 ### System Requirements
 - **OS:** Windows 10+, Ubuntu 20.04+, macOS 11+
@@ -181,11 +190,11 @@ git clone --recursive https://github.com/mandcony/quantoniumos.git
 cd quantoniumos
 
 # Windows (PowerShell):
-.\quantoniumos\build_cpp.ps1 -Debug
+.\build_cpp.ps1 -Debug
 
 # Linux/macOS:
-chmod +x quantoniumos/build_engine.sh
-./quantoniumos/build_engine.sh --debug
+chmod +x build_engine.sh
+./build_engine.sh --debug
 
 # Verify C++ integration works:
 python -c "from quantoniumos import test_quantum_operations; test_quantum_operations()"
@@ -218,7 +227,7 @@ python scripts/verify_setup.py
 
 ---
 
-## 🔧 Development Setup (Want to Contribute?)
+## Development Setup (Want to Contribute?) 🔧
 
 ### Advanced Environment Setup
 
@@ -335,7 +344,7 @@ quantoniumos/
 
 ---
 
-## 📡 API Reference & Documentation
+## API Reference & Documentation 📡
 
 ### Interactive API Documentation
 - **OpenAPI/Swagger UI:** `http://localhost:5000/docs` (auto-generated, live testing)
@@ -392,7 +401,7 @@ curl http://localhost:5000/api/health
 
 ---
 
-## 🧪 Testing & Quality Assurance
+## Testing & Quality Assurance 🧪
 
 ### Local Testing Workflow
 
@@ -470,14 +479,14 @@ coverage report --fail-under=90
 ```
 
 **Coverage Requirements:**
-- **Unit Tests:** ≥ 95% line coverage
+- **Unit Tests:** ≥ 90% line coverage
 - **Integration:** ≥ 90% branch coverage  
 - **E2E:** ≥ 80% feature coverage
 - **C++ Core:** ≥ 85% statement coverage (gcov)
 
 ---
 
-## 🚀 Deployment
+## Deployment 🚀
 
 ### Container Deployment (Recommended)
 
@@ -515,8 +524,8 @@ pytest tests/ --cov=quantoniumos --cov-fail-under=90
 
 **Production Deployment Stack:**
 ```bash
-# kubernetes/docker-swarm deployment
-kubectl apply -f k8s/
+# kubernetes/docker-swarm deployment (k8s manifests coming soon)
+# kubectl apply -f k8s/
 
 # Or traditional server deployment:
 # 1. Build on CI, push image to registry
@@ -612,7 +621,7 @@ alembic downgrade -1
 
 ---
 
-## 🔧 Troubleshooting & Common Issues
+## Troubleshooting & Common Issues 🔧
 
 ### Build & Installation Issues
 
@@ -638,8 +647,8 @@ pip install -e .
 
 # Error: "ImportError: libquantum_core.so not found"
 # Solution: Build C++ core and check Python path
-./quantoniumos/build_cpp.ps1  # Windows
-./quantoniumos/build_engine.sh  # Linux/Mac
+.\build_cpp.ps1  # Windows
+./build_engine.sh  # Linux/Mac
 python -c "import sys; print(sys.path)"  # Verify paths
 ```
 
@@ -792,7 +801,7 @@ tar -czf quantonium-debug-$(date +%Y%m%d).tar.gz \
 
 ---
 
-## 🤝 Contributing & Development Workflow
+## Contributing & Development Workflow 🤝
 
 ### Quick Contributor Start
 ```bash
@@ -879,7 +888,7 @@ ci(docker): optimize build cache layers
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources 📚
 
 ### Documentation Hub
 - **🏗️ Architecture Deep Dive:** [`docs/architecture.md`](./docs/architecture.md)
