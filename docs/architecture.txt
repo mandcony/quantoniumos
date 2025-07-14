@@ -1,0 +1,44 @@
+
++-------------------+    +--------------------+    +-------------------+
+|   Web Browser     |    |   Desktop App      |    |   Mobile App      |
+|  (React/HTML)     |    |    (PyQt5)         |    |   (PWA)           |
++---------+---------+    +---------+----------+    +---------+---------+
+          |                        |                         |
+          +------------------------+-------------------------+
+                                   |
+          +---------------------+--+--+---------------------+
+          |                     |  |  |                     |
+    +-----v-----+         +-----v--v-----+           +-----v-----+
+    |   NGINX   |         |   Flask App  |           |   Auth    |
+    | (Static)  |         |  (Python)    |           |  Service  |
+    +-----------+         +-----+--------+           +-----------+
+                                |
+                    +-----------+-------+
+                    |           |       |
+            +-------v---+  +----v----+  +--v------+
+            | Quantum   |  |  C++    |  | Redis   |
+            | Engine    |  | Core    |  | Cache   |
+            | (Python)  |  | (Eigen) |  |         |
+            +-----------+  +---------+  +---------+
+                                |
+                        +-------v--------+
+                        |  PostgreSQL    |
+                        |   Database     |
+                        +----------------+
+
+Data Flow:
+1. Frontend -> Flask routes (/api/*)
+2. Flask -> C++ quantum core (via Python bindings)
+3. C++ -> Mathematical computations (Eigen, OpenMP)
+4. Results -> PostgreSQL (encrypted) + Redis (cached)
+5. Response -> JSON API -> Frontend
+
+Technology Stack:
+- Frontend: HTML5, CSS3, JavaScript (vanilla + some React components)
+- Backend: Flask (Python 3.9+), SQLAlchemy, Redis
+- Quantum Core: C++ with Eigen library, Python bindings via pybind11
+- Database: PostgreSQL with encrypted storage
+- Security: JWT auth, WAF, rate limiting, TLS
+- Desktop: PyQt5 with native OS integration
+- Deployment: Docker, Gunicorn, NGINX reverse proxy
+    
