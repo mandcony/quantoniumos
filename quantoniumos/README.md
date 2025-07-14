@@ -1,4 +1,4 @@
-# Quantonium OS - Quantum Desktop Environment
+﻿# Quantonium OS - Quantum Desktop Environment
 
 [![License: Academic Research](https://img.shields.io/badge/License-Academic%20Research-blue.svg)](LICENSE)
 [![Patent: Pending](https://img.shields.io/badge/Patent-USPTO%20%2319%2F169%2C399-orange.svg)](https://patents.uspto.gov/)
@@ -19,7 +19,7 @@ A cutting-edge quantum computing operating system that provides an advanced, vis
 ![Container Signed](https://img.shields.io/badge/Container-Signed-brightgreen)
 ![OpenAPI Spec](https://img.shields.io/badge/OpenAPI-Available-brightgreen)
 
-## 🚀 Quick Start
+## ðŸš€ Quick Start
 
 ### Installation
 
@@ -64,7 +64,7 @@ GET /health
 # Returns: {"status": "healthy", "redis_available": true, "database_connected": true}
 ```
 
-## 🎯 Why This Matters
+## ðŸŽ¯ Why This Matters
 
 QuantoniumOS represents a breakthrough in quantum computing accessibility, providing:
 
@@ -73,7 +73,7 @@ QuantoniumOS represents a breakthrough in quantum computing accessibility, provi
 - **Academic Research Platform**: Open-source foundation for quantum computing research
 - **Production-Ready**: Enterprise-grade security and cross-platform deployment
 
-## 🔬 Academic Research Focus
+## ðŸ”¬ Academic Research Focus
 
 This project is open-sourced specifically for **academic research and validation**. We encourage universities, research institutions, and independent scientists to:
 
@@ -103,7 +103,6 @@ The system is designed with a layered architecture to protect intellectual prope
 1. **API Layer**: Flask endpoints with authentication and request validation
 2. **Symbolic Interface**: Bridges the API with protected modules
 3. **Protected Modules**: Implements the core algorithms with fallback mechanisms
-4. **HPC Core**: High-Performance Computing modules (proprietary)
 
 ## Installation & Setup
 
@@ -155,11 +154,8 @@ echo "SESSION_SECRET=your_secure_session_secret" >> .env
 docker-compose up -d
 ```
 
-The container runs with a read-only filesystem, no privilege escalation, and minimal capabilities for maximum security.
 
-### Integrating Proprietary HPC Modules
 
-To integrate the proprietary high-performance modules:
 
 1. Run the integration script:
    ```
@@ -231,7 +227,6 @@ For security-conscious testing that demonstrates the architecture's capabilities
 python randomized_test.py
 ```
 
-The randomized test script uses randomly generated inputs to test the API endpoints, ensuring the system works without exposing real user data or revealing implementation details. This helps protect the proprietary algorithms while still demonstrating the system's functionality.
 
 ### Security Testing & Validation
 
@@ -283,11 +278,10 @@ The smoke test script tests:
 - Encryption/decryption cycle
 - Metrics endpoint
 
-These tests ensure that all critical API functionality is working correctly after deployment. The smoke tests also run as part of the CI/CD pipeline for each release.
 
 ## Security Quick-Start
 
-### Generate → Rotate → Revoke Keys in Three Commands
+### Generate â†’ Rotate â†’ Revoke Keys in Three Commands
 ```bash
 # 1. Generate an API key
 curl -X POST https://api.quantonium.io/api/auth/keys \
@@ -308,7 +302,7 @@ curl -X POST https://api.quantonium.io/api/auth/keys/${KEY_ID}/revoke \
 ```
 
 ### Demo vs. Production Rate Limits
-**⚠️ Public demo key is rate-limited to 60 requests per hour and may be revoked without notice**
+**âš ï¸ Public demo key is rate-limited to 60 requests per hour and may be revoked without notice**
 
 Production API keys have the following rate limits:
 - Standard tier: 3,600 requests per hour
@@ -342,13 +336,11 @@ X-RateLimit-Reset: 3600
 - Verify container signature: `cosign verify ghcr.io/quantonium/quantonium:latest`
 - Review our [Security Policy](SECURITY.md) for vulnerability disclosure process
 - All dependencies are pinned to exact versions to prevent supply chain attacks
-- Security audit is performed in CI/CD pipeline before each release
 
 ### Runtime Isolation & Sandbox Hardening
 
 The Quantonium OS container is hardened with multiple layers of security:
 
-1. **Seccomp Profile**: Restricts available syscalls to a minimal set required for operation
    - Blocks dangerous syscalls like ptrace, mount, and namespace operations
    - Profile defined in `seccomp.json` at the repository root
 
@@ -388,5 +380,68 @@ This will output a summary of syscalls used, which can be used to refine the pro
 
 ## License
 
-Proprietary - All rights reservedT r i g g e r i n g   m i n i m a l   p i p e l i n e  
  
+ 
+## License
+
+### Quantonium OS Dual License
+
+**Version 1.0 â€“ July 2025**  
+**Copyright (c) 2025 Luis Minier**
+
+**Patent Pending â€“ USPTO Application #19/169,399**
+
+This software is available under two distinct license options:
+
+---
+
+#### OPTION 1: NON-COMMERCIAL LICENSE (FREE)
+
+**Permitted Uses (No License Fee Required):**
+- **Academic and Research Use**: Universities, research institutions, educational purposes
+- **Personal Projects**: Individual hobby and experimental projects  
+- **Open Source**: Non-profit open-source software development
+- **Scientific Validation**: Research publications, peer review, algorithm verification
+- **Startup Development**: Pre-revenue startups with <$100K annual revenue
+
+**Conditions:**
+- Attribution to original author must be maintained
+- This license notice must remain in all copies
+- Any modifications must be clearly documented
+- Cannot be used for commercial profit or revenue generation
+
+---
+
+#### OPTION 2: COMMERCIAL LICENSE (PAID)
+
+**Commercial Use Requires Separate License:**
+- **Enterprise Software**: Integration into commercial products or services
+- **Cloud Platforms**: SaaS, PaaS, or hosted service implementations  
+- **Revenue Generation**: Any use that generates direct or indirect revenue
+- **Consulting Services**: Professional services using this technology
+- **Government Contracts**: Public sector commercial implementations
+- **Corporate R&D**: Commercial research and development projects
+
+**Commercial License Benefits:**
+- Full commercial usage rights
+- Priority technical support
+- Custom implementation assistance  
+- Patent license grant for covered implementations
+- Indemnification protection
+
+**To Purchase Commercial License:**
+Contact: luisminier79@gmail.com
+- Enterprise licenses starting at $100,000/year + 3-6% Revenue Share
+- Startup licenses starting at $25,000/year + 2-4% Revenue Share
+- Research licenses starting at $50,000/year + 2% Revenue Share
+
+For detailed licensing information, see:
+- [LICENSE](LICENSE) - Complete dual license terms
+- [LICENSE_COMMERCIAL.md](LICENSE_COMMERCIAL.md) - Commercial licensing guide
+
+---
+
+**Patent Notice**: This software contains implementations of ideas, systems, and algorithms currently under **U.S. patent application #19/169,399**. No patent license is granted under this agreement. All patent rights are expressly reserved by the author.
+
+**Contact Information:**  
+Luis Minier â€“ luisminier79@gmail.com
