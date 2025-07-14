@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include <cstring>
 #include "symbolic_eigenvector.h"
 
 // Helper function to check if two doubles are approximately equal
@@ -45,7 +46,7 @@ int main() {
                 std::cout << "  ✗ FAIL: Encoding appears to be trivial\n";
                 all_tests_passed = false;
             } else {
-                std::cout << "  ✓ Encoding is non-trivial\n";
+                std::cout << "  [PASS] Encoding is non-trivial\n";
             }
             
             // Verify decoding works correctly
@@ -55,9 +56,9 @@ int main() {
             std::cout << "  Decoded: " << decoded << std::endl;
             
             if (strcmp(test_data, decoded) == 0) {
-                std::cout << "  ✓ Decode test passed\n";
+                std::cout << "  [PASS] Decode test passed\n";
             } else {
-                std::cout << "  ✗ FAIL: Decode test failed\n";
+                std::cout << "  [FAIL] Decode test failed\n";
                 all_tests_passed = false;
             }
             
@@ -68,9 +69,9 @@ int main() {
             encode_resonance(different_data, different_encoded, &different_encoded_len);
             
             if (strcmp(encoded, different_encoded) != 0) {
-                std::cout << "  ✓ Different inputs produce different encodings\n";
+                std::cout << "  [PASS] Different inputs produce different encodings\n";
             } else {
-                std::cout << "  ✗ FAIL: Different inputs produce same encoding\n";
+                std::cout << "  [FAIL] Different inputs produce same encoding\n";
                 all_tests_passed = false;
             }
         } catch (const std::exception& e) {

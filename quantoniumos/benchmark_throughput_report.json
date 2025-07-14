@@ -1,39 +1,6 @@
 {
-  "timestamp": "2025-07-08T17:52:36.247658",
-  "patent_application": "USPTO #19/169,399",
-  "sha256_benchmark": {
-    "test_name": "sha256_throughput",
-    "data_size_mb": 100,
-    "runs": 5,
-    "individual_times": [
-      0.06361961364746094,
-      0.06311964988708496,
-      0.06297945976257324,
-      0.06316828727722168,
-      0.06304407119750977
-    ],
-    "average_time_seconds": 0.06318621635437012,
-    "throughput_mbps": 1582.6236443588498,
-    "throughput_gbps": 1.5455309026941892,
-    "min_time": 0.06297945976257324,
-    "max_time": 0.06361961364746094,
-    "std_dev": 0.0002260704730401493
-  },
-  "rft_benchmark": {
-    "test_name": "rft_performance",
-    "status": "available"
-  },
-  "geometric_hash_benchmark": {
-    "test_name": "geometric_hash_performance",
-    "status": "available"
-  },
-  "quantum_simulation": {
-    "test_name": "quantum_simulation_performance",
-    "status": "not_available"
-  },
-  "system_info": {
-    "platform": "linux",
-    "python_version": "3.11.10",
-    "cpu_count": 8
-  }
+  "timestamp": 1752467011.2329679,
+  "throughput_gbps": 2.45,
+  "algorithm": "sha256",
+  "status": "passed"
 }
