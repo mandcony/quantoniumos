@@ -60,10 +60,6 @@ jobs:
       - name: Install CMake
         uses: lukka/get-cmake@latest
         
-      - name: Verify Eigen is bundled
-        run: |
-          ls -la core/ || dir core\
-          
       - name: Configure CMake
         run: |
           cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
