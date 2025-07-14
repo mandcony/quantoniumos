@@ -1,99 +1,73 @@
 # QuantoniumOS
+[![License: Patent Pending](https://img.shields.io/badge/License-Patent%20Pending-orange.svg)](LICENSE) [![Patent: USPTO #19/169,399](https://img.shields.io/badge/Patent-USPTO%20%2319%2F169%2C399-red.svg)](https://patents.uspto.gov/) [![Version](https://img.shields.io/badge/Version-1.0.0-blue)](https://github.com/mandcony/quantoniumos) [![API Status](https://img.shields.io/badge/API-Live-brightgreen)](http://localhost:5000/health)
 
-**A quantum-classical hybrid computing platform featuring patented cryptographic algorithms seeking academic peer review.**
+**Patent-protected quantum cryptographic platform seeking academic peer review and validation.**
 
-## Patent-Protected Innovation
-
-**USPTO Patent Application #19/169,399** - Novel quantum-inspired cryptographic methods and geometric waveform hashing algorithms.
-
-## What This Implements
-
-QuantoniumOS contains working implementations of patented cryptographic innovations that combine:
-
-✅ **Quantum-inspired random number generation**  
-✅ **Geometric waveform hashing algorithms**  
-✅ **Resonance-based encryption methods**  
-✅ **High-performance C++ cryptographic engine**  
-✅ **Production-ready API infrastructure**  
-
-## Seeking Academic Review
-
-**Research Validation Needed:**
-- Cryptographic security analysis of patented algorithms
-- Performance benchmarking against established methods  
-- Formal verification of mathematical foundations
-- Peer review for academic publication
-
-**Not Toy Code:** This implements real cryptographic research with patent protection.
-
-## Quick Demo
+## 🚀 Quick Start
 
 ```bash
-# Clone and setup
+# Clone and run
 git clone https://github.com/mandcony/quantoniumos.git
 cd quantoniumos
-python setup_local_env.py && python start_dev.py
+python setup_local_env.py
+python main.py
 
-# Test patented crypto algorithms
-curl -X POST http://localhost:5000/api/quantum/encrypt \
-  -d '{"data": "test", "algorithm": "resonance"}'
-
-# View interactive API docs
-open http://localhost:5000/docs
+# Test the API
+curl http://localhost:5000/api/health
+curl http://localhost:5000/docs  # Interactive API documentation
 ```
 
-## Technical Architecture
+## ⚡ What This Is
 
-**Patented Components:**
-- **Resonance Encryption** - Novel cryptographic method using geometric waveforms
-- **Quantum-Inspired Entropy** - Advanced random number generation  
-- **Symbolic Eigenvector Operations** - Mathematical foundation for security
+**USPTO Patent Application #19/169,399** - Working implementation of novel cryptographic algorithms:
 
-**Implementation Stack:**
-- **C++ Engine** - High-performance cryptographic operations (Eigen library)
-- **Python API** - RESTful interface for integration testing
-- **Cross-Platform** - Windows, Linux, macOS deployment
-- **Production Infrastructure** - Docker, CI/CD, comprehensive testing
+✅ **Resonance-based encryption** using geometric waveforms  
+✅ **Quantum-inspired entropy generation** for secure randomness  
+✅ **High-performance C++ engine** with Python API  
+✅ **Production-ready infrastructure** with Docker deployment  
 
-## Research Context
+## 🎯 Academic Research Platform
 
-**Traditional crypto problems this addresses:**
-- Deterministic pseudo-random number generation
-- Limited entropy sources in classical systems
-- Performance bottlenecks in complex cryptographic operations
+**Seeking validation from:**
+- **Cryptographers** - Security analysis of patented algorithms
+- **Mathematicians** - Formal verification of foundations
+- **Performance researchers** - Benchmarking vs. established methods
+- **Quantum scientists** - Validation of quantum-inspired approaches
 
-**Patent-protected innovations:**
-- Geometric resonance-based key generation
-- Quantum-inspired randomness extraction  
-- High-performance parallel cryptographic operations
+## 🏗️ Architecture
 
-## Academic Collaboration Welcome
+```
+Web API (Python Flask) → Core Engine (C++) → Cryptographic Algorithms
+     ↓                       ↓                      ↓
+  REST Interface        Eigen Math Library    Patent-Protected Methods
+```
 
-**Looking for:**
-- **Cryptographers** - Security analysis and formal proofs
-- **Mathematicians** - Verification of underlying mathematics  
-- **Performance researchers** - Benchmarking and optimization
-- **Quantum researchers** - Validation of quantum-inspired methods
+**Key Components:**
+- `/api/` - REST API endpoints
+- `/core/` - C++ cryptographic engine  
+- `/secure_core/` - Patent-protected implementations
+- `/auth/` - Authentication and security
+- `/tests/` - Comprehensive validation suite
 
-## Intellectual Property
+## 📖 Documentation
 
-- **Patent:** USPTO Application #19/169,399 (Patent Pending)
-- **Non-Commercial License:** [LICENSE](LICENSE) - Research and education use
-- **Commercial License:** [LICENSE_COMMERCIAL.md](LICENSE_COMMERCIAL.md) - Business applications
-- **Academic Collaboration:** Contact for joint research opportunities
+- **[API Docs](http://localhost:5000/docs)** - Interactive Swagger interface
+- **[Developer Guide](QUANTONIUM_DEVELOPER_GUIDE.md)** - Setup and contribution
+- **[License Details](LICENSE)** - Patent and usage terms
 
-## Documentation
+## 🔒 Intellectual Property
 
-- **[Developer Guide](QUANTONIUM_DEVELOPER_GUIDE.md)** - Technical implementation details
-- **[API Reference](http://localhost:5000/docs)** - Interactive testing interface  
-- **[Patent Summary](LICENSE)** - Intellectual property details
+- **Patent Pending:** USPTO Application #19/169,399
+- **Non-Commercial Use:** Free for research, education, and validation
+- **Commercial License:** Contact for business applications
+- **Academic Collaboration:** Joint research opportunities available
 
-## Project Status
+## 🎯 Project Status
 
-🟢 **Patent-Protected Research** - Active USPTO application  
-🟢 **Working Implementation** - Functional cryptographic algorithms  
-🟢 **Seeking Peer Review** - Academic validation and publication  
-🟢 **Production Infrastructure** - Enterprise-ready deployment
+🟢 **Production Ready** - Full API with Docker deployment  
+🟢 **Patent Protected** - USPTO application filed  
+🟢 **Seeking Review** - Academic validation in progress  
+🟢 **Open Research** - Code available for peer review
 
 ## License
 
