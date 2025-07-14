@@ -53,18 +53,18 @@ if(OpenMP_CXX_FOUND)
     target_link_libraries(symbolic_core PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
-# Robust test executable
-add_executable(robust_test_symbolic
-    robust_test_symbolic.cpp
+# Test executable
+add_executable(test_geowave_kat
+    tests/test_geowave_kat.cpp
 )
 
-target_link_libraries(robust_test_symbolic PRIVATE
+target_link_libraries(test_geowave_kat PRIVATE
     symbolic_core
     Eigen3::Eigen
 )
 
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(robust_test_symbolic PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(test_geowave_kat PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
 # Compiler-specific flags for robustness
