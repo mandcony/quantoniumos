@@ -1,0 +1,225 @@
+/* Quantonium OS - 150 Qubit Quantum Processor Styles */
+:root {
+    --background-dark: #000000;
+    --text-color: #ffffff;
+    --input-bg: #2a3a4a;
+    --run-btn-color: #0066ff;
+    --stress-btn-color: #ff8000;
+    --qubit-bg: #f44336;
+    --qubit-measured: #ff4081;
+    --qubit-text: #ffffff;
+    --formula-bg: #cf00cf;
+    --container-1-color: #8AE68A;
+    --container-2-color: #ff5555;
+    --toggle-bg: #555;
+    --toggle-active: #673AB7;
+    --oscillator-line: #9370DB;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--background-dark);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.quantum-processor {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.quantum-header {
+    margin-bottom: 20px;
+}
+
+.input-section, .data-section {
+    display: flex;
+    margin-bottom: 16px;
+}
+
+input[type="number"], input[type="text"] {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.run-button {
+    padding: 10px 25px;
+    background-color: var(--run-btn-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.stress-button {
+    padding: 10px 15px;
+    background-color: var(--stress-btn-color);
+    color: black;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.qubit-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+    background-color: var(--background-dark);
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.qubit {
+    background-color: var(--qubit-bg);
+    color: var(--qubit-text);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.qubit-measured {
+    background-color: var(--qubit-measured);
+}
+
+.qubit-label {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.qubit-value {
+    font-size: 18px;
+}
+
+.quantum-formulas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.formula {
+    background-color: var(--formula-bg);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    text-align: center;
+}
+
+.visualization-toggle, .container-oscillator {
+    margin-bottom: 20px;
+    background-color: var(--background-dark);
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.visualization-toggle label, .container-oscillator label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.toggle-slider {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    background-color: var(--toggle-bg);
+    border-radius: 34px;
+    margin-left: 10px;
+    transition: .3s;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .3s;
+}
+
+input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+input[type="checkbox"]:checked + .toggle-slider {
+    background-color: var(--toggle-active);
+}
+
+input[type="checkbox"]:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.frequency-control {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+input[type="range"] {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+#oscillatorCanvas {
+    width: 100%;
+    height: 150px;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+.container-schematics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.container-schematic {
+    background-color: var(--background-dark);
+    padding: 15px;
+    border-radius: 4px;
+    flex: 1 1 calc(50% - 10px);
+}
+
+.container-schematic h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    text-align: center;
+}
+
+#container1Canvas, #container2Canvas {
+    display: block;
+    margin: 0 auto;
+    background-color: #1a1a1a;
+}

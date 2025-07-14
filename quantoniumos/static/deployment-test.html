@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS Deployment Test</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #111;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 183, 255, 0.3);
+        }
+        
+        h1 {
+            color: #00b7ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .status-box {
+            background-color: #1a1a1a;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .success {
+            color: #4CAF50;
+        }
+        
+        .warning {
+            color: #FFC107;
+        }
+        
+        .error {
+            color: #F44336;
+        }
+        
+        .logs {
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        button {
+            background-color: #00b7ff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #0091c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QuantoniumOS Deployment Test</h1>
+        
+        <div class="status-box">
+            <h2>Environment Status</h2>
+            <div class="status-item">
+                <span>Server Time:</span>
+                <span id="server-time">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span>Server URL:</span>
+                <span id="server-url">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span>Browser:</span>
+                <span id="browser-info">Checking...</span>
+            </div>
+        </div>
+        
+        <div class="status-box">
+            <h2>Route Status</h2>
+            <div class="status-item">
+                <span>Root Route (/):</span>
+                <span id="root-route">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span>OS Route (/os):</span>
+                <span id="os-route">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span>Resonance Encrypt:</span>
+                <span id="encrypt-route">Checking...</span>
+            </div>
+        </div>
+        
+        <div class="status-box">
+            <h2>Embedding Test</h2>
+            <div class="status-item">
+                <span>Iframe Loading:</span>
+                <span id="iframe-status">Checking...</span>
+            </div>
+            <iframe id="test-iframe" src="about:blank" style="width:100%; height:100px; display:none;"></iframe>
+        </div>
+        
+        <div class="logs" id="logs">Running deployment tests...</div>
+        
+        <button id="run-tests">Run All Tests Again</button>
+        <button id="view-os" style="margin-top: 10px;">Go to QuantoniumOS</button>
+    </div>
+    
+    <script>
+        // Log function
+        function log(message) {
+            const logs = document.getElementById('logs');
+            logs.innerHTML += message + '\n';
+            logs.scrollTop = logs.scrollHeight;
+        }
+        
+        // Update status
+        function updateStatus(id, message, status) {
+            const element = document.getElementById(id);
+            element.textContent = message;
+            element.className = status;
+        }
+        
+        // Check route
+        async function checkRoute(route, id) {
+            try {
+                log(`Checking route: ${route}`);
+                const response = await fetch(route, { method: 'HEAD' });
+                if (response.ok) {
+                    updateStatus(id, 'Available ✓', 'success');
+                    log(`Route ${route} is available (${response.status})`);
+                    return true;
+                } else {
+                    updateStatus(id, `Error ${response.status} ✗`, 'error');
+                    log(`Route ${route} returned status ${response.status}`);
+                    return false;
+                }
+            } catch (error) {
+                updateStatus(id, 'Connection Error ✗', 'error');
+                log(`Error accessing ${route}: ${error.message}`);
+                return false;
+            }
+        }
+        
+        // Test iframe loading
+        async function testIframeLoading() {
+            return new Promise((resolve) => {
+                const iframe = document.getElementById('test-iframe');
+                iframe.style.display = 'block';
+                iframe.src = './quantum-os.html?test=true&v=' + Date.now();
+                
+                let timeout = setTimeout(() => {
+                    updateStatus('iframe-status', 'Timeout ✗', 'error');
+                    log('Iframe loading timed out');
+                    resolve(false);
+                }, 5000);
+                
+                iframe.onload = () => {
+                    clearTimeout(timeout);
+                    try {
+                        // Try to access iframe content
+                        const iframeWindow = iframe.contentWindow;
+                        if (iframeWindow.document.title) {
+                            updateStatus('iframe-status', 'Loaded Successfully ✓', 'success');
+                            log(`Iframe loaded with title: ${iframeWindow.document.title}`);
+                            resolve(true);
+                        } else {
+                            updateStatus('iframe-status', 'Empty Document ✗', 'warning');
+                            log('Iframe loaded but no content was found');
+                            resolve(false);
+                        }
+                    } catch (error) {
+                        updateStatus('iframe-status', 'Cross-Origin Error ✗', 'error');
+                        log(`Iframe access error: ${error.message}`);
+                        resolve(false);
+                    }
+                };
+                
+                iframe.onerror = (error) => {
+                    clearTimeout(timeout);
+                    updateStatus('iframe-status', 'Loading Error ✗', 'error');
+                    log(`Iframe loading error: ${error.message || 'Unknown error'}`);
+                    resolve(false);
+                };
+            });
+        }
+        
+        // Run all tests
+        async function runAllTests() {
+            document.getElementById('logs').innerHTML = '';
+            log('Starting deployment tests...');
+            
+            // Update environment info
+            updateStatus('server-time', new Date().toLocaleString(), 'success');
+            updateStatus('server-url', window.location.href, 'success');
+            updateStatus('browser-info', navigator.userAgent, 'success');
+            
+            // Check routes
+            await checkRoute('/', 'root-route');
+            await checkRoute('/os', 'os-route');
+            await checkRoute('/resonance-encrypt?embedded=true', 'encrypt-route');
+            
+            // Test iframe
+            await testIframeLoading();
+            
+            log('All tests completed!');
+        }
+        
+        // Run tests on load
+        window.addEventListener('load', runAllTests);
+        
+        // Button event listeners
+        document.getElementById('run-tests').addEventListener('click', runAllTests);
+        document.getElementById('view-os').addEventListener('click', () => {
+            window.location.href = '/os';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Resonance Analyzer</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="app-title">Resonance Analyzer</div>
+            <div class="app-controls">
+                <button id="minimize-btn" class="control-btn">_</button>
+                <button id="maximize-btn" class="control-btn">□</button>
+                <button id="close-btn" class="control-btn">×</button>
+            </div>
+        </div>
+        
+        <div class="app-body">
+            <div class="sidebar">
+                <div class="upload-section">
+                    <h3>Image Analysis</h3>
+                    <div class="upload-container">
+                        <label for="image-upload" class="upload-label">
+                            <span>Select Image</span>
+                        </label>
+                        <input type="file" id="image-upload" accept="image/*" hidden>
+                    </div>
+                    <button id="analyze-btn" class="action-btn" disabled>Analyze Pattern</button>
+                </div>
+                
+                <div class="analysis-controls">
+                    <h3>Analysis Controls</h3>
+                    <div class="control-group">
+                        <label for="resonance-threshold">Resonance Threshold:</label>
+                        <input type="range" id="resonance-threshold" min="0" max="100" value="55">
+                        <span id="threshold-value">0.55</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="frequency-bands">Frequency Bands:</label>
+                        <select id="frequency-bands">
+                            <option value="5">5 bands</option>
+                            <option value="8" selected>8 bands</option>
+                            <option value="12">12 bands</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="symmetry-detection">Symmetry Detection:</label>
+                        <select id="symmetry-detection">
+                            <option value="radial">Radial</option>
+                            <option value="bilateral">Bilateral</option>
+                            <option value="all" selected>All Types</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="results-summary">
+                    <h3>Analysis Summary</h3>
+                    <div id="summary-content">
+                        <p>No image analyzed yet.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="visualization">Visualization</button>
+                    <button class="tab-btn" data-tab="resonance">Resonance Patterns</button>
+                    <button class="tab-btn" data-tab="phase">Phase Relationships</button>
+                    <button class="tab-btn" data-tab="symbolic">Symbolic Interpretation</button>
+                </div>
+                
+                <div class="tab-content">
+                    <div id="visualization" class="tab-pane active">
+                        <div class="image-container">
+                            <img id="original-image" src="" alt="Select an image">
+                            <div id="pattern-overlay"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="resonance" class="tab-pane">
+                        <div class="chart-container">
+                            <canvas id="resonance-chart"></canvas>
+                        </div>
+                        <div class="data-table">
+                            <h4>Resonant Frequencies</h4>
+                            <table id="resonance-table">
+                                <thead>
+                                    <tr>
+                                        <th>Frequency</th>
+                                        <th>Strength</th>
+                                        <th>Pattern Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="3">No data available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="phase" class="tab-pane">
+                        <div class="chart-container">
+                            <canvas id="phase-chart"></canvas>
+                        </div>
+                        <div class="data-table">
+                            <h4>Phase Relationships</h4>
+                            <table id="phase-table">
+                                <thead>
+                                    <tr>
+                                        <th>Components</th>
+                                        <th>Phase Difference</th>
+                                        <th>Significance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="3">No data available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="symbolic" class="tab-pane">
+                        <div class="interpretation-section">
+                            <div class="interpretation-header">
+                                <h3>Symbolic Analysis</h3>
+                                <div class="confidence-indicator">
+                                    <span>Confidence:</span>
+                                    <div class="confidence-meter">
+                                        <div class="confidence-value" style="width: 0%"></div>
+                                    </div>
+                                    <span id="confidence-percent">0%</span>
+                                </div>
+                            </div>
+                            <div id="symbolic-content" class="interpretation-body">
+                                <p>Analysis will appear here after processing an image.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-footer">
+            <div class="status-indicator">Ready</div>
+            <div class="powered-by">Powered by QuantoniumOS Resonance Engine</div>
+        </div>
+    </div>
+    
+    <script src="resonance-analyzer.js"></script>
+</body>
+</html>

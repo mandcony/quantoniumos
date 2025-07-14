@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantonium OS - 150 Qubit Quantum Processor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="quantum-processor">
+        <header class="quantum-header">
+            <div class="input-section">
+                <input type="number" id="qubitCount" value="6" min="2" max="150">
+                <button id="runBtn" class="run-button">Run</button>
+            </div>
+            <div class="data-section">
+                <input type="text" id="inputData" placeholder="Enter any input data">
+                <button id="stressTest" class="stress-button">Stress Test</button>
+            </div>
+        </header>
+
+        <main class="quantum-content">
+            <div class="qubit-grid" id="qubitGrid"></div>
+            
+            <div class="quantum-formulas" id="quantumFormulas">
+                <!-- Dynamic quantum formulas go here -->
+            </div>
+            
+            <div class="visualization-toggle">
+                <label>
+                    <span>Show Amplitude Heatmap:</span>
+                    <input type="checkbox" id="showHeatmap">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="container-oscillator">
+                <label>
+                    <span>Show Container Oscillator:</span>
+                    <input type="checkbox" id="showOscillator" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <div class="frequency-control">
+                    <span>Frequency: <span id="frequencyValue">1.00 Hz</span></span>
+                    <input type="range" id="frequencySlider" min="0.1" max="5" step="0.1" value="1">
+                </div>
+                <canvas id="oscillatorCanvas"></canvas>
+            </div>
+            
+            <div class="container-schematics">
+                <div class="container-schematic" id="container1">
+                    <h3>Container 1 Schematic</h3>
+                    <canvas id="container1Canvas" width="150" height="150"></canvas>
+                </div>
+                <div class="container-schematic" id="container2">
+                    <h3>Container 2 Schematic</h3>
+                    <canvas id="container2Canvas" width="150" height="150"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="quantum-grid.js"></script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Resonance Fourier Transform</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1f93ff;
+        }
+        
+        .panel {
+            background-color: #0a0d15;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #1f93ff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #0e7ae6;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        
+        #status-message {
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .visualization {
+            height: 150px;
+            background-color: #0a0d15;
+            border-radius: 4px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .waveform {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-right: 10px;
+        }
+        
+        .tab.active {
+            border-bottom-color: #1f93ff;
+            color: #1f93ff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Resonance Fourier Transform</h1>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="rft">RFT</div>
+            <div class="tab" data-tab="irft">Inverse RFT</div>
+        </div>
+        
+        <div class="tab-content active" id="rft-tab">
+            <div class="panel">
+                <h2>Resonance Fourier Transform</h2>
+                <p>Convert a time-domain waveform to its frequency components</p>
+                
+                <div class="form-group">
+                    <label for="rft-input">Waveform (comma-separated values):</label>
+                    <textarea id="rft-input" placeholder="0.5, 0.75, 0.6, 0.3, 0.1, 0.2, 0.4, 0.8"></textarea>
+                </div>
+                
+                <div class="visualization">
+                    <canvas class="waveform" id="rft-canvas"></canvas>
+                </div>
+                
+                <button id="rft-btn">Perform RFT</button>
+                
+                <div id="rft-result" class="result">
+                    <!-- Results will appear here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="irft-tab">
+            <div class="panel">
+                <h2>Inverse Resonance Fourier Transform</h2>
+                <p>Convert frequency components back to a time-domain waveform</p>
+                
+                <div class="form-group">
+                    <label for="irft-frequencies">Frequencies (comma-separated):</label>
+                    <input type="text" id="irft-frequencies" placeholder="0.0, 0.125, 0.25, 0.375, 0.5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="irft-amplitudes">Amplitudes (comma-separated):</label>
+                    <input type="text" id="irft-amplitudes" placeholder="0.5, 0.3, 0.2, 0.1, 0.05">
+                </div>
+                
+                <div class="form-group">
+                    <label for="irft-phases">Phases (comma-separated):</label>
+                    <input type="text" id="irft-phases" placeholder="0.0, 0.1, 0.2, 0.3, 0.4">
+                </div>
+                
+                <div class="visualization">
+                    <canvas class="waveform" id="irft-canvas"></canvas>
+                </div>
+                
+                <button id="irft-btn">Perform Inverse RFT</button>
+                
+                <div id="irft-result" class="result">
+                    <!-- Results will appear here -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="status-message"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rftCanvas = document.getElementById('rft-canvas');
+            const irftCanvas = document.getElementById('irft-canvas');
+            const rftCtx = rftCanvas.getContext('2d');
+            const irftCtx = irftCanvas.getContext('2d');
+            const rftBtn = document.getElementById('rft-btn');
+            const irftBtn = document.getElementById('irft-btn');
+            const rftResult = document.getElementById('rft-result');
+            const irftResult = document.getElementById('irft-result');
+            const statusMessage = document.getElementById('status-message');
+            
+            // Tabs functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to current tab
+                    this.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // Resize canvases
+                    resizeCanvases();
+                });
+            });
+            
+            // Set canvas sizes
+            function resizeCanvases() {
+                rftCanvas.width = rftCanvas.offsetWidth;
+                rftCanvas.height = rftCanvas.offsetHeight;
+                irftCanvas.width = irftCanvas.offsetWidth;
+                irftCanvas.height = irftCanvas.offsetHeight;
+                
+                // Draw example waveforms
+                drawRftWaveform();
+                drawIrftWaveform();
+            }
+            
+            window.addEventListener('resize', resizeCanvases);
+            resizeCanvases();
+            
+            // Draw example waveform for RFT
+            function drawRftWaveform() {
+                const width = rftCanvas.width;
+                const height = rftCanvas.height;
+                const input = document.getElementById('rft-input').value;
+                
+                rftCtx.clearRect(0, 0, width, height);
+                rftCtx.beginPath();
+                rftCtx.strokeStyle = '#1f93ff';
+                rftCtx.lineWidth = 2;
+                
+                let values = [];
+                if (input.trim()) {
+                    try {
+                        values = input.split(',').map(v => parseFloat(v.trim()));
+                    } catch (e) {
+                        values = [0.5, 0.75, 0.6, 0.3, 0.1, 0.2, 0.4, 0.8];
+                    }
+                } else {
+                    values = [0.5, 0.75, 0.6, 0.3, 0.1, 0.2, 0.4, 0.8];
+                }
+                
+                const step = width / (values.length - 1);
+                
+                for (let i = 0; i < values.length; i++) {
+                    const x = i * step;
+                    const y = height - (values[i] * height);
+                    
+                    if (i === 0) {
+                        rftCtx.moveTo(x, y);
+                    } else {
+                        rftCtx.lineTo(x, y);
+                    }
+                }
+                
+                rftCtx.stroke();
+            }
+            
+            // Draw example waveform for IRFT
+            function drawIrftWaveform() {
+                const width = irftCanvas.width;
+                const height = irftCanvas.height;
+                
+                irftCtx.clearRect(0, 0, width, height);
+                irftCtx.beginPath();
+                irftCtx.strokeStyle = '#1f93ff';
+                irftCtx.lineWidth = 2;
+                
+                // Create a simple sine wave
+                for (let x = 0; x < width; x++) {
+                    const y = height / 2 + Math.sin(x * 0.05) * (height / 3);
+                    
+                    if (x === 0) {
+                        irftCtx.moveTo(x, y);
+                    } else {
+                        irftCtx.lineTo(x, y);
+                    }
+                }
+                
+                irftCtx.stroke();
+            }
+            
+            // Update RFT waveform on input change
+            document.getElementById('rft-input').addEventListener('input', drawRftWaveform);
+            
+            // Perform RFT
+            rftBtn.addEventListener('click', function() {
+                const input = document.getElementById('rft-input').value.trim();
+                
+                if (!input) {
+                    showStatus('Please provide waveform values', 'error');
+                    return;
+                }
+                
+                try {
+                    const waveform = input.split(',').map(v => parseFloat(v.trim()));
+                    
+                    // Make API request
+                    fetch('/api/rft', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            waveform: waveform
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            rftResult.textContent = JSON.stringify(data.data, null, 2);
+                            showStatus('RFT performed successfully', 'success');
+                        } else {
+                            rftResult.textContent = 'Error: ' + data.error;
+                            showStatus('Failed to perform RFT', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        rftResult.textContent = 'Error: ' + error.message;
+                        showStatus('Failed to connect to server', 'error');
+                    });
+                } catch (e) {
+                    showStatus('Invalid waveform format', 'error');
+                }
+            });
+            
+            // Perform IRFT
+            irftBtn.addEventListener('click', function() {
+                const frequencies = document.getElementById('irft-frequencies').value.trim();
+                const amplitudes = document.getElementById('irft-amplitudes').value.trim();
+                const phases = document.getElementById('irft-phases').value.trim();
+                
+                if (!frequencies || !amplitudes || !phases) {
+                    showStatus('Please provide all frequency components', 'error');
+                    return;
+                }
+                
+                try {
+                    const freqArray = frequencies.split(',').map(v => parseFloat(v.trim()));
+                    const ampArray = amplitudes.split(',').map(v => parseFloat(v.trim()));
+                    const phaseArray = phases.split(',').map(v => parseFloat(v.trim()));
+                    
+                    // Make API request
+                    fetch('/api/irft', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            frequency_data: {
+                                frequencies: freqArray,
+                                amplitudes: ampArray,
+                                phases: phaseArray
+                            }
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            irftResult.textContent = JSON.stringify(data.data, null, 2);
+                            showStatus('IRFT performed successfully', 'success');
+                        } else {
+                            irftResult.textContent = 'Error: ' + data.error;
+                            showStatus('Failed to perform IRFT', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        irftResult.textContent = 'Error: ' + error.message;
+                        showStatus('Failed to connect to server', 'error');
+                    });
+                } catch (e) {
+                    showStatus('Invalid component format', 'error');
+                }
+            });
+            
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = type;
+                statusMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

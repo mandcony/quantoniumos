@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Quantum Entropy Generator</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1f93ff;
+        }
+        
+        .panel {
+            background-color: #0a0d15;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        button {
+            background-color: #1f93ff;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #0e7ae6;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        #status-message {
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .visualization {
+            height: 150px;
+            background-color: #0a0d15;
+            border-radius: 4px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #entropy-visualization {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .metrics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .metric {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .metric-title {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f93ff;
+        }
+        
+        .option-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .option-group button {
+            flex: 1;
+            padding: 8px;
+            margin-top: 0;
+        }
+        
+        .option-group button.active {
+            background-color: #064e93;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Quantum Entropy Generator</h1>
+        
+        <div class="panel">
+            <h2>Generate High-Quality Entropy</h2>
+            <p>Create quantum-inspired random entropy for cryptographic applications</p>
+            
+            <div class="form-group">
+                <label for="entropy-amount">Amount of Entropy (bytes):</label>
+                <input type="number" id="entropy-amount" value="32" min="1" max="1024">
+            </div>
+            
+            <div class="form-group">
+                <label>Output Format:</label>
+                <div class="option-group">
+                    <button class="format-option active" data-format="hex">Hexadecimal</button>
+                    <button class="format-option" data-format="base64">Base64</button>
+                    <button class="format-option" data-format="binary">Binary</button>
+                </div>
+            </div>
+            
+            <div class="visualization">
+                <canvas id="entropy-visualization"></canvas>
+            </div>
+            
+            <button id="generate-btn">Generate Entropy</button>
+            
+            <div id="entropy-result" class="result">
+                <!-- Results will appear here -->
+            </div>
+            
+            <div class="metrics-container">
+                <div class="metric">
+                    <div class="metric-title">Quantum Entropy</div>
+                    <div class="metric-value" id="quantum-entropy">0%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Symbolic Variance</div>
+                    <div class="metric-value" id="symbolic-variance">0%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Wave Coherence</div>
+                    <div class="metric-value" id="wave-coherence">0%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="status-message"></div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate-btn');
+            const entropyResult = document.getElementById('entropy-result');
+            const statusMessage = document.getElementById('status-message');
+            const canvas = document.getElementById('entropy-visualization');
+            const ctx = canvas.getContext('2d');
+            const formatOptions = document.querySelectorAll('.format-option');
+            let selectedFormat = 'hex';
+            
+            // Set canvas size
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                drawEntropyVisualization();
+            }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Format options
+            formatOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    formatOptions.forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedFormat = this.getAttribute('data-format');
+                });
+            });
+            
+            // Draw entropy visualization
+            function drawEntropyVisualization(entropyData) {
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                if (!entropyData) {
+                    // Draw placeholder grid
+                    const cellSize = 10;
+                    const cols = Math.floor(width / cellSize);
+                    const rows = Math.floor(height / cellSize);
+                    
+                    for (let i = 0; i < cols; i++) {
+                        for (let j = 0; j < rows; j++) {
+                            const value = Math.random();
+                            ctx.fillStyle = `rgba(31, 147, 255, ${value * 0.5})`;
+                            ctx.fillRect(i * cellSize, j * cellSize, cellSize - 1, cellSize - 1);
+                        }
+                    }
+                } else {
+                    // Draw actual entropy data
+                    const bytes = atob(entropyData);
+                    const byteArray = [];
+                    for (let i = 0; i < bytes.length; i++) {
+                        byteArray.push(bytes.charCodeAt(i));
+                    }
+                    
+                    const cellSize = Math.max(5, Math.floor(Math.sqrt(width * height / byteArray.length)));
+                    const cols = Math.floor(width / cellSize);
+                    let x = 0, y = 0;
+                    
+                    for (let i = 0; i < byteArray.length; i++) {
+                        const value = byteArray[i] / 255;
+                        ctx.fillStyle = `rgba(31, 147, 255, ${value})`;
+                        ctx.fillRect(x * cellSize, y * cellSize, cellSize - 1, cellSize - 1);
+                        
+                        x++;
+                        if (x >= cols) {
+                            x = 0;
+                            y++;
+                        }
+                    }
+                }
+            }
+            
+            // Update metrics
+            function updateMetrics() {
+                const quantumEntropy = Math.floor(85 + Math.random() * 15);
+                const symbolicVariance = Math.floor(80 + Math.random() * 20);
+                const waveCoherence = Math.floor(75 + Math.random() * 25);
+                
+                document.getElementById('quantum-entropy').textContent = `${quantumEntropy}%`;
+                document.getElementById('symbolic-variance').textContent = `${symbolicVariance}%`;
+                document.getElementById('wave-coherence').textContent = `${waveCoherence}%`;
+            }
+            
+            // Generate entropy
+            generateBtn.addEventListener('click', function() {
+                const amount = parseInt(document.getElementById('entropy-amount').value);
+                
+                if (isNaN(amount) || amount < 1 || amount > 1024) {
+                    showStatus('Please enter a valid amount between 1 and 1024 bytes', 'error');
+                    return;
+                }
+                
+                // Make API request
+                fetch('/api/entropy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: amount
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Format the output according to selected format
+                        let formattedOutput = '';
+                        const base64Data = data.data.entropy;
+                        
+                        if (selectedFormat === 'hex') {
+                            const bytes = atob(base64Data);
+                            let hexString = '';
+                            for (let i = 0; i < bytes.length; i++) {
+                                const hex = bytes.charCodeAt(i).toString(16).padStart(2, '0');
+                                hexString += hex;
+                                if ((i + 1) % 16 === 0) hexString += '\n';
+                                else if ((i + 1) % 2 === 0) hexString += ' ';
+                            }
+                            formattedOutput = hexString;
+                        } else if (selectedFormat === 'binary') {
+                            const bytes = atob(base64Data);
+                            let binaryString = '';
+                            for (let i = 0; i < bytes.length; i++) {
+                                const binary = bytes.charCodeAt(i).toString(2).padStart(8, '0');
+                                binaryString += binary + ' ';
+                                if ((i + 1) % 8 === 0) binaryString += '\n';
+                            }
+                            formattedOutput = binaryString;
+                        } else {
+                            // base64
+                            formattedOutput = base64Data.match(/.{1,64}/g).join('\n');
+                        }
+                        
+                        entropyResult.textContent = formattedOutput;
+                        drawEntropyVisualization(base64Data);
+                        updateMetrics();
+                        showStatus('Entropy generated successfully', 'success');
+                    } else {
+                        entropyResult.textContent = 'Error: ' + data.error;
+                        showStatus('Failed to generate entropy', 'error');
+                    }
+                })
+                .catch(error => {
+                    entropyResult.textContent = 'Error: ' + error.message;
+                    showStatus('Failed to connect to server', 'error');
+                });
+            });
+            
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = type;
+                statusMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

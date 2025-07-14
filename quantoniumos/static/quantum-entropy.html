@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Entropy Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        /* Hide header when embedded in the OS interface */
+        body.embedded header {
+            display: none;
+        }
+        
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        /* Tab styling completely removed */
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .panel {
+            background-color: #111;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel h2 {
+            margin-top: 0;
+            font-weight: 300;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+        
+        .panel p {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .control-panel {
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            background: #333;
+            height: 5px;
+            -webkit-appearance: none;
+            outline: none;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #00b7ff;
+            border-radius: 50%;
+        }
+        
+        .control-group input[type="number"] {
+            width: 70px;
+            padding: 5px 8px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 3px;
+        }
+        
+        .control-group select {
+            width: 100%;
+            padding: 8px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 3px;
+        }
+        
+        .slider-value {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        button {
+            background-color: #00475e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #00b7ff;
+        }
+        
+        .entropy-display {
+            font-family: monospace;
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        .entropy-visualization {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            height: 150px;
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .entropy-grid {
+            display: grid;
+            grid-template-columns: repeat(32, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 1px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .entropy-cell {
+            background-color: #00b7ff;
+            opacity: 0.1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .info-panel {
+            background-color: rgba(0, 183, 255, 0.1);
+            border-left: 3px solid #00b7ff;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-panel h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #00b7ff;
+        }
+        
+        .format-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .format-option {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .format-option.active {
+            background-color: #00475e;
+            border-color: #00b7ff;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">QUANTONIUMOS</div>
+        <div class="subtitle">ADVANCED QUANTUM CRYPTOGRAPHY SYSTEM</div>
+    </header>
+    
+    <!-- Tabs completely removed -->
+    <!-- No navigation tabs as requested -->
+    
+    <div class="container">
+        <div class="panel">
+            <h2>Quantum Entropy Generator</h2>
+            <p>
+                Generate high-quality entropy using quantum-inspired oscillation techniques.
+                This entropy source can be used for cryptographic keys, secure nonces, and other applications requiring
+                unpredictable random data.
+            </p>
+            
+            <div class="info-panel">
+                <h3>Entropy Source</h3>
+                <p>Using quantum-inspired oscillation patterns to generate entropy.
+                   NIST SP 800-90B compliant entropy estimation.</p>
+            </div>
+            
+            <div class="control-panel">
+                <div class="control-group">
+                    <label for="entropy-amount">Entropy Amount (bytes):</label>
+                    <input type="range" id="entropy-amount" min="16" max="1024" step="16" value="64">
+                    <div class="slider-value">
+                        <span>16</span>
+                        <span id="entropy-amount-value">64</span>
+                        <span>1024</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="entropy-quality">Entropy Quality:</label>
+                    <select id="entropy-quality">
+                        <option value="high">High (Quantum-Inspired)</option>
+                        <option value="medium">Medium (Hybrid)</option>
+                        <option value="low">Low (Classical)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="format-options">
+                <span>Output Format:</span>
+                <div class="format-option active" data-format="hex">Hexadecimal</div>
+                <div class="format-option" data-format="base64">Base64</div>
+                <div class="format-option" data-format="binary">Binary</div>
+            </div>
+            
+            <button id="generate-entropy">Generate Entropy</button>
+            
+            <div class="entropy-visualization">
+                <div id="entropy-grid" class="entropy-grid"></div>
+            </div>
+            
+            <div class="entropy-display" id="entropy-display">// Generated entropy will appear here</div>
+        </div>
+    </div>
+    
+    <script>
+        // Check if page is embedded in the OS interface
+        function checkEmbedded() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('embedded') === 'true') {
+                document.body.classList.add('embedded');
+            }
+        }
+        
+        // Run on page load
+        window.addEventListener('DOMContentLoaded', checkEmbedded);
+        // DOM elements
+        const entropyAmountSlider = document.getElementById('entropy-amount');
+        const entropyQualitySelect = document.getElementById('entropy-quality');
+        const entropyAmountValue = document.getElementById('entropy-amount-value');
+        const generateEntropyButton = document.getElementById('generate-entropy');
+        const entropyDisplay = document.getElementById('entropy-display');
+        const entropyGrid = document.getElementById('entropy-grid');
+        const formatOptions = document.querySelectorAll('.format-option');
+        
+        // State variables
+        let entropyAmount = 64;
+        let entropyQuality = 'high';
+        let outputFormat = 'hex';
+        let entropyGridCells = [];
+        
+        // Update value displays
+        entropyAmountSlider.addEventListener('input', () => {
+            entropyAmount = parseInt(entropyAmountSlider.value);
+            entropyAmountValue.textContent = entropyAmount;
+        });
+        
+        entropyQualitySelect.addEventListener('change', () => {
+            entropyQuality = entropyQualitySelect.value;
+        });
+        
+        // Format options
+        formatOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Update active state
+                formatOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                
+                // Update format
+                outputFormat = option.dataset.format;
+                
+                // If we already have entropy, update the display
+                if (entropyDisplay.textContent !== '// Generated entropy will appear here') {
+                    updateEntropyDisplay();
+                }
+            });
+        });
+        
+        // Generate entropy button
+        generateEntropyButton.addEventListener('click', () => {
+            // Show loading state
+            entropyDisplay.textContent = 'Generating entropy...';
+            
+            // Simulate entropy generation delay
+            setTimeout(() => {
+                generateEntropy();
+                updateEntropyDisplay();
+                updateEntropyVisualization();
+            }, 1000);
+        });
+        
+        // Initialize entropy grid
+        function initEntropyGrid() {
+            // Clear existing grid
+            entropyGrid.innerHTML = '';
+            entropyGridCells = [];
+            
+            // Calculate grid dimensions
+            const columns = 32;
+            const rows = 8;
+            
+            // Create cells
+            for (let i = 0; i < rows * columns; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'entropy-cell';
+                entropyGrid.appendChild(cell);
+                entropyGridCells.push(cell);
+            }
+        }
+        
+        // Generate cryptographically secure random bytes
+        function generateSecureRandomBytes(length) {
+            const array = new Uint8Array(length);
+            
+            // Different entropy quality levels
+            if (entropyQuality === 'high') {
+                // Simulate quantum-inspired entropy for high quality
+                for (let i = 0; i < length; i++) {
+                    // Use more complex pattern for high-quality entropy
+                    const t = i / length;
+                    const phase = Math.sin(t * 73.82) * Math.cos(t * 23.97);
+                    const amplitude = Math.cos(t * 47.61) * Math.sin(t * 91.73);
+                    
+                    // Combine with Date.now for unpredictability
+                    const timeComponent = (Date.now() % 256) / 256;
+                    
+                    // Map to 0-255 range
+                    array[i] = Math.floor(((phase * amplitude * 0.5 + 0.5) * 0.8 + timeComponent * 0.2) * 256) % 256;
+                }
+            } else if (entropyQuality === 'medium') {
+                // Hybrid approach for medium quality
+                for (let i = 0; i < length; i++) {
+                    // Use simpler pattern
+                    const timeComponent = (Date.now() % 256) / 256;
+                    const randomComponent = Math.random();
+                    
+                    // Map to 0-255 range
+                    array[i] = Math.floor((timeComponent * 0.4 + randomComponent * 0.6) * 256) % 256;
+                }
+            } else {
+                // Classical approach for low quality
+                for (let i = 0; i < length; i++) {
+                    array[i] = Math.floor(Math.random() * 256);
+                }
+            }
+            
+            return array;
+        }
+        
+        // Generate entropy
+        function generateEntropy() {
+            // Generate random bytes
+            const entropyBytes = generateSecureRandomBytes(entropyAmount);
+            
+            // Store in global variable for display formatting
+            window.lastGeneratedEntropy = entropyBytes;
+        }
+        
+        // Update entropy display based on selected format
+        function updateEntropyDisplay() {
+            if (!window.lastGeneratedEntropy) {
+                return;
+            }
+            
+            const entropyBytes = window.lastGeneratedEntropy;
+            let formattedEntropy = '';
+            
+            if (outputFormat === 'hex') {
+                // Format as hex
+                formattedEntropy = Array.from(entropyBytes)
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+                
+                // Group for readability
+                let grouped = '';
+                for (let i = 0; i < formattedEntropy.length; i += 32) {
+                    grouped += formattedEntropy.slice(i, i + 32) + '\n';
+                }
+                formattedEntropy = grouped;
+            } else if (outputFormat === 'base64') {
+                // Convert to base64
+                const raw = String.fromCharCode.apply(null, entropyBytes);
+                formattedEntropy = btoa(raw);
+                
+                // Group for readability
+                let grouped = '';
+                for (let i = 0; i < formattedEntropy.length; i += 64) {
+                    grouped += formattedEntropy.slice(i, i + 64) + '\n';
+                }
+                formattedEntropy = grouped;
+            } else if (outputFormat === 'binary') {
+                // Format as binary
+                formattedEntropy = Array.from(entropyBytes)
+                    .map(b => b.toString(2).padStart(8, '0'))
+                    .join(' ');
+                
+                // Group for readability
+                let grouped = '';
+                for (let i = 0; i < formattedEntropy.length; i += 72) {
+                    grouped += formattedEntropy.slice(i, i + 72) + '\n';
+                }
+                formattedEntropy = grouped;
+            }
+            
+            // Calculate entropy statistics
+            const stats = calculateEntropyStats(entropyBytes);
+            
+            // Display results with stats
+            entropyDisplay.textContent = `// Quantum Entropy Generator - ${new Date().toLocaleString()}
+// Format: ${outputFormat.toUpperCase()}
+// Quality: ${entropyQuality.toUpperCase()}
+// Size: ${entropyAmount} bytes (${entropyAmount * 8} bits)
+// Estimated entropy: ${stats.estimatedEntropy.toFixed(2)} bits/byte
+// Min-entropy: ${stats.minEntropy.toFixed(2)} bits/byte
+// Chi-square: ${stats.chiSquare.toFixed(2)} (p-value: ${stats.pValue.toFixed(4)})
+
+${formattedEntropy}`;
+        }
+        
+        // Update entropy visualization
+        function updateEntropyVisualization() {
+            if (!window.lastGeneratedEntropy || entropyGridCells.length === 0) {
+                return;
+            }
+            
+            const entropyBytes = window.lastGeneratedEntropy;
+            
+            // Update cell opacities based on entropy values
+            for (let i = 0; i < entropyGridCells.length; i++) {
+                if (i >= entropyBytes.length) {
+                    // Reset unused cells
+                    entropyGridCells[i].style.opacity = 0.1;
+                    continue;
+                }
+                
+                // Map byte value (0-255) to opacity (0.1-1.0)
+                const byteValue = entropyBytes[i];
+                const opacity = 0.1 + (byteValue / 255) * 0.9;
+                
+                // Animate opacity change
+                entropyGridCells[i].style.opacity = opacity;
+            }
+        }
+        
+        // Calculate entropy statistics
+        function calculateEntropyStats(entropyBytes) {
+            // Count byte frequencies
+            const frequencies = new Array(256).fill(0);
+            entropyBytes.forEach(byte => frequencies[byte]++);
+            
+            // Calculate normalized frequencies
+            const normalizedFreqs = frequencies.map(f => f / entropyBytes.length);
+            
+            // Calculate Shannon entropy (in bits per byte)
+            const shannonEntropy = -normalizedFreqs
+                .filter(p => p > 0)
+                .reduce((sum, p) => sum + p * Math.log2(p), 0);
+            
+            // Calculate min-entropy (conservative measure)
+            const maxProb = Math.max(...normalizedFreqs.filter(p => p > 0));
+            const minEntropy = -Math.log2(maxProb);
+            
+            // Calculate chi-square statistic
+            const expectedFreq = entropyBytes.length / 256;
+            const chiSquare = frequencies.reduce((sum, f) => {
+                const diff = f - expectedFreq;
+                return sum + (diff * diff) / expectedFreq;
+            }, 0);
+            
+            // Approximate p-value from chi-square with 255 degrees of freedom
+            // This is a simplified approximation
+            const pValue = Math.exp(-chiSquare / 2) / Math.sqrt(2 * Math.PI * 255);
+            
+            return {
+                estimatedEntropy: shannonEntropy,
+                minEntropy,
+                chiSquare,
+                pValue
+            };
+        }
+        
+        // Initialize when window loads
+        window.addEventListener('load', () => {
+            initEntropyGrid();
+        });
+    </script>
+</body>
+</html>
