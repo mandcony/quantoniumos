@@ -127,8 +127,14 @@ jobs:
       - name: Run C++ tests
         run: |
           cd build
-          ctest -V
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            # On Windows, we need to specify the configuration explicitly
+            ctest -C Release -V
+          else
+            ctest -V
+          fi
           echo "C++ build completed successfully"
+        shell: bash
 
   # Step 3: Integration validation
   integration-validation:
