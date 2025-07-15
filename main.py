@@ -427,6 +427,11 @@ def create_app():
     def wave_ui_static(filename):
         return send_from_directory('static/wave_ui', filename)
     
+    # Beginner's Guide
+    @app.route('/beginners_guide.html')
+    def beginners_guide():
+        return send_from_directory('static', 'beginners_guide.html')
+    
     # Image Resonance Analyzer UI
     @app.route('/resonance-analyzer')
     def resonance_analyzer():
