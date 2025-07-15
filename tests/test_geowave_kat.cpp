@@ -14,6 +14,11 @@
 #include <map>
 #include <set>
 
+// Define M_PI for MSVC which doesn't include it by default
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 // Golden ratio constant
 const double PHI = (1.0 + std::sqrt(5.0)) / 2.0;
 

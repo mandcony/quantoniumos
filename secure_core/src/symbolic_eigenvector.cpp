@@ -7,6 +7,13 @@
 #include <iomanip>
 #include <vector>
 
+// Disable warnings about unsafe functions on Windows
+#ifdef _MSC_VER
+    #define _CRT_SECURE_NO_WARNINGS
+    #pragma warning(disable:4996) // Disable warnings about unsafe functions
+    #pragma warning(disable:4267) // Disable warnings about size_t to int conversion
+#endif
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif

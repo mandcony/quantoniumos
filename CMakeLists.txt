@@ -118,11 +118,20 @@ if(MSVC)
     # Use separate calls to avoid issues with flag parsing
     target_compile_options(symbolic_core PRIVATE /W3)
     target_compile_options(symbolic_core PRIVATE /EHsc)
+    target_compile_options(symbolic_core PRIVATE /D_CRT_SECURE_NO_WARNINGS)
+    # Disable specific warnings for symbolic_core
+    target_compile_options(symbolic_core PRIVATE /wd4127)  # Conditional expression is constant
+    target_compile_options(symbolic_core PRIVATE /wd4996)  # Function may be unsafe
+    target_compile_options(symbolic_core PRIVATE /wd4267)  # Conversion from size_t to int
+    
+    # Set same flags for test executable
     target_compile_options(test_geowave_kat PRIVATE /W3)
     target_compile_options(test_geowave_kat PRIVATE /EHsc)
-    # Disable specific warnings that Eigen triggers
-    target_compile_options(test_geowave_kat PRIVATE /wd4127)
-    target_compile_options(test_geowave_kat PRIVATE /wd4996)
+    target_compile_options(test_geowave_kat PRIVATE /D_CRT_SECURE_NO_WARNINGS)
+    # Disable specific warnings for test_geowave_kat
+    target_compile_options(test_geowave_kat PRIVATE /wd4127)  # Conditional expression is constant
+    target_compile_options(test_geowave_kat PRIVATE /wd4996)  # Function may be unsafe
+    target_compile_options(test_geowave_kat PRIVATE /wd4267)  # Conversion from size_t to int
 else()
     target_compile_options(test_geowave_kat PRIVATE -Wall -Wextra -O2)
     # Disable Eigen-specific warnings
