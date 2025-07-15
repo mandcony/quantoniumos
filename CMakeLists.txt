@@ -20,23 +20,49 @@ if(NOT Eigen3_FOUND)
         find_package(Eigen3 QUIET)
     endif()
     
-    # If still not found, try to fetch Eigen
+    # If still not found, create a stub Eigen interface
     if(NOT Eigen3_FOUND)
-        message(STATUS "Eigen not found in system or locally, creating interface library")
+        message(STATUS "Eigen not found in system or locally, creating stub interface library")
         add_library(eigen INTERFACE)
-        # Use FetchContent if in CI environment
-        if(DEFINED ENV{CI})
+        
+        # For Windows, we'll just use a minimal interface with our headers
+        # This avoids download issues that can cause CI failures
+        if(WIN32 OR DEFINED ENV{SKIP_EIGEN_DOWNLOAD})
+            message(STATUS "Windows build or SKIP_EIGEN_DOWNLOAD set: Using minimal Eigen stub")
+            target_include_directories(eigen INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/secure_core/include)
+        # For other platforms in CI, try downloading but with fallback
+        elseif(DEFINED ENV{CI})
+            message(STATUS "Attempting to download Eigen (non-Windows CI)")
             include(FetchContent)
-            FetchContent_Declare(
-                eigen
-                URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz
-            )
-            FetchContent_MakeAvailable(eigen)
-            target_include_directories(eigen INTERFACE ${eigen_SOURCE_DIR})
+            set(FETCHCONTENT_QUIET OFF)
+            
+            # Set a timeout for the download to prevent hanging
+            set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+            set(FETCHCONTENT_QUIET OFF)
+            
+            # Try to download but catch any failures
+            try_compile(EIGEN_DOWNLOAD_SUCCESS ${CMAKE_BINARY_DIR}/eigen_test 
+                ${CMAKE_CURRENT_SOURCE_DIR}/cmake/test_eigen_download.cmake
+                OUTPUT_VARIABLE EIGEN_DOWNLOAD_OUTPUT)
+                
+            if(EIGEN_DOWNLOAD_SUCCESS)
+                FetchContent_Declare(
+                    eigen
+                    URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz
+                    TIMEOUT 60  # 60 second timeout
+                )
+                FetchContent_MakeAvailable(eigen)
+                target_include_directories(eigen INTERFACE ${eigen_SOURCE_DIR})
+                message(STATUS "Successfully downloaded Eigen")
+            else()
+                message(WARNING "Failed to download Eigen, using minimal stub instead")
+                target_include_directories(eigen INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/secure_core/include)
+            endif()
         else()
             # For local build, just create an interface
             target_include_directories(eigen INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/secure_core/include)
         endif()
+        
         add_library(Eigen3::Eigen ALIAS eigen)
     endif()
 endif()
