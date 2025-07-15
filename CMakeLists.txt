@@ -7,18 +7,38 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Force static linking to avoid path issues
 set(BUILD_SHARED_LIBS OFF)
 
-# Pin Eigen to the local copy to avoid path flakiness
-set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Eigen/eigen-3.4.0")
-set(CMAKE_PREFIX_PATH "${EIGEN3_INCLUDE_DIR}")
-
-# Ensure we find our pinned Eigen
+# Try to find system Eigen first
 find_package(Eigen3 QUIET)
+
+# If system Eigen not found, look for local copy
 if(NOT Eigen3_FOUND)
-    # Fallback: use our bundled Eigen directly
-    message(STATUS "Using bundled Eigen from: ${EIGEN3_INCLUDE_DIR}")
-    add_library(eigen INTERFACE)
-    target_include_directories(eigen INTERFACE ${EIGEN3_INCLUDE_DIR})
-    add_library(Eigen3::Eigen ALIAS eigen)
+    # Try local copy
+    set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Eigen/eigen-3.4.0")
+    if(EXISTS "${EIGEN3_INCLUDE_DIR}")
+        message(STATUS "Using local Eigen from: ${EIGEN3_INCLUDE_DIR}")
+        set(CMAKE_PREFIX_PATH "${EIGEN3_INCLUDE_DIR}")
+        find_package(Eigen3 QUIET)
+    endif()
+    
+    # If still not found, try to fetch Eigen
+    if(NOT Eigen3_FOUND)
+        message(STATUS "Eigen not found in system or locally, creating interface library")
+        add_library(eigen INTERFACE)
+        # Use FetchContent if in CI environment
+        if(DEFINED ENV{CI})
+            include(FetchContent)
+            FetchContent_Declare(
+                eigen
+                URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz
+            )
+            FetchContent_MakeAvailable(eigen)
+            target_include_directories(eigen INTERFACE ${eigen_SOURCE_DIR})
+        else()
+            # For local build, just create an interface
+            target_include_directories(eigen INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/secure_core/include)
+        endif()
+        add_library(Eigen3::Eigen ALIAS eigen)
+    endif()
 endif()
 
 # Find OpenMP with fallback
