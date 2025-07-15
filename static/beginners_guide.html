@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00b7ff">
+    <meta name="description" content="Beginner's Guide to QuantoniumOS - Simple explanations of quantum-inspired concepts">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <link rel="apple-touch-startup-image" href="/static/icons/icon-512x512.png">
+    <title>QuantoniumOS - Beginner's Guide</title>
+    <style>
+        :root {
+            --vh: 1vh;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            height: 100vh; /* Fallback */
+            height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+        }
+        
+        .guide-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #111;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0, 183, 255, 0.2);
+        }
+        
+        h1 {
+            color: #00b7ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        h2 {
+            color: #00b7ff;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #7df9ff;
+            margin-top: 30px;
+        }
+        
+        p {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .concept-box {
+            background-color: #0a1a24;
+            border-left: 4px solid #00b7ff;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .concept-title {
+            font-weight: bold;
+            color: #00b7ff;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .simple-analogy {
+            background-color: #1a1a2e;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #7df9ff;
+        }
+        
+        .simple-analogy-title {
+            font-weight: bold;
+            color: #7df9ff;
+            margin-bottom: 10px;
+        }
+        
+        .why-matters {
+            font-style: italic;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #333;
+        }
+        
+        .why-matters-title {
+            color: #ffaa00;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .warning-box {
+            background-color: #2d1e2f;
+            border-left: 4px solid #ff3860;
+            padding: 15px;
+            margin: 25px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .warning-title {
+            color: #ff3860;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .action-steps {
+            background-color: #192734;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 30px 0;
+        }
+        
+        .action-steps ol {
+            margin-left: 20px;
+            padding-left: 20px;
+        }
+        
+        .action-steps li {
+            margin-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+        
+        th {
+            background-color: #0a1a24;
+            color: #00b7ff;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #333;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #333;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #0a0a0a;
+        }
+        
+        .back-to-app {
+            display: block;
+            text-align: center;
+            margin: 40px auto;
+            padding: 12px 25px;
+            background-color: #00b7ff;
+            color: #000;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            width: 200px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-app:hover {
+            background-color: #7df9ff;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-container">
+        <h1>QuantoniumOS: A Beginner's Guide</h1>
+        
+        <h2>What is QuantoniumOS?</h2>
+        <p>
+            QuantoniumOS is an educational platform that demonstrates new approaches to cryptography and data security using concepts inspired by quantum physics.
+        </p>
+        <p>
+            Think of it like this: Traditional encryption is like a lock and key. QuantoniumOS explores what encryption might look like if we used wave patterns (like sound or light waves) instead of keys.
+        </p>
+        
+        <h2>Key Concepts in Simple Terms</h2>
+        
+        <div class="concept-box">
+            <div class="concept-title">Resonance-based Encryption</div>
+            <p><strong>What it is:</strong> Instead of using traditional keys (long strings of random numbers), this system uses wave patterns to encrypt data.</p>
+            
+            <div class="simple-analogy">
+                <div class="simple-analogy-title">Simple Analogy:</div>
+                <p>Imagine a wine glass that shatters when exposed to just the right musical note. Only the exact right frequency (wave pattern) will work. In our system, only the correct "resonance pattern" can unlock the encrypted data.</p>
+            </div>
+            
+            <div class="why-matters">
+                <div class="why-matters-title">Why it matters:</div>
+                <p>This approach explores whether certain mathematical patterns could be more resistant to certain types of attacks than traditional methods.</p>
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <div class="concept-title">Quantum-inspired Entropy</div>
+            <p><strong>What it is:</strong> A method for generating randomness that borrows ideas from quantum physics.</p>
+            
+            <div class="simple-analogy">
+                <div class="simple-analogy-title">Simple Analogy:</div>
+                <p>Traditional computers generate "random" numbers in a way that's actually predictable if you know the starting conditions. Our system tries to mimic the true randomness found in quantum systems, where even knowing all conditions doesn't let you predict the outcome.</p>
+            </div>
+            
+            <div class="why-matters">
+                <div class="why-matters-title">Why it matters:</div>
+                <p>Better randomness means stronger security, as many attacks exploit weaknesses in random number generation.</p>
+            </div>
+        </div>
+        
+        <div class="concept-box">
+            <div class="concept-title">Geometric Waveforms</div>
+            <p><strong>What it is:</strong> Mathematical patterns that represent waves with specific shapes.</p>
+            
+            <div class="simple-analogy">
+                <div class="simple-analogy-title">Simple Analogy:</div>
+                <p>Think of different sound waves creating different musical notes. Our system uses mathematical "notes" to encode and decode information.</p>
+            </div>
+            
+            <div class="why-matters">
+                <div class="why-matters-title">Why it matters:</div>
+                <p>These patterns have special mathematical properties that might make them useful for cryptography.</p>
+            </div>
+        </div>
+        
+        <h2>What QuantoniumOS is NOT</h2>
+        
+        <div class="warning-box">
+            <div class="warning-title">Important Clarifications</div>
+            <ul>
+                <li><strong>NOT a real quantum computer:</strong> This is a classical system that uses ideas inspired by quantum physics.</li>
+                <li><strong>NOT production-ready encryption:</strong> While we're exploring interesting concepts, this should not be used to protect sensitive data.</li>
+                <li><strong>NOT faster than standard encryption:</strong> Our focus is on exploring new mathematical approaches, not outperforming existing methods.</li>
+            </ul>
+        </div>
+        
+        <h2>Trying It Out</h2>
+        
+        <div class="action-steps">
+            <p>The easiest way to understand QuantoniumOS is to see it in action:</p>
+            <ol>
+                <li>Start the system using the instructions in the README</li>
+                <li>Visit the web interface at http://localhost:5000</li>
+                <li>Try the "Resonance Encryption" demo to see how waveform-based encryption works</li>
+                <li>Experiment with the "Quantum Entropy" demo to see our randomness generation</li>
+            </ol>
+        </div>
+        
+        <h2>Key Terms Explained</h2>
+        
+        <table>
+            <tr>
+                <th>Term</th>
+                <th>What It Means</th>
+            </tr>
+            <tr>
+                <td>Resonance</td>
+                <td>When a system responds strongly to a specific frequency or pattern</td>
+            </tr>
+            <tr>
+                <td>Waveform</td>
+                <td>A graph showing how a wave's amplitude changes over time</td>
+            </tr>
+            <tr>
+                <td>Entropy</td>
+                <td>In cryptography, a measure of randomness or unpredictability</td>
+            </tr>
+            <tr>
+                <td>Quantum-inspired</td>
+                <td>Borrowing ideas from quantum physics without using quantum hardware</td>
+            </tr>
+            <tr>
+                <td>Symbolic computation</td>
+                <td>Mathematical calculations that manipulate symbols rather than just numbers</td>
+            </tr>
+        </table>
+        
+        <h2>For Further Learning</h2>
+        
+        <p>If you're interested in learning more about the concepts behind QuantoniumOS:</p>
+        <ul>
+            <li>Try the interactive demos in the web interface</li>
+            <li>Read the Developer Guide for more technical details</li>
+            <li>Review the code comments in core modules, which explain the mathematical concepts</li>
+            <li>Experiment with the API using the interactive API Documentation</li>
+        </ul>
+        
+        <a href="/" class="back-to-app">Back to QuantoniumOS</a>
+    </div>
+</body>
+</html>
