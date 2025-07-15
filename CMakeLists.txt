@@ -115,9 +115,14 @@ endif()
 
 # Compiler-specific flags for robustness
 if(MSVC)
-    target_compile_options(test_geowave_kat PRIVATE /W4 /EHsc)
+    # Use separate calls to avoid issues with flag parsing
+    target_compile_options(symbolic_core PRIVATE /W3)
+    target_compile_options(symbolic_core PRIVATE /EHsc)
+    target_compile_options(test_geowave_kat PRIVATE /W3)
+    target_compile_options(test_geowave_kat PRIVATE /EHsc)
     # Disable specific warnings that Eigen triggers
-    target_compile_options(test_geowave_kat PRIVATE /wd4127 /wd4996)
+    target_compile_options(test_geowave_kat PRIVATE /wd4127)
+    target_compile_options(test_geowave_kat PRIVATE /wd4996)
 else()
     target_compile_options(test_geowave_kat PRIVATE -Wall -Wextra -O2)
     # Disable Eigen-specific warnings

@@ -113,7 +113,8 @@ jobs:
           # Special handling for Windows
           if [ "$RUNNER_OS" == "Windows" ]; then
             echo "Using simpler CMake config for Windows"
-            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="/EHsc /W3"
+            # Don't pass flags directly in command line - they're defined in CMakeLists.txt
+            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
           else
             cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
           fi
