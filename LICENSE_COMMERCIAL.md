@@ -30,7 +30,7 @@ INCLUDES:
 - Patent license grant for USPTO Application #19/169,399 and continuations
 - Priority technical support (24-48 hour response)
 - Quarterly technology updates and patches
-- Legal indemnification protection up to $1,000,000
+- Legal indemnification protection up to $100
 - Custom implementation consultation (40 hours/year)
 - Government contract and defense sector deployment rights
 
@@ -102,8 +102,8 @@ provided:
 4. Claim relates to unmodified Software
 
 Maximum indemnification liability:
-- Enterprise: $1,000,000
-- Startup: $250,000
+- Enterprise: $100.00
+- Startup: $100.00
 - Research: No indemnification
 
 LIMITATIONS OF LIABILITY
