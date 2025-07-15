@@ -11,6 +11,18 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// MSVC doesn't have __builtin_popcount, so we need a compatibility function
+#ifdef _MSC_VER
+inline int __builtin_popcount(unsigned int x) {
+    int count = 0;
+    while (x) {
+        count += x & 1;
+        x >>= 1;
+    }
+    return count;
+}
+#endif
+
 // Global random engine for consistent results
 static std::mt19937 g_rng(42); // Fixed seed for reproducibility
 
