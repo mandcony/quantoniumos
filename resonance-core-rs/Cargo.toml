@@ -1,0 +1,30 @@
+[package]
+name = "resonance-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["QuantoniumOS Team"]
+description = "Rust implementation of QuantoniumOS resonance encryption"
+
+[dependencies]
+sha2 = "0.10"
+hmac = "0.12"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+hex = "0.4"
+
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.2"
+
+[[bench]]
+name = "encryption_benchmark"
+harness = false
+
+[lib]
+name = "resonance_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "test-vector-validator"
+path = "src/bin/test_vector_validator.rs"
