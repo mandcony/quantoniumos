@@ -122,7 +122,7 @@ jobs:
           
       - name: Build C++ components
         run: |
-          cmake --build build --config Release --target test_geowave_kat
+          cmake --build build --config Release --target test_geowave_kat resonance-core
           
       - name: Run C++ tests
         run: |
@@ -134,18 +134,30 @@ jobs:
             ctest -V
           fi
           echo "C++ build completed successfully"
+          echo "Built executables:"
+          find . -type f -executable
         shell: bash
         
       - name: Upload build artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
-          # Find the executables (they might be in different locations based on build)
-          find build -type f -name "test_geowave_kat" -o -name "resonance-core"
-          
           # Create artifacts directory
           mkdir -p artifacts/cpp-linux
           
-          # Copy executables - handle different possible locations
+          echo "Looking for executables in build directory..."
+          find build -type f -executable
+          
+          echo "Copying resonance-core..."
+          find build -type f -name "resonance-core" -exec cp -v {} artifacts/cpp-linux/ \;
+          
+          echo "Copying test_geowave_kat..."
+          find build -type f -name "test_geowave_kat" -exec cp -v {} artifacts/cpp-linux/ \;
+          
+          echo "Setting permissions..."
+          chmod +x artifacts/cpp-linux/* || true
+          
+          echo "Final artifacts contents:"
+          ls -la artifacts/cpp-linux/
           find build -type f -name "test_geowave_kat" -exec cp {} artifacts/cpp-linux/ \;
           find build -type f -name "resonance-core" -exec cp {} artifacts/cpp-linux/ \;
           
