@@ -122,7 +122,18 @@ jobs:
           
       - name: Build C++ components
         run: |
-          cmake --build build --config Release --target test_geowave_kat resonance-core
+          # Print CMake targets
+          cmake --build build --target help
+          
+          # Build targets separately to catch any errors
+          echo "Building test_geowave_kat..."
+          cmake --build build --config Release --target test_geowave_kat
+          
+          echo "Building resonance-core..."
+          cmake --build build --config Release --target resonance-core
+          
+          echo "Build complete. Listing build directory:"
+          ls -R build/
           
       - name: Run C++ tests
         run: |
@@ -134,30 +145,54 @@ jobs:
             ctest -V
           fi
           echo "C++ build completed successfully"
-          echo "Built executables:"
-          find . -type f -executable
+          echo "Looking for built executables:"
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            find . -type f -executable
+          else
+            dir /s /b *.exe
+          fi
         shell: bash
         
       - name: Upload build artifacts
         if: matrix.os == 'ubuntu-latest'
         run: |
+          # Debug CMake build structure
+          echo "Full build directory contents:"
+          ls -R build/
+          
           # Create artifacts directory
           mkdir -p artifacts/cpp-linux
           
-          echo "Looking for executables in build directory..."
-          find build -type f -executable
+          # First try direct paths
+          echo "Trying direct paths first..."
+          cp -v build/test_geowave_kat artifacts/cpp-linux/ || echo "Direct copy of test_geowave_kat failed"
+          cp -v build/resonance-core artifacts/cpp-linux/ || echo "Direct copy of resonance-core failed"
           
-          echo "Copying resonance-core..."
-          find build -type f -name "resonance-core" -exec cp -v {} artifacts/cpp-linux/ \;
+          # If direct copy failed, search recursively
+          if [ ! -f "artifacts/cpp-linux/test_geowave_kat" ]; then
+            echo "Searching for test_geowave_kat..."
+            find build -type f -name "test_geowave_kat" -exec cp -v {} artifacts/cpp-linux/ \;
+          fi
           
-          echo "Copying test_geowave_kat..."
-          find build -type f -name "test_geowave_kat" -exec cp -v {} artifacts/cpp-linux/ \;
+          if [ ! -f "artifacts/cpp-linux/resonance-core" ]; then
+            echo "Searching for resonance-core..."
+            find build -type f -name "resonance-core" -exec cp -v {} artifacts/cpp-linux/ \;
+          fi
           
           echo "Setting permissions..."
-          chmod +x artifacts/cpp-linux/* || true
+          chmod +x artifacts/cpp-linux/* || echo "chmod failed but continuing..."
           
-          echo "Final artifacts contents:"
+          echo "Final artifacts directory contents:"
           ls -la artifacts/cpp-linux/
+          
+          # Verify both executables exist
+          if [ ! -f "artifacts/cpp-linux/test_geowave_kat" ] || [ ! -f "artifacts/cpp-linux/resonance-core" ]; then
+            echo "Error: Missing required executables in artifacts/cpp-linux/"
+            echo "Expected: test_geowave_kat and resonance-core"
+            echo "Found:"
+            ls -la artifacts/cpp-linux/
+            exit 1
+          fi
           find build -type f -name "test_geowave_kat" -exec cp {} artifacts/cpp-linux/ \;
           find build -type f -name "resonance-core" -exec cp {} artifacts/cpp-linux/ \;
           
