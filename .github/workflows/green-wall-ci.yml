@@ -138,12 +138,29 @@ jobs:
         
       - name: Upload build artifacts
         if: matrix.os == 'ubuntu-latest'
+        run: |
+          # Find the executables (they might be in different locations based on build)
+          find build -type f -name "test_geowave_kat" -o -name "resonance-core"
+          
+          # Create artifacts directory
+          mkdir -p artifacts/cpp-linux
+          
+          # Copy executables - handle different possible locations
+          find build -type f -name "test_geowave_kat" -exec cp {} artifacts/cpp-linux/ \;
+          find build -type f -name "resonance-core" -exec cp {} artifacts/cpp-linux/ \;
+          
+          # Set permissions
+          chmod +x artifacts/cpp-linux/*
+          
+          echo "C++ artifacts prepared for upload:"
+          ls -la artifacts/cpp-linux/
+        
+      - name: Upload artifacts
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: cpp-linux-artifacts
-          path: |
-            build/test_geowave_kat
-            build/resonance-core
+          path: artifacts/cpp-linux/
 
   # Step 3: Integration validation
   integration-validation:
@@ -281,13 +298,29 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: cpp-linux-artifacts
-          path: cpp-build
+          path: artifacts/cpp-linux
           
       - name: Setup artifacts
         run: |
-          chmod +x cpp-build/resonance-core
-          chmod +x cpp-build/test_geowave_kat
-          echo "C++ artifacts ready for testing"
+          echo "Downloaded artifacts contents:"
+          find artifacts -type f
+          
+          echo "Setting up cpp-build directory..."
+          mkdir -p cpp-build
+          
+          # Copy files and set permissions
+          cp -v artifacts/cpp-linux/* cpp-build/ || echo "Warning: Copy failed, trying direct use"
+          if [ ! -f "cpp-build/resonance-core" ]; then
+            echo "Falling back to direct artifact path..."
+            mkdir -p cpp-build/artifacts/cpp-linux
+            cp -rv artifacts/cpp-linux/* cpp-build/
+            ln -s artifacts/cpp-linux/resonance-core cpp-build/resonance-core
+            ln -s artifacts/cpp-linux/test_geowave_kat cpp-build/test_geowave_kat
+          fi
+          
+          chmod +x cpp-build/*
+          echo "Final cpp-build contents:"
+          ls -la cpp-build/
           
       - name: Set up Rust
         run: |
