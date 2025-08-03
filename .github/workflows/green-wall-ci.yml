@@ -145,9 +145,10 @@ jobs:
           echo "Looking for built executables:"
           if [ "$RUNNER_OS" == "Linux" ]; then
             find . -type f -executable
-          else
-            dir /s /b *.exe
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            ls -la Release/*.exe || echo "No exe files in Release/"
           fi
+        shell: bash
         shell: bash
         
       - name: Upload build artifacts
@@ -338,6 +339,7 @@ jobs:
           path: artifacts/cpp-linux
           
       - name: Setup artifacts
+        shell: bash
         run: |
           echo "Downloaded artifacts contents:"
           find artifacts -type f
