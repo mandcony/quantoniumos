@@ -135,6 +135,15 @@ jobs:
           fi
           echo "C++ build completed successfully"
         shell: bash
+        
+      - name: Upload build artifacts
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpp-linux-artifacts
+          path: |
+            build/test_geowave_kat
+            build/resonance-core
 
   # Step 3: Integration validation
   integration-validation:
