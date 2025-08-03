@@ -4,13 +4,53 @@ use resonance_core::ResonanceEncryption;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::BufReader;
-use std::path::PathBuf;
+use std::path::    println!("\n\nValidation Results:");
+    println!("Algorithm: {} {}", wrapper.metadata.algorithm, wrapper.metadata.test_type);
+    println!("Total vectors: {}", results.total_vectors);
+    println!("Passed: {}", results.passed);
+    println!("Failed: {}", results.failed.len());Buf;
+
+#[derive(Debug, Deserialize)]
+struct TestVectorWrapper {
+    metadata: TestVectorMetadata,
+    vectors: Vec<TestVector>,
+}
+
+#[derive(Debug, Deserialize)]
+struct TestVectorMetadata {
+    algorithm: String,
+    #[serde(rename = "type")]
+    test_type: String,
+    timestamp: String,
+    count: usize,
+    format_version: String,
+}
 
 #[derive(Debug, Deserialize)]
 struct TestVector {
-    key: String,
-    plaintext: String,
-    ciphertext: String,
+    id: usize,
+    #[serde(rename = "type")]
+    vector_type: String,
+    key_hex: String,
+    plaintext_hex: String,
+    ciphertext_hex: String,
+    plaintext_size: usize,
+    key_size: usize,
+}
+
+// Add field aliases for compatibility
+impl TestVector {
+    fn key(&self) -> &str {
+        &self.key_hex
+    }
+    
+    fn plaintext(&self) -> &str {
+        &self.plaintext_hex
+    }
+    
+    fn ciphertext(&self) -> &str {
+        &self.ciphertext_hex
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -40,24 +80,52 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let file = File::open(&vector_path)?;
     let reader = BufReader::new(file);
-    let vectors: Vec<TestVector> = serde_json::from_reader(reader)?;
     
-    println!("Loaded {} test vectors", vectors.len());
+    // Parse the wrapper structure
+    let wrapper: TestVectorWrapper = serde_json::from_reader(reader)?;
+    
+    println!("Loaded test vector file: {} {} ({})", 
+             wrapper.metadata.algorithm, 
+             wrapper.metadata.test_type,
+             wrapper.metadata.timestamp);
+    println!("Contains {} vectors", wrapper.vectors.len());
     
     let mut results = ValidationResult {
-        total_vectors: vectors.len(),
+        total_vectors: wrapper.vectors.len(),
         passed: 0,
         failed: Vec::new(),
     };
     
-    for (i, vector) in vectors.iter().enumerate() {
-        print!("\rTesting vector {}/{}", i + 1, vectors.len());
+    for (i, vector) in wrapper.vectors.iter().enumerate() {
+        print!("\rTesting vector {}/{}", i + 1, wrapper.vectors.len());
         
-        let enc = ResonanceEncryption::new(&vector.key);
+        // Create a debug print of the test vector
+        println!("\nVector #{} (id: {}) details:", i, vector.id);
+        println!("  Type: {}", vector.vector_type);
+        println!("  Key (hex): {}", vector.key());
+        println!("  Plaintext (hex): {}", vector.plaintext());
+        println!("  Expected ciphertext (hex): {}", vector.ciphertext());
         
-        // Convert hex to bytes
-        let plaintext = hex::decode(&vector.plaintext)?;
-        let expected_ciphertext = hex::decode(&vector.ciphertext)?;
+    // Convert hex key to bytes then use it
+    let key_bytes = match hex::decode(&vector.key) {
+        Ok(bytes) => bytes,
+        Err(e) => {
+            results.failed.push(TestFailure {
+                vector_index: i,
+                expected: vector.key.clone(),
+                actual: format!("Error decoding key: {}", e),
+                description: "Invalid key hex format".into(),
+            });
+            continue;
+        }
+    };
+        
+    // Use the key bytes 
+    let enc = ResonanceEncryption::from_raw_key(&key_bytes);
+        
+    // Convert hex to bytes
+    let plaintext = hex::decode(&vector.plaintext)?;
+    let expected_ciphertext = hex::decode(&vector.ciphertext)?;
         
         // Test encryption
         let encrypted = match enc.encrypt(&plaintext) {
