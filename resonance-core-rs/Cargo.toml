@@ -27,5 +27,5 @@ name = "resonance_core"
 path = "src/lib.rs"
 
 [[bin]]
-name = "test-vector-validator"
+name = "test_vector_validator"
 path = "src/bin/test_vector_validator.rs"
