@@ -266,11 +266,58 @@ jobs:
             throughput_results.csv
             final_validation_proof.json
 
-  # Step 5: Final green wall status
+  # Step 5: Cross-implementation validation
+  cross-validation:
+    name: "Cross-Implementation Validation"
+    runs-on: ubuntu-latest
+    needs: [cpp-validation, artifact-generation]
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Download C++ artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cpp-linux-artifacts
+          path: cpp-build
+          
+      - name: Setup artifacts
+        run: |
+          chmod +x cpp-build/resonance-core
+          chmod +x cpp-build/test_geowave_kat
+          echo "C++ artifacts ready for testing"
+          
+      - name: Set up Rust
+        run: |
+          rustup update stable
+          rustup default stable
+          
+      - name: Build Rust implementation
+        run: |
+          cd resonance-core-rs
+          cargo build --release
+          
+      - name: Run cross-validation
+        run: |
+          cd resonance-core-rs
+          cargo run --release --bin test-vector-validator -- ../public_test_vectors/vectors_ResonanceEncryption_encryption_latest.json
+          
+      - name: Upload validation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-validation-results
+          path: |
+            public_test_vectors/*.results.json
+            resonance-core-rs/target/release/*.log
+
+  # Step 6: Final green wall status
   green-wall-status:
     name: "🟢 Green Wall Status"
     runs-on: ubuntu-latest
-    needs: [python-validation, cpp-validation, integration-validation, artifact-generation]
+    needs: [python-validation, cpp-validation, integration-validation, artifact-generation, cross-validation]
     timeout-minutes: 5
     
     steps:
