@@ -367,8 +367,19 @@ jobs:
           
       - name: Run cross-validation
         run: |
+          echo "Running with the following test vectors:"
+          ls -la public_test_vectors/vectors_ResonanceEncryption*
+          
+          echo "Building Rust test validator..."
           cd resonance-core-rs
-          cargo run --release --bin test-vector-validator -- ../public_test_vectors/vectors_ResonanceEncryption_encryption_latest.json
+          cargo build --release --bin test-vector-validator
+          
+          echo "Running test vector validation..."
+          RUST_BACKTRACE=1 cargo run --release --bin test-vector-validator -- ../public_test_vectors/vectors_ResonanceEncryption_encryption_latest.json || {
+            echo "Error: Test vector validation failed"
+            cat ../public_test_vectors/*.results.json || echo "No result file found"
+            exit 1
+          }
           
       - name: Upload validation results
         if: always()

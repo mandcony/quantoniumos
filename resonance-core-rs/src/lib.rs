@@ -34,6 +34,16 @@ impl ResonanceEncryption {
         }
     }
     
+    pub fn from_raw_key(key_bytes: &[u8]) -> Self {
+        let mut hasher = Sha256::new();
+        hasher.update(key_bytes);
+        let key_hash = hasher.finalize();
+        
+        Self {
+            key_hash: key_hash.into(),
+        }
+    }
+    
     fn generate_keystream(&self, token: &[u8; 32], length: usize) -> Result<Vec<u8>> {
         if length > 100 * 1024 * 1024 {
             return Err(ResonanceError::InvalidSize("Data too large".into()));
