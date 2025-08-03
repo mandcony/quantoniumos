@@ -18,9 +18,11 @@ getrandom = "0.2"
 criterion = "0.5"
 proptest = "1.2"
 
-[[bench]]
-name = "encryption_benchmark"
-harness = false
+# Benchmark commented out for now since the file doesn't exist
+# Uncomment when benchmark file is created
+# [[bench]]
+# name = "encryption_benchmark"
+# harness = false
 
 [lib]
 name = "resonance_core"
