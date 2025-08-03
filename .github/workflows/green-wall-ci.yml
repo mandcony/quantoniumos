@@ -308,19 +308,23 @@ jobs:
           echo "Setting up cpp-build directory..."
           mkdir -p cpp-build
           
-          # Copy files and set permissions
-          cp -v artifacts/cpp-linux/* cpp-build/ || echo "Warning: Copy failed, trying direct use"
-          if [ ! -f "cpp-build/resonance-core" ]; then
-            echo "Falling back to direct artifact path..."
-            mkdir -p cpp-build/artifacts/cpp-linux
-            cp -rv artifacts/cpp-linux/* cpp-build/
-            ln -s artifacts/cpp-linux/resonance-core cpp-build/resonance-core
-            ln -s artifacts/cpp-linux/test_geowave_kat cpp-build/test_geowave_kat
-          fi
+          # First ensure cpp-build is clean
+          rm -rf cpp-build/*
           
+          echo "Copying artifacts..."
+          cp -v artifacts/cpp-linux/* cpp-build/
+          
+          echo "Setting permissions..."
           chmod +x cpp-build/*
+          
           echo "Final cpp-build contents:"
           ls -la cpp-build/
+          
+          # Verify executables exist
+          if [ ! -x "cpp-build/test_geowave_kat" ] || [ ! -x "cpp-build/resonance-core" ]; then
+            echo "Error: Required executables not found in cpp-build/"
+            exit 1
+          fi
           
       - name: Set up Rust
         run: |
