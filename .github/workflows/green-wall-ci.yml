@@ -40,18 +40,28 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install numpy matplotlib pytest pytest-cov
       
-      - name: Run Python tests
+      - name: Setup Test Environment
         run: |
-          python -c "import flask; print('✅ Flask works')"
-          python -c "import json; print('✅ JSON works')"
+          # Create necessary directories for tests
+          mkdir -p test_results benchmark_results
+          mkdir -p bin
           
-          # Create a minimal .env file if it doesn't exist
+          # Create a minimal .env file for testing
           echo "Creating minimal .env file for testing"
           echo "DATABASE_URL=sqlite:///:memory:" > .env
           echo "FLASK_ENV=testing" >> .env
           echo "FLASK_SECRET_KEY=test_secret_key_for_ci" >> .env
           echo "QUANTONIUM_MODE=testing" >> .env
+        
+      - name: Run Python tests
+        run: |
+          # Verify core modules load correctly
+          python -c "import flask; print('✅ Flask works')"
+          python -c "import json; print('✅ JSON works')"
+          python -c "import numpy; print('✅ NumPy works')"
+          python -c "import dotenv; print('✅ python-dotenv works')"
           
           # Try to import main module safely
           python -c "
