@@ -67,11 +67,46 @@ jobs:
       - name: Run Python tests
         run: |
           # Verify core modules load correctly - continue on error
-          python -c "try: import flask; print('✅ Flask works'); except Exception as e: print(f'Flask import failed: {e}'); exit(0)"
-          python -c "try: import json; print('✅ JSON works'); except Exception as e: print(f'JSON import failed: {e}'); exit(0)"
-          python -c "try: import numpy; print('✅ NumPy works'); except Exception as e: print(f'NumPy import failed: {e}'); exit(0)"
-          python -c "try: import dotenv; print('✅ python-dotenv works'); except Exception as e: print(f'python-dotenv import failed: {e}'); exit(0)"
-          python -c "try: import matplotlib; print('✅ matplotlib works'); except Exception as e: print(f'matplotlib import failed: {e}'); exit(0)"
+          python -c "
+try:
+    import flask
+    print('✅ Flask works')
+except Exception as e:
+    print(f'Flask import failed: {e}')
+    pass
+"
+          python -c "
+try:
+    import json
+    print('✅ JSON works')
+except Exception as e:
+    print(f'JSON import failed: {e}')
+    pass
+"
+          python -c "
+try:
+    import numpy
+    print('✅ NumPy works')
+except Exception as e:
+    print(f'NumPy import failed: {e}')
+    pass
+"
+          python -c "
+try:
+    import dotenv
+    print('✅ python-dotenv works')
+except Exception as e:
+    print(f'python-dotenv import failed: {e}')
+    pass
+"
+          python -c "
+try:
+    import matplotlib
+    print('✅ matplotlib works')
+except Exception as e:
+    print(f'matplotlib import failed: {e}')
+    pass
+"
       
       - name: Create validation script
         run: |
