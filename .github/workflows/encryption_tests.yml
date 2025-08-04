@@ -23,7 +23,7 @@ jobs:
       fail-fast: false  # Continue with other versions if one fails
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
@@ -74,11 +74,10 @@ jobs:
 
     - name: Upload test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results-py${{ matrix.python-version }}
         path: |
           test_results/
           benchmark_results/
         retention-days: 7
-        fail_ci_if_error: true
