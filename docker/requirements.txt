@@ -1,0 +1,8 @@
+numpy==1.24.0
+scipy==1.10.0
+matplotlib==3.7.0
+pandas==1.5.3
+cryptography==39.0.0
+docker==6.0.1
+pytest==7.0.0
+coverage==7.0.0

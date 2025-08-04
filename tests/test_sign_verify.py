@@ -1,10 +1,8 @@
 import sys, pathlib, os
 _ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
-    sys.path.insert(0, str(_ROOT))
 _QOS = _ROOT / "quantoniumos"
 if _QOS.exists() and str(_QOS) not in sys.path:
-    sys.path.insert(0, str(_QOS))
 
 from encryption.resonance_encrypt import wave_hmac, verify_wave_hmac
 

@@ -15,7 +15,6 @@ import random
 import time
 
 # Add parent directory to path to import modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Import the necessary modules
 from encryption.resonance_encrypt import encrypt_symbolic, decrypt_symbolic

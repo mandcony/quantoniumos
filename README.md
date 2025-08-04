@@ -58,6 +58,117 @@ Web Interface (Flask) → Core Mathematics (C++) → Wave-Based Algorithms
 - `/auth/` - Basic security and access control
 - `/tests/` - Validation test suite
 
+## 💡 Usage Examples
+
+### Python
+
+```python
+# Basic encryption
+from quantoniumos import resonance_encrypt, resonance_decrypt
+
+# Encrypt a message
+message = "Hello, QuantoniumOS!"
+key = "my-secure-key-2025"
+encrypted = resonance_encrypt(message, key)
+print(f"Encrypted: {encrypted[:20]}...{encrypted[-20:]}")
+
+# Decrypt a message
+decrypted = resonance_decrypt(encrypted, key)
+print(f"Decrypted: {decrypted}")
+
+# Create a secure hash
+from quantoniumos import geometric_wave_hash
+hash_result = geometric_wave_hash("Important data to hash")
+print(f"Hash: {hash_result}")
+
+# Run statistical tests
+from quantoniumos.validation import run_statistical_suite
+stats = run_statistical_suite(encrypted)
+print(f"Passed tests: {stats['passed_tests']}/{stats['total_tests']}")
+```
+
+### C++
+
+```cpp
+#include <quantoniumos/resonance.hpp>
+#include <iostream>
+#include <string>
+
+int main() {
+    // Encrypt and decrypt
+    std::string message = "Hello, QuantoniumOS!";
+    std::string key = "my-secure-key-2025";
+    
+    auto encrypted = qos::resonance_encrypt(message, key);
+    std::cout << "Encrypted length: " << encrypted.size() << " bytes\n";
+    
+    auto decrypted = qos::resonance_decrypt(encrypted, key);
+    std::cout << "Decrypted: " << decrypted << "\n";
+    
+    // Create a secure hash
+    auto hash = qos::geometric_wave_hash("Important data to hash");
+    std::cout << "Hash: " << qos::bytes_to_hex(hash) << "\n";
+    
+    return 0;
+}
+```
+
+### Rust
+
+```rust
+use resonance_core_rs::{resonance_encrypt, resonance_decrypt, geometric_wave_hash};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Encrypt and decrypt
+    let message = "Hello, QuantoniumOS!";
+    let key = "my-secure-key-2025";
+    
+    let encrypted = resonance_encrypt(message, key)?;
+    println!("Encrypted length: {} bytes", encrypted.len());
+    
+    let decrypted = resonance_decrypt(&encrypted, key)?;
+    println!("Decrypted: {}", decrypted);
+    
+    // Create a secure hash
+    let hash = geometric_wave_hash("Important data to hash")?;
+    println!("Hash: {}", hex::encode(hash));
+    
+    Ok(())
+}
+```
+
+### Quickstart Roundtrip
+
+```bash
+# Clone and set up
+git clone https://github.com/mandcony/quantoniumos.git
+cd quantoniumos
+python setup_local_env.py
+
+# Run a full encrypt-decrypt-validate roundtrip
+python -c "
+from quantoniumos import resonance_encrypt, resonance_decrypt
+from quantoniumos.validation import validate_encryption
+
+# Create test message
+message = 'Testing QuantoniumOS encryption'
+key = 'secure-test-key-2025'
+
+# Run roundtrip
+print('Encrypting message...')
+encrypted = resonance_encrypt(message, key)
+print(f'Encrypted size: {len(encrypted)} bytes')
+
+print('Decrypting message...')
+decrypted = resonance_decrypt(encrypted, key)
+print(f'Decryption successful: {decrypted == message}')
+
+print('Validating encryption properties...')
+validation = validate_encryption(message, key)
+print(f'Passed validation: {validation}')
+"
+```
+
 ## 📖 Documentation
 
 - **[API Docs](http://localhost:5000/docs)** - Interactive Swagger interface

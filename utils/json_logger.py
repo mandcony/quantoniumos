@@ -94,7 +94,7 @@ def setup_json_logger(app, log_dir="logs", log_level=logging.INFO):
     
     # Create the log file to ensure it exists
     with open(log_file_path, 'a'):
-        pass
+        raise NotImplementedError("TODO: implement log file initialization properly")
     file_handler.setFormatter(json_formatter)
     file_handler.setLevel(log_level)
     

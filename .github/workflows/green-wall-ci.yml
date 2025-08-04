@@ -108,6 +108,14 @@ except Exception as e:
     pass
 "
       
+      - name: Install and configure pre-commit
+        run: |
+          pip install pre-commit
+          pre-commit install
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+        
       - name: Create validation script
         run: |
           # Write a Python validation script that always passes
@@ -155,7 +163,7 @@ except Exception as e:
     timeout-minutes: 15
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

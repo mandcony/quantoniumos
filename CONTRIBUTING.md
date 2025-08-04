@@ -2,14 +2,84 @@
 
 Thank you for your interest in contributing to QuantoniumOS! This document provides guidelines and instructions for contributing to this project.
 
+## Table of Contents
+- [Getting Started](#getting-started)
+- [Development Environment Setup](#development-environment-setup)
+  - [Python Setup](#python-setup)
+  - [C++ Setup](#c-setup)
+  - [Rust Setup](#rust-setup)
+- [Development Workflow](#development-workflow)
+- [Coding Standards](#coding-standards)
+- [Testing](#testing)
+- [Pull Request Process](#pull-request-process)
+- [Core Scientific Components](#core-scientific-components)
+
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork locally
-3. Set up the development environment using `.\setup_local_env.ps1`
-4. Run the validation tests to ensure everything works correctly:
-   - `.\run_simple_test.bat` for C++ components
-   - `python test_api_simple.py` for API endpoints
+2. Clone your fork locally: `git clone https://github.com/[your-username]/quantoniumos.git`
+3. Set up the development environment (see below)
+4. Run the validation tests to ensure everything works correctly
+
+## Development Environment Setup
+
+### Python Setup
+
+```bash
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+# Verify installation
+python -c "import quantoniumos; print('Setup successful!')"
+```
+
+### C++ Setup
+
+Prerequisites:
+- CMake 3.15+
+- C++17 compatible compiler (GCC 9+, MSVC 2019+, or Clang 10+)
+- Eigen 3.3+
+
+```bash
+# Generate build files
+mkdir build && cd build
+cmake ..
+
+# Build
+cmake --build . --config Release
+
+# Run tests
+ctest -C Release
+```
+
+### Rust Setup
+
+Prerequisites:
+- Rust 1.65+ and Cargo
+
+```bash
+# Navigate to Rust implementation
+cd resonance-core-rs
+
+# Build
+cargo build --release
+
+# Run tests
+cargo test
+
+# Generate documentation
+cargo doc --open
+```
 
 ## Development Workflow
 

@@ -71,3 +71,6 @@ node_modules/
 .vscode/
 *.log
 verification_results/
+
+# venv
+.venv/

@@ -1,0 +1,71 @@
+{
+  "test_name": "TestU01 SmallCrush",
+  "algorithm_name": "QuantoniumOS",
+  "timestamp": "2025-08-02T19:17:18.706612",
+  "passed": true,
+  "results": {
+    "Birthday Spacings": {
+      "result": 0.15930183807029002,
+      "passed": true,
+      "p_value": 0.15930183807029002
+    },
+    "Overlapping 5-permutations": {
+      "result": 0.6286132123155074,
+      "passed": true,
+      "p_value": 0.6286132123155074
+    },
+    "Binary Rank (31x31)": {
+      "result": 0.1767214159766889,
+      "passed": true,
+      "p_value": 0.1767214159766889
+    },
+    "Binary Rank (32x32)": {
+      "result": 0.2785601389670813,
+      "passed": true,
+      "p_value": 0.2785601389670813
+    },
+    "Binary Rank (6x8)": {
+      "result": 0.3607821030205828,
+      "passed": true,
+      "p_value": 0.3607821030205828
+    },
+    "Count-the-1's (stream)": {
+      "result": 0.8661806164011678,
+      "passed": true,
+      "p_value": 0.8661806164011678
+    },
+    "Count-the-1's (bytes)": {
+      "result": 0.6827857024431244,
+      "passed": true,
+      "p_value": 0.6827857024431244
+    },
+    "Parking Lot": {
+      "result": 0.5641041016692336,
+      "passed": true,
+      "p_value": 0.5641041016692336
+    },
+    "Minimum Distance (2D)": {
+      "result": 0.07756313320314238,
+      "passed": true,
+      "p_value": 0.07756313320314238
+    },
+    "3D Spheres": {
+      "result": 0.7470608814662688,
+      "passed": true,
+      "p_value": 0.7470608814662688
+    }
+  },
+  "summary": {
+    "passed": true,
+    "total_subtests": 10,
+    "passed_subtests": 10,
+    "failed_subtests": 0,
+    "p_value_statistics": {
+      "mean": 0.4541673143533087,
+      "min": 0.07756313320314238,
+      "max": 0.8661806164011678,
+      "std": 0.263749256159463,
+      "percent_above_0.01": 100.0
+    }
+  }
+}

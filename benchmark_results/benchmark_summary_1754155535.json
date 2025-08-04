@@ -1,0 +1,25 @@
+{
+  "timestamp": 1754155535,
+  "benchmarks": [
+    {
+      "name": "encryption_speed",
+      "file": "encryption_benchmark_1754155535.csv"
+    },
+    {
+      "name": "hashing_speed",
+      "file": "hashing_benchmark_1754155535.csv"
+    },
+    {
+      "name": "avalanche_effect",
+      "file": "avalanche_benchmark_1754155535.csv"
+    },
+    {
+      "name": "quantum_resistance",
+      "file": "quantum_resistance_1754155535.csv"
+    },
+    {
+      "name": "resource_usage",
+      "file": "resource_usage_1754155535.csv"
+    }
+  ]
+}

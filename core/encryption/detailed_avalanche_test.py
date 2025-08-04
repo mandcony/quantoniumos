@@ -3,7 +3,9 @@ Detailed avalanche test showing bit changes visually
 """
 import hashlib
 import secrets
-from optimized_resonance_encrypt import optimized_resonance_encrypt
+import argparse
+import sys
+from fixed_resonance_encrypt import fixed_resonance_encrypt
 
 def visualize_bit_changes(bytes1, bytes2):
     """Show exactly which bits changed between two byte sequences"""
@@ -36,7 +38,7 @@ def test_single_bit_avalanche(position=0):
     print()
     
     # Get original encryption
-    cipher1 = optimized_resonance_encrypt(message, key)
+    cipher1 = fixed_resonance_encrypt(message, key)
     
     # Modify one bit in the input
     modified = list(message)
@@ -48,7 +50,7 @@ def test_single_bit_avalanche(position=0):
     modified_msg = ''.join(modified)
     
     # Get modified encryption
-    cipher2 = optimized_resonance_encrypt(modified_msg, key)
+    cipher2 = fixed_resonance_encrypt(modified_msg, key)
     
     # Compare the actual ciphertext parts (skip signature and token)
     actual_cipher1 = cipher1[40:]

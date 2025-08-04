@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it as below."
+title: "QuantoniumOS: Quantum-Inspired Cryptographic Platform"
+authors:
+  - family-names: "Minier"
+    given-names: "Luis"
+    orcid: "https://orcid.org/0000-0000-0000-0000" # Replace with actual ORCID
+version: 1.0.0
+date-released: 2025-07-15
+license: "Patent Pending - Non-Commercial License"
+repository-code: "https://github.com/mandcony/quantoniumos"
+doi: "10.5281/zenodo.0000000" # Replace with actual Zenodo DOI once registered
+keywords:
+  - cryptography
+  - quantum-inspired
+  - wave-based encryption
+  - resonance functions
+  - academic research
+abstract: >
+  QuantoniumOS is an educational cryptographic platform exploring 
+  quantum-inspired algorithms and wave-based encryption techniques. 
+  It provides implementations in Python, C++, and Rust with a focus 
+  on cross-implementation validation and statistical verification
+  of cryptographic properties.
+references:
+  - type: patent-application
+    authors:
+      - family-names: "Minier"
+        given-names: "Luis"
+    title: "Quantum-Inspired Wave-Based Cryptographic System"
+    patent-number: "19/169,399"
+    date-issued: "2025-02-10"
+    patent-office: "USPTO"
+  - type: preprint
+    authors:
+      - family-names: "Minier"
+        given-names: "Luis"
+    title: "Wave-Based Cryptographic Primitives: A Quantum-Inspired Approach"
+    year: 2025
+    url: "https://arxiv.org/abs/2025.00000" # Replace with actual preprint URL
+    repository: "https://github.com/mandcony/quantoniumos"

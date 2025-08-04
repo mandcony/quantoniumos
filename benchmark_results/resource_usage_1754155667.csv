@@ -1,0 +1,6 @@
+Data Size,AES Memory (MB),SHA Memory (MB),QOS Memory (MB),GEO Memory (MB),Memory Ratio (QOS/AES),Memory Ratio (GEO/SHA)
+256,0.00390625,0.0,0.0,0.0,0.0,0
+1024,0.0,0.0,0.0,0.0,0,0
+4096,0.00390625,0.0,0.0,0.0,0.0,0
+16384,0.01171875,0.0,0.0,0.0,0.0,0
+65536,0.24609375,0.0,0.0,0.0,0.0,0

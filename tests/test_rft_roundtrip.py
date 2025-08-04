@@ -12,7 +12,6 @@ import json
 from typing import List, Tuple, Dict, Any
 
 # Add core modules to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'core'))
 
 try:
     from encryption.resonance_fourier import (

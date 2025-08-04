@@ -645,7 +645,7 @@ def verify_signature():
                         message = json.loads(message)
                     except:
                         # If parsing fails, keep it as a string
-                        pass
+                        raise NotImplementedError("TODO: implement proper JSON error handling")
                 except:
                     # If decoding fails, return the raw payload
                     message = payload_b64
@@ -700,7 +700,7 @@ def entropy_stream():
                             if "entropy" in data:
                                 ent.append(data["entropy"])
                         except:
-                            pass
+                            raise NotImplementedError("TODO: implement proper entropy data parsing error handling")
         except Exception as e:
             print(f"Error reading session log: {e}")
     
@@ -718,7 +718,7 @@ def entropy_stream():
                             try:
                                 ent.append(float(row['Entropy']))
                             except:
-                                pass
+                                raise NotImplementedError("TODO: implement proper CSV value conversion error handling")
         except Exception as e:
             print(f"Error reading benchmark CSV: {e}")
     
