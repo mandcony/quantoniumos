@@ -6,16 +6,22 @@ high-performance resonance filtering and expansion operations.
 """
 
 import hashlib
-import sys
-import os
 import logging
 import math
+import os
+import sys
+from typing import Union, List, Dict, Any, Optional, Tuple, ByteString
 
 # Try to import the HPC backend modules
 try:
-    # Add the bin directory to the path to find quantum_os.so
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../bin")))
-    import quantum_os
+    # Import from proper package path
+    # Use relative import to access the python_bindings
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    if root_dir not in sys.path:
+        sys.path.append(root_dir)
+        
+    # Annotate with type ignore for mypy
+    from core.python_bindings import quantum_os  # type: ignore
     HPC_BACKEND_LOADED = True
     logger = logging.getLogger("ccp_engine")
     logger.info("✅ HPC quantum_os module loaded successfully")
@@ -25,7 +31,7 @@ except ImportError:
     logger = logging.getLogger("ccp_engine")
     logger.warning("⚠️ HPC quantum_os module not found, using fallback implementation")
 
-def run_ccp_expansion(waveform_array, resonance_matrix):
+def run_ccp_expansion(waveform_array: List[float], resonance_matrix: List[List[float]]) -> Dict[str, Any]:
     """
     Apply CCP expansion to the waveform using the resonance matrix.
     If HPC backend is available, uses optimized C++ implementation.
@@ -54,7 +60,7 @@ def run_ccp_expansion(waveform_array, resonance_matrix):
     
     return result
 
-def apply_resonance_filter(coefficients):
+def apply_resonance_filter(coefficients: List[float]) -> List[float]:
     """
     Apply resonance filtering to the CCP-expanded coefficients.
     If HPC backend is available, uses optimized C++ implementation.

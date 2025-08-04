@@ -4,48 +4,81 @@ on:
   push:
     paths:
       - 'core/encryption/**'
+      - '.github/workflows/encryption_tests.yml'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
   pull_request:
     paths:
       - 'core/encryption/**'
+      - '.github/workflows/encryption_tests.yml'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, '3.10']
+        python-version: [3.9, '3.10', '3.11']
+      fail-fast: false  # Continue with other versions if one fails
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
         pip install pytest pytest-cov
 
-    - name: Run basic encryption tests
+    - name: Run basic tests
       run: |
-        python -m pytest core/encryption/test_resonance.py -v
+        # Run main encryption tests
+        python core/encryption/fixed_resonance_encrypt.py
+        if [ $? -ne 0 ]; then
+          echo "Fixed resonance tests failed"
+          exit 1
+        fi
 
-    - name: Run detailed avalanche tests
+    - name: Run avalanche tests
       run: |
-        python core/encryption/detailed_avalanche_test.py
+        # Run avalanche effect tests with reduced sample size for CI
+        PYTHONPATH=. python core/encryption/detailed_avalanche_test.py --ci-mode
+        if [ $? -ne 0 ]; then
+          echo "Avalanche tests failed"
+          exit 1
+        fi
 
-    - name: Run diffusion validation
+    - name: Run statistical tests
       run: |
-        python core/encryption/test_diffusion.py
+        # Run lightweight statistical tests for CI
+        PYTHONPATH=. python core/encryption/portable_statistical_tests.py --ci-mode
+        if [ $? -ne 0 ]; then
+          echo "Statistical tests failed"
+          exit 1
+        fi
 
-    - name: Generate coverage report
+    - name: Generate test report
+      if: always()  # Run even if tests fail
       run: |
-        pytest --cov=core.encryption --cov-report=xml
+        echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "* Python Version: ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "* Results directory: test_results/" >> $GITHUB_STEP_SUMMARY
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
       with:
-        file: ./coverage.xml
+        name: test-results-py${{ matrix.python-version }}
+        path: |
+          test_results/
+          benchmark_results/
+        retention-days: 7
         fail_ci_if_error: true

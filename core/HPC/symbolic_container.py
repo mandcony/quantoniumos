@@ -8,12 +8,19 @@ import hashlib
 import sys
 import os
 import logging
+from typing import Union, List, Dict, Any, Optional, Tuple, ByteString
 
 # Try to import the HPC backend modules
 try:
-    # Add the bin directory to the path to find quantum_os.so
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../bin")))
-    import quantum_os
+    # Import from proper package path
+    # Use relative import to access the python_bindings
+    # For modules located elsewhere in the project, use the project structure
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    if root_dir not in sys.path:
+        sys.path.append(root_dir)
+        
+    # Annotate with type ignore for mypy
+    from core.python_bindings import quantum_os  # type: ignore
     HPC_BACKEND_LOADED = True
     logger = logging.getLogger("symbolic_container")
     logger.info("✅ HPC quantum_os module loaded successfully")
@@ -23,7 +30,7 @@ except ImportError:
     logger = logging.getLogger("symbolic_container")
     logger.warning("⚠️ HPC quantum_os module not found, using fallback implementation")
 
-def create_resonance_signature(waveform_array):
+def create_resonance_signature(waveform_array: List[float]) -> Dict[str, Any]:
     """
     Create a resonance signature from the waveform array.
     If HPC backend is available, uses optimized C++ implementation.
@@ -47,7 +54,7 @@ def create_resonance_signature(waveform_array):
     
     return signature
 
-def verify_container_waveform(signature, hash_value):
+def verify_container_waveform(signature: ByteString, hash_value: str) -> bool:
     """
     Verify a container using the resonance signature and hash.
     If HPC backend is available, uses optimized C++ implementation.

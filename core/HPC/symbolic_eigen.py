@@ -5,16 +5,13 @@ Implements high-performance computing routines for symbolic eigenvector calculat
 """
 
 import hashlib
-import base64
-import sys
-import os
 import logging
+from typing import Union, List, Dict, Any, Optional, Tuple, ByteString
 
 # Try to import the HPC backend modules
 try:
-    # Add the bin directory to the path to find engine_core.so
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../bin")))
-    import engine_core
+    # Import from the proper package path
+    from secure_core.python_bindings import engine_core  # type: ignore
     HPC_BACKEND_LOADED = True
     logger = logging.getLogger("symbolic_eigen")
     logger.info("✅ HPC engine_core module loaded successfully")
@@ -24,7 +21,7 @@ except ImportError:
     logger = logging.getLogger("symbolic_eigen")
     logger.warning("⚠️ HPC engine_core module not found, using fallback implementation")
 
-def compute_eigenvectors(data_bytes):
+def compute_eigenvectors(data_bytes: ByteString) -> Dict[str, Any]:
     """
     Compute symbolic eigenvectors for the given data.
     If HPC backend is available, uses optimized C++ implementation.
@@ -53,7 +50,7 @@ def compute_eigenvectors(data_bytes):
     
     return eigen_basis
 
-def transform_basis(data_bytes, eigen_basis):
+def transform_basis(data_bytes: ByteString, eigen_basis: Dict[str, Any]) -> ByteString:
     """
     Transform data using the eigenvector basis.
     If HPC backend is available, uses optimized C++ implementation.
@@ -79,7 +76,7 @@ def transform_basis(data_bytes, eigen_basis):
     # Return the transformed data
     return bytes(transformed)
 
-def generate_eigenstate_entropy(quantum_stream, size):
+def generate_eigenstate_entropy(quantum_stream: ByteString, size: int) -> ByteString:
     """
     Generate entropy using eigenstate transitions.
     If HPC backend is available, uses optimized C++ implementation.
