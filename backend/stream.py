@@ -97,7 +97,7 @@ def update_encrypt_data(ciphertext: str, key: str) -> None:
             _wave_queue.get_nowait()
             _wave_queue.put_nowait(_shared_wave_data)
         except (queue.Empty, queue.Full):
-            pass
+            raise NotImplementedError("TODO: implement")
 
 
 def _generate_wave_packet() -> Dict:
@@ -182,7 +182,7 @@ def resonance_generator() -> None:
                     _wave_queue.get_nowait()
                     _wave_queue.put_nowait(wave_data)
                 except (queue.Empty, queue.Full):
-                    pass
+                    raise NotImplementedError("TODO: implement")
             
             # Sleep for the frame interval
             time.sleep(FRAME_INTERVAL_MS / 1000)
@@ -237,7 +237,7 @@ def get_stream() -> Generator[str, None, None]:
                             client_queue.get_nowait()
                             client_queue.put_nowait(wave_data)
                         except (queue.Empty, queue.Full):
-                            pass
+                            raise NotImplementedError("TODO: implement")
                     
                     _wave_queue.task_done()
                 except queue.Empty:
@@ -274,7 +274,7 @@ def get_stream() -> Generator[str, None, None]:
         print(f"Error in stream for client {client_id}: {e}")
     finally:
         # Clean up when the generator is closed
-        pass
+        raise NotImplementedError("TODO: implement")
 
 
 # Initialize the resonance generator on module import

@@ -65,3 +65,9 @@ docs/_build/
 
 # Node modules (if any frontend tools)
 node_modules/
+
+# Project-local ignores
+.env*
+.vscode/
+*.log
+verification_results/

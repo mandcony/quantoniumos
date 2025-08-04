@@ -1,0 +1,16 @@
+[build-system]
+build-backend = "maturin"
+requires = [ "maturin>=1.6" ]
+
+[project]
+name = "quantoniumos"
+version = "0.1.0"
+description = "Hybrid quantum-resonance OS"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [ { name = "Luis Minier" } ]
+requires-python = ">=3.11"
+classifiers = ["Programming Language :: Python :: 3"]
+
+[project.scripts]
+quantoniumos = "quantoniumos.__main__:cli"
