@@ -72,7 +72,7 @@ try:
     import flask
     print('✅ Flask works')
 except Exception as e:
-    print(f'Flask import failed: {e}')
+    print(f\"Flask import failed: {e}\")
     pass
 "
           python -c "
@@ -80,7 +80,7 @@ try:
     import json
     print('✅ JSON works')
 except Exception as e:
-    print(f'JSON import failed: {e}')
+    print(f\"JSON import failed: {e}\")
     pass
 "
           python -c "
@@ -88,7 +88,7 @@ try:
     import numpy
     print('✅ NumPy works')
 except Exception as e:
-    print(f'NumPy import failed: {e}')
+    print(f\"NumPy import failed: {e}\")
     pass
 "
           python -c "
@@ -96,7 +96,7 @@ try:
     import dotenv
     print('✅ python-dotenv works')
 except Exception as e:
-    print(f'python-dotenv import failed: {e}')
+    print(f\"python-dotenv import failed: {e}\")
     pass
 "
           python -c "
@@ -104,7 +104,7 @@ try:
     import matplotlib
     print('✅ matplotlib works')
 except Exception as e:
-    print(f'matplotlib import failed: {e}')
+    print(f\"matplotlib import failed: {e}\")
     pass
 "
       
