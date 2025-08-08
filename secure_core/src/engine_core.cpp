@@ -286,4 +286,70 @@ EXPORT int generate_entropy(uint8_t* buffer, int length) {
     return 0;
 }
 
+// Patent Math Implementation: Inverse RFT
+// W_n = (1/N) Σ RFT_k * e^{2πikn/N}
+std::vector<std::complex<double>> inverse_rft(const std::vector<std::complex<double>>& rft_data) {
+    int N = rft_data.size();
+    std::vector<std::complex<double>> result(N);
+    
+    // Inverse RFT: W_n = (1/N) Σ RFT_k * e^{2πikn/N}
+    for (int n = 0; n < N; n++) {
+        std::complex<double> sum(0.0, 0.0);
+        for (int k = 0; k < N; k++) {
+            double angle = 2.0 * M_PI * k * n / N;
+            std::complex<double> twiddle(cos(angle), sin(angle));
+            sum += rft_data[k] * twiddle;
+        }
+        result[n] = sum / static_cast<double>(N);
+    }
+    return result;
+}
+
+// Patent Math Implementation: Forward RFT  
+// RFT_k = Σ A_n * e^{iϕ_n} * e^{-2πikn/N}
+std::vector<std::complex<double>> forward_rft(const std::vector<std::complex<double>>& waveform) {
+    int N = waveform.size();
+    std::vector<std::complex<double>> result(N);
+    
+    for (int k = 0; k < N; k++) {
+        std::complex<double> sum(0.0, 0.0);
+        for (int n = 0; n < N; n++) {
+            double angle = -2.0 * M_PI * k * n / N;
+            std::complex<double> twiddle(cos(angle), sin(angle));
+            sum += waveform[n] * twiddle;
+        }
+        result[k] = sum;
+    }
+    return result;
+}
+
+// Export functions for Python binding
+EXPORT void inverse_rft_run(double* real_part, double* imag_part, int size) {
+    std::vector<std::complex<double>> input(size);
+    for (int i = 0; i < size; i++) {
+        input[i] = std::complex<double>(real_part[i], imag_part[i]);
+    }
+    
+    auto result = inverse_rft(input);
+    
+    for (int i = 0; i < size; i++) {
+        real_part[i] = result[i].real();
+        imag_part[i] = result[i].imag();
+    }
+}
+
+EXPORT void forward_rft_run(double* real_part, double* imag_part, int size) {
+    std::vector<std::complex<double>> input(size);
+    for (int i = 0; i < size; i++) {
+        input[i] = std::complex<double>(real_part[i], imag_part[i]);
+    }
+    
+    auto result = forward_rft(input);
+    
+    for (int i = 0; i < size; i++) {
+        real_part[i] = result[i].real();
+        imag_part[i] = result[i].imag();
+    }
+}
+
 } // extern "C"

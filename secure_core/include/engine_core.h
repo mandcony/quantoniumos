@@ -99,6 +99,26 @@ EXPORT int symbolic_xor(const uint8_t* plaintext, const uint8_t* key, int length
  */
 EXPORT int generate_entropy(uint8_t* buffer, int length);
 
+/**
+ * Patent Math: Forward RFT Implementation
+ * RFT_k = Σ A_n * e^{iϕ_n} * e^{-2πikn/N}
+ * 
+ * @param real_part Array of real parts (input/output)
+ * @param imag_part Array of imaginary parts (input/output)  
+ * @param size Size of the arrays
+ */
+EXPORT void forward_rft_run(double* real_part, double* imag_part, int size);
+
+/**
+ * Patent Math: Inverse RFT Implementation  
+ * W_n = (1/N) Σ RFT_k * e^{2πikn/N}
+ * 
+ * @param real_part Array of real parts (input/output)
+ * @param imag_part Array of imaginary parts (input/output)
+ * @param size Size of the arrays
+ */
+EXPORT void inverse_rft_run(double* real_part, double* imag_part, int size);
+
 #ifdef __cplusplus
 }
 #endif
