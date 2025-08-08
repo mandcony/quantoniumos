@@ -44,7 +44,7 @@ jobs:
           pip install dist/*.whl
           
           # Test basic imports
-          python -c "import quantoniumos; print('✅ Package imports successfully')"
+          python -c "import quantoniumos; print('[PASS] Package imports successfully')"
           
       - name: Validate package metadata
         run: |
@@ -56,16 +56,16 @@ jobs:
           python -c "
           try:
               from quantoniumos.core import *
-              print('✅ Core module imports')
+              print('[PASS] Core module imports')
           except ImportError as e:
-              print(f'❌ Core import failed: {e}')
+              print(f'[ERROR] Core import failed: {e}')
               exit(1)
           
           try:
               from quantoniumos.utils import *
-              print('✅ Utils module imports') 
+              print('[PASS] Utils module imports') 
           except ImportError as e:
-              print(f'❌ Utils import failed: {e}')
+              print(f'[ERROR] Utils import failed: {e}')
               exit(1)
           "
           
