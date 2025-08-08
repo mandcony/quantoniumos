@@ -11,7 +11,7 @@ jobs:
     name: "Cross-Implementation Validation"
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    continue-on-error: true  # Don't fail the workflow if validation fails
+    # Removed continue-on-error: validation failures must stop the pipeline
 
     steps:
       - name: Checkout

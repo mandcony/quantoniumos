@@ -6,13 +6,9 @@ This script performs a sanity test on the 64-Perturbation Benchmark
 to ensure all test vectors are properly executed and results are valid.
 """
 
-import os
 import sys
-import json
-import time
 import logging
 import requests
-from typing import Dict, Any, List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 

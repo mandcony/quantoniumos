@@ -9,7 +9,7 @@ import math
 import logging
 import os
 import json
-from typing import List, Dict, Tuple, Any, Union
+from typing import List, Dict, Tuple, Any
 
 # Configure logger
 logger = logging.getLogger("resonance_fourier_encryption")

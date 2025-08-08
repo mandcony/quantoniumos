@@ -7,18 +7,12 @@ can unlock it when paired with the correct key.
 """
 
 import sys
-import os
-import json
-from typing import Dict, List, Any
-import hashlib
 import random
-import time
 
 # Add parent directory to path to import modules
 
 # Import the necessary modules
-from encryption.resonance_encrypt import encrypt_symbolic, decrypt_symbolic
-from encryption.geometric_waveform_hash import wave_hash
+from encryption.resonance_encrypt import encrypt_symbolic
 from orchestration.resonance_manager import (
     register_container,
     get_container_by_hash,

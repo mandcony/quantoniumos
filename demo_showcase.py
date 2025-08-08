@@ -11,7 +11,6 @@ Execute this script to generate comparison charts and validation logs.
 """
 
 import os
-import sys
 import time
 import math
 import logging
@@ -21,7 +20,8 @@ from pathlib import Path
 from datetime import datetime
 
 # Add project root to path for imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Replaced sys.path manipulation with proper namespace import
+from quantoniumos.core import *
 
 # Configure logging
 logging.basicConfig(

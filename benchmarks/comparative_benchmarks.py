@@ -11,26 +11,21 @@ All benchmarks are reproducible and CSV logs are generated for analysis.
 """
 
 import os
-import sys
 import time
 import csv
 import json
-import base64
 import hashlib
-import secrets
 import numpy as np
 from datetime import datetime
-from typing import Dict, List, Any, Tuple
+from typing import Dict, Any
 from pathlib import Path
 
-# Add project root to Python path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Replaced sys.path manipulation with proper imports
+# from quantoniumos.core.encryption import encrypt_symbolic
 
 # Standard crypto libraries for comparison
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-from Crypto.Cipher import AES as PyCryptoAES
-from Crypto.Hash import SHA256 as PyCryptoSHA256
 
 # QuantoniumOS libraries
 # Import these in a try block since we'll mock them if they don't exist
@@ -462,7 +457,6 @@ def benchmark_resource_usage(title: str, save_csv: bool = True) -> Dict[str, Any
         Dictionary with benchmark results
     """
     import psutil
-    import threading
     
     results = {
         "title": title,

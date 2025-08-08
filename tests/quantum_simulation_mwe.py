@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import math
 import random
 
 print("Quantum-Inspired State Superposition Simulation (MWE)")

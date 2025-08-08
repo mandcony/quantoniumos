@@ -12,7 +12,7 @@ import platform
 import json
 import secrets
 from datetime import datetime
-from flask import Flask, send_from_directory, redirect, jsonify, g, request, render_template_string, abort
+from flask import Flask, send_from_directory, redirect, jsonify, request, render_template_string, abort
 from flask_cors import CORS
 
 # Load environment variables first
@@ -24,8 +24,8 @@ from auth.routes import auth_api
 from security import configure_security
 from routes_quantum import quantum_api
 from utils.json_logger import setup_json_logger
-from utils.security_logger import setup_security_logger, log_security_event, SecurityEventType, SecurityOutcome
-from auth import initialize_auth, db, APIKey, APIKeyAuditLog
+from utils.security_logger import setup_security_logger
+from auth import initialize_auth, db
 
 try:
     from __init__ import __version__ as app_version
@@ -175,7 +175,7 @@ def create_app():
     # Import enterprise security components with error handling
     try:
         from enterprise_security import waf, monitoring, database_encryption, secret_manager, get_security_score
-        from quantum_security import quantum_key_manager, zero_trust_validator, container_isolation, intrusion_detection
+        from quantum_security import container_isolation, intrusion_detection
         logger.info("Enterprise security modules loaded successfully")
     except Exception as e:
         logger.warning(f"Enterprise security modules failed to load: {e}")
@@ -235,12 +235,10 @@ def create_app():
     # Direct API routes for compatibility with original app
     @app.route('/api/encrypt', methods=['POST'])
     def direct_encrypt():
-        from routes import encrypt
         return encrypt()
         
     @app.route('/api/decrypt', methods=['POST'])
     def direct_decrypt():
-        from routes import decrypt
         return decrypt()
         
     @app.route('/api/entropy', methods=['POST'])
@@ -251,12 +249,10 @@ def create_app():
     # Additional compatibility routes to ensure both old and new routes work
     @app.route('/api/quantum/encrypt', methods=['POST'])
     def quantum_encrypt_route():
-        from routes import encrypt
         return encrypt()
         
     @app.route('/api/quantum/decrypt', methods=['POST'])
     def quantum_decrypt_route():
-        from routes import decrypt
         return decrypt()
         
     @app.route('/api/quantum/entropy', methods=['POST'])

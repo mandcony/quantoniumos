@@ -9,9 +9,6 @@ arguments, reductions, and verified security bounds.
 """
 
 import math
-import numpy as np
-from typing import Dict, List, Tuple, Any, Optional
-from sympy import symbols, log, sqrt, simplify, expand
 
 class QuantumSecurityTheorem:
     """

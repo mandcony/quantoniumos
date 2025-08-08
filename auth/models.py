@@ -4,7 +4,6 @@ Quantonium OS - Authentication Models
 This module defines the SQLAlchemy models for API keys and related authentication entities.
 """
 
-import os
 import uuid
 import secrets
 from datetime import datetime, timedelta

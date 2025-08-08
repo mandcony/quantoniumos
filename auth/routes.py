@@ -4,7 +4,7 @@ Quantonium OS - Auth API Routes
 API endpoints for key management and authentication.
 """
 
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify
 from auth.models import APIKey, APIKeyAuditLog
 from auth.jwt_auth import (
     require_jwt_auth, 
@@ -12,8 +12,8 @@ from auth.jwt_auth import (
     get_current_api_key,
     authenticate_key
 )
-from pydantic import BaseModel, Field, validator
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import datetime
 
 # Create blueprint

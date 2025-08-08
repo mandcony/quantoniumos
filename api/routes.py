@@ -6,21 +6,19 @@ All proprietary algorithm calls are properly encapsulated and never exposed.
 """
 
 import os
-import time
 import hashlib
 import logging
 from datetime import datetime
-from typing import Dict, Any, Optional
-from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException, Depends
+from typing import Dict, Any
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field, validator
 
 # Import internal modules
-from api.symbolic_interface import get_symbolic_engine
-from api.resonance_metrics import compute_rft, compute_avalanche
+from api.resonance_metrics import compute_rft
 from encryption.resonance_encrypt import encrypt_symbolic
 from encryption.entropy_qrng import generate_entropy
-from orchestration.symbolic_container import open_vault, validate_container
+from orchestration.symbolic_container import open_vault
 from orchestration.resonance_manager import run_benchmark
 
 # Setup logging

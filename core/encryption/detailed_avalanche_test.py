@@ -1,10 +1,6 @@
 """
 Detailed avalanche test showing bit changes visually
 """
-import hashlib
-import secrets
-import argparse
-import sys
 from fixed_resonance_encrypt import fixed_resonance_encrypt
 
 def visualize_bit_changes(bytes1, bytes2):
@@ -87,7 +83,7 @@ def test_single_bit_avalanche(position=0):
     full_bits = len(actual_cipher1) * 8
     full_percent = (full_changes / full_bits) * 100
     
-    print(f"\nFull ciphertext statistics:")
+    print("\nFull ciphertext statistics:")
     print(f"Total bits changed: {full_changes} out of {full_bits}")
     print(f"Overall change percentage: {full_percent:.2f}%")
 

@@ -11,19 +11,16 @@ import json
 import time
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Optional, List
 
 from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
 from core.protected.symbolic_interface import get_interface
 from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
 from utils import sign_response
-from auth.jwt_auth import require_jwt_auth
 from backend.stream import get_stream, update_encrypt_data
 from api.resonance_metrics import run_symbolic_benchmark
 from encryption.resonance_encrypt import wave_hmac, FEATURE_AUTH
-from core.encryption.resonance_fourier import perform_rft, perform_irft, FEATURE_IRFT
-from image_resonance_analyzer import ImageResonanceAnalyzer, analyze_image
-from encryption.quantum_engine_adapter import quantum_adapter
+from core.encryption.resonance_fourier import perform_irft, FEATURE_IRFT
+from image_resonance_analyzer import ImageResonanceAnalyzer
 
 api = Blueprint("api", __name__)
 symbolic = get_interface()

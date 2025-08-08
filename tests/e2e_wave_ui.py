@@ -6,11 +6,8 @@ These tests validate the UI functionality and interaction with the API.
 """
 
 import os
-import time
-import json
 import asyncio
 from pathlib import Path
-from datetime import datetime
 
 import pytest
 from playwright.async_api import async_playwright, expect

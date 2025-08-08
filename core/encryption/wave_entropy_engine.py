@@ -7,10 +7,7 @@ to generate high-quality entropy for cryptographic applications.
 
 import math
 import os
-import random
-import numpy as np
 import logging
-from typing import List, Optional
 
 try:
     from core.encryption.wave_primitives import WaveNumber

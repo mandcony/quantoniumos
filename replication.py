@@ -25,7 +25,8 @@ from datetime import datetime
 # Add parent directory to path
 script_dir = os.path.dirname(os.path.abspath(__file__))
 repo_root = os.path.abspath(os.path.join(script_dir))
-sys.path.append(repo_root)
+# Replaced sys.path manipulation with proper namespace import
+from quantoniumos.core import *
 
 # Import core modules
 try:
@@ -64,7 +65,7 @@ def build_docker_image(args):
         print("Failed to build Docker image")
         return False
     
-    print(f"Docker image built successfully: quantoniumos/verification:latest")
+    print("Docker image built successfully: quantoniumos/verification:latest")
     return True
 
 def run_verification(args):

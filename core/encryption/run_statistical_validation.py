@@ -32,7 +32,7 @@ def run_long_statistical_validation(
     
     all_results = []
     
-    print(f"Starting long-run statistical validation")
+    print("Starting long-run statistical validation")
     print(f"Running {num_iterations} iterations with {sample_size_mb}MB samples")
     print("=" * 50)
     

@@ -8,7 +8,6 @@ NIST SP 800-53 Rev. 5 audit and accountability controls (AU family).
 
 import logging
 import json
-import time
 import uuid
 import socket
 import hashlib
@@ -18,7 +17,7 @@ import datetime
 import sys
 import traceback
 from enum import Enum
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 
 # Import Flask request object for request logging
 try:

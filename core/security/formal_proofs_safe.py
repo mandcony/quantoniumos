@@ -12,7 +12,6 @@ and demonstrate resistance against specific attack models.
 
 import math
 # import sympy - Not needed for basic proof validation
-from typing import Dict, List, Tuple, Any
 
 class SecurityProof:
     """Base class for formal security proofs"""

@@ -6,15 +6,12 @@ Tests for verifying structured JSON logging setup and functionality.
 
 import os
 import json
-import time
 import tempfile
 import unittest
-from datetime import datetime
 
-import flask
 from flask import Flask, request, jsonify
 
-from utils.json_logger import JSONFormatter, setup_json_logger
+from utils.json_logger import setup_json_logger
 
 class TestJSONLogger(unittest.TestCase):
     """Test cases for JSON logging functionality"""

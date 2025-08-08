@@ -6,7 +6,6 @@ Implements entropy generation based on quantum-inspired random number generation
 
 import os
 import base64
-import time
 import hashlib
 import logging
 from typing import Optional, List

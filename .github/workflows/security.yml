@@ -111,7 +111,7 @@ jobs:
         with:
           sarif_file: bandit.sarif
           category: bandit
-        continue-on-error: true
+        # Removed continue-on-error: security analysis failures must stop the pipeline
 
       - name: Run Safety check for vulnerabilities
         run: |

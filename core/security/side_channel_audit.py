@@ -11,13 +11,10 @@ leaks in the C++ implementation.
 """
 
 import os
-import sys
 import re
-import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Dict, List, Tuple, Any, Optional, Set, Union
-from pathlib import Path
+from typing import Dict, List, Optional
 import json
 import time
 import ctypes

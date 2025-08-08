@@ -5,18 +5,16 @@ Quantonium OS - Authentication Testing
 Test suite for the authentication framework.
 """
 
-import os
 import unittest
-import json
 import time
 import jwt
 from datetime import datetime, timedelta
-from flask import Flask, g
+from flask import Flask
 from werkzeug.security import check_password_hash
 
 # Import authentication modules
 from auth.models import db, APIKey, APIKeyAuditLog
-from auth.jwt_auth import authenticate_key, verify_token, get_current_api_key
+from auth.jwt_auth import authenticate_key, verify_token
 
 class TestAuthentication(unittest.TestCase):
     """Test suite for the authentication framework"""

@@ -8,7 +8,7 @@ import hashlib
 import sys
 import os
 import logging
-from typing import Union, List, Dict, Any, Optional, Tuple, ByteString
+from typing import List, Dict, Any, ByteString
 
 # Try to import the HPC backend modules
 try:

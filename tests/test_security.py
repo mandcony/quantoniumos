@@ -7,12 +7,9 @@ Tests for API security hardening features.
 
 import unittest
 import os
-import json
 from unittest.mock import patch, MagicMock
 from flask import Flask
-from flask.testing import FlaskClient
 from security import configure_security, get_cors_origins, CSP_POLICY
-import main
 
 class TestSecurityHeaders(unittest.TestCase):
     """Test cases for security headers"""

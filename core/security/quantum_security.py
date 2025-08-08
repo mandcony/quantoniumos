@@ -11,9 +11,7 @@ and Grover's algorithms and other quantum attacks.
 """
 
 import math
-import numpy as np
-from sympy import symbols, solve, sqrt, log
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict
 
 class QuantumHardnessProblem:
     """Base class for quantum hardness assumptions"""
@@ -362,7 +360,7 @@ class ShorResistance:
         if algorithm_type in vulnerable_types:
             vulnerable = True
             assessment = "Vulnerable - Polynomial-time quantum attack exists"
-            quantum_operations = f"O(log³(n))" if key_size else "Polynomial"
+            quantum_operations = "O(log³(n))" if key_size else "Polynomial"
             recommendation = "Replace with post-quantum cryptography"
         elif algorithm_type in resistant_types:
             vulnerable = False

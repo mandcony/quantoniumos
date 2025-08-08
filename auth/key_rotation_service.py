@@ -4,7 +4,6 @@ Quantonium OS - Key Rotation Service
 This module provides functions for automated key rotation based on schedules.
 """
 
-import os
 import logging
 from datetime import datetime, timedelta
 from auth.models import APIKey, APIKeyAuditLog, db

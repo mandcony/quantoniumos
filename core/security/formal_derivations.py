@@ -8,7 +8,7 @@ with explicit mathematical steps that can be verified line-by-line.
 
 import math
 # import numpy as np  # Not needed for basic derivations
-from typing import Dict, Tuple, List
+from typing import Dict
 
 class GroverResistanceDerivation:
     """
@@ -92,10 +92,10 @@ class GroverResistanceDerivation:
         step5 = self._analyze_success_probability()
         
         print(f"\nStep 5: {step5['description']}")
-        print(f"  Success probability after t iterations:")
-        print(f"  P_success(t) = sin²((2t+1)θ/2)")
+        print("  Success probability after t iterations:")
+        print("  P_success(t) = sin²((2t+1)θ/2)")
         print(f"  At optimal t = π/4 · 2^{self.n/2}:")
-        print(f"  P_success ≈ sin²(π/2) = 1")
+        print("  P_success ≈ sin²(π/2) = 1")
         
         # Step 6: Query Complexity Bound
         step6 = {

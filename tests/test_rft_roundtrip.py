@@ -1,4 +1,3 @@
-import pytest
 #!/usr/bin/env python3
 """
 RFT Round-trip Test Suite
@@ -6,10 +5,9 @@ Tests the mathematical correctness of forward and inverse RFT operations
 """
 
 import sys
-import os
 import math
 import json
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple
 
 # Add core modules to path
 
@@ -296,7 +294,7 @@ class RFTRoundTripTest:
         skipped_tests = sum(1 for result in self.test_results if result['status'] == 'SKIPPED')
         xfailed_tests = sum(1 for result in self.test_results if result['status'] == 'XFAIL')
         
-        print(f"Test Results Summary:")
+        print("Test Results Summary:")
         print(f"  Total: {total_tests}")
         print(f"  Passed: {passed_tests}")
         print(f"  Failed: {failed_tests}")
@@ -334,7 +332,7 @@ class RFTRoundTripTest:
                 'results': self.test_results
             }, f, indent=2)
         
-        print(f"\nResults saved to: rft_roundtrip_test_results.json")
+        print("\nResults saved to: rft_roundtrip_test_results.json")
         
         # Return success if all non-skipped tests passed
         return failed_tests == 0 and error_tests == 0

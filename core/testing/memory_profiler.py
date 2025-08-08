@@ -12,9 +12,8 @@ import time
 import psutil
 import tracemalloc
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-from typing import Dict, List, Tuple, Callable, Any
+from typing import Dict, List, Callable, Any
 from datetime import datetime
 
 # Fix import paths - add the project root to Python's module search path

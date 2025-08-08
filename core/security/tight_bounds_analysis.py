@@ -7,7 +7,7 @@ that satisfies cryptographic reviewers.
 """
 
 import math
-from typing import Dict, Tuple
+from typing import Dict
 
 class TightBoundAnalysis:
     """
@@ -62,8 +62,8 @@ class TightBoundAnalysis:
         print(f"θ_exact = 2arcsin(x) = {theta_exact:.10f}")
         print(f"θ_linear ≈ 2x = {theta_linear:.10f}")
         print(f"θ_taylor3 = 2(x + x³/6) = {theta_taylor3:.10f}")
-        print(f"")
-        print(f"Error Analysis:")
+        print("")
+        print("Error Analysis:")
         print(f"  Linear approximation error: |θ_exact - θ_linear| = {linear_error:.2e}")
         print(f"  Relative error: {results['relative_error_linear']:.2e} = {results['relative_error_linear']*100:.4f}%")
         print(f"  Taylor remainder bound: |R₃| ≤ x⁵/8 = {taylor_error_bound:.2e}")
@@ -103,17 +103,17 @@ class TightBoundAnalysis:
             "approximation_pi_4_sqrt_N": math.pi/4 * math.sqrt(self.N)
         }
         
-        print(f"Iteration bounds:")
+        print("Iteration bounds:")
         print(f"  Lower bound: t_min = π/(4θ_max) - 1/2 ≥ {results['iterations_lower_bound']}")
         print(f"  Upper bound: t_max = π/(4θ_min) - 1/2 ≤ {results['iterations_upper_bound']}")  
         print(f"  Exact value: t_exact = {t_approx:.2f}")
         print(f"  Standard approximation: π/4 · √N = {results['approximation_pi_4_sqrt_N']:.2f}")
         
         # ✅ CRITICAL FIX: Show the tight inequality that reviewers need
-        print(f"\n✅ TIGHT INEQUALITY VERIFICATION:")
-        print(f"   π/(4θ) - 1/2 ≤ t_exact ≤ π/4 · √N")
+        print("\n✅ TIGHT INEQUALITY VERIFICATION:")
+        print("   π/(4θ) - 1/2 ≤ t_exact ≤ π/4 · √N")
         print(f"   {t_approx:.2e} ≤ {t_approx:.2e} ≤ {results['approximation_pi_4_sqrt_N']:.2e}")
-        print(f"   Factor-of-2 gap explained: finite-size correction (-1/2) vs asymptotic")
+        print("   Factor-of-2 gap explained: finite-size correction (-1/2) vs asymptotic")
         
         # Verify our approximation π/4 · √N is in the right ballpark
         approx_error = abs(results['approximation_pi_4_sqrt_N'] - t_approx) / t_approx
@@ -162,7 +162,7 @@ class RingLWEReductionAnalysis:
             "error_distribution": f"χ = D_{sigma} (discrete Gaussian with σ = {sigma})"
         }
         
-        print(f"Ring-LWE Parameter Set:")
+        print("Ring-LWE Parameter Set:")
         print(f"  Ring: R = Z[X]/(X^{n} + 1)")
         print(f"  Dimension: n = {n}")
         print(f"  Modulus: q = {q}")
@@ -214,7 +214,7 @@ class RingLWEReductionAnalysis:
             "security_loss_bits": math.log2(1/total_stat_distance) if total_stat_distance > 0 else float('inf')
         }
         
-        print(f"Statistical distances:")
+        print("Statistical distances:")
         print(f"  Smoothing parameter η = {eta:.2f}")
         print(f"  Gaussian approximation: Δ₁ ≤ {stat_distance_gaussian:.2e}")
         print(f"  Ring-LWE assumption: Δ₂ ≤ {stat_distance_rlwe:.2e}")  

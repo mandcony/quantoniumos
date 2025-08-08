@@ -1,6 +1,5 @@
 import os
 import ctypes
-import sys
 
 # Add project root to path for imports
 

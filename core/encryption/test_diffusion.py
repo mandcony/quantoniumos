@@ -1,7 +1,6 @@
 """
 Test diffusion properties of the optimized resonance encryption
 """
-import hashlib
 import secrets
 import statistics
 from optimized_resonance_encrypt import optimized_resonance_encrypt

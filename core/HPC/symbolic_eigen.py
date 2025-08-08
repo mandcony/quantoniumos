@@ -6,7 +6,7 @@ Implements high-performance computing routines for symbolic eigenvector calculat
 
 import hashlib
 import logging
-from typing import Union, List, Dict, Any, Optional, Tuple, ByteString
+from typing import Dict, Any, ByteString
 
 # Try to import the HPC backend modules
 try:

@@ -4,9 +4,6 @@ Optimized version of resonance encryption module
 
 import secrets
 import hashlib
-import hmac
-import math
-import base64
 import time
 
 def optimized_resonance_encrypt(plaintext, key):

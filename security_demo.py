@@ -79,7 +79,8 @@ def demonstrate_formal_security():
     
     # Import and run a simple security proof demonstration
     try:
-        sys.path.append('.')
+# Replaced sys.path manipulation with proper namespace import
+from quantoniumos.core import *
         from core.security.formal_proofs_safe import generate_formal_security_proofs
         
         proofs = generate_formal_security_proofs()

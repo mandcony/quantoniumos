@@ -5,13 +5,10 @@ This module tests the collision resistance and avalanche effect of the geometric
 """
 
 import os
-import sys
 import random
 import string
 import logging
 import matplotlib.pyplot as plt
-import numpy as np
-from typing import Dict, List, Tuple
 from collections import defaultdict
 
 # Add project root to Python path for imports
@@ -250,7 +247,7 @@ if __name__ == "__main__":
     
     # Run avalanche analysis
     avalanche_results = avalanche_analysis(num_samples=1000, bit_flips=1)
-    print(f"\nAvalanche Effect Analysis:")
+    print("\nAvalanche Effect Analysis:")
     print(f"Average Bit Change: {avalanche_results['bit_change_percentage']:.2f}%")
     print(f"Ideal Bit Change: {avalanche_results['ideal_bit_change']:.2f}%")
     print(f"Quality Score: {avalanche_results['avalanche_quality']:.2f}/100")

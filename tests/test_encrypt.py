@@ -8,7 +8,6 @@ Tests for the resonance encryption module with enhanced security features.
 import unittest
 import time
 import hashlib
-import base64
 from core.encryption.resonance_encrypt import (
     encrypt,
     encrypt_data,

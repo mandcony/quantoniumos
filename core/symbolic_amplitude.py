@@ -1,4 +1,3 @@
-import math
 
 def parse_symbolic_amplitude(expr: str) -> complex:
     try:

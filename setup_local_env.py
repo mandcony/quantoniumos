@@ -65,7 +65,8 @@ def setup_database():
         setup_code = """
 import os
 import sys
-sys.path.append('quantoniumos')
+# Replaced sys.path manipulation with proper namespace import
+from quantoniumos.core import *
 
 try:
     from quantoniumos.models import db
@@ -139,7 +140,8 @@ if Path('.env').exists():
     load_dotenv()
 
 # Add quantoniumos to path
-sys.path.insert(0, 'quantoniumos')
+# Replaced sys.path manipulation with proper namespace import
+from quantoniumos.core import *
 
 try:
     from quantoniumos.main import main

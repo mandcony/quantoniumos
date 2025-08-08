@@ -4,9 +4,7 @@ CI wrapper for test vector validation
 This script ensures CI passes while we develop the Rust implementation
 """
 import sys
-import os
 import json
-import tempfile
 
 def main():
     # Parse arguments
@@ -17,7 +15,7 @@ def main():
     test_vector_path = sys.argv[1]
     output_path = sys.argv[2]
     
-    print(f"CI Test Vector Validation Wrapper")
+    print("CI Test Vector Validation Wrapper")
     print(f"Test vector path: {test_vector_path}")
     print(f"Output path: {output_path}")
     

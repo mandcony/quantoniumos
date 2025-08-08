@@ -5,8 +5,7 @@ Implements security middleware, headers, and protection mechanisms.
 """
 
 import os
-import platform
-from flask import request, abort, Flask, g, jsonify
+from flask import request, abort, Flask, jsonify
 from flask_talisman import Talisman
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address

@@ -12,9 +12,6 @@ import threading
 import queue
 from unittest.mock import patch, MagicMock
 
-import pytest
-from flask import Flask
-from flask.testing import FlaskClient
 
 from main import create_app
 from backend.stream import update_encrypt_data, get_stream

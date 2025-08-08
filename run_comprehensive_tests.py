@@ -11,7 +11,6 @@ Updated to include rigorous security testing beyond just functional validation.
 import sys
 import os
 import subprocess
-import time
 from pathlib import Path
 
 # Add current directory to Python path for imports
@@ -105,7 +104,7 @@ def main():
     test_results = {}
     
     # 1. FUNCTIONAL TESTS
-    print(f"\n🔧 PHASE 1: FUNCTIONAL TESTS")
+    print("\n🔧 PHASE 1: FUNCTIONAL TESTS")
     print("-" * 40)
     
     functional_tests = [
@@ -132,7 +131,7 @@ def main():
             test_results[test_file] = False
     
     # 2. STATISTICAL VALIDATION
-    print(f"\n📊 PHASE 2: STATISTICAL VALIDATION")
+    print("\n📊 PHASE 2: STATISTICAL VALIDATION")
     print("-" * 40)
     
     statistical_tests = [
@@ -151,7 +150,7 @@ def main():
             test_results[test_file] = False
     
     # 3. FORMAL SECURITY PROOFS & EXPERIMENTS  
-    print(f"\n🔒 PHASE 3: FORMAL SECURITY VALIDATION")
+    print("\n🔒 PHASE 3: FORMAL SECURITY VALIDATION")
     print("-" * 40)
     
     security_tests = [
@@ -173,7 +172,7 @@ def main():
             test_results[test_file] = False
     
     # 4. MINIMUM WORKING EXAMPLES (MWE)
-    print(f"\n🧪 PHASE 4: MINIMUM WORKING EXAMPLES")
+    print("\n🧪 PHASE 4: MINIMUM WORKING EXAMPLES")
     print("-" * 40)
     
     mwe_tests = [
@@ -190,7 +189,7 @@ def main():
             test_results[test_file] = False
     
     # 5. GENERATE FINAL REPORT
-    print(f"\n📋 FINAL TEST REPORT")
+    print("\n📋 FINAL TEST REPORT")
     print("="*60)
     
     total_tests = len(test_results)
@@ -202,7 +201,7 @@ def main():
     print(f"Failed: {failed_tests} ❌")
     print(f"Success Rate: {passed_tests/total_tests*100:.1f}%")
     
-    print(f"\nDETAILED RESULTS:")
+    print("\nDETAILED RESULTS:")
     print("-" * 40)
     
     for test_file, passed in test_results.items():
@@ -214,7 +213,7 @@ def main():
     security_passed = sum(1 for f in security_test_files if test_results.get(f, False))
     security_total = len(security_test_files)
     
-    print(f"\n🔐 SECURITY TEST SUMMARY:")
+    print("\n🔐 SECURITY TEST SUMMARY:")
     print("-" * 30)
     if security_total > 0:
         print(f"Security Tests Passed: {security_passed}/{security_total}")
@@ -236,7 +235,7 @@ def main():
     statistical_passed = sum(1 for f in statistical_test_files if test_results.get(f, False))
     statistical_total = len(statistical_test_files)
     
-    print(f"\n📊 STATISTICAL TEST SUMMARY:")
+    print("\n📊 STATISTICAL TEST SUMMARY:")
     print("-" * 30)
     if statistical_total > 0:
         print(f"Statistical Tests Passed: {statistical_passed}/{statistical_total}")
@@ -248,7 +247,7 @@ def main():
         else:
             print("🟡 SOME STATISTICAL TESTS FAILED")
     
-    print(f"\n" + "="*60)
+    print("\n" + "="*60)
     if failed_tests == 0:
         print("🎉 ALL TESTS PASSED - QuantoniumOS FULLY VALIDATED")
         print("   Functional ✅ Statistical ✅ Formal Security ✅")

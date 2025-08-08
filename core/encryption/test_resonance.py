@@ -4,7 +4,6 @@ Comprehensive test suite for QuantoniumOS resonance encryption
 
 import os
 import time
-import hashlib
 import statistics
 from typing import List, Tuple
 from resonance_encrypt import resonance_encrypt, resonance_decrypt
@@ -151,7 +150,7 @@ def test_signature_validation() -> bool:
             decrypted = resonance_decrypt(encrypted, key2)
             print("✗ Fail: Successfully decrypted with wrong key!")
             return False
-        except ValueError as e:
+        except ValueError:
             print("✓ Pass: Correctly rejected wrong key")
         
         return True

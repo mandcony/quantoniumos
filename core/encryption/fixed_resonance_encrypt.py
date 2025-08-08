@@ -4,8 +4,6 @@ Fixed version of optimized resonance encryption
 
 import secrets
 import hashlib
-import hmac
-import os
 from typing import Union
 
 def generate_keystream(seed: bytes, length: int, max_chunk_size: int = 1024*1024) -> bytes:

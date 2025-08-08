@@ -9,7 +9,6 @@ to demonstrate the formal security validation capabilities.
 import sys
 import os
 import subprocess
-from pathlib import Path
 
 def run_test_file(test_file, description=""):
     """Run a single test file and return success status"""
@@ -60,7 +59,7 @@ def main():
     test_results = {}
     
     # FORMAL SECURITY TESTS (The key differentiator!)
-    print(f"\nFORMAL SECURITY VALIDATION")
+    print("\nFORMAL SECURITY VALIDATION")
     print("-" * 40)
     
     security_tests = [
@@ -77,7 +76,7 @@ def main():
             test_results[test_file] = False
     
     # STATISTICAL VALIDATION
-    print(f"\nSTATISTICAL VALIDATION")
+    print("\nSTATISTICAL VALIDATION")
     print("-" * 40)
     
     statistical_tests = [
@@ -93,7 +92,7 @@ def main():
             test_results[test_file] = False
     
     # WORKING EXAMPLES
-    print(f"\nMINIMUM WORKING EXAMPLES")
+    print("\nMINIMUM WORKING EXAMPLES")
     print("-" * 40)
     
     mwe_tests = [
@@ -112,7 +111,7 @@ def main():
             test_results[test_file] = False
     
     # GENERATE FINAL REPORT
-    print(f"\nFOCUSED TEST REPORT")
+    print("\nFOCUSED TEST REPORT")
     print("="*60)
     
     total_tests = len(test_results)
@@ -129,7 +128,7 @@ def main():
     security_passed = sum(1 for f in security_test_files if test_results.get(f, False))
     security_total = len(security_test_files)
     
-    print(f"\nSECURITY TEST SUMMARY:")
+    print("\nSECURITY TEST SUMMARY:")
     print("-" * 30)
     if security_total > 0:
         print(f"Formal Security Tests: {security_passed}/{security_total} PASSED")
@@ -141,7 +140,7 @@ def main():
         else:
             print("STATUS: Some security tests failed")
     
-    print(f"\n" + "="*60)
+    print("\n" + "="*60)
     print("QUANTONIUMOS FORMAL SECURITY VALIDATION COMPLETE")
     print("="*60)
     

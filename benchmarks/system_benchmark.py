@@ -8,13 +8,10 @@ the performance of QuantoniumOS across multiple dimensions.
 import os
 import sys
 import time
-import psutil
 import logging
 import hashlib
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from typing import Dict, List, Any, Tuple
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

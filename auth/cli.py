@@ -16,11 +16,9 @@ import os
 import sys
 import json
 import argparse
-from datetime import datetime, timedelta
 from tabulate import tabulate
 from contextlib import contextmanager
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from auth.models import db, APIKey, APIKeyAuditLog
 
 def create_app():

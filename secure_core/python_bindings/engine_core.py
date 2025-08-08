@@ -12,8 +12,8 @@ import logging
 import hashlib
 import platform
 import time
-from typing import Optional, List, Dict, Any, Tuple
-from ctypes import c_int, c_double, c_char_p, c_uint8, c_float, POINTER, Structure, byref
+from typing import Optional, List, Tuple
+from ctypes import c_int, c_double, c_char_p, c_uint8, c_float, POINTER, Structure
 
 from encryption.wave_primitives import WaveNumber
 

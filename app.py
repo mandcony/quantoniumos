@@ -4,7 +4,6 @@ This makes sure the app is correctly initialized for gunicorn
 """
 
 import os
-import time
 import logging
 from flask_cors import CORS
 from main import create_app

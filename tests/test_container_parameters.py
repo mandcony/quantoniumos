@@ -7,8 +7,6 @@ Tests for the container parameters extraction API endpoint.
 
 import unittest
 import json
-import sys
-import os
 
 # Add parent directory to path to import app modules
 

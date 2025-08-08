@@ -5,8 +5,6 @@ This module implements the fundamental wave-based primitives for the system.
 """
 
 import math
-import hashlib
-import numpy as np
 
 class WaveNumber:
     """

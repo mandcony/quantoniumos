@@ -7,7 +7,6 @@ Implements JWT-based auth with API keys for the Quantonium API.
 import jwt
 from functools import wraps
 from flask import request, g, jsonify
-from werkzeug.security import check_password_hash
 from auth.models import APIKey, APIKeyAuditLog
 
 # Authentication headers

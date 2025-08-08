@@ -4,7 +4,7 @@ Compare validation results between C++ and Rust implementations
 
 import sys
 import json
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 def load_results(path: str) -> Dict[str, Any]:
     with open(path) as f:
@@ -28,7 +28,7 @@ def compare_results(cpp_results: Dict[str, Any], rust_results: Dict[str, Any]) -
         print(f"Rust failed vectors: {sorted(rust_failures.keys())}")
         return False
         
-    print(f"\n✅ All validation results match!")
+    print("\n✅ All validation results match!")
     print(f"Total vectors: {cpp_results['total_vectors']}")
     print(f"Passed: {cpp_results['passed']}")
     print(f"Failed: {len(cpp_results['failed'])}")

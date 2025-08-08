@@ -15,19 +15,13 @@ The demo performs the following steps:
 
 import os
 import sys
-import time
-import json
-import hashlib
-import argparse
 from datetime import datetime
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 
 # Add parent directory to path
 script_dir = os.path.dirname(os.path.abspath(__file__))
 repo_root = os.path.abspath(os.path.join(script_dir))
-sys.path.append(repo_root)
+# Replaced sys.path manipulation with proper namespace import
+from quantoniumos.core import *
 
 # Import QuantoniumOS modules
 try:

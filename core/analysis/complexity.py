@@ -8,11 +8,9 @@ The analysis justifies the claimed O(N log φ) complexity for core operations,
 where φ represents the golden ratio, approximately 1.618033988749895.
 """
 
-import math
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Dict, List, Tuple, Callable
-from sympy import symbols, solve, log, simplify
+from typing import List, Callable
 
 # Define the golden ratio φ
 PHI = (1 + 5**0.5) / 2  # φ ≈ 1.618033988749895

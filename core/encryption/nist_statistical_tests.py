@@ -4,9 +4,7 @@ Generates large test vectors and runs complete NIST SP 800-22 battery
 """
 
 import os
-import sys
 import time
-import random
 import hashlib
 import subprocess
 from datetime import datetime

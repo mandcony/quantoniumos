@@ -6,8 +6,6 @@ directly, without going through the wrapper classes used in the main test suite.
 """
 
 import os
-import sys
-import hashlib
 import random
 import struct
 import numpy as np
@@ -19,8 +17,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..', '..'))
 
 # Import QuantoniumOS modules
-from core.encryption.resonance_encrypt import resonance_encrypt, resonance_decrypt
-from core.encryption.geometric_waveform_hash import GeometricWaveformHash, generate_waveform_hash
+from core.encryption.resonance_encrypt import resonance_encrypt
+from core.encryption.geometric_waveform_hash import GeometricWaveformHash
 
 def count_bit_differences(data1: bytes, data2: bytes) -> int:
     """Count the number of different bits between two byte sequences."""

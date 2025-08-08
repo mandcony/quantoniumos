@@ -22,8 +22,21 @@ __pycache__/
 env/
 venv/
 ENV/
-.venv
+.venv/
 pip-log.txt
+
+# Caches and temporary files
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+ruff_cache/
+
+# Benchmark and test results (should not be version controlled)
+benchmark_results/
+test_results/
+demonstration_results/
+validation_results/
+verification_results/
 
 # Database files
 *.db

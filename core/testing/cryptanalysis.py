@@ -17,17 +17,13 @@ p-value reporting for scientific verification and peer review.
 """
 
 import os
-import sys
 import math
 import hashlib
-import random
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-import subprocess
 import json
 from datetime import datetime
-from typing import Dict, List, Tuple, Any, Optional, Union
+from typing import Dict, List, Any
 
 # Fix import paths - add the project root to Python's module search path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -35,7 +31,6 @@ project_root = os.path.abspath(os.path.join(current_dir, '..', '..'))
 
 # Import QuantoniumOS modules
 from core.encryption.wave_entropy_engine import WaveformEntropyEngine
-from core.encryption.resonance_encrypt import encrypt as resonance_encrypt, decrypt_data
 from core.encryption.geometric_waveform_hash import GeometricWaveformHash
 
 # Create a wrapper class to maintain compatibility
@@ -881,7 +876,7 @@ class TestVectors:
         Returns:
             CryptoTestResult with the test vectors
         """
-        result = CryptoTestResult(f"Test Vectors (Encryption)", algorithm_name)
+        result = CryptoTestResult("Test Vectors (Encryption)", algorithm_name)
         
         # Generate vectors with different sizes and patterns
         vectors = []
@@ -991,7 +986,7 @@ class TestVectors:
         Returns:
             CryptoTestResult with the test vectors
         """
-        result = CryptoTestResult(f"Test Vectors (Hash)", algorithm_name)
+        result = CryptoTestResult("Test Vectors (Hash)", algorithm_name)
         
         # Generate vectors with different sizes and patterns
         vectors = []
@@ -1626,20 +1621,20 @@ def generate_public_test_vectors():
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         
         f.write("## Encryption Test Vectors\n\n")
-        f.write(f"- Algorithm: ResonanceEncryption\n")
+        f.write("- Algorithm: ResonanceEncryption\n")
         f.write(f"- Vectors Generated: {len(encryption_vectors)}\n")
         f.write(f"- Validation Status: {'PASSED' if encryption_validation.passed else 'FAILED'}\n")
-        f.write(f"- Vector Files:\n")
-        f.write(f"  - [JSON Format](vectors_ResonanceEncryption_encryption_latest.json)\n")
-        f.write(f"  - [HTML Format](vectors_ResonanceEncryption_encryption_latest.html)\n\n")
+        f.write("- Vector Files:\n")
+        f.write("  - [JSON Format](vectors_ResonanceEncryption_encryption_latest.json)\n")
+        f.write("  - [HTML Format](vectors_ResonanceEncryption_encryption_latest.html)\n\n")
         
         f.write("## Hash Test Vectors\n\n")
-        f.write(f"- Algorithm: GeometricWaveformHash\n")
+        f.write("- Algorithm: GeometricWaveformHash\n")
         f.write(f"- Vectors Generated: {len(hash_vectors)}\n")
         f.write(f"- Validation Status: {'PASSED' if hash_validation.passed else 'FAILED'}\n")
-        f.write(f"- Vector Files:\n")
-        f.write(f"  - [JSON Format](vectors_GeometricWaveformHash_hash_latest.json)\n")
-        f.write(f"  - [HTML Format](vectors_GeometricWaveformHash_hash_latest.html)\n\n")
+        f.write("- Vector Files:\n")
+        f.write("  - [JSON Format](vectors_GeometricWaveformHash_hash_latest.json)\n")
+        f.write("  - [HTML Format](vectors_GeometricWaveformHash_hash_latest.html)\n\n")
         
         f.write("## Usage Information\n\n")
         f.write("These test vectors are provided to validate implementations of QuantoniumOS cryptographic primitives ")
@@ -1699,7 +1694,7 @@ if __name__ == "__main__":
         entropy_engine = WaveformEntropyEngine()
         test_data = entropy_engine.generate_entropy_bytes(1024 * 1024)  # 1 MB
         nist_result = suite.nist_tests.run_nist_tests(test_data, "QuantoniumOS")
-        print(f"NIST tests completed. Results saved to test_results/nist_only")
+        print("NIST tests completed. Results saved to test_results/nist_only")
     elif args.mode == 'dieharder':
         # Run Dieharder tests only
         print("Running Dieharder tests...")
@@ -1707,7 +1702,7 @@ if __name__ == "__main__":
         entropy_engine = WaveformEntropyEngine()
         test_data = entropy_engine.generate_entropy_bytes(1024 * 1024)  # 1 MB
         dieharder_result = suite.dieharder_tests.run_dieharder_tests(test_data, "QuantoniumOS")
-        print(f"Dieharder tests completed. Results saved to test_results/dieharder_only")
+        print("Dieharder tests completed. Results saved to test_results/dieharder_only")
     elif args.mode == 'avalanche':
         # Run avalanche tests only
         print("Running avalanche effect tests...")
@@ -1720,4 +1715,4 @@ if __name__ == "__main__":
         
         encryption_avalanche = suite.avalanche_tests.test_encryption_avalanche(encryption, "QuantoniumOS_Encryption")
         hash_avalanche = suite.avalanche_tests.test_hash_avalanche(hash_function, "QuantoniumOS_Hash")
-        print(f"Avalanche tests completed. Results saved to test_results/avalanche_only")
+        print("Avalanche tests completed. Results saved to test_results/avalanche_only")

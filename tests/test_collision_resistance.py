@@ -7,13 +7,10 @@ formal cryptographic definitions, not just avalanche statistics.
 Tests the actual security properties required for cryptographic hash functions.
 """
 
-import os
-import sys
 import hashlib
 import secrets
 import time
-import itertools
-from typing import Dict, List, Tuple, Set, Optional
+from typing import List, Tuple
 from dataclasses import dataclass
 from collections import defaultdict
 import math

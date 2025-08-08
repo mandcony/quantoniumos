@@ -12,7 +12,7 @@ jobs:
     name: "Python Core Validation"
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    continue-on-error: true  # Don't fail the workflow if python validation fails
+    # Removed continue-on-error: failures must stop the pipeline for production safety
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12']

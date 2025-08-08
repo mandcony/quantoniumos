@@ -10,7 +10,7 @@ enhanced diffusion rounds and S-box substitution for publication-grade security.
 import hashlib
 import math
 import struct
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)

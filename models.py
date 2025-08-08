@@ -6,7 +6,7 @@ Includes comprehensive validation for all API inputs.
 """
 
 from pydantic import BaseModel, Field, validator
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional
 import re
 import base64
 

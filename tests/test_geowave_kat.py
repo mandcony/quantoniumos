@@ -6,10 +6,8 @@ Test vectors for validating geometric waveform hashing and encryption
 """
 
 import sys
-import os
-import hashlib
 import json
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 
 # Add core modules to path
 
@@ -374,7 +372,7 @@ class GeometricWaveformKAT:
         error_tests = sum(1 for result in self.test_results if result['status'] == 'ERROR')
         skipped_tests = sum(1 for result in self.test_results if result['status'] == 'SKIPPED')
         
-        print(f"Test Results Summary:")
+        print("Test Results Summary:")
         print(f"  Total: {total_tests}")
         print(f"  Passed: {passed_tests}")
         print(f"  Failed: {failed_tests}")
@@ -408,7 +406,7 @@ class GeometricWaveformKAT:
                 'results': self.test_results
             }, f, indent=2)
         
-        print(f"\nResults saved to: geowave_kat_results.json")
+        print("\nResults saved to: geowave_kat_results.json")
         
         # Return success if all non-skipped tests passed
         return failed_tests == 0 and error_tests == 0

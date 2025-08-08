@@ -7,12 +7,10 @@ to verify avalanche properties.
 """
 
 import numpy as np
-import hashlib
 import secrets
 import matplotlib.pyplot as plt
-from typing import Tuple, List, Dict, Any, Optional
+from typing import List, Dict, Any
 import logging
-from collections import defaultdict
 
 # Configure logger
 logger = logging.getLogger("crypto_diffusion")
