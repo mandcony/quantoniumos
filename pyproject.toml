@@ -41,9 +41,10 @@ dev = [
 [project.scripts]
 quantonium-validate = "quantoniumos.validate_production:main"
 
-[tool.setuptools]
-packages = ["quantoniumos", "core", "utils", "auth", "api"]
-include-package-data = true
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quantoniumos*", "core*", "utils*", "auth*", "api*"]
+exclude = ["tests*", "build*", "dist*", "*.egg-info*"]
 
 [tool.setuptools.package-data]
 quantoniumos = ["py.typed"]
