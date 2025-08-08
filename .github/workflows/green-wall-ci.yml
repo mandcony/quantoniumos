@@ -67,49 +67,54 @@ jobs:
       - name: Run Python tests
         run: |
           # Verify core modules load correctly - continue on error
-          echo 'print("Checking Flask...")
+          cat << 'EOF' > test_flask.py
+print("Checking Flask...")
 try:
     import flask
     print("✅ Flask works")
 except Exception as e:
     print("Flask import failed:", e)
-' > test_flask.py
+EOF
           python test_flask.py
           
-          echo 'print("Checking JSON...")
+          cat << 'EOF' > test_json.py
+print("Checking JSON...")
 try:
     import json
     print("✅ JSON works")
 except Exception as e:
     print("JSON import failed:", e)
-' > test_json.py
+EOF
           python test_json.py
           
-          echo 'print("Checking NumPy...")
+          cat << 'EOF' > test_numpy.py
+print("Checking NumPy...")
 try:
     import numpy
     print("✅ NumPy works")
 except Exception as e:
     print("NumPy import failed:", e)
-' > test_numpy.py
+EOF
           python test_numpy.py
           
-          echo 'print("Checking python-dotenv...")
+          cat << 'EOF' > test_dotenv.py
+print("Checking python-dotenv...")
 try:
     import dotenv
     print("✅ python-dotenv works")
 except Exception as e:
     print("python-dotenv import failed:", e)
-' > test_dotenv.py
+EOF
           python test_dotenv.py
           
-          echo 'print("Checking matplotlib...")
+          cat << 'EOF' > test_matplotlib.py
+print("Checking matplotlib...")
 try:
     import matplotlib
     print("✅ matplotlib works")
 except Exception as e:
     print("matplotlib import failed:", e)
-' > test_matplotlib.py
+EOF
           python test_matplotlib.py
       
       - name: Create validation script
@@ -143,11 +148,13 @@ except Exception as e:
           
           # Simple file structure check
           echo "Checking file structure..."
-          echo 'import os
+          cat << 'EOF' > check_files.py
+import os
 print("Files in core directory:")
 files = os.listdir("core") if os.path.exists("core") else ["directory not found"]
 for f in files:
-    print("- " + f)' > check_files.py
+    print("- " + f)
+EOF
           python check_files.py
           
       - name: Force success
@@ -291,7 +298,8 @@ for f in files:
           echo "QUANTONIUM_MODE=testing" >> .env
       - name: Run integration tests
         run: |
-          echo 'import sys
+          cat << 'EOF' > run_integration_tests.py
+import sys
 import os
 sys.path.append(".")
 # Test core functionality
@@ -306,7 +314,8 @@ try:
     print("✅ Routes module imports successfully")
 except Exception as e:
     print("⚠️ Routes import issue:", e)
-print("✅ Integration validation completed")' > run_integration_tests.py
+print("✅ Integration validation completed")
+EOF
           python run_integration_tests.py
   # Step 4: Artifact generation
   artifact-generation:
@@ -324,7 +333,8 @@ print("✅ Integration validation completed")' > run_integration_tests.py
       - name: Generate validation artifacts
         run: |
           # Create benchmark results
-          echo 'import json
+          cat << 'EOF' > generate_artifacts.py
+import json
 import time
 # Generate throughput results
 throughput_data = {
@@ -349,7 +359,8 @@ validation_data = {
 }
 with open("final_validation_proof.json", "w") as f:
     json.dump(validation_data, f, indent=2)
-print("✅ All artifacts generated successfully")' > generate_artifacts.py
+print("✅ All artifacts generated successfully")
+EOF
           python generate_artifacts.py
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
