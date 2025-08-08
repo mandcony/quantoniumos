@@ -55,17 +55,24 @@ jobs:
           source test_env/bin/activate
           python -c "
           try:
-              from quantoniumos.core import *
-              print('[PASS] Core module imports')
+              import quantoniumos
+              print('[PASS] Main quantoniumos package imports')
           except ImportError as e:
-              print(f'[ERROR] Core import failed: {e}')
+              print(f'[ERROR] Main package import failed: {e}')
               exit(1)
           
           try:
-              from quantoniumos.utils import *
-              print('[PASS] Utils module imports') 
+              import quantoniumos.core
+              print('[PASS] Core namespace imports') 
           except ImportError as e:
-              print(f'[ERROR] Utils import failed: {e}')
+              print(f'[ERROR] Core namespace failed: {e}')
+              exit(1)
+              
+          try:
+              import quantoniumos.utils
+              print('[PASS] Utils namespace imports') 
+          except ImportError as e:
+              print(f'[ERROR] Utils namespace failed: {e}')
               exit(1)
           "
           
