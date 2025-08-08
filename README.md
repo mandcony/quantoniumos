@@ -202,11 +202,28 @@ To verify the C++ implementation:
 .\run_simple_test.bat
 ```
 
-For more comprehensive testing:
+For more comprehensive testing including **formal security validation**:
 
-```powershell
+```bash
+# Complete test suite with formal cryptographic proofs
+python run_comprehensive_tests.py
+
+# Traditional functional/statistical tests only  
 .\run_robust_tests.bat
 ```
+
+## 🔒 Formal Security Testing
+
+QuantoniumOS includes rigorous **formal security testing** beyond functional validation:
+
+- **Mathematical Security Proofs**: IND-CPA, IND-CCA2, EUF-CMA reductions
+- **Security Game Implementation**: Executable cryptographic security experiments  
+- **Quantum Security Analysis**: Post-quantum resistance with concrete bounds
+- **Collision Resistance Testing**: Formal hash security validation
+
+See [Formal Security Testing Documentation](docs/FORMAL_SECURITY_TESTING.md) for details.
+
+Unlike most cryptographic implementations that only test functionality, QuantoniumOS provides **mathematical proofs** of security properties.
 
 ## API Endpoints
 

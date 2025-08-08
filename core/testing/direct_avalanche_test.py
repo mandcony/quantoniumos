@@ -9,6 +9,7 @@ import os
 import sys
 import hashlib
 import random
+import struct
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import List, Tuple
@@ -64,11 +65,12 @@ def test_encryption_avalanche(num_tests: int = 1000) -> Tuple[float, float, floa
         plaintext = os.urandom(plaintext_len)
         plaintext_str = plaintext.hex()
         
-        # Generate random key
-        key = os.urandom(16).hex()
+        # Generate random amplitude and phase parameters
+        A = random.uniform(0.5, 2.0)  # Amplitude
+        phi = random.uniform(0, 2 * np.pi)  # Phase
         
         # Encrypt the plaintext
-        ciphertext1 = resonance_encrypt(plaintext_str, key)
+        ciphertext1 = resonance_encrypt(plaintext_str, A, phi)
         
         # Flip a single bit in the plaintext
         modified_plaintext = bytearray(plaintext)
@@ -78,7 +80,7 @@ def test_encryption_avalanche(num_tests: int = 1000) -> Tuple[float, float, floa
         modified_plaintext_str = modified_plaintext.hex()
         
         # Encrypt the modified plaintext
-        ciphertext2 = resonance_encrypt(modified_plaintext_str, key)
+        ciphertext2 = resonance_encrypt(modified_plaintext_str, A, phi)
         
         # Calculate bit change percentage
         bit_change_percentage = calculate_bit_change_percentage(ciphertext1, ciphertext2)
@@ -107,19 +109,32 @@ def test_hash_avalanche(num_tests: int = 1000) -> Tuple[float, float, float, flo
         
         # Create a hash of the original waveform
         hasher1 = GeometricWaveformHash(waveform=waveform1)
-        hash1 = hasher1.generate_hash().encode('utf-8')
+        hash1_full = hasher1.generate_hash()
+        digest_part1 = bytes.fromhex(hash1_full.split('_')[-1])  # Convert hex string to raw bytes
         
-        # Modify a single value in the waveform (small change)
+        # Modify a single value in the waveform by flipping a bit in IEEE-754 representation
         waveform2 = waveform1.copy()
         index = random.randint(0, len(waveform2) - 1)
-        waveform2[index] += 0.0001  # Very small change
+        
+        # Convert float to bytes, flip a random bit, convert back
+        original_bytes = struct.pack('<d', waveform2[index])
+        byte_array = bytearray(original_bytes)
+        
+        # Flip a random bit
+        byte_index = random.randint(0, 7)
+        bit_index = random.randint(0, 7)
+        byte_array[byte_index] ^= (1 << bit_index)
+        
+        # Convert back to float
+        waveform2[index] = struct.unpack('<d', bytes(byte_array))[0]
         
         # Create a hash of the modified waveform
         hasher2 = GeometricWaveformHash(waveform=waveform2)
-        hash2 = hasher2.generate_hash().encode('utf-8')
+        hash2_full = hasher2.generate_hash()
+        digest_part2 = bytes.fromhex(hash2_full.split('_')[-1])  # Convert hex string to raw bytes
         
-        # Calculate bit change percentage
-        bit_change_percentage = calculate_bit_change_percentage(hash1, hash2)
+        # Calculate bit change percentage on raw digest bytes
+        bit_change_percentage = calculate_bit_change_percentage(digest_part1, digest_part2)
         bit_change_percentages.append(bit_change_percentage)
     
     # Calculate statistics
@@ -150,6 +165,12 @@ def plot_histogram(bit_change_percentages: List[float], title: str, filename: st
     plt.close()
 
 if __name__ == "__main__":
+    # Force reload of the geometric waveform hash module to ensure fresh code
+    import importlib
+    import core.encryption.geometric_waveform_hash as gwh
+    importlib.reload(gwh)
+    GeometricWaveformHash = gwh.GeometricWaveformHash
+    
     print("Running Direct Avalanche Effect Tests on Enhanced Cryptographic Primitives")
     
     # Test enhanced encryption avalanche effect

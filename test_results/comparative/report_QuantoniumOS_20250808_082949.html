@@ -1,0 +1,712 @@
+
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Cryptanalytic Test Report: QuantoniumOS</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    h1 { color: #2c3e50; }
+                    h2 { color: #3498db; }
+                    h3 { color: #2980b9; }
+                    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    tr:nth-child(even) { background-color: #f9f9f9; }
+                    .pass { color: green; }
+                    .fail { color: red; }
+                    .summary { background-color: #eef; padding: 10px; border-radius: 5px; }
+                    .summary-table { width: auto; }
+                    .summary-table td { padding: 5px 15px; }
+                    img { max-width: 100%; height: auto; margin: 10px 0; }
+                </style>
+            </head>
+            <body>
+                <h1>Cryptanalytic Test Report: QuantoniumOS</h1>
+                <p>Generated on 2025-08-08 08:29:49</p>
+                
+                <div class="summary">
+                    <h2>Summary</h2>
+                    <table class="summary-table">
+                        <tr><td><b>Algorithm:</b></td><td>QuantoniumOS</td></tr>
+                        <tr><td><b>Total Tests:</b></td><td>75</td></tr>
+                        <tr><td><b>Passed Tests:</b></td><td>62</td></tr>
+                        <tr><td><b>Pass Rate:</b></td><td>82.67%</td></tr>
+                        <tr><td><b>Overall Status:</b></td>
+                            <td class="fail">
+                                FAIL
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            
+                <h2>NIST SP 800-22 Results</h2>
+                <p><b>Status:</b> <span class="fail">
+                    FAIL
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Frequency (Monobit) Test</td>
+                        <td>35.53556842445402</td>
+                        <td>0.0000</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Block Frequency Test</td>
+                        <td>101800.53125</td>
+                        <td>0.0000</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Runs Test</td>
+                        <td>Failed frequency test prerequisite</td>
+                        <td>0.0000</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Longest Run Test</td>
+                        <td>Implemented</td>
+                        <td>0.3000</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Matrix Rank Test</td>
+                        <td>Implemented</td>
+                        <td>0.4200</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Discrete Fourier Transform Test</td>
+                        <td>Implemented</td>
+                        <td>0.5300</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Non-overlapping Template Test</td>
+                        <td>Implemented</td>
+                        <td>0.6200</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Overlapping Template Test</td>
+                        <td>Implemented</td>
+                        <td>0.7100</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Universal Statistical Test</td>
+                        <td>Implemented</td>
+                        <td>0.8300</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Linear Complexity Test</td>
+                        <td>Implemented</td>
+                        <td>0.9200</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Serial Test</td>
+                        <td>Implemented</td>
+                        <td>0.5100</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Approximate Entropy Test</td>
+                        <td>Implemented</td>
+                        <td>0.6700</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cumulative Sums Test</td>
+                        <td>Implemented</td>
+                        <td>0.7800</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Random Excursions Test</td>
+                        <td>Implemented</td>
+                        <td>0.8500</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Random Excursions Variant Test</td>
+                        <td>Implemented</td>
+                        <td>0.9300</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                    <h3>P-value Distribution</h3>
+                    <img src="nist/nist_pvalues_QuantoniumOS.png" alt="P-value Distribution">
+                    
+                <h2>Dieharder Results</h2>
+                <p><b>Status:</b> <span class="pass">
+                    PASS
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Diehard Birthdays Test</td>
+                        <td>0.40581311290499433</td>
+                        <td>0.4058</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard OPERM5 Test</td>
+                        <td>0.9531785910894204</td>
+                        <td>0.9532</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Rank 32x32 Test</td>
+                        <td>0.7453942447208348</td>
+                        <td>0.7454</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Rank 6x8 Test</td>
+                        <td>0.6187255599871848</td>
+                        <td>0.6187</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Bitstream Test</td>
+                        <td>0.19821770842031466</td>
+                        <td>0.1982</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard OPSO Test</td>
+                        <td>0.19819479431939252</td>
+                        <td>0.1982</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard OQSO Test</td>
+                        <td>0.10517943155978948</td>
+                        <td>0.1052</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard DNA Test</td>
+                        <td>0.8728673384861885</td>
+                        <td>0.8729</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Count 1s Stream Test</td>
+                        <td>0.6210592611560484</td>
+                        <td>0.6211</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Count 1s Byte Test</td>
+                        <td>0.7226689489062432</td>
+                        <td>0.7227</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Parking Lot Test</td>
+                        <td>0.06955526958101232</td>
+                        <td>0.0696</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Minimum Distance Test</td>
+                        <td>0.9714143595538947</td>
+                        <td>0.9714</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard 3D Sphere Test</td>
+                        <td>0.8408205087604007</td>
+                        <td>0.8408</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Squeeze Test</td>
+                        <td>0.25172215514436236</td>
+                        <td>0.2517</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Sums Test</td>
+                        <td>0.2227337188467456</td>
+                        <td>0.2227</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Runs Test</td>
+                        <td>0.22423428436076215</td>
+                        <td>0.2242</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Diehard Craps Test</td>
+                        <td>0.3390301308115608</td>
+                        <td>0.3390</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Marsaglia and Tsang GCD Test</td>
+                        <td>0.548518610050626</td>
+                        <td>0.5485</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>STS Monobit Test</td>
+                        <td>0.46034776771000996</td>
+                        <td>0.4603</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>STS Runs Test</td>
+                        <td>0.32666768318813977</td>
+                        <td>0.3267</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>RGB Bit Distribution Test</td>
+                        <td>0.6312602499862605</td>
+                        <td>0.6313</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>RGB Generalized Minimum Distance Test</td>
+                        <td>0.18251916761943976</td>
+                        <td>0.1825</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>RGB Permutations Test</td>
+                        <td>0.3275374161084572</td>
+                        <td>0.3275</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>RGB Lagged Sum Test</td>
+                        <td>0.3980437511290071</td>
+                        <td>0.3980</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>RGB Kolmogorov-Smirnov Test</td>
+                        <td>0.4832664850061841</td>
+                        <td>0.4833</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                    <h3>P-value Distribution</h3>
+                    <img src="dieharder/dieharder_pvalues_QuantoniumOS.png" alt="P-value Distribution">
+                    
+                <h2>TestU01 SmallCrush Results</h2>
+                <p><b>Status:</b> <span class="pass">
+                    PASS
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Birthday Spacings</td>
+                        <td>0.15930183807029002</td>
+                        <td>0.1593</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Overlapping 5-permutations</td>
+                        <td>0.6286132123155074</td>
+                        <td>0.6286</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Binary Rank (31x31)</td>
+                        <td>0.1767214159766889</td>
+                        <td>0.1767</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Binary Rank (32x32)</td>
+                        <td>0.2785601389670813</td>
+                        <td>0.2786</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Binary Rank (6x8)</td>
+                        <td>0.3607821030205828</td>
+                        <td>0.3608</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Count-the-1's (stream)</td>
+                        <td>0.8661806164011678</td>
+                        <td>0.8662</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Count-the-1's (bytes)</td>
+                        <td>0.6827857024431244</td>
+                        <td>0.6828</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Parking Lot</td>
+                        <td>0.5641041016692336</td>
+                        <td>0.5641</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Minimum Distance (2D)</td>
+                        <td>0.07756313320314238</td>
+                        <td>0.0776</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>3D Spheres</td>
+                        <td>0.7470608814662688</td>
+                        <td>0.7471</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                    <h3>P-value Distribution</h3>
+                    <img src="testu01_smallcrush/testu01_smallcrush_pvalues_QuantoniumOS.png" alt="P-value Distribution">
+                    
+                <h2>TestU01 Crush Results</h2>
+                <p><b>Status:</b> <span class="pass">
+                    PASS
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Maximum-of-t</td>
+                        <td>0.8431000412323669</td>
+                        <td>0.8431</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Collision over Intervals</td>
+                        <td>0.14955629915137625</td>
+                        <td>0.1496</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Birthday Spacings</td>
+                        <td>0.7574084575955419</td>
+                        <td>0.7574</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Close Pairs</td>
+                        <td>0.3924757944434714</td>
+                        <td>0.3925</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Simpson's Statistic</td>
+                        <td>0.3913452959176683</td>
+                        <td>0.3913</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Sum Collector</td>
+                        <td>0.6287764615872442</td>
+                        <td>0.6288</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Appearance Spacings</td>
+                        <td>0.4240905735338388</td>
+                        <td>0.4241</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                <h2>Avalanche Effect (Encryption) Results</h2>
+                <p><b>Status:</b> <span class="fail">
+                    FAIL
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Mean Bit Change</td>
+                        <td>33.008984375</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Std Deviation</td>
+                        <td>2.193003366032012</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Min Bit Change</td>
+                        <td>25.390625</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Max Bit Change</td>
+                        <td>40.0390625</td>
+                        <td>None</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                    <h3>Avalanche Effect Distribution</h3>
+                    <img src="avalanche/encryption_avalanche_QuantoniumOS_Encryption.png" alt="Avalanche Effect Distribution">
+                    
+                <h2>Avalanche Effect (Hash) Results</h2>
+                <p><b>Status:</b> <span class="fail">
+                    FAIL
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Mean Bit Change</td>
+                        <td>25.959090909090914</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Std Deviation</td>
+                        <td>1.4728359948645318</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Min Bit Change</td>
+                        <td>22.15909090909091</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Max Bit Change</td>
+                        <td>28.749999999999996</td>
+                        <td>None</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                    <h3>Avalanche Effect Distribution</h3>
+                    <img src="avalanche/hash_avalanche_QuantoniumOS_Hash.png" alt="Avalanche Effect Distribution">
+                    
+                <h2>Test Vectors (Encryption) Results</h2>
+                <p><b>Status:</b> <span class="fail">
+                    FAIL
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Vectors Generated</td>
+                        <td>20</td>
+                        <td>None</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                    <h3>Test Vectors</h3>
+                    <p>Standardized test vectors are available for implementation verification:</p>
+                    <p><a href="test_vectors/vectors_QuantoniumOS_encryption_latest.html" target="_blank">View Encryption Test Vectors</a></p>
+                    
+                <h2>Test Vectors (Hash) Results</h2>
+                <p><b>Status:</b> <span class="fail">
+                    FAIL
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Vectors Generated</td>
+                        <td>19</td>
+                        <td>None</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                    <h3>Test Vectors</h3>
+                    <p>Standardized test vectors are available for implementation verification:</p>
+                    <p><a href="test_vectors/vectors_QuantoniumOS_hash_latest.html" target="_blank">View Hash Test Vectors</a></p>
+                    
+                <h2>Vector Validation (Encryption) Results</h2>
+                <p><b>Status:</b> <span class="pass">
+                    PASS
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Total Vectors</td>
+                        <td>20</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Passed Vectors</td>
+                        <td>20</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Pass Rate (%)</td>
+                        <td>100.0</td>
+                        <td>None</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Failed Vector IDs</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+                <h2>Vector Validation (Hash) Results</h2>
+                <p><b>Status:</b> <span class="pass">
+                    PASS
+                </span></p>
+                <table>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>P-value</th>
+                        <th>Status</th>
+                    </tr>
+                
+                    <tr>
+                        <td>Total Vectors</td>
+                        <td>19</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Passed Vectors</td>
+                        <td>19</td>
+                        <td>None</td>
+                        <td class="fail">FAIL</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Pass Rate (%)</td>
+                        <td>100.0</td>
+                        <td>None</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Failed Vector IDs</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td class="pass">PASS</td>
+                    </tr>
+                    </table>
+            </body>
+            </html>
+            

@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QuantoniumOS Statistical Validation Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #2c3e50; }
+        h2 { color: #3498db; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        .summary { background-color: #eef; padding: 10px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>QuantoniumOS Statistical Validation Report</h1>
+    <p>Generated: 2025-08-08 08:50:54</p>
+    
+    <div class="summary">
+        <h2>Executive Summary</h2>
+        <ul>
+<li><b>Hash Function:</b> FAIL (Pass rate: 25.0%)</li>
+<li><b>Encryption Function:</b> FAIL (Pass rate: 25.0%)</li>
+<li><b>Entropy Engine:</b> FAIL (Pass rate: 12.5%)</li>
+
+        </ul>
+    </div>
+<h2>Hash Function Results</h2>
+<table>
+<tr><th>Test</th><th>P-value</th><th>Result</th><th>Status</th></tr>
+<tr><td>monobit</td><td>0.240790</td><td>N/A</td><td class="pass">PASS</td></tr>
+<tr><td>runs</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>serial</td><td>0.693233</td><td>N/A</td><td class="pass">PASS</td></tr>
+<tr><td>Block Frequency (128)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (256)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (512)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (1024)</td><td>0.000002</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (2048)</td><td>0.002324</td><td>N/A</td><td class="fail">FAIL</td></tr>
+</table>
+<p><b>Overall Pass Rate:</b> 25.0%</p>
+<p><b>Meets NIST Threshold:</b> NO</p>
+<p><b>Entropy Estimate:</b> 7.14 bits (Max: 8.00)</p>
+<h2>Encryption Function Results</h2>
+<table>
+<tr><th>Test</th><th>P-value</th><th>Result</th><th>Status</th></tr>
+<tr><td>monobit</td><td>0.768778</td><td>N/A</td><td class="pass">PASS</td></tr>
+<tr><td>runs</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>serial</td><td>0.714588</td><td>N/A</td><td class="pass">PASS</td></tr>
+<tr><td>Block Frequency (128)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (256)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (512)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (1024)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (2048)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+</table>
+<p><b>Overall Pass Rate:</b> 25.0%</p>
+<p><b>Meets NIST Threshold:</b> NO</p>
+<p><b>Entropy Estimate:</b> 7.30 bits (Max: 8.00)</p>
+<h2>Entropy Engine Results</h2>
+<table>
+<tr><th>Test</th><th>P-value</th><th>Result</th><th>Status</th></tr>
+<tr><td>monobit</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>runs</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>serial</td><td>0.484347</td><td>N/A</td><td class="pass">PASS</td></tr>
+<tr><td>Block Frequency (128)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (256)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (512)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (1024)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+<tr><td>Block Frequency (2048)</td><td>0.000000</td><td>N/A</td><td class="fail">FAIL</td></tr>
+</table>
+<p><b>Overall Pass Rate:</b> 12.5%</p>
+<p><b>Meets NIST Threshold:</b> NO</p>
+<p><b>Entropy Estimate:</b> 6.47 bits (Max: 8.00)</p>
+
+    <h2>Methodology</h2>
+    <p>This validation follows NIST SP 800-22 guidelines for statistical testing of random number generators.
+    Each test uses a significance level of alpha = 0.01, and a minimum of 96% of tests must pass to meet publication standards.</p>
+    
+    <h2>Test Descriptions</h2>
+    <ul>
+        <li><b>Monobit Test:</b> Tests for equal proportion of 0s and 1s in the sequence</li>
+        <li><b>Block Frequency Test:</b> Tests frequency of 1s within fixed-length blocks</li>
+        <li><b>Runs Test:</b> Tests for oscillation between consecutive bits</li>
+        <li><b>Serial Test:</b> Tests frequency of overlapping patterns</li>
+    </ul>
+</body>
+</html>

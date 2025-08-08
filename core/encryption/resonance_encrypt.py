@@ -11,6 +11,8 @@ import base64
 import hashlib
 import hmac
 import logging
+import math
+import numpy as np
 from core.encryption.geometric_waveform_hash import generate_waveform_hash, verify_waveform_hash
 
 # Configure logger
@@ -25,12 +27,20 @@ def resonance_encrypt(plaintext, A, phi):
     if not isinstance(plaintext, str):
         plaintext = str(plaintext)
     
+    # Ensure float64 precision for cryptographic accuracy
+    A = np.float64(A)
+    phi = np.float64(phi)
+    
+    # Generate a waveform from amplitude and phase parameters
+    # Create a simple sinusoidal waveform: A * sin(n * phi) for n = 0 to 99
+    waveform = [A * np.sin(np.float64(n) * phi) for n in range(100)]
+    
     # Generate the waveform hash for signature validation
-    waveform_hash = generate_waveform_hash(A, phi)
+    waveform_hash = generate_waveform_hash(waveform)
     signature = hashlib.sha256(waveform_hash.encode()).digest()[:4]
     
-    # Generate key from amplitude and phase
-    key = f"{A:.4f}_{phi:.4f}"
+    # Generate key from amplitude and phase with full precision
+    key = f"{A:.15f}_{phi:.15f}"
     
     # Generate secure random token for keystream
     token = secrets.token_bytes(32)
@@ -61,8 +71,15 @@ def resonance_decrypt(encrypted_data, A, phi):
     Decrypt data using resonance parameters A (amplitude) and phi (phase).
     Uses geometric waveform hash for signature validation.
     """
+    # Ensure float64 precision for cryptographic accuracy
+    A = np.float64(A)
+    phi = np.float64(phi)
+    
+    # Generate a waveform from amplitude and phase parameters (same as encrypt)
+    waveform = [A * np.sin(np.float64(n) * phi) for n in range(100)]
+    
     # Generate the waveform hash for verification
-    waveform_hash = generate_waveform_hash(A, phi)
+    waveform_hash = generate_waveform_hash(waveform)
     
     # Verify signature (first 4 bytes)
     signature = encrypted_data[:4]
@@ -71,8 +88,8 @@ def resonance_decrypt(encrypted_data, A, phi):
     if not hmac.compare_digest(signature, expected_sig):
         raise ValueError("Invalid resonance signature - waveform parameters do not match")
     
-    # Generate key from amplitude and phase
-    key = f"{A:.4f}_{phi:.4f}"
+    # Generate key from amplitude and phase with full precision
+    key = f"{A:.15f}_{phi:.15f}"
     
     # Extract token (next 32 bytes after signature)
     token = encrypted_data[4:36]

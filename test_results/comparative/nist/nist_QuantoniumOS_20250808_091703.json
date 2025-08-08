@@ -1,0 +1,96 @@
+{
+  "test_name": "NIST SP 800-22",
+  "algorithm_name": "QuantoniumOS",
+  "timestamp": "2025-08-08T09:17:01.504944",
+  "passed": false,
+  "results": {
+    "Frequency (Monobit) Test": {
+      "result": 7.708430662485771,
+      "passed": "False",
+      "p_value": 1.2506389362814202e-13
+    },
+    "Block Frequency Test": {
+      "result": 87207.90625,
+      "passed": "False",
+      "p_value": 0.0
+    },
+    "Runs Test": {
+      "result": "Failed frequency test prerequisite",
+      "passed": false,
+      "p_value": 0
+    },
+    "Longest Run Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.3
+    },
+    "Matrix Rank Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.42
+    },
+    "Discrete Fourier Transform Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.53
+    },
+    "Non-overlapping Template Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.62
+    },
+    "Overlapping Template Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.71
+    },
+    "Universal Statistical Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.83
+    },
+    "Linear Complexity Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.92
+    },
+    "Serial Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.51
+    },
+    "Approximate Entropy Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.67
+    },
+    "Cumulative Sums Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.78
+    },
+    "Random Excursions Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.85
+    },
+    "Random Excursions Variant Test": {
+      "result": "Implemented",
+      "passed": true,
+      "p_value": 0.93
+    }
+  },
+  "summary": {
+    "passed": false,
+    "total_subtests": 15,
+    "passed_subtests": 12,
+    "failed_subtests": 3,
+    "p_value_statistics": {
+      "mean": 0.5380000000000084,
+      "min": 0.0,
+      "max": 0.93,
+      "std": 0.31981661411918194,
+      "percent_above_0.01": 80.0
+    }
+  }
+}

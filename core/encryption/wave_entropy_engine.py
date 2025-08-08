@@ -6,6 +6,7 @@ to generate high-quality entropy for cryptographic applications.
 """
 
 import math
+import os
 import random
 import numpy as np
 import logging
@@ -41,7 +42,8 @@ class WaveformEntropyEngine:
           - mutation_rate: initial scaling factor for the mutation adjustments.
         """
         self.waveform = waveform if waveform else [
-            WaveNumber(amplitude=random.random(), phase=random.random() * 2 * math.pi) 
+            WaveNumber(amplitude=int.from_bytes(os.urandom(4), 'little') / 2**32, 
+                      phase=(int.from_bytes(os.urandom(4), 'little') / 2**32) * 2 * math.pi) 
             for _ in range(10)
         ]
         self.mutation_rate = mutation_rate  # Controls the magnitude of mutations
@@ -55,9 +57,12 @@ class WaveformEntropyEngine:
         This introduces quantum-like uncertainty into the system.
         """
         for w in self.waveform:
-            # Compute random perturbations for amplitude and phase
-            delta_amp = random.uniform(-self.mutation_rate, self.mutation_rate)
-            delta_phase = random.uniform(-self.mutation_rate * math.pi, self.mutation_rate * math.pi)
+            # Compute random perturbations for amplitude and phase using os.urandom
+            rand1 = int.from_bytes(os.urandom(4), 'little') / 2**32
+            rand2 = int.from_bytes(os.urandom(4), 'little') / 2**32
+            
+            delta_amp = (rand1 - 0.5) * 2 * self.mutation_rate
+            delta_phase = (rand2 - 0.5) * 2 * self.mutation_rate * math.pi
             
             # Update amplitude and phase, wrapping as needed
             w.amplitude = max(0.01, min((w.amplitude + delta_amp) % 1.0, 0.99))  # amplitude wrapped to (0,1)
@@ -163,8 +168,10 @@ def get_quantum_random_bytes(num_bytes: int) -> bytes:
     return global_entropy_engine.generate_entropy_bytes(num_bytes)
 
 if __name__ == "__main__":
-    # Create a sample waveform of 10 WaveNumber objects with random initial states
-    waveform = [WaveNumber(amplitude=random.random(), phase=random.random() * 2 * math.pi) for _ in range(10)]
+    # Create a sample waveform of 10 WaveNumber objects with cryptographically secure random initial states
+    waveform = [WaveNumber(amplitude=int.from_bytes(os.urandom(4), 'little') / 2**32, 
+                          phase=(int.from_bytes(os.urandom(4), 'little') / 2**32) * 2 * math.pi) 
+               for _ in range(10)]
     
     engine = WaveformEntropyEngine(waveform, mutation_rate=0.05)
     results = engine.run_engine(iterations=50, target_entropy=0.8)

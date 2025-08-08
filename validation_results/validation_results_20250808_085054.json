@@ -1,0 +1,9 @@
+{
+  "Hash Function": {
+    "data_size_bytes": 3200,
+    "data_size_bits": 25600,
+    "entropy_estimate": 7.1409114395836735,
+    "max_entropy": 8.0,
+    "monobit": {
+      "p_value": 0.24079047427224856,
+      "passed": 

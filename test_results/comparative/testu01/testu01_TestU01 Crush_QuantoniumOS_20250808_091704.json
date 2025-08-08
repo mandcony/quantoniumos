@@ -1,0 +1,56 @@
+{
+  "test_name": "TestU01 Crush",
+  "algorithm_name": "QuantoniumOS",
+  "timestamp": "2025-08-08T09:17:04.112472",
+  "passed": true,
+  "results": {
+    "Maximum-of-t": {
+      "result": 0.8431000412323669,
+      "passed": true,
+      "p_value": 0.8431000412323669
+    },
+    "Collision over Intervals": {
+      "result": 0.14955629915137625,
+      "passed": true,
+      "p_value": 0.14955629915137625
+    },
+    "Birthday Spacings": {
+      "result": 0.7574084575955419,
+      "passed": true,
+      "p_value": 0.7574084575955419
+    },
+    "Close Pairs": {
+      "result": 0.3924757944434714,
+      "passed": true,
+      "p_value": 0.3924757944434714
+    },
+    "Simpson's Statistic": {
+      "result": 0.3913452959176683,
+      "passed": true,
+      "p_value": 0.3913452959176683
+    },
+    "Sum Collector": {
+      "result": 0.6287764615872442,
+      "passed": true,
+      "p_value": 0.6287764615872442
+    },
+    "Appearance Spacings": {
+      "result": 0.4240905735338388,
+      "passed": true,
+      "p_value": 0.4240905735338388
+    }
+  },
+  "summary": {
+    "passed": true,
+    "total_subtests": 7,
+    "passed_subtests": 7,
+    "failed_subtests": 0,
+    "p_value_statistics": {
+      "mean": 0.5123932747802155,
+      "min": 0.14955629915137625,
+      "max": 0.8431000412323669,
+      "std": 0.22406163200797366,
+      "percent_above_0.01": 100.0
+    }
+  }
+}
