@@ -44,13 +44,7 @@ jobs:
       - name: Generate and validate test vectors
         run: |
           python tests/generate_vectors.py
-          python -c "
-          import json
-          with open('public_test_vectors/known_answer_tests.json') as f:
-              vectors = json.load(f)
-          print(f'Generated {len(vectors[\"test_vectors\"])} vector suites')
-          print('Test vectors validation: PASSED')
-          "
+          python validate_kats.py
           
       - name: Summary
         run: |
