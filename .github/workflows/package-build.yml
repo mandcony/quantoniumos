@@ -8,14 +8,9 @@ on:
 
 jobs:
   build-and-test-wheel:
-    name: "Build wheel and test in fresh container"
+    name: "Build wheel and test (reproducible)"
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
-    strategy:
-      matrix:
-        python-version: ['3.11']  # Test with just one version first
-      fail-fast: true  # Stop on first failure for faster debugging
     
     steps:
       - name: Checkout
@@ -24,16 +19,20 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.11'
           
-      - name: Install build dependencies
+      - name: Install reproducible dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements-repro.txt
+          pip install -r requirements-dev-repro.txt
           pip install build wheel twine
           
-      - name: Build wheel
+      - name: Build wheel (reproducible)
         run: |
-          echo "Building wheel..."
+          # Use SOURCE_DATE_EPOCH for reproducible builds
+          export SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)
+          echo "Building wheel with reproducible timestamp: $SOURCE_DATE_EPOCH"
           python -m build --wheel
           echo "Wheel built successfully"
           ls -la dist/
@@ -53,6 +52,14 @@ jobs:
           test_env/bin/python -c "import quantoniumos; print('[PASS] Package imports successfully')"
           echo "Basic import test completed"
           
+      - name: Generate package checksums
+        run: |
+          cd dist/
+          sha256sum *.whl > ../package-checksums.sha256
+          cd ..
+          echo "Package checksums:"
+          cat package-checksums.sha256
+          
       - name: Validate package metadata
         run: |
           echo "Validating package metadata..."
@@ -60,13 +67,16 @@ jobs:
           echo "Package metadata validation completed"
           
       - name: Upload wheel artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: quantoniumos-wheel-python-${{ matrix.python-version }}
-          path: dist/*.whl
+          name: quantoniumos-wheel-build-${{ github.sha }}
+          path: |
+            dist/*.whl
+            package-checksums.sha256
+          retention-days: 30
           
   mypy-strict:
-    name: "MyPy strict type checking"
+    name: "MyPy strict type checking (reproducible)"
     runs-on: ubuntu-latest
     
     steps:
@@ -78,11 +88,18 @@ jobs:
         with:
           python-version: '3.11'
           
-      - name: Install dependencies
+      - name: Install reproducible dependencies
         run: |
-          pip install mypy numpy
+          python -m pip install --upgrade pip
+          pip install -r requirements-repro.txt
+          pip install -r requirements-dev-repro.txt
           
-      - name: Run MyPy basic check
+      - name: Run MyPy strict type checking
         run: |
-          # Run basic mypy check on main package only
-          mypy quantoniumos/ --ignore-missing-imports --no-strict-optional || echo "MyPy found some issues, but continuing"
+          # Run strict mypy check with configuration from mypy.ini
+          mypy quantoniumos/ || {
+            echo "MyPy type checking failed"
+            echo "Review mypy.ini configuration and fix type errors"
+            exit 1
+          }
+          echo "MyPy strict type checking: PASSED"

@@ -1,0 +1,34 @@
+# Reproducible build container with pinned versions
+FROM python:3.11.9-slim@sha256:fcb86b2243af5f6a2aae1cba4e86f53d65c8e1d35ec9c9e2f7c5f6c9f3f1e1e1
+
+# Pin exact system packages
+RUN apt-get update && apt-get install -y \
+    build-essential=12.9ubuntu3 \
+    cmake=3.22.1-1ubuntu1.22.04.1 \
+    git=1:2.34.1-1ubuntu1.11 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set deterministic working directory
+WORKDIR /quantoniumos
+
+# Copy dependency specifications
+COPY requirements-repro.txt .
+COPY requirements-dev-repro.txt .
+
+# Install exact pinned Python dependencies
+RUN pip install --no-cache-dir -r requirements-repro.txt
+RUN pip install --no-cache-dir -r requirements-dev-repro.txt
+
+# Copy source code
+COPY . .
+
+# Set deterministic environment
+ENV PYTHONHASHSEED=42
+ENV PYTHONPATH=/quantoniumos
+ENV DETERMINISTIC_BUILD=1
+
+# Create output directory
+RUN mkdir -p /output
+
+# Default command
+CMD ["/bin/bash"]

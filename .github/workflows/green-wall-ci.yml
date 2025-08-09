@@ -27,10 +27,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           
-      - name: Install dependencies
+      - name: Install dependencies (reproducible)
         run: |
           python -m pip install --upgrade pip
-          pip install flask numpy matplotlib || echo "Some optional deps failed"
+          pip install -r requirements-repro.txt
+          pip install -r requirements-dev-repro.txt
       
       - name: Test basic imports
         run: |
@@ -39,6 +40,17 @@ jobs:
           python -c "import flask; print('Flask: OK')" || echo "Flask failed"
           python -c "import numpy; print('NumPy: OK')" || echo "NumPy failed"
           python -c "print('Basic validation: PASSED')"
+          
+      - name: Generate and validate test vectors
+        run: |
+          python tests/generate_vectors.py
+          python -c "
+          import json
+          with open('public_test_vectors/known_answer_tests.json') as f:
+              vectors = json.load(f)
+          print(f'Generated {len(vectors[\"test_vectors\"])} vector suites')
+          print('Test vectors validation: PASSED')
+          "
           
       - name: Summary
         run: |
@@ -69,3 +81,42 @@ jobs:
         run: |
           echo "All validation checks completed successfully"
           echo "Pipeline status: GREEN"
+
+  reproducibility:
+    name: "One-Command Reproducibility"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Run full reproducibility suite
+        run: |
+          chmod +x make_repro.sh
+          ./make_repro.sh --ci
+          
+      - name: Validate outputs
+        run: |
+          # Check that files exist
+          test -f build-outputs.tar.gz || { echo "ERROR: Missing build-outputs.tar.gz"; exit 1; }
+          test -f test-results.json || { echo "ERROR: Missing test-results.json"; exit 1; }
+          test -f checksums.sha256 || { echo "ERROR: Missing checksums.sha256"; exit 1; }
+          
+          # Validate checksums
+          sha256sum -c checksums.sha256 || { echo "ERROR: Checksum validation failed"; exit 1; }
+          
+          echo "Reproducibility validation: PASSED"
+          
+      - name: Upload reproducible artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproducible-build-${{ github.sha }}
+          path: |
+            build-outputs.tar.gz
+            test-results.json
+            checksums.sha256
+          retention-days: 30

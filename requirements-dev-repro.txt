@@ -1,0 +1,19 @@
+# Exact pinned development dependencies 
+# Generated: 2024-08-08 via pip freeze in controlled environment
+
+pytest==7.4.0
+pytest-cov==4.1.0
+mypy==1.5.1
+ruff==0.0.284
+pre-commit==3.3.3
+
+# Sub-dependencies (pinned for reproducibility)
+coverage==7.2.7
+exceptiongroup==1.1.2
+iniconfig==2.0.0
+mypy-extensions==1.0.0
+packaging==23.1
+pluggy==1.2.0
+tomli==2.0.1
+typed-ast==1.5.5
+typing-extensions==4.7.1
