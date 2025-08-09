@@ -15,7 +15,11 @@ jobs:
     
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        # NOTE: Python 3.12 temporarily excluded because pinned reproducibility
+        # dependencies (numpy==1.24.3, cryptography==41.0.3) do not provide wheels
+        # for 3.12 under our strict lock. We retain 3.9–3.11 for deterministic
+        # validation and will re-introduce 3.12 once dual-version pins land.
+        python-version: ['3.9', '3.10', '3.11']
       fail-fast: false
     
     steps:
