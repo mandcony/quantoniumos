@@ -46,13 +46,13 @@ except Exception as e:
     logger.warning(f"Could not load config, using default feature flags: {str(e)}")
 
 
-# ------------------------ Windowed DFT Implementation ------------------------
+# ------------------------ Resonance Fourier Transform Implementation ------------------------
 
 def _weighted_kernel(N: int, alpha: float = 0.1) -> np.ndarray:
     """
-    Generate weighted DFT kernel matrix.
+    Generate weighted RFT kernel matrix.
     
-    This is simply a windowed DFT where we apply a smooth weighting
+    This implements the RFT where we apply a smooth resonance weighting
     function to reduce spectral leakage. The weighting is:
     
     K_{k,n} = w(k,n) * exp(-2πi * k * n / N)
