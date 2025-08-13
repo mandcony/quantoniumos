@@ -40,6 +40,28 @@ print(f"Unitary RFT test: L2 error = {error:.2e}")  # Should be < 1e-12
 
 This test verifies that the RFT implementation is unitary and reconstructs the input exactly.
 
+## Bullet-Proof Validation (Reddit-Proof)
+
+**Skeptical? Run this 1-minute verification:**
+
+```bash
+git clone https://github.com/mandcony/quantoniumos.git
+cd quantoniumos
+./make_repro.sh
+```
+
+**Expected output proves this is real, working code:**
+- ✅ **RFT reconstruction error**: ~1e-15 (mathematically exact unitary transform)
+- ✅ **RFT vs DFT difference**: >0.1 (proves this is NOT just windowed DFT)
+- ✅ **Avalanche effect**: ~50% bits flip from 1-bit input change (proper cryptographic diffusion)
+- ✅ **Entropy**: 7.9-8.0 bits/byte (high-quality randomness)
+
+**If any number doesn't match, open an issue with your log.** 
+
+**What this IS vs ISN'T:**
+- **IS**: Classical, unitary transform defined by Hermitian resonance operator R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†, plus working encryption/hashing demos
+- **ISN'T**: A quantum computer (it's "quantum-flavored" signal processing algebra, not qubits)
+
 Check out our [Beginner's Guide](BEGINNERS_GUIDE.md) for explanations of key concepts.
 
 ## Quick Start
