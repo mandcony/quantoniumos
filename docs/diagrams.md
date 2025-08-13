@@ -73,8 +73,8 @@ flowchart TD
     CPPResult --> Comparator{Byte-by-Byte Comparison}
     PyResult --> Comparator
     RustResult --> Comparator
-    Comparator --> Match[Match ✓]
-    Comparator --> Mismatch[Mismatch ✗]
+    Comparator --> Match[Match ]
+    Comparator --> Mismatch[Mismatch ]
     Mismatch --> Debug[Debug Diagnostics]
 ```
 
@@ -132,6 +132,6 @@ flowchart TD
     IntegrationTests --> GreenWallStatus
     ValStatus --> GreenWallStatus
     
-    GreenWallStatus --> Success[Success ✓]
-    GreenWallStatus --> Failure[Failure ✗]
+    GreenWallStatus --> Success[Success ]
+    GreenWallStatus --> Failure[Failure ]
 ```

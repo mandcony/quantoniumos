@@ -1,6 +1,6 @@
 # Windowed DFT Implementation
 
-## ✅ **HONEST ASSESSMENT - WINDOWED DFT VARIANT**
+##  **HONEST ASSESSMENT - WINDOWED DFT VARIANT**
 
 This implementation provides a **windowed/weighted DFT variant** that modifies the standard Discrete Fourier Transform (DFT) using custom weighting matrices.
 
@@ -47,7 +47,7 @@ where:
 Input signal: [1.0, 0.5, 0.2, 0.0]
 DFT result (R=1):   [1.7, 0.94, 0.7, 0.94]
 RFT result (α=1.0): [1.51, 0.80, 0.42, 0.44]
-✓ RFT differs from DFT: True
+ RFT differs from DFT: True
 ```
 
 ## **Usage**
@@ -72,10 +72,10 @@ result = resonance_fourier_transform(signal, alpha=1.0)
 ## **No Confusion with DFT**
 
 This implementation ensures:
-- ❌ No standard DFT functions masquerading as RFT
-- ✅ Genuine resonance coupling mathematics
-- ✅ Clear documentation of differences
-- ✅ Validation tests proving mathematical distinction
-- ✅ Configurable coupling parameters
+-  No standard DFT functions masquerading as RFT
+-  Genuine resonance coupling mathematics
+-  Clear documentation of differences
+-  Validation tests proving mathematical distinction
+-  Configurable coupling parameters
 
 **The RFT implementation is mathematically sound and genuinely different from DFT.**

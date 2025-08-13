@@ -1,6 +1,6 @@
 # QuantoniumOS Developer Guide
 
-## Quick Start (Complete Implementation Ready!) 🚀
+## Quick Start (Complete Implementation Ready!) 
 
 **Get QuantoniumOS running in minutes with full cryptographic validation:**
 
@@ -29,7 +29,7 @@ cd quantoniumos
 
 ---
 
-## Architecture Overview 🏗️
+## Architecture Overview 
 
 ```
                     QuantoniumOS System Architecture
@@ -90,7 +90,7 @@ cd quantoniumos
 4. **Storage:** Results → PostgreSQL (encrypted) + Redis (cached)
 5. **Response:** JSON API → Frontend → User Interface
 
-**📊 Performance Characteristics:**
+** Performance Characteristics:**
 - **Latency:** < 50ms API response (local), < 100ms (geo-distributed)
 - **Throughput:** 1000+ concurrent users, 10k+ requests/second
 - **Quantum Ops:** Up to 50-qubit simulations, 1000+ gate operations/sec
@@ -103,22 +103,22 @@ cd quantoniumos
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
-- [🚀 Quick Start](#-quick-start-just-want-to-run-it)
-- [🏗️ Architecture Overview](#️-architecture-overview)
-- [🛠️ Full Installation](#️-full-installation)
+- [ Quick Start](#-quick-start-just-want-to-run-it)
+- [ Architecture Overview](#-architecture-overview)
+- [🛠 Full Installation](#-full-installation)
 - [🔧 Development Setup](#-development-setup-want-to-contribute)
 - [🧪 Testing & Quality Assurance](#-testing--quality-assurance)
 - [📡 API Reference & Documentation](#-api-reference--documentation)
-- [🚀 Deployment](#-deployment)
-- [� Contributing & Development Workflow](#-contributing--development-workflow)
+- [ Deployment](#-deployment)
+- [ Contributing & Development Workflow](#-contributing--development-workflow)
 - [🔧 Troubleshooting & Common Issues](#-troubleshooting--common-issues)
-- [� Additional Resources](#-additional-resources)
+- [ Additional Resources](#-additional-resources)
 
 ---
 
-## Full Installation 🛠️
+## Full Installation 🛠
 
 ### System Requirements
 - **OS:** Windows 10+, Ubuntu 20.04+, macOS 11+
@@ -483,7 +483,7 @@ coverage report --fail-under=90
 
 ---
 
-## Deployment 🚀
+## Deployment 
 
 ### Container Deployment (Recommended)
 
@@ -584,7 +584,7 @@ from quantoniumos.models import db
 app = create_app()
 with app.app_context():
     db.create_all()
-    print('✅ Database schema created')
+    print(' Database schema created')
 "
 
 # Seed development data
@@ -787,7 +787,7 @@ tar -czf quantonium-debug-$(date +%Y%m%d).tar.gz \
 
 **Community Support:**
 - 🐛 **Bug Reports:** [GitHub Issues](https://github.com/mandcony/quantoniumos/issues/new?template=bug_report.md)
-- 💡 **Feature Requests:** [GitHub Discussions](https://github.com/mandcony/quantoniumos/discussions/categories/ideas)
+-  **Feature Requests:** [GitHub Discussions](https://github.com/mandcony/quantoniumos/discussions/categories/ideas)
 - 💬 **Questions:** [GitHub Q&A](https://github.com/mandcony/quantoniumos/discussions/categories/q-a)
 - 📚 **Documentation:** [Wiki](https://github.com/mandcony/quantoniumos/wiki)
 
@@ -872,7 +872,7 @@ ci(docker): optimize build cache layers
 - Build time: < 5 minutes (including C++ compilation)
 
 ### Full Contributing Guide
-📋 **Detailed Guidelines:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+ **Detailed Guidelines:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
 
 **Key sections in the full contributing guide:**
 - Code of Conduct & Community Guidelines
@@ -888,15 +888,15 @@ ci(docker): optimize build cache layers
 ## Additional Resources 📚
 
 ### Documentation Hub
-- **🏗️ Architecture Deep Dive:** [`docs/architecture.md`](./docs/architecture.md)
-- **🔒 Security Guidelines:** [`docs/security.md`](./docs/security.md)  
+- ** Architecture Deep Dive:** [`docs/architecture.md`](./docs/architecture.md)
+- ** Security Guidelines:** [`docs/security.md`](./docs/security.md)  
 - **🤝 Contributing Guide:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
-- **⚖️ Licensing:** [`LICENSE`](./LICENSE) (Non-Commercial) & [`LICENSE_COMMERCIAL.md`](./LICENSE_COMMERCIAL.md)
-- **📊 API Specification:** [`quantoniumos/openapi.json`](./quantoniumos/openapi.json)
+- **⚖ Licensing:** [`LICENSE`](./LICENSE) (Non-Commercial) & [`LICENSE_COMMERCIAL.md`](./LICENSE_COMMERCIAL.md)
+- ** API Specification:** [`quantoniumos/openapi.json`](./quantoniumos/openapi.json)
 
 ### Live Documentation
 - **📡 Interactive API:** http://localhost:5000/docs (Swagger UI)
-- **📖 API Reference:** http://localhost:5000/redoc (Clean documentation)
+- **API Reference:** http://localhost:5000/redoc (Clean documentation)
 - **🩺 System Health:** http://localhost:5000/api/health
 - **🔐 Admin Panel:** http://localhost:5000/admin
 
@@ -908,21 +908,21 @@ ci(docker): optimize build cache layers
 
 ### Developer Tools
 - **🔧 Setup Automation:** `python setup_local_env.py`
-- **✅ Environment Verification:** `python scripts/verify_setup.py`
-- **📊 Architecture Generator:** `python scripts/generate_architecture_diagram.py`
+- ** Environment Verification:** `python scripts/verify_setup.py`
+- ** Architecture Generator:** `python scripts/generate_architecture_diagram.py`
 - **⚡ Development Server:** `python start_dev.py`
 
 ---
 
-**🎯 Mission: Make QuantoniumOS the most accessible quantum-classical hybrid computing platform.**
+** Mission: Make QuantoniumOS the most accessible quantum-classical hybrid computing platform.**
 
 **✨ Vision:** Bridge the gap between classical and quantum computing for developers worldwide.
 
-**🚀 Getting Started:** `git clone → python setup_local_env.py → python start_dev.py → Build Amazing Things!`
+** Getting Started:** `git clone → python setup_local_env.py → python start_dev.py → Build Amazing Things!`
 
 ---
 
 *📅 This developer guide is automatically validated and updated with each release.*  
 *🕐 Last updated: July 14, 2025*  
 *📏 Guide length: ~550 lines of actionable code and instructions*  
-*✅ All code snippets are command-verified and CI-tested*
+* All code snippets are command-verified and CI-tested*

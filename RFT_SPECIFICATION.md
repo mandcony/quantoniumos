@@ -1,53 +1,70 @@
-# Resonance Fourier Transform (RFT) — Final Mathematical Definition
+# Windowed DFT Implementation — Mathematical Specification
 
 ## Executive Summary
 
-The Resonance Fourier Transform (RFT) is a novel unitary transform that generalizes the Discrete Fourier Transform through structured resonance operators. This document provides the complete, rigorous mathematical specification that makes the RFT definition unambiguous and mathematically defensible.
+This document describes the windowed/weighted Discrete Fourier Transform (DFT) implementation used in QuantoniumOS. This is a variant of the standard DFT that applies custom weighting matrices to modify the transform kernel. When the weighting matrix W equals the identity matrix, this reduces to the standard DFT.
 
 ## Mathematical Foundations
 
-### Indexing & Distance
+### Standard DFT vs Windowed DFT
 
-- **Length**: N ∈ ℕ; indices k, n ∈ {0, …, N−1} taken mod N (periodic ring ℤ_N)
-- **Periodic distance**: Δ(k,n) = min(|k−n|, N−|k−n|)
+**Standard DFT:**
+```
+X[k] = Σ(n=0 to N-1) x[n] * e^(-2πikn/N)
+```
 
-### Design Primitives
+**Windowed DFT (our implementation):**
+```
+X[k] = Σ(n=0 to N-1) W[k,n] * x[n] * e^(-2πikn/N)
 
-#### Phase Sequences
-- **Definition**: φᵢ: {0, …, N−1} → ℂ with |φᵢ(k)| = 1
-- **Examples**:
-  - QPSK: e^(iπ/2(k mod 4))
-  - Golden-ratio walk: e^(i(θ₀,ᵢ + qφₖ))
-  
-#### Weights and Kernels
-- **Weights**: wᵢ ≥ 0 (enforced for PSD property)
-- **Bandwidths**: σᵢ(ωᵢ) > 0
-- **Periodic Gaussian kernel**: Gᵢ(k,n) = exp(−Δ(k,n)²/σᵢ(ωᵢ)²)
+Where:
+- W[k,n] is the weighting matrix
+- When W[k,n] = 1 for all k,n: reduces to standard DFT
+- When W[k,n] ≠ 1: produces windowed/weighted variant
+```
 
-### Matrix Representations
+### Indexing & Parameters
 
-- **Diagonal operator**: D_φᵢ = diag(φᵢ(0), …, φᵢ(N−1))
-- **Circulant matrix**: C_σᵢ with entries [C_σᵢ]_{k,n} = Gᵢ(k,n)
+- **Length**: N ∈ ℕ; indices k, n ∈ {0, …, N−1}
+- **Weighting parameter**: α ≥ 0 (controls decay/taper strength)
+- **Golden ratio constant**: φ = (1 + √5)/2 ≈ 1.618
 
-## Resonance Operator (Hermitian/PSD)
+### Weighting Functions
+
+#### Exponential Decay Weighting
+```
+W[k,n] = exp(-α * |k-n|/N)
+```
+
+#### Golden Ratio Scaling
+```  
+W[k,n] = φ^(k/N) * exp(-α * |k-n|/N)
+```
+
+#### Identity (Standard DFT)
+```
+W[k,n] = 1
+```
+
+## Windowed DFT Transform Matrix
 
 ### Definition
 ```
-R = Σᵢ₌₁ᴹ wᵢ D_φᵢ C_σᵢ D_φᵢ†
+K[k,n] = W[k,n] * F[k,n]
+
+where:
+F[k,n] = e^(-2πikn/N)  (standard DFT kernel)
+W[k,n] = weighting function
 ```
 
+### Transform Operation
+- **Forward**: X = K * x  (matrix-vector multiplication)
+- **Inverse**: x = K^(-1) * X  (using pseudoinverse when K is not invertible)
+
 ### Properties
-- Each term is a diagonal congruence of a PSD circulant
-- R is Hermitian and positive semidefinite
-- Eigendecomposition: R = ΨΛΨ†, where Ψ†Ψ = I and Λ = diag(λₗ ≥ 0)
-
-## The RFT Transform
-
-### Forward and Inverse Transforms
-- **Forward**: X = Ψ†x
-- **Inverse**: x = ΨX
-
-### Fundamental Properties
+- When W = I (identity): K = F (standard DFT matrix)
+- When W ≠ I: K is a weighted/windowed DFT variant
+- Invertibility depends on the conditioning of the weighted matrix K
 
 #### Energy Conservation (Plancherel Theorem)
 ```

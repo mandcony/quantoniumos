@@ -2,41 +2,42 @@
 
 ## What is QuantoniumOS?
 
-QuantoniumOS is an experimental implementation of mathematical cryptographic algorithms using signal processing techniques. Our system explores advanced mathematical patterns and signal analysis to encrypt data, generate randomness, and create secure hashes.
+QuantoniumOS is an experimental implementation of signal processing algorithms and educational cryptographic techniques. Our system explores mathematical patterns, coordinate transformations, and stream ciphers to encrypt data, generate randomness, and create hashes.
 
-Think of it like this: Traditional encryption uses mathematical operations on bits. QuantoniumOS experiments with mathematical operations on signal patterns - like how different sound waves create different musical notes. Our implementation explores whether these mathematical patterns have useful properties for cryptographic applications.
+Think of it like this: Traditional encryption uses mathematical operations on bits. QuantoniumOS experiments with mathematical operations on signal patterns and coordinate systems - exploring whether these mathematical approaches have interesting properties for specialized applications.
 
 ## Key Experimental Technologies
 
 ### Windowed DFT with Custom Weights
 
-**What it is:** A modified Fourier transform that uses custom weighting matrices instead of the standard DFT coefficients.
+**What it is:** A modified Discrete Fourier Transform that uses custom weighting matrices instead of the standard DFT kernel.
 
-**Experimental implementation:** Our system includes mathematical formulations with optimized code that explores pattern detection using golden ratio scaling and geometric coordinates.
+**How it works:** Instead of the standard DFT formula, we use K = W ⊙ F where W is a custom weighting matrix and F is the standard DFT matrix. When W=1, this reduces to normal DFT; when W≠1, it creates windowed/weighted variants.
 
-**Why it's interesting:** This explores whether custom weight matrices can provide different mathematical properties compared to standard FFT, potentially useful for specialized signal processing applications.
+**Why it's interesting:** This explores whether custom weighting patterns (like golden ratio scaling) can provide different spectral characteristics for specialized signal processing applications.
 
 ### Geometric Coordinate Hashing  
 
-**What it is:** A hash function that maps data to geometric coordinates using mathematical transformations.
+**What it is:** A hash function that maps input data to geometric coordinates and applies transformations using the golden ratio.
 
-**Experimental implementation:** Hash function that uses geometric coordinate mappings with statistical validation through entropy measurement and collision testing.
+**How it works:** Convert input → calculate golden ratio coordinates → apply topological transformations → generate hash output.
 
-**Why it's interesting:** The hash function explores geometric approaches to cryptographic hashing while maintaining computational efficiency.
+**Why it's interesting:** The hash function explores geometric approaches to hashing while maintaining computational efficiency and avalanche properties.
 
-### Mathematical Signal Patterns
+### Stream Cipher Implementation
 
-**What it is:** Mathematical patterns that represent signals with specific mathematical properties.
+**What it is:** An educational stream cipher using XOR encryption with bit rotation and SHA-256-based keystream generation.
 
-**Simple analogy:** Think of different sound waves creating different musical notes. Our system uses mathematical "patterns" to encode and process information.
+**How it works:** Generate keystream from key → XOR with plaintext → apply bit rotation → create ciphertext.
 
-**Why it's interesting:** These patterns have mathematical properties (like golden ratio scaling) that may be useful for specialized cryptographic or signal processing applications.
+**Why it's educational:** Demonstrates fundamental stream cipher principles while being transparent about its educational (not production) purpose.
 
 ## What QuantoniumOS is NOT
 
-- **NOT production-ready cryptography:** This is experimental research exploring mathematical concepts.
+- **NOT production-ready cryptography:** This is experimental research and educational code.
 - **NOT quantum computing:** This runs on classical computers using standard mathematical operations.
-- **NOT proven secure:** While we test these methods, they haven't undergone the extensive validation that production cryptographic systems require.
+- **NOT provably secure:** While we test these methods, they haven't undergone the extensive validation that production cryptographic systems require.
+- **NOT patent-backed technology:** Despite some claims in the codebase, this is educational/research software.
 
 ## Trying It Out
 
@@ -44,10 +45,18 @@ The easiest way to understand QuantoniumOS is to see it in action:
 
 1. Follow the [Quick Start](README.md) guide to run the system
 2. Visit the web interface at http://localhost:5000
-3. Try the "Signal Encryption" demo to see how mathematical pattern-based encryption works
+3. Try the "Stream Encryption" demo to see how keystream-based encryption works
 4. Experiment with the "Entropy Generation" demo to see our randomness generation
+5. Test the "Geometric Hash" feature to see coordinate-based hashing
 
 ## Key Terms Explained
+
+- **Windowed DFT**: A modified Fourier transform using custom weighting matrices
+- **Stream Cipher**: Encryption that generates a keystream and XORs it with plaintext
+- **Geometric Hash**: Hash function using golden ratio coordinate transformations
+- **Golden Ratio (φ)**: Mathematical constant ≈ 1.618 used in coordinate scaling
+- **Entropy**: Measure of randomness in generated data
+- **Keystream**: Pseudorandom sequence used in stream ciphers
 
 | Term | What It Means |
 |------|---------------|

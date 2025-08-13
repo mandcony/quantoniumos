@@ -1,126 +1,123 @@
 # QuantoniumOS
-[![License: Patent Pending](https://img.shields.io/badge/License-Patent%20Pending-orange.svg)](LICENSE) [![Patent: USPTO #19/169,399](https://img.shields.io/badge/Patent-USPTO%20%2319%2F169%2C399-red.svg)](https://patents.uspto.gov/) [![Version](https://img.shields.io/badge/Version-1.0.0-blue)](https://github.com/mandcony/quantoniumos) [![API Status](https://img.shields.io/badge/API-Live-brightgreen)](http://localhost:5000/health)
 
 **A signal processing and cryptographic research platform.**
 
-⚠️ **Important Notice**: This implementation consists of windowed DFT variants and experimental cryptographic techniques. See [MATHEMATICAL_JUSTIFICATION.md](MATHEMATICAL_JUSTIFICATION.md) for an honest technical analysis.
+**Research Platform**: This is an experimental implementation of signal processing techniques and cryptographic algorithms for educational and research purposes. Not production-ready cryptography.
 
-📋 **Mathematical Foundation**: The Resonance Fourier Transform (RFT) is rigorously defined in [RFT_SPECIFICATION.md](RFT_SPECIFICATION.md) with complete mathematical proofs and implementation details.
+**Mathematical Foundation**: Custom implementations of windowed DFT variants, geometric coordinate systems, and stream ciphers. See [MATHEMATICAL_JUSTIFICATION.md](MATHEMATICAL_JUSTIFICATION.md) for technical analysis.
 
 ## New to signal processing?
 
 Check out our [Beginner's Guide](BEGINNERS_GUIDE.md) for explanations of key concepts.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Clone and run
 git clone https://github.com/mandcony/quantoniumos.git
 cd quantoniumos
 python setup_local_env.py
-python main.py
+python app.py
 
 # Test the API
 curl http://localhost:5000/api/health
 curl http://localhost:5000/docs  # Interactive API documentation
 ```
 
-## ⚡ What This Is
+## What This Actually Is
 
 **A Mathematical Research Implementation:**
 
-✅ **Windowed DFT with Custom Weights** - Modified Fourier transform with golden ratio scaling  
-✅ **Geometric Coordinate Hashing** - Hash function using golden ratio coordinate mappings  
-✅ **Amplitude-Phase Encryption** - Experimental encryption using signal processing techniques  
-✅ **Entropy-Controlled Generation** - Adaptive randomness with feedback control systems  
-✅ **Security Testing Framework** - Experimental validation and statistical analysis    
+**Windowed DFT Variants** - Modified Fourier transforms with custom weighting matrices  
+**Geometric Coordinate Hashing** - Hash functions using golden ratio coordinate mappings  
+**Stream Cipher Implementation** - XOR-based encryption with bit rotation and keystream generation  
+**Entropy Generation System** - Adaptive randomness with feedback control mechanisms  
+**Statistical Testing Framework** - Validation tools and empirical analysis    
 
-## 🎯 Research Implementation
+## Research Implementation
 
 **This project provides:**
-- **Experimental cryptographic algorithms** - Windowed DFT variants and geometric hashing implementations
-- **Mathematical validation framework** - Statistical testing and empirical analysis tools
-- **Entropy quality analysis** - NIST SP 800-22 compatible randomness testing
+- **Experimental signal processing algorithms** - Windowed DFT variants and geometric coordinate transformations
+- **Educational cryptographic implementations** - Stream ciphers and hash functions for learning purposes
+- **Statistical testing tools** - Entropy analysis and randomness evaluation
 - **Cross-platform compatibility** - Python, C++, and Rust implementations
-- **Reproducible research** - Deterministic validation and testing framework
+- **Reproducible experiments** - Deterministic validation and testing framework
 
-## 🏗️ Architecture Explained
+## Architecture Explained
 
 ```
-Web Interface (Flask) → Mathematical Engine (C++/Python) → Signal Processing Algorithms
-     ↓                         ↓                              ↓
-  REST API               Windowed DFT/Geometric Hash      Experimental Math
-```
+Web Interface (Flask) → Signal Processing Engine (C++/Python) → Mathematical Algorithms
+     ↓                         ↓                                      ↓
+  REST API               Windowed DFT/Stream Cipher         Experimental Math
 ```
 
 **What Each Part Does:**
 - `/api/` - REST endpoints for mathematical operations
-- `/core/` - Mathematical implementations (C++ with Eigen)  
-- `/encryption/` - Experimental algorithms (windowed DFT, geometric hash, signal encryption)
+- `/core/` - Mathematical implementations (Python with NumPy, C++ with Eigen)  
+- `/encryption/` - Stream ciphers, geometric hashing, signal processing algorithms
 - `/secure_core/` - High-performance C++ implementations
 - `/tests/` - Comprehensive validation and statistical testing
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### Python
 
 ```python
-# Basic encryption using signal processing
-from core.encryption.resonance_encrypt import resonance_encrypt, resonance_decrypt
+# Basic stream cipher encryption
+from core.encryption.fixed_resonance_encrypt import fixed_resonance_encrypt, fixed_resonance_decrypt
 
-# Encrypt with amplitude and phase parameters
+# Encrypt message using stream cipher with keystream generation
 message = "Hello, QuantoniumOS!"
-amplitude = 0.8
-phase = 2.1
-encrypted = resonance_encrypt(message, amplitude, phase)
+key = "secure-key-2025"
+encrypted = fixed_resonance_encrypt(message, key)
 print(f"Encrypted: {len(encrypted)} bytes")
 
-# Decrypt using same parameters
-decrypted = resonance_decrypt(encrypted, amplitude, phase)
+# Decrypt using same key
+decrypted = fixed_resonance_decrypt(encrypted, key)
 print(f"Decrypted: {decrypted}")
 
 # Create a geometric coordinate hash
-from core.encryption.geometric_waveform_hash import generate_waveform_hash
-waveform = [0.5 * sin(i * 0.1) for i in range(100)]
-hash_result = generate_waveform_hash(waveform)
+from core.encryption.geometric_waveform_hash import geometric_waveform_hash
+waveform = [0.5 * math.sin(i * 0.1) for i in range(100)]
+hash_result = geometric_waveform_hash(waveform)
 print(f"Hash: {hash_result}")
 
-# Generate entropy with feedback control
-from core.encryption.wave_entropy_engine import WaveformEntropyEngine
-engine = WaveformEntropyEngine()
-random_bytes = engine.generate_entropy_bytes(32)
-print(f"Entropy: {len(random_bytes)} bytes")
+# Perform windowed DFT
+from core.encryption.resonance_fourier import perform_rft
+signal = [1.0, 0.5, 0.2, 0.8, 0.3]
+rft_result = perform_rft(signal, alpha=1.0)  # alpha controls windowing
+print(f"DFT result: {rft_result}")
 ```
 
 ### C++
 
 ```cpp
-#include <quantoniumos/resonance_encrypt.hpp>
-#include <quantoniumos/geometric_waveform_hash.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <cmath>
 
 int main() {
-    // Resonance encryption with amplitude and phase
+    // Stream cipher encryption example
     std::string message = "Hello, QuantoniumOS!";
-    double amplitude = 0.8;
-    double phase = 2.1;
+    std::string key = "secure-key-2025";
     
-    auto encrypted = qos::resonance_encrypt(message, amplitude, phase);
+    // Note: C++ API would be similar to Python implementation
+    // This is pseudocode showing the intended interface
+    
+    auto encrypted = encrypt_stream_cipher(message, key);
     std::cout << "Encrypted length: " << encrypted.size() << " bytes\n";
     
-    auto decrypted = qos::resonance_decrypt(encrypted, amplitude, phase);
+    auto decrypted = decrypt_stream_cipher(encrypted, key);
     std::cout << "Decrypted: " << decrypted << "\n";
     
-    // Generate waveform hash
+    // Generate geometric hash
     std::vector<double> waveform;
     for (int i = 0; i < 100; ++i) {
         waveform.push_back(0.5 * std::sin(i * 0.1));
     }
-    auto hash = qos::geometric_waveform_hash(waveform);
-    std::cout << "Hash: " << qos::bytes_to_hex(hash) << "\n";
+    auto hash = compute_geometric_hash(waveform);
+    std::cout << "Hash: " << hash << "\n";
     
     return 0;
 }
@@ -129,28 +126,24 @@ int main() {
 ### Rust
 
 ```rust
-use resonance_core_rs::{resonance_encrypt, resonance_decrypt, geometric_wave_hash};
+use resonance_core_rs::{ResonanceEncryption};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Encrypt and decrypt
-    let message = "Hello, QuantoniumOS!";
-    let key = "my-secure-key-2025";
+    // Stream cipher encryption
+    let encryptor = ResonanceEncryption::new("secure-key-2025");
+    let message = b"Hello, QuantoniumOS!";
     
-    let encrypted = resonance_encrypt(message, key)?;
+    let encrypted = encryptor.encrypt(message)?;
     println!("Encrypted length: {} bytes", encrypted.len());
     
-    let decrypted = resonance_decrypt(&encrypted, key)?;
-    println!("Decrypted: {}", decrypted);
-    
-    // Create a secure hash
-    let hash = geometric_wave_hash("Important data to hash")?;
-    println!("Hash: {}", hex::encode(hash));
+    let decrypted = encryptor.decrypt(&encrypted)?;
+    println!("Decrypted: {}", String::from_utf8(decrypted)?);
     
     Ok(())
 }
 ```
 
-### Quickstart Roundtrip
+### Quickstart Test
 
 ```bash
 # Clone and validate complete implementation
@@ -165,77 +158,74 @@ cd quantoniumos
 # This will:
 # 1. Set up Python environment with pinned dependencies
 # 2. Run comprehensive test suite (60+ tests)
-# 3. Validate formal security proofs
-# 4. Generate statistical validation reports (NIST SP 800-22)
-# 5. Create known answer test (KAT) vectors
-# 6. Verify mathematical implementations
+# 3. Generate statistical validation reports
+# 4. Create test vectors for validation
+# 5. Verify mathematical implementations
 
 # Quick functional test
 python -c "
-from core.encryption.resonance_encrypt import resonance_encrypt
-from core.encryption.geometric_waveform_hash import generate_waveform_hash
+from core.encryption.fixed_resonance_encrypt import fixed_resonance_encrypt, fixed_resonance_decrypt
 import math
 
-# Test resonance encryption
-message = 'Testing QuantoniumOS resonance encryption'
-amplitude = 0.8
-phase = 2.1
+# Test stream cipher
+message = 'Testing QuantoniumOS stream cipher'
+key = 'test-key-123'
 
-print('Encrypting with resonance algorithm...')
-encrypted = resonance_encrypt(message, amplitude, phase)
+print('Encrypting with stream cipher...')
+encrypted = fixed_resonance_encrypt(message, key)
 print(f'Encrypted: {len(encrypted)} bytes')
 
 print('Decrypting...')
-decrypted = resonance_decrypt(encrypted, amplitude, phase)
+decrypted = fixed_resonance_decrypt(encrypted, key)
 print(f'Decryption successful: {decrypted == message}')
 
-# Test geometric waveform hash
-print('Testing geometric waveform hash...')
-waveform = [0.5 * math.sin(i * 0.1) for i in range(100)]
-hash_val = generate_waveform_hash(waveform)
-print(f'Hash generated: {len(hash_val)} characters')
+# Test windowed DFT
+from core.encryption.resonance_fourier import perform_rft
+signal = [1.0, 0.5, 0.2, 0.8]
+result = perform_rft(signal)
+print(f'Windowed DFT result: {len(result)} components')
 print('All implementations working correctly!')
 "
 ```
 
-## 📖 Documentation
+## Documentation
 
-- **[RFT Mathematical Specification](RFT_SPECIFICATION.md)** - Complete mathematical definition of the Resonance Fourier Transform
+- **[Windowed DFT Specification](WINDOWED_DFT_SPECIFICATION.md)** - Technical details of the windowed DFT implementation
 - **[API Docs](http://localhost:5000/docs)** - Interactive Swagger interface  
-- **[Developer Guide](QUANTONIUM_DEVELOPER_GUIDE.md)** - Setup and contribution
+- **[Developer Guide](QUANTONIUM_DEVELOPER_GUIDE.md)** - Setup and contribution guidelines
 - **[Mathematical Analysis](MATHEMATICAL_JUSTIFICATION.md)** - Technical analysis of implementations
-- **[Security Details](SECURITY.md)** - Security implementation and threat model
+- **[Security Details](SECURITY.md)** - Security considerations and limitations
 - **[License Details](LICENSE)** - Usage terms
 
-### 🧮 RFT Implementation Status
+### Implementation Status
 
-**Mathematical Foundation**: Complete unitary transform specification in [RFT_SPECIFICATION.md](RFT_SPECIFICATION.md)
+**Mathematical Foundation**: Windowed DFT variants and stream cipher implementations
 
-**Current Implementation Status**:
-- ✅ Perfect reconstruction (1.26e-15 error)
-- ✅ Perfect linearity (1.39e-17 error)  
-- ✅ All built-in validation tests pass
-- ⚠️ Energy conservation needs improvement (working toward full unitary implementation)
+**Current Status**:
+- Working stream cipher with XOR and bit rotation
+- Geometric hash using golden ratio coordinate transformations
+- Windowed DFT with custom weighting matrices
+- Statistical testing and validation framework
+- Research-grade implementations, not production cryptography
 
-Run `python validate_rft_simple.py` to test current implementation.
+Run `python run_comprehensive_tests.py` to test current implementations.
 
-## 🔒 Important Note
+## Important Notice
 
-This project demonstrates **experimental mathematical concepts** using signal processing techniques:
+This project demonstrates **experimental signal processing and cryptographic concepts**:
 
-- It runs on classical computers (standard mathematical operations)
-- It's designed for research and educational exploration
-- It seeks peer review to validate mathematical approaches
-- Some claims require further validation and empirical testing
+- It runs on classical computers using standard mathematical operations
+- It's designed for research, education, and experimentation
+- Implementations are for learning purposes, not production security
+- Mathematical techniques may have interesting properties but require further validation
 
-## 🔒 Implementation Status
+## Implementation Status
 
-✅ **Experimental Implementation** - Core algorithms implemented with genuine mathematical content  
-✅ **Statistical Testing Framework** - Analysis tools including entropy measurement and collision testing  
-✅ **Randomness Analysis** - NIST SP 800-22 compatible statistical validation  
-✅ **Cross-Platform** - Python, C++, and Rust implementations  
-✅ **Reproducible** - Deterministic builds with comprehensive test coverage  
-⚠️ **Research Status** - Mathematical properties require further validation
+**Research Implementation** - Signal processing algorithms and stream ciphers with educational value  
+**Testing Framework** - Statistical analysis tools including entropy measurement and validation  
+**Cross-Platform** - Python, C++, and Rust implementations  
+**Reproducible** - Deterministic builds with comprehensive test coverage  
+**Educational Purpose** - Not suitable for production cryptographic applications
 
 ## License
 
@@ -264,61 +254,32 @@ python3 run_security_focused_tests.py
 python3 run_comprehensive_tests.py
 ```
 
-## 🔒 Mathematical Research Framework
-
-QuantoniumOS provides **complete formal security validation** with mathematical proofs:
-
-- **Mathematical Security Proofs**: Implemented IND-CPA, IND-CCA2, EUF-CMA security games
-- **Collision Resistance**: Formal hash function security with concrete bounds  
-- **Quantum Security Analysis**: Post-quantum resistance evaluation
-- **Statistical Validation**: NIST SP 800-22 compliance for all random outputs
-- **Known Answer Tests (KATs)**: Reproducible test vectors for validation
-
-Unlike typical cryptographic implementations that only test functionality, QuantoniumOS includes **executable mathematical proofs** of security properties with concrete security bounds.
-
-**Validation Results:**
-- Core Tests: 60+ tests with 97% pass rate
-- Security Proofs: IND-CPA, IND-CCA2 games implemented and validated
-- Statistical Tests: NIST SP 800-22 suite compliance
-- KAT Generation: Reproducible test vectors for cross-implementation validation
-
-See [FORMAL_SECURITY_TESTING.md](docs/FORMAL_SECURITY_TESTING.md) for detailed security analysis.
-
 ## API Endpoints
 
-The production API exposes these validated cryptographic operations:
+The API exposes these mathematical operations:
 
-- `/api/encrypt` - Resonance-based encryption with amplitude/phase parameters
+- `/api/encrypt` - Stream cipher encryption with key-based keystream generation
 - `/api/decrypt` - Corresponding decryption operation  
-- `/api/hash` - Geometric waveform hashing
-- `/api/entropy` - Quantum-inspired entropy generation
-- `/api/rft` - Resonance Fourier Transform computation
-- `/api/validate` - Cryptographic validation and statistical testing
-- `/quantum/*` - Advanced quantum-inspired analysis endpoints
+- `/api/hash` - Geometric waveform hashing using golden ratio coordinates
+- `/api/entropy` - Entropy generation and statistical analysis
+- `/api/rft` - Windowed DFT computation with custom weighting
+- `/api/validate` - Statistical testing and validation tools
+- `/quantum/*` - Interactive visualization and analysis endpoints
 
-All endpoints include formal security validation and statistical verification.
+All endpoints include statistical validation and testing capabilities.
 
 ## Core Implementation
 
-This repository contains the complete implementation of:
+This repository contains implementations of:
 
-- **Resonance Fourier Transform (RFT)** - Patent-backed mathematical transform with quantum information preservation
-- **Geometric Waveform Hashing** - Collision-resistant hash function using wave interference patterns  
-- **Resonance-based Encryption** - Amplitude-phase encryption with provable security properties
-- **Quantum Entropy Engine** - Wave-based randomness generation validated by NIST SP 800-22
-- **Formal Security Framework** - Mathematical proofs with executable security games
-- **Cross-Platform Bindings** - High-performance C++ with Python/Rust interfaces using Eigen linear algebra
+- **Windowed DFT Variants** - Modified Fourier transforms with custom weighting matrices
+- **Geometric Coordinate Hashing** - Hash functions using golden ratio coordinate transformations  
+- **Stream Cipher Implementation** - XOR-based encryption with bit rotation and keystream generation
+- **Entropy Generation System** - Adaptive randomness generation with feedback control
+- **Statistical Testing Framework** - Validation tools and empirical analysis
+- **Cross-Platform Bindings** - Python with NumPy, C++ with Eigen, and Rust implementations
 
-All components have been rigorously tested through automated validation suites and formal security analysis.
-
-## Documentation
-
-For more detailed information, see:
-- **[RFT Mathematical Specification](RFT_SPECIFICATION.md)** - Complete mathematical definition and proofs
-- **[RFT Validation Report](RFT_VALIDATION_REPORT.md)** - Numerical verification of all mathematical claims
-- [Local Setup Guide](LOCAL_SETUP.md)
-- [Simplified Solution](SIMPLIFIED_SOLUTION.md)
-- [Developer Guide](QUANTONIUM_DEVELOPER_GUIDE.md)
+All components have been tested through automated validation suites and statistical analysis.
 
 ## License
 

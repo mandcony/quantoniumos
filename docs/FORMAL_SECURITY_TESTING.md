@@ -104,12 +104,12 @@ This level of formal security validation exceeds most cryptographic implementati
 
 | Test Type | Traditional Crypto | QuantoniumOS |
 |-----------|------------------|--------------|
-| Functional | ✅ Basic encryption/decryption | ✅ Full algorithm correctness |
-| Statistical | ✅ Basic randomness tests | ✅ NIST SP 800-22 suite |
-| **Formal Security** | ❌ Usually absent | ✅ **Mathematical proofs** |
-| **Security Games** | ❌ Rarely implemented | ✅ **IND-CPA/CCA2 experiments** |
-| **Quantum Analysis** | ❌ Often ignored | ✅ **Formal quantum proofs** |
-| **Collision Testing** | ✅ Basic tests | ✅ **Comprehensive resistance** |
+| Functional |  Basic encryption/decryption |  Full algorithm correctness |
+| Statistical |  Basic randomness tests |  NIST SP 800-22 suite |
+| **Formal Security** |  Usually absent |  **Mathematical proofs** |
+| **Security Games** |  Rarely implemented |  **IND-CPA/CCA2 experiments** |
+| **Quantum Analysis** |  Often ignored |  **Formal quantum proofs** |
+| **Collision Testing** |  Basic tests |  **Comprehensive resistance** |
 
 ## Implementation Notes
 

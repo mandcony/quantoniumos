@@ -93,19 +93,19 @@ def _resonance_kernel(N, alpha=0.5, beta=0.3):
 
 The implementation has been verified to produce genuinely different results from DFT:
 
-1. **RFT vs DFT Difference**: ✅ PASS
+1. **RFT vs DFT Difference**:  PASS
    - Advanced RFT with α=0.5, β=0.3 produces different spectrum than standard DFT
    - Frequency magnitudes show distinct patterns due to resonance coupling
 
-2. **Topological Coupling Active**: ✅ PASS
+2. **Topological Coupling Active**:  PASS
    - Kernel with coupling parameters differs significantly from minimal coupling
    - Topological invariants create non-linear relationships between bins
 
-3. **Symbolic Phase Structure**: ✅ PASS  
+3. **Symbolic Phase Structure**:  PASS  
    - Symbolic-phase matrix is non-trivial (not identity matrix)
    - Geometric hash structure creates semantic coupling
 
-4. **Parameter Sensitivity**: ✅ PASS
+4. **Parameter Sensitivity**:  PASS
    - Different α, β parameters produce measurably different transforms
    - System responds to resonance parameter changes
 

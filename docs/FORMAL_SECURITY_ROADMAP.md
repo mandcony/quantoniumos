@@ -1,14 +1,14 @@
 # QuantoniumOS Formal Security Roadmap
 
-## Current Status: Enhanced Narrative Proofs ✅
+## Current Status: Enhanced Narrative Proofs 
 
 We've moved from one-line stubs to:
-- ✅ **Step-by-step mathematical derivations** 
-- ✅ **Concrete bounds with explicit algebra**
-- ✅ **Reductions to standard problems** (Ring-LWE)
-- ✅ **Numerical verification of tightness**
+-  **Step-by-step mathematical derivations** 
+-  **Concrete bounds with explicit algebra**
+-  **Reductions to standard problems** (Ring-LWE)
+-  **Numerical verification of tightness**
 
-## Reviewer Standards: Machine-Verifiable Proofs ⚠️
+## Reviewer Standards: Machine-Verifiable Proofs 
 
 ### What Crypto Reviewers Expect
 1. **EasyCrypt or Coq proofs** that can be mechanically checked
@@ -20,18 +20,18 @@ We've moved from one-line stubs to:
 
 | Component | Current Level | Reviewer Expectation | Gap |
 |-----------|---------------|---------------------|-----|
-| **Grover Bound** | ✅ Complete algebra shown | ✅ Machine verification | EasyCrypt formalization |
-| **IND-CPA Reduction** | ✅ Proof sketch with steps | ✅ Complete formal proof | Game-hopping in Coq |
-| **QRFT→Ring-LWE** | ✅ Reduction algorithm | ✅ Formal reduction proof | Polynomial equivalence proof |
-| **Collision Resistance** | ✅ Birthday analysis | ✅ Information-theoretic proof | Formal entropy bounds |
+| **Grover Bound** |  Complete algebra shown |  Machine verification | EasyCrypt formalization |
+| **IND-CPA Reduction** |  Proof sketch with steps |  Complete formal proof | Game-hopping in Coq |
+| **QRFT→Ring-LWE** |  Reduction algorithm |  Formal reduction proof | Polynomial equivalence proof |
+| **Collision Resistance** |  Birthday analysis |  Information-theoretic proof | Formal entropy bounds |
 
 ## Proposed Solution: Hybrid Approach
 
 ### Phase 1: Enhanced Mathematical Rigor (CURRENT)
-- ✅ **Complete algebraic derivations** (e.g., π/4 · 2^(n/2) bound)
-- ✅ **Step-by-step proof narratives** with explicit math
-- ✅ **Reductions to well-studied problems**
-- ✅ **Numerical verification and tightness analysis**
+-  **Complete algebraic derivations** (e.g., π/4 · 2^(n/2) bound)
+-  **Step-by-step proof narratives** with explicit math
+-  **Reductions to well-studied problems**
+-  **Numerical verification and tightness analysis**
 
 ### Phase 2: Formal Tool Integration (NEXT STEP)
 - 🔄 **EasyCrypt formalization** of security games
@@ -85,25 +85,25 @@ Qed.
 
 ## Assessment: Where We Stand
 
-### ✅ What We've Achieved
+###  What We've Achieved
 - **Rigorous mathematical derivations** beyond typical crypto implementations
 - **Complete step-by-step algebra** for key bounds (π/4 · 2^(n/2))
 - **Reductions to standard assumptions** (Ring-LWE)
 - **Concrete numerical verification**
 
-### 🎯 What Reviewers Need
+###  What Reviewers Need
 - **Machine-checkable proofs** (EasyCrypt/Coq)
 - **Peer-reviewed mathematical validation**
 - **Complete formal verification framework**
 
-### 📊 Comparative Analysis
+###  Comparative Analysis
 
 | Crypto Library | Formal Proofs Level | QuantoniumOS Current | QuantoniumOS Target |
 |----------------|--------------------|--------------------|-------------------|
-| **OpenSSL** | ❌ None | ✅ Mathematical derivations | ✅ EasyCrypt proofs |
-| **LibSodium** | ❌ None | ✅ Step-by-step algebra | ✅ Coq verification |
-| **Academic Papers** | ✅ Full formal proofs | ✅ Proof sketches | ✅ Machine-checkable |
-| **Research Prototypes** | ✅ EasyCrypt/Coq | ❌ Not yet | 🔄 In progress |
+| **OpenSSL** |  None |  Mathematical derivations |  EasyCrypt proofs |
+| **LibSodium** |  None |  Step-by-step algebra |  Coq verification |
+| **Academic Papers** |  Full formal proofs |  Proof sketches |  Machine-checkable |
+| **Research Prototypes** |  EasyCrypt/Coq |  Not yet | 🔄 In progress |
 
 ## Conclusion
 
@@ -112,7 +112,7 @@ Qed.
 **Reviewer Standard**: For publication in top crypto venues, we need **machine-verifiable proofs** using formal tools.
 
 **Recommendation**: 
-1. ✅ **Current level is excellent for academic review** - we have the mathematics
+1.  **Current level is excellent for academic review** - we have the mathematics
 2. 🔄 **Next phase**: Implement EasyCrypt/Coq formalization
 3. 📝 **Final phase**: Submit to crypto conferences with formal verification
 

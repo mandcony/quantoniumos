@@ -184,7 +184,7 @@ By: _____________________________
 [Name and Title]
 - Academic collaboration opportunities
 
-### 🔬 Research License - $50,000/year + 2% Revenue Share
+###  Research License - $50,000/year + 2% Revenue Share
 **For commercial R&D and government contracts**
 
 **Includes:**
@@ -238,7 +238,7 @@ For organizations with unique requirements:
 - Patent-protected quantum encryption customization
 - Government security clearance consulting
 
-**📊 Volume Licensing** - Starting at $500,000/year
+** Volume Licensing** - Starting at $500,000/year
 - Site-wide licenses for large organizations (100+ users)
 - Multi-year agreements with 15-20% discounts
 - Global deployment support with regional technical teams
