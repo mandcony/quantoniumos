@@ -2,41 +2,41 @@
 
 ## What is QuantoniumOS?
 
-QuantoniumOS is an educational platform that demonstrates new approaches to cryptography and data security using concepts inspired by quantum physics. 
+QuantoniumOS is an experimental implementation of mathematical cryptographic algorithms using signal processing techniques. Our system explores advanced mathematical patterns and signal analysis to encrypt data, generate randomness, and create secure hashes.
 
-Think of it like this: Traditional encryption is like a lock and key. QuantoniumOS explores what encryption might look like if we used wave patterns (like sound or light waves) instead of keys.
+Think of it like this: Traditional encryption uses mathematical operations on bits. QuantoniumOS experiments with mathematical operations on signal patterns - like how different sound waves create different musical notes. Our implementation explores whether these mathematical patterns have useful properties for cryptographic applications.
 
-## Key Concepts in Simple Terms
+## Key Experimental Technologies
 
-### Resonance-based Encryption
+### Windowed DFT with Custom Weights
 
-**What it is:** Instead of using traditional keys (long strings of random numbers), this system uses wave patterns to encrypt data.
+**What it is:** A modified Fourier transform that uses custom weighting matrices instead of the standard DFT coefficients.
 
-**Simple analogy:** Imagine a wine glass that shatters when exposed to just the right musical note. Only the exact right frequency (wave pattern) will work. In our system, only the correct "resonance pattern" can unlock the encrypted data.
+**Experimental implementation:** Our system includes mathematical formulations with optimized code that explores pattern detection using golden ratio scaling and geometric coordinates.
 
-**Why it matters:** This approach explores whether certain mathematical patterns could be more resistant to certain types of attacks than traditional methods.
+**Why it's interesting:** This explores whether custom weight matrices can provide different mathematical properties compared to standard FFT, potentially useful for specialized signal processing applications.
 
-### Quantum-inspired Entropy
+### Geometric Coordinate Hashing  
 
-**What it is:** A method for generating randomness that borrows ideas from quantum physics.
+**What it is:** A hash function that maps data to geometric coordinates using mathematical transformations.
 
-**Simple analogy:** Traditional computers generate "random" numbers in a way that's actually predictable if you know the starting conditions. Our system tries to mimic the true randomness found in quantum systems, where even knowing all conditions doesn't let you predict the outcome.
+**Experimental implementation:** Hash function that uses geometric coordinate mappings with statistical validation through entropy measurement and collision testing.
 
-**Why it matters:** Better randomness means stronger security, as many attacks exploit weaknesses in random number generation.
+**Why it's interesting:** The hash function explores geometric approaches to cryptographic hashing while maintaining computational efficiency.
 
-### Geometric Waveforms
+### Mathematical Signal Patterns
 
-**What it is:** Mathematical patterns that represent waves with specific shapes.
+**What it is:** Mathematical patterns that represent signals with specific mathematical properties.
 
-**Simple analogy:** Think of different sound waves creating different musical notes. Our system uses mathematical "notes" to encode and decode information.
+**Simple analogy:** Think of different sound waves creating different musical notes. Our system uses mathematical "patterns" to encode and process information.
 
-**Why it matters:** These patterns have special mathematical properties that might make them useful for cryptography.
+**Why it's interesting:** These patterns have mathematical properties (like golden ratio scaling) that may be useful for specialized cryptographic or signal processing applications.
 
 ## What QuantoniumOS is NOT
 
-- **NOT a real quantum computer:** This is a classical system that uses ideas inspired by quantum physics.
-- **NOT production-ready encryption:** While we're exploring interesting concepts, this should not be used to protect sensitive data.
-- **NOT faster than standard encryption:** Our focus is on exploring new mathematical approaches, not outperforming existing methods.
+- **NOT production-ready cryptography:** This is experimental research exploring mathematical concepts.
+- **NOT quantum computing:** This runs on classical computers using standard mathematical operations.
+- **NOT proven secure:** While we test these methods, they haven't undergone the extensive validation that production cryptographic systems require.
 
 ## Trying It Out
 
@@ -44,18 +44,18 @@ The easiest way to understand QuantoniumOS is to see it in action:
 
 1. Follow the [Quick Start](README.md) guide to run the system
 2. Visit the web interface at http://localhost:5000
-3. Try the "Resonance Encryption" demo to see how waveform-based encryption works
-4. Experiment with the "Quantum Entropy" demo to see our randomness generation
+3. Try the "Signal Encryption" demo to see how mathematical pattern-based encryption works
+4. Experiment with the "Entropy Generation" demo to see our randomness generation
 
 ## Key Terms Explained
 
 | Term | What It Means |
 |------|---------------|
-| Resonance | When a system responds strongly to a specific frequency or pattern |
-| Waveform | A graph showing how a wave's amplitude changes over time |
+| Windowed DFT | A modified Fourier transform that applies custom weighting to frequency analysis |
+| Signal Pattern | A mathematical representation of data as wave-like structures |
 | Entropy | In cryptography, a measure of randomness or unpredictability |
-| Quantum-inspired | Borrowing ideas from quantum physics without using quantum hardware |
-| Symbolic computation | Mathematical calculations that manipulate symbols rather than just numbers |
+| Geometric Coordinates | Mathematical coordinate systems using geometric relationships (like golden ratio) |
+| Statistical Validation | Testing randomness and mathematical properties using statistical methods |
 
 ## For Further Learning
 
@@ -64,7 +64,8 @@ If you're interested in learning more about the concepts behind QuantoniumOS:
 1. Try the interactive demos in the web interface
 2. Read our [Developer Guide](QUANTONIUM_DEVELOPER_GUIDE.md) for more technical details
 3. Review the code comments in core modules, which explain the mathematical concepts
-4. Experiment with the API using the interactive [API Documentation](http://localhost:5000/docs)
+4. Read the [Mathematical Justification](MATHEMATICAL_JUSTIFICATION.md) for honest technical analysis
+5. Experiment with the API using the interactive [API Documentation](http://localhost:5000/docs)
 
 ## Questions?
 

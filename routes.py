@@ -14,6 +14,7 @@ from pathlib import Path
 
 from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
 from core.protected.symbolic_interface import get_interface
+from secure_core.python_bindings import engine_core
 from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
 from utils import sign_response
 from backend.stream import get_stream, update_encrypt_data
@@ -112,12 +113,23 @@ def decrypt():
 def simulate_rft():
     """Perform Resonance Fourier Transform on waveform data"""
     data = RFTRequest(**request.get_json())
-    result = symbolic.analyze_waveform(data.waveform)
+    # Use spec-compliant C++ basis forward transform
+    try:
+        Xr, Xi = engine_core.rft_basis_forward([float(v) for v in data.waveform])
+        mags = [(Xr[i]**2 + Xi[i]**2) ** 0.5 for i in range(len(Xr))]
+        result = {
+            "X_real": Xr,
+            "X_imag": Xi,
+            "magnitude": mags,
+            "length": len(Xr),
+            "sequence_type": "golden_ratio"
+        }
+    except Exception as e:
+        # Fallback minimal response on error
+        result = {"error": f"RFT failed: {e}"}
     
     # Include the API key ID in response for audit purposes
-    response = {
-        "frequencies": result
-    }
+    response = result if isinstance(result, dict) else {"frequencies": result}
     
     # Add key_id if available
     if hasattr(g, 'api_key') and g.api_key:

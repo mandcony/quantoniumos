@@ -40,23 +40,52 @@ def compute_rft(payload: str) -> Dict[str, Any]:
         else:
             bytes_data = bytes(payload)
             
-        # Call into the secure core engine to compute RFT
-        bins, hr = engine_core.rft_run(bytes_data)
-        
+        # Spec-compliant basis RFT forward: X = Ψ^H x
+        # Use production defaults: weights=[0.7, 0.3], sequence="qpsk" as per specification
+        x = list(bytes_data)
+        # Normalize to [0,1] then mean-center for fair spectral analysis
+        if len(x) == 0:
+            return {"rft": [], "hr": 0.0, "bin_count": 0, "harmonic_peak_ratio": 0.0}
+        x = [float(b) / 255.0 for b in x]
+        mean_val = sum(x) / len(x)
+        x = [v - mean_val for v in x]
+
+        # Use updated RFT with production-ready defaults
+        Xr, Xi = engine_core.rft_basis_forward(
+            x, 
+            weights=[0.7, 0.3],        # M=2 components per specification
+            theta0=[0.0, 0.0],         # φ₁≡1, φ₂ QPSK starts at 0
+            omega=[1.0, 1.0],          # Both use same base frequency
+            sigma0=1.0,                # Base bandwidth scale
+            gamma=0.3,                 # Adaptive factor (unused in new spec)
+            sequence_type="qpsk"       # Use QPSK as default per specification
+        )
+        mags = [(Xr[i]**2 + Xi[i]**2) ** 0.5 for i in range(len(Xr))]
+
         # Calculate harmonic peaks (ratio of max to mean)
-        if bins and len(bins) > 0:
-            max_value = max(bins)
-            mean_value = sum(bins) / len(bins)
-            harmonic_peak_ratio = max_value / mean_value if mean_value > 0 else 0
+        if mags:
+            max_value = max(mags)
+            mean_value = sum(mags) / len(mags)
+            harmonic_peak_ratio = max_value / mean_value if mean_value > 1e-12 else 0.0
         else:
-            harmonic_peak_ratio = 0
+            harmonic_peak_ratio = 0.0
+        
+        # Check which backend implementation is being used
+        backend_used = "Python"
+        if hasattr(engine_core, '_pybind_lib') and engine_core._pybind_lib is not None:
+            backend_used = "C++ (PyBind11)"
+        elif hasattr(engine_core, '_lib') and engine_core._lib is not None:
+            backend_used = "C++ (ctypes)"
+        else:
+            backend_used = "Python (fallback)"
         
         # Return complete result
         return {
-            "rft": bins,
-            "hr": hr,
-            "bin_count": len(bins),
-            "harmonic_peak_ratio": harmonic_peak_ratio
+            "rft": mags,
+            "hr": harmonic_peak_ratio,  # keep hr semantic as peak ratio
+            "bin_count": len(mags),
+            "harmonic_peak_ratio": harmonic_peak_ratio,
+            "backend_used": backend_used
         }
         
     except Exception as e:

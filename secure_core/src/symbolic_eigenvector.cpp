@@ -1,4 +1,6 @@
 #include "../include/symbolic_eigenvector.h"
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
 #include <cmath>
 #include <cstring>
 #include <algorithm>
@@ -6,6 +8,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <array>
 
 // Disable warnings about unsafe functions on Windows
 #ifdef _MSC_VER
@@ -47,121 +50,187 @@ EXPORT void T(double* state, double* transform, int n, double* out) {
 }
 
 EXPORT void ComputeEigenvectors(double* state, int n, double* eigenvalues_out, double* eigenvectors_out) {
-    // Simplified eigenvalue computation for demonstration
-    for (int i = 0; i < n; i++) {
-        eigenvalues_out[i] = std::abs(state[i]) + 0.1 * i;
-        for (int j = 0; j < n; j++) {
-            eigenvectors_out[i * n + j] = (i == j) ? 1.0 : 0.0;
+    // Build a symmetric coupling matrix M from the state vector:
+    // M[i,i] = |state[i]|; M[i,j] = gamma * exp(-beta*|i-j|) * (|state[i]|+|state[j]|)/2 for i != j
+    // Use SelfAdjointEigenSolver for stable eigendecomposition.
+    if (!state || !eigenvalues_out || !eigenvectors_out || n <= 0) return;
+    const double gamma = 0.25;
+    const double beta = 0.5;
+    Eigen::MatrixXd M(n, n);
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (i == j) {
+                M(i, j) = std::abs(state[i]);
+            } else {
+                double w = gamma * std::exp(-beta * std::abs(i - j));
+                M(i, j) = w * (std::abs(state[i]) + std::abs(state[j])) * 0.5;
+            }
         }
     }
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(M);
+    if (solver.info() != Eigen::Success) {
+        // Fallback: identity eigenvectors and diagonal as eigenvalues
+        for (int i = 0; i < n; ++i) {
+            eigenvalues_out[i] = std::abs(state[i]);
+            for (int j = 0; j < n; ++j) eigenvectors_out[i * n + j] = (i == j) ? 1.0 : 0.0;
+        }
+        return;
+    }
+    Eigen::VectorXd evals = solver.eigenvalues();
+    Eigen::MatrixXd evecs = solver.eigenvectors();
+    for (int i = 0; i < n; ++i) eigenvalues_out[i] = evals(i);
+    for (int i = 0; i < n; ++i) for (int j = 0; j < n; ++j) eigenvectors_out[i * n + j] = evecs(j, i);
 }
 
-// --------- Enhanced Basis Transformation ---------
+// --------- Enhanced Basis Transformation with True RFT ---------
 EXPORT void transform_basis(const double* data, int data_size, const double* basis, int basis_rows, int basis_cols, double* output) {
+    // Apply resonance-coupled basis transformation instead of simple linear algebra
+    const double alpha = 0.2; // Resonance coupling strength
+    
     for (int i = 0; i < basis_rows; i++) {
         output[i] = 0.0;
         for (int j = 0; j < std::min(data_size, basis_cols); j++) {
-            output[i] += data[j] * basis[i * basis_cols + j];
+            // Base transformation
+            double base_transform = data[j] * basis[i * basis_cols + j];
+            
+            // Add resonance coupling between basis elements
+            double coupling_factor = 1.0 + alpha * cos(M_PI * abs(i - j) / basis_rows);
+            
+            // Phase coherence based on golden ratio
+            double phi = (1.0 + sqrt(5.0)) / 2.0;
+            double phase_coherence = cos(2.0 * M_PI * i * j / (phi * basis_rows));
+            
+            output[i] += base_transform * coupling_factor * phase_coherence;
         }
     }
 }
 
 EXPORT void generate_eigenstate_entropy(int size, double* output) {
-    std::uniform_real_distribution<double> dist(0.1, 2.0);
+    // Generate eigenstate entropy using resonance frequencies instead of random values
+    const double phi = (1.0 + sqrt(5.0)) / 2.0;  // Golden ratio
+    std::uniform_real_distribution<double> phase_dist(0.0, 2.0 * M_PI);
+    
     for (int i = 0; i < size; i++) {
-        output[i] = dist(g_rng);
+        double t = static_cast<double>(i) / size;
+        // Multiple resonance modes with golden ratio spacing
+        double mode1 = sin(2.0 * M_PI * t);
+        double mode2 = sin(2.0 * M_PI * phi * t);
+        double mode3 = cos(2.0 * M_PI * t / phi);
+        
+        // Add phase randomization for entropy
+        double phase = phase_dist(g_rng);
+        
+        // Interference pattern with topological coupling
+        double topo_factor = cos(4.0 * M_PI * t) * sin(M_PI * t * phi);
+        
+        output[i] = (mode1 + 0.618 * mode2 + 0.382 * mode3 + 0.1 * topo_factor) * cos(phase) + 1.2;
+        
+        // Ensure positive values for entropy
+        if (output[i] < 0.1) output[i] = 0.1;
     }
 }
 
-// --------- Symbolic Resonance Encoding ---------
+// --------- True Symbolic Resonance Encoding ---------
 EXPORT void encode_resonance(const char* data, char* out, int* out_len) {
     std::string input(data);
-    std::string result;
+    std::stringstream encoded_stream;
     
-    // Simple but non-trivial encoding: XOR with rotating key + hex encoding
-    // Note: This is for demonstration purposes only - not cryptographically secure
-    const char* key = std::getenv("QUANTONIUM_ENCODING_KEY");
-    if (!key) {
-        key = "DefaultDemoKey";  // Fallback for development
-    }
-    int key_len = strlen(key);
-    
+    // Generate symbolic resonance key based on golden ratio
+    const double phi = (1.0 + sqrt(5.0)) / 2.0;
+    std::vector<double> resonance_key;
     for (size_t i = 0; i < input.length(); i++) {
-        unsigned char encoded_char = (unsigned char)(input[i] ^ key[i % key_len] ^ (i & 0x7F));
-        
-        // Convert to hex manually to ensure it works
-        char hex_high = (encoded_char >> 4) & 0x0F;
-        char hex_low = encoded_char & 0x0F;
-        
-        hex_high = (hex_high < 10) ? ('0' + hex_high) : ('A' + hex_high - 10);
-        hex_low = (hex_low < 10) ? ('0' + hex_low) : ('A' + hex_low - 10);
-        
-        result += hex_high;
-        result += hex_low;
+        double t = static_cast<double>(i) / input.length();
+        resonance_key.push_back(sin(2.0 * M_PI * phi * t) + cos(2.0 * M_PI * t / phi));
     }
     
-    size_t copy_len = std::min(result.length(), (size_t)1023);
+    // Apply phase modulation encoding
+    for (size_t i = 0; i < input.length(); i++) {
+        unsigned char byte_val = static_cast<unsigned char>(input[i]);
+        
+        // Phase modulation based on byte value and resonance key
+        double phase = (2.0 * M_PI * byte_val / 255.0) + resonance_key[i % resonance_key.size()];
+        
+        // Map phase to complex amplitude
+        double real_part = cos(phase);
+        double imag_part = sin(phase);
+        
+        // Topological encoding using winding number
+        int winding = static_cast<int>(phase / (2.0 * M_PI));
+        double topo_mod = 1.0 + 0.1 * cos(M_PI * winding);
+        
+        // Encode as hex with topological modulation
+        unsigned char encoded_real = static_cast<unsigned char>((real_part * topo_mod + 1.0) * 127.5);
+        unsigned char encoded_imag = static_cast<unsigned char>((imag_part * topo_mod + 1.0) * 127.5);
+        
+        // Convert to hex
+        encoded_stream << std::hex << std::setfill('0') << std::setw(2) 
+                      << static_cast<int>(encoded_real) << std::setw(2) 
+                      << static_cast<int>(encoded_imag);
+    }
+    
+    std::string result = encoded_stream.str();
+    size_t copy_len = std::min(result.length(), static_cast<size_t>(1023));
     strncpy(out, result.c_str(), copy_len);
     out[copy_len] = '\0';
-    *out_len = (int)copy_len;
+    *out_len = static_cast<int>(copy_len);
 }
 
 EXPORT void decode_resonance(const char* encoded_data, char* out, int* out_len) {
     std::string encoded(encoded_data);
     std::string decoded;
     
-    const char* key = std::getenv("QUANTONIUM_ENCODING_KEY");
-    if (!key) {
-        key = "DefaultDemoKey";  // Fallback for development
-    }
-    int key_len = strlen(key);
-    
-    // Decode hex pairs back to characters
-    for (size_t i = 0; i < encoded.length(); i += 2) {
-        if (i + 1 < encoded.length()) {
-            char hex_high = encoded[i];
-            char hex_low = encoded[i + 1];
+    // Process hex pairs to extract complex amplitudes
+    for (size_t i = 0; i < encoded.length(); i += 4) {
+        if (i + 3 < encoded.length()) {
+            // Extract real and imaginary hex values
+            std::string real_hex = encoded.substr(i, 2);
+            std::string imag_hex = encoded.substr(i + 2, 2);
             
-            // Convert hex chars to nibbles
-            unsigned char high_nibble = 0, low_nibble = 0;
+            unsigned char encoded_real = static_cast<unsigned char>(std::stoi(real_hex, nullptr, 16));
+            unsigned char encoded_imag = static_cast<unsigned char>(std::stoi(imag_hex, nullptr, 16));
             
-            if (hex_high >= '0' && hex_high <= '9') high_nibble = hex_high - '0';
-            else if (hex_high >= 'A' && hex_high <= 'F') high_nibble = hex_high - 'A' + 10;
-            else if (hex_high >= 'a' && hex_high <= 'f') high_nibble = hex_high - 'a' + 10;
+            // Convert back to normalized real/imaginary parts
+            double real_part = (encoded_real / 127.5) - 1.0;
+            double imag_part = (encoded_imag / 127.5) - 1.0;
             
-            if (hex_low >= '0' && hex_low <= '9') low_nibble = hex_low - '0';
-            else if (hex_low >= 'A' && hex_low <= 'F') low_nibble = hex_low - 'A' + 10;
-            else if (hex_low >= 'a' && hex_low <= 'f') low_nibble = hex_low - 'a' + 10;
+            // Calculate original phase
+            double phase = atan2(imag_part, real_part);
             
-            unsigned char encoded_char = (high_nibble << 4) | low_nibble;
-            char decoded_char = (char)(encoded_char ^ key[(i/2) % key_len] ^ ((i/2) & 0x7F));
-            decoded += decoded_char;
+            // Generate corresponding resonance key value
+            const double phi = (1.0 + sqrt(5.0)) / 2.0;
+            size_t char_index = decoded.length();
+            double t = static_cast<double>(char_index) / (encoded.length() / 4);
+            double resonance_key_val = sin(2.0 * M_PI * phi * t) + cos(2.0 * M_PI * t / phi);
+            
+            // Remove resonance key phase offset
+            phase -= resonance_key_val;
+            if (phase < 0) phase += 2.0 * M_PI;
+            
+            // Convert phase back to byte value
+            unsigned char byte_val = static_cast<unsigned char>((phase / (2.0 * M_PI)) * 255.0);
+            decoded += static_cast<char>(byte_val);
         }
     }
     
-    size_t copy_len = std::min(decoded.length(), (size_t)1023);
+    size_t copy_len = std::min(decoded.length(), static_cast<size_t>(1023));
     strncpy(out, decoded.c_str(), copy_len);
     out[copy_len] = '\0';
-    *out_len = (int)copy_len;
+    *out_len = static_cast<int>(copy_len);
 }
 
 EXPORT double compute_similarity(const char* url1, const char* url2) {
-    // Simple Jaccard similarity
-    std::string s1(url1), s2(url2);
-    int common = 0, total = 0;
-    
-    for (char c : s1) {
-        if (s2.find(c) != std::string::npos) common++;
-        total++;
-    }
-    for (char c : s2) {
-        if (s1.find(c) == std::string::npos) total++;
-    }
-    
-    return total > 0 ? (double)common / total : 0.0;
+    // Cosine similarity of character frequency vectors (a simple, defined metric)
+    std::array<int, 256> f1{}; f1.fill(0);
+    std::array<int, 256> f2{}; f2.fill(0);
+    for (const unsigned char* p = reinterpret_cast<const unsigned char*>(url1); *p; ++p) f1[*p]++;
+    for (const unsigned char* p = reinterpret_cast<const unsigned char*>(url2); *p; ++p) f2[*p]++;
+    long long dot = 0, n1 = 0, n2 = 0;
+    for (int i = 0; i < 256; ++i) { dot += 1LL * f1[i] * f2[i]; n1 += 1LL * f1[i] * f1[i]; n2 += 1LL * f2[i] * f2[i]; }
+    if (n1 == 0 || n2 == 0) return 0.0;
+    return static_cast<double>(dot) / (std::sqrt(static_cast<double>(n1)) * std::sqrt(static_cast<double>(n2)));
 }
 
-// --------- Post-Quantum Encryption ---------
+// --------- XOR Demo Encryptor (non-cryptographic) ---------
 EXPORT void ParallelXOREncrypt(const uint8_t* input, int input_len, const uint8_t* key, int key_len, uint8_t* output) {
     for (int i = 0; i < input_len; i++) {
         output[i] = input[i] ^ key[i % key_len];
@@ -203,26 +272,51 @@ EXPORT void quantum_superposition(double* state1, double* state2, int size, doub
 }
 
 EXPORT void hadamard_transform(double* data, int size, double* output) {
-    // Simplified Hadamard-like transform
+    // Resonance-coupled Hadamard transform with topological continuity
     double norm = 1.0 / sqrt(size);
+    const double alpha = 0.3; // Resonance coupling strength
     
     for (int i = 0; i < size; i++) {
         output[i] = 0.0;
         for (int j = 0; j < size; j++) {
-            // Simple Hadamard pattern: +1 or -1 based on bit count
+            // Traditional Hadamard pattern
             int sign = (__builtin_popcount(i & j) % 2 == 0) ? 1 : -1;
-            output[i] += sign * data[j] * norm;
+            
+            // Add resonance coupling based on distance
+            double coupling = 1.0 + alpha * cos(M_PI * abs(i - j) / size);
+            
+            // Topological phase factor for continuity
+            double phase_factor = cos(2.0 * M_PI * i * j / (size * size));
+            
+            output[i] += sign * data[j] * norm * coupling * phase_factor;
         }
     }
 }
 
 EXPORT void generate_resonance_signature(double* data, int size, double* signature, int sig_size) {
-    // Generate signature using FFT-like approach
+    // True resonance signature using RFT kernel instead of DFT
+    const double alpha = 0.5; // Resonance interference parameter
+    const double beta = 0.3;  // Phase-locking parameter
+    
     for (int k = 0; k < sig_size; k++) {
         signature[k] = 0.0;
         for (int n = 0; n < size; n++) {
+            // Base exponential (traditional DFT component)
             double angle = 2.0 * M_PI * k * n / size;
-            signature[k] += data[n] * cos(angle);
+            
+            // Resonance interference modulation
+            double resonance_mod = 1.0 + alpha * cos(M_PI * abs(k - n) / size);
+            
+            // Phase-locking between adjacent components
+            double phase_lock = cos(beta * sin(2.0 * M_PI * k * n / (size * size)));
+            
+            // Topological coupling (simplified)
+            double topo_coupling = cos(2.0 * M_PI * (k + n) / size) * 
+                                   sin(M_PI * abs(k - n) / size);
+            double topo_mod = 1.0 + 0.1 * topo_coupling;
+            
+            // Apply full RFT kernel
+            signature[k] += data[n] * cos(angle) * resonance_mod * phase_lock * topo_mod;
         }
         signature[k] /= size; // Normalize
     }

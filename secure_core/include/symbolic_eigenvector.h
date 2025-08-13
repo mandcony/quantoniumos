@@ -30,7 +30,7 @@ EXPORT void encode_resonance(const char* data, char* out, int* out_len);
 EXPORT void decode_resonance(const char* encoded_data, char* out, int* out_len);
 EXPORT double compute_similarity(const char* url1, const char* url2);
 
-// --------- Post-Quantum Encryption ---------
+// --------- XOR Demo Encryptor (non-cryptographic) ---------
 EXPORT void ParallelXOREncrypt(const uint8_t* input, int input_len, const uint8_t* key, int key_len, uint8_t* output);
 
 // --------- Vector Operations ---------

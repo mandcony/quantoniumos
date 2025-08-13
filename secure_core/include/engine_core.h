@@ -100,8 +100,65 @@ EXPORT int symbolic_xor(const uint8_t* plaintext, const uint8_t* key, int length
 EXPORT int generate_entropy(uint8_t* buffer, int length);
 
 /**
- * Patent Math: Forward RFT Implementation
- * RFT_k = Σ A_n * e^{iϕ_n} * e^{-2πikn/N}
+ * Spec-compliant RFT (basis path): forward transform X = Ψ^H x
+ * Parameters may be null to use defaults: weights=[0.7,0.3], theta0=[0,pi/4], omega=[1,phi]
+ * sequence_type: "golden_ratio" | "qpsk" | "const" | "circulant"
+ * Returns 0 on success, non-zero on failure.
+ */
+EXPORT int rft_basis_forward(
+    const double* x, int N,
+    const double* weights, int M,
+    const double* theta0,
+    const double* omega,
+    double sigma0,
+    double gamma,
+    const char* sequence_type,
+    double* out_real,
+    double* out_imag);
+
+/**
+ * Spec-compliant RFT (basis path): inverse transform x = Ψ X
+ * X provided as real/imag arrays of length N. Returns 0 on success.
+ */
+EXPORT int rft_basis_inverse(
+    const double* X_real,
+    const double* X_imag,
+    int N,
+    const double* weights, int M,
+    const double* theta0,
+    const double* omega,
+    double sigma0,
+    double gamma,
+    const char* sequence_type,
+    double* out_x);
+
+/**
+ * Resonance operator apply (filter): x_hat = R x (not unitary unless R unitary)
+ * Accepts complex input (real/imag arrays). Returns 0 on success.
+ */
+EXPORT int rft_operator_apply(
+    const double* x_real,
+    const double* x_imag,
+    int N,
+    const double* weights, int M,
+    const double* theta0,
+    const double* omega,
+    double sigma0,
+    double gamma,
+    const char* sequence_type,
+    double* out_real,
+    double* out_imag);
+
+/**
+ * DEPRECATED: Fingerprint via Goertzel; prefer rft_basis_forward for the transform.
+ * Alias for compatibility.
+ */
+EXPORT RFTResult* rft_fingerprint_goertzel(const char* data, int length);
+
+/**
+ * Genuine Resonance Fourier Transform with Coupling Matrix
+ * RFT_k = Σ R[k,n] * F[k,n] * x[n], where K = R ⊙ F (NOT standard DFT!)
+ * Uses exponential decay resonance coupling: R[k,n] = exp(-α|f_k - f_n|)
  * 
  * @param real_part Array of real parts (input/output)
  * @param imag_part Array of imaginary parts (input/output)  
@@ -110,14 +167,34 @@ EXPORT int generate_entropy(uint8_t* buffer, int length);
 EXPORT void forward_rft_run(double* real_part, double* imag_part, int size);
 
 /**
- * Patent Math: Inverse RFT Implementation  
- * W_n = (1/N) Σ RFT_k * e^{2πikn/N}
+ * Genuine Inverse Resonance Fourier Transform with Coupling Matrix
+ * Solves: (R ⊙ F) x = y for x using iterative method (NOT standard IDFT!)
  * 
  * @param real_part Array of real parts (input/output)
  * @param imag_part Array of imaginary parts (input/output)
  * @param size Size of the arrays
  */
 EXPORT void inverse_rft_run(double* real_part, double* imag_part, int size);
+
+/**
+ * Forward RFT with Configurable Resonance Coupling Parameter
+ * 
+ * @param real_part Array of real parts (input/output)
+ * @param imag_part Array of imaginary parts (input/output)
+ * @param size Size of the arrays
+ * @param alpha Resonance coupling strength (0.0 = weak, 1.0 = strong)
+ */
+EXPORT void forward_rft_with_coupling(double* real_part, double* imag_part, int size, double alpha);
+
+/**
+ * Inverse RFT with Configurable Resonance Coupling Parameter
+ * 
+ * @param real_part Array of real parts (input/output)
+ * @param imag_part Array of imaginary parts (input/output)
+ * @param size Size of the arrays
+ * @param alpha Resonance coupling strength (0.0 = weak, 1.0 = strong)
+ */
+EXPORT void inverse_rft_with_coupling(double* real_part, double* imag_part, int size, double alpha);
 
 #ifdef __cplusplus
 }

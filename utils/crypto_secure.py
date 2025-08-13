@@ -247,77 +247,66 @@ def generate_uuid() -> str:
 # Encrypt data using password-based encryption
 def encrypt_data(data: Union[str, bytes], password: str) -> Dict[str, str]:
     """
-    Encrypt data using password-based encryption (AES-GCM).
-    
-    Args:
-        data: Data to encrypt (string or bytes)
-        password: Password for encryption
-        
-    Returns:
-        Dictionary with encrypted data and metadata:
-        {
-            'ciphertext': base64-encoded ciphertext,
-            'salt': base64-encoded salt,
-            'nonce': base64-encoded nonce,
-            'tag': base64-encoded authentication tag,
-            'algorithm': encryption algorithm
-        }
+    Encrypt data using AES-GCM with a key derived via PBKDF2-HMAC-SHA256.
+
+    Returns a dict containing base64-encoded ciphertext (including tag),
+    salt, nonce, and a separate tag field for compatibility.
     """
-    # This is a placeholder that delegates to the actual implementation
-    # in the core cryptographic module. We do not implement the actual
-    # cryptographic operations here to protect the proprietary algorithm.
-    
-    if SECURITY_LOGGING:
-        log_security_event(
-            event_type=SecurityEventType.CRYPTO_OPERATION,
-            message="Data encryption operation delegated to core implementation",
-            outcome=SecurityOutcome.UNKNOWN,
-            level=logging.INFO,
-            target_resource="encrypt_data",
-            security_labels=["crypto", "encrypt"],
-            impact_level=ImpactLevel.MODERATE
-        )
-    
-    # For demo purposes, return a mock structure 
-    # The actual implementation would call the core module
+    try:
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    except Exception as e:
+        logger.error(f"cryptography not available for AES-GCM: {e}")
+        raise
+
+    # Normalize input
+    if isinstance(data, str):
+        plaintext = data.encode('utf-8')
+    else:
+        plaintext = data
+
+    # Derive key and generate salt/nonce
+    key, salt = derive_key_from_password(password)
+    nonce = generate_random_bytes(NONCE_BYTES)
+
+    aesgcm = AESGCM(key)
+    ct_with_tag = aesgcm.encrypt(nonce, plaintext, None)  # ciphertext || tag
+
+    # Separate tag for metadata (last TAG_BYTES)
+    tag = ct_with_tag[-TAG_BYTES:]
+    ciphertext = ct_with_tag[:-TAG_BYTES]
+
     return {
-        'ciphertext': '<encrypted-data-placeholder>',
-        'salt': base64.b64encode(generate_random_bytes(SALT_BYTES)).decode('utf-8'),
-        'nonce': base64.b64encode(generate_random_bytes(NONCE_BYTES)).decode('utf-8'),
-        'tag': base64.b64encode(generate_random_bytes(TAG_BYTES)).decode('utf-8'),
+        'ciphertext': base64.b64encode(ciphertext + tag).decode('utf-8'),
+        'salt': base64.b64encode(salt).decode('utf-8'),
+        'nonce': base64.b64encode(nonce).decode('utf-8'),
+        'tag': base64.b64encode(tag).decode('utf-8'),
         'algorithm': 'AES-GCM-256'
     }
 
 # Decrypt data using password-based encryption
 def decrypt_data(encrypted_data: Dict[str, str], password: str) -> bytes:
     """
-    Decrypt data using password-based encryption.
-    
-    Args:
-        encrypted_data: Dictionary with encrypted data and metadata
-        password: Password for decryption
-        
-    Returns:
-        Decrypted data as bytes
+    Decrypt data using AES-GCM with PBKDF2-derived key.
+    Expects 'ciphertext' to contain ciphertext||tag base64-encoded.
     """
-    # This is a placeholder that delegates to the actual implementation
-    # in the core cryptographic module. We do not implement the actual
-    # cryptographic operations here to protect the proprietary algorithm.
-    
-    if SECURITY_LOGGING:
-        log_security_event(
-            event_type=SecurityEventType.CRYPTO_OPERATION,
-            message="Data decryption operation delegated to core implementation",
-            outcome=SecurityOutcome.UNKNOWN,
-            level=logging.INFO,
-            target_resource="decrypt_data",
-            security_labels=["crypto", "decrypt"],
-            impact_level=ImpactLevel.MODERATE
-        )
-    
-    # For demo purposes, return a mock result
-    # The actual implementation would call the core module
-    return b'<decrypted-data-placeholder>'
+    try:
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    except Exception as e:
+        logger.error(f"cryptography not available for AES-GCM: {e}")
+        raise
+
+    # Decode inputs
+    salt_b = base64.b64decode(encrypted_data['salt'])
+    nonce_b = base64.b64decode(encrypted_data['nonce'])
+    ct_tag_b = base64.b64decode(encrypted_data['ciphertext'])
+
+    # Derive key with the provided salt
+    key, _ = derive_key_from_password(password, salt=salt_b)
+    aesgcm = AESGCM(key)
+
+    # cryptography AESGCM expects ciphertext||tag combined
+    plaintext = aesgcm.decrypt(nonce_b, ct_tag_b, None)
+    return plaintext
 
 # Generate a cryptographically secure key
 def generate_key() -> str:

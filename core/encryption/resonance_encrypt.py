@@ -184,3 +184,97 @@ def encrypt(plaintext: str, key: str) -> dict:
         "ts": ts,
         "sig": sig
     }
+
+
+# Backwards compatibility wrapper for reproduction scripts
+def resonance_encrypt_compat(data, key):
+    """
+    Backwards compatible wrapper for resonance_encrypt.
+    Takes data (bytes) and key (bytes) and returns encrypted bytes.
+    """
+    if isinstance(data, bytes):
+        data = data.decode('utf-8', errors='ignore')
+    
+    if isinstance(key, bytes):
+        # Convert key bytes to amplitude and phase parameters
+        key_hash = hashlib.sha256(key).digest()
+        A = float(int.from_bytes(key_hash[:8], 'big')) / (2**64)  # Normalize to 0-1
+        phi = float(int.from_bytes(key_hash[8:16], 'big')) / (2**64) * 2 * np.pi  # 0-2π
+    else:
+        A = 0.5
+        phi = np.pi / 4
+    
+    # Call the main function - it returns bytes directly
+    result = resonance_encrypt(data, A, phi)
+    return result
+
+
+# Alias for backwards compatibility
+def resonance_encrypt_wrapper(data, key):
+    """Alias for backwards compatibility with reproduction scripts."""
+    return resonance_encrypt_compat(data, key)
+
+
+def wave_hmac(message, key, phase_info=True):
+    """
+    Generate a wave-based HMAC signature using resonance encryption principles.
+    
+    Args:
+        message: Message to sign (string or bytes)
+        key: Signing key (string or bytes)
+        phase_info: Whether to include phase information in signature
+        
+    Returns:
+        Base64-encoded signature string
+    """
+    if isinstance(message, str):
+        message = message.encode('utf-8')
+    if isinstance(key, str):
+        key = key.encode('utf-8')
+    
+    # Generate wave parameters from key
+    key_hash = hashlib.sha256(key).digest()
+    A = float(int.from_bytes(key_hash[:8], 'big')) / (2**64)  # Normalize to 0-1
+    phi = float(int.from_bytes(key_hash[8:16], 'big')) / (2**64) * 2 * np.pi  # 0-2π
+    
+    # Create wave-based signature
+    waveform = [A * np.sin(np.float64(n) * phi) for n in range(len(message))]
+    waveform_hash = generate_waveform_hash(waveform)
+    
+    # Standard HMAC with wave enhancement
+    standard_hmac = hmac.new(key, message, hashlib.sha256).digest()
+    
+    if phase_info:
+        # Include phase information in signature
+        phase_bytes = phi.hex().encode('utf-8')[:16]  # Limit phase info size
+        enhanced_hmac = hmac.new(key, standard_hmac + phase_bytes, hashlib.sha256).digest()
+    else:
+        enhanced_hmac = standard_hmac
+    
+    # Combine with waveform hash
+    wave_signature = hashlib.sha256(enhanced_hmac + waveform_hash.encode()).digest()
+    
+    return base64.b64encode(wave_signature).decode('ascii')
+
+
+def verify_wave_hmac(message, signature, key, phase_info=True):
+    """
+    Verify a wave-based HMAC signature.
+    
+    Args:
+        message: Original message (string or bytes)
+        signature: Base64-encoded signature to verify
+        key: Verification key (string or bytes)
+        phase_info: Whether signature includes phase information
+        
+    Returns:
+        True if signature is valid, False otherwise
+    """
+    try:
+        # Generate expected signature
+        expected_signature = wave_hmac(message, key, phase_info)
+        
+        # Constant-time comparison
+        return hmac.compare_digest(signature, expected_signature)
+    except Exception:
+        return False

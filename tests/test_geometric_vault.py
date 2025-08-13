@@ -1,8 +1,10 @@
 import sys, pathlib, os, tempfile
 _ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
+    sys.path.append(str(_ROOT))
 _QOS = _ROOT / "quantoniumos"
 if _QOS.exists() and str(_QOS) not in sys.path:
+    sys.path.append(str(_QOS))
 
 from orchestration.symbolic_container import SymbolicContainer, hash_file
 

@@ -12,7 +12,7 @@ import random
 # Add parent directory to path to import modules
 
 # Import the necessary modules
-from encryption.resonance_encrypt import encrypt_symbolic
+from benchmarks.comparative_benchmarks import encrypt_symbolic
 from orchestration.resonance_manager import (
     register_container,
     get_container_by_hash,

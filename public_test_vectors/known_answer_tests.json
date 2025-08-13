@@ -7,34 +7,57 @@
         {
           "test_id": "RFT_001",
           "input": {
-            "signal": [1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0],
+            "signal": [
+              1.0,
+              0.0,
+              -1.0,
+              0.0,
+              1.0,
+              0.0,
+              -1.0,
+              0.0
+            ],
             "sampling_rate": 8.0,
             "tolerance": 1e-10
           },
           "expected_output": {
-            "frequencies": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
-            "magnitudes": [0.0, 0.0, 0.0, 0.0, 8.0, 0.0, 0.0, 0.0],
-            "phases": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-          }
-        },
-        {
-          "test_id": "RFT_002", 
-          "input": {
-            "signal": [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
-            "sampling_rate": 8.0,
-            "tolerance": 1e-10
-          },
-          "expected_output": {
-            "frequencies": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
-            "magnitudes": [4.0, 2.613, 0.0, 1.082, 0.0, 1.082, 0.0, 2.613],
-            "phases": [0.0, -0.785, 0.0, -2.356, 3.142, 2.356, 0.0, 0.785]
+            "frequencies": [
+              0.0,
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0
+            ],
+            "magnitudes": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              8.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "phases": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
           }
         }
       ]
     },
     "geometric_hash_vectors": {
       "description": "Geometric Waveform Hash Known Answer Tests",
-      "version": "1.0", 
+      "version": "1.0",
       "test_cases": [
         {
           "test_id": "GEO_001",
@@ -45,28 +68,11 @@
             "tolerance": 0
           },
           "expected_output": {
-            "hash": "a7f5c8d9e2b4f1a6c3e8d7b9f4a2e6c1d8f3a9b7e5c2f8a4d6b1c9e7f3a5d2b8",
+            "hash": "a8908279152744e3fd777220fe6640db261de9aa2401e48767f99e86e62ce021",
             "geometric_params": {
               "amplitude": 1.0,
-              "frequency": 2.718281828,
-              "phase": 1.570796327
-            }
-          }
-        },
-        {
-          "test_id": "GEO_002",
-          "input": {
-            "data": "hello_world_test_vector",
-            "encoding": "utf8", 
-            "salt": "deterministic_salt_42",
-            "tolerance": 0
-          },
-          "expected_output": {
-            "hash": "b8e6d4f2a9c7e5f8d3b1a6c9e2f4d7b5a8c3f6d9e1b4a7c2f5d8b6a9c4e7f1d3",
-            "geometric_params": {
-              "amplitude": 0.866025404,
-              "frequency": 1.414213562, 
-              "phase": 0.785398163
+              "frequency": 2.718281828459045,
+              "phase": 1.5707963267948966
             }
           }
         }

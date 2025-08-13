@@ -397,12 +397,13 @@ def benchmark_quantum_resistance(title: str, save_csv: bool = True) -> Dict[str,
         aes_classical_complexity = 2**key_size
         aes_quantum_complexity = 2**(key_size/2)  # Grover's algorithm
         
-        # For QuantoniumOS, the resonance properties add additional complexity
-        # due to the non-linear geometric transformations (simplified model)
+        # For QuantoniumOS, we use the same quantum complexity as AES
+        # (this is a conservative estimate - real analysis would require formal proofs)
         qos_classical_complexity = 2**key_size
-        qos_quantum_complexity = 2**(key_size/2) * (1 + 0.5 * qubits)  # Adjusted for resonance
+        qos_quantum_complexity = 2**(key_size/2)  # Same as Grover's algorithm baseline
         
-        # Calculate relative quantum advantage (lower is better for the algorithm)
+        # Calculate theoretical quantum security (conservative estimates)
+        # Both algorithms achieve similar quantum resistance under Grover's algorithm
         aes_quantum_advantage = aes_classical_complexity / aes_quantum_complexity
         qos_quantum_advantage = qos_classical_complexity / qos_quantum_complexity
         

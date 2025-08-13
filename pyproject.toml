@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "quantoniumos"
 version = "0.1.0"
-description = "Quantum-resistant cryptographic operating system with formal verification"
+description = "Advanced cryptographic operating system with Resonance Fourier Transform algorithms"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [ { name = "Luis Minier" } ]
