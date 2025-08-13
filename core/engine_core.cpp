@@ -727,17 +727,22 @@ std::vector<std::complex<double>> forward_resonance_rft(
     int N = waveform.size();
     std::vector<std::complex<double>> result(N, std::complex<double>(0.0, 0.0));
     
+    // NOTE: This is a legacy resonance-coupled DFT implementation
+    // For True RFT (eigendecomposition-based), use the Python implementation in core.true_rft
+    // TODO: Replace with proper True RFT using eigendecomposition of resonance kernel R
+    
     // Generate resonance matrix R
     auto R = generate_resonance_matrix_cpp(N, alpha);
     
-    // Compute y = K x where K[k,n] = R[k,n] * F[k,n]
+    // Legacy approach: Compute y = K x where K[k,n] = R[k,n] * F[k,n]
+    // This is NOT the True RFT but kept for compatibility
     for (int k = 0; k < N; k++) {
         for (int n = 0; n < N; n++) {
-            // F[k,n] = exp(-2πi k n / N) - standard DFT kernel
+            // F[k,n] = exp(-2πi k n / N) - standard DFT kernel (LEGACY)
             double angle = -2.0 * M_PI * k * n / N;
             std::complex<double> dft_kernel(std::cos(angle), std::sin(angle));
             
-            // K[k,n] = R[k,n] * F[k,n] - resonance-coupled transform kernel
+            // K[k,n] = R[k,n] * F[k,n] - resonance-coupled transform kernel (LEGACY)
             std::complex<double> rft_kernel = R[k][n] * dft_kernel;
             
             // Accumulate: y[k] += K[k,n] * x[n]

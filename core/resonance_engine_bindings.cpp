@@ -1,0 +1,255 @@
+/*
+ * QuantoniumOS Resonance Engine Python Bindings
+ * High-performance RFT operations with quantum amplitude decomposition
+ * USPTO Application #19/169,399 - Patent Claim 1 Implementation
+ */
+
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
+#include <pybind11/complex.h>
+#include <vector>
+#include <string>
+#include <complex>
+#include <memory>
+#include "engine_core.h"
+
+namespace py = pybind11;
+
+// Forward declarations from engine_core.cpp  
+extern "C" {
+}
+
+class ResonanceFourierEngine {
+private:
+    std::vector<double> signal_cache;
+    std::vector<std::complex<double>> frequency_cache;
+    
+public:
+    ResonanceFourierEngine() = default;
+    ~ResonanceFourierEngine() = default;
+    
+    // Forward RFT with quantum amplitude decomposition
+    std::vector<std::complex<double>> forward_true_rft(
+        const std::vector<double>& input_data,
+        const std::vector<double>& weights = {0.7, 0.3},
+        const std::vector<double>& theta0_values = {0.0, 0.7853981633974483}, // π/4
+        const std::vector<double>& omega_values = {1.0, 1.618033988749895}, // φ
+        double sigma0 = 1.0,
+        double gamma = 0.3,
+        const std::string& sequence_type = "qpsk"
+    ) {
+        if (input_data.empty()) {
+            return {};
+        }
+        
+        int N = static_cast<int>(input_data.size());
+        int M = std::min({static_cast<int>(weights.size()), 
+                         static_cast<int>(theta0_values.size()), 
+                         static_cast<int>(omega_values.size())});
+        
+        // Prepare output arrays
+        std::vector<double> X_real(N), X_imag(N);
+        
+        // Call C++ engine
+        int result = rft_basis_forward(
+            input_data.data(), N,
+            weights.data(), M,
+            theta0_values.data(),
+            omega_values.data(),
+            sigma0, gamma, sequence_type.c_str(),
+            X_real.data(), X_imag.data()
+        );
+        
+        if (result != 0) {
+            throw std::runtime_error("RFT forward transform failed with code: " + std::to_string(result));
+        }
+        
+        // Convert to complex vector
+        std::vector<std::complex<double>> output(N);
+        for (int i = 0; i < N; ++i) {
+            output[i] = std::complex<double>(X_real[i], X_imag[i]);
+        }
+        
+        frequency_cache = output; // Cache for debugging
+        return output;
+    }
+    
+    // Inverse RFT for perfect reconstruction
+    std::vector<double> inverse_true_rft(
+        const std::vector<std::complex<double>>& rft_data,
+        const std::vector<double>& weights = {0.7, 0.3},
+        const std::vector<double>& theta0_values = {0.0, 0.7853981633974483},
+        const std::vector<double>& omega_values = {1.0, 1.618033988749895},
+        double sigma0 = 1.0,
+        double gamma = 0.3,
+        const std::string& sequence_type = "qpsk"
+    ) {
+        if (rft_data.empty()) {
+            return {};
+        }
+        
+        int N = static_cast<int>(rft_data.size());
+        int M = std::min({static_cast<int>(weights.size()), 
+                         static_cast<int>(theta0_values.size()), 
+                         static_cast<int>(omega_values.size())});
+        
+        // Separate real and imaginary parts
+        std::vector<double> X_real(N), X_imag(N);
+        for (int i = 0; i < N; ++i) {
+            X_real[i] = rft_data[i].real();
+            X_imag[i] = rft_data[i].imag();
+        }
+        
+        // Prepare output array
+        std::vector<double> output(N);
+        
+        // Call C++ engine
+        int result = rft_basis_inverse(
+            X_real.data(), X_imag.data(), N,
+            weights.data(), M,
+            theta0_values.data(),
+            omega_values.data(),
+            sigma0, gamma, sequence_type.c_str(),
+            output.data()
+        );
+        
+        if (result != 0) {
+            throw std::runtime_error("RFT inverse transform failed with code: " + std::to_string(result));
+        }
+        
+        signal_cache = output; // Cache for debugging
+        return output;
+    }
+    
+    // Encode symbolic resonance (Patent Claim 1)
+    std::pair<std::vector<std::complex<double>>, py::dict> encode_symbolic_resonance(
+        const std::string& data,
+        const std::vector<double>& weights = {0.7, 0.3},
+        int eigenmode_count = 16
+    ) {
+        // Convert string to signal using character values
+        std::vector<double> char_signal;
+        char_signal.reserve(eigenmode_count);
+        
+        for (int i = 0; i < eigenmode_count; ++i) {
+            if (i < static_cast<int>(data.size())) {
+                char_signal.push_back(static_cast<double>(data[i]) / 128.0); // Normalize ASCII
+            } else {
+                char_signal.push_back(0.0); // Zero pad
+            }
+        }
+        
+        // Apply RFT transformation
+        auto rft_result = forward_true_rft(char_signal, weights);
+        
+        // Create metadata dictionary
+        py::dict metadata;
+        metadata["input_length"] = data.size();
+        metadata["eigenmode_count"] = eigenmode_count;
+        metadata["weights"] = weights;
+        metadata["encoding_type"] = "symbolic_resonance";
+        metadata["patent_claim"] = "USPTO_19169399_Claim1";
+        
+        return std::make_pair(rft_result, metadata);
+    }
+    
+    // Validate roundtrip accuracy
+    double validate_roundtrip_accuracy(const std::vector<double>& original) {
+        auto freq = forward_true_rft(original);
+        auto reconstructed = inverse_true_rft(freq);
+        
+        if (original.size() != reconstructed.size()) {
+            return std::numeric_limits<double>::infinity();
+        }
+        
+        double mse = 0.0;
+        for (size_t i = 0; i < original.size(); ++i) {
+            double diff = original[i] - reconstructed[i];
+            mse += diff * diff;
+        }
+        
+        return std::sqrt(mse / original.size()); // RMSE
+    }
+    
+    // Get quantum amplitude components (Patent Claim 1)
+    py::dict get_quantum_amplitudes(const std::vector<std::complex<double>>& rft_data) {
+        py::dict result;
+        
+        std::vector<double> magnitudes, phases;
+        magnitudes.reserve(rft_data.size());
+        phases.reserve(rft_data.size());
+        
+        for (const auto& coeff : rft_data) {
+            magnitudes.push_back(std::abs(coeff));
+            phases.push_back(std::arg(coeff));
+        }
+        
+        result["amplitudes"] = magnitudes;
+        result["phases"] = phases;
+        result["coherence"] = calculate_phase_coherence(phases);
+        result["total_energy"] = calculate_total_energy(magnitudes);
+        
+        return result;
+    }
+    
+private:
+    double calculate_phase_coherence(const std::vector<double>& phases) {
+        if (phases.empty()) return 0.0;
+        
+        std::complex<double> sum(0.0, 0.0);
+        for (double phase : phases) {
+            sum += std::exp(std::complex<double>(0.0, phase));
+        }
+        
+        return std::abs(sum) / phases.size();
+    }
+    
+    double calculate_total_energy(const std::vector<double>& magnitudes) {
+        double energy = 0.0;
+        for (double mag : magnitudes) {
+            energy += mag * mag;
+        }
+        return energy;
+    }
+};
+
+// Python bindings for Resonance Engine
+PYBIND11_MODULE(resonance_engine, m) {
+    m.doc() = "QuantoniumOS High-Performance Resonance Fourier Transform Engine";
+    
+    py::class_<ResonanceFourierEngine>(m, "ResonanceFourierEngine")
+        .def(py::init<>())
+        .def("forward_true_rft", &ResonanceFourierEngine::forward_true_rft,
+             "High-performance forward RFT with quantum amplitude decomposition",
+             py::arg("input_data"),
+             py::arg("weights") = std::vector<double>{0.7, 0.3},
+             py::arg("theta0_values") = std::vector<double>{0.0, 0.7853981633974483},
+             py::arg("omega_values") = std::vector<double>{1.0, 1.618033988749895},
+             py::arg("sigma0") = 1.0,
+             py::arg("gamma") = 0.3,
+             py::arg("sequence_type") = "qpsk")
+        .def("inverse_true_rft", &ResonanceFourierEngine::inverse_true_rft,
+             "High-performance inverse RFT for perfect reconstruction",
+             py::arg("rft_data"),
+             py::arg("weights") = std::vector<double>{0.7, 0.3},
+             py::arg("theta0_values") = std::vector<double>{0.0, 0.7853981633974483},
+             py::arg("omega_values") = std::vector<double>{1.0, 1.618033988749895},
+             py::arg("sigma0") = 1.0,
+             py::arg("gamma") = 0.3,
+             py::arg("sequence_type") = "qpsk")
+        .def("encode_symbolic_resonance", &ResonanceFourierEngine::encode_symbolic_resonance,
+             "Patent Claim 1: Symbolic resonance encoding",
+             py::arg("data"),
+             py::arg("weights") = std::vector<double>{0.7, 0.3},
+             py::arg("eigenmode_count") = 16)
+        .def("validate_roundtrip_accuracy", &ResonanceFourierEngine::validate_roundtrip_accuracy,
+             "Validate RFT roundtrip accuracy")
+        .def("get_quantum_amplitudes", &ResonanceFourierEngine::get_quantum_amplitudes,
+             "Extract quantum amplitude components (Patent Claim 1)");
+    
+    // Module constants
+    m.attr("VERSION") = "0.3.0";
+    m.attr("PATENT_APPLICATION") = "USPTO #19/169,399";
+    m.attr("SUPPORTED_CLAIMS") = py::make_tuple("Claim1", "Claim3", "Claim4");
+}

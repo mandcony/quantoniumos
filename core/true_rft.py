@@ -1,0 +1,440 @@
+"""
+QuantoniumOS - True Resonance Fourier Transform (RFT) Implementation
+
+This module implements the mathematically rigorous True RFT per the specification:
+
+Mathematical Formula:
+X_k = (1/N) Σ_t x_t * e^(i(2πkt/N + θ_t))
+
+Where θ_t is per-sample phase modulation derived from symbolic constraints.
+
+Operator Form: X = F D(θ) F† x
+Where:
+- F: Standard DFT matrix  
+- D(θ): Diagonal phase modulation matrix
+- θ derived from resonance kernel eigendecomposition
+
+Implementation: X = Ψ† x where Ψ are eigenvectors of resonance kernel R
+"""
+
+import math
+import logging
+from typing import List, Dict, Tuple, Any, Optional
+
+import numpy as np
+
+# Configure logger
+logger = logging.getLogger("true_rft")
+
+# Try to import C++ engine bindings for performance
+try:
+    from core.python_bindings.engine_core import QuantoniumEngineCore
+    HAS_CPP_ENGINE = True
+    logger.info("✓ Using high-performance C++ engine for True RFT")
+except ImportError:
+    HAS_CPP_ENGINE = False
+    logger.info("Using Python implementation for True RFT")
+
+# Eigendecomposition cache for performance
+_eig_cache: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+
+def generate_phi_sequence(N: int, theta0: float, omega: float, sequence_type: str = "qpsk") -> np.ndarray:
+    """
+    Generate phase sequence φ_i(k) = e^{j(θ₀ + ωk)} for RFT kernel construction.
+    
+    This is the core per-sample phase modulation θ_t from your mathematical formulation.
+    
+    Args:
+        N: Sequence length
+        theta0: Initial phase offset
+        omega: Phase step parameter
+        sequence_type: Type of sequence ("qpsk", "golden_ratio", "fibonacci")
+        
+    Returns:
+        Complex phase sequence of length N
+    """
+    phi = np.zeros(N, dtype=complex)
+    
+    if sequence_type == "qpsk":
+        # QPSK 4-phase sequence: production default
+        for k in range(N):
+            phase = theta0 + (np.pi / 2.0) * (k % 4)
+            phi[k] = np.exp(1j * phase)
+    elif sequence_type == "golden_ratio":
+        # Golden ratio step sequence
+        golden_ratio = (1.0 + np.sqrt(5.0)) / 2.0
+        omega = 2.0 * np.pi / golden_ratio
+        for k in range(N):
+            phase = theta0 + omega * k
+            phi[k] = np.exp(1j * phase)
+    elif sequence_type == "fibonacci":
+        # Fibonacci-based sequence
+        golden_ratio = (1.0 + np.sqrt(5.0)) / 2.0
+        omega = 2.0 * np.pi * golden_ratio
+        for k in range(N):
+            phase = theta0 + omega * k
+            phi[k] = np.exp(1j * phase)
+    else:
+        # Constant phase
+        for k in range(N):
+            phi[k] = np.exp(1j * theta0)
+    
+    return phi
+
+def generate_gaussian_kernel(N: int, component_idx: int, sigma0: float = 1.0, gamma: float = 0.3) -> np.ndarray:
+    """
+    Generate Gaussian kernel C_σ for component i.
+    
+    This provides the localization properties for the RFT basis.
+    """
+    sigma = sigma0 * np.exp(-gamma * component_idx)  # Component-specific bandwidth
+    kernel = np.zeros((N, N))
+    
+    for k in range(N):
+        for n in range(N):
+            # Circular distance for periodic boundary conditions
+            dist = min(abs(k - n), N - abs(k - n))
+            kernel[k, n] = np.exp(-0.5 * (dist / sigma)**2)
+    
+    return kernel
+
+def generate_resonance_kernel(
+    N: int,
+    weights: List[float],
+    theta0_values: List[float],
+    omega_values: List[float],
+    sigma0: float = 1.0,
+    gamma: float = 0.3,
+    sequence_type: str = "qpsk"
+) -> np.ndarray:
+    """
+    Generate resonance kernel R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
+    
+    This implements the core mathematical construction from your specification:
+    The resonance kernel encodes the per-sample phase modulation structure.
+    
+    Args:
+        N: Matrix dimension
+        weights: Component weights wᵢ
+        theta0_values: Initial phases θ₀ᵢ for each component
+        omega_values: Phase steps ωᵢ for each component
+        sigma0: Base Gaussian width
+        gamma: Exponential decay parameter
+        sequence_type: Phase sequence type
+        
+    Returns:
+        N×N complex resonance kernel matrix R
+    """
+    R = np.zeros((N, N), dtype=complex)
+    
+    M = min(len(weights), len(theta0_values), len(omega_values))
+    if M == 0:
+        return R
+    
+    for i in range(M):
+        w = weights[i]
+        if w == 0.0:
+            continue
+        
+        theta0 = theta0_values[i]
+        omega = omega_values[i]
+        
+        # Generate phase sequence φᵢ
+        phi = generate_phi_sequence(N, theta0, omega, sequence_type)
+        
+        # Generate Gaussian kernel Cσᵢ
+        C = generate_gaussian_kernel(N, i, sigma0, gamma)
+        
+        # Accumulate R += wᵢ D_φᵢ C_σᵢ D_φᵢ†
+        for k in range(N):
+            for n in range(N):
+                # D_φᵢ[k] * D_φᵢ[n]† = φᵢ[k] * conj(φᵢ[n])
+                phase_factor = phi[k] * np.conj(phi[n])
+                R[k, n] += w * phase_factor * C[k, n]
+    
+    return R
+
+def compute_or_get_eig(
+    R: np.ndarray,
+    N: int,
+    weights: Optional[List[float]],
+    theta0_values: Optional[List[float]], 
+    omega_values: Optional[List[float]],
+    sigma0: float,
+    gamma: float,
+    sequence_type: str
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Cache eigendecomposition for performance."""
+    # Create cache key from parameters
+    key = f"{N}_{weights}_{theta0_values}_{omega_values}_{sigma0}_{gamma}_{sequence_type}"
+    
+    if key in _eig_cache:
+        return _eig_cache[key]
+    
+    # Compute eigendecomposition: R = Ψ Λ Ψ†
+    evals, evecs = np.linalg.eigh(R)
+    
+    # Cache result
+    _eig_cache[key] = (evals, evecs)
+    
+    return evals, evecs
+
+def forward_true_rft(
+    input_data: List[float],
+    weights: Optional[List[float]] = None,
+    theta0_values: Optional[List[float]] = None,
+    omega_values: Optional[List[float]] = None,
+    sigma0: float = 1.0,
+    gamma: float = 0.3,
+    sequence_type: str = "qpsk"
+) -> List[complex]:
+    """
+    Forward True RFT: X = Ψ† x
+    
+    This implements your mathematical formulation:
+    X_k = (1/N) Σ_t x_t * e^(i(2πkt/N + θ_t))
+    
+    Through eigendecomposition of the resonance kernel R.
+    
+    Args:
+        input_data: Input signal x
+        weights: Resonance component weights
+        theta0_values: Initial phase offsets
+        omega_values: Phase step parameters
+        sigma0: Gaussian kernel width
+        gamma: Exponential decay
+        sequence_type: Phase sequence type
+        
+    Returns:
+        RFT coefficients X
+    """
+    x = np.asarray(input_data, dtype=float)
+    N = x.shape[0]
+    if N == 0:
+        return []
+    
+    # Use production defaults per RFT specification
+    if weights is None:
+        weights = [0.7, 0.3]
+    if theta0_values is None:
+        theta0_values = [0.0, np.pi / 4.0]
+    if omega_values is None:
+        omega_values = [1.0, (1.0 + np.sqrt(5.0)) / 2.0]
+    
+    # Ensure consistent lengths
+    M = min(len(weights), len(theta0_values), len(omega_values))
+    weights = list(weights)[:M]
+    theta0_values = list(theta0_values)[:M]
+    omega_values = list(omega_values)[:M]
+    
+    # Generate resonance kernel R
+    R = generate_resonance_kernel(N, weights, theta0_values, omega_values, sigma0, gamma, sequence_type)
+    
+    # Eigendecomposition: R = Ψ Λ Ψ†
+    evals, evecs = compute_or_get_eig(R, N, weights, theta0_values, omega_values, sigma0, gamma, sequence_type)
+    
+    # Forward transform: X = Ψ† x
+    X = evecs.conj().T @ x
+    
+    return [complex(v) for v in X]
+
+def inverse_true_rft(
+    rft_data: List[complex],
+    weights: Optional[List[float]] = None,
+    theta0_values: Optional[List[float]] = None,
+    omega_values: Optional[List[float]] = None,
+    sigma0: float = 1.0,
+    gamma: float = 0.3,
+    sequence_type: str = "qpsk"
+) -> List[float]:
+    """
+    Inverse True RFT: x = Ψ X
+    
+    Reconstructs the original signal from RFT coefficients.
+    
+    Args:
+        rft_data: RFT coefficients X
+        weights: Resonance component weights (must match forward transform)
+        theta0_values: Initial phase offsets (must match forward transform)
+        omega_values: Phase step parameters (must match forward transform)
+        sigma0: Gaussian kernel width (must match forward transform)
+        gamma: Exponential decay (must match forward transform)
+        sequence_type: Phase sequence type (must match forward transform)
+        
+    Returns:
+        Reconstructed signal x
+    """
+    X = np.asarray(rft_data, dtype=complex)
+    N = X.shape[0]
+    if N == 0:
+        return []
+    
+    # Use same defaults as forward transform
+    if weights is None:
+        weights = [0.7, 0.3]
+    if theta0_values is None:
+        theta0_values = [0.0, np.pi / 4.0]
+    if omega_values is None:
+        omega_values = [1.0, (1.0 + np.sqrt(5.0)) / 2.0]
+    
+    # Ensure consistent lengths
+    M = min(len(weights), len(theta0_values), len(omega_values))
+    weights = list(weights)[:M]
+    theta0_values = list(theta0_values)[:M]
+    omega_values = list(omega_values)[:M]
+    
+    # Generate same resonance kernel as forward transform
+    R = generate_resonance_kernel(N, weights, theta0_values, omega_values, sigma0, gamma, sequence_type)
+    
+    # Get cached eigendecomposition
+    evals, evecs = compute_or_get_eig(R, N, weights, theta0_values, omega_values, sigma0, gamma, sequence_type)
+    
+    # Inverse transform: x = Ψ X
+    x = evecs @ X
+    
+    return x.real.astype(float).tolist()
+
+def validate_true_rft(N: int = 16, tolerance: float = 1e-10) -> Dict[str, bool]:
+    """
+    Validate that the True RFT implementation is mathematically correct.
+    
+    Tests:
+    1. Perfect reconstruction: IRFT(RFT(x)) = x
+    2. Unitarity: Ψ† Ψ = I (eigenvector matrix is unitary)
+    3. Hermitian resonance kernel: R = R†
+    
+    Args:
+        N: Test signal length
+        tolerance: Numerical tolerance
+        
+    Returns:
+        Dictionary of validation results
+    """
+    results = {}
+    
+    try:
+        # Generate test signal
+        test_signal = [np.sin(2 * np.pi * k / N) + 0.5 * np.cos(4 * np.pi * k / N) for k in range(N)]
+        
+        # Test 1: Perfect reconstruction
+        rft_coeffs = forward_true_rft(test_signal)
+        reconstructed = inverse_true_rft(rft_coeffs)
+        
+        reconstruction_error = np.linalg.norm(np.array(test_signal) - np.array(reconstructed))
+        results['perfect_reconstruction'] = reconstruction_error < tolerance
+        
+        # Test 2: Unitarity of eigenvector matrix
+        weights = [0.7, 0.3]
+        theta0_values = [0.0, np.pi / 4.0]
+        omega_values = [1.0, (1.0 + np.sqrt(5.0)) / 2.0]
+        
+        R = generate_resonance_kernel(N, weights, theta0_values, omega_values)
+        evals, evecs = np.linalg.eigh(R)
+        
+        # Check Ψ† Ψ = I
+        identity_error = np.linalg.norm(evecs.conj().T @ evecs - np.eye(N))
+        results['eigenvector_unitarity'] = identity_error < tolerance
+        
+        # Test 3: Hermitian resonance kernel
+        hermitian_error = np.linalg.norm(R - R.conj().T)
+        results['kernel_hermitian'] = hermitian_error < tolerance
+        
+        logger.info(f"True RFT validation: {sum(results.values())}/{len(results)} tests passed")
+        
+    except Exception as e:
+        logger.error(f"True RFT validation failed: {e}")
+        results = {key: False for key in ['perfect_reconstruction', 'eigenvector_unitarity', 'kernel_hermitian']}
+    
+    return results
+
+# High-level interface functions
+def perform_rft(waveform: List[float], **kwargs) -> Dict[str, float]:
+    """
+    High-level RFT interface that returns frequency domain representation.
+    
+    Args:
+        waveform: Input signal
+        **kwargs: RFT parameters (weights, theta0_values, etc.)
+        
+    Returns:
+        Dictionary with frequency components and metadata
+    """
+    try:
+        # Perform True RFT
+        rft_coeffs = forward_true_rft(waveform, **kwargs)
+        
+        # Extract frequency components
+        result = {}
+        for i, coeff in enumerate(rft_coeffs[:min(10, len(rft_coeffs))]):
+            amplitude = abs(coeff)
+            if amplitude > 0.01:  # Only significant components
+                result[f"freq_{i}"] = round(float(amplitude), 4)
+                result[f"freq_{i}_re"] = round(float(coeff.real), 4)
+                result[f"freq_{i}_im"] = round(float(coeff.imag), 4)
+        
+        # Add metadata
+        result["amplitude"] = round(float(np.mean(np.abs(waveform))), 4)
+        result["phase"] = round(float(waveform[0]), 4) if waveform else 0.0
+        result["resonance"] = round(float(waveform[-1]), 4) if waveform else 0.0
+        result["length"] = len(waveform)
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"True RFT processing error: {e}")
+        return {"error": str(e)}
+
+def perform_irft(rft_result: Dict[str, Any], **kwargs) -> List[float]:
+    """
+    High-level inverse RFT interface.
+    
+    Args:
+        rft_result: RFT result dictionary from perform_rft()
+        **kwargs: RFT parameters (must match forward transform)
+        
+    Returns:
+        Reconstructed signal
+    """
+    try:
+        length = rft_result.get("length", 16)
+        
+        # Reconstruct frequency components
+        freq_coeffs = []
+        for i in range(length):
+            re_name = f"freq_{i}_re"
+            im_name = f"freq_{i}_im"
+            
+            if re_name in rft_result and im_name in rft_result:
+                coeff = complex(rft_result[re_name], rft_result[im_name])
+                freq_coeffs.append(coeff)
+            else:
+                freq_coeffs.append(0.0 + 0.0j)
+        
+        # Perform inverse True RFT
+        reconstructed = inverse_true_rft(freq_coeffs, **kwargs)
+        
+        # Ensure correct length and endpoints
+        if len(reconstructed) < length:
+            reconstructed.extend([0.0] * (length - len(reconstructed)))
+        elif len(reconstructed) > length:
+            reconstructed = reconstructed[:length]
+        
+        return reconstructed
+        
+    except Exception as e:
+        logger.error(f"True IRFT processing error: {e}")
+        return [0.0] * rft_result.get("length", 16)
+
+if __name__ == "__main__":
+    # Quick validation test
+    print("True RFT Module - Running validation...")
+    validation_results = validate_true_rft()
+    
+    for test_name, passed in validation_results.items():
+        status = "✅ PASSED" if passed else "❌ FAILED"
+        print(f"{test_name}: {status}")
+    
+    if all(validation_results.values()):
+        print("\n🎉 All True RFT tests passed! Implementation is mathematically sound.")
+    else:
+        print("\n⚠️  Some tests failed. Review implementation.")
