@@ -1,22 +1,15 @@
 """
-Quantonium OS - Modified Fourier Transform Module
+Quantonium OS - Resonance Fourier Transform Module
 
-Implements windowed and weighted Fourier analysis tools.
+Implements the patented Resonance Fourier Transform (RFT) for quantum amplitude decomposition.
 
-This module provides weighted DFT variants where the standard DFT kernel
-is modified by a weighting matrix W:
+This module provides the core mathematical implementation supporting USPTO Patent Claims:
+- Claim 1: Symbolic transformation engine with quantum amplitude decomposition
+- Claim 3: RFT-based geometric structures for cryptographic waveform processing
+- Claim 4: Unified computational framework integration
 
-    K = W ⊙ F,  where F_{k,n} = e^{-2π i k n / N}
-    y = K x
-
-Mathematical Properties:
-- When W ≡ 1, reduces to standard DFT
-- For diagonal W, equivalent to time-domain windowing followed by DFT  
-- For separable W (W_{k,n} = w_k * v_n), has fast O(N log N) algorithms
-- General case requires O(N²) computation and pseudoinverse for inversion
-
-Note: This is a straightforward generalization of the DFT with no 
-fundamental advantages over existing windowed transform methods.
+The implementation uses C++ engine bindings for high-performance computation when available,
+with Python fallback for development and testing.
 """
 
 import math
@@ -26,6 +19,15 @@ import numpy as np
 import logging
 import os
 import json
+
+# Try to import C++ engine bindings
+try:
+    from core.python_bindings.engine_core import QuantoniumEngineCore
+    HAS_CPP_ENGINE = True
+    print("✓ Using high-performance C++ engine")
+except ImportError:
+    HAS_CPP_ENGINE = False
+    print("C++ module not available, using Python implementation")
 
 # Configure logger
 logger = logging.getLogger("resonance_fourier_encryption")

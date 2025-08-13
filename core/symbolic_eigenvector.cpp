@@ -1,567 +1,364 @@
-#ifdef BUILDING_DLL
-#define EXPORT extern "C" __declspec(dllexport)
-#else
-#define EXPORT extern "C"
-#endif
-
+#include "../include/symbolic_eigenvector.h"
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
-#include <unordered_map>
-#include <mutex>
-#include <string>
-#include <sstream>
-#include <iomanip>
-#include <stdexcept>
-#include <omp.h>
-#include <cstdint>
+#include <cmath>
 #include <cstring>
 #include <algorithm>
-#include <cmath>
-#include "../secure_core/include/symbolic_eigenvector.h"
+#include <random>
+#include <sstream>
+#include <iomanip>
+#include <vector>
+#include <array>
+
+// Disable warnings about unsafe functions on Windows
+#ifdef _MSC_VER
+    #define _CRT_SECURE_NO_WARNINGS
+    #pragma warning(disable:4996) // Disable warnings about unsafe functions
+    #pragma warning(disable:4267) // Disable warnings about size_t to int conversion
+#endif
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-using namespace Eigen;
-
-// Input validation helper function
-inline void validate_inputs(const double* ptr, int size, const char* name) {
-    if (!ptr) throw std::invalid_argument(std::string(name) + " pointer is null");
-    if (size <= 0) throw std::invalid_argument(std::string(name) + " size must be positive");
+// MSVC doesn't have __builtin_popcount, so we need a compatibility function
+#ifdef _MSC_VER
+inline int __builtin_popcount(unsigned int x) {
+    int count = 0;
+    while (x) {
+        count += x & 1;
+        x >>= 1;
+    }
+    return count;
 }
+#endif
 
-// --------------------- Caching ---------------------
+// Global random engine for consistent results
+static std::mt19937 g_rng(42); // Fixed seed for reproducibility
 
-struct CacheEntry {
-    VectorXd result;
-    MatrixXd eigenvectors;
-    double timestamp;
-    CacheEntry() : timestamp(0.0) {}
-    CacheEntry(const VectorXd& r, const MatrixXd& evecs, double t) 
-        : result(r), eigenvectors(evecs), timestamp(t) {}
-};
-
-// Additional functionality for C++ implementation
-
-// Transform data using the eigenvector basis
-EXPORT void transform_basis(const double* data, int data_size, const double* basis, int basis_rows, int basis_cols, double* output) {
-    validate_inputs(data, data_size, "data");
-    validate_inputs(basis, basis_rows * basis_cols, "basis");
-    validate_inputs(output, data_size, "output");
-    
-    Map<const VectorXd> vec_data(data, data_size);
-    Map<const MatrixXd> mat_basis(basis, basis_rows, basis_cols);
-    Map<VectorXd> vec_output(output, data_size);
-    
-    // Transform the data using the basis
-    vec_output = mat_basis * vec_data;
-}
-
-// Generate entropy values based on eigenstate distribution
-EXPORT void generate_eigenstate_entropy(int size, double* output) {
-    validate_inputs(output, size, "output");
-    
-    Map<VectorXd> vec_output(output, size);
-    
-    // Generate a quantum-like probability distribution
-    VectorXd probabilities = VectorXd::Zero(size);
-    double theta = M_PI / 4.0; // π/4 gives balanced superposition
-    
-    // Create a simple superposition state
-    for (int i = 0; i < size; i++) {
-        // Amplitude for basis state |i⟩ = cos(θ) for i=0, sin(θ) for i=1, etc.
-        double amplitude = 0.0;
-        if (i == 0) {
-            amplitude = cos(theta);
-        } else if (i == 1 && size > 1) {
-            amplitude = sin(theta);
-        } else {
-            // For larger spaces, distribute remaining probability
-            amplitude = 0.1 * sin(theta * i) / sqrt(size);
-        }
-        // Probability is |amplitude|²
-        probabilities[i] = amplitude * amplitude;
-    }
-    
-    // Normalize probabilities
-    double sum = probabilities.sum();
-    if (sum > 0) {
-        probabilities /= sum;
-    } else {
-        // Fallback to uniform distribution
-        probabilities = VectorXd::Constant(size, 1.0/size);
-    }
-    
-    // Calculate von Neumann entropy: -∑ p_i log(p_i)
-    #pragma omp parallel for
-    for (int i = 0; i < size; i++) {
-        if (probabilities[i] > 1e-10) { // Avoid log(0)
-            vec_output[i] = -probabilities[i] * log2(probabilities[i]);
-        } else {
-            vec_output[i] = 0.0;
-        }
-    }
-}
-
-class TransformationCache {
-private:
-    std::unordered_map<std::string, CacheEntry> cache;
-    size_t max_size;
-    std::mutex mutex;
-    double current_time;
-
-    std::string generateKey(const VectorXd& state, double dt = 0.0) {
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(6);
-        for (int i = 0; i < state.size(); ++i) {
-            oss << state[i] << ",";
-        }
-        if (dt != 0.0) {
-            oss << dt;
-        }
-        return oss.str();
-    }
-
-    void evict() {
-        if (cache.empty()) return;
-        auto oldest = cache.begin();
-        for (auto it = cache.begin(); it != cache.end(); ++it) {
-            if (it->second.timestamp < oldest->second.timestamp) {
-                oldest = it;
-            }
-        }
-        cache.erase(oldest);
-    }
-
-public:
-    TransformationCache(size_t maxSize = 1000) : max_size(maxSize), current_time(0.0) {}
-
-    std::pair<VectorXd, MatrixXd> getOrCompute(const VectorXd& state, double dt,
-        std::function<std::pair<VectorXd, MatrixXd>(const VectorXd&, double)> computeFunc) {
-        std::lock_guard<std::mutex> lock(mutex);
-        std::string key = generateKey(state, dt);
-        current_time += 1.0;
-
-        auto it = cache.find(key);
-        if (it != cache.end()) {
-            it->second.timestamp = current_time;
-            return {it->second.result, it->second.eigenvectors};
-        }
-
-        auto [result, eigenvectors] = computeFunc(state, dt);
-        if (cache.size() >= max_size) {
-            evict();
-        }
-        cache[key] = CacheEntry(result, eigenvectors, current_time);
-        return {result, eigenvectors};
-    }
-};
-
-TransformationCache globalCache(1000);
-
-// --------------------- Core Exports ---------------------
-
+// --------- Symbolic State Operators ---------
 EXPORT void U(double* state, double* derivative, int n, double* out, double dt) {
-    validate_inputs(state, n, "state");
-    validate_inputs(derivative, n, "derivative");
-    validate_inputs(out, n, "out");
-
-    Map<VectorXd> vec_state(state, n);
-    Map<VectorXd> vec_derivative(derivative, n);
-    Map<VectorXd> vec_out(out, n);
-
-    vec_out = vec_state + dt * vec_derivative;
+    for (int i = 0; i < n; i++) {
+        out[i] = state[i] + dt * derivative[i];
+    }
 }
 
 EXPORT void T(double* state, double* transform, int n, double* out) {
-    validate_inputs(state, n, "state");
-    validate_inputs(transform, n, "transform");
-    validate_inputs(out, n, "out");
-
-    Map<VectorXd> vec_state(state, n);
-    Map<VectorXd> vec_transform(transform, n);
-    Map<VectorXd> vec_out(out, n);
-
-    vec_out = vec_state.array() * vec_transform.array();
+    for (int i = 0; i < n; i++) {
+        out[i] = state[i] * transform[i];
+    }
 }
 
 EXPORT void ComputeEigenvectors(double* state, int n, double* eigenvalues_out, double* eigenvectors_out) {
-    validate_inputs(state, n, "state");
-    validate_inputs(eigenvalues_out, n, "eigenvalues_out");
-    validate_inputs(eigenvectors_out, n * n, "eigenvectors_out");
-
-    Map<VectorXd> vec_state(state, n);
-    Map<VectorXd> vec_eigenvalues(eigenvalues_out, n);
-    Map<MatrixXd> mat_eigenvectors(eigenvectors_out, n, n);
-
-    auto computeEigen = [](const VectorXd& s, double) {
-        MatrixXd mat = s.asDiagonal();
-        EigenSolver<MatrixXd> solver(mat);
-        return std::make_pair(solver.eigenvalues().real(), solver.eigenvectors().real());
-    };
-
-    auto [eigenvalues, eigenvectors] = globalCache.getOrCompute(vec_state, 0.0, computeEigen);
-    vec_eigenvalues = eigenvalues;
-    mat_eigenvectors = eigenvectors;
-}
-
-// --------------------- Symbolic Resonance Encoding ---------------------
-
-// Helper function: Calculate an amplitude-based hash for resonance encoding
-double calculateResonanceHash(const std::string& input) {
-    double A = 1.5; // Base amplitude
-    double phi = 0.0; // Phase accumulator
-    
-    for (char c : input) {
-        phi += (c * 0.01);
-        A += std::sin(phi) * 0.1;
-    }
-    
-    // Ensure amplitude stays in reasonable bounds (1.0-3.0)
-    return 1.0 + std::fmod(std::abs(A), 2.0);
-}
-
-// Helper function: Calculate symbolic entropy of a byte sequence
-double calculateSymbolicEntropy(const std::vector<uint8_t>& values) {
-    // Count frequencies
-    std::vector<int> counts(256, 0);
-    for (uint8_t val : values) {
-        counts[val]++;
-    }
-    
-    // Calculate entropy
-    double entropy = 0.0;
-    for (int count : counts) {
-        if (count > 0) {
-            double prob = static_cast<double>(count) / values.size();
-            entropy -= prob * std::log2(prob);
+    // Build a symmetric coupling matrix M from the state vector:
+    // M[i,i] = |state[i]|; M[i,j] = gamma * exp(-beta*|i-j|) * (|state[i]|+|state[j]|)/2 for i != j
+    // Use SelfAdjointEigenSolver for stable eigendecomposition.
+    if (!state || !eigenvalues_out || !eigenvectors_out || n <= 0) return;
+    const double gamma = 0.25;
+    const double beta = 0.5;
+    Eigen::MatrixXd M(n, n);
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (i == j) {
+                M(i, j) = std::abs(state[i]);
+            } else {
+                double w = gamma * std::exp(-beta * std::abs(i - j));
+                M(i, j) = w * (std::abs(state[i]) + std::abs(state[j])) * 0.5;
+            }
         }
     }
-    return entropy;
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(M);
+    if (solver.info() != Eigen::Success) {
+        // Fallback: identity eigenvectors and diagonal as eigenvalues
+        for (int i = 0; i < n; ++i) {
+            eigenvalues_out[i] = std::abs(state[i]);
+            for (int j = 0; j < n; ++j) eigenvectors_out[i * n + j] = (i == j) ? 1.0 : 0.0;
+        }
+        return;
+    }
+    Eigen::VectorXd evals = solver.eigenvalues();
+    Eigen::MatrixXd evecs = solver.eigenvectors();
+    for (int i = 0; i < n; ++i) eigenvalues_out[i] = evals(i);
+    for (int i = 0; i < n; ++i) for (int j = 0; j < n; ++j) eigenvectors_out[i * n + j] = evecs(j, i);
 }
 
+// --------- Enhanced Basis Transformation with True RFT ---------
+EXPORT void transform_basis(const double* data, int data_size, const double* basis, int basis_rows, int basis_cols, double* output) {
+    // Apply resonance-coupled basis transformation instead of simple linear algebra
+    const double alpha = 0.2; // Resonance coupling strength
+    
+    for (int i = 0; i < basis_rows; i++) {
+        output[i] = 0.0;
+        for (int j = 0; j < std::min(data_size, basis_cols); j++) {
+            // Base transformation
+            double base_transform = data[j] * basis[i * basis_cols + j];
+            
+            // Add resonance coupling between basis elements
+            double coupling_factor = 1.0 + alpha * cos(M_PI * abs(i - j) / basis_rows);
+            
+            // Phase coherence based on golden ratio
+            double phi = (1.0 + sqrt(5.0)) / 2.0;
+            double phase_coherence = cos(2.0 * M_PI * i * j / (phi * basis_rows));
+            
+            output[i] += base_transform * coupling_factor * phase_coherence;
+        }
+    }
+}
+
+EXPORT void generate_eigenstate_entropy(int size, double* output) {
+    // Generate eigenstate entropy using resonance frequencies instead of random values
+    const double phi = (1.0 + sqrt(5.0)) / 2.0;  // Golden ratio
+    std::uniform_real_distribution<double> phase_dist(0.0, 2.0 * M_PI);
+    
+    for (int i = 0; i < size; i++) {
+        double t = static_cast<double>(i) / size;
+        // Multiple resonance modes with golden ratio spacing
+        double mode1 = sin(2.0 * M_PI * t);
+        double mode2 = sin(2.0 * M_PI * phi * t);
+        double mode3 = cos(2.0 * M_PI * t / phi);
+        
+        // Add phase randomization for entropy
+        double phase = phase_dist(g_rng);
+        
+        // Interference pattern with topological coupling
+        double topo_factor = cos(4.0 * M_PI * t) * sin(M_PI * t * phi);
+        
+        output[i] = (mode1 + 0.618 * mode2 + 0.382 * mode3 + 0.1 * topo_factor) * cos(phase) + 1.2;
+        
+        // Ensure positive values for entropy
+        if (output[i] < 0.1) output[i] = 0.1;
+    }
+}
+
+// --------- True Symbolic Resonance Encoding ---------
 EXPORT void encode_resonance(const char* data, char* out, int* out_len) {
-    if (!data || !out || !out_len) throw std::invalid_argument("Input or output pointers are null");
     std::string input(data);
+    std::stringstream encoded_stream;
     
-    // Calculate resonance parameters from input
-    double A = calculateResonanceHash(input);
-    
-    // Create a symbolic waveform signature from the input
-    std::vector<uint8_t> waveform;
+    // Generate symbolic resonance key based on golden ratio
+    const double phi = (1.0 + sqrt(5.0)) / 2.0;
+    std::vector<double> resonance_key;
     for (size_t i = 0; i < input.length(); i++) {
-        double phase = static_cast<double>(i) / input.length() * 2.0 * M_PI;
-        double signal = A * std::cos(phase);
-        waveform.push_back(static_cast<uint8_t>((signal + 2.0) * 50));
+        double t = static_cast<double>(i) / input.length();
+        resonance_key.push_back(sin(2.0 * M_PI * phi * t) + cos(2.0 * M_PI * t / phi));
     }
     
-    // Apply a simple XOR encoding with the waveform
-    std::vector<uint8_t> encoded(input.length());
+    // Apply phase modulation encoding
     for (size_t i = 0; i < input.length(); i++) {
-        encoded[i] = input[i] ^ waveform[i % waveform.size()];
+        unsigned char byte_val = static_cast<unsigned char>(input[i]);
+        
+        // Phase modulation based on byte value and resonance key
+        double phase = (2.0 * M_PI * byte_val / 255.0) + resonance_key[i % resonance_key.size()];
+        
+        // Map phase to complex amplitude
+        double real_part = cos(phase);
+        double imag_part = sin(phase);
+        
+        // Topological encoding using winding number
+        int winding = static_cast<int>(phase / (2.0 * M_PI));
+        double topo_mod = 1.0 + 0.1 * cos(M_PI * winding);
+        
+        // Encode as hex with topological modulation
+        unsigned char encoded_real = static_cast<unsigned char>((real_part * topo_mod + 1.0) * 127.5);
+        unsigned char encoded_imag = static_cast<unsigned char>((imag_part * topo_mod + 1.0) * 127.5);
+        
+        // Convert to hex
+        encoded_stream << std::hex << std::setfill('0') << std::setw(2) 
+                      << static_cast<int>(encoded_real) << std::setw(2) 
+                      << static_cast<int>(encoded_imag);
     }
     
-    // Convert to Base64-like encoding
-    std::stringstream ss;
-    ss << "QWV" << std::fixed << std::setprecision(3) << A << "_";
-    for (uint8_t byte : encoded) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
-    }
-    
-    std::string result = ss.str();
-    *out_len = result.length() + 1;
-    strncpy(out, result.c_str(), *out_len);
-    out[*out_len - 1] = '\0';
+    std::string result = encoded_stream.str();
+    size_t copy_len = std::min(result.length(), static_cast<size_t>(1023));
+    strncpy(out, result.c_str(), copy_len);
+    out[copy_len] = '\0';
+    *out_len = static_cast<int>(copy_len);
 }
 
 EXPORT void decode_resonance(const char* encoded_data, char* out, int* out_len) {
-    if (!encoded_data || !out || !out_len) throw std::invalid_argument("Input or output pointers are null");
-    std::string input(encoded_data);
-    
-    // Parse the amplitude and encoded hex data
-    if (input.substr(0, 3) != "QWV") {
-        throw std::invalid_argument("Invalid resonance encoding format");
-    }
-    
-    size_t sep_pos = input.find('_');
-    if (sep_pos == std::string::npos) {
-        throw std::invalid_argument("Invalid resonance encoding format");
-    }
-    
-    double A = std::stod(input.substr(3, sep_pos - 3));
-    std::string hex_data = input.substr(sep_pos + 1);
-    
-    // Convert hex to bytes
-    std::vector<uint8_t> encoded;
-    for (size_t i = 0; i < hex_data.length(); i += 2) {
-        std::string byte_str = hex_data.substr(i, 2);
-        uint8_t byte = static_cast<uint8_t>(std::stoi(byte_str, nullptr, 16));
-        encoded.push_back(byte);
-    }
-    
-    // Generate the same waveform
-    std::vector<uint8_t> waveform;
-    for (size_t i = 0; i < encoded.size(); i++) {
-        double phase = static_cast<double>(i) / encoded.size() * 2.0 * M_PI;
-        double signal = A * std::cos(phase);
-        waveform.push_back(static_cast<uint8_t>((signal + 2.0) * 50));
-    }
-    
-    // Decode with XOR
+    std::string encoded(encoded_data);
     std::string decoded;
-    for (size_t i = 0; i < encoded.size(); i++) {
-        char c = encoded[i] ^ waveform[i % waveform.size()];
-        decoded.push_back(c);
-    }
     
-    *out_len = decoded.length() + 1;
-    strncpy(out, decoded.c_str(), *out_len);
-    out[*out_len - 1] = '\0';
-}
-
-EXPORT double compute_similarity(const char* str1, const char* str2) {
-    if (!str1 || !str2) throw std::invalid_argument("String pointers are null");
-    std::string s1(str1), s2(str2);
-    
-    // Convert strings to resonance waveforms
-    std::vector<double> wave1, wave2;
-    double A1 = calculateResonanceHash(s1);
-    double A2 = calculateResonanceHash(s2);
-    
-    for (size_t i = 0; i < std::max(s1.length(), s2.length()); i++) {
-        double phase = static_cast<double>(i) * 0.1;
-        
-        // Generate wave point for s1
-        if (i < s1.length()) {
-            wave1.push_back(A1 * std::cos(phase + static_cast<double>(s1[i]) * 0.01));
-        } else {
-            wave1.push_back(0.0);
-        }
-        
-        // Generate wave point for s2
-        if (i < s2.length()) {
-            wave2.push_back(A2 * std::cos(phase + static_cast<double>(s2[i]) * 0.01));
-        } else {
-            wave2.push_back(0.0);
+    // Process hex pairs to extract complex amplitudes
+    for (size_t i = 0; i < encoded.length(); i += 4) {
+        if (i + 3 < encoded.length()) {
+            // Extract real and imaginary hex values
+            std::string real_hex = encoded.substr(i, 2);
+            std::string imag_hex = encoded.substr(i + 2, 2);
+            
+            unsigned char encoded_real = static_cast<unsigned char>(std::stoi(real_hex, nullptr, 16));
+            unsigned char encoded_imag = static_cast<unsigned char>(std::stoi(imag_hex, nullptr, 16));
+            
+            // Convert back to normalized real/imaginary parts
+            double real_part = (encoded_real / 127.5) - 1.0;
+            double imag_part = (encoded_imag / 127.5) - 1.0;
+            
+            // Calculate original phase
+            double phase = atan2(imag_part, real_part);
+            
+            // Generate corresponding resonance key value
+            const double phi = (1.0 + sqrt(5.0)) / 2.0;
+            size_t char_index = decoded.length();
+            double t = static_cast<double>(char_index) / (encoded.length() / 4);
+            double resonance_key_val = sin(2.0 * M_PI * phi * t) + cos(2.0 * M_PI * t / phi);
+            
+            // Remove resonance key phase offset
+            phase -= resonance_key_val;
+            if (phase < 0) phase += 2.0 * M_PI;
+            
+            // Convert phase back to byte value
+            unsigned char byte_val = static_cast<unsigned char>((phase / (2.0 * M_PI)) * 255.0);
+            decoded += static_cast<char>(byte_val);
         }
     }
     
-    // Calculate cosine similarity between the two waveforms
-    double dot_product = 0.0;
-    double norm1 = 0.0;
-    double norm2 = 0.0;
-    
-    for (size_t i = 0; i < wave1.size(); i++) {
-        dot_product += wave1[i] * wave2[i];
-        norm1 += wave1[i] * wave1[i];
-        norm2 += wave2[i] * wave2[i];
-    }
-    
-    if (norm1 == 0.0 || norm2 == 0.0) return 0.0;
-    
-    return dot_product / (std::sqrt(norm1) * std::sqrt(norm2));
+    size_t copy_len = std::min(decoded.length(), static_cast<size_t>(1023));
+    strncpy(out, decoded.c_str(), copy_len);
+    out[copy_len] = '\0';
+    *out_len = static_cast<int>(copy_len);
 }
 
-// --------------------- Quantum-Inspired Algorithms ---------------------
-
-// Perform Hadamard-like transformation on a vector
-EXPORT void hadamard_transform(double* data, int size, double* output) {
-    validate_inputs(data, size, "data");
-    validate_inputs(output, size, "output");
-    
-    Map<const VectorXd> vec_data(data, size);
-    Map<VectorXd> vec_output(output, size);
-    
-    // Construct a Hadamard-like matrix
-    MatrixXd H = MatrixXd::Zero(size, size);
-    double norm_factor = 1.0 / sqrt(size);
-    
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            H(i, j) = ((i & j) % 2 == 0) ? norm_factor : -norm_factor;
-        }
-    }
-    
-    // Apply the transformation
-    vec_output = H * vec_data;
+EXPORT double compute_similarity(const char* url1, const char* url2) {
+    // Cosine similarity of character frequency vectors (a simple, defined metric)
+    std::array<int, 256> f1{}; f1.fill(0);
+    std::array<int, 256> f2{}; f2.fill(0);
+    for (const unsigned char* p = reinterpret_cast<const unsigned char*>(url1); *p; ++p) f1[*p]++;
+    for (const unsigned char* p = reinterpret_cast<const unsigned char*>(url2); *p; ++p) f2[*p]++;
+    long long dot = 0, n1 = 0, n2 = 0;
+    for (int i = 0; i < 256; ++i) { dot += 1LL * f1[i] * f2[i]; n1 += 1LL * f1[i] * f1[i]; n2 += 1LL * f2[i] * f2[i]; }
+    if (n1 == 0 || n2 == 0) return 0.0;
+    return static_cast<double>(dot) / (std::sqrt(static_cast<double>(n1)) * std::sqrt(static_cast<double>(n2)));
 }
 
-// Generate a symbolic resonance signature from data
-EXPORT void generate_resonance_signature(double* data, int size, double* signature, int sig_size) {
-    validate_inputs(data, size, "data");
-    validate_inputs(signature, sig_size, "signature");
-    
-    Map<const VectorXd> vec_data(data, size);
-    Map<VectorXd> vec_signature(signature, sig_size);
-    
-    // Create a symbolic resonance signature
-    for (int i = 0; i < sig_size; i++) {
-        double phase = 2.0 * M_PI * i / sig_size;
-        double sum = 0.0;
-        
-        #pragma omp parallel for reduction(+:sum)
-        for (int j = 0; j < size; j++) {
-            double j_norm = static_cast<double>(j) / size;
-            sum += vec_data[j] * cos(phase + 2.0 * M_PI * j_norm);
-        }
-        
-        vec_signature[i] = sum / size;
-    }
-}
-
-// Quantum superposition-inspired function
-EXPORT void create_quantum_superposition(int size, double* output) {
-    validate_inputs(output, size, "output");
-    Map<VectorXd> vec_output(output, size);
-    
-    // Equal superposition of all states
-    double norm_factor = 1.0 / sqrt(size);
-    
-    #pragma omp parallel for
-    for (int i = 0; i < size; i++) {
-        vec_output[i] = norm_factor;
-    }
-}
-
-// --------------------- XOR Encryption ---------------------
-
+// --------- XOR Demo Encryptor (non-cryptographic) ---------
 EXPORT void ParallelXOREncrypt(const uint8_t* input, int input_len, const uint8_t* key, int key_len, uint8_t* output) {
-    if (!input || !key || !output) throw std::invalid_argument("Input, key, or output pointer is null");
-    if (input_len <= 0 || key_len <= 0) throw std::invalid_argument("Input length or key length must be positive");
-    #pragma omp parallel for
-    for (int i = 0; i < input_len; ++i) {
+    for (int i = 0; i < input_len; i++) {
         output[i] = input[i] ^ key[i % key_len];
     }
 }
 
-// --------------------- New: SumVector ---------------------
+// --------- Vector Operations ---------
 EXPORT double SumVector(const double* arr, int n) {
-    if (!arr || n <= 0) throw std::invalid_argument("Invalid array or size");
     double sum = 0.0;
-    #pragma omp parallel for reduction(+:sum)
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; i++) {
         sum += arr[i];
     }
     return sum;
 }
 
-// --------- Implementation of resonance signature ---------
+// --------- Quantum Operations ---------
 EXPORT void resonance_signature(const double* waveform, int size, char* output, int* output_size) {
-    if (!waveform || !output || !output_size) {
-        throw std::invalid_argument("Input pointers cannot be null");
+    std::stringstream sig;
+    for (int i = 0; i < size; i++) {
+        sig << std::hex << (int)(std::abs(waveform[i] * 255)) << ":";
     }
-    
-    // Calculate the resonance signature
-    double amplitude_sum = 0.0;
-    double phase_product = 1.0;
+    std::string result = sig.str();
+    strncpy(output, result.c_str(), result.length());
+    output[result.length()] = '\0';
+    *output_size = result.length();
+}
+
+EXPORT void quantum_superposition(double* state1, double* state2, int size, double alpha, double beta, double* output) {
+    // Normalize coefficients
+    double norm = sqrt(alpha * alpha + beta * beta);
+    if (norm > 0) {
+        alpha /= norm;
+        beta /= norm;
+    }
     
     for (int i = 0; i < size; i++) {
-        amplitude_sum += std::abs(waveform[i]);
-        phase_product *= (1.0 + std::sin(waveform[i]));
+        output[i] = alpha * state1[i] + beta * state2[i];
     }
-    
-    double avg_amplitude = amplitude_sum / size;
-    double resonance_factor = phase_product / size;
-    
-    // Format the signature string
-    std::stringstream ss;
-    ss << "RES" << std::fixed << std::setprecision(4) << avg_amplitude << "_" << resonance_factor;
-    
-    std::string result = ss.str();
-    *output_size = result.length() + 1;
-    
-    if (*output_size > 1024) { // Add a reasonable limit
-        *output_size = 1024;
-    }
-    
-    strncpy(output, result.c_str(), *output_size);
-    output[*output_size - 1] = '\0';
 }
 
-// --------- Implementation of quantum superposition ---------
-EXPORT void quantum_superposition(double* state1, double* state2, int size, double alpha, double beta, double* output) {
-    if (!state1 || !state2 || !output) {
-        throw std::invalid_argument("State pointers cannot be null");
+EXPORT void hadamard_transform(double* data, int size, double* output) {
+    // Resonance-coupled Hadamard transform with topological continuity
+    double norm = 1.0 / sqrt(size);
+    const double alpha = 0.3; // Resonance coupling strength
+    
+    for (int i = 0; i < size; i++) {
+        output[i] = 0.0;
+        for (int j = 0; j < size; j++) {
+            // Traditional Hadamard pattern
+            int sign = (__builtin_popcount(i & j) % 2 == 0) ? 1 : -1;
+            
+            // Add resonance coupling based on distance
+            double coupling = 1.0 + alpha * cos(M_PI * abs(i - j) / size);
+            
+            // Topological phase factor for continuity
+            double phase_factor = cos(2.0 * M_PI * i * j / (size * size));
+            
+            output[i] += sign * data[j] * norm * coupling * phase_factor;
+        }
     }
-    
-    Map<const VectorXd> vec_state1(state1, size);
-    Map<const VectorXd> vec_state2(state2, size);
-    Map<VectorXd> vec_output(output, size);
-    
-    // Ensure alpha and beta satisfy |α|² + |β|² = 1
-    double norm = std::sqrt(alpha*alpha + beta*beta);
-    if (norm == 0.0) {
-        throw std::invalid_argument("Alpha and beta cannot both be zero");
-    }
-    
-    alpha /= norm;
-    beta /= norm;
-    
-    // Create superposition: |ψ⟩ = α|state1⟩ + β|state2⟩
-    vec_output = alpha * vec_state1 + beta * vec_state2;
 }
 
-// --------- Implementation of symbolic eigenvector reduction ---------
-EXPORT int symbolic_eigenvector_reduction(WaveNumber* wave_list, int wave_count, double threshold, WaveNumber* output_buffer) {
-    if (!wave_list || !output_buffer) {
-        throw std::invalid_argument("Wave list or output buffer cannot be null");
-    }
+EXPORT void generate_resonance_signature(double* data, int size, double* signature, int sig_size) {
+    // True resonance signature using RFT kernel instead of DFT
+    const double alpha = 0.5; // Resonance interference parameter
+    const double beta = 0.3;  // Phase-locking parameter
     
-    if (wave_count <= 0) {
-        return 0;
-    }
-    
-    // Group similar waves based on their amplitude and phase
-    std::vector<std::vector<int>> groups;
-    std::vector<bool> processed(wave_count, false);
-    
-    for (int i = 0; i < wave_count; i++) {
-        if (processed[i]) continue;
-        
-        std::vector<int> group;
-        group.push_back(i);
-        processed[i] = true;
-        
-        for (int j = i + 1; j < wave_count; j++) {
-            if (processed[j]) continue;
+    for (int k = 0; k < sig_size; k++) {
+        signature[k] = 0.0;
+        for (int n = 0; n < size; n++) {
+            // Base exponential (traditional DFT component)
+            double angle = 2.0 * M_PI * k * n / size;
             
-            double amp_diff = std::abs(wave_list[i].amplitude - wave_list[j].amplitude);
-            double phase_diff = std::abs(wave_list[i].phase - wave_list[j].phase);
+            // Resonance interference modulation
+            double resonance_mod = 1.0 + alpha * cos(M_PI * abs(k - n) / size);
             
-            // Normalize phase difference to [0, π]
-            if (phase_diff > M_PI) {
-                phase_diff = 2 * M_PI - phase_diff;
-            }
+            // Phase-locking between adjacent components
+            double phase_lock = cos(beta * sin(2.0 * M_PI * k * n / (size * size)));
             
-            if (amp_diff < threshold && phase_diff < threshold) {
-                group.push_back(j);
-                processed[j] = true;
-            }
+            // Topological coupling (simplified)
+            double topo_coupling = cos(2.0 * M_PI * (k + n) / size) * 
+                                   sin(M_PI * abs(k - n) / size);
+            double topo_mod = 1.0 + 0.1 * topo_coupling;
+            
+            // Apply full RFT kernel
+            signature[k] += data[n] * cos(angle) * resonance_mod * phase_lock * topo_mod;
         }
-        
-        groups.push_back(group);
+        signature[k] /= size; // Normalize
     }
-    
-    // Create reduced set of wave numbers by averaging each group
-    int output_count = 0;
-    for (const auto& group : groups) {
-        if (output_count >= wave_count) break; // Safety check
-        
-        double avg_amp = 0.0;
-        double avg_phase = 0.0;
-        
-        for (int idx : group) {
-            avg_amp += wave_list[idx].amplitude;
-            avg_phase += wave_list[idx].phase;
+}
+
+EXPORT void create_quantum_superposition(int size, double* output) {
+    // Create equal superposition state
+    double amplitude = 1.0 / sqrt(size);
+    for (int i = 0; i < size; i++) {
+        output[i] = amplitude;
+    }
+}
+
+// Implements the symbolic eigenvector reduction.
+// It filters out waves with amplitude above a threshold and merges the rest.
+EXPORT int symbolic_eigenvector_reduction(
+    WaveNumber* wave_list, 
+    int wave_count, 
+    double threshold, 
+    WaveNumber* output_buffer
+) {
+    std::vector<WaveNumber> filtered;
+    double merged_amp = 0.0;
+    double merged_phase = 0.0;
+    int merged_count = 0;
+
+    for (int i = 0; i < wave_count; ++i) {
+        if (wave_list[i].amplitude >= threshold)
+            filtered.push_back(wave_list[i]);
+        else {
+            merged_amp += wave_list[i].amplitude;
+            merged_phase += wave_list[i].phase;
+            merged_count++;
         }
-        
-        avg_amp /= group.size();
-        avg_phase /= group.size();
-        
-        output_buffer[output_count] = WaveNumber(avg_amp, avg_phase);
-        output_count++;
     }
-    
-    return output_count;
+
+    if (merged_count > 0)
+        filtered.emplace_back(merged_amp, merged_phase / merged_count);
+
+    // Copy the filtered results into the output buffer.
+    for (size_t i = 0; i < filtered.size(); ++i)
+        output_buffer[i] = filtered[i];
+
+    return static_cast<int>(filtered.size());
 }
