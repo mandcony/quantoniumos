@@ -59,7 +59,7 @@ except ImportError:
 
 # Test engine_core
 try:
-    from secure_core.python_bindings import engine_core
+    from core.python_bindings import engine_core
     modules_available['engine_core'] = True
     print("✓ Engine core available")
 except ImportError:

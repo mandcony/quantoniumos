@@ -14,7 +14,7 @@ from pathlib import Path
 
 from flask import Blueprint, request, jsonify, g, Response, stream_with_context, send_file, abort
 from core.protected.symbolic_interface import get_interface
-from secure_core.python_bindings import engine_core
+from core.python_bindings import engine_core
 from models import EncryptRequest, DecryptRequest, RFTRequest, EntropyRequest, ContainerUnlockRequest
 from utils import sign_response
 from backend.stream import get_stream, update_encrypt_data

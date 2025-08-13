@@ -4,7 +4,7 @@
 
 **Research Platform**: This is an experimental implementation of signal processing techniques and cryptographic algorithms for educational and research purposes. Not production-ready cryptography.
 
-**Mathematical Foundation**: Custom implementations of windowed DFT variants, geometric coordinate systems, and stream ciphers. See [MATHEMATICAL_JUSTIFICATION.md](MATHEMATICAL_JUSTIFICATION.md) for technical analysis.
+**Mathematical Foundation**: Custom implementations of Resonance Fourier Transform variants, geometric coordinate systems, and stream ciphers. See [MATHEMATICAL_JUSTIFICATION.md](MATHEMATICAL_JUSTIFICATION.md) for technical analysis.
 
 ## New to signal processing?
 
@@ -57,7 +57,7 @@ Web Interface (Flask) → Signal Processing Engine (C++/Python) → Mathematical
 - `/api/` - REST endpoints for mathematical operations
 - `/core/` - Mathematical implementations (Python with NumPy, C++ with Eigen)  
 - `/encryption/` - Stream ciphers, geometric hashing, true RFT and windowed DFT algorithms
-- `/secure_core/` - High-performance C++ implementations of true RFT
+- `/core/` - High-performance C++ implementations of true RFT
 - `/tests/` - Comprehensive validation and statistical testing
 
 ## Usage Examples

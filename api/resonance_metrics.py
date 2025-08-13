@@ -18,7 +18,7 @@ import numpy as np
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
-from secure_core.python_bindings import engine_core
+from core.python_bindings import engine_core
 from encryption.resonance_encrypt import encrypt_symbolic
 
 logger = logging.getLogger("quantonium_api.metrics")

@@ -34,7 +34,7 @@ try:
     from core.encryption.geometric_waveform_hash import geometric_hash
     from core.encryption.entropy_qrng import generate_quantum_entropy
     from api.resonance_metrics import run_symbolic_benchmark
-    from secure_core.python_bindings import engine_core
+    from core.python_bindings import engine_core
 except ImportError:
     # Create mock functions for demonstration
     def encrypt_symbolic(data, key):

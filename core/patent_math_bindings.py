@@ -23,19 +23,19 @@ def _load_engine_library():
         return _engine_lib
     
     # Possible library paths
-    possible_paths = [
+    library_paths = [
         "build/libengine_core.so",  # Linux
         "build/engine_core.dll",   # Windows
         "build/libengine_core.dylib",  # macOS
-        "secure_core/libengine_core.so",
-        "secure_core/engine_core.dll",
-        "secure_core/libengine_core.dylib",
+        "core/libengine_core.so",
+        "core/engine_core.dll",
+        "core/libengine_core.dylib",
         "./libengine_core.so",
         "./engine_core.dll",
         "./libengine_core.dylib"
     ]
     
-    for lib_path in possible_paths:
+    for lib_path in library_paths:
         try:
             if os.path.exists(lib_path):
                 _engine_lib = ctypes.CDLL(lib_path)

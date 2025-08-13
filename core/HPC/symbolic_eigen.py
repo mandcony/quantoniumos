@@ -11,7 +11,7 @@ from typing import Dict, Any, ByteString
 # Try to import the HPC backend modules
 try:
     # Import from the proper package path
-    from secure_core.python_bindings import engine_core  # type: ignore
+    from core.python_bindings import engine_core  # type: ignore
     HPC_BACKEND_LOADED = True
     logger = logging.getLogger("symbolic_eigen")
     logger.info("✅ HPC engine_core module loaded successfully")

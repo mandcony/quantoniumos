@@ -16,7 +16,7 @@ from typing import Dict, Any, List
 from encryption.resonance_encrypt import encrypt_symbolic, decrypt_symbolic
 from encryption.geometric_waveform_hash import wave_hash, extract_wave_parameters
 from orchestration.resonance_manager import run_benchmark, validate_avalanche, add_to_hash_history
-from secure_core.python_bindings import engine_core
+from core.python_bindings import engine_core
 from encryption.wave_primitives import WaveNumber, calculate_coherence
 
 logger = logging.getLogger("quantonium_api.interface")
