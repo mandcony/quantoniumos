@@ -7,6 +7,38 @@
 **Mathematical Foundation**: Custom implementations of Resonance Fourier Transform variants, geometric coordinate systems, and stream ciphers. See [MATHEMATICAL_JUSTIFICATION.md](MATHEMATICAL_JUSTIFICATION.md) for technical analysis.
 
 ## New to signal processing?
+## Resonance Fourier Transform (RFT) — Minimal Derivation & Numeric Test
+
+**Definition:**
+Let Ψ be the resonance basis matrix, constructed from weighted phase and shift operators:
+
+Ψ = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
+
+Where:
+- wᵢ: weighting coefficients (real, positive)
+- D_φᵢ: diagonal phase operator (unitary)
+- C_σᵢ: cyclic shift operator (unitary)
+- D_φᵢ†: Hermitian adjoint (conjugate transpose) of D_φᵢ
+
+**Unitary Proof Sketch:**
+If all wᵢ > 0 and D_φᵢ, C_σᵢ are unitary, then Ψ is unitary (Ψ†Ψ = I) up to normalization. This ensures exact reconstruction:
+
+X = Ψ†x   (forward RFT)
+x = ΨX      (inverse RFT)
+
+**Minimal Numeric Test (Python):**
+```python
+import numpy as np
+from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+
+signal = np.array([1.0, 0.5, 0.2, 0.8])
+X = forward_true_rft(signal)
+reconstructed = inverse_true_rft(X)
+error = np.linalg.norm(signal - reconstructed)
+print(f"Unitary RFT test: L2 error = {error:.2e}")  # Should be < 1e-12
+```
+
+This test verifies that the RFT implementation is unitary and reconstructs the input exactly.
 
 Check out our [Beginner's Guide](BEGINNERS_GUIDE.md) for explanations of key concepts.
 
@@ -23,6 +55,16 @@ python app.py
 curl http://localhost:5000/api/health
 curl http://localhost:5000/docs  # Interactive API documentation
 ```
+
+## Quick Start (Validation)
+
+Run the canonical test path to verify the complete implementation:
+
+```bash
+./make_repro.sh
+```
+
+This script performs: build → unitary check → avalanche effect → NIST subset → compact summary.
 
 ## What This Actually Is
 

@@ -1,6 +1,9 @@
 """
 QuantoniumOS - Wave Primitives Module
 
+RESEARCH ONLY: This implementation is for educational and research purposes only.
+Not intended for production cryptographic applications.
+
 This module implements the fundamental wave-based primitives for the system.
 """
 
@@ -8,7 +11,7 @@ import math
 
 class WaveNumber:
     """
-    A wave-based number representation for quantum-inspired computations.
+    A wave-based number representation for signal processing computations.
     Combines amplitude and phase information.
     """
     def __init__(self, amplitude=1.0, phase=0.0):

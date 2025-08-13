@@ -1,6 +1,9 @@
 """
 Quantonium OS - Resonance Encryption Module
 
+RESEARCH ONLY: This implementation is for educational and research purposes only.
+Not intended for production cryptographic applications.
+
 Implements resonance-based data encryption algorithms that utilize amplitude-phase fluctuation patterns.
 """
 

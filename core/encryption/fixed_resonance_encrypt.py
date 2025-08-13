@@ -1,5 +1,8 @@
 """
 Fixed version of optimized resonance encryption
+
+RESEARCH ONLY: This implementation is for educational and research purposes only.
+Not intended for production cryptographic applications.
 """
 
 import secrets

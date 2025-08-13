@@ -1,5 +1,8 @@
 """
 Simple version of resonance encryption for testing core functionality
+
+RESEARCH ONLY: This implementation is for educational and research purposes only.
+Not intended for production cryptographic applications.
 """
 
 import hashlib

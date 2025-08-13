@@ -151,7 +151,7 @@ async def benchmark():
 @router.post("/entropy")
 async def entropy():
     """
-    Generate a new quantum-inspired random entropy sample
+    Generate a new signal processing random entropy sample
     
     Returns:
     - entropy: Float entropy value

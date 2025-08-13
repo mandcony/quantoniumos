@@ -166,7 +166,7 @@ def analyze_waveform(waveform_data: List[float]) -> Dict[str, Any]:
 
 def generate_entropy(amount: int = 32) -> Dict[str, Any]:
     """
-    Generate quantum-inspired entropy.
+    Generate signal processing entropy.
     
     Args:
         amount: Number of bytes to generate (default: 32)

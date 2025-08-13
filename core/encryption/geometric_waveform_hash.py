@@ -1,6 +1,9 @@
 """
 Geometric Waveform Hash - RFT-based geometric waveform hashing
 
+RESEARCH ONLY: This implementation is for educational and research purposes only.
+Not intended for production cryptographic applications.
+
 This module implements genuine geometric waveform hashing using
 Resonance Fourier Transform principles with golden ratio optimization
 and topological mapping for cryptographic-strength hash functions.

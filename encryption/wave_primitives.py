@@ -1,8 +1,13 @@
 """
-Wave Primitives - Cryptographic wave number implementation
+Wave Primitives - Mathematical constructs for waveform operations
 
-This module provides wave-based cryptographic primitives including
-WaveNumber class for quantum-inspired computations.
+RESEARCH ONLY: This implementation is for educational and research purposes only.
+Not intended for production cryptographic applications.
+
+Provides fundamental wave-based mathematical primitives for use
+in resonance-based encryption and hashing operations.
+
+WaveNumber class for signal processing computations.
 """
 
 import numpy as np
@@ -13,7 +18,7 @@ import cmath
 
 class WaveNumber:
     """
-    Represents a wave number in the quantum-inspired cryptographic system.
+    Represents a wave number in the signal processing cryptographic system.
     
     A wave number encodes both magnitude and phase information for use
     in resonance-based encryption and hashing operations.

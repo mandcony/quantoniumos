@@ -1,5 +1,8 @@
 """
 Optimized version of resonance encryption module
+
+RESEARCH ONLY: This implementation is for educational and research purposes only.
+Not intended for production cryptographic applications.
 """
 
 import secrets
