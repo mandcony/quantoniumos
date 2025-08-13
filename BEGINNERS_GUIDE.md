@@ -8,6 +8,14 @@ Think of it like this: Traditional encryption uses mathematical operations on bi
 
 ## Key Experimental Technologies
 
+### True Resonance Fourier Transform (RFT)
+
+**What it is:** A unitary transform based on eigendecomposition of a resonance operator R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†.
+
+**How it works:** Build resonance kernel R → compute eigendecomposition (Λ,Ψ) = eigh(R) → forward transform X = Ψ†x → inverse transform x = ΨX.
+
+**Why it's mathematically interesting:** This provides exact reconstruction (error < 10⁻¹²) and energy conservation ||x||² = ||X||² while being non-commutative with cyclic shifts (proving it's not just DFT).
+
 ### Windowed DFT with Custom Weights
 
 **What it is:** A modified Discrete Fourier Transform that uses custom weighting matrices instead of the standard DFT kernel.

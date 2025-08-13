@@ -28,6 +28,7 @@ curl http://localhost:5000/docs  # Interactive API documentation
 
 **A Mathematical Research Implementation:**
 
+**Resonance Fourier Transform (RFT)** - True unitary transform R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†, exact reconstruction X = Ψ†x  
 **Windowed DFT Variants** - Modified Fourier transforms with custom weighting matrices  
 **Geometric Coordinate Hashing** - Hash functions using golden ratio coordinate mappings  
 **Stream Cipher Implementation** - XOR-based encryption with bit rotation and keystream generation  
@@ -37,7 +38,8 @@ curl http://localhost:5000/docs  # Interactive API documentation
 ## Research Implementation
 
 **This project provides:**
-- **Experimental signal processing algorithms** - Windowed DFT variants and geometric coordinate transformations
+- **True Resonance Fourier Transform (RFT)** - Unitary transform with eigendecomposition X = Ψ†x, exact reconstruction
+- **Windowed DFT variants** - Modified Fourier transforms with custom weighting matrices K = W ⊙ F
 - **Educational cryptographic implementations** - Stream ciphers and hash functions for learning purposes
 - **Statistical testing tools** - Entropy analysis and randomness evaluation
 - **Cross-platform compatibility** - Python, C++, and Rust implementations
@@ -54,8 +56,8 @@ Web Interface (Flask) → Signal Processing Engine (C++/Python) → Mathematical
 **What Each Part Does:**
 - `/api/` - REST endpoints for mathematical operations
 - `/core/` - Mathematical implementations (Python with NumPy, C++ with Eigen)  
-- `/encryption/` - Stream ciphers, geometric hashing, signal processing algorithms
-- `/secure_core/` - High-performance C++ implementations
+- `/encryption/` - Stream ciphers, geometric hashing, true RFT and windowed DFT algorithms
+- `/secure_core/` - High-performance C++ implementations of true RFT
 - `/tests/` - Comprehensive validation and statistical testing
 
 ## Usage Examples
@@ -82,11 +84,17 @@ waveform = [0.5 * math.sin(i * 0.1) for i in range(100)]
 hash_result = geometric_waveform_hash(waveform)
 print(f"Hash: {hash_result}")
 
-# Perform windowed DFT
-from core.encryption.resonance_fourier import perform_rft
+# Perform true RFT (unitary, exact reconstruction)
+from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
 signal = [1.0, 0.5, 0.2, 0.8, 0.3]
-rft_result = perform_rft(signal, alpha=1.0)  # alpha controls windowing
-print(f"DFT result: {rft_result}")
+true_rft_result = forward_true_rft(signal)  # X = Ψ†x
+reconstructed = inverse_true_rft(true_rft_result)  # x = ΨX
+print(f"True RFT: {len(true_rft_result)} components, reconstruction error: {abs(sum((a-b)**2 for a,b in zip(signal, reconstructed)))}")
+
+# Perform windowed DFT (weighted DFT variant)
+from core.encryption.resonance_fourier import perform_rft
+windowed_result = perform_rft(signal, alpha=1.0)  # K = W ⊙ F transform
+print(f"Windowed DFT result: {windowed_result}")
 ```
 
 ### C++
@@ -179,18 +187,28 @@ print('Decrypting...')
 decrypted = fixed_resonance_decrypt(encrypted, key)
 print(f'Decryption successful: {decrypted == message}')
 
-# Test windowed DFT
-from core.encryption.resonance_fourier import perform_rft
+# Test true RFT (unitary transform)
+from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+
 signal = [1.0, 0.5, 0.2, 0.8]
-result = perform_rft(signal)
-print(f'Windowed DFT result: {len(result)} components')
+rft_spectrum = forward_true_rft(signal)  # X = Ψ†x (unitary)
+reconstructed = inverse_true_rft(rft_spectrum)  # x = ΨX (exact)
+error = sum((a-b)**2 for a,b in zip(signal, reconstructed))
+print(f'True RFT - Exact reconstruction: {error < 1e-12}')
+print(f'True RFT result: {len(rft_spectrum)} components')
+
+# Test windowed DFT (weighted variant)
+from core.encryption.resonance_fourier import perform_rft
+windowed_result = perform_rft(signal, alpha=1.0)
+print(f'Windowed DFT result: {len([k for k in windowed_result.keys() if k.startswith("freq")])} frequency components')
 print('All implementations working correctly!')
 "
 ```
 
 ## Documentation
 
-- **[Windowed DFT Specification](WINDOWED_DFT_SPECIFICATION.md)** - Technical details of the windowed DFT implementation
+- **[True RFT Specification](RFT_SPECIFICATION.md)** - Mathematical details of the unitary RFT implementation R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
+- **[Windowed DFT Specification](WINDOWED_DFT_SPECIFICATION.md)** - Technical details of the windowed DFT implementation K = W ⊙ F
 - **[API Docs](http://localhost:5000/docs)** - Interactive Swagger interface  
 - **[Developer Guide](QUANTONIUM_DEVELOPER_GUIDE.md)** - Setup and contribution guidelines
 - **[Mathematical Analysis](MATHEMATICAL_JUSTIFICATION.md)** - Technical analysis of implementations
@@ -199,12 +217,17 @@ print('All implementations working correctly!')
 
 ### Implementation Status
 
-**Mathematical Foundation**: Windowed DFT variants and stream cipher implementations
+**Mathematical Foundation**: 
+- **True RFT**: Unitary transform R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†, eigendecomposition X = Ψ†x, exact reconstruction
+- **Windowed DFT**: Weighted DFT variants K = W ⊙ F with custom weighting matrices
+- **Stream Ciphers**: XOR-based encryption with keystream generation  
+- **Geometric Hashing**: Coordinate transformations using mathematical constants
 
 **Current Status**:
-- Working stream cipher with XOR and bit rotation
+- True RFT with unitary properties and exact reconstruction (reconstruction error < 10⁻¹²)
+- Windowed DFT variants with custom weighting matrices
 - Geometric hash using golden ratio coordinate transformations
-- Windowed DFT with custom weighting matrices
+- Stream cipher with XOR and bit rotation
 - Statistical testing and validation framework
 - Research-grade implementations, not production cryptography
 
@@ -221,7 +244,7 @@ This project demonstrates **experimental signal processing and cryptographic con
 
 ## Implementation Status
 
-**Research Implementation** - Signal processing algorithms and stream ciphers with educational value  
+**Research Implementation** - True RFT (unitary) and windowed DFT algorithms with educational value  
 **Testing Framework** - Statistical analysis tools including entropy measurement and validation  
 **Cross-Platform** - Python, C++, and Rust implementations  
 **Reproducible** - Deterministic builds with comprehensive test coverage  
@@ -262,7 +285,8 @@ The API exposes these mathematical operations:
 - `/api/decrypt` - Corresponding decryption operation  
 - `/api/hash` - Geometric waveform hashing using golden ratio coordinates
 - `/api/entropy` - Entropy generation and statistical analysis
-- `/api/rft` - Windowed DFT computation with custom weighting
+- `/api/rft` - True RFT computation with unitary eigendecomposition X = Ψ†x
+- `/api/windowed-dft` - Windowed DFT computation with custom weighting K = W ⊙ F
 - `/api/validate` - Statistical testing and validation tools
 - `/quantum/*` - Interactive visualization and analysis endpoints
 
@@ -272,7 +296,8 @@ All endpoints include statistical validation and testing capabilities.
 
 This repository contains implementations of:
 
-- **Windowed DFT Variants** - Modified Fourier transforms with custom weighting matrices
+- **True Resonance Fourier Transform (RFT)** - Unitary transform R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†, exact reconstruction X = Ψ†x
+- **Windowed DFT Variants** - Modified Fourier transforms with custom weighting matrices K = W ⊙ F
 - **Geometric Coordinate Hashing** - Hash functions using golden ratio coordinate transformations  
 - **Stream Cipher Implementation** - XOR-based encryption with bit rotation and keystream generation
 - **Entropy Generation System** - Adaptive randomness generation with feedback control

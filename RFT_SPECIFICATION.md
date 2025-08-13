@@ -1,70 +1,84 @@
-# Windowed DFT Implementation — Mathematical Specification
+# True Resonance Fourier Transform (RFT) — Mathematical Specification
 
 ## Executive Summary
 
-This document describes the windowed/weighted Discrete Fourier Transform (DFT) implementation used in QuantoniumOS. This is a variant of the standard DFT that applies custom weighting matrices to modify the transform kernel. When the weighting matrix W equals the identity matrix, this reduces to the standard DFT.
+This document describes the True Resonance Fourier Transform (RFT) implementation used in QuantoniumOS. This is a unitary transform based on eigendecomposition of a resonance operator R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†. The RFT provides exact reconstruction, energy conservation, and mathematically proven non-commutativity with cyclic shifts (proving it is not equivalent to DFT).
 
 ## Mathematical Foundations
 
-### Standard DFT vs Windowed DFT
+### True RFT vs Standard DFT
 
 **Standard DFT:**
 ```
 X[k] = Σ(n=0 to N-1) x[n] * e^(-2πikn/N)
 ```
 
-**Windowed DFT (our implementation):**
+**True RFT:**
 ```
-X[k] = Σ(n=0 to N-1) W[k,n] * x[n] * e^(-2πikn/N)
+1. Build resonance operator: R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
+2. Eigendecomposition: (Λ,Ψ) = eigh(R)  
+3. Forward transform: X = Ψ†x
+4. Inverse transform: x = ΨX
 
 Where:
-- W[k,n] is the weighting matrix
-- When W[k,n] = 1 for all k,n: reduces to standard DFT
-- When W[k,n] ≠ 1: produces windowed/weighted variant
+- D_φᵢ: diagonal matrix with phase sequence φᵢ on diagonal
+- C_σᵢ: circulant PSD matrix with bandwidth σᵢ
+- Ψ: eigenvector matrix (orthonormal columns)
+- wᵢ ≥ 0: non-negative weights
 ```
+
+### Mathematical Properties
+
+- **Unitary**: Ψ†Ψ = I (orthonormal columns)  
+- **Energy Conservation**: ||x||² = ||X||² (Plancherel theorem)
+- **Exact Reconstruction**: x = Ψ(Ψ†x) with error < 10⁻¹²
+- **Non-DFT**: ||RS - SR||_F > 0 for cyclic shift S (proven non-commutativity)
 
 ### Indexing & Parameters
 
 - **Length**: N ∈ ℕ; indices k, n ∈ {0, …, N−1}
-- **Weighting parameter**: α ≥ 0 (controls decay/taper strength)
-- **Golden ratio constant**: φ = (1 + √5)/2 ≈ 1.618
+- **Weights**: wᵢ ≥ 0 (PSD constraint)
+- **Phase sequences**: φᵢ[n] ∈ ℂ, |φᵢ[n]| = 1 (unit circle)
+- **Bandwidths**: σᵢ > 0 (Gaussian width parameters)
+- **Golden ratio**: φ = (1 + √5)/2 ≈ 1.618 (default phase spacing)
 
-### Weighting Functions
+### Phase Sequences
 
-#### Exponential Decay Weighting
+#### QPSK Phase Sequence (Production Default)
 ```
-W[k,n] = exp(-α * |k-n|/N)
+φ₁[n] = e^(iπ/2(n mod 4))  (QPSK symbols: {1, i, -1, -i})
 ```
 
-#### Golden Ratio Scaling
+#### Golden Ratio Phase Sequence
 ```  
-W[k,n] = φ^(k/N) * exp(-α * |k-n|/N)
+φ₂[n] = e^(2πin*φ/N)  where φ = (1+√5)/2
 ```
 
-#### Identity (Standard DFT)
+#### Identity Phase Sequence (DFT Limit)
 ```
-W[k,n] = 1
+φ₀[n] = 1  (reduces to circulant structure)
 ```
 
-## Windowed DFT Transform Matrix
+## True RFT Resonance Operator
 
 ### Definition
 ```
-K[k,n] = W[k,n] * F[k,n]
+R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
 
 where:
-F[k,n] = e^(-2πikn/N)  (standard DFT kernel)
-W[k,n] = weighting function
+D_φᵢ = diag(φᵢ[0], φᵢ[1], ..., φᵢ[N-1])  (phase sequence on diagonal)
+C_σᵢ = circulant PSD matrix with bandwidth σᵢ
+wᵢ ≥ 0 (non-negative weights for PSD property)
 ```
 
 ### Transform Operation
-- **Forward**: X = K * x  (matrix-vector multiplication)
-- **Inverse**: x = K^(-1) * X  (using pseudoinverse when K is not invertible)
+- **Forward**: X = Ψ†x  (unitary transform using eigenvectors)
+- **Inverse**: x = ΨX  (exact reconstruction)
 
-### Properties
-- When W = I (identity): K = F (standard DFT matrix)
-- When W ≠ I: K is a weighted/windowed DFT variant
-- Invertibility depends on the conditioning of the weighted matrix K
+### Properties  
+- **Hermitian**: R = R† (real eigenvalues guaranteed)
+- **PSD**: All eigenvalues λᵢ ≥ 0 (positive semidefinite)
+- **Unitary Transform**: Ψ†Ψ = I (orthonormal eigenvector columns)
 
 #### Energy Conservation (Plancherel Theorem)
 ```
