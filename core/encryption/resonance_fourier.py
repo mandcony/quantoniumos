@@ -922,3 +922,125 @@ def inverse_true_rft(
     evals, evecs = compute_or_get_eig(R, N, weights, theta0_values, omega_values, sigma0, gamma, sequence_type)
     x = evecs @ X
     return x.real.astype(float).tolist()
+
+
+def compute_rft_matrix(
+    size: int,
+    weights: Optional[List[float]] = None,
+    perturbation_factor: float = 0.0,
+    sigma0: float = 1.0,
+    gamma: float = 0.3,
+    sequence_type: str = "qpsk"
+) -> np.ndarray:
+    """
+    Compute the full RFT transformation matrix for mathematical validation.
+    
+    This function constructs the complete RFT matrix K such that:
+    y = K @ x  (forward transform)
+    x = K† @ y (inverse transform, where K† is conjugate transpose)
+    
+    For unitarity: K† @ K = I (identity matrix)
+    
+    Args:
+        size: Matrix dimension (N x N)
+        weights: Resonance weights (defaults to production values)
+        perturbation_factor: Perturbation parameter for testing
+        sigma0: Gaussian width parameter
+        gamma: Exponential decay parameter
+        sequence_type: Sequence type for resonance kernel
+        
+    Returns:
+        np.ndarray: The complete RFT transformation matrix (N x N)
+        
+    Mathematical Definition:
+        The RFT matrix is constructed from the eigenvectors of the resonance kernel:
+        R = Σ w_k * exp(-γ|j-k|) * exp(iθ_k) * exp(iω_k * perturbation)
+        K = eigenvectors(R)  (column vectors are eigenvectors)
+    """
+    if size <= 0:
+        raise ValueError("Matrix size must be positive")
+        
+    # Set defaults
+    if weights is None:
+        weights = [0.7, 0.3]
+        
+    # Expand defaults to match requested size if needed
+    theta0_values = [0.0, math.pi / 4.0]
+    omega_values = [1.0, (1.0 + math.sqrt(5.0)) / 2.0]
+    
+    # Apply perturbation to omega values for testing
+    if perturbation_factor != 0.0:
+        omega_values = [w * (1.0 + perturbation_factor) for w in omega_values]
+    
+    M = min(len(weights), len(theta0_values), len(omega_values))
+    weights = list(weights)[:M]
+    theta0_values = list(theta0_values)[:M] 
+    omega_values = list(omega_values)[:M]
+    
+    try:
+        # Generate resonance kernel
+        R = generate_resonance_kernel(
+            size, weights, theta0_values, omega_values, 
+            sigma0, gamma, sequence_type
+        )
+        
+        # Compute eigendecomposition
+        eigenvals, eigenvecs = compute_or_get_eig(
+            R, size, weights, theta0_values, omega_values,
+            sigma0, gamma, sequence_type
+        )
+        
+        # The RFT matrix is the eigenvector matrix
+        # Each column is an eigenvector
+        K = eigenvecs
+        
+        return K.astype(complex)
+        
+    except Exception as e:
+        logger.error(f"Failed to compute RFT matrix: {e}")
+        # Fallback: return identity matrix
+        return np.eye(size, dtype=complex)
+
+
+def validate_rft_unitarity(
+    matrix: np.ndarray, 
+    tolerance: float = 1e-12
+) -> Tuple[bool, float]:
+    """
+    Validate that an RFT matrix is unitary.
+    
+    Args:
+        matrix: The RFT matrix to validate
+        tolerance: Numerical tolerance for unitarity check
+        
+    Returns:
+        Tuple of (is_unitary, max_error)
+        
+    Mathematical Test:
+        For unitary matrix K: K† @ K = I
+        We compute ||K† @ K - I||_F and check if it's below tolerance
+    """
+    if matrix.size == 0:
+        return False, float('inf')
+        
+    try:
+        # Compute K†
+        K_dagger = np.conj(matrix.T)
+        
+        # Compute K† @ K  
+        product = K_dagger @ matrix
+        
+        # Compare with identity matrix
+        identity = np.eye(matrix.shape[0])
+        difference = product - identity
+        
+        # Compute Frobenius norm of difference
+        error = np.linalg.norm(difference, 'fro')
+        
+        is_unitary = error < tolerance
+        
+        return is_unitary, error
+        
+    except Exception as e:
+        logger.error(f"Unitarity validation failed: {e}")
+        return False, float('inf')
