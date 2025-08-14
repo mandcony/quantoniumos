@@ -20,12 +20,6 @@ import os
 # Import our advanced RFT implementation
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 from canonical_true_rft import forward_true_rft, inverse_true_rft
-# Legacy wrapper maintained for: (
-    resonance_fourier_transform, 
-    perform_rft as _resonance_kernel,
-    perform_rft as _geometric_hash,
-    perform_rft as _topological_coupling
-)
 from encryption.diffusion import keyed_nonlinear_diffusion
 import math
 import struct
@@ -137,7 +131,7 @@ class GeometricWaveformHash:
         
         # Step 1: Apply RFT to get resonance spectrum
         try:
-            rft_spectrum = resonance_fourier_transform(
+            rft_spectrum = forward_true_rft(
                 self.waveform,
                 alpha=0.618,  # Golden ratio - 1 for geometric coupling
                 beta=0.382    # Golden ratio conjugate for phase relationships
@@ -397,7 +391,7 @@ class GeometricWaveformHash:
         waveform_data = waveform_data[:32]  # Use 32-point transform
         
         # Step 2: Apply RFT-based geometric transformation
-        rft_spectrum = resonance_fourier_transform(
+        rft_spectrum = forward_true_rft(
             waveform_data,
             alpha=0.618,  # Golden ratio parameter
             beta=0.382    # Conjugate golden ratio parameter  

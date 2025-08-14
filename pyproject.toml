@@ -27,6 +27,9 @@ dependencies = [
     "scipy==1.16.0", # Pinned for numerical stability
     "cryptography>=3.4.8",
     "flask>=2.0.0",
+    "flask-cors>=4.0.0",  # Enable cross-origin requests for API
+    "pydantic>=2.0.0",    # Data validation for API
+    "pyjwt>=2.0.0",       # JWT token handling
     "pycryptodome>=3.15.0"
 ]
 
