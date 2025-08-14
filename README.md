@@ -12,25 +12,25 @@
 **Definition:**
 Resonance Fourier Transform uses eigendecomposition of a resonance kernel:
 
-**X = Ψ† x** (forward transform)
-**x = Ψ X** (inverse transform)
-
-Where Ψ are eigenvectors of the resonance kernel:
-**R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†**
+**Construct resonance kernel:** R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
+**Eigendecompose:** R = Ψ Λ Ψ† (Ψ unitary, Λ diagonal)
+**Forward transform:** X = Ψ† x
+**Inverse transform:** x = Ψ X
 
 Components:
 - wᵢ: component weights [0.7, 0.3]
-- D_φᵢ: phase modulation matrices from φᵢ(k) = e^{j(θ₀ᵢ + ωᵢk)}
-- C_σᵢ: Gaussian correlation kernels  
-- D_φᵢ†: conjugate transpose
+- D_φᵢ: diagonal phase modulation matrices from φᵢ(k) = e^{j(θ₀ᵢ + ωᵢk)}
+- C_σᵢ: Gaussian correlation kernels (Hermitian PSD)
+- Ψ: eigenvector matrix of R (unitary)
+- Λ: eigenvalue matrix of R (diagonal, real)
 
 **Key Distinction from DFT:**
 - DFT uses fixed Fourier basis e^{-2πjkn/N}
-- RFT uses data-independent eigendecomposition of constructed kernel R
-- Eigenvectors Ψ are fundamentally different from DFT basis vectors
+- RFT uses eigendecomposition of constructed resonance kernel R
+- Eigenvector matrix Ψ is fundamentally different from DFT basis vectors
 
-**Unitary Proof Sketch:**
-If all wᵢ > 0 and D_φᵢ, C_σᵢ are unitary, then Ψ is unitary (Ψ†Ψ = I) up to normalization. This ensures exact reconstruction:
+**Mathematical Properties:**
+Since R is Hermitian PSD (by construction from weighted Hermitian kernels), its eigendecomposition R = ΨΛΨ† yields unitary Ψ. This ensures exact reconstruction with ||x - ΨΨ†x||₂ < ε for numerical precision ε.
 
 X = Ψ†x   (forward RFT)
 x = ΨX      (inverse RFT)
