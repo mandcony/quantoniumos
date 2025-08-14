@@ -7,6 +7,7 @@ import sys
 sys.path.append('.')
 import numpy as np
 import math
+import struct
 from statistics import mean, pstdev
 import warnings
 warnings.filterwarnings('ignore', category=RuntimeWarning)
@@ -102,6 +103,7 @@ def measure_avalanche_with_logged_params():
     print()
     
     try:
+        from canonical_true_rft import forward_true_rft
         from enhanced_hash_test import enhanced_geometric_hash
         
         def bit_avalanche_rate(h1, h2):
@@ -118,16 +120,54 @@ def measure_avalanche_with_logged_params():
         rng = np.random.default_rng(42)
         
         print("Test parameters:")
-        print(f"• Sample size: N = 1000")
+        print(f"• Sample size: N = 500 (per test)")
         print(f"• Message length: 64 bytes")
-        print(f"• Diffusion rounds: 4")
         print(f"• RNG seed: 42 (reproducible)")
         print()
         
-        rates = []
-        for i in range(1000):
-            if i % 250 == 0:
-                print(f"Progress: {i}/1000")
+        # Test 1: RFT-alone avalanche
+        print("1. RFT-ALONE AVALANCHE:")
+        print("   Testing pure RFT transform without post-diffusion")
+        
+        rft_rates = []
+        for i in range(500):
+            if i % 125 == 0:
+                print(f"   Progress: {i}/500")
+            
+            # Convert message to float array
+            m = rng.bytes(64)
+            m_floats = [float(b) / 255.0 for b in m]
+            
+            # Apply RFT only
+            rft1 = forward_true_rft(m_floats)
+            rft1_bytes = b''.join(struct.pack('<d', x.real) + struct.pack('<d', x.imag) for x in rft1[:16])
+            
+            # Single bit flip
+            b = bytearray(m)
+            bit_idx = rng.integers(0, len(b))
+            bit_pos = rng.integers(0, 8)
+            b[bit_idx] ^= (1 << bit_pos)
+            
+            b_floats = [float(x) / 255.0 for x in b]
+            rft2 = forward_true_rft(b_floats)
+            rft2_bytes = b''.join(struct.pack('<d', x.real) + struct.pack('<d', x.imag) for x in rft2[:16])
+            
+            rft_rates.append(bit_avalanche_rate(rft1_bytes, rft2_bytes))
+        
+        rft_mu = mean(rft_rates)
+        rft_sigma = pstdev(rft_rates)
+        
+        print(f"   RFT-alone: μ = {rft_mu:.3f}%, σ = {rft_sigma:.3f}%")
+        print()
+        
+        # Test 2: Full pipeline (RFT + diffusion)
+        print("2. FULL PIPELINE (RFT + DIFFUSION):")
+        print("   Testing complete enhanced hash with diffusion layers")
+        
+        full_rates = []
+        for i in range(500):
+            if i % 125 == 0:
+                print(f"   Progress: {i}/500")
             
             m = rng.bytes(64)
             h1 = enhanced_geometric_hash(m, key, rounds=4)
@@ -139,31 +179,32 @@ def measure_avalanche_with_logged_params():
             b[bit_idx] ^= (1 << bit_pos)
             
             h2 = enhanced_geometric_hash(bytes(b), key, rounds=4)
-            rates.append(bit_avalanche_rate(h1, h2))
+            full_rates.append(bit_avalanche_rate(h1, h2))
         
-        mu = mean(rates)
-        sigma = pstdev(rates)
+        full_mu = mean(full_rates)
+        full_sigma = pstdev(full_rates)
         
+        print(f"   Full pipeline: μ = {full_mu:.3f}%, σ = {full_sigma:.3f}%")
         print()
-        print("RESULTS:")
-        print(f"• Mean avalanche:     μ = {mu:.3f}% (target: 50.000±2%)")
-        print(f"• Avalanche variance: σ = {sigma:.3f}% (target: ≤2.000%)")
         
         # Theoretical context with correct calculation
         hash_bits = 256  # 32 bytes × 8 bits/byte
         sigma_theory = 100.0 * math.sqrt(0.25 / hash_bits)
-        ratio_to_theory = sigma / sigma_theory if sigma_theory > 0 else 0
+        full_ratio = full_sigma / sigma_theory if sigma_theory > 0 else 0
         
+        print("COMPARATIVE ANALYSIS:")
+        print(f"• RFT contribution:   μ = {rft_mu:.3f}%, σ = {rft_sigma:.3f}%")
+        print(f"• Diffusion boost:    Δμ = {full_mu - rft_mu:.3f}%, Δσ = {full_sigma - rft_sigma:.3f}%")
+        print(f"• Final performance:  μ = {full_mu:.3f}%, σ = {full_sigma:.3f}%")
         print()
         print("THEORETICAL CONTEXT:")
         print("• Perfect diffusion: μ = 50.000% exactly")
         print(f"• Binomial variance floor (n={hash_bits}): σ_ideal = {sigma_theory:.3f}%")
-        print(f"• Achieved σ = {sigma:.3f}% = {ratio_to_theory:.3f}× ideal ({'at floor' if ratio_to_theory <= 1.05 else 'above floor'})")
+        print(f"• Achieved σ = {full_sigma:.3f}% = {full_ratio:.3f}× ideal ({'at floor' if full_ratio <= 1.05 else 'above floor'})")
         print("• Literature: σ ≤ 3% = cryptographic grade, σ ≤ 5% = good")
-        print("• For 1024-bit internal: σ_ideal ≈ 1.563%")
         
-        mean_status = 'EXCELLENT' if 49.0 <= mu <= 51.0 else 'GOOD' if 47.0 <= mu <= 53.0 else 'NEEDS WORK'
-        sigma_status = 'EXCEPTIONAL' if sigma <= 2.0 else 'EXCELLENT' if sigma <= 3.0 else 'GOOD' if sigma <= 5.0 else 'NEEDS WORK'
+        mean_status = 'EXCELLENT' if 49.0 <= full_mu <= 51.0 else 'GOOD' if 47.0 <= full_mu <= 53.0 else 'NEEDS WORK'
+        sigma_status = 'EXCEPTIONAL' if full_sigma <= 2.0 else 'EXCELLENT' if full_sigma <= 3.0 else 'GOOD' if full_sigma <= 5.0 else 'NEEDS WORK'
         
         print()
         print("ASSESSMENT:")
@@ -171,16 +212,18 @@ def measure_avalanche_with_logged_params():
         print(f"• Avalanche variance: {sigma_status}")
         
         # Reviewer-proof assertions
-        assert 48.0 <= mu <= 52.0, f"Mean avalanche {mu:.3f}% outside acceptable range [48%, 52%]"
-        assert sigma <= sigma_theory * 1.05, f"Variance {sigma:.3f}% > 1.05× theoretical floor {sigma_theory:.3f}%"
+        assert 48.0 <= full_mu <= 52.0, f"Mean avalanche {full_mu:.3f}% outside acceptable range [48%, 52%]"
+        assert full_sigma <= sigma_theory * 1.05, f"Variance {full_sigma:.3f}% > 1.05× theoretical floor {sigma_theory:.3f}%"
         
         overall = 'PUBLICATION READY' if mean_status == 'EXCELLENT' and sigma_status in ['EXCEPTIONAL', 'EXCELLENT'] else 'STRONG RESULT'
         print(f"• Overall status:     {overall}")
         
-        return mu, sigma, overall
+        return full_mu, full_sigma, overall
         
     except Exception as e:
         print(f"Error in avalanche measurement: {e}")
+        import traceback
+        traceback.print_exc()
         return None, None, "ERROR"
 
 def main():
