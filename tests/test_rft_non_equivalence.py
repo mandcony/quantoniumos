@@ -1,0 +1,148 @@
+import numpy as np
+from numpy.linalg import norm, inv
+from itertools import permutations
+
+def unitary_dft(n):
+    j, k = np.meshgrid(np.arange(n), np.arange(n))
+    F = np.exp(-2j * np.pi * j * k / n) / np.sqrt(n)
+    return F
+
+def cyclic_shift(n):
+    S = np.zeros((n,n), dtype=complex)
+    for i in range(n-1):
+        S[i, i+1] = 1.0
+    S[n-1, 0] = 1.0
+    return S
+
+def build_rft_matrix(forward_true_rft):
+    def psi(n):
+        cols = []
+        for e in np.eye(n, dtype=float):
+            cols.append(forward_true_rft(e))
+        return np.column_stack(cols)
+    return psi
+
+def greedy_match_columns(Psi, F):
+    n = Psi.shape[0]
+    unused = set(range(n))
+    match = [-1]*n
+    for j in range(n):
+        corrs = [(k, abs(np.vdot(F[:,k], Psi[:,j]))) for k in unused]
+        kbest = max(corrs, key=lambda t: t[1])[0]
+        match[j] = kbest
+        unused.remove(kbest)
+    return match
+
+def best_diagonal_right_and_left(Psi, F, match):
+    n = Psi.shape[0]
+    D2 = np.zeros(n, dtype=complex)
+    for j, k in enumerate(match):
+        fk = F[:,k]
+        pj = Psi[:,j]
+        D2[k] = np.vdot(fk, pj) / np.vdot(fk, fk)
+    A = F[:, match] @ np.diag(D2[match])
+    D1 = np.zeros(n, dtype=complex)
+    for i in range(n):
+        a = A[i,:]
+        p = Psi[i,:]
+        denom = np.vdot(a, a)
+        D1[i] = np.vdot(a, p) / denom if abs(denom) > 0 else 0.0
+    return np.diag(D1), np.diag(D2)
+
+def diagonality_measure(M):
+    return norm(M - np.diag(np.diag(M))) / max(1.0, norm(M))
+
+def sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8):
+    A = np.abs(Psi).astype(float)
+    n = A.shape[0]
+    r = np.ones(n)
+    c = np.ones(n)
+    target = np.mean(A)
+    for _ in range(iters):
+        row_sums = A @ c
+        row_sums[row_sums == 0] = 1.0
+        r = target / row_sums
+        A = np.diag(r) @ A
+        col_sums = A.T @ np.ones(n)
+        col_sums[col_sums == 0] = 1.0
+        c = target / col_sums
+        A = A @ np.diag(c)
+        if norm(A - target*np.ones_like(A), ord='fro')/norm(A, ord='fro') < tol:
+            return True, r, c
+    return False, r, c
+
+def test_rft_not_scaled_permuted_dft():
+    # Try C++ engine first, fall back to Python
+    def forward_true_rft(x):
+        try:
+            import quantonium_core
+            rft = quantonium_core.ResonanceFourierTransform(x.tolist())
+            result = rft.forward_transform()
+            return np.array(result, dtype=complex)
+        except:
+            # Fallback to Python implementation
+            from core.encryption.resonance_fourier import perform_rft_list
+            result = perform_rft_list(x.tolist())
+            return np.array([complex(freq, amp) for freq, amp in result])
+    
+    for n in (8, 12, 16):
+        Psi_builder = build_rft_matrix(forward_true_rft)
+        Psi = Psi_builder(n)
+        F = unitary_dft(n)
+        match = greedy_match_columns(Psi, F)
+        D1, D2 = best_diagonal_right_and_left(Psi, F, match)
+        approx = D1 @ F[:, match] @ D2
+        R = norm(Psi - approx, ord='fro') / max(1.0, norm(Psi, ord='fro'))
+        assert R > 1e-3, f"RFT looked too close to scaled/perm'd DFT (residual={R:.2e})"
+
+def test_rft_not_diagonalizing_shift():
+    def forward_true_rft(x):
+        try:
+            import quantonium_core
+            rft = quantonium_core.ResonanceFourierTransform(x.tolist())
+            result = rft.forward_transform()
+            return np.array(result, dtype=complex)
+        except:
+            from core.encryption.resonance_fourier import perform_rft_list
+            result = perform_rft_list(x.tolist())
+            return np.array([complex(freq, amp) for freq, amp in result])
+        
+    for n in (8, 12, 16):
+        Psi = build_rft_matrix(forward_true_rft)(n)
+        S = cyclic_shift(n)
+        M = inv(Psi) @ S @ Psi
+        off = diagonality_measure(M)
+        assert off > 1e-3, f"RFT nearly diagonalized shift (offdiag={off:.2e})"
+
+def test_rft_moduli_not_scalable_to_uniform():
+    def forward_true_rft(x):
+        try:
+            import quantonium_core
+            rft = quantonium_core.ResonanceFourierTransform(x.tolist())
+            result = rft.forward_transform()
+            return np.array(result, dtype=complex)
+        except:
+            from core.encryption.resonance_fourier import perform_rft_list
+            result = perform_rft_list(x.tolist())
+            return np.array([complex(freq, amp) for freq, amp in result])
+        
+    for n in (8, 12, 16):
+        Psi = build_rft_matrix(forward_true_rft)(n)
+        ok, _, _ = sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8)
+        assert not ok, "RFT magnitudes scaled to uniform too easily; investigate equivalence."
+
+def test_rft_not_diagonalizing_shift():
+    from encryption.resonance_fourier import forward_true_rft
+    for n in (8, 12, 16):
+        Psi = build_rft_matrix(forward_true_rft)(n)
+        S = cyclic_shift(n)
+        M = inv(Psi) @ S @ Psi
+        off = diagonality_measure(M)
+        assert off > 1e-3, f"RFT nearly diagonalized shift (offdiag={off:.2e})"
+
+def test_rft_moduli_not_scalable_to_uniform():
+    from encryption.resonance_fourier import forward_true_rft
+    for n in (8, 12, 16):
+        Psi = build_rft_matrix(forward_true_rft)(n)
+        ok, _, _ = sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8)
+        assert not ok, "RFT magnitudes scaled to uniform too easily; investigate equivalence."
