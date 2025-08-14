@@ -12,7 +12,8 @@ from typing import List, Tuple
 # Add core modules to path
 
 try:
-    from encryption.resonance_fourier import (
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: (
         resonance_fourier_transform, 
         inverse_resonance_fourier_transform,
         perform_rft_list,

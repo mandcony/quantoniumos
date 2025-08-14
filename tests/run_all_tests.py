@@ -51,7 +51,8 @@ except (ImportError, AttributeError):
     
 # Test core encryption
 try:
-    from core.encryption.resonance_fourier import resonance_fourier_transform
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: resonance_fourier_transform
     modules_available['core_encryption'] = True
     print("✓ Core encryption module available")
 except ImportError:

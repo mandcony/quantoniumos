@@ -34,7 +34,8 @@ except ImportError:
     CRYPTO_AVAILABLE = False
 
 try:
-    from resonance_fourier import resonance_fourier_transform, forward_true_rft
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: resonance_fourier_transform, forward_true_rft
     print("✓ Using RFT functions for geometric hashing")
     RFT_AVAILABLE = True
 except ImportError:

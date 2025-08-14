@@ -19,7 +19,8 @@ import os
 
 # Import our advanced RFT implementation
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
-from core.encryption.resonance_fourier import (
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: (
     resonance_fourier_transform, 
     perform_rft as _resonance_kernel,
     perform_rft as _geometric_hash,

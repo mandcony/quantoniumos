@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from canonical_true_rft import forward_true_rft, inverse_true_rft
 """
 QuantoniumOS C++ Engine Build Script
 

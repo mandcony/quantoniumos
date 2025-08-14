@@ -38,7 +38,8 @@ except ImportError:
     print("⚠️ SymPy not available. Install with: pip install sympy")
 
 # Import core RFT functions
-from core.encryption.resonance_fourier import (
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: (
     forward_true_rft, 
     inverse_true_rft, 
     compute_rft_matrix,

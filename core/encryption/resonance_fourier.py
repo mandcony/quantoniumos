@@ -1,3 +1,6 @@
+# LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL
+# from canonical_true_rft import forward_true_rft, inverse_true_rft
+
 """
 QuantoniumOS - Resonance Fourier Transform Module
 
@@ -22,14 +25,12 @@ import logging
 import os
 import json
 
-# Import True RFT implementation
-from core.true_rft import (
+# Import CANONICAL True RFT implementation (single source of truth)
+from canonical_true_rft import (
     forward_true_rft,
     inverse_true_rft,
     validate_true_rft,
-    generate_resonance_kernel,
-    perform_rft as true_perform_rft,
-    perform_irft as true_perform_irft
+    get_rft_basis
 )
 
 # Try to import C++ engine bindings
@@ -138,7 +139,16 @@ def perform_rft(
     kwargs = {'sigma0': alpha, 'gamma': beta}
     if theta is not None:
         kwargs['theta0_values'] = theta.diagonal().tolist() if hasattr(theta, 'diagonal') else [0.0, np.pi/4]
-    return true_perform_rft(waveform, **kwargs)
+    
+    # Use canonical True RFT
+    rft_coeffs = forward_true_rft(waveform, **kwargs)
+    
+    # Return compatible dict format
+    return {
+        'coefficients': rft_coeffs.tolist() if hasattr(rft_coeffs, 'tolist') else list(rft_coeffs),
+        'success': True,
+        'algorithm': 'canonical_true_rft'
+    }
 
 def perform_irft(
     rft_result: Dict[str, Any], 
@@ -152,7 +162,15 @@ def perform_irft(
     kwargs = {'sigma0': alpha, 'gamma': beta}
     if theta is not None:
         kwargs['theta0_values'] = theta.diagonal().tolist() if hasattr(theta, 'diagonal') else [0.0, np.pi/4]
-    return true_perform_irft(rft_result, **kwargs)
+    
+    # Extract coefficients from dict format
+    if isinstance(rft_result, dict) and 'coefficients' in rft_result:
+        coefficients = rft_result['coefficients']
+    else:
+        coefficients = rft_result
+    
+    # Use canonical True RFT
+    return inverse_true_rft(coefficients, **kwargs)
 
 # Legacy compatibility functions
 def perform_rft_list(signal: List[float]) -> List[Tuple[float, complex]]:
@@ -167,7 +185,7 @@ def perform_irft_list(frequency_components: List[Tuple[float, complex]]) -> List
 forward_true_rft = forward_true_rft
 inverse_true_rft = inverse_true_rft
 validate_true_rft = validate_true_rft
-generate_resonance_kernel = generate_resonance_kernel
+get_rft_basis = get_rft_basis
 
 if __name__ == "__main__":
     print("QuantoniumOS - True RFT Module")

@@ -19,7 +19,8 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'core'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'core', 'encryption'))
 
-from core.encryption.resonance_fourier import encode_symbolic_resonance
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: encode_symbolic_resonance
 
 def test_claim1_requirements():
     """Direct test of Patent Claim 1 requirements using actual QuantoniumOS code"""

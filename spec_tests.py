@@ -6,7 +6,8 @@ Run this to verify unitarity, non-DFT behavior, and cryptographic properties
 
 import numpy as np
 import secrets
-from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
 from core.encryption.fixed_resonance_encrypt import fixed_resonance_encrypt
 
 def test_rft_unitarity_and_energy():

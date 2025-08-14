@@ -1,3 +1,6 @@
+# LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL
+# from canonical_true_rft import forward_true_rft, inverse_true_rft
+
 import numpy as np
 from numpy.linalg import norm, inv
 from itertools import permutations
@@ -72,18 +75,8 @@ def sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8):
     return False, r, c
 
 def test_rft_not_scaled_permuted_dft():
-    # Try C++ engine first, fall back to Python
-    def forward_true_rft(x):
-        try:
-            import quantonium_core
-            rft = quantonium_core.ResonanceFourierTransform(x.tolist())
-            result = rft.forward_transform()
-            return np.array(result, dtype=complex)
-        except:
-            # Fallback to Python implementation
-            from core.encryption.resonance_fourier import perform_rft_list
-            result = perform_rft_list(x.tolist())
-            return np.array([complex(freq, amp) for freq, amp in result])
+    # Use CANONICAL True RFT implementation
+    from canonical_true_rft import forward_true_rft
     
     for n in (8, 12, 16):
         Psi_builder = build_rft_matrix(forward_true_rft)
@@ -96,6 +89,7 @@ def test_rft_not_scaled_permuted_dft():
         assert R > 1e-3, f"RFT looked too close to scaled/perm'd DFT (residual={R:.2e})"
 
 def test_rft_not_diagonalizing_shift():
+    # Use CANONICAL True RFT implementation  
     def forward_true_rft(x):
         try:
             import quantonium_core
@@ -103,9 +97,8 @@ def test_rft_not_diagonalizing_shift():
             result = rft.forward_transform()
             return np.array(result, dtype=complex)
         except:
-            from core.encryption.resonance_fourier import perform_rft_list
-            result = perform_rft_list(x.tolist())
-            return np.array([complex(freq, amp) for freq, amp in result])
+            from canonical_true_rft import forward_true_rft as canonical_rft
+            return canonical_rft(x.tolist())
         
     for n in (8, 12, 16):
         Psi = build_rft_matrix(forward_true_rft)(n)
@@ -115,6 +108,7 @@ def test_rft_not_diagonalizing_shift():
         assert off > 1e-3, f"RFT nearly diagonalized shift (offdiag={off:.2e})"
 
 def test_rft_moduli_not_scalable_to_uniform():
+    # Use CANONICAL True RFT implementation
     def forward_true_rft(x):
         try:
             import quantonium_core
@@ -122,9 +116,8 @@ def test_rft_moduli_not_scalable_to_uniform():
             result = rft.forward_transform()
             return np.array(result, dtype=complex)
         except:
-            from core.encryption.resonance_fourier import perform_rft_list
-            result = perform_rft_list(x.tolist())
-            return np.array([complex(freq, amp) for freq, amp in result])
+            from canonical_true_rft import forward_true_rft as canonical_rft
+            return canonical_rft(x.tolist())
         
     for n in (8, 12, 16):
         Psi = build_rft_matrix(forward_true_rft)(n)
@@ -132,7 +125,7 @@ def test_rft_moduli_not_scalable_to_uniform():
         assert not ok, "RFT magnitudes scaled to uniform too easily; investigate equivalence."
 
 def test_rft_not_diagonalizing_shift():
-    from encryption.resonance_fourier import forward_true_rft
+    from canonical_true_rft import forward_true_rft
     for n in (8, 12, 16):
         Psi = build_rft_matrix(forward_true_rft)(n)
         S = cyclic_shift(n)
@@ -141,7 +134,7 @@ def test_rft_not_diagonalizing_shift():
         assert off > 1e-3, f"RFT nearly diagonalized shift (offdiag={off:.2e})"
 
 def test_rft_moduli_not_scalable_to_uniform():
-    from encryption.resonance_fourier import forward_true_rft
+    from canonical_true_rft import forward_true_rft
     for n in (8, 12, 16):
         Psi = build_rft_matrix(forward_true_rft)(n)
         ok, _, _ = sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8)

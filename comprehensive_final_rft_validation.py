@@ -284,7 +284,9 @@ class ComprehensiveRFTStatisticalValidator:
                     waveform = [secrets.randbelow(2000)/1000.0 - 1.0 for _ in range(waveform_size)]
                 else:
                     # Deterministic but complex pattern
-                    waveform = [math.sin(i) + math.cos(i*1.618) + 0.1*math.sin(i*2.718)
+                    phi = (1 + math.sqrt(5)) / 2  # Golden ratio
+                    e = math.e  # Euler's number
+                    waveform = [math.sin(i) + math.cos(i*phi) + 0.1*math.sin(i*e)
                                for i in range(waveform_size)]
                 
                 try:

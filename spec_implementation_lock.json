@@ -1,0 +1,50 @@
+{
+  "spec_version": "1.0.0",
+  "implementation_date": "2025-08-14",
+  "canonical_parameters": {
+    "weights": [
+      0.7,
+      0.3
+    ],
+    "theta0_values": [
+      0.0,
+      0.7853981633974483
+    ],
+    "omega_values": [
+      1.0,
+      1.618033988749895
+    ],
+    "sigma0": 1.0,
+    "gamma": 0.3,
+    "sequence_type": "qpsk",
+    "golden_ratio_exact": 1.618033988749895
+  },
+  "non_equivalence_proof": {
+    "epsilon_table": {
+      "epsilon_8": 1.3442348767922796,
+      "epsilon_12": 0.35411715066145694,
+      "epsilon_16": 1.6624663026905273,
+      "epsilon_32": 0.8271529072369878,
+      "epsilon_64": 1.4232732198273437
+    },
+    "method": "commutator_norm",
+    "formula": "||RS - SR||_F",
+    "threshold": 0.001,
+    "all_above_threshold": true
+  },
+  "numerical_environment": {
+    "platform": "Linux-6.8.0-1030-azure-x86_64-with-glibc2.39",
+    "python_version": "3.12.1",
+    "numpy_version": "2.3.2",
+    "scipy_version": "1.16.0"
+  },
+  "engine_availability": {
+    "available_engines": [
+      "quantonium_core",
+      "quantum_engine"
+    ],
+    "quantonium_core_available": true,
+    "quantum_engine_available": true
+  },
+  "validation_status": "PASS"
+}

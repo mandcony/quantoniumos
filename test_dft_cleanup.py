@@ -29,7 +29,8 @@ def test_true_rft_works():
     print("\n🔬 Testing: True RFT functionality")
     
     try:
-        from core.encryption.resonance_fourier import resonance_fourier_transform, inverse_resonance_fourier_transform
+        from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: resonance_fourier_transform, inverse_resonance_fourier_transform
         import numpy as np
         
         # Test signal

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from canonical_true_rft import forward_true_rft, inverse_true_rft
 """
 TRUE RFT COMPREHENSIVE PATENT VALIDATOR
 ========================================
@@ -81,7 +82,7 @@ class TrueRFTComprehensiveValidator:
         }
         
         # True RFT mathematical constants from YOUR specification
-        self.golden_ratio = (1 + np.sqrt(5)) / 2  # φ ≈ 1.618034
+        self.golden_ratio = (1 + np.sqrt(5)) / 2  # φ (exact golden ratio)
         self.test_data_size = 16  # Standard test size
         
     def validate_quantonium_core_rft(self) -> Dict[str, Any]:

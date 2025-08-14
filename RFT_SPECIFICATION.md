@@ -40,7 +40,7 @@ Where:
 - **Weights**: wᵢ ≥ 0 (PSD constraint)
 - **Phase sequences**: φᵢ[n] ∈ ℂ, |φᵢ[n]| = 1 (unit circle)
 - **Bandwidths**: σᵢ > 0 (Gaussian width parameters)
-- **Golden ratio**: φ = (1 + √5)/2 ≈ 1.618 (default phase spacing)
+- **Golden ratio**: φ = (1 + √5)/2 = 1.6180339887498948... (full precision, default phase spacing)
 
 ### Phase Sequences
 

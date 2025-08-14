@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 from typing import Dict, List, Tuple, Optional
 
 try:
-    from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+    from canonical_true_rft import forward_true_rft, inverse_true_rft, PHI
     RFT_AVAILABLE = True
 except ImportError:
     RFT_AVAILABLE = False
@@ -37,8 +37,8 @@ class MathematicalFoundationsAnalysis:
         
     def setup_mathematical_constants(self):
         """Initialize fundamental mathematical constants"""
-        # Golden ratio (φ) - ancient proportion found in resonant systems
-        self.phi = (1 + np.sqrt(5)) / 2
+        # Golden ratio (φ) - use canonical constant for precision
+        self.phi = PHI if RFT_AVAILABLE else (1 + np.sqrt(5)) / 2
         
         # Euler's constant and related transcendental numbers
         self.euler_gamma = 0.5772156649015329

@@ -29,12 +29,11 @@ import json
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
-# Import core RFT functions
-from core.encryption.resonance_fourier import (
+# Import CANONICAL RFT functions (single source of truth)
+from canonical_true_rft import (
     forward_true_rft, 
-    inverse_true_rft, 
-    compute_rft_matrix,
-    validate_rft_unitarity
+    inverse_true_rft,
+    validate_true_rft
 )
 
 logger = logging.getLogger(__name__)
@@ -244,8 +243,9 @@ class RFTPracticalValidator:
             total_spectral += 1
             
             try:
-                # Compute RFT matrix
-                K = compute_rft_matrix(size)
+                # Compute RFT matrix using canonical implementation
+                from canonical_true_rft import get_rft_basis
+                K = get_rft_basis(size)
                 
                 # Eigenvalue analysis
                 eigenvals = np.linalg.eigvals(K)

@@ -59,7 +59,8 @@ X = rft_engine.forward_transform()
 
 ### Python Fallback
 ```python
-from core.true_rft import forward_true_rft
+# Use canonical implementation (single source of truth)
+from canonical_true_rft import forward_true_rft
 X = forward_true_rft(input_floats, weights, theta0_values, omega_values, sigma0, gamma)
 ```
 

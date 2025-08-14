@@ -10,32 +10,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils.bytepacking import to_packed_bytes, squeeze_to_hash_size
 from encryption.diffusion import keyed_nonlinear_diffusion
+from canonical_true_rft import forward_true_rft
 
-def forward_true_rft(x):
-    """Python fallback for RFT when C++ not available"""
-    try:
-        from core.encryption.resonance_fourier import perform_rft_list
-        if len(x) == 0:
-            return np.array([], dtype=complex)
-        result = perform_rft_list(x.tolist())
-        return np.array([complex(freq, amp) for freq, amp in result])
-    except ImportError:
-        # Minimal fallback - simple FFT-like transform
-        n = len(x)
-        if n == 0:
-            return np.array([], dtype=complex)
-        
-        # Use golden ratio for frequency spacing
-        phi = (1 + np.sqrt(5)) / 2
-        freqs = np.array([i * phi for i in range(n)])
-        
-        # Apply transform with phase mixing
-        result = []
-        for k, freq in enumerate(freqs):
-            amp = sum(x[j] * np.exp(-2j * np.pi * k * j / n) for j in range(n))
-            result.append(amp)
-        
-        return np.array(result, dtype=complex)
+# Remove duplicate RFT implementation - use canonical source
 
 def post_rft_mixing(X):
     """Post-RFT mixing for enhanced diffusion"""

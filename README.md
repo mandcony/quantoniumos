@@ -110,6 +110,9 @@ Run the canonical test path to verify the complete implementation:
 
 This script performs: build → unitary check → avalanche effect → NIST subset → compact summary.
 
+**Parameter Validation:**
+For reviewers: see [`spec_implementation_lock.json`](spec_implementation_lock.json) for complete parameter verification, εₙ values, and numerical environment details that ensure reproducibility.
+
 ## What This Actually Is
 
 **A Mathematical Research Implementation:**

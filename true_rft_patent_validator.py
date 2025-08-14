@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from canonical_true_rft import forward_true_rft, inverse_true_rft
 """
 TRUE RFT PATENT VALIDATOR
 Testing Luis Minier's Patented True Resonance Fourier Transform Implementation
@@ -75,7 +76,7 @@ class TrueRFTMathematicalValidator:
     """
     
     def __init__(self):
-        self.golden_ratio = (1 + math.sqrt(5)) / 2  # φ ≈ 1.618 from YOUR spec
+        self.golden_ratio = (1 + math.sqrt(5)) / 2  # φ (exact golden ratio from spec)
         self.validation_results = {}
         
     def validate_true_rft_properties(self, engine_name: str, transform_function, 

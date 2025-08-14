@@ -20,8 +20,8 @@
 
 ### Test 2: Polar-to-Cartesian with Golden Ratio Scaling ✅ PASS  
 **Implementation:** `core/encryption/geometric_waveform_hash.py::GeometricWaveformHash`
-- **Evidence:** Golden ratio φ = 1.618034 applied to coordinate transformations
-- **Harmonic Series:** φ^0 to φ^4 = [1.0000, 1.6180, 2.6180, 4.2361, 6.8541]
+- **Evidence:** Golden ratio φ = (1+√5)/2 (full precision) applied to coordinate transformations
+- **Harmonic Series:** φ^0 to φ^4 = [1.0000, (1+√5)/2, 2(1+√5)/2, etc.] ≈ [1.0000, 1.6180, 2.6180, 4.2361, 6.8541] (illustrative)
 - **Technical Validation:** Demonstrates mathematical scaling preserving geometric harmony
 
 ### Test 3: Complex Geometric Coordinates via Exponential Transforms ✅ PASS
@@ -67,7 +67,7 @@
    - Phase-path relationship encoding
 
 3. **Mathematical Foundations:**
-   - Golden ratio φ = (1 + √5)/2 ≈ 1.618034 for harmonic scaling
+   - Golden ratio φ = (1 + √5)/2 (full precision) for harmonic scaling
    - Euler characteristic χ = V - E + F for topological analysis
    - Complex exponential transforms: z = r·e^(iθ)
    - Manifold hash generation preserving geometric invariants

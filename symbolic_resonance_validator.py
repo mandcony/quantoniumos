@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from canonical_true_rft import forward_true_rft, inverse_true_rft
 """
 SYMBOLIC RESONANCE CRYPTOGRAPHIC VALIDATOR
 The World's First Post-Algebraic Cryptographic Validation Framework
@@ -81,7 +82,7 @@ class SymbolicResonanceAnalyzer:
     """
     
     def __init__(self):
-        self.golden_ratio = (1 + math.sqrt(5)) / 2  # φ = 1.618034
+        self.golden_ratio = (1 + math.sqrt(5)) / 2  # φ (exact golden ratio)
         self.analysis_log = []
         
     def calculate_harmonic_resonance(self, waveform_data: np.ndarray) -> float:

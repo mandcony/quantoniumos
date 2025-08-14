@@ -17,7 +17,8 @@ from sklearn.metrics import roc_auc_score, roc_curve
 import warnings
 warnings.filterwarnings('ignore')
 
-from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
 
 def generate_rft_favorable_signal(t, snr_db=10, seed=None):
     """Generate signals that should genuinely favor RFT basis structure"""

@@ -23,7 +23,7 @@ from scipy import stats
 from typing import Dict, Tuple
 
 try:
-    from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
     RFT_AVAILABLE = True
 except ImportError:
     RFT_AVAILABLE = False
@@ -106,7 +106,7 @@ def mathematical_validation_suite() -> Dict[str, any]:
     print("3. REPRESENTATION PERFORMANCE")
     
     def generate_structured_signal():
-        \"\"\"Signal type where RFT should excel\"\"\"
+        """Signal type where RFT should excel"""
         t = np.linspace(0, 1, N)
         # Multi-component with amplitude modulation
         s1 = np.exp(-2*t) * np.sin(2*np.pi*15*t)

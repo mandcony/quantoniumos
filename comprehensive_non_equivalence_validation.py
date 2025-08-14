@@ -1,3 +1,6 @@
+# LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL
+# from canonical_true_rft import forward_true_rft, inverse_true_rft
+
 #!/usr/bin/env python3
 """
 Comprehensive RFT Non-Equivalence and Sigma-Tightening Validation Suite
@@ -50,7 +53,8 @@ def run_non_equivalence_tests():
                     result = rft.forward_transform()
                     return np.array(result, dtype=complex)
                 except:
-                    from core.encryption.resonance_fourier import perform_rft_list
+                    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: perform_rft_list
                     result = perform_rft_list(x.tolist())
                     return np.array([complex(freq, amp) for freq, amp in result])
             
@@ -81,7 +85,8 @@ def run_non_equivalence_tests():
                     result = rft.forward_transform()
                     return np.array(result, dtype=complex)
                 except:
-                    from core.encryption.resonance_fourier import perform_rft_list
+                    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: perform_rft_list
                     result = perform_rft_list(x.tolist())
                     return np.array([complex(freq, amp) for freq, amp in result])
             
@@ -109,7 +114,8 @@ def run_non_equivalence_tests():
                     result = rft.forward_transform()
                     return np.array(result, dtype=complex)
                 except:
-                    from core.encryption.resonance_fourier import perform_rft_list
+                    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: perform_rft_list
                     result = perform_rft_list(x.tolist())
                     return np.array([complex(freq, amp) for freq, amp in result])
             

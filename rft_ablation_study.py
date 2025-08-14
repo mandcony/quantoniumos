@@ -17,7 +17,8 @@ from sklearn.utils import resample
 import warnings
 warnings.filterwarnings('ignore')
 
-from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
 
 class RFTAblationVariants:
     """Different RFT variants for ablation study"""

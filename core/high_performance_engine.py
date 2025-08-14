@@ -1,3 +1,6 @@
+# LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL
+# from canonical_true_rft import forward_true_rft, inverse_true_rft
+
 """
 QuantoniumOS High-Performance Engine Interface
 Routes all cryptographic operations through C++ engines with Python fallback
@@ -45,7 +48,7 @@ except ImportError as e:
 # Fallback Python implementations
 if not (HAS_RESONANCE_ENGINE or HAS_CORE_ENGINE):
     logger.info("🐍 Using Python fallback implementations")
-    from core.encryption.resonance_fourier import (
+    from canonical_true_rft import (
         forward_true_rft as _py_forward_rft,
         inverse_true_rft as _py_inverse_rft,
         encode_symbolic_resonance as _py_encode_symbolic
@@ -146,7 +149,7 @@ class QuantoniumEngineCore:
         if theta0_values is None:
             theta0_values = [0.0, np.pi/4]
         if omega_values is None:
-            omega_values = [1.0, 1.618033988749895]  # Include golden ratio
+            omega_values = [1.0, (1 + np.sqrt(5))/2]  # Include golden ratio
         
         # Try C++ engines first
         if HAS_RESONANCE_ENGINE and self.resonance_engine:
@@ -202,7 +205,7 @@ class QuantoniumEngineCore:
         if theta0_values is None:
             theta0_values = [0.0, np.pi/4]
         if omega_values is None:
-            omega_values = [1.0, 1.618033988749895]
+            omega_values = [1.0, (1 + np.sqrt(5))/2]
         
         # Try C++ engines first
         if HAS_RESONANCE_ENGINE and self.resonance_engine:

@@ -15,7 +15,8 @@ Noise model: Realistic colored noise (1/f^α spectrum)
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
-from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
 
 def generate_phase_modulated_chirp(t, f0=10, f1=50, phi_mod_freq=2, phi_mod_depth=np.pi/2):
     """Generate phase-modulated chirp signal that RFT should favor"""

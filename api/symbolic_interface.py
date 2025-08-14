@@ -32,14 +32,14 @@ def run_rft(waveform: List[float]) -> List[complex]:
     Returns:
         Complex values representing the frequency components
     """
-    # Import the core implementation
-    from core.encryption.resonance_fourier import resonance_fourier_transform
+    # Use CANONICAL True RFT implementation (single source of truth)
+    from canonical_true_rft import forward_true_rft
     
-    # Apply the transform
-    spectrum = resonance_fourier_transform(waveform)
+    # Apply the canonical transform
+    spectrum = forward_true_rft(waveform)
     
-    # Extract the complex values for the roundtrip test
-    return [complex_val for _, complex_val in spectrum]
+    # Return complex array directly
+    return spectrum.tolist() if hasattr(spectrum, 'tolist') else list(spectrum)
 
 def inverse_rft(freq_components: List[complex]) -> List[float]:
     """
@@ -52,15 +52,11 @@ def inverse_rft(freq_components: List[complex]) -> List[float]:
     Returns:
         Real waveform values
     """
-    # Import the core implementation
-    from core.encryption.resonance_fourier import inverse_resonance_fourier_transform
+    # Use CANONICAL True RFT implementation (single source of truth)
+    from canonical_true_rft import inverse_true_rft
     
-    # Reconstruct the frequency-value pairs
-    n = len(freq_components)
-    spectrum = [(k/n, freq_components[k]) for k in range(n)]
-    
-    # Apply the inverse transform
-    return inverse_resonance_fourier_transform(spectrum)
+    # Apply the canonical inverse transform directly
+    return inverse_true_rft(freq_components)
 
 def encrypt_data(plaintext: str, key: str) -> Dict[str, Any]:
     """

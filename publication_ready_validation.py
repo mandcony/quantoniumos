@@ -23,7 +23,7 @@ def log_canonical_rft_parameters():
     print("PRODUCTION PARAMETERS:")
     print("• Weights:     w = [0.7, 0.3]")
     print("• Phases:      θ₀ = [0.0, π/4] = [0.0, 0.7854]")
-    print("• Steps:       ω = [1.0, φ] = [1.0, 1.6180] (φ = golden ratio)")
+    print(f"• Steps:       ω = [1.0, φ] = [1.0, {(1 + math.sqrt(5))/2:.4f}] (φ = golden ratio)")
     print("• Gaussian:    σ₀ = 1.0, γ = 0.3")
     print("• Sequence:    QPSK phase modulation")
     
@@ -46,8 +46,8 @@ def show_minimal_non_equivalence_proof():
     print()
     
     try:
-        # Generate small RFT basis
-        from core.true_rft import forward_true_rft, generate_resonance_kernel
+        # Generate small RFT basis using CANONICAL implementation
+        from canonical_true_rft import forward_true_rft, get_rft_basis, generate_resonance_kernel
         import quantonium_core
         
         # Small test case N=4

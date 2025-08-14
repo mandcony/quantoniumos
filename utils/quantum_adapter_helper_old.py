@@ -27,7 +27,8 @@ def get_quantum_adapter():
         def generate_entropy(self, amount: int = 32) -> str:
             return _crypto.generate_token(amount)
         def apply_rft(self, waveform: list) -> dict:
-            from core.encryption.resonance_fourier import perform_rft
+            from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: perform_rft
             return perform_rft(waveform)
         def unlock_container(self, *args, **kwargs):
             raise NotImplementedError("unlock_container is not implemented")
@@ -83,7 +84,8 @@ def apply_quantum_rft(waveform: list) -> dict:
     Returns:
         Dictionary with frequencies, amplitudes, and phases
     """
-    from core.encryption.resonance_fourier import perform_rft
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: perform_rft
     return perform_rft(waveform)
 
 def unlock_quantum_container(waveform: list, container_hash: str, key: str) -> dict:

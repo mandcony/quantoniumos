@@ -5,7 +5,7 @@ This module provides rigorous mathematical analysis of the algorithmic complexit
 of QuantoniumOS core components, with formal proofs and empirical validation.
 
 The analysis justifies the claimed O(N log φ) complexity for core operations,
-where φ represents the golden ratio, approximately 1.618033988749895.
+where φ = (1 + √5)/2 represents the golden ratio.
 """
 
 import numpy as np
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from typing import List, Callable
 
 # Define the golden ratio φ
-PHI = (1 + 5**0.5) / 2  # φ ≈ 1.618033988749895
+PHI = (1 + 5**0.5) / 2  # φ = (1 + √5)/2 (exact golden ratio)
 
 class ComplexityAnalysis:
     """Base class for algorithmic complexity analysis"""

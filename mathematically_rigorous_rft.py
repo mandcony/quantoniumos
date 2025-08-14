@@ -3,14 +3,14 @@
 MATHEMATICALLY RIGOROUS RESONANCE FOURIER TRANSFORM (RFT)
 WITH CRYPTOGRAPHICALLY SOUND OUTPUT
 
-This implementation maintains the mathematical beauty of RFT internally
+This implementation uses the canonical RFT as the mathematical foundation
 while ensuring the final output passes classical cryptographic tests through:
 
-1. RFT Core: Mathematically sound with proven properties
+1. RFT Core: Uses canonical_true_rft.py (single source of truth)
 2. Keyed Nonlinearity: Destroys linear patterns 
 3. Cryptographic Extractor: Ensures uniform output distribution
 
-The RFT provides the symbolic resonance foundation,
+The canonical RFT provides the mathematically proven symbolic resonance foundation,
 the nonlinearity provides cryptographic strength,
 and the extractor ensures classical test compliance.
 """
@@ -21,6 +21,9 @@ import os
 from typing import List, Tuple, Optional, Dict, Any
 import math
 import time
+
+# Import canonical RFT implementation (single source of truth)
+from canonical_true_rft import forward_true_rft, inverse_true_rft, PHI
 
 class MathematicallyRigorousRFT:
     """
@@ -33,13 +36,12 @@ class MathematicallyRigorousRFT:
     
     def __init__(self, size: int = 256):
         self.size = size
-        self.golden_ratio = (1 + math.sqrt(5)) / 2  # φ ≈ 1.618034
+        self.golden_ratio = PHI  # Use canonical golden ratio constant
         
-        # Pre-compute RFT matrix for efficiency (maintains mathematical rigor)
-        self.rft_matrix = self._generate_rft_matrix()
-        self.inverse_rft_matrix = np.conj(self.rft_matrix.T)  # Unitary property
+        # Note: No longer pre-computing custom RFT matrix
+        # Uses canonical_true_rft for all mathematical operations
         
-        # Validate mathematical properties
+        # Validate mathematical properties using canonical implementation
         self._validate_mathematical_properties()
     
     def _generate_rft_matrix(self) -> np.ndarray:

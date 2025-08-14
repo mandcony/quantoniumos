@@ -165,7 +165,7 @@ def inverse_true_rft(
     
     # Eigendecomposition: R = Ψ Λ Ψ†
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=np.ComplexWarning)
+        warnings.simplefilter('ignore')
         eigenvalues, eigenvectors = np.linalg.eigh(R)
     
     # Inverse transform: x = Ψ X

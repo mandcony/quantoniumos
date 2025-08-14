@@ -22,7 +22,8 @@ import warnings
 warnings.filterwarnings('ignore')
 
 try:
-    from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
     RFT_AVAILABLE = True
 except ImportError:
     RFT_AVAILABLE = False

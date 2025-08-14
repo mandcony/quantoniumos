@@ -33,19 +33,33 @@ import base64
 
 # Import our validated RFT implementation
 try:
-    from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
     RFT_AVAILABLE = True
 except ImportError:
     RFT_AVAILABLE = False
     print("Warning: RFT module not available. Using classical alternatives.")
 
-# Import existing crypto utilities
+# Import existing crypto utilities with path resolution
 try:
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(__file__))  # Ensure utils path is available
     from utils.crypto_secure import generate_random_bytes, derive_key_from_password
     CRYPTO_UTILS_AVAILABLE = True
 except ImportError:
     CRYPTO_UTILS_AVAILABLE = False
-    print("Warning: crypto_secure not available. Using minimal implementations.")
+    # Provide secure fallbacks using standard library (production equivalent)
+    import secrets
+    def generate_random_bytes(num_bytes: int) -> bytes:
+        return secrets.token_bytes(num_bytes)
+    def derive_key_from_password(password: str, salt: bytes = None, iterations: int = 100000) -> tuple:
+        import hashlib
+        if salt is None:
+            salt = secrets.token_bytes(16)
+        key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, iterations, 32)
+        return key, salt
+    print("Info: Using standard library secure fallbacks (production equivalent).")
 
 
 class RFTEnhancedCipher:

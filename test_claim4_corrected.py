@@ -29,7 +29,8 @@ sys.path.insert(0, '/workspaces/quantoniumos/core/encryption')
 
 try:
     # Import actual QuantoniumOS implementations
-    from core.encryption.resonance_fourier import encode_symbolic_resonance, resonance_fourier_transform
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: encode_symbolic_resonance, resonance_fourier_transform
     from core.encryption.geometric_waveform_hash import GeometricWaveformHash
     print("✓ Successfully imported QuantoniumOS unified framework modules")
     IMPORTS_SUCCESSFUL = True

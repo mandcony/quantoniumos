@@ -20,13 +20,8 @@ import time
 import sys
 from typing import Optional, List
 
-# Import our advanced RFT for quantum-inspired operations
-sys.path.insert(0, os.path.dirname(__file__))
-from resonance_fourier import (
-    resonance_fourier_transform,
-    _generate_resonance_key_state,
-    _topological_coupling
-)
+# Import CANONICAL RFT for quantum-inspired operations
+from canonical_true_rft import forward_true_rft
 
 logger = logging.getLogger(__name__)
 
@@ -184,9 +179,9 @@ def _apply_topological_entanglement(state: np.ndarray) -> np.ndarray:
     """Apply topological entanglement patterns to the quantum state."""
     N = len(state)
     
-    # Create topological coupling matrix
+    # Create topological coupling matrix using canonical mathematical approach
     k, n = np.meshgrid(np.arange(N), np.arange(N))
-    topo_coupling = _topological_coupling(k, n, N)
+    topo_coupling = np.exp(-1j * 2 * np.pi * k * n / N) / np.sqrt(N)  # DFT-like coupling
     
     # Apply entanglement through matrix operation
     # This simulates quantum entanglement via topological relationships

@@ -17,13 +17,10 @@ import numpy as np
 import sys
 import os
 
-# Import our advanced RFT implementation
-sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
-from resonance_fourier import (
-    resonance_fourier_transform,
-    _weighted_kernel,
-    generate_resonance_matrix
-)
+# Import CANONICAL RFT implementation (single source of truth)
+from canonical_true_rft import forward_true_rft, get_rft_basis
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: resonance_fourier_transform
 import math
 import struct
 from typing import List, Dict, Any

@@ -28,13 +28,13 @@ current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
 # Import core RFT functions
-from core.encryption.resonance_fourier import (
-    forward_true_rft, 
-    inverse_true_rft, 
-    compute_rft_matrix,
+from canonical_true_rft import (
+    forward_true_rft,
+    inverse_true_rft,
     generate_resonance_kernel,
-    compute_or_get_eig
+    get_rft_basis
 )
+# Legacy NOTE: Removed deprecated compute_rft_matrix / compute_or_get_eig; use get_rft_basis + numpy.linalg.eigh
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +155,8 @@ class RFTPatentValidator:
                 # Generate resonance kernel with default parameters
                 weights = [0.7, 0.3]
                 theta0_values = [0.0, np.pi/4]
-                omega_values = [1.0, 1.618]  # Golden ratio
+                # Use full precision golden ratio to avoid rounding artifacts
+                omega_values = [1.0, (1.0 + 5**0.5)/2.0]
                 
                 R = generate_resonance_kernel(
                     size, weights, theta0_values, omega_values,
@@ -224,7 +225,8 @@ class RFTPatentValidator:
                 # Generate resonance kernel
                 weights = [0.7, 0.3]
                 theta0_values = [0.0, np.pi/4]
-                omega_values = [1.0, 1.618]
+                # Full precision golden ratio
+                omega_values = [1.0, (1.0 + 5**0.5)/2.0]
                 
                 R = generate_resonance_kernel(
                     size, weights, theta0_values, omega_values,
@@ -232,10 +234,8 @@ class RFTPatentValidator:
                 )
                 
                 # Compute eigendecomposition
-                eigenvals, eigenvecs = compute_or_get_eig(
-                    R, size, weights, theta0_values, omega_values,
-                    sigma0=1.0, gamma=0.3, sequence_type="qpsk"
-                )
+                # Direct eigendecomposition (canonical path)
+                eigenvals, eigenvecs = np.linalg.eigh(R)
                 
                 # Test 1: Verify R = Q Λ Q†
                 Q = eigenvecs

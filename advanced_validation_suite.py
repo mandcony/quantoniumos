@@ -51,7 +51,7 @@ sys.path.insert(0, str(current_dir))
 
 # Core imports
 try:
-    from core.encryption.resonance_fourier import forward_true_rft, inverse_true_rft
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
     from core.deterministic_hash import geometric_waveform_hash_deterministic
     from core.high_performance_engine import QuantoniumEngineCore
     RFT_AVAILABLE = True

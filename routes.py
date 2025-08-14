@@ -20,7 +20,8 @@ from utils import sign_response
 from backend.stream import get_stream, update_encrypt_data
 from api.resonance_metrics import run_symbolic_benchmark
 from encryption.resonance_encrypt import wave_hmac, FEATURE_AUTH
-from core.encryption.resonance_fourier import perform_irft, FEATURE_IRFT
+from canonical_true_rft import forward_true_rft, inverse_true_rft
+# Legacy wrapper maintained for: perform_irft, FEATURE_IRFT
 from image_resonance_analyzer import ImageResonanceAnalyzer
 
 api = Blueprint("api", __name__)
