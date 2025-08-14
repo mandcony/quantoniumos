@@ -1,0 +1,55 @@
+{
+  "quantonium_core": {
+    "engine_name": "quantonium_core",
+    "mathematical_properties": {
+      "basic_transform": {
+        "success": true,
+        "input_length": 16,
+        "output_length": 1,
+        "output_type": "<class 'quantonium_core.ResonanceFourierTransform'>"
+      },
+      "energy_conservation": {
+        "error": "list index out of range",
+        "conserved": false
+      },
+      "golden_ratio_resonance": {
+        "spectral_peaks": 0,
+        "spectral_entropy": 0.0,
+        "has_structure": false
+      }
+    },
+    "specification_compliance": {},
+    "patent_validation": {},
+    "timestamp": 1755146605.5550218
+  },
+  "resonance_engine": {
+    "engine_name": "resonance_engine",
+    "mathematical_properties": {
+      "reconstruction": {
+        "error": 8.130123598059769e-16,
+        "meets_specification": true,
+        "specification_threshold": 1e-12
+      },
+      "basic_transform": {
+        "success": true,
+        "input_length": 16,
+        "output_length": 16
+      },
+      "energy_conservation": {
+        "input_energy": 9.999999999999998,
+        "output_energy": 10.0,
+        "ratio": 1.0000000000000002,
+        "error": 2.220446049250313e-16,
+        "conserved": true
+      },
+      "golden_ratio_resonance": {
+        "spectral_peaks": 5,
+        "spectral_entropy": 3.0472630875832496,
+        "has_structure": true
+      }
+    },
+    "specification_compliance": {},
+    "patent_validation": {},
+    "timestamp": 1755146605.5553584
+  }
+}
