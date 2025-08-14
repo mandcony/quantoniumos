@@ -1,7 +1,5 @@
 import numpy as np
-
-def _rotl32(x, r):
-    return ((x << r) & 0xFFFFFFFF) | (x >> (32 - r))
+from encryption.mds import mds_mix32, keyed_weyl_add, _rotl32
 
 def _qr(a, b, c, d):
     a = np.uint32((np.uint64(a) + np.uint64(b)) & 0xFFFFFFFF); d = np.uint32(d) ^ a; d = _rotl32(d, 16)
@@ -63,3 +61,41 @@ def keyed_nonlinear_diffusion(data: bytes, key: bytes, rounds: int = 2) -> bytes
             v[3], v[4], v[9],  v[14] = _qr(v[3], v[4], v[9],  v[14])
         w[blk:blk+16] = v
     return _bytes_from_words(w)
+
+def keyed_nonlinear_diffusion_v2(data: bytes, key: bytes, rounds: int = 3) -> bytes:
+    """
+    Stronger keyed diffusion: Weyl adds -> MDS mixing -> ARX.
+    Deterministic; same IO contract as v1.
+    """
+    # bytes -> uint32 words (LE), pad to 16-word blocks
+    w = np.frombuffer(data + b"\x00" * ((64 - (len(data) % 64)) % 64), dtype=np.uint32).copy()
+    key_words = np.frombuffer((key + b"\x00"*64)[:64], dtype=np.uint32).copy()
+
+    def qr(a, b, c, d):
+        a = (a + b) & 0xFFFFFFFF; d ^= a; d = _rotl32(d, 16)
+        c = (c + d) & 0xFFFFFFFF; b ^= c; b = _rotl32(b, 12)
+        a = (a + b) & 0xFFFFFFFF; d ^= a; d = _rotl32(d, 8)
+        c = (c + d) & 0xFFFFFFFF; b ^= c; b = _rotl32(b, 7)
+        return a, b, c, d
+
+    for blk in range(0, len(w), 16):
+        v = w[blk:blk+16].copy()
+        for r in range(rounds):
+            # 1) keyed adds (Weyl-derived)
+            keyed_weyl_add(v, key_words, ctr=r + blk//16)
+
+            # 2) MDS mix (uniform linear spreading)
+            mds_mix32(v)
+
+            # 3) ARX (nonlinear)
+            v[0], v[4], v[8],  v[12] = qr(v[0], v[4], v[8],  v[12])
+            v[1], v[5], v[9],  v[13] = qr(v[1], v[5], v[9],  v[13])
+            v[2], v[6], v[10], v[14] = qr(v[2], v[6], v[10], v[14])
+            v[3], v[7], v[11], v[15] = qr(v[3], v[7], v[11], v[15])
+            v[0], v[5], v[10], v[15] = qr(v[0], v[5], v[10], v[15])
+            v[1], v[6], v[11], v[12] = qr(v[1], v[6], v[11], v[12])
+            v[2], v[7], v[8],  v[13] = qr(v[2], v[7], v[8],  v[13])
+            v[3], v[4], v[9],  v[14] = qr(v[3], v[4], v[9],  v[14])
+
+        w[blk:blk+16] = v
+    return (w.astype(np.uint32)).tobytes()
