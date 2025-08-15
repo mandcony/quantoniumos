@@ -7,7 +7,7 @@ try:
     HAS_SCIPY = True
 except ImportError:
     HAS_SCIPY = False
-    
+
 try:
     from multi_qubit_state import MultiQubitState
     HAS_QUBIT_STATE = True
@@ -22,7 +22,7 @@ except ImportError:
 
 class GeometricContainer:
     def __init__(self, id, vertices, transformations=[], material_props={}):
-        """Creates a container with quantum-assisted transformations."""
+        """"""Creates a container with quantum-assisted transformations.""""""
         self.id = id
         self.vertices = np.array(vertices, dtype=float)
         self.transformations = transformations
@@ -42,7 +42,7 @@ class GeometricContainer:
         self.symbolic_hash = None  # Deterministic hash of the symbolic payload
 
     def apply_transformations(self):
-        """Applies transformations sequentially, integrating quantum state influence."""
+        """"""Applies transformations sequentially, integrating quantum state influence.""""""
         for transform in self.transformations:
             if "rotation" in transform:
                 self.rotate(transform["rotation"])
@@ -54,7 +54,7 @@ class GeometricContainer:
         self.quantum_deformation()
 
     def rotate(self, angles):
-        """Applies rotation using scipy spatial transform or fallback method."""
+        """"""Applies rotation using scipy spatial transform or fallback method.""""""
         if HAS_SCIPY:
             rot = R.from_euler('xyz', [angles.get("x", 0), angles.get("y", 0), angles.get("z", 0)], degrees=False)
             self.vertices = rot.apply(self.vertices)
@@ -66,34 +66,34 @@ class GeometricContainer:
             self.vertices = np.dot(self.vertices, rotation_matrix.T)
 
     def scale(self, factors):
-        """Scales the container."""
+        """"""Scales the container.""""""
         scale_matrix = np.diag([factors.get("x", 1), factors.get("y", 1), factors.get("z", 1)])
         self.vertices = np.dot(self.vertices, scale_matrix)
 
     def translate(self, offsets):
-        """Moves the container."""
+        """"""Moves the container.""""""
         translation_vector = np.array([offsets.get("x", 0), offsets.get("y", 0), offsets.get("z", 0)])
         self.vertices += translation_vector
 
     def apply_bending(self):
-        """Applies dynamic bending based on resonance."""
+        """"""Applies dynamic bending based on resonance.""""""
         midpoint = np.mean(self.vertices, axis=0)
         for i, vertex in enumerate(self.vertices):
             distance = np.linalg.norm(vertex - midpoint)
             self.vertices[i] += np.array([0, math.sin(distance) * self.bend_factor, 0])
 
     def apply_internal_vibrations(self):
-        """Applies quantum-guided vibration shifts."""
+        """"""Applies quantum-guided vibration shifts.""""""
         self.vertices += np.random.normal(scale=self.internal_vibration, size=self.vertices.shape)
 
     def quantum_deformation(self):
-        """Uses quantum state measurements to affect structural deformation."""
+        """"""Uses quantum state measurements to affect structural deformation.""""""
         measurement = self.q_state.measure_all()
         deformation_factor = (measurement % 3) * 0.1  # Scale by quantum outcome
         self.vertices += deformation_factor
 
     def update_structure(self, bend_factor=None, vibration_intensity=None):
-        """Updates structure dynamically, integrating quantum state variations."""
+        """"""Updates structure dynamically, integrating quantum state variations.""""""
         if bend_factor is not None:
             self.bend_factor = bend_factor
         if vibration_intensity is not None:
@@ -103,7 +103,7 @@ class GeometricContainer:
         self.quantum_deformation()
 
     def calculate_resonant_frequencies(self, damp_factor=0.1):
-        """Computes resonant frequencies based on material properties."""
+        """"""Computes resonant frequencies based on material properties.""""""
         avg_length = np.mean(np.linalg.norm(np.diff(self.vertices, axis=0), axis=1))
         if avg_length > 0:
             freq = np.sqrt(self.material["youngs_modulus"] / (self.material["density"] * avg_length)) * (1 - damp_factor)
@@ -111,16 +111,16 @@ class GeometricContainer:
         return self.resonant_frequencies
 
     def check_resonance(self, freq, threshold=0.1):
-        """Checks if the container resonates at the given frequency."""
+        """"""Checks if the container resonates at the given frequency.""""""
         return any(abs(f - freq) <= threshold for f in self.resonant_frequencies)
 
     def map_symbolic_data(self, symbolic_payload):
-        """
+        """"""
         Maps a symbolic payload (e.g., a list of characters or tokens)
         onto the tetrahedral geometry of the container.
         Cycles through the vertices, assigning each symbol and then computes
         a deterministic hash over the mapping.
-        """
+        """"""
         num_vertices = len(self.vertices)
         self.symbolic_mapping = {}  # Reset mapping
         for i, symbol in enumerate(symbolic_payload):
@@ -132,73 +132,73 @@ class GeometricContainer:
         mapping_str = "".join("".join(self.symbolic_mapping[i]) for i in sorted(self.symbolic_mapping.keys()))
         self.symbolic_hash = hashlib.sha256(mapping_str.encode()).hexdigest()[:32]
         return self.symbolic_hash
-    
+
     def get_bounding_box(self):
-        """
+        """"""
         Get the bounding box of all vertices.
-        
+
         Returns:
             Tuple of (min_coords, max_coords)
-        """
+        """"""
         if len(self.vertices) == 0:
             return ([0.0, 0.0, 0.0], [0.0, 0.0, 0.0])
-        
+
         min_coords = np.min(self.vertices, axis=0).tolist()
         max_coords = np.max(self.vertices, axis=0).tolist()
-        
+
         # Ensure 3D coordinates
         while len(min_coords) < 3:
             min_coords.append(0.0)
         while len(max_coords) < 3:
             max_coords.append(0.0)
-        
+
         return (min_coords[:3], max_coords[:3])
-    
+
     def get_volume(self):
-        """Calculate the volume of the bounding box."""
+        """"""Calculate the volume of the bounding box.""""""
         min_coords, max_coords = self.get_bounding_box()
         volume = 1.0
         for i in range(3):
             volume *= abs(max_coords[i] - min_coords[i])
         return volume
-    
+
     def transform_vertices(self, transformation_matrix):
-        """
+        """"""
         Apply a 3x3 transformation matrix to all vertices.
-        
+
         Args:
             transformation_matrix: 3x3 transformation matrix as numpy array or list
-        """
+        """"""
         transformation_matrix = np.array(transformation_matrix)
         if transformation_matrix.shape != (3, 3):
             raise ValueError("Transformation matrix must be 3x3")
-        
+
         # Ensure vertices are 3D
         if self.vertices.shape[1] < 3:
             # Pad with zeros
             padding = np.zeros((self.vertices.shape[0], 3 - self.vertices.shape[1]))
             self.vertices = np.hstack([self.vertices, padding])
-        
+
         # Apply transformation
         self.vertices = np.dot(self.vertices[:, :3], transformation_matrix.T)
-    
+
     def add_vertex(self, vertex):
-        """Add a new vertex to the container."""
+        """"""Add a new vertex to the container.""""""
         vertex = np.array(vertex, dtype=float)
         if len(vertex.shape) == 1:
             vertex = vertex.reshape(1, -1)
         self.vertices = np.vstack([self.vertices, vertex])
-    
+
     def get_geometric_signature(self):
-        """
+        """"""
         Get a comprehensive geometric signature for this container.
-        
+
         Returns:
             Dictionary with geometric properties
-        """
+        """"""
         min_coords, max_coords = self.get_bounding_box()
         center = np.mean(self.vertices, axis=0).tolist()
-        
+
         return {
             "id": self.id,
             "num_vertices": len(self.vertices),
@@ -210,10 +210,10 @@ class GeometricContainer:
                 "max": max_coords
             }
         }
-    
+
     def __str__(self):
         return f"GeometricContainer(id={self.id}, vertices={len(self.vertices)})"
-    
+
     def __repr__(self):
         return self.__str__()
 

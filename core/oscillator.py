@@ -39,11 +39,11 @@ if __name__ == "__main__":
     initial_amplitude = 1.0 + 0j
     phase = 0.0
     osc = Oscillator(frequency, initial_amplitude, phase)
-    
+
     duration = 5.0
     dt = 0.1
     waveform = validate_oscillator(osc, duration, dt)
-    
+
     print(f"Generated {len(waveform)} samples.")
     total_norm = math.sqrt(sum(abs(s) ** 2 for s in waveform))
     print(f"Total norm: {total_norm:.2f}")

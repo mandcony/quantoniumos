@@ -10,7 +10,6 @@ In order to use an unsupported module you have to do either:
  - or directly do:
    #include <unsupported/Eigen/ModuleHeader>
 
-
 If you are interested in contributing to one of them, or have other stuff
 you would like to share, feel free to contact us:
 http://eigen.tuxfamily.org/index.php?title=Main_Page#Mailing_list
@@ -24,7 +23,6 @@ However, it:
 
 In doubt feel free to contact us. For instance, if your addons is very too specific
 but it shows an interesting way of using Eigen, then it could be a nice demo.
-
 
 This directory is organized as follow:
 

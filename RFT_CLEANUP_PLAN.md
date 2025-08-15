@@ -15,11 +15,11 @@ echo "- tests/test_rft_roundtrip.py"
 echo "- publication_ready_validation.py"
 echo "- comprehensive_non_equivalence_validation.py"
 
-# Phase 2: Legacy test files (delete or merge)  
+# Phase 2: Legacy test files (delete or merge)
 echo ""
 echo "PHASE 2: Legacy test files - DELETE duplicates"
 echo "- rft_enhanced_crypto_suite.py"
-echo "- rft_ablation_study.py" 
+echo "- rft_ablation_study.py"
 echo "- simplified_rft_crypto_test.py"
 echo "- enhanced_hash_test.py"
 echo "- debug_sigma_stages.py"
@@ -31,7 +31,7 @@ echo "- mathematically_rigorous_rft.py"
 
 # Phase 3: Hash/encryption modules (fix imports)
 echo ""
-echo "PHASE 3: Encryption modules - fix to use canonical"  
+echo "PHASE 3: Encryption modules - fix to use canonical"
 echo "- encryption/improved_geometric_hash.py"
 
 # Phase 4: Core modules (audit and fix)

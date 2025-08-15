@@ -1,7 +1,7 @@
-"""
+""""""
 Simplified entry point for QuantoniumOS deployment
 This makes sure the app is correctly initialized for gunicorn
-"""
+""""""
 
 import os
 import logging
@@ -9,7 +9,7 @@ from flask_cors import CORS
 from main import create_app
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, 
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("quantonium_app")
 

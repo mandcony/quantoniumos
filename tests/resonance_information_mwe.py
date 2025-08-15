@@ -9,29 +9,25 @@ print("=========================================")
 
 # Define our own simplified RFT function for demonstration
 def simple_rft(waveform):
-    """Simplified Resonance Fourier Transform for demonstration"""
+    """"""Simplified Resonance Fourier Transform for demonstration""""""
     n = len(waveform)
     result = []
-    
+
     # This is a simplified version that just demonstrates the concept
-    for k in range(n//4):  # We'll compute fewer coefficients for speed
-        real = 0
-        imag = 0
-        
-        # Add some "resonance" detection ability that normal FFT doesn't have
+    for k in range(n//4):  # We'll compute fewer coefficients for speed real = 0 imag = 0 # Add some "resonance" detection ability that normal FFT doesn't have
         for i in range(n):
             angle = 2 * math.pi * k * i / n
             # The difference from regular FFT is this weighted approach
             weight = 1.0 + 0.2 * math.sin(i / 10.0)  # "Resonance" weighting
             real += waveform[i] * math.cos(angle) * weight
             imag -= waveform[i] * math.sin(angle) * weight
-        
+
         # Normalize
         real /= n
         imag /= n
-        
+
         result.append(complex(real, imag))
-    
+
     return result
 
 # Simple FFT implementation as fallback

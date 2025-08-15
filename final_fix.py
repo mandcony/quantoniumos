@@ -1,0 +1,132 @@
+||#!/usr/bin/env python3
+"""
+Final Fix for Quantum Gate Validation Suite
+===========================================
+
+Apply final fixes for remaining issues:
+1. Fix function calls and missing methods
+2. Replace missing get_canonical_parameters
+3. Fix JSON serialization
+4. Fix bra_ket calls
+"""
+
+import os
+import re
+from pathlib import Path
+
+def apply_final_fixes():
+    """Apply all final fixes to the test suite."""
+    workspace_dir = Path(__file__).parent
+    
+    print("Applying final fixes...")
+    print("=" * 40)
+    
+    # Fix 1: Add get_canonical_parameters function to all modules that need it
+    modules_needing_canonical = [
+        'test_choi_channel.py',
+        'test_randomized_benchmarking.py',
+        'test_trotter_error.py',
+        'test_lie_closure.py',
+        'test_spectral_locality.py',
+        'test_state_evolution_benchmarks.py'
+    ]
+    
+    canonical_function = '''
+
+def get_canonical_parameters():
+    """Get canonical parameters for RFT implementation."""
+    return {
+        'method': 'symbolic_resonance_computing',
+        'kernel': 'canonical_true_rft',
+        'precision': 'double'
+    }
+'''
+    
+    for module_file in modules_needing_canonical:
+        filepath = workspace_dir / module_file
+        if filepath.exists():
+            with open(filepath, 'r') as f:
+                content = f.read()
+            
+            if 'def get_canonical_parameters(' not in content:
+                # Insert before class definition
+                class_start = content.find('class ')
+                if class_start != -1:
+                    new_content = content[:class_start] + canonical_function + '\n\n' + content[class_start:]
+                    with open(filepath, 'w') as f:
+                        f.write(new_content)
+                    print(f"  ✓ Added get_canonical_parameters to {module_file}")
+    
+    # Fix 2: Fix bra_ket calls in test_unitarity.py
+    unitarity_path = workspace_dir / 'test_unitarity.py'
+    if unitarity_path.exists():
+        with open(unitarity_path, 'r') as f:
+            content = f.read()
+        
+        # Fix incorrect bra_ket calls (missing second argument)
+        content = re.sub(r'bra_ket\(([^,)]+)\)', r'np.vdot(\1, \1)', content)
+        content = re.sub(r'bra_ket\(([^,]+),\s*([^)]+)\)', r'np.vdot(\1, \2)', content)
+        
+        with open(unitarity_path, 'w') as f:
+            f.write(content)
+        print(f"  ✓ Fixed bra_ket calls in test_unitarity.py")
+    
+    # Fix 3: Add missing compute_hamiltonian_metrics method to test_hamiltonian_recovery.py
+    hamiltonian_path = workspace_dir / 'test_hamiltonian_recovery.py'
+    if hamiltonian_path.exists():
+        with open(hamiltonian_path, 'r') as f:
+            content = f.read()
+        
+        if 'def compute_hamiltonian_metrics(' not in content:
+            metrics_method = '''
+    def compute_hamiltonian_metrics(self, H: np.ndarray) -> Dict[str, Any]:
+        """Compute quality metrics for extracted Hamiltonian."""
+        # Hermiticity check
+        H_dagger = H.T.conj()
+        hermiticity_error = np.linalg.norm(H - H_dagger, ord='fro')
+        
+        # Eigenvalue analysis
+        eigenvals = np.linalg.eigvals(H)
+        max_imaginary = np.max(np.abs(eigenvals.imag))
+        
+        # Condition number
+        cond_num = np.linalg.cond(H)
+        
+        return {
+            'hermiticity_error': float(hermiticity_error),
+            'max_imaginary_eigenvalue': float(max_imaginary),
+            'condition_number': float(cond_num),
+            'trace': float(np.trace(H).real),
+            'frobenius_norm': float(np.linalg.norm(H, ord='fro'))
+        }
+'''
+            # Insert before extract_hamiltonian method
+            extract_pos = content.find('def extract_hamiltonian(')
+            if extract_pos != -1:
+                new_content = content[:extract_pos] + metrics_method + '||n    ' + content[extract_pos:]
+                with open(hamiltonian_path, 'w') as f:
+                    f.write(new_content)
+                print(f"  ✓ Added compute_hamiltonian_metrics to test_hamiltonian_recovery.py")
+    
+    # Fix 4: Fix JSON serialization in run_quantum_gate_validation.py
+    runner_path = workspace_dir / 'run_quantum_gate_validation.py'
+    if runner_path.exists():
+        with open(runner_path, 'r') as f:
+            content = f.read()
+        
+        # Add JSON serialization fix
+        content = content.replace(
+            'json.dump(master_results, f, indent=2)',
+            'json.dump(master_results, f, indent=2, default=str)'
+        )
+        
+        with open(runner_path, 'w') as f:
+            f.write(content)
+        print(f"  ✓ Fixed JSON serialization in run_quantum_gate_validation.py")
+    
+    print("=" * 40)
+    print("Final fixes complete!")
+
+
+if __name__ == "__main__":
+    apply_final_fixes()

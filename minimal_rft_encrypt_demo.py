@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+""""""
 Minimal Canonical RFT Encryption Demo
 ====================================
 Reviewer-focused, dependency-light demonstration of applying the canonical
@@ -9,7 +9,7 @@ Algorithm (demonstration only, NOT production crypto):
 1. Derive 32-byte key from passphrase using SHA-256.
 2. Chunk plaintext into blocks (length N).
 3. For each block:
-   a. Convert bytes→float vector.
+   a. Convert bytes->float vector.
    b. Apply canonical forward_true_rft().
    c. Take real+imag parts interleaved, hash to produce keystream bytes.
    d. XOR with plaintext block.
@@ -22,7 +22,7 @@ Usage:
 
 This file is intentionally tiny, auditable, and directly uses
 canonical_true_rft as single source of mathematical truth.
-"""
+""""""
 import sys, hashlib, math
 from typing import List
 from canonical_true_rft import forward_true_rft, inverse_true_rft, PHI
@@ -31,9 +31,9 @@ def derive_key(passphrase: str) -> bytes:
     return hashlib.sha256(passphrase.encode('utf-8')).digest()
 
 def rft_keystream(index: int, block_len: int, key: bytes) -> bytes:
-    """Deterministic keystream derivation independent of plaintext/ciphertext contents.
+    """"""Deterministic keystream derivation independent of plaintext/ciphertext contents.
     Uses block index + key to form a seed vector passed through RFT then hashed.
-    """
+    """"""
     # Build deterministic seed vector from key + index counter
     seed = bytearray(key)
     for i in range(8):
@@ -80,9 +80,9 @@ if __name__ == '__main__':
         pw, pt = sys.argv[1], sys.argv[2]
         ct = encrypt(pw, pt)
         rt = decrypt(pw, ct)
-        print('Golden ratio φ =', PHI)
+        print('Golden ratio phi =', PHI)
         print('Ciphertext :', ct)
         print('Round-trip :', rt)
-        print('Match      :', pt == rt)
+        print('Match :', pt == rt)
     else:
         print('Usage: python minimal_rft_encrypt_demo.py <passphrase> <plaintext>')

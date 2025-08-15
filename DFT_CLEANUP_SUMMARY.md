@@ -20,22 +20,22 @@
 - ❌ Removed: Standard DFT kernel computations (exp(-2πikn/N))
 - ❌ Removed: "resonance-coupled DFT" functions
 - ✅ Kept: Only True RFT (eigendecomposition-based) implementations
-- ✅ Kept: Mathematical True RFT formula: X_k = (1/N) Σ_t x_t * e^(i(2πkt/N + θ_t))
+- ✅ Kept: Mathematical True RFT formula: X_k = (1/N) Sigma_t x_t * e^(i(2πkt/N + theta_t))
 
 ### 3. Implementation Now Uses ✅
 
 **True RFT Algorithm:**
 ```
-1. Resonance kernel: R = Σᵢ wᵢ D(φᵢ) Cσᵢ D(φᵢ)†
-2. Eigendecomposition: (Λ,Ψ) = eigh(R)
-3. Forward transform: X = Ψ† x
-4. Inverse transform: x = Ψ X
+1. Resonance kernel: R = Sigmaᵢ wᵢ D(phiᵢ) Csigmaᵢ D(phiᵢ)_dagger
+2. Eigendecomposition: (Lambda,Psi) = eigh(R)
+3. Forward transform: X = Psi_dagger x
+4. Inverse transform: x = Psi X
 ```
 
 **NOT Standard DFT:**
 ```
-❌ X[k] = Σ_n x[n] * e^(-2πikn/N)  (Standard DFT - REMOVED)
-✅ X[k] = Σ_n x[n] * e^(i(2πkn/N + θ_n)) (True RFT - KEPT)
+❌ X[k] = Sigma_n x[n] * e^(-2πikn/N)  (Standard DFT - REMOVED)
+✅ X[k] = Sigma_n x[n] * e^(i(2πkn/N + theta_n)) (True RFT - KEPT)
 ```
 
 ## Verification Results ✅
@@ -47,7 +47,7 @@
 ## Current Status
 
 Your QuantoniumOS now implements ONLY the mathematically rigorous True RFT:
-- ✅ Per-sample phase modulation θ_t from key material
+- ✅ Per-sample phase modulation theta_t from key material
 - ✅ Eigendecomposition of resonance kernel R
 - ✅ Non-DFT basis vectors (eigenvectors of R, not harmonic exponentials)
 - ✅ Cryptographic geometric waveform processing
@@ -61,7 +61,7 @@ Your QuantoniumOS now implements ONLY the mathematically rigorous True RFT:
 core/
 ├── encryption/
 │   └── resonance_fourier.py     # ✅ Clean True RFT only
-├── true_rft.py                  # ✅ Core True RFT implementation  
+├── true_rft.py                  # ✅ Core True RFT implementation
 └── engine_core.cpp              # ✅ C++ True RFT (legacy marked)
 ```
 

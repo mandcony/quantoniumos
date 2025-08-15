@@ -44,7 +44,6 @@ if(SuperLU_FOUND AND BLAS_FOUND)
   set(SUPERLU_ALL_LIBS ${SUPERLU_LIBRARIES} ${BLAS_LIBRARIES})
 endif()
 
-
 find_package(PASTIX QUIET COMPONENTS METIS SCOTCH)
 # check that the PASTIX found is a version without MPI
 find_path(PASTIX_pastix_nompi.h_INCLUDE_DIRS
@@ -63,7 +62,7 @@ if(PASTIX_FOUND AND PASTIX_pastix_nompi.h_INCLUDE_DIRS AND BLAS_FOUND)
     set(PASTIX_LIBRARIES ${PASTIX_LIBRARIES} ${SCOTCH_LIBRARIES})
   elseif(METIS_FOUND)
     include_directories(${METIS_INCLUDE_DIRS})
-    set(PASTIX_LIBRARIES ${PASTIX_LIBRARIES} ${METIS_LIBRARIES})  
+    set(PASTIX_LIBRARIES ${PASTIX_LIBRARIES} ${METIS_LIBRARIES})
   endif()
   set(SPARSE_LIBS ${SPARSE_LIBS} ${PASTIX_LIBRARIES_DEP} ${ORDERING_LIBRARIES})
   set(PASTIX_ALL_LIBS ${PASTIX_LIBRARIES_DEP})
@@ -85,7 +84,6 @@ target_link_libraries (spbenchsolver ${SPARSE_LIBS})
 
 add_executable(spsolver sp_solver.cpp)
 target_link_libraries (spsolver ${SPARSE_LIBS})
-
 
 add_executable(test_sparseLU test_sparseLU.cpp)
 target_link_libraries (test_sparseLU ${SPARSE_LIBS})

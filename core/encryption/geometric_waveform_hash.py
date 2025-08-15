@@ -1,4 +1,4 @@
-"""
+""""""
 Geometric Waveform Hash - RFT-based geometric waveform hashing
 
 RESEARCH ONLY: This implementation is for educational and research purposes only.
@@ -10,7 +10,7 @@ and topological mapping for cryptographic-strength hash functions.
 
 Unlike standard hash functions that operate on bit strings, this uses
 geometric properties of waveforms in resonance space for enhanced security.
-"""
+""""""
 
 import hashlib
 import numpy as np
@@ -42,7 +42,7 @@ BLAKE2B_IV = [
     0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
 ]
 
-# BLAKE2b permutation constants  
+# BLAKE2b permutation constants
 BLAKE2B_SIGMA = [
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     [14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3],
@@ -93,41 +93,41 @@ except ImportError:
     logger.warning("C++ module not available, using Python implementation")
 
 class GeometricWaveformHash:
-    """
+    """"""
     Genuine geometric waveform hashing using RFT principles and topological mapping.
-    
+
     This implementation uses:
     - Resonance Fourier Transform to map data to geometric waveform space
     - Golden ratio relationships for harmonic structure
     - Topological invariants for geometric properties
     - Non-linear mappings that preserve geometric relationships
-    """
-    
+    """"""
+
     def __init__(self, waveform=None, amplitude=1.0, phase=0.0):
-        """Initialize with waveform data and optional amplitude/phase parameters."""
+        """"""Initialize with waveform data and optional amplitude/phase parameters.""""""
         if waveform is None:
             # Default waveform for backwards compatibility with reproduction scripts
             waveform = [1.0, 0.5, -0.3, 0.8, -0.1, 0.9, -0.4, 0.2]
-        
+
         if isinstance(waveform, str):
             # Convert string to waveform using character values
             self.waveform = [float(ord(c)) for c in waveform]
         else:
             self.waveform = list(waveform)
-        
+
         self.amplitude = amplitude
         self.phase = phase
         self.geometric_hash = None
         self.topological_signature = None
         self.calculate_geometric_properties()
-    
+
     def calculate_geometric_properties(self):
-        """Calculate genuine geometric properties using RFT and topological analysis."""
+        """"""Calculate genuine geometric properties using RFT and topological analysis.""""""
         if not self.waveform:
             self.geometric_hash = b'\x00' * 32
             self.topological_signature = 0.0
             return
-        
+
         # Step 1: Apply RFT to get resonance spectrum with production defaults
         try:
             rft_spectrum = resonance_fourier_transform(
@@ -137,107 +137,107 @@ class GeometricWaveformHash:
                 theta=None,   # Let the algorithm use production defaults
                 symbols=None  # QPSK sequence type is the production default
             )
-            
+
             # Step 2: Extract geometric features from spectrum
             geometric_features = []
             phi = (1 + np.sqrt(5)) / 2  # Golden ratio
-            
+
             for k, (freq, amplitude) in enumerate(rft_spectrum):
                 # Map each frequency component to geometric coordinates
                 r = abs(amplitude)  # Radial coordinate
                 theta = np.angle(amplitude)  # Angular coordinate
-                
+
                 # Apply golden ratio scaling for harmonic relationships
                 scaled_r = r * (phi ** (k % 8))  # Cycle through powers of phi
                 geometric_coord = scaled_r * np.exp(1j * theta)
-                
+
                 # Convert to topological coordinate via winding number
                 winding = int(theta / (2 * np.pi)) if theta != 0 else 0
                 topo_factor = np.cos(np.pi * winding / len(rft_spectrum))
-                
+
                 geometric_features.append((geometric_coord.real, geometric_coord.imag, topo_factor))
-            
+
             # Step 3: Compute topological invariants
             self.topological_signature = self._compute_topological_signature(geometric_features)
-            
+
             # Step 4: Generate geometric hash using manifold mapping
             self.geometric_hash = self._manifold_hash(geometric_features)
-            
+
         except Exception as e:
             # Fallback to deterministic geometric computation
             self.geometric_hash = self._fallback_geometric_hash()
             self.topological_signature = sum(self.waveform) % 1.0
-    
+
     def _compute_topological_signature(self, features):
-        """Compute topological signature using homology and winding numbers."""
+        """"""Compute topological signature using homology and winding numbers.""""""
         if not features:
             return 0.0
-            
+
         # Calculate Euler characteristic approximation
         vertices = len(features)
-        
+
         # Compute winding number around origin in feature space
         total_winding = 0.0
         for i in range(len(features)):
             real_part, imag_part, topo_factor = features[i]
             angle = np.arctan2(imag_part, real_part)
             total_winding += angle * topo_factor
-        
+
         # Normalize winding to [0, 1] range
         normalized_winding = (total_winding % (2 * np.pi)) / (2 * np.pi)
-        
+
         return normalized_winding
-    
+
     def _manifold_hash(self, features):
-        """Generate hash by mapping geometric features to cryptographic manifold."""
+        """"""Generate hash by mapping geometric features to cryptographic manifold.""""""
         # Flatten geometric coordinates
         coords = []
         for real_part, imag_part, topo_factor in features:
             coords.extend([real_part, imag_part, topo_factor])
-        
+
         # Convert to bytes with high precision
         coord_bytes = b''.join(struct.pack('<d', coord) for coord in coords)
-        
+
         # Apply cryptographic hash with geometric salt
         phi_bytes = struct.pack('<d', (1 + np.sqrt(5)) / 2)
         combined = b'GEOMETRIC_WAVEFORM:' + phi_bytes + coord_bytes
-        
+
         # Use SHA-256 as final compression function
         return hashlib.sha256(combined).digest()
-    
+
     def _fallback_geometric_hash(self):
-        """Fallback geometric hash computation."""
+        """"""Fallback geometric hash computation.""""""
         # Convert waveform to bytes
         waveform_bytes = b''.join(struct.pack('<d', x) for x in self.waveform)
-        
+
         # Apply golden ratio modulation
         phi = (1 + np.sqrt(5)) / 2
         phi_bytes = struct.pack('<d', phi)
-        
+
         return hashlib.sha256(b'FALLBACK_GEOMETRIC:' + phi_bytes + waveform_bytes).digest()
-        
+
         # Calculate phase using different cryptographic hash
         phase_hash = hashlib.sha256(b'PHS_' + waveform_bytes).digest()
         self.phase = int.from_bytes(phase_hash[8:16], 'little') / (2**64)
-        
+
         # Apply golden ratio optimization to maintain patent compliance
         self.amplitude = (self.amplitude * PHI) % 1.0
         self.phase = (self.phase * PHI) % 1.0
-    
+
     def _aes_sbox(self, data: int) -> int:
-        """Apply AES S-box to every byte of the 512-bit integer."""
+        """"""Apply AES S-box to every byte of the 512-bit integer.""""""
         result = 0
         for i in range(64):  # 64 bytes in 512 bits
             byte_val = (data >> (i * 8)) & 0xFF
             sboxed = SBOX[byte_val]
             result |= sboxed << (i * 8)
         return result
-    
+
     def _mix_mds(self, x: int) -> int:
-        """Multiply by 512-bit MDS matrix (acts across 8×64-bit lanes)."""
+        """"""Multiply by 512-bit MDS matrix (acts across 8×64-bit lanes).""""""
         # Extract 8 lanes of 64 bits each
         lanes = [(x >> (i * 64)) & 0xFFFFFFFFFFFFFFFF for i in range(8)]
-        
+
         # Apply MDS matrix multiplication in GF(2)
         result_lanes = [0] * 8
         for i in range(8):
@@ -245,16 +245,16 @@ class GeometricWaveformHash:
                 # GF(2) multiplication with MDS matrix
                 if j < len(_MDS):
                     result_lanes[i] ^= self._gf2_multiply(lanes[j], _MDS[j])
-        
+
         # Combine lanes back to 512-bit integer
         result = 0
         for i, lane in enumerate(result_lanes):
             result |= (lane & 0xFFFFFFFFFFFFFFFF) << (i * 64)
-        
+
         return result
-    
+
     def _gf2_multiply(self, a: int, b: int) -> int:
-        """GF(2) multiplication of two 64-bit integers."""
+        """"""GF(2) multiplication of two 64-bit integers.""""""
         result = 0
         while b:
             if b & 1:
@@ -263,49 +263,49 @@ class GeometricWaveformHash:
             a &= 0xFFFFFFFFFFFFFFFF  # Keep to 64 bits
             b >>= 1
         return result & 0xFFFFFFFFFFFFFFFF
-    
+
     def _blake2b_g(self, v, a, b, c, d, x, y):
-        """BLAKE2b G function for enhanced mixing"""
+        """"""BLAKE2b G function for enhanced mixing""""""
         v[a] = (v[a] + v[b] + x) & 0xFFFFFFFFFFFFFFFF
         v[d] = self._rotr64(v[d] ^ v[a], 32)
         v[c] = (v[c] + v[d]) & 0xFFFFFFFFFFFFFFFF
         v[b] = self._rotr64(v[b] ^ v[c], 24)
-        
+
         v[a] = (v[a] + v[b] + y) & 0xFFFFFFFFFFFFFFFF
         v[d] = self._rotr64(v[d] ^ v[a], 16)
         v[c] = (v[c] + v[d]) & 0xFFFFFFFFFFFFFFFF
         v[b] = self._rotr64(v[b] ^ v[c], 63)
-    
+
     def _rotr64(self, x, n):
-        """64-bit right rotation"""
+        """"""64-bit right rotation""""""
         return ((x >> n) | (x << (64 - n))) & 0xFFFFFFFFFFFFFFFF
-    
+
     def _enhanced_spn_round(self, state: int, round_key: int, round_constant: int, blake2_const: int) -> int:
-        """Enhanced SPN round with BLAKE2 constants for maximum diffusion."""
+        """"""Enhanced SPN round with BLAKE2 constants for maximum diffusion.""""""
         # Add key material + round constant + BLAKE2 constant
         x = state ^ round_key ^ round_constant ^ blake2_const
-        
+
         # SubBytes: AES 8-bit S-box on every byte
         x = self._aes_sbox(x)
-        
+
         # MixColumns: multiply by 512-bit MDS (acts across 8×64-bit lanes)
         x = self._mix_mds(x)
-        
+
         # Additional BLAKE2-style mixing on 64-bit words
         words = [(x >> (i * 64)) & 0xFFFFFFFFFFFFFFFF for i in range(8)]
         for i in range(0, len(words), 4):
             if i + 3 < len(words):
                 # Apply G function to each 4-word group
                 self._blake2b_g(words, i, i+1, i+2, i+3, blake2_const, round_constant)
-        
+
         # Reconstruct state from mixed words
         x = 0
         for i, word in enumerate(words):
             x |= (word & 0xFFFFFFFFFFFFFFFF) << (i * 64)
-        
+
         # Permute: 29-bit rotation breaks word alignment
         x = ((x << 29) | (x >> (512 - 29))) & MASK512
-        
+
         # Additional bit-level permutation using BLAKE2 permutation
         if len(BLAKE2B_SIGMA) > 0:
             sigma = BLAKE2B_SIGMA[round_constant % len(BLAKE2B_SIGMA)]
@@ -317,30 +317,30 @@ class GeometricWaveformHash:
             # Fill remaining bytes
             for i in range(16, 64):
                 permuted[i] = bytes_array[i]
-            
+
             # Reconstruct x from permuted bytes
             x = 0
             for i, byte_val in enumerate(permuted):
                 x |= byte_val << (i * 8)
-        
+
         return x
-    
+
     def _diffusion_round(self, state: bytearray, round_key: int) -> bytearray:
-        """Single diffusion round with maximum mixing."""
+        """"""Single diffusion round with maximum mixing.""""""
         # Split state into left and right halves for Feistel-like structure
         mid = len(state) // 2
         left = state[:mid]
         right = state[mid:]
-        
+
         # Apply S-box to both halves
         left = bytearray(SBOX[b] for b in left)
         right = bytearray(SBOX[b] for b in right)
-        
+
         # Feistel round: L' = R ⊕ F(L, K), R' = L
         def feistel_function(data: bytearray, key: int) -> bytearray:
             result = bytearray(len(data))
             phi_int = int(PHI * (2**32)) & 0xFFFFFFFF
-            
+
             for i in range(len(data)):
                 # Multiple mixing operations per byte
                 val = data[i]
@@ -350,47 +350,47 @@ class GeometricWaveformHash:
                 val = (val * 0x9F) & 0xFF  # Another prime multiply
                 val ^= (val >> 4) | ((val & 0x0F) << 4)  # Nibble swap
                 result[i] = val
-            
+
             return result
-        
+
         # Apply Feistel function
         f_output = feistel_function(left, round_key)
-        
+
         # XOR with right half
         new_left = bytearray(r ^ f for r, f in zip(right, f_output))
         new_right = left
-        
+
         # Combine back
         state = new_left + new_right
-        
+
         # Additional full-state mixing
         for i in range(len(state)):
             state[i] ^= SBOX[(state[(i + 1) % len(state)] + round_key) & 0xFF]
-        
+
         return state
-    
+
     def generate_hash(self) -> str:
-        """
+        """"""
         Generate geometric waveform hash using patent-protected algorithms.
-        
+
         This implements the genuine geometric waveform hashing described in
         USPTO Application #19/169,399 using:
         1. RFT-based geometric transformation of input waveform
-        2. Topological mapping to geometric hash space  
+        2. Topological mapping to geometric hash space
         3. Golden ratio optimization for avalanche properties
-        """
+        """"""
         # Step 1: Convert input to waveform representation
         if isinstance(self.waveform, (list, tuple)):
             waveform_data = list(self.waveform)
         else:
             # Convert string/bytes to waveform using character values
             waveform_data = [float(ord(c)) for c in str(self.waveform)]
-        
+
         # Ensure minimum length for RFT
         while len(waveform_data) < 16:
             waveform_data.extend(waveform_data)
         waveform_data = waveform_data[:32]  # Use 32-point transform
-        
+
         # Step 2: Apply RFT-based geometric transformation with production defaults
         rft_spectrum = resonance_fourier_transform(
             waveform_data,
@@ -399,112 +399,112 @@ class GeometricWaveformHash:
             theta=None,   # Use production defaults
             symbols=None  # QPSK sequence type is the production default
         )
-        
+
         # Step 3: Extract geometric properties from RFT spectrum
         geometric_features = []
         phi = (1 + np.sqrt(5)) / 2  # Golden ratio
-        
+
         for i, (freq, amp) in enumerate(rft_spectrum):
             # Geometric amplitude in polar coordinates
             magnitude = abs(amp)
             phase = np.angle(amp) if hasattr(amp, 'imag') else 0
-            
+
             # Apply golden ratio geometric scaling
             scaled_mag = magnitude * (phi ** (i % 8))
             scaled_phase = phase + (2 * np.pi * i / phi)
-            
+
             # Convert to geometric coordinates
             x = scaled_mag * np.cos(scaled_phase)
             y = scaled_mag * np.sin(scaled_phase)
-            
+
             geometric_features.extend([x, y])
-        
+
         # Step 4: Topological mapping to hash space
         # Map geometric features to hash values using topological invariants
         hash_components = []
         for i in range(0, len(geometric_features)-1, 2):
             x, y = geometric_features[i], geometric_features[i+1]
-            
+
             # Compute topological winding number
             winding = int(np.arctan2(y, x) / (2 * np.pi) * 256) % 256
-            
+
             # Apply S-box transformation for cryptographic strength
             transformed = SBOX[winding]
             hash_components.append(transformed)
-        
+
         # Step 5: Golden ratio optimization for avalanche effect
         optimized_hash = []
         for i, component in enumerate(hash_components):
             # Apply golden ratio mixing
             mixed = (component + int(phi * i * 73)) % 256
-            
+
             # Cross-couple with adjacent components for avalanche
             if i > 0:
                 mixed ^= hash_components[i-1]
             if i < len(hash_components) - 1:
                 mixed ^= hash_components[i+1]
-                
+
             optimized_hash.append(mixed % 256)
-        
+
         # Step 6: Final geometric hash generation
         # Ensure 32-byte output (256-bit hash)
         while len(optimized_hash) < 32:
             optimized_hash.extend(optimized_hash)
         optimized_hash = optimized_hash[:32]
-        
+
         # Convert to hexadecimal string
         return ''.join(f'{byte:02x}' for byte in optimized_hash)
-        
+
         # Initialize 512-bit state from input data
         state_512bit = 0
         for i, byte in enumerate(input_data):
             state_512bit |= byte << ((i % 64) * 8)
-        
+
         # Apply enhanced SPN rounds with BLAKE2 constants
         for round_num in range(ROUNDS + 5):  # Extra rounds for publication-grade security
             # Generate round key from input and round number
             round_key_data = input_data + round_num.to_bytes(8, 'little')
             round_key = int.from_bytes(hashlib.sha256(round_key_data).digest()[:64], 'little') & MASK512
-            
+
             # Generate round constant
             round_constant = int((round_num * PHI * 0x9E3779B97F4A7C15) % (2**512))
-            
+
             # Use BLAKE2 IV constants cyclically
             blake2_const = BLAKE2B_IV[round_num % len(BLAKE2B_IV)]
             blake2_const = (blake2_const * ((round_num + 1) ** 2)) & MASK512
-            
+
             # Apply enhanced SPN round
             state_512bit = self._enhanced_spn_round(state_512bit, round_key, round_constant, blake2_const)
-        
+
         # Convert final state to bytes
         final_state_bytes = state_512bit.to_bytes(64, 'little')
-        
+
         # Additional ChaCha20-style quarter round mixing for maximum diffusion
         def quarter_round(a, b, c, d):
             a = (a + b) & 0xFFFFFFFF
             d ^= a
             d = ((d << 16) | (d >> 16)) & 0xFFFFFFFF
-            
-            c = (c + d) & 0xFFFFFFFF  
+
+            c = (c + d) & 0xFFFFFFFF
             b ^= c
             b = ((b << 12) | (b >> 20)) & 0xFFFFFFFF
-            
+
             a = (a + b) & 0xFFFFFFFF
             d ^= a
             d = ((d << 8) | (d >> 24)) & 0xFFFFFFFF
-            
+
             c = (c + d) & 0xFFFFFFFF
-            b ^= c  
+            b ^= c
             b = ((b << 7) | (b >> 25)) & 0xFFFFFFFF
-            
+
             return a, b, c, d
-        
+
         # Convert to 16 words for ChaCha mixing
         words = []
         for i in range(0, len(final_state_bytes), 4):
             chunk = final_state_bytes[i:i+4].ljust(4, b'\x00')
             words.append(int.from_bytes(chunk, 'little'))
-        
+
         # Apply 20 additional ChaCha rounds for maximum diffusion
         for round_num in range(20):
             # Column rounds
@@ -512,52 +512,52 @@ class GeometricWaveformHash:
             words[1], words[5], words[9], words[13] = quarter_round(words[1], words[5], words[9], words[13])
             words[2], words[6], words[10], words[14] = quarter_round(words[2], words[6], words[10], words[14])
             words[3], words[7], words[11], words[15] = quarter_round(words[3], words[7], words[11], words[15])
-            
-            # Diagonal rounds  
+
+            # Diagonal rounds
             words[0], words[5], words[10], words[15] = quarter_round(words[0], words[5], words[10], words[15])
             words[1], words[6], words[11], words[12] = quarter_round(words[1], words[6], words[11], words[12])
             words[2], words[7], words[8], words[13] = quarter_round(words[2], words[7], words[8], words[13])
             words[3], words[4], words[9], words[14] = quarter_round(words[3], words[4], words[9], words[14])
-            
+
             # Add BLAKE2 constants for additional entropy
             for i in range(len(words)):
                 words[i] ^= int((round_num * PHI * BLAKE2B_IV[i % len(BLAKE2B_IV)]) % (2**32))
-        
+
         # Convert words back to bytes
         mixed_bytes = b''.join(word.to_bytes(4, 'little') for word in words)
-        
+
         # Final compression with SHA-256 and original input
         final_hash = hashlib.sha256(mixed_bytes + input_data + b'final_compression').hexdigest()
-        
+
         # Format with geometric parameters
         hash_str = f"A{self.amplitude:.15e}_P{self.phase:.15e}_{final_hash}"
-        
+
         return hash_str
-    
+
     def verify_hash(self, hash_str: str) -> bool:
-        """Verify if the provided hash matches the current waveform."""
+        """"""Verify if the provided hash matches the current waveform.""""""
         return hash_str == self.generate_hash()
-    
+
     def hash(self, data: bytes) -> bytes:
-        """
+        """"""
         Backwards compatible hash method for reproduction scripts.
         Takes bytes input and returns bytes output.
-        """
+        """"""
         # Update waveform based on input data
         if data:
             self.waveform = [float(b) for b in data[:32]]  # Use first 32 bytes
             if len(self.waveform) < 16:
                 self.waveform.extend([0.5] * (16 - len(self.waveform)))
-        
+
         # Recalculate geometric properties with new data
         self.calculate_geometric_properties()
-        
+
         # Generate hash string and convert to bytes
         hash_str = self.generate_hash()
-        
+
         # Extract just the final hash part (after the last underscore)
         final_hash_part = hash_str.split('_')[-1]
-        
+
         # Convert hex string to bytes
         try:
             return bytes.fromhex(final_hash_part)
@@ -565,34 +565,34 @@ class GeometricWaveformHash:
             # Fallback: use sha256 if hex conversion fails
             import hashlib
             return hashlib.sha256(hash_str.encode()).digest()
-    
+
     def get_amplitude(self) -> float:
-        """Get the calculated amplitude."""
+        """"""Get the calculated amplitude.""""""
         return self.amplitude
-    
+
     def get_phase(self) -> float:
-        """Get the calculated phase."""
+        """"""Get the calculated phase.""""""
         return self.phase
 
 def geometric_waveform_hash(waveform: List[float]) -> str:
-    """
+    """"""
     Generate genuine geometric waveform hash using RFT-based algorithms.
-    
+
     This function computes a cryptographic hash that preserves geometric
     relationships in the input waveform through:
     - Resonance Fourier Transform mapping to geometric space
     - Topological invariant computation
     - Manifold-based hash compression
-    
+
     Args:
         waveform: Input waveform as list of float values
-        
+
     Returns:
         Hexadecimal hash string with geometric properties preserved
-    """
+    """"""
     # Use genuine geometric waveform hashing
     hasher = GeometricWaveformHash(waveform)
-    
+
     if hasher.geometric_hash:
         # Return hex-encoded geometric hash
         return hasher.geometric_hash.hex()
@@ -601,41 +601,41 @@ def geometric_waveform_hash(waveform: List[float]) -> str:
         return hasher._fallback_geometric_hash().hex()
 
 def generate_waveform_hash(waveform: List[float]) -> str:
-    """Alias for geometric_waveform_hash for compatibility."""
+    """"""Alias for geometric_waveform_hash for compatibility.""""""
     return geometric_waveform_hash(waveform)
 
 def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
-    """
+    """"""
     Verify if the provided hash matches the waveform.
-    
+
     Args:
         waveform: Input waveform as list of float values
         hash_str: Hash string to verify
-        
+
     Returns:
         True if hash matches, False otherwise
-    """
+    """"""
     if CPP_AVAILABLE:
         try:
             cpp_hasher = CppGeometricWaveformHash(waveform)
             return cpp_hasher.verify_hash(hash_str)
         except Exception as e:
             logger.warning(f"C++ verification failed: {e}, falling back to Python")
-    
+
     # Use Python implementation
     hasher = GeometricWaveformHash(waveform)
     return hasher.verify_hash(hash_str)
 
 def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
-    """
+    """"""
     Extract geometric properties from waveform.
-    
+
     Args:
         waveform: Input waveform as list of float values
-        
+
     Returns:
         Dictionary with amplitude, phase, and other properties
-    """
+    """"""
     if CPP_AVAILABLE:
         try:
             cpp_hasher = CppGeometricWaveformHash(waveform)
@@ -647,7 +647,7 @@ def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
             }
         except Exception as e:
             logger.warning(f"C++ properties extraction failed: {e}, falling back to Python")
-    
+
     # Use Python implementation
     hasher = GeometricWaveformHash(waveform)
     return {
@@ -659,31 +659,31 @@ def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
 
 # Performance benchmark function
 def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) -> Dict[str, Any]:
-    """
+    """"""
     Benchmark geometric waveform hashing performance.
-    
+
     Args:
         waveform_size: Size of test waveform
         iterations: Number of iterations to run
-        
+
     Returns:
         Performance metrics dictionary
-    """
+    """"""
     import time
-    
+
     # Generate test waveform
-    test_waveform = [math.sin(2 * math.pi * i / waveform_size) * 0.5 
+    test_waveform = [math.sin(2 * math.pi * i / waveform_size) * 0.5
                     for i in range(waveform_size)]
-    
+
     # Benchmark hashing
     start_time = time.time()
     for _ in range(iterations):
         geometric_waveform_hash(test_waveform)
     end_time = time.time()
-    
+
     avg_time = (end_time - start_time) / iterations
     ops_per_second = 1.0 / avg_time if avg_time > 0 else 0
-    
+
     return {
         'waveform_size': waveform_size,
         'iterations': iterations,
@@ -694,30 +694,30 @@ def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) ->
     }
 
 def extract_parameters_from_hash(hash_value: str) -> tuple:
-    """Extract amplitude and phase parameters from a geometric hash."""
+    """"""Extract amplitude and phase parameters from a geometric hash.""""""
     try:
         # Convert hash to bytes
         hash_bytes = bytes.fromhex(hash_value)
-        
+
         # Extract first 8 bytes for amplitude, next 8 for phase
         if len(hash_bytes) < 16:
             # Pad with zeros if hash is too short
             hash_bytes = hash_bytes + b'\x00' * (16 - len(hash_bytes))
-        
+
         # Convert bytes to floats using geometric transformation
         amp_bytes = hash_bytes[:8]
         phase_bytes = hash_bytes[8:16]
-        
+
         # Calculate amplitude (0.0 to 2.0)
         amp_sum = sum(amp_bytes)
         amplitude = (amp_sum % 200) / 100.0
-        
+
         # Calculate phase (0.0 to 2π)
         phase_sum = sum(phase_bytes)
-        phase = (phase_sum % 628) / 100.0  # 628 ≈ 2π * 100
-        
+        phase = (phase_sum % 628) / 100.0  # 628 ~= 2π * 100
+
         return amplitude, phase
-        
+
     except Exception as e:
         logger.error(f"Error extracting parameters from hash: {e}")
         return 1.0, 0.0  # Default values

@@ -1,7 +1,7 @@
-"""
+""""""
 Wide-pipe diffusion for ultra-low avalanche variance.
 Increases state size to 16 words (512 bits) for better uniformity.
-"""
+""""""
 
 import numpy as np
 from .mds import mds_mix32, keyed_weyl_add
@@ -39,12 +39,11 @@ def load_round_keys(key_bytes: bytes, words_per_round: int) -> np.ndarray:
         base = np.tile(base, reps)
     return base[:words_per_round].astype(np.uint32, copy=False)
 
-
 def wide_arx_round(words: np.ndarray, round_keys: np.ndarray) -> np.ndarray:
-    """
+    """"""
     words: np.uint32 length multiple of 4
     round_keys: np.uint32 array (>= len(words)//4)
-    """
+    """"""
     w = ensure_u32(words)
     rk = ensure_u32(round_keys)
     for i in range(0, w.size, 4):
@@ -60,12 +59,11 @@ def wide_arx_round(words: np.ndarray, round_keys: np.ndarray) -> np.ndarray:
         w[i+0], w[i+1], w[i+2], w[i+3] = a, b, c, d
     return w
 
-
 def wide_keyed_diffusion(words_or_bytes, key: bytes, rounds: int = 3) -> bytes:
-    """
+    """"""
     Accepts bytes or uint32 array; returns bytes.
     Uses wide_arx_round in mod-2^32 with safe arithmetic.
-    """
+    """"""
     if isinstance(words_or_bytes, (bytes, bytearray, memoryview)):
         pad = (64 - (len(words_or_bytes) % 64)) % 64  # 16 words
         buf = bytes(words_or_bytes) + b"\x00" * pad

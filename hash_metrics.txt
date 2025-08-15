@@ -1,0 +1,6 @@
+Hash 1: 37410c268459af863490cddb4005b0cca49b4b5fd297a6b6450d93297473a2bd
+Hash 2: 37410c268459af863490cddb4005b0cca49b4b5fd297a6b6450d93297473a2bd
+Deterministic: True
+Avalanche rate: 52.73%
+Key sensitivity: 46.09%
+✅ RFT spectral diffusion: AVAILABLE

@@ -1,12 +1,12 @@
-#!/usr/bin/env python3
-"""
+||#!/usr/bin/env python3
+""""""
 QuantoniumOS C++ Engine Integration Example
 
 This example demonstrates how your existing Python code now automatically
 uses high-performance C++ implementations through pybind11 bindings.
 
 All operations are 10-100x faster with zero code changes required!
-"""
+""""""
 
 import sys
 import time
@@ -18,112 +18,112 @@ sys.path.insert(0, str(Path(__file__).parent / 'core'))
 def main():
     print("🚀 QuantoniumOS High-Performance C++ Engine Demo")
     print("=" * 55)
-    
+
     # Import the unified engine interface
     from high_performance_engine import QuantoniumEngineCore, get_engine_status
-    
+
     # Check engine status
     print("\n🔍 Engine Status:")
     status = get_engine_status()
     for engine, available in status.items():
         status_emoji = "✅" if available else "❌"
-        print(f"  {engine}: {status_emoji} {'Available' if available else 'Not Available'}")
-    
+        print(f" {engine}: {status_emoji} {'Available' if available else 'Not Available'}")
+
     # Initialize the unified engine
     engine = QuantoniumEngineCore()
-    
+
     # Demo 1: High-Performance RFT (Patent Claim 1)
     print("\n🧬 Demo 1: Resonance Fourier Transform (Patent Claim 1)")
     print("-" * 50)
-    
+
     # Create test signal
     test_signal = [1.0, 0.8, 0.6, 0.4, 0.2, -0.2, -0.4, -0.6, 0.3, 0.7]
     print(f"Input signal: {len(test_signal)} samples")
-    
+
     # Measure performance
     start_time = time.time()
     rft_coefficients = engine.forward_true_rft(test_signal)
     forward_time = (time.time() - start_time) * 1000
-    
+
     print(f"✅ Forward RFT: {len(rft_coefficients)} coefficients ({forward_time:.3f}ms)")
-    print(f"   Sample coefficients: {[f'{c:.4f}' for c in rft_coefficients[:3]]}")
-    
+    print(f" Sample coefficients: {[f'{c:.4f}' for c in rft_coefficients[:3]]}")
+
     # Inverse transform
     start_time = time.time()
     reconstructed = engine.inverse_true_rft(rft_coefficients)
     inverse_time = (time.time() - start_time) * 1000
-    
+
     print(f"✅ Inverse RFT: {len(reconstructed)} samples ({inverse_time:.3f}ms)")
-    print(f"   Reconstruction error: {sum(abs(a-b) for a,b in zip(test_signal, reconstructed)):.8f}")
-    
-    # Demo 2: Quantum Entropy Generation (Patent Claim 3)  
+    print(f" Reconstruction error: {sum(abs(a-b) for a,b in zip(test_signal, reconstructed)):.8f}")
+
+    # Demo 2: Quantum Entropy Generation (Patent Claim 3)
     print("\n🔮 Demo 2: Quantum Entropy Generation (Patent Claim 3)")
     print("-" * 50)
-    
+
     start_time = time.time()
     quantum_entropy = engine.generate_quantum_entropy(32)
     entropy_time = (time.time() - start_time) * 1000
-    
+
     print(f"✅ Quantum entropy: {len(quantum_entropy)} values ({entropy_time:.3f}ms)")
-    print(f"   Sample entropy: {[f'{e:.4f}' for e in quantum_entropy[:5]]}")
-    
+    print(f" Sample entropy: {[f'{e:.4f}' for e in quantum_entropy[:5]]}")
+
     # Demo 3: Geometric Waveform Hashing (Patent Claim 4)
-    print("\n🎯 Demo 3: Geometric Waveform Hashing (Patent Claim 4)")  
+    print("\n🎯 Demo 3: Geometric Waveform Hashing (Patent Claim 4)")
     print("-" * 50)
-    
+
     start_time = time.time()
     geometric_hash = engine.generate_geometric_waveform_hash(test_signal)
     hash_time = (time.time() - start_time) * 1000
-    
+
     print(f"✅ Geometric hash: {len(geometric_hash)} hash values ({hash_time:.3f}ms)")
-    print(f"   Sample hash: {geometric_hash[:8]}")
-    
+    print(f" Sample hash: {geometric_hash[:8]}")
+
     # Demo 4: Symbolic Resonance Encoding
     print("\n📊 Demo 4: Symbolic Resonance Encoding")
     print("-" * 50)
-    
+
     test_string = "QuantoniumOS"
     start_time = time.time()
     symbolic_result = engine.encode_symbolic_resonance(test_string)
     symbolic_time = (time.time() - start_time) * 1000
-    
+
     modes, metadata = symbolic_result
-    print(f"✅ Symbolic encoding: '{test_string}' → {len(modes)} resonance modes ({symbolic_time:.3f}ms)")
-    print(f"   Metadata keys: {list(metadata.keys())}")
-    
+    print(f"✅ Symbolic encoding: '{test_string}' -> {len(modes)} resonance modes ({symbolic_time:.3f}ms)")
+    print(f" Metadata keys: {list(metadata.keys())}")
+
     # Demo 5: Quantum Superposition States
-    print("\n⚛️  Demo 5: Quantum Superposition States")
+    print("||n⚛️ Demo 5: Quantum Superposition States")
     print("-" * 50)
-    
+
     state1 = test_signal[:4]
     state2 = test_signal[4:8]
-    
+
     start_time = time.time()
     superposition = engine.create_quantum_superposition(state1, state2)
     superposition_time = (time.time() - start_time) * 1000
-    
-    print(f"✅ Quantum superposition: |ψ⟩ = α|ψ₁⟩ + β|ψ₂⟩ ({superposition_time:.3f}ms)")
-    print(f"   Superposition state: {[f'{s:.4f}' for s in superposition]}")
-    
+
+    print(f"✅ Quantum superposition: |psi> = α|psi1> + β|||psi2> ({superposition_time:.3f}ms)")
+    print(f" Superposition state: {[f'{s:.4f}' for s in superposition]}")
+
     # Demo 6: Performance Benchmark
     print("\n⚡ Demo 6: Performance Benchmark")
     print("-" * 50)
-    
+
     benchmark_results = engine.benchmark_performance(signal_size=64, iterations=100)
     print("Performance comparison:")
     for engine_name, avg_time in benchmark_results.items():
         if avg_time == float('inf'):
-            print(f"  {engine_name}: Not Available")
+            print(f" {engine_name}: Not Available")
         else:
-            print(f"  {engine_name}: {avg_time:.4f}ms average")
-    
+            print(f" {engine_name}: {avg_time:.4f}ms average")
+
     # Demo 7: Accuracy Validation
-    print("\n🎯 Demo 7: Roundtrip Accuracy Validation") 
+    print("\n🎯 Demo 7: Roundtrip Accuracy Validation")
     print("-" * 50)
-    
+
     accuracy = engine.validate_roundtrip_accuracy(test_signal)
     print(f"✅ Roundtrip accuracy: {accuracy:.10f} (perfect = 0.0)")
-    
+
     # Summary
     print("\n🎉 Integration Summary")
     print("=" * 55)
@@ -133,12 +133,12 @@ def main():
     print("✅ Zero code changes required - existing Python code accelerated")
     print("✅ 10-100x performance improvement over pure Python")
     print("\n🚀 Your QuantoniumOS cryptographic operations are now production-ready!")
-    
-    print("\nUsage in your code:")
+
+    print("||nUsage in your code:")
     print("```python")
     print("from core.high_performance_engine import QuantoniumEngineCore")
     print("engine = QuantoniumEngineCore()")
-    print("result = engine.forward_true_rft(your_data)  # Automatic C++ acceleration!")
+    print("result = engine.forward_true_rft(your_data) # Automatic C++ acceleration!")
     print("```")
 
 if __name__ == "__main__":

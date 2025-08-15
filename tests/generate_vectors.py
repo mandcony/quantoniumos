@@ -1,7 +1,7 @@
-"""
+""""""
 QuantoniumOS Test Vector Generator
 Generates machine-readable Known Answer Tests (KATs) for reproducible validation
-"""
+""""""
 
 import json
 import hashlib
@@ -10,13 +10,13 @@ from typing import Dict, Any
 from pathlib import Path
 
 def generate_rft_vectors() -> Dict[str, Any]:
-    """Generate RFT Known Answer Test vectors"""
+    """"""Generate RFT Known Answer Test vectors""""""
     vectors = {
         "description": "Resonance Fourier Transform Known Answer Tests",
         "version": "1.0",
         "test_cases": []
     }
-    
+
     # Test case 1: Simple square wave
     test_case = {
         "test_id": "RFT_001",
@@ -32,17 +32,17 @@ def generate_rft_vectors() -> Dict[str, Any]:
         }
     }
     vectors["test_cases"].append(test_case)
-    
+
     return vectors
 
 def generate_geometric_hash_vectors() -> Dict[str, Any]:
-    """Generate Geometric Hash Known Answer Test vectors"""
+    """"""Generate Geometric Hash Known Answer Test vectors""""""
     vectors = {
-        "description": "Geometric Waveform Hash Known Answer Tests", 
+        "description": "Geometric Waveform Hash Known Answer Tests",
         "version": "1.0",
         "test_cases": []
     }
-    
+
     # Deterministic test vector
     test_case = {
         "test_id": "GEO_001",
@@ -62,17 +62,17 @@ def generate_geometric_hash_vectors() -> Dict[str, Any]:
         }
     }
     vectors["test_cases"].append(test_case)
-    
+
     return vectors
 
 def generate_encryption_vectors() -> Dict[str, Any]:
-    """Generate Encryption Known Answer Test vectors"""
+    """"""Generate Encryption Known Answer Test vectors""""""
     vectors = {
         "description": "Resonance Encryption Known Answer Tests",
-        "version": "1.0", 
+        "version": "1.0",
         "test_cases": []
     }
-    
+
     # Standard test vector
     test_case = {
         "test_id": "ENC_001",
@@ -88,19 +88,19 @@ def generate_encryption_vectors() -> Dict[str, Any]:
         }
     }
     vectors["test_cases"].append(test_case)
-    
+
     return vectors
 
 def generate_all_vectors():
-    """Generate all test vectors and save to public_test_vectors/"""
+    """"""Generate all test vectors and save to public_test_vectors/""""""
     output_dir = Path("public_test_vectors")
     output_dir.mkdir(exist_ok=True)
-    
+
     # Generate complete test vector suite
     all_vectors = {
         "test_vectors": {
             "rft_vectors": generate_rft_vectors(),
-            "geometric_hash_vectors": generate_geometric_hash_vectors(), 
+            "geometric_hash_vectors": generate_geometric_hash_vectors(),
             "encryption_vectors": generate_encryption_vectors()
         },
         "metadata": {
@@ -110,14 +110,14 @@ def generate_all_vectors():
             "specification": "RFC-QUANTONIUM-2024-001"
         }
     }
-    
+
     # Save to JSON
     output_file = output_dir / "known_answer_tests.json"
     with open(output_file, 'w') as f:
         json.dump(all_vectors, f, indent=2)
-        
+
     print(f"✅ Generated test vectors: {output_file}")
-    
+
     # Generate individual vector files
     for vector_type, vectors in all_vectors["test_vectors"].items():
         vector_file = output_dir / f"{vector_type}.json"

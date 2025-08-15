@@ -63,10 +63,10 @@ def keyed_nonlinear_diffusion(data: bytes, key: bytes, rounds: int = 2) -> bytes
     return _bytes_from_words(w)
 
 def keyed_nonlinear_diffusion_v2(data: bytes, key: bytes, rounds: int = 3) -> bytes:
-    """
+    """"""
     Stronger keyed diffusion: Weyl adds -> MDS mixing -> ARX.
     Deterministic; same IO contract as v1.
-    """
+    """"""
     # bytes -> uint32 words (LE), pad to 16-word blocks
     w = np.frombuffer(data + b"\x00" * ((64 - (len(data) % 64)) % 64), dtype=np.uint32).copy()
     key_words = np.frombuffer((key + b"\x00"*64)[:64], dtype=np.uint32).copy()

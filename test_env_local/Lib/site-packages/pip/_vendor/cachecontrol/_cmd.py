@@ -18,12 +18,10 @@ if TYPE_CHECKING:
 
     from pip._vendor.cachecontrol.controller import CacheController
 
-
 def setup_logging() -> None:
     logger.setLevel(logging.DEBUG)
     handler = logging.StreamHandler()
     logger.addHandler(handler)
-
 
 def get_session() -> requests.Session:
     adapter = CacheControlAdapter(
@@ -36,12 +34,10 @@ def get_session() -> requests.Session:
     sess.cache_controller = adapter.controller  # type: ignore[attr-defined]
     return sess
 
-
 def get_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument("url", help="The URL to try and cache")
     return parser.parse_args()
-
 
 def main() -> None:
     args = get_args()
@@ -64,7 +60,6 @@ def main() -> None:
         print("Cached!")
     else:
         print("Not cached :(")
-
 
 if __name__ == "__main__":
     main()

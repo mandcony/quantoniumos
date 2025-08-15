@@ -11,7 +11,6 @@ else:
     except ImportError:
         from _dummy_thread import allocate_lock
 
-
 ##import sys
 ##l1 = allocate_lock
 

@@ -9,7 +9,6 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. You may need to remove CMakeCache.txt. ")
 endif()
 
-
 # Alias Eigen_*_DIR to Eigen3_*_DIR:
 
 set(Eigen_SOURCE_DIR ${Eigen3_SOURCE_DIR})
@@ -20,7 +19,6 @@ set(Eigen_BINARY_DIR ${Eigen3_BINARY_DIR})
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
-
 
 #############################################################################
 # retrieve version information                                               #
@@ -39,74 +37,7 @@ set(EIGEN_VERSION_NUMBER ${EIGEN_WORLD_VERSION}.${EIGEN_MAJOR_VERSION}.${EIGEN_M
 # if we are not in a git clone
 if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/.git)
   # if the git program is absent or this will leave the EIGEN_GIT_REVNUM string empty,
-  # but won't stop CMake.
-  execute_process(COMMAND git ls-remote --refs -q ${CMAKE_SOURCE_DIR} HEAD OUTPUT_VARIABLE EIGEN_GIT_OUTPUT)
-endif()
-
-# extract the git rev number from the git output...
-if(EIGEN_GIT_OUTPUT)
-string(REGEX MATCH "^([0-9;a-f]+).*" EIGEN_GIT_CHANGESET_MATCH "${EIGEN_GIT_OUTPUT}")
-set(EIGEN_GIT_REVNUM "${CMAKE_MATCH_1}")
-endif()
-#...and show it next to the version number
-if(EIGEN_GIT_REVNUM)
-  set(EIGEN_VERSION "${EIGEN_VERSION_NUMBER} (git rev ${EIGEN_GIT_REVNUM})")
-else()
-  set(EIGEN_VERSION "${EIGEN_VERSION_NUMBER}")
-endif()
-
-include(CheckCXXCompilerFlag)
-include(GNUInstallDirs)
-include(CMakeDependentOption)
-
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
-
-option(EIGEN_TEST_CXX11 "Enable testing with C++11 and C++11 features (e.g. Tensor module)." OFF)
-
-
-macro(ei_add_cxx_compiler_flag FLAG)
-  string(REGEX REPLACE "-" "" SFLAG1 ${FLAG})
-  string(REGEX REPLACE "\\+" "p" SFLAG ${SFLAG1})
-  check_cxx_compiler_flag(${FLAG} COMPILER_SUPPORT_${SFLAG})
-  if(COMPILER_SUPPORT_${SFLAG})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FLAG}")
-  endif()
-endmacro()
-
-check_cxx_compiler_flag("-std=c++11" EIGEN_COMPILER_SUPPORT_CPP11)
-
-if(EIGEN_TEST_CXX11)
-  set(CMAKE_CXX_STANDARD 11)
-  set(CMAKE_CXX_EXTENSIONS OFF)
-  if(EIGEN_COMPILER_SUPPORT_CPP11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  endif()
-else()
-  #set(CMAKE_CXX_STANDARD 03)
-  #set(CMAKE_CXX_EXTENSIONS OFF)
-  ei_add_cxx_compiler_flag("-std=c++03")
-endif()
-
-# Determine if we should build shared libraries on this platform.
-get_cmake_property(EIGEN_BUILD_SHARED_LIBS TARGET_SUPPORTS_SHARED_LIBS)
-
-#############################################################################
-# find how to link to the standard libraries                                #
-#############################################################################
-
-find_package(StandardMathLibrary)
-
-
-set(EIGEN_TEST_CUSTOM_LINKER_FLAGS  "" CACHE STRING "Additional linker flags when linking unit tests.")
-set(EIGEN_TEST_CUSTOM_CXX_FLAGS     "" CACHE STRING "Additional compiler flags when compiling unit tests.")
-
-set(EIGEN_STANDARD_LIBRARIES_TO_LINK_TO "")
-
-if(NOT STANDARD_MATH_LIBRARY_FOUND)
-
-  message(FATAL_ERROR
-    "Can't link to the standard math library. Please report to the Eigen developers, telling them about your platform.")
+  # but won't stop CMake. execute_process(COMMAND git ls-remote --refs -q ${CMAKE_SOURCE_DIR} HEAD OUTPUT_VARIABLE EIGEN_GIT_OUTPUT) endif() # extract the git rev number from the git output... if(EIGEN_GIT_OUTPUT) string(REGEX MATCH "^([0-9;a-f]+).*" EIGEN_GIT_CHANGESET_MATCH "${EIGEN_GIT_OUTPUT}") set(EIGEN_GIT_REVNUM "${CMAKE_MATCH_1}") endif() #...and show it next to the version number if(EIGEN_GIT_REVNUM) set(EIGEN_VERSION "${EIGEN_VERSION_NUMBER} (git rev ${EIGEN_GIT_REVNUM})") else() set(EIGEN_VERSION "${EIGEN_VERSION_NUMBER}") endif() include(CheckCXXCompilerFlag) include(GNUInstallDirs) include(CMakeDependentOption) set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) option(EIGEN_TEST_CXX11 "Enable testing with C++11 and C++11 features (e.g. Tensor module)." OFF) macro(ei_add_cxx_compiler_flag FLAG) string(REGEX REPLACE "-" "" SFLAG1 ${FLAG}) string(REGEX REPLACE "\\+" "p" SFLAG ${SFLAG1}) check_cxx_compiler_flag(${FLAG} COMPILER_SUPPORT_${SFLAG}) if(COMPILER_SUPPORT_${SFLAG}) set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FLAG}") endif() endmacro() check_cxx_compiler_flag("-std=c++11" EIGEN_COMPILER_SUPPORT_CPP11) if(EIGEN_TEST_CXX11) set(CMAKE_CXX_STANDARD 11) set(CMAKE_CXX_EXTENSIONS OFF) if(EIGEN_COMPILER_SUPPORT_CPP11) set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11") endif() else() #set(CMAKE_CXX_STANDARD 03) #set(CMAKE_CXX_EXTENSIONS OFF) ei_add_cxx_compiler_flag("-std=c++03") endif() # Determine if we should build shared libraries on this platform. get_cmake_property(EIGEN_BUILD_SHARED_LIBS TARGET_SUPPORTS_SHARED_LIBS) ############################################################################# # find how to link to the standard libraries # ############################################################################# find_package(StandardMathLibrary) set(EIGEN_TEST_CUSTOM_LINKER_FLAGS "" CACHE STRING "Additional linker flags when linking unit tests.") set(EIGEN_TEST_CUSTOM_CXX_FLAGS "" CACHE STRING "Additional compiler flags when compiling unit tests.") set(EIGEN_STANDARD_LIBRARIES_TO_LINK_TO "") if(NOT STANDARD_MATH_LIBRARY_FOUND) message(FATAL_ERROR "Can't link to the standard math library. Please report to the Eigen developers, telling them about your platform.")
 
 else()
 
@@ -180,9 +111,7 @@ if(NOT MSVC)
   ei_add_cxx_compiler_flag("-fno-check-new")
   ei_add_cxx_compiler_flag("-fno-common")
   ei_add_cxx_compiler_flag("-fstrict-aliasing")
-  ei_add_cxx_compiler_flag("-wd981")                    # disable ICC's "operands are evaluated in unspecified order" remark
-  ei_add_cxx_compiler_flag("-wd2304")                   # disable ICC's "warning #2304: non-explicit constructor with single argument may cause implicit type conversion" produced by -Wnon-virtual-dtor
-
+  ei_add_cxx_compiler_flag("-wd981")                    # disable ICC's "operands are evaluated in unspecified order" remark ei_add_cxx_compiler_flag("-wd2304") # disable ICC's "warning #2304: non-explicit constructor with single argument may cause implicit type conversion" produced by -Wnon-virtual-dtor
 
   # The -ansi flag must be added last, otherwise it is also used as a linker flag by check_cxx_compiler_flag making it fails
   # Moreover we should not set both -strict-ansi and -ansi
@@ -454,40 +383,7 @@ endforeach()
 macro(ei_add_target_property target prop value)
 
   get_target_property(previous ${target} ${prop})
-  # if the property wasn't previously set, ${previous} is now "previous-NOTFOUND" which cmake allows catching with plain if()
-  if(NOT previous)
-    set(previous "")
-  endif()
-  set_target_properties(${target} PROPERTIES ${prop} "${previous} ${value}")
-endmacro()
-
-install(FILES
-  signature_of_eigen3_matrix_library
-  DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel
-  )
-
-if(EIGEN_BUILD_PKGCONFIG)
-    configure_file(eigen3.pc.in eigen3.pc @ONLY)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/eigen3.pc
-        DESTINATION ${PKGCONFIG_INSTALL_DIR}
-        )
-endif()
-
-install(DIRECTORY Eigen DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
-
-
-option(EIGEN_BUILD_DOC "Enable creation of Eigen documentation" ON)
-if(EIGEN_BUILD_DOC)
-  add_subdirectory(doc EXCLUDE_FROM_ALL)
-endif()
-
-
-option(BUILD_TESTING "Enable creation of Eigen tests." ON)
-if(BUILD_TESTING)
-  include(EigenConfigureTesting)
-
-  if(EIGEN_LEAVE_TEST_IN_ALL_TARGET)
-    add_subdirectory(test) # can't do EXCLUDE_FROM_ALL here, breaks CTest
+  # if the property wasn't previously set, ${previous} is now "previous-NOTFOUND" which cmake allows catching with plain if() if(NOT previous) set(previous "") endif() set_target_properties(${target} PROPERTIES ${prop} "${previous} ${value}") endmacro() install(FILES signature_of_eigen3_matrix_library DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel ) if(EIGEN_BUILD_PKGCONFIG) configure_file(eigen3.pc.in eigen3.pc @ONLY) install(FILES ${CMAKE_CURRENT_BINARY_DIR}/eigen3.pc DESTINATION ${PKGCONFIG_INSTALL_DIR} ) endif() install(DIRECTORY Eigen DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel) option(EIGEN_BUILD_DOC "Enable creation of Eigen documentation" ON) if(EIGEN_BUILD_DOC) add_subdirectory(doc EXCLUDE_FROM_ALL) endif() option(BUILD_TESTING "Enable creation of Eigen tests." ON) if(BUILD_TESTING) include(EigenConfigureTesting) if(EIGEN_LEAVE_TEST_IN_ALL_TARGET) add_subdirectory(test) # can't do EXCLUDE_FROM_ALL here, breaks CTest
   else()
     add_subdirectory(test EXCLUDE_FROM_ALL)
   endif()
@@ -566,27 +462,26 @@ else()
   message(STATUS "Available targets (use: cmake --build . --target TARGET):")
 endif()
 message(STATUS "---------+--------------------------------------------------------------")
-message(STATUS "Target   |   Description")
+message(STATUS "Target | Description")
 message(STATUS "---------+--------------------------------------------------------------")
-message(STATUS "install  | Install Eigen. Headers will be installed to:")
-message(STATUS "         |     <CMAKE_INSTALL_PREFIX>/<INCLUDE_INSTALL_DIR>")
-message(STATUS "         |   Using the following values:")
-message(STATUS "         |     CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "         |     INCLUDE_INSTALL_DIR:  ${INCLUDE_INSTALL_DIR}")
-message(STATUS "         |   Change the install location of Eigen headers using:")
-message(STATUS "         |     cmake . -DCMAKE_INSTALL_PREFIX=yourprefix")
-message(STATUS "         |   Or:")
-message(STATUS "         |     cmake . -DINCLUDE_INSTALL_DIR=yourdir")
-message(STATUS "doc      | Generate the API documentation, requires Doxygen & LaTeX")
+message(STATUS "install | Install Eigen. Headers will be installed to:")
+message(STATUS " | <CMAKE_INSTALL_PREFIX>/<INCLUDE_INSTALL_DIR>")
+message(STATUS " | Using the following values:")
+message(STATUS " | CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS " | INCLUDE_INSTALL_DIR: ${INCLUDE_INSTALL_DIR}")
+message(STATUS " | Change the install location of Eigen headers using:")
+message(STATUS " | cmake . -DCMAKE_INSTALL_PREFIX=yourprefix")
+message(STATUS " | Or:")
+message(STATUS " | cmake . -DINCLUDE_INSTALL_DIR=yourdir")
+message(STATUS "doc | Generate the API documentation, requires Doxygen & LaTeX")
 if(BUILD_TESTING)
-  message(STATUS "check    | Build and run the unit-tests. Read this page:")
-  message(STATUS "         |   http://eigen.tuxfamily.org/index.php?title=Tests")
+  message(STATUS "check | Build and run the unit-tests. Read this page:")
+  message(STATUS " | http://eigen.tuxfamily.org/index.php?title=Tests")
 endif()
-message(STATUS "blas     | Build BLAS library (not the same thing as Eigen)")
+message(STATUS "blas | Build BLAS library (not the same thing as Eigen)")
 message(STATUS "uninstall| Remove files installed by the install target")
 message(STATUS "---------+--------------------------------------------------------------")
 message(STATUS "")
-
 
 set ( EIGEN_VERSION_STRING ${EIGEN_VERSION_NUMBER} )
 set ( EIGEN_VERSION_MAJOR  ${EIGEN_WORLD_VERSION} )

@@ -3,19 +3,19 @@ import random
 
 class MultiQubitState:
     def __init__(self, num_qubits):
-        """Initializes a quantum state with n qubits in |0> state."""
+        """"""Initializes a quantum state with n qubits in |0> state.""""""
         self.num_qubits = num_qubits
         self.size = 2 ** num_qubits  # 2^num_qubits possible states
         self.state_vector = np.zeros(self.size, dtype=complex)
         self.state_vector[0] = 1.0  # |000...0> initial state
 
     def apply_hadamard(self, target):
-        """Applies Hadamard gate to a single qubit, creating superposition."""
+        """"""Applies Hadamard gate to a single qubit, creating superposition.""""""
         H = (1 / np.sqrt(2)) * np.array([[1, 1], [1, -1]])
         self.apply_single_qubit_gate(H, target)
 
     def apply_cnot(self, control, target):
-        """Applies a CNOT gate with the given control and target qubits."""
+        """"""Applies a CNOT gate with the given control and target qubits.""""""
         new_state = np.copy(self.state_vector)
         for i in range(self.size):
             if (i >> control) & 1:  # If control qubit is 1
@@ -24,12 +24,12 @@ class MultiQubitState:
         self.state_vector = new_state
 
     def apply_x(self, target):
-        """Applies an X (Pauli-X) gate to flip the target qubit."""
+        """"""Applies an X (Pauli-X) gate to flip the target qubit.""""""
         X = np.array([[0, 1], [1, 0]])
         self.apply_single_qubit_gate(X, target)
 
     def apply_single_qubit_gate(self, gate, target):
-        """Applies a single-qubit gate to the target qubit."""
+        """"""Applies a single-qubit gate to the target qubit.""""""
         new_state = np.copy(self.state_vector)
         step = 2 ** target
         for i in range(0, self.size, step * 2):
@@ -41,7 +41,7 @@ class MultiQubitState:
         self.state_vector = new_state
 
     def measure_all(self):
-        """Performs a measurement and collapses the quantum state."""
+        """"""Performs a measurement and collapses the quantum state.""""""
         probabilities = np.abs(self.state_vector) ** 2
         outcome_index = np.random.choice(self.size, p=probabilities)
         new_state = np.zeros(self.size, dtype=complex)
@@ -50,7 +50,7 @@ class MultiQubitState:
         return outcome_index
 
     def get_amplitudes(self):
-        """Returns the symbolic amplitude representation of the state."""
+        """"""Returns the symbolic amplitude representation of the state.""""""
         return [f"{np.round(amp.real, 3)} + {np.round(amp.imag, 3)}i" for amp in self.state_vector]
 
 # TESTING MULTI-QUBIT STATE SYSTEM

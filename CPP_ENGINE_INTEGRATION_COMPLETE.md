@@ -8,14 +8,14 @@ All Python cryptographic operations in QuantoniumOS now automatically use high-p
 
 ### ✅ C++ Engine Compilation
 - **quantonium_core**: Core RFT operations with Eigen3 acceleration
-- **resonance_engine**: Resonance Fourier Transform (Patent Claim 1) 
+- **resonance_engine**: Resonance Fourier Transform (Patent Claim 1)
 - **quantum_engine**: Quantum entropy and geometric hashing (Patent Claims 3,4)
 
 ### ✅ Unified Python Interface
 - `QuantoniumEngineCore` class provides single entry point
 - Automatic engine selection with fallback hierarchy:
   1. `resonance_engine` (fastest)
-  2. `quantum_engine` (quantum-enhanced)  
+  2. `quantum_engine` (quantum-enhanced)
   3. `core_engine` (basic C++)
   4. `python_fallback` (pure Python)
 
@@ -39,7 +39,7 @@ result = engine.forward_true_rft(your_data)  # Automatic C++ acceleration!
 ```python
 # Use specific engines directly
 import resonance_engine
-import quantum_engine  
+import quantum_engine
 import quantonium_core
 
 # Resonance operations
@@ -54,7 +54,7 @@ entropy = quantum_engine.generate_quantum_entropy(32)
 ## Engine Status
 All engines are now **✅ Available**:
 - `resonance_engine`: ✅ Available
-- `quantum_engine`: ✅ Available  
+- `quantum_engine`: ✅ Available
 - `core_engine`: ✅ Available
 - `python_fallback`: ✅ Available
 - `preferred_engine`: ✅ Available
@@ -86,7 +86,7 @@ All engines are now **✅ Available**:
 
 ### Dependencies
 - ✅ **CMake 3.28.3**: Build system
-- ✅ **g++ 13**: C++ compiler  
+- ✅ **g++ 13**: C++ compiler
 - ✅ **Eigen3 3.4.0**: Linear algebra library
 - ✅ **pybind11 3.0.0**: Python bindings
 - ✅ **NumPy 2.3.2**: Python numerical library
@@ -95,7 +95,7 @@ All engines are now **✅ Available**:
 ```
 core/
 ├── quantonium_core.cpython-312-x86_64-linux-gnu.so     # Core engine
-├── resonance_engine.cpython-312-x86_64-linux-gnu.so    # RFT engine  
+├── resonance_engine.cpython-312-x86_64-linux-gnu.so    # RFT engine
 ├── quantum_engine.cpython-312-x86_64-linux-gnu.so      # Quantum engine
 ├── high_performance_engine.py                          # Unified interface
 ├── engine_core.cpp                                     # C++ implementation
@@ -131,7 +131,7 @@ pip install pybind11 numpy setuptools wheel
 # Build all engines
 python build_engines.py
 
-# Test integration  
+# Test integration
 python demo_cpp_integration.py
 ```
 

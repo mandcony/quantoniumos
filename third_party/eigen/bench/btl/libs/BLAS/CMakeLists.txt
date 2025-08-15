@@ -17,7 +17,6 @@ if (MKL_FOUND)
   endif()
 endif ()
 
-
 find_package(OPENBLAS)
 if (OPENBLAS_FOUND)
   btl_add_bench(btl_openblas main.cpp)

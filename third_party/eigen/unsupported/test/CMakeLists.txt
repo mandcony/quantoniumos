@@ -21,7 +21,6 @@ else()
   ei_add_property(EIGEN_MISSING_BACKENDS  "GoogleHash, ")
 endif()
 
-
 find_package(Adolc)
 if(Adolc_FOUND)
   include_directories(${ADOLC_INCLUDES})
@@ -355,7 +354,6 @@ if(CUDA_FOUND AND EIGEN_TEST_CUDA)
     ei_add_test(cxx11_tensor_random_gpu)
   endif()
 
-
   unset(EIGEN_ADD_TEST_FILENAME_EXTENSION)
 endif()
 
@@ -375,34 +373,34 @@ if (EIGEN_TEST_HIP)
 
       if ((${HIP_PLATFORM} STREQUAL "hcc") OR (${HIP_PLATFORM} STREQUAL "amd"))
 
-	include_directories(${CMAKE_CURRENT_BINARY_DIR})
-	include_directories(${HIP_PATH}/include)
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ include_directories(${HIP_PATH}/include)
 
-	set(EIGEN_ADD_TEST_FILENAME_EXTENSION  "cu")
-	#
-	# complex datatype is not yet supported by HIP
-	# so leaving out those tests for now
-	#
-	# ei_add_test(cxx11_tensor_complex_gpu)
-	# ei_add_test(cxx11_tensor_complex_cwise_ops_gpu)
-	#
-	ei_add_test(cxx11_tensor_reduction_gpu)
-	ei_add_test(cxx11_tensor_argmax_gpu)
-	ei_add_test(cxx11_tensor_cast_float16_gpu)
-	ei_add_test(cxx11_tensor_scan_gpu)
-	ei_add_test(cxx11_tensor_device)
+ set(EIGEN_ADD_TEST_FILENAME_EXTENSION  "cu")
+ #
+ # complex datatype is not yet supported by HIP
+ # so leaving out those tests for now
+ #
+ # ei_add_test(cxx11_tensor_complex_gpu)
+ # ei_add_test(cxx11_tensor_complex_cwise_ops_gpu)
+ #
+ ei_add_test(cxx11_tensor_reduction_gpu)
+ ei_add_test(cxx11_tensor_argmax_gpu)
+ ei_add_test(cxx11_tensor_cast_float16_gpu)
+ ei_add_test(cxx11_tensor_scan_gpu)
+ ei_add_test(cxx11_tensor_device)
 
-	ei_add_test(cxx11_tensor_gpu)
-	ei_add_test(cxx11_tensor_contract_gpu)
-	ei_add_test(cxx11_tensor_of_float16_gpu)
-	ei_add_test(cxx11_tensor_random_gpu)
+ ei_add_test(cxx11_tensor_gpu)
+ ei_add_test(cxx11_tensor_contract_gpu)
+ ei_add_test(cxx11_tensor_of_float16_gpu)
+ ei_add_test(cxx11_tensor_random_gpu)
 
-	unset(EIGEN_ADD_TEST_FILENAME_EXTENSION)
+ unset(EIGEN_ADD_TEST_FILENAME_EXTENSION)
 
       elseif ((${HIP_PLATFORM} STREQUAL "nvcc") OR (${HIP_PLATFORM} STREQUAL "nvidia"))
-	message(FATAL_ERROR "HIP_PLATFORM = nvcc is not supported within Eigen")
+ message(FATAL_ERROR "HIP_PLATFORM = nvcc is not supported within Eigen")
       else ()
-	message(FATAL_ERROR "Unknown HIP_PLATFORM = ${HIP_PLATFORM}")
+ message(FATAL_ERROR "Unknown HIP_PLATFORM = ${HIP_PLATFORM}")
       endif()
 
     endif()

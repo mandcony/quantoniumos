@@ -1,6 +1,5 @@
 from .palette import Palette
 
-
 # Taken from https://en.wikipedia.org/wiki/ANSI_escape_code (Windows 10 column)
 WINDOWS_PALETTE = Palette(
     [
@@ -44,7 +43,6 @@ STANDARD_PALETTE = Palette(
         (255, 255, 255),
     ]
 )
-
 
 # The 256 color palette
 EIGHT_BIT_PALETTE = Palette(

@@ -39,33 +39,13 @@ Load hg-to-git hash maps from ./eigen_git/.git/
 693a8ad8887bf   # blocking size strategy
 693bcf9bb5c1f   # avoid redundant pack_rhs
 6987550107028   # dynamic loop swapping
-69858740ce4c6   # rm dynamic loop swapping,<br/> adjust lhs's micro panel height to fully exploit L1 cache
-698cd3bbffa73   # blocking heuristic:<br/> block on the rhs in L1 if the lhs fit in L1.
-701488c15615a   # organize a little our default cache sizes,<br/> and use a saner default L1 outside of x86 (10% faster on Nexus 5)
-701e56aabf205   # Refactor computeProductBlockingSizes to make room<br/> for the possibility of using lookup tables
-701ca5c12587b   # Polish lookup tables generation
-7013589a9c115   # actual_panel_rows computation should always be resilient<br/> to parameters not consistent with the known L1 cache size, see comment
-70102babb9c0f   # Provide a empirical lookup table for blocking sizes measured on a Nexus 5.<br/> Only for float, only for Android on ARM 32bit for now.
-7088481dc21ea   # Bug 986: add support for coefficient-based<br/> product with 0 depth.
-709d7f51feb07   # Bug 992: don't select a 3p GEMM path with non-SIMD scalar types.
+69858740ce4c6   # rm dynamic loop swapping,<br/> adjust lhs's micro panel height to fully exploit L1 cache 698cd3bbffa73 # blocking heuristic:<br/> block on the rhs in L1 if the lhs fit in L1. 701488c15615a # organize a little our default cache sizes,<br/> and use a saner default L1 outside of x86 (10% faster on Nexus 5) 701e56aabf205 # Refactor computeProductBlockingSizes to make room<br/> for the possibility of using lookup tables 701ca5c12587b # Polish lookup tables generation 7013589a9c115 # actual_panel_rows computation should always be resilient<br/> to parameters not consistent with the known L1 cache size, see comment 70102babb9c0f # Provide a empirical lookup table for blocking sizes measured on a Nexus 5.<br/> Only for float, only for Android on ARM 32bit for now. 7088481dc21ea # Bug 986: add support for coefficient-based<br/> product with 0 depth. 709d7f51feb07 # Bug 992: don't select a 3p GEMM path with non-SIMD scalar types.
 759f9303cc7c5   # 3.3-alpha1
 765aba1eda71e   # help clang inlining
 770fe630c9873   # Improve numerical accuracy in LLT and triangular solve<br/> by using true scalar divisions (instead of x * (1/y))
 #8741d23430628   # Improved the matrix multiplication blocking in the case<br/> where mr is not a power of 2 (e.g on Haswell CPUs)
 878f629fe95c8   # Made the index type a template parameter to evaluateProductBlockingSizes.<br/> Use numext::mini and numext::maxi instead of <br/> std::min/std::max to compute blocking sizes.
-8975d51a7f12c   # Don't optimize the processing of the last rows of<br/> a matrix matrix product in cases that violate<br/> the assumptions made by the optimized code path.
-8986136f4fdd4   # Remove the rotating kernel.
-898e68e165a23   # Bug 256: enable vectorization with unaligned loads/stores.
-91466e99ab6a1   # Relax mixing-type constraints for binary coeff-wise operators
-91776236cdea4   # merge
-917101ea26f5e   # Include the cost of stores in unrolling
-921672076db5d   # Fix perf regression introduced in changeset e56aabf205
-9210fa9e4a15c   # Fix perf regression in dgemm introduced by changeset 5d51a7f12c
-936f6b3cf8de9   # 3.3-beta2
-944504a4404f1   # Optimize expression matching 'd?=a-b*c' as 'd?=a; d?=b*c;'
-95877e27fbeee   # 3.3-rc1
-959779774f98c   # Bug 1311: fix alignment logic in some cases<br/> of (scalar*small).lazyProduct(small)
-9729f9d8d2f62   # Disabled part of the matrix matrix peeling code<br/> that's incompatible with 512 bit registers
+8975d51a7f12c   # Don't optimize the processing of the last rows of<br/> a matrix matrix product in cases that violate<br/> the assumptions made by the optimized code path. 8986136f4fdd4 # Remove the rotating kernel. 898e68e165a23 # Bug 256: enable vectorization with unaligned loads/stores. 91466e99ab6a1 # Relax mixing-type constraints for binary coeff-wise operators 91776236cdea4 # merge 917101ea26f5e # Include the cost of stores in unrolling 921672076db5d # Fix perf regression introduced in changeset e56aabf205 9210fa9e4a15c # Fix perf regression in dgemm introduced by changeset 5d51a7f12c 936f6b3cf8de9 # 3.3-beta2 944504a4404f1 # Optimize expression matching 'd?=a-b*c' as 'd?=a; d?=b*c;' 95877e27fbeee # 3.3-rc1 959779774f98c # Bug 1311: fix alignment logic in some cases<br/> of (scalar*small).lazyProduct(small) 9729f9d8d2f62 # Disabled part of the matrix matrix peeling code<br/> that's incompatible with 512 bit registers
 979eeac81b8c0   # 3.3.0
 989c927af60ed   # Fix a performance regression in (mat*mat)*vec<br/> for which mat*mat was evaluated multiple times.
 994fe696022ec   # Operators += and -= do not resize!

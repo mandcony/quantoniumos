@@ -32,26 +32,26 @@ Let:
 FUNCTION ResonanceEncrypt(P: byte[], K: string) -> byte[]
     // Generate key hash
     K_H = SHA-256(K)
-    
+
     // Create signature and token
     S = K_H[0:8]  // First 8 bytes
     T = SecureRandomBytes(32)
-    
+
     // Generate keystream
     seed = Concatenate(K_H, T)
     KS = GenerateKeystream(seed, Length(P))
-    
+
     // Encrypt data
     E = byte[Length(P)]
     FOR i = 0 TO Length(P) - 1 DO
         // XOR operation
         E[i] = P[i] ⊕ KS[i]
-        
+
         // Bit rotation
         rotate_amount = (KS[(i+1) % Length(KS)] % 7) + 1  // 1-8 bits
         E[i] = ((E[i] << rotate_amount) | (E[i] >> (8 - rotate_amount))) & 0xFF
     END FOR
-    
+
     // Assemble final ciphertext
     C = Concatenate(S, T, E)
     RETURN C
@@ -62,33 +62,33 @@ FUNCTION ResonanceDecrypt(C: byte[], K: string) -> byte[]
     IF Length(C) < 41 THEN
         THROW Error("Invalid ciphertext")
     END IF
-    
+
     // Generate key hash and check signature
     K_H = SHA-256(K)
     S = C[0:8]  // First 8 bytes of ciphertext
-    IF S ≠ K_H[0:8] THEN
+    IF S != K_H[0:8] THEN
         THROW Error("Invalid signature")
     END IF
-    
+
     // Extract token and encrypted data
     T = C[8:40]  // Next 32 bytes
     E = C[40:]   // Remaining bytes
-    
+
     // Generate keystream
     seed = Concatenate(K_H, T)
     KS = GenerateKeystream(seed, Length(E))
-    
+
     // Decrypt data
     P = byte[Length(E)]
     FOR i = 0 TO Length(E) - 1 DO
         // Reverse bit rotation
         rotate_amount = (KS[(i+1) % Length(KS)] % 7) + 1  // 1-8 bits
         temp = ((E[i] >> rotate_amount) | (E[i] << (8 - rotate_amount))) & 0xFF
-        
+
         // XOR operation
         P[i] = temp ⊕ KS[i]
     END FOR
-    
+
     RETURN P
 END FUNCTION
 ```
@@ -113,29 +113,29 @@ Let:
 FUNCTION GeometricWaveHash(D: byte[]) -> byte[32]
     // Initialize wave state
     W = InitializeWaveState()  // 8x8 matrix
-    
+
     // Process input in chunks
     C = SplitIntoChunks(D, 64)  // 64-byte chunks
-    
+
     FOR each chunk c in C DO
         // Transform chunk into wave components
         wave_components = TransformToWaves(c)
-        
+
         // Update wave state with interference patterns
         W = ApplyInterference(W, wave_components)
-        
+
         // Apply geometric transformation
         W = ApplyGeometricTransform(W)
     END FOR
-    
+
     // Final diffusion rounds
     FOR i = 0 TO 7 DO
         W = ApplyDiffusion(W)
     END FOR
-    
+
     // Extract hash from wave state
     H = ExtractHash(W)  // 32 bytes
-    
+
     RETURN H
 END FUNCTION
 ```
@@ -160,7 +160,7 @@ Let:
 FUNCTION DeriveKey(K: string, S: byte[], I: integer, L: integer) -> byte[]
     // Initial key material
     K_bytes = ConvertToUTF8Bytes(K)
-    
+
     // Apply PBKDF2 with HMAC-SHA-256
     DK = PBKDF2(
         PRF: HMAC-SHA-256,
@@ -169,7 +169,7 @@ FUNCTION DeriveKey(K: string, S: byte[], I: integer, L: integer) -> byte[]
         Iterations: I,
         KeyLength: L
     )
-    
+
     RETURN DK
 END FUNCTION
 ```
@@ -196,16 +196,16 @@ FUNCTION GenerateKeystream(S: byte[], L: integer) -> byte[]
     // Initialize amplitude and phase states
     A = InitializeAmplitude(S[0:16])   // First 16 bytes
     P = InitializePhase(S[16:32])      // Second 16 bytes
-    
+
     KS = byte[L]
-    
+
     FOR i = 0 TO L-1 DO
         // Update amplitude state
         A = UpdateAmplitudeState(A, i)
-        
+
         // Update phase state
         P = UpdatePhaseState(P, A)
-        
+
         // Generate output byte using wave equation
         byte_value = 0
         FOR j = 0 TO 7 DO
@@ -213,16 +213,16 @@ FUNCTION GenerateKeystream(S: byte[], L: integer) -> byte[]
             bit_value = (wave_component > 0) ? 1 : 0
             byte_value |= (bit_value << j)
         END FOR
-        
+
         KS[i] = byte_value
-        
+
         // Apply feedback
         IF i % 64 == 63 THEN
             A = ApplyFeedback(A, KS[i-63:i+1])
             P = ApplyFeedback(P, KS[i-63:i+1])
         END IF
     END FOR
-    
+
     RETURN KS
 END FUNCTION
 ```
@@ -247,21 +247,21 @@ Let:
 FUNCTION ResonantFrequencyTransform(X: byte[]) -> byte[]
     // Convert to frequency domain
     F = ApplyFFT(X)
-    
+
     // Generate resonance matrix from input characteristics
     R = GenerateResonanceMatrix(X)
-    
+
     // Apply resonance transformation
     F_transformed = MatrixMultiply(R, F)
-    
+
     // Convert back to time domain with additional diffusion
     Y = ApplyInverseFFT(F_transformed)
-    
+
     // Apply final non-linear transformation
     FOR i = 0 TO Length(Y) - 1 DO
         Y[i] = SubstitutionBox[Y[i]]
     END FOR
-    
+
     RETURN Y
 END FUNCTION
 ```

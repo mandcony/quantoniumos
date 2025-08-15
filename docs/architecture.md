@@ -46,7 +46,7 @@ Technology Stack:
 - Security: JWT auth, WAF, rate limiting, TLS
 - Desktop: PyQt5 with native OS integration
 - Deployment: Docker, Gunicorn, NGINX reverse proxy
-    
+
 ```
 
 ## Component Details

@@ -48,7 +48,7 @@ try:
     print("✓ analyze_waveform function available")
 except (ImportError, AttributeError):
     print("✗ analyze_waveform function not available")
-    
+
 # Test core encryption
 try:
     from canonical_true_rft import forward_true_rft, inverse_true_rft
@@ -73,7 +73,7 @@ try:
     print("✓ Wave primitives available")
 except ImportError:
     print("✗ Wave primitives not available")
-    
+
 print("\nStep 2: Preparing test data...")
 # Generate test signal with hidden pattern
 t = np.linspace(0, 10, 1000)
@@ -92,8 +92,8 @@ if modules_available['run_rft']:
     print(f"RFT returned {len(result)} values")
     print("First 3 values:")
     for i in range(min(3, len(result))):
-        print(f"  {result[i]}")
-    
+        print(f" {result[i]}")
+
     print("\nThis demonstrates the quantum-inspired signal processing capability")
     print("that captures patterns traditional FFT might miss.")
 
@@ -105,10 +105,10 @@ if modules_available['analyze_waveform']:
         print("Analysis results:")
         for key, value in result.items():
             if isinstance(value, list):
-                print(f"  {key}: List with {len(value)} elements")
+                print(f" {key}: List with {len(value)} elements")
             else:
-                print(f"  {key}: {value}")
-        
+                print(f" {key}: {value}")
+
         print("\nThis demonstrates the symbolic analysis capabilities")
         print("unique to your quantum-inspired system.")
     except Exception as e:
@@ -123,7 +123,7 @@ else:
     print("\nTo run more advanced tests:")
     print("1. Make sure your QuantoniumOS services are running")
     print("2. Try running the specific test scripts individually:")
-    print("   - tests/resonance_information_test.py")
-    print("   - tests/symbolic_avalanche_test.py")
-    print("   - tests/pattern_detection_test.py")
-    print("   - tests/quantum_simulation_test.py")
+    print(" - tests/resonance_information_test.py")
+    print(" - tests/symbolic_avalanche_test.py")
+    print(" - tests/pattern_detection_test.py")
+    print(" - tests/quantum_simulation_test.py")

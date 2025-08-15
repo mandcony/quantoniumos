@@ -34,7 +34,6 @@ $ ./bench_multi_compilers.sh basicbench.cxxlist basicbenchmark.cpp
     0.226145   0.0941319   0.371873   0.159433
     0.109302   0.0837538   0.328102   0.173891
 
-
 $ ./bench_multi_compilers.sh ompbench.cxxlist ompbenchmark.cpp
 
     g++-4.2 -O3 -DNDEBUG -finline-limit=10000 -fopenmp
@@ -50,6 +49,4 @@ $ ./bench_multi_compilers.sh ompbench.cxxlist ompbenchmark.cpp
     double, 128x128: 0.0547509s 0.0435519s  => x1.25714 (2)
     double, 512x512: 0.829436s 0.424438s  => x1.9542 (2)
     double, 1024x1024: 14.5243s 10.7735s  => x1.34815 (2)
-
-
 

@@ -29,12 +29,7 @@
       "passed": true,
       "p_value": 0.3607821030205828
     },
-    "Count-the-1's (stream)": {
-      "result": 0.8661806164011678,
-      "passed": true,
-      "p_value": 0.8661806164011678
-    },
-    "Count-the-1's (bytes)": {
+    "Count-the-1's (stream)": { "result": 0.8661806164011678, "passed": true, "p_value": 0.8661806164011678 }, "Count-the-1's (bytes)": {
       "result": 0.6827857024431244,
       "passed": true,
       "p_value": 0.6827857024431244

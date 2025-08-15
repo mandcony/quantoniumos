@@ -92,19 +92,19 @@ classDiagram
         -generateKeystream(bytes seed, int length) bytes
         -validateSignature(bytes ciphertext) bool
     }
-    
+
     class GeometricWaveHash {
         +hash(bytes data) bytes
         -transformData(bytes chunk) bytes
         -finalizeHash(array chunks) bytes
     }
-    
+
     class StatisticalValidator {
         +validateEntropy(bytes data) bool
         +runNIST_SP800_22(bytes data) Result
         +checkAvalancheEffect(bytes data1, bytes data2) float
     }
-    
+
     ResonanceEncryptor --> GeometricWaveHash: uses
     ResonanceEncryptor --> StatisticalValidator: validates with
 ```
@@ -119,19 +119,19 @@ flowchart TD
     MainCI --> CPPBuildWin[C++ Build (Windows)]
     MainCI --> IntegrationTests[Integration Tests]
     MainCI --> GenerateArtifacts[Generate Artifacts]
-    
+
     GenerateArtifacts --> TestVectors[(Test Vectors)]
     GenerateArtifacts --> Benchmarks[(Benchmarks)]
-    
+
     TestVectors --> CrossValidation{Cross-Validation CI}
     CrossValidation --> ValStatus[Validation Status]
-    
+
     PythonTests --> GreenWallStatus{Green Wall Status}
     CPPBuildLinux --> GreenWallStatus
     CPPBuildWin --> GreenWallStatus
     IntegrationTests --> GreenWallStatus
     ValStatus --> GreenWallStatus
-    
+
     GreenWallStatus --> Success[Success ]
     GreenWallStatus --> Failure[Failure ]
 ```

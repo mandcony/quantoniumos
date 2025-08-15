@@ -1,9 +1,9 @@
-"""
+""""""
 LEGACY REDIRECT - Use Canonical Implementation
 
 This module has been replaced by the canonical implementation.
 All RFT functionality now routes through canonical_true_rft.py for consistency.
-"""
+""""""
 
 # Redirect all imports to canonical source
 from canonical_true_rft import (
@@ -25,13 +25,13 @@ from canonical_true_rft import (
 import warnings
 
 def __getattr__(name):
-    """Catch any legacy function calls and redirect to canonical implementation."""
+    """"""Catch any legacy function calls and redirect to canonical implementation.""""""
     warnings.warn(
         f"core.true_rft.{name} is deprecated. Use canonical_true_rft.{name} instead.",
         DeprecationWarning,
         stacklevel=2
     )
-    
+
     # Try to get the attribute from canonical implementation
     try:
         import canonical_true_rft
@@ -44,6 +44,6 @@ perform_rft = forward_true_rft
 perform_irft = inverse_true_rft
 
 if __name__ == "__main__":
-    print("⚠️  LEGACY MODULE: core.true_rft")
+    print("⚠️ LEGACY MODULE: core.true_rft")
     print("✅ Use canonical_true_rft instead for all RFT operations")
     print("🔄 This module redirects to canonical implementation")

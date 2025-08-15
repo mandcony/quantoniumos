@@ -1,1 +1,1 @@
-"""QuantoniumOS core package."""
+""""""QuantoniumOS core package.""""""

@@ -5,12 +5,15 @@
       "basic_transform": {
         "success": true,
         "input_length": 16,
-        "output_length": 1,
-        "output_type": "<class 'quantonium_core.ResonanceFourierTransform'>"
+        "output_length": 16,
+        "output_type": "<class 'complex'>"
       },
       "energy_conservation": {
-        "error": "list index out of range",
-        "conserved": false
+        "input_energy": 9.999999999999998,
+        "output_energy": 10.0,
+        "ratio": 1.0000000000000002,
+        "error": 2.220446049250313e-16,
+        "conserved": true
       },
       "golden_ratio_resonance": {
         "spectral_peaks": 0,
@@ -20,7 +23,7 @@
     },
     "specification_compliance": {},
     "patent_validation": {},
-    "timestamp": 1755146605.5550218
+    "timestamp": 1755230421.090969
   },
   "resonance_engine": {
     "engine_name": "resonance_engine",
@@ -50,6 +53,6 @@
     },
     "specification_compliance": {},
     "patent_validation": {},
-    "timestamp": 1755146605.5553584
+    "timestamp": 1755230421.0918796
   }
 }

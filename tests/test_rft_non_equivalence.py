@@ -77,7 +77,7 @@ def sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8):
 def test_rft_not_scaled_permuted_dft():
     # Use CANONICAL True RFT implementation
     from canonical_true_rft import forward_true_rft
-    
+
     for n in (8, 12, 16):
         Psi_builder = build_rft_matrix(forward_true_rft)
         Psi = Psi_builder(n)
@@ -89,7 +89,7 @@ def test_rft_not_scaled_permuted_dft():
         assert R > 1e-3, f"RFT looked too close to scaled/perm'd DFT (residual={R:.2e})"
 
 def test_rft_not_diagonalizing_shift():
-    # Use CANONICAL True RFT implementation  
+    # Use CANONICAL True RFT implementation
     def forward_true_rft(x):
         try:
             import quantonium_core
@@ -99,7 +99,7 @@ def test_rft_not_diagonalizing_shift():
         except:
             from canonical_true_rft import forward_true_rft as canonical_rft
             return canonical_rft(x.tolist())
-        
+
     for n in (8, 12, 16):
         Psi = build_rft_matrix(forward_true_rft)(n)
         S = cyclic_shift(n)
@@ -118,7 +118,7 @@ def test_rft_moduli_not_scalable_to_uniform():
         except:
             from canonical_true_rft import forward_true_rft as canonical_rft
             return canonical_rft(x.tolist())
-        
+
     for n in (8, 12, 16):
         Psi = build_rft_matrix(forward_true_rft)(n)
         ok, _, _ = sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8)

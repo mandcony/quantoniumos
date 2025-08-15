@@ -1,0 +1,2199 @@
+{
+  "suite_name": "Master Quantum Gate Validation",
+  "timestamp": 1755260564.6494536,
+  "test_sizes": [
+    4,
+    8,
+    16
+  ],
+  "tolerance": 1e-12,
+  "canonical_parameters": {
+    "weights": [
+      0.7,
+      0.3
+    ],
+    "theta0_values": [
+      0.0,
+      0.7853981633974483
+    ],
+    "omega_values": [
+      1.0,
+      1.618033988749895
+    ],
+    "sigma0": 1.0,
+    "gamma": 0.3,
+    "phi_exact": 1.618033988749895
+  },
+  "test_suites": {
+    "unitarity": {
+      "error": "loschmidt_echo() got an unexpected keyword argument 'perturbation_strength'",
+      "suite_pass": false
+    },
+    "hamiltonian": {
+      "suite_name": "Hamiltonian Recovery Validation",
+      "timestamp": 1755260564.6531725,
+      "tolerance": 1e-12,
+      "reconstruction_tolerance": 1e-10,
+      "test_sizes": [
+        4,
+        8,
+        16
+      ],
+      "results": {
+        "N_4": {
+          "reconstruction": {
+            "test_name": "Hamiltonian Reconstruction",
+            "size": 4,
+            "reconstruction_error": 2.2838821250936086e-15,
+            "extraction_metrics": {
+              "hermiticity_error": 3.6295124768498445e-15,
+              "max_imaginary_eigenvalue": 1.2875590650195864e-15,
+              "condition_number": 8.94955500065602,
+              "trace": -0.7799953289359627,
+              "frobenius_norm": 3.6126430260636075,
+              "extraction_successful": 1.0,
+              "projection_error": 7.012747045910616e-16
+            },
+            "consistency_metrics": {
+              "reconstructed_unitarity_error": 3.2687372792631535e-15,
+              "determinant_magnitude_error": 4.440892098500626e-16
+            },
+            "passes": true,
+            "tolerance": 1e-12,
+            "reconstruction_tolerance": 1e-10,
+            "test_time": 0.00200653076171875
+          },
+          "consistency": {
+            "test_name": "Generator Consistency",
+            "size": 4,
+            "generator_results": [
+              {
+                "power": 1,
+                "metrics": {
+                  "hermiticity_error": 3.6295124768498445e-15,
+                  "max_imaginary_eigenvalue": 1.2875590650195864e-15,
+                  "condition_number": 8.94955500065602,
+                  "trace": -0.7799953289359627,
+                  "frobenius_norm": 3.6126430260636075,
+                  "extraction_successful": true,
+                  "projection_error": 7.012747045910616e-16
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 2,
+                "metrics": {
+                  "hermiticity_error": 3.4936762322156506e-15,
+                  "max_imaginary_eigenvalue": 1.3313590198330508e-15,
+                  "condition_number": 4.9177555496713214,
+                  "trace": -1.5599906578719263,
+                  "frobenius_norm": 3.6253001036802446,
+                  "extraction_successful": true,
+                  "projection_error": 9.406812968945712e-16,
+                  "power_consistency_error": 6.2831853071795845
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 3,
+                "metrics": {
+                  "hermiticity_error": 3.7472082993261076e-15,
+                  "max_imaginary_eigenvalue": 1.6622209851564168e-15,
+                  "condition_number": 7.55752381701091,
+                  "trace": 3.943199320371696,
+                  "frobenius_norm": 2.6350184156681427,
+                  "extraction_successful": true,
+                  "projection_error": 1.2313946538233308e-15,
+                  "power_consistency_error": 6.283185307179585
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 4,
+                "metrics": {
+                  "hermiticity_error": 4.3104663609619085e-15,
+                  "max_imaginary_eigenvalue": 1.5375304976670431e-15,
+                  "condition_number": 3.282626839413956,
+                  "trace": -3.1199813157438534,
+                  "frobenius_norm": 3.7982535208790607,
+                  "extraction_successful": true,
+                  "projection_error": 1.2867298958760136e-15,
+                  "power_consistency_error": 12.566370614359172
+                },
+                "extraction_successful": true
+              }
+            ],
+            "avg_hermiticity_error": 3.795215842338378e-15,
+            "max_power_consistency_error": 12.566370614359172,
+            "successful_extractions": 4,
+            "total_tests": 4,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.0018496513366699219
+          },
+          "spectral": {
+            "test_name": "Spectral Properties",
+            "size": 4,
+            "spectral_metrics": {
+              "trace_imaginary_part": 2.7755575615628914e-16,
+              "trace_real_part": -0.7799953289359627,
+              "min_eigenvalue": -2.1892749010774324,
+              "max_eigenvalue": 2.506543665946957,
+              "eigenvalue_spread": 4.695818567024389,
+              "spectral_radius": 2.506543665946957,
+              "max_eigenvalue_imag": 1.2875590650195864e-15,
+              "operator_norm": 2.506543665946956,
+              "frobenius_norm": 3.6126430260636075
+            },
+            "extraction_metrics": {
+              "hermiticity_error": 3.6295124768498445e-15,
+              "max_imaginary_eigenvalue": 1.2875590650195864e-15,
+              "condition_number": 8.94955500065602,
+              "trace": -0.7799953289359627,
+              "frobenius_norm": 3.6126430260636075,
+              "extraction_successful": 1.0,
+              "projection_error": 7.012747045910616e-16
+            },
+            "H_eigenvalues_real": [
+              2.506543665946957,
+              0.280074670278379,
+              -2.1892749010774324,
+              -1.3773387640838652
+            ],
+            "H_eigenvalues_imag": [
+              -1.2875590650195864e-15,
+              7.800676515520741e-16,
+              6.714353641703473e-16,
+              1.8300074449252697e-16
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0006642341613769531
+          },
+          "overall_pass": false
+        },
+        "N_8": {
+          "reconstruction": {
+            "test_name": "Hamiltonian Reconstruction",
+            "size": 8,
+            "reconstruction_error": 7.48758765772517e-15,
+            "extraction_metrics": {
+              "hermiticity_error": 8.77253114120164e-15,
+              "max_imaginary_eigenvalue": 3.590216399196891e-15,
+              "condition_number": 8.9221836069824,
+              "trace": -0.8328673419064836,
+              "frobenius_norm": 4.865109322902399,
+              "extraction_successful": 1.0,
+              "projection_error": 1.9602409752179113e-15
+            },
+            "consistency_metrics": {
+              "reconstructed_unitarity_error": 6.535597373312099e-15,
+              "determinant_magnitude_error": 3.774758283725532e-15
+            },
+            "passes": true,
+            "tolerance": 1e-12,
+            "reconstruction_tolerance": 1e-10,
+            "test_time": 0.002656221389770508
+          },
+          "consistency": {
+            "test_name": "Generator Consistency",
+            "size": 8,
+            "generator_results": [
+              {
+                "power": 1,
+                "metrics": {
+                  "hermiticity_error": 8.77253114120164e-15,
+                  "max_imaginary_eigenvalue": 3.590216399196891e-15,
+                  "condition_number": 8.9221836069824,
+                  "trace": -0.8328673419064836,
+                  "frobenius_norm": 4.865109322902399,
+                  "extraction_successful": true,
+                  "projection_error": 1.9602409752179113e-15
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 2,
+                "metrics": {
+                  "hermiticity_error": 4.729180466645603e-15,
+                  "max_imaginary_eigenvalue": 1.3146341409826413e-15,
+                  "condition_number": 4.66742835316494,
+                  "trace": -1.6657346838129676,
+                  "frobenius_norm": 5.7038521193295395,
+                  "extraction_successful": true,
+                  "projection_error": 2.3082627891438517e-15,
+                  "power_consistency_error": 6.283185307179586
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 3,
+                "metrics": {
+                  "hermiticity_error": 5.773939481668715e-15,
+                  "max_imaginary_eigenvalue": 2.0932040547158655e-15,
+                  "condition_number": 5.88284061185308,
+                  "trace": -2.4986020257194514,
+                  "frobenius_norm": 4.791913541291559,
+                  "extraction_successful": true,
+                  "projection_error": 2.4585049836976107e-15,
+                  "power_consistency_error": 6.28318530717959
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 4,
+                "metrics": {
+                  "hermiticity_error": 6.476487800617261e-15,
+                  "max_imaginary_eigenvalue": 1.717076947721389e-15,
+                  "condition_number": 7.101843176369182,
+                  "trace": 2.951715939553648,
+                  "frobenius_norm": 4.930518363706219,
+                  "extraction_successful": true,
+                  "projection_error": 2.8144975915711205e-15,
+                  "power_consistency_error": 12.566370614359172
+                },
+                "extraction_successful": true
+              }
+            ],
+            "avg_hermiticity_error": 6.4380347225333055e-15,
+            "max_power_consistency_error": 12.566370614359172,
+            "successful_extractions": 4,
+            "total_tests": 4,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.002370595932006836
+          },
+          "spectral": {
+            "test_name": "Spectral Properties",
+            "size": 8,
+            "spectral_metrics": {
+              "trace_imaginary_part": 3.848203548210547e-15,
+              "trace_real_part": -0.8328673419064836,
+              "min_eigenvalue": -2.7944055207249736,
+              "max_eigenvalue": 2.344680461720167,
+              "eigenvalue_spread": 5.13908598244514,
+              "spectral_radius": 2.7944055207249736,
+              "max_eigenvalue_imag": 3.590216399196891e-15,
+              "operator_norm": 2.79440552072497,
+              "frobenius_norm": 4.865109322902399
+            },
+            "extraction_metrics": {
+              "hermiticity_error": 8.77253114120164e-15,
+              "max_imaginary_eigenvalue": 3.590216399196891e-15,
+              "condition_number": 8.9221836069824,
+              "trace": -0.8328673419064836,
+              "frobenius_norm": 4.865109322902399,
+              "extraction_successful": 1.0,
+              "projection_error": 1.9602409752179113e-15
+            },
+            "H_eigenvalues_real": [
+              -2.7944055207249736,
+              2.344680461720167,
+              1.9265691354401597,
+              1.1071016882783615,
+              0.3131974910870579,
+              -0.5780531631174365,
+              -1.6901305845499586,
+              -1.461826850039859
+            ],
+            "H_eigenvalues_imag": [
+              -1.6229495960249182e-16,
+              -3.590216399196891e-15,
+              -2.6121234545054155e-15,
+              1.3767734038002074e-16,
+              1.1184946133550906e-15,
+              -1.6758126073360364e-16,
+              4.860825716582629e-16,
+              6.282239855695544e-16
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0011005401611328125
+          },
+          "overall_pass": false
+        },
+        "N_16": {
+          "reconstruction": {
+            "test_name": "Hamiltonian Reconstruction",
+            "size": 16,
+            "reconstruction_error": 2.208415624598405e-14,
+            "extraction_metrics": {
+              "hermiticity_error": 6.552226030410055e-15,
+              "max_imaginary_eigenvalue": 1.7627549355104683e-15,
+              "condition_number": 8.898505323229166,
+              "trace": -3.263079414113177,
+              "frobenius_norm": 7.535005945121001,
+              "extraction_successful": 1.0,
+              "projection_error": 3.2083795593562942e-15
+            },
+            "consistency_metrics": {
+              "reconstructed_unitarity_error": 3.4266748426458987e-15,
+              "determinant_magnitude_error": 1.1102230246251565e-15
+            },
+            "passes": true,
+            "tolerance": 1e-12,
+            "reconstruction_tolerance": 1e-10,
+            "test_time": 0.006345033645629883
+          },
+          "consistency": {
+            "test_name": "Generator Consistency",
+            "size": 16,
+            "generator_results": [
+              {
+                "power": 1,
+                "metrics": {
+                  "hermiticity_error": 6.552226030410055e-15,
+                  "max_imaginary_eigenvalue": 1.7627549355104683e-15,
+                  "condition_number": 8.898505323229166,
+                  "trace": -3.263079414113177,
+                  "frobenius_norm": 7.535005945121001,
+                  "extraction_successful": true,
+                  "projection_error": 3.2083795593562942e-15
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 2,
+                "metrics": {
+                  "hermiticity_error": 7.894199247479073e-15,
+                  "max_imaginary_eigenvalue": 1.6138087716801084e-15,
+                  "condition_number": 13.197097239461794,
+                  "trace": -6.526158828226361,
+                  "frobenius_norm": 7.386034953631374,
+                  "extraction_successful": true,
+                  "projection_error": 4.03332205776468e-15,
+                  "power_consistency_error": 6.283185307179593
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 3,
+                "metrics": {
+                  "hermiticity_error": 8.50483323548365e-15,
+                  "max_imaginary_eigenvalue": 2.273404858003622e-15,
+                  "condition_number": 13.385259169010522,
+                  "trace": -3.506052935159951,
+                  "frobenius_norm": 7.9612612758161125,
+                  "extraction_successful": true,
+                  "projection_error": 4.658702022749021e-15,
+                  "power_consistency_error": 6.283185307179591
+                },
+                "extraction_successful": true
+              },
+              {
+                "power": 4,
+                "metrics": {
+                  "hermiticity_error": 5.296269028198182e-15,
+                  "max_imaginary_eigenvalue": 1.3754455156601838e-15,
+                  "condition_number": 52.03256580407646,
+                  "trace": -0.48594704209354833,
+                  "frobenius_norm": 6.656008674184017,
+                  "extraction_successful": true,
+                  "projection_error": 5.629706011194352e-15,
+                  "power_consistency_error": 12.566370614359185
+                },
+                "extraction_successful": true
+              }
+            ],
+            "avg_hermiticity_error": 7.061881885392741e-15,
+            "max_power_consistency_error": 12.566370614359185,
+            "successful_extractions": 4,
+            "total_tests": 4,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.012558460235595703
+          },
+          "spectral": {
+            "test_name": "Spectral Properties",
+            "size": 16,
+            "spectral_metrics": {
+              "trace_imaginary_part": 1.0265203760737106e-15,
+              "trace_real_part": -3.263079414113177,
+              "min_eigenvalue": -3.0236646695587566,
+              "max_eigenvalue": 2.8799302556922712,
+              "eigenvalue_spread": 5.903594925251028,
+              "spectral_radius": 3.0236646695587566,
+              "max_eigenvalue_imag": 1.7627549355104683e-15,
+              "operator_norm": 3.0236646695587592,
+              "frobenius_norm": 7.535005945121001
+            },
+            "extraction_metrics": {
+              "hermiticity_error": 6.552226030410055e-15,
+              "max_imaginary_eigenvalue": 1.7627549355104683e-15,
+              "condition_number": 8.898505323229166,
+              "trace": -3.263079414113177,
+              "frobenius_norm": 7.535005945121001,
+              "extraction_successful": 1.0,
+              "projection_error": 3.2083795593562942e-15
+            },
+            "H_eigenvalues_real": [
+              2.8799302556922712,
+              2.3876795766244308,
+              -3.0236646695587566,
+              -2.8914907520259385,
+              -2.644130675800278,
+              2.016710600592359,
+              1.6598698353507104,
+              1.3494070026250493,
+              0.997518582937391,
+              0.33979466884911697,
+              -1.9285100788970035,
+              -1.556307072511257,
+              -1.0545679123734704,
+              -0.9655585986401078,
+              -0.45364548506704794,
+              -0.3761146919106251
+            ],
+            "H_eigenvalues_imag": [
+              9.756238638182272e-17,
+              -1.3291145378396343e-16,
+              -7.810312793147816e-16,
+              -5.044371201171739e-16,
+              2.338318784567535e-16,
+              -1.1956761055539705e-15,
+              -8.544034328913036e-16,
+              2.668188098973801e-16,
+              4.598735146212584e-16,
+              1.7627549355104683e-15,
+              -5.799899736037654e-16,
+              1.145553760014171e-15,
+              -5.848242513781351e-16,
+              9.43430380834678e-16,
+              7.419619108115019e-16,
+              5.911666776113609e-16
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.00859522819519043
+          },
+          "overall_pass": false
+        }
+      },
+      "suite_pass": false
+    },
+    "time_evolution": {
+      "suite_name": "Time Evolution Validation",
+      "timestamp": 1755260564.6918566,
+      "canonical_parameters": {
+        "weights": [
+          0.7,
+          0.3
+        ],
+        "theta0_values": [
+          0.0,
+          0.7853981633974483
+        ],
+        "omega_values": [
+          1.0,
+          1.618033988749895
+        ],
+        "sigma0": 1.0,
+        "gamma": 0.3,
+        "phi_exact": 1.618033988749895
+      },
+      "tolerance": 1e-12,
+      "test_sizes": [
+        4,
+        8,
+        16
+      ],
+      "results": {
+        "N_4": {
+          "norm_conservation": {
+            "test_name": "Norm Conservation",
+            "size": 4,
+            "max_time": 2.0,
+            "num_time_points": 20,
+            "max_norm_deviation": 1.3322676295501878e-15,
+            "avg_norm_deviation": 5.440092820663267e-16,
+            "norms": [
+              1.0,
+              0.9999999999999999,
+              0.9999999999999999,
+              0.9999999999999998,
+              0.9999999999999998,
+              0.9999999999999996,
+              0.9999999999999996,
+              0.9999999999999997,
+              0.9999999999999996,
+              0.9999999999999996,
+              0.9999999999999997,
+              0.9999999999999996,
+              0.9999999999999991,
+              0.9999999999999993,
+              0.9999999999999992,
+              0.9999999999999989,
+              0.9999999999999992,
+              0.9999999999999991,
+              0.9999999999999987,
+              0.9999999999999991
+            ],
+            "times": [
+              0.0,
+              0.10526315789473684,
+              0.21052631578947367,
+              0.3157894736842105,
+              0.42105263157894735,
+              0.5263157894736842,
+              0.631578947368421,
+              0.7368421052631579,
+              0.8421052631578947,
+              0.9473684210526315,
+              1.0526315789473684,
+              1.1578947368421053,
+              1.263157894736842,
+              1.3684210526315788,
+              1.4736842105263157,
+              1.5789473684210527,
+              1.6842105263157894,
+              1.789473684210526,
+              1.894736842105263,
+              2.0
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.012706279754638672
+          },
+          "energy_conservation": {
+            "test_name": "Energy Conservation",
+            "size": 4,
+            "max_time": 2.0,
+            "num_time_points": 20,
+            "initial_energy": 0.23816183914490488,
+            "max_energy_deviation": 2.1371793224034263e-15,
+            "avg_energy_deviation": 7.244205235679147e-16,
+            "energies": [
+              0.23816183914490488,
+              0.23816183914490474,
+              0.2381618391449047,
+              0.2381618391449048,
+              0.23816183914490457,
+              0.2381618391449049,
+              0.23816183914490455,
+              0.23816183914490469,
+              0.23816183914490427,
+              0.2381618391449045,
+              0.23816183914490394,
+              0.23816183914490333,
+              0.2381618391449029,
+              0.23816183914490444,
+              0.2381618391449048,
+              0.23816183914490408,
+              0.23816183914490324,
+              0.23816183914490274,
+              0.23816183914490374,
+              0.23816183914490335
+            ],
+            "times": [
+              0.0,
+              0.10526315789473684,
+              0.21052631578947367,
+              0.3157894736842105,
+              0.42105263157894735,
+              0.5263157894736842,
+              0.631578947368421,
+              0.7368421052631579,
+              0.8421052631578947,
+              0.9473684210526315,
+              1.0526315789473684,
+              1.1578947368421053,
+              1.263157894736842,
+              1.3684210526315788,
+              1.4736842105263157,
+              1.5789473684210527,
+              1.6842105263157894,
+              1.789473684210526,
+              1.894736842105263,
+              2.0
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0059545040130615234
+          },
+          "loschmidt_echo": {
+            "test_name": "Loschmidt Echo",
+            "size": 4,
+            "max_time": 1.0,
+            "num_time_points": 15,
+            "max_echo_deviation": 4.235944928154822e-12,
+            "avg_echo_deviation": 2.1331973224884376e-12,
+            "min_echo": 0.999999999995764,
+            "loschmidt_echoes": [
+              0.9999999999981493,
+              0.9999999999975719,
+              0.9999999999983202,
+              0.9999999999976541,
+              0.9999999999987981,
+              0.999999999998527,
+              0.999999999995764,
+              0.9999999999980596,
+              0.9999999999964173,
+              0.9999999999994473,
+              0.9999999999982185,
+              0.9999999999982767,
+              0.9999999999967635,
+              0.9999999999994733,
+              0.9999999999965612
+            ],
+            "times": [
+              0.0,
+              0.07142857142857142,
+              0.14285714285714285,
+              0.21428571428571427,
+              0.2857142857142857,
+              0.3571428571428571,
+              0.42857142857142855,
+              0.5,
+              0.5714285714285714,
+              0.6428571428571428,
+              0.7142857142857142,
+              0.7857142857142857,
+              0.8571428571428571,
+              0.9285714285714285,
+              1.0
+            ],
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.006598711013793945
+          },
+          "reversibility": {
+            "test_name": "Time Reversibility",
+            "size": 4,
+            "evolution_time": 1.0,
+            "recovery_error": 3.3429791248018205e-16,
+            "identity_error": 1.1450659873580948e-15,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0020546913146972656
+          },
+          "dynamics_consistency": {
+            "test_name": "Quantum Dynamics Consistency",
+            "size": 4,
+            "num_test_states": 5,
+            "evolution_time": 0.5,
+            "overall_max_norm_deviation": 4.440892098500626e-16,
+            "overall_max_energy_deviation": 1.9984014443252818e-15,
+            "individual_results": [
+              {
+                "max_norm_deviation": 3.3306690738754696e-16,
+                "max_energy_deviation": 1.9984014443252818e-15
+              },
+              {
+                "max_norm_deviation": 4.440892098500626e-16,
+                "max_energy_deviation": 5.551115123125783e-16
+              },
+              {
+                "max_norm_deviation": 2.220446049250313e-16,
+                "max_energy_deviation": 1.1102230246251565e-16
+              },
+              {
+                "max_norm_deviation": 1.1102230246251565e-16,
+                "max_energy_deviation": 1.0824674490095276e-15
+              },
+              {
+                "max_norm_deviation": 2.220446049250313e-16,
+                "max_energy_deviation": 8.881784197001252e-16
+              }
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0015521049499511719
+          },
+          "overall_pass": false
+        },
+        "N_8": {
+          "norm_conservation": {
+            "test_name": "Norm Conservation",
+            "size": 8,
+            "max_time": 2.0,
+            "num_time_points": 20,
+            "max_norm_deviation": 1.2212453270876722e-15,
+            "avg_norm_deviation": 5.717648576819557e-16,
+            "norms": [
+              0.9999999999999999,
+              0.9999999999999998,
+              0.9999999999999998,
+              0.9999999999999998,
+              0.9999999999999997,
+              0.9999999999999996,
+              0.9999999999999997,
+              0.9999999999999996,
+              0.9999999999999996,
+              0.9999999999999996,
+              0.9999999999999993,
+              0.9999999999999996,
+              0.9999999999999994,
+              0.9999999999999992,
+              0.999999999999999,
+              0.9999999999999992,
+              0.9999999999999992,
+              0.999999999999999,
+              0.999999999999999,
+              0.9999999999999988
+            ],
+            "times": [
+              0.0,
+              0.10526315789473684,
+              0.21052631578947367,
+              0.3157894736842105,
+              0.42105263157894735,
+              0.5263157894736842,
+              0.631578947368421,
+              0.7368421052631579,
+              0.8421052631578947,
+              0.9473684210526315,
+              1.0526315789473684,
+              1.1578947368421053,
+              1.263157894736842,
+              1.3684210526315788,
+              1.4736842105263157,
+              1.5789473684210527,
+              1.6842105263157894,
+              1.789473684210526,
+              1.894736842105263,
+              2.0
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0019421577453613281
+          },
+          "energy_conservation": {
+            "test_name": "Energy Conservation",
+            "size": 8,
+            "max_time": 2.0,
+            "num_time_points": 20,
+            "initial_energy": 0.5130195729201417,
+            "max_energy_deviation": 4.773959005888173e-15,
+            "avg_energy_deviation": 2.0039525594484076e-15,
+            "energies": [
+              0.5130195729201417,
+              0.513019572920142,
+              0.5130195729201422,
+              0.5130195729201426,
+              0.5130195729201422,
+              0.5130195729201426,
+              0.5130195729201428,
+              0.5130195729201428,
+              0.5130195729201434,
+              0.5130195729201434,
+              0.5130195729201436,
+              0.5130195729201448,
+              0.5130195729201443,
+              0.5130195729201448,
+              0.5130195729201439,
+              0.5130195729201448,
+              0.5130195729201452,
+              0.513019572920145,
+              0.513019572920145,
+              0.5130195729201464
+            ],
+            "times": [
+              0.0,
+              0.10526315789473684,
+              0.21052631578947367,
+              0.3157894736842105,
+              0.42105263157894735,
+              0.5263157894736842,
+              0.631578947368421,
+              0.7368421052631579,
+              0.8421052631578947,
+              0.9473684210526315,
+              1.0526315789473684,
+              1.1578947368421053,
+              1.263157894736842,
+              1.3684210526315788,
+              1.4736842105263157,
+              1.5789473684210527,
+              1.6842105263157894,
+              1.789473684210526,
+              1.894736842105263,
+              2.0
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0031414031982421875
+          },
+          "loschmidt_echo": {
+            "test_name": "Loschmidt Echo",
+            "size": 8,
+            "max_time": 1.0,
+            "num_time_points": 15,
+            "max_echo_deviation": 8.29247781553022e-12,
+            "avg_echo_deviation": 4.187465189412857e-12,
+            "min_echo": 0.9999999999917075,
+            "loschmidt_echoes": [
+              0.9999999999952329,
+              0.9999999999974907,
+              0.9999999999944666,
+              0.9999999999964218,
+              0.9999999999977207,
+              0.9999999999970595,
+              0.9999999999973117,
+              0.9999999999947333,
+              0.9999999999941889,
+              0.999999999994373,
+              0.9999999999983398,
+              0.9999999999960216,
+              0.9999999999917075,
+              0.9999999999977807,
+              0.9999999999943394
+            ],
+            "times": [
+              0.0,
+              0.07142857142857142,
+              0.14285714285714285,
+              0.21428571428571427,
+              0.2857142857142857,
+              0.3571428571428571,
+              0.42857142857142855,
+              0.5,
+              0.5714285714285714,
+              0.6428571428571428,
+              0.7142857142857142,
+              0.7857142857142857,
+              0.8571428571428571,
+              0.9285714285714285,
+              1.0
+            ],
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.0106964111328125
+          },
+          "reversibility": {
+            "test_name": "Time Reversibility",
+            "size": 8,
+            "evolution_time": 1.0,
+            "recovery_error": 4.9344312377124335e-16,
+            "identity_error": 1.1955375313117364e-15,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0028891563415527344
+          },
+          "dynamics_consistency": {
+            "test_name": "Quantum Dynamics Consistency",
+            "size": 8,
+            "num_test_states": 5,
+            "evolution_time": 0.5,
+            "overall_max_norm_deviation": 4.440892098500626e-16,
+            "overall_max_energy_deviation": 1.1102230246251565e-15,
+            "individual_results": [
+              {
+                "max_norm_deviation": 0.0,
+                "max_energy_deviation": 6.661338147750939e-16
+              },
+              {
+                "max_norm_deviation": 2.220446049250313e-16,
+                "max_energy_deviation": 1.0547118733938987e-15
+              },
+              {
+                "max_norm_deviation": 3.3306690738754696e-16,
+                "max_energy_deviation": 8.881784197001252e-16
+              },
+              {
+                "max_norm_deviation": 4.440892098500626e-16,
+                "max_energy_deviation": 2.0816681711721685e-16
+              },
+              {
+                "max_norm_deviation": 0.0,
+                "max_energy_deviation": 1.1102230246251565e-15
+              }
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.004742860794067383
+          },
+          "overall_pass": false
+        },
+        "N_16": {
+          "norm_conservation": {
+            "test_name": "Norm Conservation",
+            "size": 16,
+            "max_time": 2.0,
+            "num_time_points": 20,
+            "max_norm_deviation": 2.220446049250313e-16,
+            "avg_norm_deviation": 3.8857805861880476e-17,
+            "norms": [
+              1.0,
+              1.0,
+              1.0,
+              0.9999999999999999,
+              0.9999999999999999,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0000000000000002,
+              0.9999999999999999,
+              1.0,
+              1.0,
+              1.0,
+              1.0000000000000002
+            ],
+            "times": [
+              0.0,
+              0.10526315789473684,
+              0.21052631578947367,
+              0.3157894736842105,
+              0.42105263157894735,
+              0.5263157894736842,
+              0.631578947368421,
+              0.7368421052631579,
+              0.8421052631578947,
+              0.9473684210526315,
+              1.0526315789473684,
+              1.1578947368421053,
+              1.263157894736842,
+              1.3684210526315788,
+              1.4736842105263157,
+              1.5789473684210527,
+              1.6842105263157894,
+              1.789473684210526,
+              1.894736842105263,
+              2.0
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.005500316619873047
+          },
+          "energy_conservation": {
+            "test_name": "Energy Conservation",
+            "size": 16,
+            "max_time": 2.0,
+            "num_time_points": 20,
+            "initial_energy": 0.06066346976072241,
+            "max_energy_deviation": 3.2890357104520263e-15,
+            "avg_energy_deviation": 1.7350704206720025e-15,
+            "energies": [
+              0.06066346976072241,
+              0.060663469760722344,
+              0.06066346976072211,
+              0.060663469760721844,
+              0.06066346976072155,
+              0.06066346976072168,
+              0.06066346976072137,
+              0.06066346976072126,
+              0.06066346976072079,
+              0.06066346976072082,
+              0.06066346976072069,
+              0.06066346976072026,
+              0.06066346976072013,
+              0.0606634697607195,
+              0.060663469760719874,
+              0.060663469760719596,
+              0.060663469760719596,
+              0.06066346976071918,
+              0.060663469760719124,
+              0.06066346976071943
+            ],
+            "times": [
+              0.0,
+              0.10526315789473684,
+              0.21052631578947367,
+              0.3157894736842105,
+              0.42105263157894735,
+              0.5263157894736842,
+              0.631578947368421,
+              0.7368421052631579,
+              0.8421052631578947,
+              0.9473684210526315,
+              1.0526315789473684,
+              1.1578947368421053,
+              1.263157894736842,
+              1.3684210526315788,
+              1.4736842105263157,
+              1.5789473684210527,
+              1.6842105263157894,
+              1.789473684210526,
+              1.894736842105263,
+              2.0
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.008343219757080078
+          },
+          "loschmidt_echo": {
+            "test_name": "Loschmidt Echo",
+            "size": 16,
+            "max_time": 1.0,
+            "num_time_points": 15,
+            "max_echo_deviation": 1.6132872815433075e-11,
+            "avg_echo_deviation": 1.0271058078122526e-11,
+            "min_echo": 0.9999999999838671,
+            "loschmidt_echoes": [
+              0.9999999999916043,
+              0.9999999999870828,
+              0.9999999999930331,
+              0.9999999999863978,
+              0.9999999999881695,
+              0.9999999999907085,
+              0.9999999999903952,
+              0.9999999999904003,
+              0.999999999991497,
+              0.9999999999909666,
+              0.9999999999838671,
+              0.9999999999903249,
+              0.9999999999930496,
+              0.9999999999871398,
+              0.9999999999912976
+            ],
+            "times": [
+              0.0,
+              0.07142857142857142,
+              0.14285714285714285,
+              0.21428571428571427,
+              0.2857142857142857,
+              0.3571428571428571,
+              0.42857142857142855,
+              0.5,
+              0.5714285714285714,
+              0.6428571428571428,
+              0.7142857142857142,
+              0.7857142857142857,
+              0.8571428571428571,
+              0.9285714285714285,
+              1.0
+            ],
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.016517162322998047
+          },
+          "reversibility": {
+            "test_name": "Time Reversibility",
+            "size": 16,
+            "evolution_time": 1.0,
+            "recovery_error": 5.706640433030957e-16,
+            "identity_error": 1.968483342068368e-15,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.003955364227294922
+          },
+          "dynamics_consistency": {
+            "test_name": "Quantum Dynamics Consistency",
+            "size": 16,
+            "num_test_states": 5,
+            "evolution_time": 0.5,
+            "overall_max_norm_deviation": 3.3306690738754696e-16,
+            "overall_max_energy_deviation": 1.2212453270876722e-15,
+            "individual_results": [
+              {
+                "max_norm_deviation": 0.0,
+                "max_energy_deviation": 2.220446049250313e-16
+              },
+              {
+                "max_norm_deviation": 1.1102230246251565e-16,
+                "max_energy_deviation": 7.771561172376096e-16
+              },
+              {
+                "max_norm_deviation": 0.0,
+                "max_energy_deviation": 0.0
+              },
+              {
+                "max_norm_deviation": 2.220446049250313e-16,
+                "max_energy_deviation": 6.938893903907228e-16
+              },
+              {
+                "max_norm_deviation": 3.3306690738754696e-16,
+                "max_energy_deviation": 1.2212453270876722e-15
+              }
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.008168935775756836
+          },
+          "overall_pass": false
+        }
+      },
+      "suite_pass": false
+    },
+    "choi_channel": {
+      "suite_name": "Choi Matrix Channel Validation",
+      "timestamp": 1755260564.787323,
+      "canonical_parameters": {
+        "method": "symbolic_resonance_computing",
+        "kernel": "canonical_true_rft",
+        "precision": "double"
+      },
+      "tolerance": 1e-12,
+      "test_sizes": [
+        4,
+        8
+      ],
+      "results": {
+        "N_4": {
+          "choi_psd": {
+            "test_name": "Choi Matrix PSD",
+            "size": 4,
+            "min_eigenvalue": -2.7285280232868043e-17,
+            "max_imaginary_eigenvalue": 1.3265210357824532e-16,
+            "condition_number": 100350994043634.16,
+            "is_psd": true,
+            "eigenvalues_real": [
+              2.0560135107677155e-17,
+              1.0,
+              -2.7285280232868043e-17,
+              -2.2872375314435566e-17,
+              1.8155828331786166e-17,
+              1.6904827903293645e-17,
+              -1.4044385083451757e-17,
+              7.816629131685497e-18,
+              1.0167450469689927e-17,
+              7.045741946546807e-18,
+              -4.465173242765132e-18,
+              -8.748961473323089e-18,
+              -4.681860666188432e-18,
+              -3.0092907156598164e-18,
+              -3.2146721196350974e-18,
+              3.020255985559153e-18
+            ],
+            "eigenvalues_imag": [
+              6.1257744998992595e-18,
+              1.3265210357824532e-16,
+              1.3617919994173114e-18,
+              -5.23513437207624e-18,
+              -1.2257002842346139e-18,
+              -7.206016595551523e-21,
+              2.562406419835229e-18,
+              -6.6118494869408386e-18,
+              2.586519831172907e-18,
+              4.877896618820247e-18,
+              7.638883246325763e-18,
+              5.771554614743858e-19,
+              -5.01049781545991e-18,
+              2.7443326273097067e-18,
+              -8.23127981719347e-19,
+              -1.5427528552886993e-18
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0023956298828125
+          },
+          "trace_preserving": {
+            "test_name": "Trace Preserving",
+            "size": 4,
+            "trace_preserving_error": 1.1385564897503893,
+            "trace_value": 0.2279871673037525,
+            "trace_error": 3.7720128326962477,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.0004627704620361328
+          },
+          "choi_rank": {
+            "test_name": "Choi Matrix Rank-1",
+            "size": 4,
+            "numerical_rank": 1,
+            "max_singular_value": 0.9999999999999997,
+            "max_singular_error": 3.3306690738754696e-16,
+            "singular_ratio": 6762990867598094.0,
+            "singular_values": [
+              0.9999999999999997,
+              1.478635739094461e-16,
+              2.5621456293594e-17,
+              2.419442626170131e-17,
+              2.1496964320441732e-17,
+              1.8214789021639158e-17,
+              1.5767726033611717e-17,
+              1.4501212798387733e-17,
+              1.2384174225314351e-17,
+              1.0520023351140827e-17,
+              8.131398255161982e-18,
+              6.789042066019737e-18,
+              5.531140897985551e-18,
+              3.97525563958693e-18,
+              2.4600806626943503e-18,
+              4.963569571469712e-19
+            ],
+            "rank_threshold": 9.999999999999996e-13,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0029413700103759766
+          },
+          "process_fidelity": {
+            "test_name": "Process Fidelity",
+            "size": 4,
+            "fidelity_with_identity": 0.003562299489121133,
+            "fidelity_imaginary_part": 2.168404344971009e-19,
+            "self_fidelity": 0.062499999999999986,
+            "self_fidelity_error": 0.9375,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.0009722709655761719
+          },
+          "channel_composition": {
+            "test_name": "Channel Composition",
+            "size": 4,
+            "composition_error": 8.213578708459202e-17,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0006444454193115234
+          },
+          "overall_pass": false
+        },
+        "N_8": {
+          "choi_psd": {
+            "test_name": "Choi Matrix PSD",
+            "size": 8,
+            "min_eigenvalue": -1.1452201018893976e-17,
+            "max_imaginary_eigenvalue": 2.7572371419075518e-17,
+            "condition_number": 100637163042412.61,
+            "is_psd": true,
+            "eigenvalues_real": [
+              1.86731050655966e-20,
+              1.0,
+              -1.1452201018893976e-17,
+              3.4919104319627924e-18,
+              -1.0640716031723578e-17,
+              1.0511793480329566e-17,
+              -1.0574220011534804e-17,
+              -9.867353497451809e-18,
+              9.31960648772028e-18,
+              -2.835243456179432e-18,
+              9.969422279405057e-18,
+              -8.220520543504841e-18,
+              -5.622780561750973e-18,
+              -6.8365702687706754e-18,
+              8.061773691720093e-18,
+              -7.169676143868903e-18,
+              -4.557595974403528e-18,
+              6.740820919554943e-18,
+              7.742638438701483e-18,
+              3.249726782182288e-18,
+              7.904996975862264e-18,
+              1.2022677267467537e-18,
+              3.896936092114445e-18,
+              6.973411743518497e-18,
+              2.5530929562860647e-18,
+              -4.3731353169287784e-18,
+              -3.0388055465791195e-18,
+              -6.257701351651848e-18,
+              -3.454991471150334e-18,
+              -5.970611333888527e-18,
+              -5.502553416855704e-18,
+              -1.0290578646739432e-18,
+              -4.274910739103542e-18,
+              3.4470308230196284e-18,
+              1.371206941620451e-18,
+              2.922639537323962e-19,
+              -4.558027923265332e-18,
+              -3.721648186561117e-18,
+              3.928288718575423e-18,
+              5.77372550879795e-18,
+              5.8851250317534e-18,
+              5.3351068568325e-18,
+              4.280605788296618e-18,
+              -2.8991192725227466e-18,
+              3.66412772740092e-18,
+              1.9959838076638665e-19,
+              -7.6860999667810165e-19,
+              -2.834902114712238e-18,
+              4.240567526984651e-18,
+              9.056199161813551e-19,
+              3.9347383921448586e-18,
+              2.8868610568922966e-18,
+              -2.258705653324917e-18,
+              -7.698314719491435e-19,
+              -2.3373483623539237e-18,
+              1.2947460532758659e-18,
+              -3.4776036242673047e-19,
+              2.5416660651571853e-18,
+              1.8930596281126628e-18,
+              -1.2113027648838548e-18,
+              -6.644856809536377e-19,
+              -3.045871905058455e-19,
+              1.0695974425928083e-18,
+              2.163896460947476e-19
+            ],
+            "eigenvalues_imag": [
+              1.8320419655340045e-19,
+              2.7572371419075518e-17,
+              7.835849426787674e-18,
+              -1.2168166327673931e-17,
+              -4.314801340385299e-18,
+              3.7806118472267266e-18,
+              -8.743851623846135e-19,
+              2.673398919922837e-18,
+              -5.0011541088928365e-18,
+              -8.313718863453306e-18,
+              -1.7977933487723807e-18,
+              -2.111093241965975e-18,
+              -5.94608437042418e-18,
+              -4.190414617494306e-18,
+              3.3229956966834538e-18,
+              2.245468308760706e-18,
+              5.662320480906968e-18,
+              -4.1321294424509784e-18,
+              -2.471807132176776e-18,
+              -6.313359354659583e-18,
+              2.5640152332581725e-19,
+              7.113876816636076e-18,
+              6.238432559494532e-18,
+              2.734177168112207e-18,
+              6.217378490151958e-18,
+              -4.739467496282543e-18,
+              -5.181279881339621e-18,
+              -6.974625964212875e-19,
+              4.9916492394256584e-18,
+              1.1570717000745535e-19,
+              2.0889321308015574e-18,
+              5.43414487941973e-18,
+              3.250158861604567e-18,
+              -4.8509742281664445e-18,
+              -5.076971332598113e-18,
+              -5.01539521517854e-18,
+              -6.960649311211647e-19,
+              -2.2170333910681382e-18,
+              4.38669875722067e-18,
+              2.188715422054375e-18,
+              -2.8419555754193073e-19,
+              -1.719177583677415e-18,
+              -2.4231380979264624e-18,
+              3.349104379401063e-18,
+              3.4115846205171173e-18,
+              4.296388457402842e-18,
+              -3.746293349607171e-18,
+              2.421876925965223e-18,
+              1.774188677294412e-18,
+              -3.440394426418072e-18,
+              -5.031714795203226e-19,
+              2.2185026440283352e-18,
+              -1.7519139297037415e-18,
+              3.0082292857853968e-18,
+              1.1574103135512715e-18,
+              -2.5300203241089254e-18,
+              -1.8376682924661513e-18,
+              6.693643431568775e-19,
+              -7.686329270339638e-19,
+              -1.4039062417339609e-19,
+              -2.66166694485452e-19,
+              1.5704218479061824e-18,
+              3.78417165926997e-19,
+              9.30535727138606e-19
+            ],
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.02827906608581543
+          },
+          "trace_preserving": {
+            "test_name": "Trace Preserving",
+            "size": 8,
+            "trace_preserving_error": 1.0272931465097352,
+            "trace_value": 0.007139605519989346,
+            "trace_error": 7.992860394480011,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.002649545669555664
+          },
+          "choi_rank": {
+            "test_name": "Choi Matrix Rank-1",
+            "size": 8,
+            "numerical_rank": 1,
+            "max_singular_value": 1.0,
+            "max_singular_error": 0.0,
+            "singular_ratio": 8710039591913636.0,
+            "singular_values": [
+              1.0,
+              1.1481004069469394e-16,
+              1.6253092337205767e-17,
+              1.5698219393838937e-17,
+              1.5000764870586846e-17,
+              1.4531686267757805e-17,
+              1.3997111589432798e-17,
+              1.370254957823573e-17,
+              1.3169934750248754e-17,
+              1.2686681345204072e-17,
+              1.2229593860168768e-17,
+              1.2063829456278755e-17,
+              1.1666235096686215e-17,
+              1.1391996271820838e-17,
+              1.123668343530681e-17,
+              1.0539536173187994e-17,
+              1.0105527824079312e-17,
+              9.945196780067163e-18,
+              9.751624846859089e-18,
+              9.33953639204221e-18,
+              8.945355175234025e-18,
+              8.763497226845102e-18,
+              8.499763343009383e-18,
+              8.310994768015068e-18,
+              7.999485235570362e-18,
+              7.60619341655957e-18,
+              7.381416553140954e-18,
+              7.142031309738133e-18,
+              6.8708363782215356e-18,
+              6.666925860379438e-18,
+              6.518423589105892e-18,
+              6.298476678199676e-18,
+              5.999699567716735e-18,
+              5.889121122167229e-18,
+              5.594963971211025e-18,
+              5.2977827709519145e-18,
+              5.04942764854784e-18,
+              4.804373335456591e-18,
+              4.709984743617623e-18,
+              4.5589047037129825e-18,
+              4.2815755779993585e-18,
+              4.092517627074554e-18,
+              4.002649306740647e-18,
+              3.843430498839776e-18,
+              3.647088271896265e-18,
+              3.352101726899566e-18,
+              3.1418185609674062e-18,
+              2.939427529804684e-18,
+              2.6777247305571054e-18,
+              2.453263576438187e-18,
+              2.3585640246788218e-18,
+              2.240882751494534e-18,
+              2.0389971568051296e-18,
+              1.993562453687557e-18,
+              1.6968196124452392e-18,
+              1.6250510087689626e-18,
+              1.3215182053879548e-18,
+              1.1673401047972836e-18,
+              1.0581610445528976e-18,
+              7.525512190080497e-19,
+              4.911797678517961e-19,
+              4.3058555826308943e-19,
+              2.7692427411406867e-19,
+              7.141064812856687e-20
+            ],
+            "rank_threshold": 1e-12,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0014774799346923828
+          },
+          "process_fidelity": {
+            "test_name": "Process Fidelity",
+            "size": 8,
+            "fidelity_with_identity": 1.3944542031229209e-05,
+            "fidelity_imaginary_part": 1.0164395367051604e-20,
+            "self_fidelity": 0.015624999999999997,
+            "self_fidelity_error": 0.984375,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.002612590789794922
+          },
+          "channel_composition": {
+            "test_name": "Channel Composition",
+            "size": 8,
+            "composition_error": 1.0936149101245142e-16,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.005645275115966797
+          },
+          "overall_pass": false
+        }
+      },
+      "suite_pass": false
+    },
+    "randomized_benchmarking": {
+      "error": "name 'U_raw' is not defined",
+      "suite_pass": false
+    },
+    "trotter_error": {
+      "suite_name": "Trotter Error Analysis",
+      "timestamp": 1755260564.836441,
+      "canonical_parameters": {
+        "method": "symbolic_resonance_computing",
+        "kernel": "canonical_true_rft",
+        "precision": "double"
+      },
+      "tolerance": 1e-12,
+      "test_sizes": [
+        4,
+        8
+      ],
+      "results": {
+        "N_4": {
+          "scaling": {
+            "test_name": "Trotter Scaling",
+            "size": 4,
+            "evolution_time": 1.0,
+            "n_values": [
+              2,
+              4,
+              8,
+              16,
+              32
+            ],
+            "trotter_errors": [
+              8.179260715156771e-16,
+              5.770832149848921e-16,
+              8.94493100584137e-16,
+              1.3627408414525572e-15,
+              4.2534525000981415e-15
+            ],
+            "theoretical_errors": [
+              9.234233404593176e-17,
+              4.617116702296588e-17,
+              2.308558351148294e-17,
+              1.154279175574147e-17,
+              5.771395877870735e-18
+            ],
+            "scaling_exponent": -0.5996843924473461,
+            "scaling_coefficient": 3.436907940981463e-16,
+            "expected_scaling_exponent": 1.0,
+            "scaling_exponent_error": 1.599684392447346,
+            "commutator_norm": 2.2162160171023623e-15,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.04264235496520996
+          },
+          "time_dependence": {
+            "test_name": "Trotter Time Dependence",
+            "size": 4,
+            "trotter_steps": 16,
+            "t_values": [
+              0.1,
+              0.2,
+              0.5,
+              1.0,
+              2.0
+            ],
+            "trotter_errors": [
+              2.4629989446412116e-15,
+              1.7352146342498057e-15,
+              2.4793700069571973e-15,
+              1.3627408414525572e-15,
+              1.5429469860825823e-15
+            ],
+            "time_scaling_exponent": -0.14897796979087585,
+            "time_scaling_coefficient": 1.6556281007942593e-15,
+            "expected_time_scaling": 2.0,
+            "time_scaling_error": 2.148977969790876,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.0034530162811279297
+          },
+          "symmetric": {
+            "test_name": "Symmetric Trotter",
+            "size": 4,
+            "evolution_time": 1.0,
+            "n_values": [
+              2,
+              4,
+              8,
+              16
+            ],
+            "standard_errors": [
+              8.179260715156771e-16,
+              5.770832149848921e-16,
+              8.94493100584137e-16,
+              1.3627408414525572e-15
+            ],
+            "symmetric_errors": [
+              8.492257412918246e-16,
+              8.798950563878382e-16,
+              6.684856745504585e-16,
+              3.877653071044714e-15
+            ],
+            "standard_scaling_exponent": -0.2841697591048444,
+            "symmetric_scaling_exponent": -0.6176456355289192,
+            "improvement_ratio": 1.0,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.0032105445861816406
+          },
+          "locality": {
+            "test_name": "Locality Effects",
+            "size": 4,
+            "evolution_time": 0.5,
+            "trotter_steps": 8,
+            "local_trotter_error": 0.025635956702727298,
+            "nonlocal_trotter_error": 8.977223588803982e-16,
+            "local_commutator_norm": 1.7999572567651159,
+            "nonlocal_commutator_norm": 2.2162160171023623e-15,
+            "error_ratio": 28556665041404.773,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.006905317306518555
+          },
+          "overall_pass": false
+        },
+        "N_8": {
+          "scaling": {
+            "test_name": "Trotter Scaling",
+            "size": 8,
+            "evolution_time": 1.0,
+            "n_values": [
+              2,
+              4,
+              8,
+              16,
+              32
+            ],
+            "trotter_errors": [
+              1.0233376934195917e-15,
+              9.058396737032718e-16,
+              1.619011857833507e-15,
+              2.0927892553306916e-15,
+              6.290480051270866e-15
+            ],
+            "theoretical_errors": [
+              7.972826052771359e-17,
+              3.9864130263856795e-17,
+              1.9932065131928397e-17,
+              9.966032565964199e-18,
+              4.983016282982099e-18
+            ],
+            "scaling_exponent": -0.6447875041005326,
+            "scaling_coefficient": 4.7516537493054e-16,
+            "expected_scaling_exponent": 1.0,
+            "scaling_exponent_error": 1.6447875041005326,
+            "commutator_norm": 1.9134782526651263e-15,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.0031654834747314453
+          },
+          "time_dependence": {
+            "test_name": "Trotter Time Dependence",
+            "size": 8,
+            "trotter_steps": 16,
+            "t_values": [
+              0.1,
+              0.2,
+              0.5,
+              1.0,
+              2.0
+            ],
+            "trotter_errors": [
+              3.574477781780495e-15,
+              2.709946040656064e-15,
+              3.575109022798044e-15,
+              2.0927892553306916e-15,
+              2.4118283222823015e-15
+            ],
+            "time_scaling_exponent": -0.13299647710838028,
+            "time_scaling_coefficient": 2.5311359930676453e-15,
+            "expected_time_scaling": 2.0,
+            "time_scaling_error": 2.1329964771083803,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.01788496971130371
+          },
+          "symmetric": {
+            "test_name": "Symmetric Trotter",
+            "size": 8,
+            "evolution_time": 1.0,
+            "n_values": [
+              2,
+              4,
+              8,
+              16
+            ],
+            "standard_errors": [
+              1.0233376934195917e-15,
+              9.058396737032718e-16,
+              1.619011857833507e-15,
+              2.0927892553306916e-15
+            ],
+            "symmetric_errors": [
+              1.1263654979364856e-15,
+              1.1179477512076622e-15,
+              2.3871115123921418e-15,
+              4.903022314327646e-15
+            ],
+            "standard_scaling_exponent": -0.39342201313111963,
+            "symmetric_scaling_exponent": -0.7460402037407349,
+            "improvement_ratio": 1.0,
+            "passes": false,
+            "tolerance": 1e-12,
+            "test_time": 0.02979731559753418
+          },
+          "locality": {
+            "test_name": "Locality Effects",
+            "size": 8,
+            "evolution_time": 0.5,
+            "trotter_steps": 8,
+            "local_trotter_error": 0.010709619805308487,
+            "nonlocal_trotter_error": 1.1919393791392905e-15,
+            "local_commutator_norm": 0.7070657245229099,
+            "nonlocal_commutator_norm": 1.9134782526651263e-15,
+            "error_ratio": 8985037320473.457,
+            "passes": true,
+            "tolerance": 1e-12,
+            "test_time": 0.0013442039489746094
+          },
+          "overall_pass": false
+        }
+      },
+      "suite_pass": false
+    },
+    "lie_closure": {
+      "suite_name": "Lie Algebra Closure Validation",
+      "timestamp": 1755260564.9501598,
+      "canonical_parameters": {
+        "method": "symbolic_resonance_computing",
+        "kernel": "canonical_true_rft",
+        "precision": "double"
+      },
+      "tolerance": 1e-10,
+      "test_sizes": [
+        4,
+        8
+      ],
+      "results": {
+        "N_4": {
+          "closure": {
+            "test_name": "Commutator Closure",
+            "size": 4,
+            "num_generators": 7,
+            "num_commutators": 21,
+            "max_residual": 6.162885273741311,
+            "avg_residual": 1.921797308260901,
+            "commutator_results": [
+              {
+                "generator_pair": [
+                  0,
+                  1
+                ],
+                "commutator_norm": 9.084854000409052e-15,
+                "residual_norm": 9.034656610995828e-15,
+                "relative_residual": 0.9836472752417693
+              },
+              {
+                "generator_pair": [
+                  0,
+                  2
+                ],
+                "commutator_norm": 5.7884860574707725e-15,
+                "residual_norm": 5.502049269267303e-15,
+                "relative_residual": 0.9343741694500246
+              },
+              {
+                "generator_pair": [
+                  0,
+                  3
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  0,
+                  4
+                ],
+                "commutator_norm": 6.609758185724439,
+                "residual_norm": 6.162885273741311,
+                "relative_residual": 0.932391942424116
+              },
+              {
+                "generator_pair": [
+                  0,
+                  5
+                ],
+                "commutator_norm": 5.203961758025755,
+                "residual_norm": 3.3639727635010055,
+                "relative_residual": 0.6464253428290387
+              },
+              {
+                "generator_pair": [
+                  0,
+                  6
+                ],
+                "commutator_norm": 6.7018139045105585,
+                "residual_norm": 4.719384136276865,
+                "relative_residual": 0.7041950438373934
+              },
+              {
+                "generator_pair": [
+                  1,
+                  2
+                ],
+                "commutator_norm": 5.065221450948517e-15,
+                "residual_norm": 3.663893749132613e-15,
+                "relative_residual": 0.7093391413953399
+              },
+              {
+                "generator_pair": [
+                  1,
+                  3
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  1,
+                  4
+                ],
+                "commutator_norm": 5.453026534894052,
+                "residual_norm": 3.961586020875281,
+                "relative_residual": 0.7264930760055895
+              },
+              {
+                "generator_pair": [
+                  1,
+                  5
+                ],
+                "commutator_norm": 5.419875600088989,
+                "residual_norm": 5.403781287308651,
+                "relative_residual": 0.9970305014417538
+              },
+              {
+                "generator_pair": [
+                  1,
+                  6
+                ],
+                "commutator_norm": 5.488823299086156,
+                "residual_norm": 4.073986277952532,
+                "relative_residual": 0.7422330900378624
+              },
+              {
+                "generator_pair": [
+                  2,
+                  3
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  2,
+                  4
+                ],
+                "commutator_norm": 2.5563487015331083,
+                "residual_norm": 2.1038992128058216,
+                "relative_residual": 0.8230094789275262
+              },
+              {
+                "generator_pair": [
+                  2,
+                  5
+                ],
+                "commutator_norm": 2.490234874426195,
+                "residual_norm": 2.4621915184667738,
+                "relative_residual": 0.9887386702967594
+              },
+              {
+                "generator_pair": [
+                  2,
+                  6
+                ],
+                "commutator_norm": 2.5429697513438323,
+                "residual_norm": 2.0758336720689092,
+                "relative_residual": 0.8163029351693762
+              },
+              {
+                "generator_pair": [
+                  3,
+                  4
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  3,
+                  5
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  3,
+                  6
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  4,
+                  5
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  4,
+                  6
+                ],
+                "commutator_norm": 4.0,
+                "residual_norm": 2.8813023899155192,
+                "relative_residual": 0.7203255974788798
+              },
+              {
+                "generator_pair": [
+                  5,
+                  6
+                ],
+                "commutator_norm": 4.0,
+                "residual_norm": 3.148920920566233,
+                "relative_residual": 0.7872302301415582
+              }
+            ],
+            "generator_norms": [
+              3.6126430260636075,
+              3.625300103680243,
+              2.6350184156681418,
+              2.0,
+              2.0,
+              2.0,
+              2.0
+            ],
+            "passes": false,
+            "tolerance": 1e-10,
+            "test_time": 0.0030739307403564453
+          },
+          "jacobi": {
+            "test_name": "Jacobi Identity",
+            "size": 4,
+            "num_generators": 7,
+            "max_jacobi_violation": 3.3027968761353315e-15,
+            "num_violations": 0,
+            "jacobi_violations": [],
+            "passes": true,
+            "tolerance": 1e-10,
+            "test_time": 0.010976552963256836
+          },
+          "dimension": {
+            "test_name": "Lie Algebra Dimension",
+            "size": 4,
+            "algebra_dimension": 16,
+            "max_possible_dimension": 16,
+            "dimension_ratio": 1.0,
+            "iterations_needed": 2,
+            "basis_element_norms": [
+              3.6126430260636075,
+              3.625300103680243,
+              2.6350184156681418,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              6.609758185724439,
+              5.203961758025755,
+              6.7018139045105585,
+              5.453026534894052,
+              5.419875600088989,
+              5.488823299086156,
+              2.5563487015331083,
+              2.490234874426195,
+              2.5429697513438323
+            ],
+            "passes": true,
+            "tolerance": 1e-10,
+            "test_time": 0.037830352783203125
+          },
+          "su_structure": {
+            "test_name": "SU(N) Structure",
+            "size": 4,
+            "num_generators": 7,
+            "hermitian_count": 7,
+            "traceless_count": 4,
+            "su_properties": [
+              {
+                "generator_index": 0,
+                "trace": -0.7799953289359618,
+                "trace_imag": 3.3306690738754696e-16,
+                "is_hermitian": true,
+                "is_traceless_or_identity": false,
+                "norm": 3.6126430260636075
+              },
+              {
+                "generator_index": 1,
+                "trace": -1.559990657871924,
+                "trace_imag": 1.942890293094024e-16,
+                "is_hermitian": true,
+                "is_traceless_or_identity": false,
+                "norm": 3.625300103680243
+              },
+              {
+                "generator_index": 2,
+                "trace": 3.9431993203716953,
+                "trace_imag": -2.2343238370581275e-15,
+                "is_hermitian": true,
+                "is_traceless_or_identity": false,
+                "norm": 2.6350184156681418
+              },
+              {
+                "generator_index": 3,
+                "trace": 4.0,
+                "trace_imag": 0.0,
+                "is_hermitian": true,
+                "is_traceless_or_identity": true,
+                "norm": 2.0
+              },
+              {
+                "generator_index": 4,
+                "trace": 0.0,
+                "trace_imag": 0.0,
+                "is_hermitian": true,
+                "is_traceless_or_identity": true,
+                "norm": 2.0
+              },
+              {
+                "generator_index": 5,
+                "trace": 0.0,
+                "trace_imag": 0.0,
+                "is_hermitian": true,
+                "is_traceless_or_identity": true,
+                "norm": 2.0
+              },
+              {
+                "generator_index": 6,
+                "trace": 0.0,
+                "trace_imag": 0.0,
+                "is_hermitian": true,
+                "is_traceless_or_identity": true,
+                "norm": 2.0
+              }
+            ],
+            "passes": false,
+            "tolerance": 1e-10,
+            "test_time": 0.0009353160858154297
+          },
+          "overall_pass": false
+        },
+        "N_8": {
+          "closure": {
+            "test_name": "Commutator Closure",
+            "size": 8,
+            "num_generators": 4,
+            "num_commutators": 6,
+            "max_residual": 1.1327758726772511e-13,
+            "avg_residual": 4.087719758217005e-14,
+            "commutator_results": [
+              {
+                "generator_pair": [
+                  0,
+                  1
+                ],
+                "commutator_norm": 1.1328082880675218e-13,
+                "residual_norm": 1.1327758726772511e-13,
+                "relative_residual": 0.9990894268447884
+              },
+              {
+                "generator_pair": [
+                  0,
+                  2
+                ],
+                "commutator_norm": 3.0527386651810694e-14,
+                "residual_norm": 3.052598976635276e-14,
+                "relative_residual": 0.9966893392958834
+              },
+              {
+                "generator_pair": [
+                  0,
+                  3
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  1,
+                  2
+                ],
+                "commutator_norm": 1.0146100846899598e-13,
+                "residual_norm": 1.0145960845894245e-13,
+                "relative_residual": 0.9990015852384483
+              },
+              {
+                "generator_pair": [
+                  1,
+                  3
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              },
+              {
+                "generator_pair": [
+                  2,
+                  3
+                ],
+                "commutator_norm": 0.0,
+                "residual_norm": 0.0,
+                "relative_residual": 0.0
+              }
+            ],
+            "generator_norms": [
+              4.8651093229024,
+              5.70385211932954,
+              4.79191354129156,
+              2.8284271247461903
+            ],
+            "passes": true,
+            "tolerance": 1e-10,
+            "test_time": 0.0013995170593261719
+          },
+          "jacobi": {
+            "test_name": "Jacobi Identity",
+            "size": 8,
+            "num_generators": 4,
+            "max_jacobi_violation": 7.419076973224596e-15,
+            "num_violations": 0,
+            "jacobi_violations": [],
+            "passes": true,
+            "tolerance": 1e-10,
+            "test_time": 0.0021123886108398438
+          },
+          "dimension": {
+            "test_name": "Lie Algebra Dimension",
+            "size": 8,
+            "algebra_dimension": 4,
+            "max_possible_dimension": 64,
+            "dimension_ratio": 0.0625,
+            "iterations_needed": 1,
+            "basis_element_norms": [
+              4.8651093229024,
+              5.70385211932954,
+              4.79191354129156,
+              2.8284271247461903
+            ],
+            "passes": true,
+            "tolerance": 1e-10,
+            "test_time": 0.0019383430480957031
+          },
+          "overall_pass": true
+        }
+      },
+      "suite_pass": false
+    },
+    "spectral_locality": {
+      "error": "cannot reshape array of size 8 into shape (4,4)",
+      "suite_pass": false
+    },
+    "state_benchmarks": {
+      "error": "name 'forward_true_rft' is not defined",
+      "suite_pass": false
+    }
+  },
+  "summary": {
+    "total_suites": 9,
+    "passed_suites": 0,
+    "failed_suites": 9,
+    "suite_status": {
+      "unitarity": false,
+      "hamiltonian": false,
+      "time_evolution": false,
+      "choi_channel": false,
+      "randomized_benchmarking": false,
+      "trotter_error": false,
+      "lie_closure": false,
+      "spectral_locality": false,
+      "state_benchmarks": false
+    },
+    "overall_pass": false,
+    "pass_rate": 0.0
+  },
+  "canonical_rft_validation": {
+    "valid": "True",
+    "error": 8.400361489980555e-16
+  }
+}

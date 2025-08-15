@@ -14,7 +14,6 @@ i = int(1)
 AR = np.array([0, 1, 2], dtype=np.int32)
 AR.setflags(write=False)
 
-
 i8 << i8
 i8 >> i8
 i8 | i8

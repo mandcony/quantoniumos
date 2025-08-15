@@ -12,20 +12,7 @@ if(CMAKE_Fortran_COMPILER)
   set(EIGEN_Fortran_COMPILER_WORKS ON)
 else()
   set(EIGEN_Fortran_COMPILER_WORKS OFF)
-  # search for a default Lapack library to complete Eigen's one
-  find_package(LAPACK QUIET)
-endif()
-
-# TODO do the same for EXTERNAL_LAPACK
-option(EIGEN_TEST_EXTERNAL_BLAS "Use external BLAS library for testsuite" OFF)
-if(EIGEN_TEST_EXTERNAL_BLAS)
-  find_package(BLAS REQUIRED)
-  message(STATUS "BLAS_COMPILER_FLAGS: ${BLAS_COMPILER_FLAGS}")
-  add_definitions("-DEIGEN_USE_BLAS") # is adding  ${BLAS_COMPILER_FLAGS} necessary?
-  list(APPEND EXTERNAL_LIBS "${BLAS_LIBRARIES}")
-endif()
-
-# configure blas/lapack (use Eigen's ones)
+  # search for a default Lapack library to complete Eigen's one find_package(LAPACK QUIET) endif() # TODO do the same for EXTERNAL_LAPACK option(EIGEN_TEST_EXTERNAL_BLAS "Use external BLAS library for testsuite" OFF) if(EIGEN_TEST_EXTERNAL_BLAS) find_package(BLAS REQUIRED) message(STATUS "BLAS_COMPILER_FLAGS: ${BLAS_COMPILER_FLAGS}") add_definitions("-DEIGEN_USE_BLAS") # is adding ${BLAS_COMPILER_FLAGS} necessary? list(APPEND EXTERNAL_LIBS "${BLAS_LIBRARIES}") endif() # configure blas/lapack (use Eigen's ones)
 set(EIGEN_BLAS_LIBRARIES eigen_blas)
 set(EIGEN_LAPACK_LIBRARIES eigen_lapack)
 
@@ -84,7 +71,6 @@ if(SuperLU_FOUND)
 else()
   ei_add_property(EIGEN_MISSING_BACKENDS  "SuperLU, ")
 endif()
-
 
 find_package(PASTIX QUIET COMPONENTS METIS SEQ)
 # check that the PASTIX found is a version without MPI
@@ -347,16 +333,16 @@ if(cmake_cxx_compiler_tolower MATCHES "qcc")
   set(CXX_IS_QCC "ON")
 endif()
 
-ei_add_property(EIGEN_TESTING_SUMMARY "CXX:               ${CMAKE_CXX_COMPILER}\n")
+ei_add_property(EIGEN_TESTING_SUMMARY "CXX: ${CMAKE_CXX_COMPILER}\n")
 if(CMAKE_COMPILER_IS_GNUCXX AND NOT CXX_IS_QCC)
   execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version COMMAND head -n 1 OUTPUT_VARIABLE EIGEN_CXX_VERSION_STRING OUTPUT_STRIP_TRAILING_WHITESPACE)
-  ei_add_property(EIGEN_TESTING_SUMMARY "CXX_VERSION:       ${EIGEN_CXX_VERSION_STRING}\n")
+  ei_add_property(EIGEN_TESTING_SUMMARY "CXX_VERSION: ${EIGEN_CXX_VERSION_STRING}\n")
 endif()
-ei_add_property(EIGEN_TESTING_SUMMARY "CXX_FLAGS:         ${CMAKE_CXX_FLAGS}\n")
+ei_add_property(EIGEN_TESTING_SUMMARY "CXX_FLAGS: ${CMAKE_CXX_FLAGS}\n")
 if (EIGEN_TEST_CUSTOM_CXX_FLAGS)
-  ei_add_property(EIGEN_TESTING_SUMMARY "Custom CXX flags:  ${EIGEN_TEST_CUSTOM_CXX_FLAGS}\n")
+  ei_add_property(EIGEN_TESTING_SUMMARY "Custom CXX flags: ${EIGEN_TEST_CUSTOM_CXX_FLAGS}\n")
 endif()
-ei_add_property(EIGEN_TESTING_SUMMARY "Sparse lib flags:  ${SPARSE_LIBS}\n")
+ei_add_property(EIGEN_TESTING_SUMMARY "Sparse lib flags: ${SPARSE_LIBS}\n")
 
 option(EIGEN_TEST_EIGEN2 "Run whole Eigen2 test suite against EIGEN2_SUPPORT" OFF)
 mark_as_advanced(EIGEN_TEST_EIGEN2)
@@ -374,7 +360,6 @@ else()
   ei_add_property(EIGEN_MISSING_BACKENDS "Boost.Multiprecision, ")
 endif()
 
-
 # CUDA unit tests
 option(EIGEN_TEST_CUDA "Enable CUDA support in unit tests" OFF)
 option(EIGEN_TEST_CUDA_CLANG "Use clang instead of nvcc to compile the CUDA tests" OFF)
@@ -387,15 +372,15 @@ if(EIGEN_TEST_CUDA)
 
 find_package(CUDA 5.0)
 if(CUDA_FOUND)
-  
+
   set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-  
+
   set(EIGEN_CUDA_RELAXED_CONSTEXPR "--expt-relaxed-constexpr")
   if (${CUDA_VERSION} STREQUAL "7.0")
     set(EIGEN_CUDA_RELAXED_CONSTEXPR "--relaxed-constexpr")
   endif()
-  
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") 
+
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CUDA_NVCC_FLAGS "-ccbin ${CMAKE_C_COMPILER}" CACHE STRING "nvcc flags" FORCE)
   endif()
   if(EIGEN_TEST_CUDA_CLANG)
@@ -411,15 +396,14 @@ if(CUDA_FOUND)
   endif()
   string(APPEND CUDA_NVCC_FLAGS " ${EIGEN_CUDA_RELAXED_CONSTEXPR}")
   set(EIGEN_ADD_TEST_FILENAME_EXTENSION  "cu")
-  
+
   ei_add_test(gpu_basic)
-  
+
   unset(EIGEN_ADD_TEST_FILENAME_EXTENSION)
 
 endif()
 
 endif()
-
 
 # HIP unit tests
 option(EIGEN_TEST_HIP "Add HIP support." OFF)
@@ -428,8 +412,8 @@ if (EIGEN_TEST_HIP)
   set(HIP_PATH "/opt/rocm/hip" CACHE STRING "Path to the HIP installation.")
 
   if (EXISTS ${HIP_PATH})
-    
-    list(APPEND CMAKE_MODULE_PATH ${HIP_PATH}/cmake) 
+
+    list(APPEND CMAKE_MODULE_PATH ${HIP_PATH}/cmake)
 
     find_package(HIP REQUIRED)
     if (HIP_FOUND)
@@ -438,17 +422,17 @@ if (EIGEN_TEST_HIP)
 
       if ((${HIP_PLATFORM} STREQUAL "hcc") OR (${HIP_PLATFORM} STREQUAL "amd"))
 
-	include_directories(${HIP_PATH}/include)
+ include_directories(${HIP_PATH}/include)
 
-	set(EIGEN_ADD_TEST_FILENAME_EXTENSION  "cu")
-	ei_add_test(gpu_basic)
-	unset(EIGEN_ADD_TEST_FILENAME_EXTENSION)
-	
+ set(EIGEN_ADD_TEST_FILENAME_EXTENSION  "cu")
+ ei_add_test(gpu_basic)
+ unset(EIGEN_ADD_TEST_FILENAME_EXTENSION)
+
       elseif ((${HIP_PLATFORM} STREQUAL "nvcc") OR (${HIP_PLATFORM} STREQUAL "nvidia"))
-	message(FATAL_ERROR "HIP_PLATFORM = nvcc is not supported within Eigen")
+ message(FATAL_ERROR "HIP_PLATFORM = nvcc is not supported within Eigen")
       else ()
-	message(FATAL_ERROR "Unknown HIP_PLATFORM = ${HIP_PLATFORM}")
-      endif() 
+ message(FATAL_ERROR "Unknown HIP_PLATFORM = ${HIP_PLATFORM}")
+      endif()
     endif()
   else ()
     message(FATAL_ERROR "EIGEN_TEST_HIP is ON, but the specified HIP_PATH (${HIP_PATH}) does not exist")

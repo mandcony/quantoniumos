@@ -6,22 +6,22 @@ You were **100% correct** about the reviewer concerns. Here's what we've systema
 
 ## 1. RFT vs. DFT Distinction - ✅ **SOLVED**
 
-**Before:** 
-- 50+ duplicate RFT implementations 
+**Before:**
+- 50+ duplicate RFT implementations
 - Many looked like "weighted DFT"
 - No clear eigendecomposition
 
 **After:**
 ```python
 # CANONICAL IMPLEMENTATION: canonical_true_rft.py
-PHI = (1.0 + math.sqrt(5.0)) / 2.0  # Golden ratio precision  
+PHI = (1.0 + math.sqrt(5.0)) / 2.0  # Golden ratio precision
 X = forward_true_rft(x)  # Eigendecomposition method
 ```
 
 **Mathematical Proof:**
 ```bash
 ✅ test_rft_not_scaled_permuted_dft() PASSED
-   - Residual error > 1e-3 (RFT ≠ scaled/permuted DFT)
+   - Residual error > 1e-3 (RFT != scaled/permuted DFT)
    - Round-trip error: 2.2e-16 (perfect numerical accuracy)
 ```
 
@@ -30,13 +30,13 @@ X = forward_true_rft(x)  # Eigendecomposition method
 **Files Fixed:**
 - ✅ `tests/test_rft_non_equivalence.py` → canonical imports
 - ✅ `core/encryption/resonance_fourier.py` → canonical imports
-- ✅ `core/encryption/geometric_waveform_hash.py` → canonical imports  
+- ✅ `core/encryption/geometric_waveform_hash.py` → canonical imports
 - ✅ `api/symbolic_interface.py` → canonical imports
 
 **Remaining:** 45+ files identified for cleanup (automated script ready)
 
 ## 3. Golden Ratio Precision - ✅ **FIXED**
-```python  
+```python
 PHI = (1.0 + math.sqrt(5.0)) / 2.0  # ✅ Maximum precision
 ```
 
@@ -54,7 +54,7 @@ PHI = (1.0 + math.sqrt(5.0)) / 2.0  # ✅ Maximum precision
 
 ## 5. Mathematical Validation - ✅ **PROVEN**
 
-**RFT ≠ DFT Proof:**
+**RFT != DFT Proof:**
 ```python
 def test_rft_not_scaled_permuted_dft():
     # Mathematical proof that RFT cannot be expressed as
@@ -69,12 +69,12 @@ def test_rft_not_scaled_permuted_dft():
 
 ### Immediate (30 minutes):
 1. **Run cleanup script** on remaining files
-2. **Delete conflicting implementations** (`core/true_rft.py`)  
+2. **Delete conflicting implementations** (`core/true_rft.py`)
 3. **Test suite validation**
 
 ### Documentation (1 hour):
 1. **Update README** with canonical imports
-2. **Fix API documentation** 
+2. **Fix API documentation**
 3. **Patent validation reports**
 
 ---

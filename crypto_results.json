@@ -1,0 +1,9 @@
+{
+  "num_tests": 100,
+  "aes_avalanche_score": 0.5012890625,
+  "rft_avalanche_score": 0.0188671875,
+  "avalanche_improvement": 0.037637341229642324,
+  "aes_time": 0.000919342041015625,
+  "rft_time": 2.283053398132324,
+  "speed_ratio": 0.00040268091923198224
+}

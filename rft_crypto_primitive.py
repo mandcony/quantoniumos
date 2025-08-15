@@ -1,14 +1,14 @@
-#!/usr/bin/env python3
-"""
+||#!/usr/bin/env python3
+""""""
 4-Phase RFT Cryptographic Primitive
 ==================================
-Production-grade cryptographic hash using RFT spectral mixing in a 
+Production-grade cryptographic hash using RFT spectral mixing in a
 geometrically secure wide-pipe construction.
 
 Architecture:
 Phase 1: Geometric Container Initialization (wide-pipe state)
 Phase 2: Spectral Mixing via RFT Engine (data-adaptive diffusion)
-Phase 3: Non-Linear Locking Layer (AES S-box + ARX)  
+Phase 3: Non-Linear Locking Layer (AES S-box + ARX)
 Phase 4: Compression & Feed-Forward (Davies-Meyer style)
 
 This addresses the cryptographic gaps in the current RFT implementation:
@@ -16,7 +16,7 @@ This addresses the cryptographic gaps in the current RFT implementation:
 - Non-linear diffusion to prevent linear cryptanalysis
 - Sponge-style domain separation for length extension resistance
 - Feed-forward chaining for collision/preimage hardness
-"""
+""""""
 
 import numpy as np
 import hashlib
@@ -35,7 +35,7 @@ def _gmul(a, b):
     return res
 
 def _mixcolumns_4x4(block16: bytes) -> bytearray:
-    """AES MixColumns operation for maximum diffusion"""
+    """"""AES MixColumns operation for maximum diffusion""""""
     m = bytearray(block16)
     for c in range(4):
         i = 4*c
@@ -47,7 +47,7 @@ def _mixcolumns_4x4(block16: bytes) -> bytearray:
     return m
 
 def _quantize_rft_to_bytes(spectrum):
-    """Advanced RFT quantization with whitening and MDS diffusion"""
+    """"""Advanced RFT quantization with whitening and MDS diffusion""""""
     import numpy as np
     re = np.asarray([c.real for c in spectrum], dtype=np.float64)
     im = np.asarray([c.imag for c in spectrum], dtype=np.float64)
@@ -57,22 +57,22 @@ def _quantize_rft_to_bytes(spectrum):
     v = v - v.mean()
     v = v / (np.std(v) + 1e-12)
 
-    # Weyl fractional dither with golden ratio φ
+    # Weyl fractional dither with golden ratio phi
     frac = ((v * 1e6) + PHI * 1e6) % 256.0
     q = np.floor(frac).astype(np.uint8)
 
     # Enforce MDS (Maximum Distance Separable) per 16-byte chunk
-    out = bytearray(q[:64].tobytes() if len(q) >= 64 else q.tobytes().ljust(64, b'\x00'))
+    out = bytearray(q[:64].tobytes() if len(q) >= 64 else q.tobytes().ljust(64, b'||x00'))
     for off in range(0, 64, 16):
         out[off:off+16] = _mixcolumns_4x4(out[off:off+16])
     return bytes(out)
 
 # ChaCha quarter-round operations for enhanced mixing
-def _rotl32(x, n): 
-    return ((x << n) | (x >> (32 - n))) & 0xFFFFFFFF
+def _rotl32(x, n):
+    return ((x << n) ||| (x >> (32 - n))) & 0xFFFFFFFF
 
 def _qr(a,b,c,d):
-    """ChaCha20 quarter-round for cryptographic diffusion"""
+    """"""ChaCha20 quarter-round for cryptographic diffusion""""""
     a = (a + b) & 0xFFFFFFFF; d ^= a; d = _rotl32(d, 16)
     c = (c + d) & 0xFFFFFFFF; b ^= c; b = _rotl32(b, 12)
     a = (a + b) & 0xFFFFFFFF; d ^= a; d = _rotl32(d,  8)
@@ -81,7 +81,7 @@ def _qr(a,b,c,d):
 
 # Security parameters
 WIDE_PIPE_BITS = 1024  # Internal state size
-OUTPUT_BITS = 256      # Final hash output  
+OUTPUT_BITS = 256      # Final hash output
 ROUNDS = 4             # RFT mixing rounds (restored to original design)
 BLOCK_SIZE = 64        # Input block size (bytes)
 
@@ -106,22 +106,22 @@ AES_SBOX = bytes([
 ])
 
 class RFTCryptographicPrimitive:
-    """4-Phase RFT Cryptographic Hash with Wide-Pipe Security"""
-    
+    """"""4-Phase RFT Cryptographic Hash with Wide-Pipe Security""""""
+
     def __init__(self):
         self.state = bytearray(WIDE_PIPE_BITS // 8)  # 1024-bit internal state
         self.block_counter = 0
         self.total_length = 0
-        
+
     def _phase1_geometric_initialization(self, block: bytes, counter: int) -> None:
-        """Phase 1: Initialize geometric container with non-reversible injection"""
+        """"""Phase 1: Initialize geometric container with non-reversible injection""""""
         # Domain separator constants
         domain_sep = b"RFT-CRYPTO-PRIMITIVE-2025"
-        
+
         # Prepare injection data
-        padded_block = block.ljust(BLOCK_SIZE, b'\x00')
+        padded_block = block.ljust(BLOCK_SIZE, b'||x00')
         counter_bytes = counter.to_bytes(8, 'big')
-        
+
         # Non-reversible injection: XOR + modular addition + bit rotation
         for i in range(len(padded_block)):
             # XOR injection
@@ -130,17 +130,17 @@ class RFTCryptographicPrimitive:
             self.state[i] = (self.state[i] + domain_sep[i % len(domain_sep)]) & 0xFF
             # Position-dependent bit rotation
             self.state[i] = ((self.state[i] << (i % 8)) | (self.state[i] >> (8 - (i % 8)))) & 0xFF
-            
+
         # Inject counter across state
         for i in range(8):
             self.state[i + 64] ^= counter_bytes[i]
-            
+
     def _phase2_spectral_mixing(self, round_num: int) -> None:
-        """Phase 2: Apply RFT spectral mixing with advanced quantization"""
+        """"""Phase 2: Apply RFT spectral mixing with advanced quantization""""""
         # Vary RFT parameters per round to avoid symmetry
         round_phi = PHI + (round_num * 0.001)  # Slight variation
         round_weights = [0.7 + (round_num * 0.01), 0.3 - (round_num * 0.01)]
-        
+
         # Apply forward RFT with round-specific parameters
         try:
             # Cover both halves to avoid position bias
@@ -150,122 +150,81 @@ class RFTCryptographicPrimitive:
                 qbytes = _quantize_rft_to_bytes(spectrum)
                 for i in range(64):
                     self.state[window.start + i] ^= qbytes[i]
-                    
+
         except Exception:
             # Fallback to simpler mixing if RFT fails
             self._fallback_spectral_mixing()
-            
+
     def _fallback_spectral_mixing(self) -> None:
-        """Fallback spectral mixing using golden ratio constants"""
+        """"""Fallback spectral mixing using golden ratio constants""""""
         phi_bytes = int(PHI * 1e15).to_bytes(8, 'big')
         for i in range(len(self.state)):
             self.state[i] ^= phi_bytes[i % 8]
             self.state[i] = ((self.state[i] * 251) + 73) & 0xFF  # Simple non-linear mixing
-            
+
     def _phase3_nonlinear_locking(self) -> None:
-        """Phase 3: Non-linear locking with AES S-box + ChaCha quarter-rounds"""
-        # AES S-box substitution per byte (keep this - it's excellent)
-        for i in range(len(self.state)):
-            self.state[i] = AES_SBOX[self.state[i]]
-            
-        # ChaCha quarter-round operations for enhanced mixing
-        w = len(self.state) // 4
-        words = [int.from_bytes(self.state[4*i:4*i+4], 'little') for i in range(w)]
-        
-        # Two rounds of column/diagonal quarter-rounds
-        for _ in range(2):
-            # Columns
-            for i in range(0, w, 4):  
-                if i+3 < w:
-                    words[i+0],words[i+1],words[i+2],words[i+3] = _qr(words[i+0],words[i+1],words[i+2],words[i+3])
-            # Diagonals  
-            for i in range(0, w, 4):  
-                j0 = (i+0) % w; j1 = (i+1) % w; j2 = (i+2) % w; j3 = (i+3) % w
-                words[j0],words[j1],words[j2],words[j3] = _qr(words[j0],words[j1],words[j2],words[j3])
-        
-        # Write back to state
-        for i, val in enumerate(words):
-            if 4*i+4 <= len(self.state):
-                self.state[4*i:4*i+4] = val.to_bytes(4, 'little')
-                
-        # Bit permutations keyed from block position
-        position_key = self.block_counter & 0xFF
-        for i in range(len(self.state)):
-            bit_shift = (position_key + i) % 8
-            self.state[i] = ((self.state[i] << bit_shift) | (self.state[i] >> (8 - bit_shift))) & 0xFF
-            
-    def _phase4_compression_feedforward(self) -> None:
-        """Phase 4: Davies-Meyer compression with feed-forward"""
-        state_len = len(self.state)
-        half = state_len // 2
-        
-        # XOR halves together (Davies-Meyer style)
-        for i in range(half):
-            self.state[i] ^= self.state[i + half]
-            
-        # Feed-forward: mix current output into next block's state
+        """"""Phase 3: Non-linear locking with AES S-box + ChaCha quarter-rounds""""""
+        # AES S-box substitution per byte (keep this - it's excellent) for i in range(len(self.state)): self.state[i] = AES_SBOX[self.state[i]] # ChaCha quarter-round operations for enhanced mixing w = len(self.state) // 4 words = [int.from_bytes(self.state[4*i:4*i+4], 'little') for i in range(w)] # Two rounds of column/diagonal quarter-rounds for _ in range(2): # Columns for i in range(0, w, 4): if i+3 < w: words[i+0],words[i+1],words[i+2],words[i+3] = _qr(words[i+0],words[i+1],words[i+2],words[i+3]) # Diagonals for i in range(0, w, 4): j0 = (i+0) % w; j1 = (i+1) % w; j2 = (i+2) % w; j3 = (i+3) % w words[j0],words[j1],words[j2],words[j3] = _qr(words[j0],words[j1],words[j2],words[j3]) # Write back to state for i, val in enumerate(words): if 4*i+4 <= len(self.state): self.state[4*i:4*i+4] = val.to_bytes(4, 'little') # Bit permutations keyed from block position position_key = self.block_counter & 0xFF for i in range(len(self.state)): bit_shift = (position_key + i) % 8 self.state[i] = ((self.state[i] << bit_shift) ||| (self.state[i] >> (8 - bit_shift))) & 0xFF def _phase4_compression_feedforward(self) -> None: """"""Phase 4: Davies-Meyer compression with feed-forward"""""" state_len = len(self.state) half = state_len // 2 # XOR halves together (Davies-Meyer style) for i in range(half): self.state[i] ^= self.state[i + half] # Feed-forward: mix current output into next block's state
         feedback = hashlib.sha256(bytes(self.state[:half])).digest()
         for i in range(min(len(feedback), half)):
             self.state[i + half] ^= feedback[i]
-            
+
     def update(self, data: bytes) -> None:
-        """Update hash state with new data"""
+        """"""Update hash state with new data""""""
         self.total_length += len(data)
-        
+
         # Process data in blocks
         offset = 0
         while offset < len(data):
             block = data[offset:offset + BLOCK_SIZE]
-            
+
             # Apply 4-phase processing
             self._phase1_geometric_initialization(block, self.block_counter)
-            
+
             for round_num in range(ROUNDS):
                 self._phase2_spectral_mixing(round_num)
                 self._phase3_nonlinear_locking()
-                
+
             self._phase4_compression_feedforward()
-            
+
             self.block_counter += 1
             offset += BLOCK_SIZE
-            
+
     def finalize(self) -> bytes:
-        """Finalize hash and return output"""
+        """"""Finalize hash and return output""""""
         # Padding with length encoding (Merkle-Damgård style)
         padding_len = BLOCK_SIZE - (self.total_length % BLOCK_SIZE)
         if padding_len < 9:  # Need space for length
             padding_len += BLOCK_SIZE
-            
+
         padding = b'\x80' + b'\x00' * (padding_len - 9) + self.total_length.to_bytes(8, 'big')
         self.update(padding)
-        
+
         # Final mixing rounds with finalization constant
         finalization_constant = b"RFT-FINAL-MIX-2025-CRYPTO"
         for i in range(len(finalization_constant)):
             if i < len(self.state):
                 self.state[i] ^= finalization_constant[i % len(finalization_constant)]
-                
+
         # Extra rounds for finalization
         for round_num in range(2):  # 2 extra rounds
             self._phase2_spectral_mixing(ROUNDS + round_num)
             self._phase3_nonlinear_locking()
-            
+
         # Extract final output
         return bytes(self.state[:OUTPUT_BITS // 8])
-        
 
 def rft_crypto_hash(data: bytes) -> bytes:
-    """Compute 4-phase RFT cryptographic hash"""
+    """"""Compute 4-phase RFT cryptographic hash""""""
     hasher = RFTCryptographicPrimitive()
     hasher.update(data)
     return hasher.finalize()
 
-
 def test_rft_crypto_hash():
-    """Test the 4-phase RFT cryptographic primitive"""
+    """"""Test the 4-phase RFT cryptographic primitive""""""
     print("4-Phase RFT Cryptographic Primitive Test")
     print("=" * 50)
-    
+
     # Test vectors
     test_cases = [
         b"",
@@ -276,50 +235,50 @@ def test_rft_crypto_hash():
         b"The quick brown fox jumps over the lazy dog",
         b"1234567890" * 100  # Large input
     ]
-    
+
     print("\nTest Vectors:")
     for i, test_data in enumerate(test_cases):
         hash_result = rft_crypto_hash(test_data)
         print(f"Input {i}: {test_data[:50]}{'...' if len(test_data) > 50 else ''}")
-        print(f"Hash:    {hash_result.hex()}")
-        print(f"Length:  {len(hash_result)} bytes")
+        print(f"Hash: {hash_result.hex()}")
+        print(f"Length: {len(hash_result)} bytes")
         print()
-        
+
     # Avalanche test
     print("Avalanche Effect Test:")
     msg1 = b"The quick brown fox jumps over the lazy dog"
     msg2 = b"The quick brown fox jumps over the lazy cog"  # One bit difference
-    
+
     hash1 = rft_crypto_hash(msg1)
     hash2 = rft_crypto_hash(msg2)
-    
+
     # Count differing bits
     diff_bits = 0
     for b1, b2 in zip(hash1, hash2):
         diff_bits += bin(b1 ^ b2).count('1')
-        
+
     avalanche_percent = (diff_bits / (len(hash1) * 8)) * 100
     print(f"Hash 1: {hash1.hex()}")
     print(f"Hash 2: {hash2.hex()}")
     print(f"Differing bits: {diff_bits}/{len(hash1)*8}")
     print(f"Avalanche effect: {avalanche_percent:.2f}%")
     print(f"Target: ~50% (cryptographic grade)")
-    
+
     # Collision resistance test (birthday paradox) - reduced for performance
     print(f"\nCollision Resistance Test:")
     import random
     hashes = {}
     collisions = 0
     attempts = 1000  # Reduced from 10000 for performance
-    
+
     print(f"Testing {attempts} random inputs for collisions...")
     for i in range(attempts):
         if i % 100 == 0:  # Progress indicator
             print(f"Progress: {i}/{attempts}")
-            
+
         random_data = bytes([random.randint(0, 255) for _ in range(16)])  # Smaller random data
         hash_val = rft_crypto_hash(random_data)
-        
+
         if hash_val in hashes:
             collisions += 1
             print(f"Collision found at attempt {i+1}!")
@@ -327,25 +286,24 @@ def test_rft_crypto_hash():
             print(f"Data 2: {random_data.hex()}")
             break
         hashes[hash_val] = random_data
-        
+
     print(f"Tested {len(hashes)} unique inputs")
     print(f"Collisions found: {collisions}")
     print(f"Expected collisions (256-bit): ~0 for {attempts} attempts")
-    
+
     # Performance test
-    print(f"\nPerformance Test:")
+    print(f"||nPerformance Test:")
     import time
     test_data = b"Performance test message for timing"
-    
+
     start_time = time.time()
     hash_result = rft_crypto_hash(test_data)
     end_time = time.time()
-    
+
     print(f"Hash computation time: {(end_time - start_time)*1000:.2f} ms")
     print(f"Hash result: {hash_result.hex()}")
-    
-    return True
 
+    return True
 
 if __name__ == "__main__":
     test_rft_crypto_hash()

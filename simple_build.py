@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
-"""
+||#!/usr/bin/env python3
+""""""
 Simple C++ engine builder using pybind11
-"""
+""""""
 
 import subprocess
 import sys
@@ -9,17 +9,17 @@ import os
 from pathlib import Path
 
 def get_python_cmd():
-    """Get the correct Python command."""
+    """"""Get the correct Python command.""""""
     return "/home/codespace/.python/current/bin/python"
 
 def build_module(name, sources, includes=None):
-    """Build a single pybind11 module."""
+    """"""Build a single pybind11 module.""""""
     if includes is None:
         includes = []
-    
+
     cmd = [
         get_python_cmd(), "-c",
-        f"""
+        f""""""
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
 import pybind11
@@ -42,28 +42,28 @@ setup(
     cmdclass={{"build_ext": build_ext}},
     script_args=["build_ext", "--inplace"]
 )
-"""
+""""""
     ]
-    
+
     print(f"Building {name}...")
     result = subprocess.run(cmd, shell=False)
     return result.returncode == 0
 
 def main():
     print("🔨 Simple C++ Engine Builder")
-    
+
     # Change to project root
     os.chdir('/workspaces/quantoniumos')
-    
+
     success_count = 0
-    
+
     # Build modules individually with specific sources
     modules = [
         ("quantonium_core", '["core/pybind_interface.cpp", "core/engine_core.cpp", "core/symbolic_eigenvector.cpp"]'),
         ("resonance_engine", '["core/resonance_engine_bindings.cpp", "core/engine_core.cpp", "core/symbolic_eigenvector.cpp"]'),
         ("quantum_engine", '["core/quantum_engine_bindings.cpp", "core/engine_core.cpp", "core/symbolic_eigenvector.cpp"]')
     ]
-    
+
     for name, sources in modules:
         try:
             if build_module(name, sources):
@@ -73,12 +73,12 @@ def main():
                 print(f"❌ {name} build failed")
         except Exception as e:
             print(f"❌ {name} build error: {e}")
-    
+
     print(f"\n🎯 Built {success_count}/{len(modules)} modules")
-    
+
     # Test what we built
     if success_count > 0:
-        print("\n🧪 Testing built modules...")
+        print("||n🧪 Testing built modules...")
         for name, _ in modules:
             try:
                 cmd = [get_python_cmd(), "-c", f"import {name}; print('✓ {name} imports successfully')"]

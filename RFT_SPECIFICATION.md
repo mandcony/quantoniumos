@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document describes the True Resonance Fourier Transform (RFT) implementation used in QuantoniumOS. This is a unitary transform based on eigendecomposition of a resonance operator R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†. The RFT provides exact reconstruction, energy conservation, and mathematically proven non-commutativity with cyclic shifts (proving it is not equivalent to DFT).
+This document describes the True Resonance Fourier Transform (RFT) implementation used in QuantoniumOS. This is a unitary transform based on eigendecomposition of a resonance operator R = Sigmaᵢ wᵢ D_phiᵢ C_sigmaᵢ D_phiᵢ_dagger. The RFT provides exact reconstruction, energy conservation, and mathematically proven non-commutativity with cyclic shifts (proving it is not equivalent to DFT).
 
 ## Mathematical Foundations
 
@@ -10,153 +10,153 @@ This document describes the True Resonance Fourier Transform (RFT) implementatio
 
 **Standard DFT:**
 ```
-X[k] = Σ(n=0 to N-1) x[n] * e^(-2πikn/N)
+X[k] = Sigma(n=0 to N-1) x[n] * e^(-2πikn/N)
 ```
 
 **True RFT:**
 ```
-1. Build resonance operator: R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
-2. Eigendecomposition: (Λ,Ψ) = eigh(R)  
-3. Forward transform: X = Ψ†x
-4. Inverse transform: x = ΨX
+1. Build resonance operator: R = Sigmaᵢ wᵢ D_phiᵢ C_sigmaᵢ D_phiᵢ_dagger
+2. Eigendecomposition: (Lambda,Psi) = eigh(R)
+3. Forward transform: X = Psi_daggerx
+4. Inverse transform: x = PsiX
 
 Where:
-- D_φᵢ: diagonal matrix with phase sequence φᵢ on diagonal
-- C_σᵢ: circulant PSD matrix with bandwidth σᵢ
-- Ψ: eigenvector matrix (orthonormal columns)
-- wᵢ ≥ 0: non-negative weights
+- D_phiᵢ: diagonal matrix with phase sequence phiᵢ on diagonal
+- C_sigmaᵢ: circulant PSD matrix with bandwidth sigmaᵢ
+- Psi: eigenvector matrix (orthonormal columns)
+- wᵢ >= 0: non-negative weights
 ```
 
 ### Mathematical Properties
 
-- **Unitary**: Ψ†Ψ = I (orthonormal columns)  
-- **Energy Conservation**: ||x||² = ||X||² (Plancherel theorem)
-- **Exact Reconstruction**: x = Ψ(Ψ†x) with error < 10⁻¹²
+- **Unitary**: Psi_daggerPsi = I (orthonormal columns)
+- **Energy Conservation**: ||x||^2 = ||X||^2 (Plancherel theorem)
+- **Exact Reconstruction**: x = Psi(Psi_daggerx) with error < 10⁻¹^2
 - **Non-DFT**: ||RS - SR||_F > 0 for cyclic shift S (proven non-commutativity)
 
 ### Indexing & Parameters
 
-- **Length**: N ∈ ℕ; indices k, n ∈ {0, …, N−1}
-- **Weights**: wᵢ ≥ 0 (PSD constraint)
-- **Phase sequences**: φᵢ[n] ∈ ℂ, |φᵢ[n]| = 1 (unit circle)
-- **Bandwidths**: σᵢ > 0 (Gaussian width parameters)
-- **Golden ratio**: φ = (1 + √5)/2 = 1.6180339887498948... (full precision, default phase spacing)
+- **Length**: N  in  ℕ; indices k, n  in  {0, …, N−1}
+- **Weights**: wᵢ >= 0 (PSD constraint)
+- **Phase sequences**: phiᵢ[n]  in  ℂ, |phiᵢ[n]| = 1 (unit circle)
+- **Bandwidths**: sigmaᵢ > 0 (Gaussian width parameters)
+- **Golden ratio**: phi = (1 + sqrt5)/2 = 1.6180339887498948... (full precision, default phase spacing)
 
 ### Phase Sequences
 
 #### QPSK Phase Sequence (Production Default)
 ```
-φ₁[n] = e^(iπ/2(n mod 4))  (QPSK symbols: {1, i, -1, -i})
+phi_1[n] = e^(iπ/2(n mod 4))  (QPSK symbols: {1, i, -1, -i})
 ```
 
 #### Golden Ratio Phase Sequence
-```  
-φ₂[n] = e^(2πin*φ/N)  where φ = (1+√5)/2
+```
+phi_2[n] = e^(2πin*phi/N)  where phi = (1+sqrt5)/2
 ```
 
 #### Identity Phase Sequence (DFT Limit)
 ```
-φ₀[n] = 1  (reduces to circulant structure)
+phi_0[n] = 1  (reduces to circulant structure)
 ```
 
 ## True RFT Resonance Operator
 
 ### Definition
 ```
-R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
+R = Sigmaᵢ wᵢ D_phiᵢ C_sigmaᵢ D_phiᵢ_dagger
 
 where:
-D_φᵢ = diag(φᵢ[0], φᵢ[1], ..., φᵢ[N-1])  (phase sequence on diagonal)
-C_σᵢ = circulant PSD matrix with bandwidth σᵢ
-wᵢ ≥ 0 (non-negative weights for PSD property)
+D_phiᵢ = diag(phiᵢ[0], phiᵢ[1], ..., phiᵢ[N-1])  (phase sequence on diagonal)
+C_sigmaᵢ = circulant PSD matrix with bandwidth sigmaᵢ
+wᵢ >= 0 (non-negative weights for PSD property)
 ```
 
 ### Transform Operation
-- **Forward**: X = Ψ†x  (unitary transform using eigenvectors)
-- **Inverse**: x = ΨX  (exact reconstruction)
+- **Forward**: X = Psi_daggerx  (unitary transform using eigenvectors)
+- **Inverse**: x = PsiX  (exact reconstruction)
 
-### Properties  
-- **Hermitian**: R = R† (real eigenvalues guaranteed)
-- **PSD**: All eigenvalues λᵢ ≥ 0 (positive semidefinite)
-- **Unitary Transform**: Ψ†Ψ = I (orthonormal eigenvector columns)
+### Properties
+- **Hermitian**: R = R_dagger (real eigenvalues guaranteed)
+- **PSD**: All eigenvalues lambdaᵢ >= 0 (positive semidefinite)
+- **Unitary Transform**: Psi_daggerPsi = I (orthonormal eigenvector columns)
 
 #### Energy Conservation (Plancherel Theorem)
 ```
-‖x‖² = ‖X‖²
+‖x‖^2 = ‖X‖^2
 ```
 
 #### Exact Reconstruction
 ```
-x = Ψ(Ψ†x)
+x = Psi(Psi_daggerx)
 ```
 
 #### Stability
-- Columns of Ψ form an orthonormal basis
+- Columns of Psi form an orthonormal basis
 - Condition number = 1
 
 ## Mathematical Proofs
 
 ### Lemma A (PSD Property)
-**Statement**: With wᵢ ≥ 0, |φᵢ| ≡ 1, and periodic-Gaussian C_σᵢ, the operator R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ† is Hermitian PSD.
+**Statement**: With wᵢ >= 0, |phiᵢ| === 1, and periodic-Gaussian C_sigmaᵢ, the operator R = Sigmaᵢ wᵢ D_phiᵢ C_sigmaᵢ D_phiᵢ_dagger is Hermitian PSD.
 
-**Proof**: 
-1. Each term Rᵢ = D_φᵢ C_σᵢ D_φᵢ† satisfies: z†Rᵢz = (D_φᵢ†z)† C_σᵢ (D_φᵢ†z) ≥ 0
-2. C_σᵢ is PSD (periodic Gaussian has non-negative discrete spectrum)
-3. Sum with wᵢ ≥ 0 preserves PSD property
+**Proof**:
+1. Each term Rᵢ = D_phiᵢ C_sigmaᵢ D_phiᵢ_dagger satisfies: z_daggerRᵢz = (D_phiᵢ_daggerz)_dagger C_sigmaᵢ (D_phiᵢ_daggerz) >= 0
+2. C_sigmaᵢ is PSD (periodic Gaussian has non-negative discrete spectrum)
+3. Sum with wᵢ >= 0 preserves PSD property
 4. Hermitian property is immediate
 
 ### Lemma B (Non-Commutation with DFT)
-**Statement**: If some φᵢ is not constant, then [R,S] ≠ 0 (where S is cyclic shift).
+**Statement**: If some phiᵢ is not constant, then [R,S] != 0 (where S is cyclic shift).
 
-**Proof**: For nontrivial φᵢ:
+**Proof**: For nontrivial phiᵢ:
 ```
-S(D_φᵢ C D_φᵢ†)S† = D_{Sφᵢ} C D_{Sφᵢ}† ≠ D_φᵢ C D_φᵢ†
+S(D_phiᵢ C D_phiᵢ_dagger)S_dagger = D_{Sphiᵢ} C D_{Sphiᵢ}_dagger != D_phiᵢ C D_phiᵢ_dagger
 ```
 Therefore R is not diagonal in the DFT basis.
 
 ## DFT Limit (Anchor Property)
 
-**Theorem**: If M = 1 and φ₁ ≡ 1, then R = C_σ₁ is circulant, and its eigenvectors Ψ are the DFT exponentials (up to permutation/global phases).
+**Theorem**: If M = 1 and phi_1 === 1, then R = C_sigma_1 is circulant, and its eigenvectors Psi are the DFT exponentials (up to permutation/global phases).
 
 **Proof**: Circulant matrices are diagonalized by the DFT matrix by construction.
 
 ## Implementation Recipe
 
 ### Core Algorithm
-1. **Build R**: Compute R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ† (enforce wᵢ ≥ 0)
-2. **Eigendecomposition**: (Λ,Ψ) = eigh(R); sort deterministically and canonicalize phases
-3. **Forward Transform**: X = Ψ†x
-4. **Inverse Transform**: x = ΨX
+1. **Build R**: Compute R = Sigmaᵢ wᵢ D_phiᵢ C_sigmaᵢ D_phiᵢ_dagger (enforce wᵢ >= 0)
+2. **Eigendecomposition**: (Lambda,Psi) = eigh(R); sort deterministically and canonicalize phases
+3. **Forward Transform**: X = Psi_daggerx
+4. **Inverse Transform**: x = PsiX
 
 ### Validation Tests
-- **Reconstruction**: ‖x − Ψ(Ψ†x)‖/‖x‖ < 10⁻¹²
-- **Energy**: |‖x‖ − ‖X‖| < 10⁻¹²
+- **Reconstruction**: ‖x − Psi(Psi_daggerx)‖/‖x‖ < 10⁻¹^2
+- **Energy**: |‖x‖ − ‖X‖| < 10⁻¹^2
 - **Non-DFT proof**: ‖RS − SR‖_F > 0 for cyclic shift S when resonance is active
 
 ## Default Parameters (Production Ready)
 
 ### Recommended Configuration
 - **M = 2** components
-- **Weights**: (w₁, w₂) = (0.7, 0.3)
-- **Phase sequences**: 
-  - φ₁ ≡ 1 (identity)
-  - φ₂[k] = e^(iπ/2(k mod 4)) (true 4-phase QPSK)
-- **Bandwidths**: σ₁ = 0.60N, σ₂ = 0.25N
+- **Weights**: (w_1, w_2) = (0.7, 0.3)
+- **Phase sequences**:
+  - phi_1 === 1 (identity)
+  - phi_2[k] = e^(iπ/2(k mod 4)) (true 4-phase QPSK)
+- **Bandwidths**: sigma_1 = 0.60N, sigma_2 = 0.25N
 
 ### Alternative Golden Ratio Configuration
-- **Weights**: (w₁, w₂) = (0.618, 0.382) 
+- **Weights**: (w_1, w_2) = (0.618, 0.382)
 - **Phase sequences**:
-  - φ₁ ≡ 1
-  - φ₂[k] = e^(i(θ₀ + φk)) where φ is golden ratio
-- **Bandwidths**: σ₁ = 0.618N, σ₂ = 0.382N
+  - phi_1 === 1
+  - phi_2[k] = e^(i(theta_0 + phik)) where phi is golden ratio
+- **Bandwidths**: sigma_1 = 0.618N, sigma_2 = 0.382N
 
 ## Implementation Mapping
 
 ### Code Structure Correspondence
 - `generate_resonance_kernel` ⇒ builds R
-- `compute_or_get_eig` (SelfAdjointEigenSolver) ⇒ returns Ψ (ordered, phase-fixed)
-- `forward_true_rft` ⇒ X = Ψ†x
-- `inverse_true_rft` ⇒ x = ΨX
+- `compute_or_get_eig` (SelfAdjointEigenSolver) ⇒ returns Psi (ordered, phase-fixed)
+- `forward_true_rft` ⇒ X = Psi_daggerx
+- `inverse_true_rft` ⇒ x = PsiX
 
 ### Separation of Concerns
 - Keep Goertzel "fingerprint" utility separate from the RFT
@@ -165,14 +165,14 @@ Therefore R is not diagonal in the DFT basis.
 ## Advanced Properties
 
 ### Spectral Analysis
-- Eigenvalues λₗ encode resonance strength at different scales
+- Eigenvalues lambdaₗ encode resonance strength at different scales
 - Eigenvectors form a data-adaptive orthonormal basis
 - Basis adapts to the phase sequence structure and bandwidth parameters
 
 ### Computational Complexity
-- Direct implementation: O(N³) for eigendecomposition
-- Cached eigendecomposition: O(N²) for transform after first computation
-- Memory: O(N²) for storing eigenbasis
+- Direct implementation: O(N^3) for eigendecomposition
+- Cached eigendecomposition: O(N^2) for transform after first computation
+- Memory: O(N^2) for storing eigenbasis
 
 ### Numerical Stability
 - Use Hermitian eigensolvers (guaranteed real eigenvalues)
@@ -188,9 +188,9 @@ Therefore R is not diagonal in the DFT basis.
 - Non-commutativity with standard bases provides security
 
 ### Key Space
-- Phase sequence parameters: θ₀,ᵢ ∈ [0, 2π)
-- Weight parameters: wᵢ ≥ 0, Σwᵢ = 1 (normalized)
-- Bandwidth parameters: σᵢ > 0
+- Phase sequence parameters: theta_0,ᵢ  in  [0, 2π)
+- Weight parameters: wᵢ >= 0, Sigmawᵢ = 1 (normalized)
+- Bandwidth parameters: sigmaᵢ > 0
 - Sequence type selection (discrete parameter)
 
 ## Research Applications

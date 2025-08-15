@@ -1,27 +1,7 @@
 
 
 if((NOT EIGEN3_INCLUDE_DIR) AND Eigen_SOURCE_DIR)
-  # unless EIGEN3_INCLUDE_DIR is defined, let's use current Eigen version
-  set(EIGEN3_INCLUDE_DIR ${Eigen_SOURCE_DIR})
-  set(EIGEN3_FOUND TRUE)
-else()
-  find_package(Eigen3)
-endif()
-
-if (EIGEN3_FOUND)
-
-  include_directories(${EIGEN3_INCLUDE_DIR})
-  btl_add_bench(btl_eigen3_linear main_linear.cpp)
-  btl_add_bench(btl_eigen3_vecmat main_vecmat.cpp)
-  btl_add_bench(btl_eigen3_matmat main_matmat.cpp)
-  btl_add_bench(btl_eigen3_adv main_adv.cpp      )
-
-  btl_add_target_property(btl_eigen3_linear COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=eigen3")
-  btl_add_target_property(btl_eigen3_vecmat COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=eigen3")
-  btl_add_target_property(btl_eigen3_matmat COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=eigen3")
-  btl_add_target_property(btl_eigen3_adv    COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=eigen3")
-
-  option(BTL_BENCH_NOGCCVEC "also bench Eigen explicit vec without GCC's auto vec" OFF)
+  # unless EIGEN3_INCLUDE_DIR is defined, let's use current Eigen version set(EIGEN3_INCLUDE_DIR ${Eigen_SOURCE_DIR}) set(EIGEN3_FOUND TRUE) else() find_package(Eigen3) endif() if (EIGEN3_FOUND) include_directories(${EIGEN3_INCLUDE_DIR}) btl_add_bench(btl_eigen3_linear main_linear.cpp) btl_add_bench(btl_eigen3_vecmat main_vecmat.cpp) btl_add_bench(btl_eigen3_matmat main_matmat.cpp) btl_add_bench(btl_eigen3_adv main_adv.cpp ) btl_add_target_property(btl_eigen3_linear COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=eigen3") btl_add_target_property(btl_eigen3_vecmat COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=eigen3") btl_add_target_property(btl_eigen3_matmat COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=eigen3") btl_add_target_property(btl_eigen3_adv COMPILE_FLAGS "-fno-exceptions -DBTL_PREFIX=eigen3") option(BTL_BENCH_NOGCCVEC "also bench Eigen explicit vec without GCC's auto vec" OFF)
   if(CMAKE_COMPILER_IS_GNUCXX AND BTL_BENCH_NOGCCVEC)
     btl_add_bench(btl_eigen3_nogccvec_linear main_linear.cpp)
     btl_add_bench(btl_eigen3_nogccvec_vecmat main_vecmat.cpp)
@@ -33,7 +13,6 @@ if (EIGEN3_FOUND)
     btl_add_target_property(btl_eigen3_nogccvec_matmat COMPILE_FLAGS "-fno-exceptions -fno-tree-vectorize -DBTL_PREFIX=eigen3_nogccvec")
     btl_add_target_property(btl_eigen3_nogccvec_adv    COMPILE_FLAGS "-fno-exceptions -fno-tree-vectorize -DBTL_PREFIX=eigen3_nogccvec")
   endif()
-
 
   if(NOT BTL_NOVEC)
     btl_add_bench(btl_eigen3_novec_linear main_linear.cpp OFF)

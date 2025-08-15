@@ -3,7 +3,7 @@ import json
 
 class Config:
     def __init__(self, filename=None):
-        """Initializes configuration, loading from settings.json or default values."""
+        """"""Initializes configuration, loading from settings.json or default values.""""""
         if not filename:
             self.filename = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "settings.json")
         else:
@@ -11,7 +11,7 @@ class Config:
         self.data = self.read()
 
     def read(self):
-        """Reads configuration data from the JSON file."""
+        """"""Reads configuration data from the JSON file.""""""
         try:
             with open(self.filename, 'r') as f:
                 return json.load(f)
@@ -28,7 +28,7 @@ class Config:
             }
 
     def save(self, data):
-        """Saves configuration data to the JSON file."""
+        """"""Saves configuration data to the JSON file.""""""
         os.makedirs(os.path.dirname(self.filename), exist_ok=True)
         with open(self.filename, 'w') as f:
             json.dump(data, f, indent=4)

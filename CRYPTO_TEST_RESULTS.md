@@ -12,9 +12,9 @@
 
 ### ✅ **True RFT Implementation - MATHEMATICALLY VALIDATED**
 - **Unitary Property**: Exact reconstruction with error < 2.22e-16 (machine precision)
-- **Non-Equivalence to DFT**: εₙ ∈ [0.354, 1.662] ≫ 1e-3 (proven distinct)
-- **Mathematical Foundation**: R = ΨΛΨ†, X = Ψ†x eigendecomposition
-- **Parameters**: φ=1.618033988749895 (exact golden ratio), weights=[0.7, 0.3]
+- **Non-Equivalence to DFT**: εₙ  in  [0.354, 1.662] ≫ 1e-3 (proven distinct)
+- **Mathematical Foundation**: R = PsiLambdaPsi_dagger, X = Psi_daggerx eigendecomposition
+- **Parameters**: phi=1.618033988749895 (exact golden ratio), weights=[0.7, 0.3]
 - **Performance**: C++ acceleration with Python fallback
 - **Application**: Unitary signal transform with exact reconstruction
 
@@ -37,8 +37,8 @@ from canonical_true_rft import forward_true_rft, inverse_true_rft
 
 # Mathematically exact unitary transform
 signal = [1.0, 0.5, 0.2, 0.8]
-X = forward_true_rft(signal)  # X = Ψ†x
-reconstructed = inverse_true_rft(X)  # x = ΨX
+X = forward_true_rft(signal)  # X = Psi_daggerx
+reconstructed = inverse_true_rft(X)  # x = PsiX
 error = sum((a-b)**2 for a,b in zip(signal, reconstructed))
 print(f"Reconstruction error: {error:.2e}")  # < 2.22e-16
 ```
@@ -51,7 +51,7 @@ from minimal_rft_encrypt_demo import rft_encrypt_message, rft_decrypt_message
 key = "demo-key-123"
 plaintext = "Hello World"
 encrypted = rft_encrypt_message(plaintext, key)
-decrypted = rft_decrypt_message(encrypted, key) 
+decrypted = rft_decrypt_message(encrypted, key)
 print(f"Perfect reconstruction: {decrypted == plaintext}")
 ```
 
@@ -85,7 +85,7 @@ data_hash = engine.generate_geometric_waveform_hash(data)
 
 ### **Cryptographic Strength**
 - **Perfect reconstruction** for RFT-based encryption
-- **High entropy quality** for quantum key generation  
+- **High entropy quality** for quantum key generation
 - **Deterministic encoding** for password applications
 - **Quantum properties preserved** in superposition states
 

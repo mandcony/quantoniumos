@@ -9,7 +9,7 @@ print("==========================================")
 
 # Simulate a quantum-like superposition
 def create_superposition(basis_states, coefficients):
-    """Create a superposition-like state from basis states"""
+    """"""Create a superposition-like state from basis states""""""
     result = np.zeros(64)
     for state, coeff in zip(basis_states, coefficients):
         result[state] = coeff
@@ -17,15 +17,15 @@ def create_superposition(basis_states, coefficients):
 
 # Simplified measurement function
 def measure_state(state):
-    """Simulate measurement of a quantum state"""
+    """"""Simulate measurement of a quantum state""""""
     # Calculate probabilities for each basis state
     probs = [abs(val)**2 for val in state]
-    
+
     # Normalize probabilities to sum to 1
     total = sum(probs)
     if total > 0:
         probs = [p/total for p in probs]
-    
+
     # Choose a basis state according to probabilities
     r = random.random()
     cumul_prob = 0
@@ -33,7 +33,7 @@ def measure_state(state):
         cumul_prob += p
         if r <= cumul_prob:
             return i
-    
+
     return 0  # Default if something goes wrong
 
 print("Creating quantum-like states...")
@@ -64,16 +64,16 @@ for i, (state, prob) in enumerate(zip(superposition_states, probabilities)):
     # Run multiple "measurements"
     zeros_measured = 0
     trials = 100
-    
+
     for _ in range(trials):
         # Simulate measurement
         measured_state = measure_state(state)
         if measured_state == 0:
             zeros_measured += 1
-    
+
     measured_prob = zeros_measured / trials
     measurements.append(measured_prob)
-    print(f"{prob:.2f}    | {measured_prob:.2f}         | {prob:.2f}")
+    print(f"{prob:.2f} | {measured_prob:.2f} | {prob:.2f}")
 
 # Calculate how close our system gets to ideal quantum behavior
 accuracy = 1 - np.mean([abs(m - p) for m, p in zip(measurements, probabilities)])

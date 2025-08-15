@@ -12,32 +12,32 @@ The True RFT is defined via eigendecomposition of a constructed resonance kernel
 
 #### **Step 1: Resonance Kernel Construction**
 ```
-R = Σᵢ wᵢ D_φᵢ C_σᵢ D_φᵢ†
+R = Sigmaᵢ wᵢ D_phiᵢ C_sigmaᵢ D_phiᵢ_dagger
 ```
 
 Where:
 - `wᵢ = [0.7, 0.3]` (component weights)
-- `D_φᵢ` = diagonal phase modulation from `φᵢ(k) = e^{j(θ₀ᵢ + ωᵢk)}`
-- `C_σᵢ` = Gaussian correlation kernels (Hermitian PSD)
-- `θ₀ = [0.0, π/4]`, `ω = [1.0, φ]` where `φ = (1+√5)/2`
+- `D_phiᵢ` = diagonal phase modulation from `phiᵢ(k) = e^{j(theta_0ᵢ + omegaᵢk)}`
+- `C_sigmaᵢ` = Gaussian correlation kernels (Hermitian PSD)
+- `theta_0 = [0.0, π/4]`, `omega = [1.0, phi]` where `phi = (1+sqrt5)/2`
 
 #### **Step 2: Eigendecomposition**
 ```
-R = ΨΛΨ†
+R = PsiLambdaPsi_dagger
 ```
 
-Where `Ψ` is unitary (eigenvector matrix) and `Λ` is diagonal (eigenvalues).
+Where `Psi` is unitary (eigenvector matrix) and `Lambda` is diagonal (eigenvalues).
 
 #### **Step 3: Transform Definition**
 ```
-Forward:  X = Ψ†x
-Inverse:  x = ΨX
+Forward:  X = Psi_daggerx
+Inverse:  x = PsiX
 ```
 
 **Mathematical Properties:**
-- Unitary: `ΨΨ† = I` ensures exact reconstruction
+- Unitary: `PsiPsi_dagger = I` ensures exact reconstruction
 - Hermitian PSD kernel: Guarantees real eigenvalues and unitary eigenvectors
-- Reconstruction error: `||x - ΨΨ†x||₂ < 2.22e-16` (machine precision)
+- Reconstruction error: `||x - PsiPsi_daggerx||_2 < 2.22e-16` (machine precision)
 
 ### 2. Enhanced Cryptographic Hash - HKDF + AES S-box Implementation
 
@@ -86,35 +86,35 @@ The implementation provides comprehensive statistical validation:
 
 ### 1. **Non-Equivalence to DFT (Proven)**
 
-**Theorem**: True RFT ≠ scaled/permuted DFT
+**Theorem**: True RFT != scaled/permuted DFT
 
 **Proof**: Computed εₙ = ||R_rft - P_n D_n R_dft||_F for all permutations P_n and scalings D_n.
-**Result**: εₙ ∈ [0.354, 1.662] ≫ 1e-3 for N ∈ {8, 12, 16}
+**Result**: εₙ  in  [0.354, 1.662] ≫ 1e-3 for N  in  {8, 12, 16}
 **Conclusion**: RFT is mathematically distinct from any DFT variant.
 
 ### 2. **Avalanche Effect at Theoretical Limit**
 
-**Measurement**: For 256-bit hash output, theoretical minimum σ = 100×√(0.25/256) = 3.125%
-**Achieved**: σ = 3.018% with μ = 49.958% (perfect mean)
-**Ratio**: σ_achieved/σ_theory = 3.018/3.125 = 0.966 (at floor)
-**Assessment**: Cryptographic-grade diffusion (σ ≤ 3.125%)
+**Measurement**: For 256-bit hash output, theoretical minimum sigma = 100×sqrt(0.25/256) = 3.125%
+**Achieved**: sigma = 3.018% with mu = 49.958% (perfect mean)
+**Ratio**: sigma_achieved/sigma_theory = 3.018/3.125 = 0.966 (at floor)
+**Assessment**: Cryptographic-grade diffusion (sigma <= 3.125%)
 
 ### 3. **Unitary Property Validation**
 
-**Test**: ||x - ΨΨ†x||₂ for exact reconstruction
+**Test**: ||x - PsiPsi_daggerx||_2 for exact reconstruction
 **Result**: Error < 2.22e-16 (machine precision limit)
-**Mathematical Guarantee**: Ψ unitary ⟹ Ψ† = Ψ⁻¹ ⟹ exact reconstruction
+**Mathematical Guarantee**: Psi unitary ⟹ Psi_dagger = Psi⁻¹ ⟹ exact reconstruction
 - Topological winding provides additional degrees of freedom
 - Geometric space has different metric properties than bit strings
 
-### 2. **Entropy Quality Hypothesis**  
+### 2. **Entropy Quality Hypothesis**
 The feedback-controlled entropy may produce higher quality randomness because:
 - Maintains target entropy distribution
 - Adapts to avoid low-entropy states
 - Self-regulating system prevents entropy degradation
 
 ### 3. **Computational Efficiency Hypothesis**
-For separable golden ratio matrices `R[k,n] = φ^k · w(n)`:
+For separable golden ratio matrices `R[k,n] = phi^k · w(n)`:
 - Can achieve O(N log N) complexity using FFT structure
 - Parallel computation advantages on geometric operations
 - Sparse matrix optimizations for structured patterns
@@ -141,7 +141,7 @@ For separable golden ratio matrices `R[k,n] = φ^k · w(n)`:
 
 ###  **Missing Rigorous Validation**
 - No empirical collision resistance testing
-- No formal proofs of claimed advantages  
+- No formal proofs of claimed advantages
 - No computational complexity analysis
 
 ###  **Missing Performance Benchmarks**
@@ -150,7 +150,7 @@ For separable golden ratio matrices `R[k,n] = φ^k · w(n)`:
 - No timing/efficiency analysis
 
 ###  **Missing Fast Algorithms**
-- Current implementation is O(N²) 
+- Current implementation is O(N^2)
 - No optimized versions for separable cases
 - No parallel/GPU implementations
 
@@ -158,7 +158,7 @@ For separable golden ratio matrices `R[k,n] = φ^k · w(n)`:
 
 This implementation contains **genuine mathematical novelty** in its combination of:
 - Golden ratio-based geometric transformations
-- Topological invariant calculations  
+- Topological invariant calculations
 - Entropy-guided adaptive feedback
 
 However, **patent-worthy claims require rigorous validation** of the theoretical advantages through:

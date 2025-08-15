@@ -11,6 +11,19 @@
 #include <string>
 #include <complex>
 #include <cmath>
+
+// Include the working True RFT engine
+#include "engine_core.h"
+
+// Forward declarations for RFT basis functions
+extern "C" {
+    int rft_basis_forward(const double* signal, double* result_real, double* result_imag, 
+                         int length, double phi, double resonance_coupling);
+    int rft_basis_inverse(const double* freq_real, const double* freq_imag, double* result,
+                         int length, double phi, double resonance_coupling);
+}
+#include <complex>
+#include <cmath>
 #include <algorithm>
 #include <random>
 #include <chrono>
@@ -31,55 +44,61 @@ private:
 public:
     ResonanceFourierTransform(const std::vector<double>& input) : signal(input) {}
     
-    // Patent-protected RFT with golden ratio optimization
+    // SURGICAL STOPGAP: Use working RFT basis functions from engine_core
     std::vector<std::complex<double>> forward_transform() {
         size_t n = signal.size();
-        frequency_domain.resize(n);
+        std::vector<std::complex<double>> result(n);
         
-        // Golden ratio optimization - O(N log φ) complexity
-        for (size_t k = 0; k < n; ++k) {
-            std::complex<double> sum(0.0, 0.0);
-            
-            // Apply golden ratio frequency binning
-            double phi_factor = std::pow(PHI, k / double(n));
-            
-            for (size_t t = 0; t < n; ++t) {
-                double angle = -2.0 * M_PI * t * k / n;
-                // Golden ratio phase optimization
-                angle *= phi_factor;
-                
-                std::complex<double> exp_term(std::cos(angle), std::sin(angle));
-                sum += signal[t] * exp_term;
-            }
-            
-            frequency_domain[k] = sum / double(n);
+        // Convert to double arrays for C interface
+        double* signal_real = new double[n];
+        double* result_real = new double[n];  
+        double* result_imag = new double[n];
+        
+        for (size_t i = 0; i < n; i++) {
+            signal_real[i] = signal[i];
         }
         
-        return frequency_domain;
+        // Call the working RFT implementation
+        rft_basis_forward(signal_real, result_real, result_imag, n, 1.0, 1.0);
+        
+        for (size_t i = 0; i < n; i++) {
+            result[i] = std::complex<double>(result_real[i], result_imag[i]);
+        }
+        
+        delete[] signal_real;
+        delete[] result_real;
+        delete[] result_imag;
+        
+        return result;
     }
     
-    // Inverse RFT with mathematical guarantees
+    // SURGICAL STOPGAP: Use working RFT basis functions from engine_core
     std::vector<double> inverse_transform(const std::vector<std::complex<double>>& freq_data) {
         size_t n = freq_data.size();
-        std::vector<double> time_domain(n);
+        std::vector<double> result(n);
         
-        for (size_t t = 0; t < n; ++t) {
-            std::complex<double> sum(0.0, 0.0);
-            
-            for (size_t k = 0; k < n; ++k) {
-                double angle = 2.0 * M_PI * t * k / n;
-                // Apply inverse golden ratio optimization
-                double phi_factor = std::pow(PHI, k / double(n));
-                angle *= phi_factor;
-                
-                std::complex<double> exp_term(std::cos(angle), std::sin(angle));
-                sum += freq_data[k] * exp_term;
-            }
-            
-            time_domain[t] = sum.real();
+        // Convert to double arrays for C interface
+        double* freq_real = new double[n];
+        double* freq_imag = new double[n];
+        double* result_data = new double[n];
+        
+        for (size_t i = 0; i < n; i++) {
+            freq_real[i] = freq_data[i].real();
+            freq_imag[i] = freq_data[i].imag();
         }
         
-        return time_domain;
+        // Call the working RFT implementation
+        rft_basis_inverse(freq_real, freq_imag, result_data, n, 1.0, 1.0);
+        
+        for (size_t i = 0; i < n; i++) {
+            result[i] = result_data[i];
+        }
+        
+        delete[] freq_real;
+        delete[] freq_imag;
+        delete[] result_data;
+        
+        return result;
     }
     
     // Validate round-trip accuracy

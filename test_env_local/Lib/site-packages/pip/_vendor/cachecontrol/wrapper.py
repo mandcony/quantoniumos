@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from pip._vendor.cachecontrol.heuristics import BaseHeuristic
     from pip._vendor.cachecontrol.serialize import Serializer
 
-
 def CacheControl(
     sess: requests.Session,
     cache: BaseCache | None = None,
