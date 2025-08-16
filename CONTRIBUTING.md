@@ -1,135 +1,97 @@
 # Contributing to QuantoniumOS
 
-Thank you for your interest in contributing to QuantoniumOS! This document provides guidelines and instructions for contributing to this project.
+Thank you for your interest in contributing to QuantoniumOS symbolic resonance computing research!
 
-## Table of Contents
-- [Getting Started](#getting-started)
-- [Development Environment Setup](#development-environment-setup)
-  - [Python Setup](#python-setup)
-  - [C++ Setup](#c-setup)
-  - [Rust Setup](#rust-setup)
-- [Development Workflow](#development-workflow)
-- [Coding Standards](#coding-standards)
-- [Testing](#testing)
-- [Pull Request Process](#pull-request-process)
-- [Core Scientific Components](#core-scientific-components)
-
-## Getting Started
+## Quick Start
 
 1. Fork the repository
-2. Clone your fork locally: `git clone https://github.com/[your-username]/quantoniumos.git`
-3. Set up the development environment (see below)
-4. Run the validation tests to ensure everything works correctly
+2. Clone: `git clone https://github.com/[your-username]/quantoniumos.git`
+3. Build: See [README.md](README.md) for build instructions
+4. Test: `python3 test_v2_comprehensive.py`
 
-## Development Environment Setup
+## Development Setup
 
-### Python Setup
-
+### Dependencies
 ```bash
-# Create a virtual environment
-python -m venv venv
+# Essential tools
+sudo apt install build-essential python3 python3-pip
+pip install pybind11 numpy scipy
 
-# Activate the virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# Verify installation
-python -c "import quantoniumos; print('Setup successful!')"
+# Build C++ engine
+c++ -O3 -march=native -flto -DNDEBUG -Wall -shared -std=c++17 -fPIC \
+  $(python3 -m pybind11 --includes) enhanced_rft_crypto_bindings_v2.cpp \
+  -o enhanced_rft_crypto$(python3-config --extension-suffix)
 ```
 
-### C++ Setup
+## Code Standards
 
-Prerequisites:
-- CMake 3.15+
-- C++17 compatible compiler (GCC 9+, MSVC 2019+, or Clang 10+)
-- Eigen 3.3+
+### C++ (Cryptographic Engine)
+- **C++17** standard
+- **Optimization**: Use `-O3 -march=native -flto` for performance
+- **Testing**: Validate cryptographic properties (avalanche, etc.)
+- **Documentation**: Comment mathematical operations
 
-```bash
-# Generate build files
-mkdir build && cd build
-cmake ..
+### Python (Wrappers & Research)
+- **PEP 8** style
+- **Type hints** for function signatures
+- **Docstrings** for mathematical operations
+- **Unit tests** for new functionality
 
-# Build
-cmake --build . --config Release
+## Testing Requirements
 
-# Run tests
-ctest -C Release
-```
-
-### Rust Setup
-
-Prerequisites:
-- Rust 1.65+ and Cargo
+Before submitting changes:
 
 ```bash
-# Navigate to Rust implementation
-cd resonance-core-rs
+# Comprehensive validation
+python3 test_v2_comprehensive.py
 
-# Build
-cargo build --release
+# RFT mathematical validation  
+python3 publication_ready_validation.py
 
-# Run tests
-cargo test
-
-# Generate documentation
-cargo doc --open
+# Performance benchmarks
+python3 test_final_v2.py
 ```
 
-## Development Workflow
+## Patent Considerations
 
-1. Create a new branch for your feature or fix: `git checkout -b feature/your-feature-name`
-2. Make your changes
-3. Validate your changes:
-   - Ensure all C++ tests pass
-   - Verify API endpoints function correctly
-   - Check for any regression issues
-4. Commit your changes with a descriptive message
-5. Push your branch to your fork
-6. Open a pull request against the main repository
+⚠️ **Important**: This repository implements patented technology (Application 19/169,399).
 
-## Coding Standards
-
-### C++ Code
-
-- Follow C++17 standards
-- Use Eigen library for linear algebra operations
-- Include OpenMP pragmas for parallel operations
-- Document all functions with Doxygen-style comments
-- Write comprehensive tests for new functionality
-
-### Python Code
-
-- Follow PEP 8 style guidelines
-- Document functions with docstrings
-- Use type hints where appropriate
-- Write unit tests for new functionality
+- **Research contributions**: Welcome under fair use
+- **Commercial modifications**: May require licensing
+- **Core algorithms**: Ensure patent claims remain validated
 
 ## Pull Request Process
 
-1. Ensure your code passes all tests
-2. Update documentation as necessary
-3. Include a clear description of the changes and their purpose
-4. Reference any related issues
-5. Wait for code review and address any feedback
+1. **Create branch**: `git checkout -b feature/your-feature`
+2. **Make changes**: Implement your improvements
+3. **Test thoroughly**: All validation tests must pass
+4. **Document**: Update relevant documentation
+5. **Submit PR**: Include clear description and test results
 
-## Core Scientific Components
+## Areas for Contribution
 
-When modifying core scientific components, ensure:
+### Research Components
+- RFT mathematical analysis and optimization
+- Golden ratio manifold mapping improvements
+- Validation framework enhancements
 
-1. Mathematical correctness is maintained
-2. Performance is not degraded
-3. Existing tests still pass
-4. New tests are added for new functionality
-5. Documentation is updated to reflect changes
+### Performance Optimization
+- C++ engine optimizations
+- Parallel processing implementations
+- Memory usage improvements
+
+### Security Analysis
+- Cryptographic property analysis
+- Side-channel resistance testing
+- Formal verification methods
 
 ## Questions?
 
-If you have any questions about contributing, please open an issue in the repository.
+Open an issue for:
+- Technical questions about the implementation
+- Research collaboration inquiries
+- Bug reports or performance issues
 
-Thank you for helping improve QuantoniumOS!
+---
+
+For detailed development setup, see [QUANTONIUM_DEVELOPER_GUIDE.md](QUANTONIUM_DEVELOPER_GUIDE.md).

@@ -1,0 +1,90 @@
+# QuantoniumOS Developer Guide
+
+A quick start guide for developers working with QuantoniumOS symbolic resonance computing and Enhanced RFT Crypto v2.
+
+## Development Setup
+
+### Prerequisites
+
+```bash
+# Required tools
+sudo apt update
+sudo apt install build-essential cmake git python3 python3-pip
+
+# Python dependencies
+pip install pybind11 numpy scipy
+```
+
+### Build System
+
+```bash
+# Clone repository
+git clone https://github.com/mandcony/quantoniumos.git
+cd quantoniumos
+
+# Build C++ engine
+c++ -O3 -march=native -flto -DNDEBUG -Wall -shared -std=c++17 -fPIC \
+  $(python3 -m pybind11 --includes) enhanced_rft_crypto_bindings_v2.cpp \
+  -o enhanced_rft_crypto$(python3-config --extension-suffix)
+
+# Verify build
+python3 -c "import enhanced_rft_crypto; print('✓ C++ engine loaded')"
+```
+
+## Core Components
+
+### Symbolic RFT (Patent Claim 1)
+- **File**: `canonical_true_rft.py`
+- **Purpose**: Unitary transforms with exact reconstruction
+- **Usage**: Research and validation of eigendecomposition methods
+
+### Enhanced RFT Crypto v2 (Patent Claims 2-4)
+- **C++ Engine**: `enhanced_rft_crypto.cpp` - 48-round Feistel cipher
+- **Python Wrapper**: `wrappers/enhanced_v2_wrapper.py` - AEAD-style encryption
+- **Purpose**: High-performance authenticated encryption
+
+## Testing Framework
+
+```bash
+# Comprehensive validation
+python3 test_v2_comprehensive.py
+
+# Performance-only benchmark
+python3 test_final_v2.py
+
+# Legacy RFT validation
+python3 publication_ready_validation.py
+```
+
+## Development Workflow
+
+1. **Code Changes**: Make modifications to relevant components
+2. **Build**: Recompile C++ engine if needed
+3. **Test**: Run validation suite to ensure functionality
+4. **Validate**: Check patent claims still pass validation
+
+## Patent Considerations
+
+This codebase implements patented technology (Application 19/169,399). For commercial use:
+- Contact inventor for licensing
+- Ensure compliance with patent claims
+- Academic/research use permitted under fair use
+
+## Security Notes
+
+- Research implementation - external review recommended for production
+- Wrapper provides authenticated encryption for experiments
+- C++ engine has good diffusion properties but needs formal analysis
+
+## Quick Reference
+
+| Task | Command |
+|------|---------|
+| Build | See "Build System" above |
+| Test All | `python3 test_v2_comprehensive.py` |
+| Check RFT | `python3 -c "from canonical_true_rft import *; test_unitary_accuracy()"` |
+| Benchmark | Engine ~9.2 MB/s, wrapper ~9.0 MB/s |
+
+---
+
+For detailed mathematical background, see `MATHEMATICAL_JUSTIFICATION.md`.

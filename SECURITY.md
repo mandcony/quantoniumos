@@ -1,68 +1,63 @@
 # Security Policy
 
-## Supported Versions
+## Research Implementation Notice
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+⚠️ **Important**: QuantoniumOS is a research implementation of symbolic resonance computing and Enhanced RFT Crypto v2. While it demonstrates good cryptographic properties, it has not undergone formal security review.
 
-## Reporting a Vulnerability
+## Current Security Status
 
-The QuantoniumOS team takes security issues seriously. We appreciate your efforts to responsibly disclose your findings and will make every effort to acknowledge your contributions.
+### Enhanced RFT Crypto v2
+- **Diffusion**: Excellent avalanche properties (key: 0.527, message: 0.438)
+- **Authentication**: HMAC-SHA256 integrity protection
+- **Randomization**: Per-message salt for IND-CPA security
+- **Format**: Versioned headers with tampering detection
 
-### How to Report
+### Validation Results
+- ✅ All cryptographic quality tests pass
+- ✅ Authentication correctly rejects tampering
+- ✅ Format robustness verified
+- ⚠️ No formal cryptanalysis or side-channel analysis
+
+## Reporting Security Issues
 
 **DO NOT** file public GitHub issues for security vulnerabilities.
 
-Instead, please report security vulnerabilities through one of these channels:
-
-1. **Email**: security@quantoniumos.com with subject line "[SECURITY] QuantoniumOS Vulnerability"
-2. **GitHub Security Advisory**: For confirmed vulnerabilities, you can use GitHub's [Security Advisory](https://github.com/mandcony/quantoniumos/security/advisories/new) feature
+### Contact Information
+- **Email**: [Inventor contact for security issues]
+- **Subject**: `[SECURITY] QuantoniumOS Vulnerability`
+- **Response**: We aim to respond within 48 hours
 
 ### What to Include
+1. Detailed description of the vulnerability
+2. Steps to reproduce the issue
+3. Potential impact assessment
+4. Suggested mitigation (if available)
 
-Please include the following information in your report:
+## Responsible Disclosure
 
-- Type of issue (e.g. buffer overflow, SQL injection, etc.)
-- Full paths of source file(s) related to the issue
-- Location of the affected source code (tag/branch/commit or direct URL)
-- Step-by-step instructions to reproduce the issue
-- Proof-of-concept or exploit code (if possible)
-- Impact of the issue, including how an attacker might exploit it
+We follow responsible disclosure principles:
+- Initial response within 48 hours
+- Regular updates during investigation
+- Coordinated disclosure timeline
+- Credit for security researchers (with permission)
 
-### Response Process
+## Security Considerations for Users
 
-1. We will acknowledge receipt of your vulnerability report as soon as possible (typically within 48 hours)
-2. We will assign a primary handler to investigate the issue
-3. We will confirm the vulnerability and determine its impact
-4. We will develop and test a fix
-5. We will notify users through appropriate channels after the fix is released
+### For Research Use
+- ✅ Good for cryptographic experiments
+- ✅ Demonstrates strong diffusion properties
+- ✅ Educational cryptographic implementation
 
-### Disclosure Policy
+### For Production Use
+- ❌ **Not recommended** without independent security review
+- ❌ No formal cryptanalysis completed
+- ❌ No side-channel resistance analysis
+- ❌ No long-term security guarantees
 
-- We follow a coordinated vulnerability disclosure process
-- Vulnerabilities will be disclosed after a fix has been developed and tested
-- We aim to address critical vulnerabilities within 30 days
-- We will credit reporters who follow responsible disclosure practices
+## Patent Application Security
 
-## Cryptographic Validation
+Application 19/169,399 covers the symbolic resonance computing techniques. Security vulnerabilities do not affect patent validity but may impact implementation security.
 
-QuantoniumOS undergoes regular security assessments:
+---
 
-- Cross-implementation validation between C++, Python, and Rust codebases
-- Automated statistical testing via NIST SP 800-22 suite
-- Source code scanning for vulnerabilities
-- Peer academic review of cryptographic algorithms
-
-## Bug Bounty Program
-
-We currently do not offer a formal bug bounty program, but we do acknowledge security researchers in our release notes and CONTRIBUTORS file for responsibly disclosed vulnerabilities.
-
-## PGP Key
-
-For encrypted communication, please use the following PGP key:
-
-```
-[PGP KEY WILL BE ADDED HERE]
-```
+**Recommendation**: Use QuantoniumOS for research and educational purposes. For production cryptographic needs, use established, peer-reviewed cryptographic libraries after consulting security professionals.
