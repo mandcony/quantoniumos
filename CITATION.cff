@@ -4,12 +4,12 @@ title: "QuantoniumOS: Quantum-Inspired Cryptographic Platform"
 authors:
   - family-names: "Minier"
     given-names: "Luis"
-    orcid: "https://orcid.org/0009-0006-7321-4167" # Replace with actual ORCID
+    orcid: "https://orcid.org/0009-0006-7321-4167" #
 version: 1.0.0
 date-released: 2025-07-15
 license: "Patent Pending - Non-Commercial License"
 repository-code: "https://github.com/mandcony/quantoniumos"
-doi: "https://zenodo.org/records/15836812" # Replace with actual Zenodo DOI once registered
+doi: "https://zenodo.org/records/15836812" 
 keywords:
   - cryptography
   - quantum-inspired
