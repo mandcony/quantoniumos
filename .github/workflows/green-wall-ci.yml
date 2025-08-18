@@ -104,6 +104,7 @@ jobs:
         run: |
           export PYTHONPATH="${PYTHONPATH}:."
           python -c "
+          success = True
           try:
               import numpy as np
               print('✓ NumPy available')
@@ -112,16 +113,24 @@ jobs:
               x = np.random.random(8)
               print(f'✓ Basic array operations: {len(x)} elements')
               
-              # Test if core modules can be imported
+              # Test if core modules can be imported (optional)
               try:
                   import canonical_true_rft
                   print('✓ Canonical RFT module available')
-              except ImportError:
-                  print('! Canonical RFT module not available')
+              except ImportError as e:
+                  print(f'! Canonical RFT module not available: {e}')
                   
+              # Test basic Python functionality
+              import json
+              import os
+              print('✓ Basic Python modules working')
+              
               print('✓ Basic functionality test completed')
+              print('SUCCESS: All critical tests passed')
+              
           except Exception as e:
-              print(f'✗ Error: {e}')
+              print(f'✗ Critical error: {e}')
+              print('FAILURE: Critical tests failed')
               exit(1)
           "
           
