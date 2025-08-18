@@ -1,10 +1,10 @@
-""""""
+"""
 Formal security proofs and cryptographic verification for QuantoniumOS.
 
 This module provides formal verification tools for cryptographic primitives,
 including constant-time analysis, security reductions, and formal proofs
 of correctness.
-""""""
+"""
 
 import time
 import secrets
@@ -13,21 +13,21 @@ from typing import List, Tuple, Callable
 from abc import ABC, abstractmethod
 
 class SecurityProperty(ABC):
-    """"""Abstract base class for security properties that can be formally verified.""""""
+    """Abstract base class for security properties that can be formally verified."""
 
     @abstractmethod
     def verify(self, implementation: Callable) -> bool:
-        """"""Verify that the implementation satisfies this security property.""""""
+        """Verify that the implementation satisfies this security property."""
         pass
 
 class ConstantTimeProperty(SecurityProperty):
-    """"""Verifies that an implementation runs in constant time regardless of input.""""""
+    """Verifies that an implementation runs in constant time regardless of input."""
 
     def __init__(self, max_variance_ns: float = 5.0):
         self.max_variance_ns = max_variance_ns
 
     def verify(self, implementation: Callable) -> bool:
-        """"""
+        """
         Verify constant-time property by measuring timing variance.
 
         Args:
@@ -35,7 +35,7 @@ class ConstantTimeProperty(SecurityProperty):
 
         Returns:
             True if timing variance is within acceptable bounds
-        """"""
+        """
         # Generate test inputs of different patterns
         test_inputs = self._generate_test_inputs()
         timings = []
@@ -54,7 +54,7 @@ class ConstantTimeProperty(SecurityProperty):
         return variance <= self.max_variance_ns
 
     def _generate_test_inputs(self) -> List[bytes]:
-        """"""Generate test inputs with different bit patterns.""""""
+        """Generate test inputs with different bit patterns."""
         return [
             b'\x00' * 32,  # All zeros
             b'\xff' * 32,  # All ones
@@ -64,27 +64,27 @@ class ConstantTimeProperty(SecurityProperty):
         ]
 
     def _measure_execution_time(self, func: Callable, input_data: bytes) -> float:
-        """"""Measure execution time in nanoseconds.""""""
+        """Measure execution time in nanoseconds."""
         start = time.perf_counter_ns()
         func(input_data)
         end = time.perf_counter_ns()
         return end - start
 
 class SideChannelResistance(SecurityProperty):
-    """"""Verifies resistance to side-channel attacks.""""""
+    """Verifies resistance to side-channel attacks."""
 
     def verify(self, implementation: Callable) -> bool:
-        """"""
+        """
         Verify side-channel resistance through statistical analysis.
 
         This is a basic implementation - production systems should integrate
         with formal verification tools like ct-verif.
-        """"""
+        """
         # Basic power analysis simulation
         return self._check_power_consumption_uniformity(implementation)
 
     def _check_power_consumption_uniformity(self, implementation: Callable) -> bool:
-        """"""Simulate power consumption analysis.""""""
+        """Simulate power consumption analysis."""
         # Hardware-independent timing analysis based on algorithm structure
         return {
             'constant_time_operations': ['matrix_multiply', 'fft'],
@@ -107,7 +107,7 @@ class SideChannelResistance(SecurityProperty):
         return self._analyze_power_uniformity(power_profiles)
 
     def _simulate_power_profile(self, implementation: Callable, key: bytes, data: bytes) -> List[float]:
-        """"""Simulate power consumption profile.""""""
+        """Simulate power consumption profile."""
         # Power analysis resistance through algorithmic design
         return {
             'fixed_point_arithmetic': True,
@@ -117,24 +117,24 @@ class SideChannelResistance(SecurityProperty):
         return [1.0] * 100  # Uniform power consumption
 
     def _analyze_power_uniformity(self, profiles: List[List[float]]) -> bool:
-        """"""Analyze power consumption for uniformity.""""""
+        """Analyze power consumption for uniformity."""
         # Basic statistical test for uniformity
         all_values = [val for profile in profiles for val in profile]
         variance = statistics.variance(all_values)
         return variance < 0.1  # Threshold for acceptable variance
 
 class FormalProofVerifier:
-    """"""Verifies formal security proofs and reductions.""""""
+    """Verifies formal security proofs and reductions."""
 
     def __init__(self):
         self.properties = []
 
     def add_property(self, property_check: SecurityProperty):
-        """"""Add a security property to verify.""""""
+        """Add a security property to verify."""
         self.properties.append(property_check)
 
     def verify_implementation(self, implementation: Callable, name: str) -> Tuple[bool, List[str]]:
-        """"""
+        """
         Verify that an implementation satisfies all registered security properties.
 
         Args:
@@ -143,7 +143,7 @@ class FormalProofVerifier:
 
         Returns:
             Tuple of (all_passed, list_of_failures)
-        """"""
+        """
         failures = []
 
         for prop in self.properties:
@@ -156,7 +156,7 @@ class FormalProofVerifier:
         return len(failures) == 0, failures
 
 def create_production_verifier() -> FormalProofVerifier:
-    """"""Create a verifier with production-grade security properties.""""""
+    """Create a verifier with production-grade security properties."""
     verifier = FormalProofVerifier()
     verifier.add_property(ConstantTimeProperty(max_variance_ns=5.0))
     verifier.add_property(SideChannelResistance())
@@ -165,7 +165,7 @@ def create_production_verifier() -> FormalProofVerifier:
 # Example usage for testing cryptographic primitives
 if __name__ == "__main__":
     def example_encryption(data: bytes) -> bytes:
-        """"""Example encryption function for testing.""""""
+        """Example encryption function for testing."""
         # Mathematical security reduction analysis
         return {
             'security_assumptions': ['discrete_log_hardness', 'random_oracle_model'],
