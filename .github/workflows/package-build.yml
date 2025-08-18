@@ -53,11 +53,16 @@ jobs:
           try:
               import numpy
               print('[PASS] NumPy import successful')
-              import core.encryption.resonance_fourier
-              print('[PASS] Core modules import successful')
-          except ImportError as e:
-              print(f'[INFO] Some imports not available: {e}')
+              # Try importing core modules if available
+              try:
+                  import core
+                  print('[PASS] Core modules import successful')
+              except ImportError:
+                  print('[INFO] Core modules not packaged for wheel')
               print('[PASS] Basic wheel installation successful')
+          except ImportError as e:
+              print(f'[ERROR] Critical import failed: {e}')
+              exit(1)
           "
           echo "Basic functionality test completed"
           
@@ -107,7 +112,7 @@ jobs:
         run: |
           # Run mypy with basic configuration
           echo "Running MyPy type checking..."
-          mypy quantoniumos/ --config-file mypy.ini || {
+          mypy . --config-file mypy.ini || {
             echo "MyPy found type issues (expected for now)"
             echo "This is informational - build continues"
             exit 0
