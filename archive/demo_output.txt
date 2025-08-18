@@ -1,4 +1,1 @@
-Golden ratio phi = 1.618033988749895
-Ciphertext : RFT32-0ca276234929c48688225b
-Round-trip : Hello GPT-5
-Match      : True
+Golden ratio phi = 1.618033988749895 Ciphertext : RFT32-0ca276234929c48688225b Round-trip : Hello GPT-5 Match : True 

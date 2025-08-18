@@ -1,0 +1,1 @@
+{ "N_64": { "kernel_analysis": { "explicit_formula": "\u03a8_{m,n} = exp(-||m-n||/(\u03c3N)) \u00b7 exp(i2\u03c0\u03c6\u00b7G(m,n)) \u00b7 S(m,n;depth)", "golden_ratio_signature": 0.27284559789731044, "structure_sparsity": 1.0, "kernel_norm": 7.999999999999996 }, "diagonalization_result": { "is_diagonalized": 
