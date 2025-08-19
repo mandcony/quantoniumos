@@ -1,15 +1,15 @@
 cff-version: 1.2.0
 message: "If you use this software in your research, please cite it as below."
-title: "QuantoniumOS: TRUE RFT Quantum Simulation Platform"
+title: "QuantoniumOS: A Hybrid Computational Framework for Quantum Resonance Simulation"
 authors:
   - family-names: "Minier"
     given-names: "Luis"
     orcid: "https://orcid.org/0009-0006-7321-4167"
 version: 1.0.0
-date-released: 2025-08-18
-license: "Patent Pending - Non-Commercial License"
+date-released: 2025-08-17
+license: "Creative Commons Attribution 4.0 International"
 repository-code: "https://github.com/mandcony/quantoniumos"
-doi: "https://zenodo.org/records/15836812"
+doi: "10.5281/zenodo.16890445"
 keywords:
   - cryptography
   - quantum-simulation
