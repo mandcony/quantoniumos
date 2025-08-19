@@ -1,0 +1,16 @@
+numpy>=1.21.0
+scipy>=1.7.0
+cryptography>=3.4.8
+flask>=2.0.0
+flask-cors>=4.0.0
+pydantic>=2.0.0
+pyjwt>=2.0.0
+pycryptodome>=3.15.0
+pybind11>=2.6.0
+
+[dev]
+pytest>=7.0.0
+pytest-cov>=4.0.0
+mypy>=1.0.0
+ruff>=0.1.0
+pre-commit>=3.0.0

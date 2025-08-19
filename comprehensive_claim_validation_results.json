@@ -23,7 +23,7 @@
       "passes_roundtrip": "True",
       "algorithm_validated": true
     },
-    "execution_time": 0.024793148040771484,
+    "execution_time": 0.0076448917388916016,
     "error": null
   },
   {
@@ -38,13 +38,13 @@
         },
         {
           "test": "svd_reconstruction",
-          "error": 3.2019837751006178e-15,
+          "error": 2.5388127008882564e-15,
           "passes": "True"
         }
       ],
       "mathematical_rigor": true
     },
-    "execution_time": 0.08638167381286621,
+    "execution_time": 0.5103981494903564,
     "error": null
   },
   {
@@ -54,7 +54,7 @@
       "crypto_tests": [
         {
           "test": "entropy_quality",
-          "entropy": 0.96484375,
+          "entropy": 0.98046875,
           "passes": true
         },
         {
@@ -65,7 +65,7 @@
       ],
       "cryptographic_security": false
     },
-    "execution_time": 0.00304412841796875,
+    "execution_time": 0.0,
     "error": null
   },
   {
@@ -75,19 +75,19 @@
       "performance_tests": [
         {
           "test": "matrix_operations_speed",
-          "time_seconds": 0.018457651138305664,
-          "operations_per_second": 54178.0745831019,
+          "time_seconds": 0.02345585823059082,
+          "operations_per_second": 42633.272684766365,
           "passes": true
         },
         {
           "test": "memory_usage",
-          "memory_mb": 33.3828125,
+          "memory_mb": 33.18359375,
           "passes": true
         }
       ],
       "performance_validated": true
     },
-    "execution_time": 0.043149471282958984,
+    "execution_time": 0.11494159698486328,
     "error": null
   },
   {
