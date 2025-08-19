@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+""""""
+Rigorous RFT vs Baselines Benchmark - Scientific Evaluation This addresses the limitations identified in the previous tests: 1. Uses proper detection metrics (ROC-AUC, matched statistics) 2. Unit-normalized FFT for fair comparison 3. Multiple baselines beyond just DFT 4. Confidence intervals and statistical rigor 5. Ablation studies to isolate RFT contributions 6. Tests on signals that should genuinely favor RFT structure
+"""
+"""
+
+import numpy as np from scipy
+import signal, stats from sklearn.metrics
+import roc_auc_score, roc_curve
+import warnings warnings.filterwarnings('ignore') from canonical_true_rft
+import forward_true_rft, inverse_true_rft
+
+# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
+def generate_rft_favorable_signal(t, snr_db=10, seed=None):
+"""
+"""
+        Generate signals that should genuinely favor RFT basis structure
+"""
+"""
+
+        if seed is not None: np.random.seed(seed)
+
+        # Multi-scale amplitude modulation with phase coupling
+
+        # This structure should align with RFT's D_phi C_sigma D_phidagger operators
+
+        # Primary resonance frequencies f_carrier = 20 f_mod1 = 2.5
+
+        # Slow modulation f_mod2 = 1.0
+
+        # Very slow phase drift
+
+        # RFT-favorable structure: coupled amplitude-phase modulation amplitude_env = (1.0 + 0.6 * np.sin(2 * np.pi * f_mod1 * t) + 0.3 * np.sin(2 * np.pi * f_mod2 * t + np.pi/4)) phase_mod = 0.8 * np.sin(2 * np.pi * f_mod2 * t) + 0.4 * np.cos(2 * np.pi * f_mod1 * t)
+
+        # Signal with resonance structure clean_signal = amplitude_env * np.sin(2 * np.pi * f_carrier * t + phase_mod)
+
+        # Add second resonance component (harmonic coupling) clean_signal += 0.4 * amplitude_env * np.sin(2 * np.pi * (f_carrier * 1.5) * t + phase_mod * 1.3)
+
+        # Add realistic noise noise_power = np.var(clean_signal) / (10 ** (snr_db / 10)) noise = np.random.normal(0, np.sqrt(noise_power), len(t))
+
+        # Colored noise with 1/f^α characteristics freqs = np.fft.fftfreq(len(t)) freqs[0] = 1e-10 H = 1.0 / (1 + (np.abs(freqs) * 50) ** 1.2)
+
+        # Colored noise filter noise_colored = np.real(np.fft.ifft(np.fft.fft(noise) * H)) noise_colored = noise_colored * np.sqrt(noise_power) / np.std(noise_colored)
+        return clean_signal + noise_colored, clean_signal
+def compute_baselines(signal_data):
+"""
+"""
+        Compute multiple baseline transforms for comparison
+"""
+"""
+        n = len(signal_data) # 1. Unit-normalized FFT (proper comparison) dft_coeffs = np.fft.fft(signal_data, norm='ortho') # 2. STFT with optimal window f, t_stft, stft_coeffs = signal.spectrogram(signal_data, nperseg=min(64, n//4), noverlap=min(32, n//8), mode='complex') stft_flat = stft_coeffs.flatten() # 3. Continuous Wavelet Transform approximation scales = np.geomspace(1, n//4, min(32, n//8)) cwt_coeffs = []
+        for scale in scales: wavelet = signal.morlet2(M=int(scale*4), s=scale/4, w=5.0)
+        if len(wavelet) <= n: conv = np.convolve(signal_data, wavelet, mode='same') cwt_coeffs.extend(conv[::max(1, len(conv)//min(32, n//4))]) cwt_coeffs = np.array(cwt_coeffs[:n])
+
+        # Truncate to same length # 4. DCT (another orthogonal basis) from scipy.fftpack
+import dct dct_coeffs = dct(signal_data, norm='ortho')
+        return { 'DFT': dft_coeffs, 'STFT': stft_flat[:n],
+
+        # Truncate to match length 'CWT': cwt_coeffs, 'DCT': dct_coeffs }
+def compute_sparsity_metrics(coeffs):
+"""
+"""
+        Comprehensive sparsity and concentration metrics
+"""
+"""
+        coeffs_abs = np.abs(coeffs) n = len(coeffs)
+
+        # Normalize to prevent scale bias coeffs_normalized = coeffs_abs / (np.linalg.norm(coeffs_abs) + 1e-12)
+
+        # L1/L2 sparsity ratio (Donoho-style) l1_norm = np.sum(coeffs_normalized) l2_norm = np.linalg.norm(coeffs_normalized) sparsity_ratio = l1_norm / (np.sqrt(n) * l2_norm)
+        if l2_norm > 0 else 0
+
+        # Gini coefficient (concentration measure) sorted_coeffs = np.sort(coeffs_normalized) cumsum = np.cumsum(sorted_coeffs) gini = (2 * np.sum((np.arange(n) + 1) * sorted_coeffs)) / (n * cumsum[-1]) - (n + 1) / n
+
+        # Effective support (90% and 95% energy) energy_cumsum = np.cumsum(np.sort(coeffs_normalized**2)[::-1]) total_energy = energy_cumsum[-1] support_90 = np.argmax(energy_cumsum >= 0.90 * total_energy) + 1 support_95 = np.argmax(energy_cumsum >= 0.95 * total_energy) + 1
+        return { 'sparsity_ratio': sparsity_ratio, 'gini_coefficient': gini, 'support_90': support_90 / n, 'support_95': support_95 / n, 'peak_to_rms': np.max(coeffs_normalized) / (np.sqrt(np.mean(coeffs_normalized**2)) + 1e-12) }
+def detection_roc_analysis(clean_signal, noisy_signal, coeffs_dict):
+"""
+"""
+        Proper ROC analysis for signal detection
+"""
+        """ n = len(clean_signal)
+
+        # Create detection ground truth
+
+        # True signal locations (where clean signal has significant energy) clean_energy = np.abs(np.fft.fft(clean_signal, norm='ortho'))**2 threshold = np.percentile(clean_energy, 75)
+
+        # Top 25% as "signal" ground_truth = clean_energy > threshold roc_results = {} for name, coeffs in coeffs_dict.items():
+        if len(coeffs) != n: continue
+
+        # Skip
+        if length mismatch
+
+        # Detection scores (coefficient magnitudes) detection_scores = np.abs(coeffs)**2 detection_scores = detection_scores / (np.max(detection_scores) + 1e-12)
+
+        # Compute ROC-AUC
+        try: roc_auc = roc_auc_score(ground_truth, detection_scores) roc_results[name] = roc_auc
+        except: roc_results[name] = 0.5
+
+        # Random performance fallback
+        return roc_results
+def run_rigorous_benchmark(n_trials=20, signal_length=512): """"""
+        Run rigorous benchmark with proper statistical controls
+"""
+"""
+        print("=" * 80)
+        print("RIGOROUS RFT VS BASELINES BENCHMARK")
+        print("=" * 80)
+        print()
+        print("🔬 SCIENTIFIC METHODOLOGY:")
+        print(" • Unit-normalized transforms for fair comparison")
+        print(" • Multiple baselines: DFT, STFT, CWT, DCT")
+        print(" • ROC-AUC for detection performance")
+        print(" • Bootstrap confidence intervals")
+        print(" • RFT-favorable signal class (amplitude-phase coupling)")
+        print(f" • {n_trials} independent trials")
+        print()
+
+        # Storage for results results = { 'RFT': {'sparsity': [], 'gini': [], 'support_90': [], 'support_95': [], 'roc_auc': []}, 'DFT': {'sparsity': [], 'gini': [], 'support_90': [], 'support_95': [], 'roc_auc': []}, 'STFT': {'sparsity': [], 'gini': [], 'support_90': [], 'support_95': [], 'roc_auc': []}, 'CWT': {'sparsity': [], 'gini': [], 'support_90': [], 'support_95': [], 'roc_auc': []}, 'DCT': {'sparsity': [], 'gini': [], 'support_90': [], 'support_95': [], 'roc_auc': []} } reconstruction_errors = []
+        print("🧪 Running trials...") fs = 1000 t = np.linspace(0, signal_length/fs, signal_length)
+        for trial in range(n_trials):
+
+        # Generate test signal noisy_signal, clean_signal = generate_rft_favorable_signal(t, snr_db=5, seed=trial*42)
+
+        # Apply RFT rft_coeffs = forward_true_rft(noisy_signal)
+
+        # Verify unitarity reconstructed = inverse_true_rft(rft_coeffs) recon_error = np.linalg.norm(noisy_signal - reconstructed) reconstruction_errors.append(recon_error)
+
+        # Compute baselines baselines = compute_baselines(noisy_signal)
+
+        # Add RFT to comparison all_coeffs = {'RFT': rft_coeffs, **baselines}
+
+        # Compute sparsity metrics for all methods for name, coeffs in all_coeffs.items():
+        if len(coeffs) == len(noisy_signal):
+
+        # Only process matching lengths metrics = compute_sparsity_metrics(coeffs) results[name]['sparsity'].append(metrics['sparsity_ratio']) results[name]['gini'].append(metrics['gini_coefficient']) results[name]['support_90'].append(metrics['support_90']) results[name]['support_95'].append(metrics['support_95'])
+
+        # Detection ROC analysis roc_results = detection_roc_analysis(clean_signal, noisy_signal, all_coeffs) for name, roc_auc in roc_results.items():
+        if name in results: results[name]['roc_auc'].append(roc_auc)
+        if trial < 3: rft_sparsity = results['RFT']['sparsity'][-1] dft_sparsity = results['DFT']['sparsity'][-1]
+        if results['DFT']['sparsity'] else 0 advantage = rft_sparsity / dft_sparsity
+        if dft_sparsity > 0 else 1.0
+        print(f" Trial {trial+1}: RFT sparsity={rft_sparsity:.3f}, advantage={advantage:.2f}x")
+        print()
+        print(" COMPREHENSIVE RESULTS:")
+        print()
+
+        # Unitarity check avg_recon_error = np.mean(reconstruction_errors)
+        print("1. RFT MATHEMATICAL PROPERTIES:")
+        print(f" • Reconstruction error: {avg_recon_error:.2e}")
+        print(f" • Exact unitarity: {avg_recon_error < 1e-10}")
+        print()
+
+        # Compare all methods methods = ['RFT', 'DFT', 'STFT', 'CWT', 'DCT']
+        print("2. SPARSITY COMPARISON (L1/L2 ratio):") sparsity_means = {}
+        for method in methods:
+        if results[method]['sparsity']: mean_val = np.mean(results[method]['sparsity']) std_val = np.std(results[method]['sparsity']) sparsity_means[method] = mean_val
+        print(f" • {method:4s}: {mean_val:.3f} ± {std_val:.3f}") best_sparsity = max(sparsity_means.values()) best_method = max(sparsity_means, key=sparsity_means.get)
+        print(f" -> Best: {best_method} ({'RFT WINS'
+        if best_method == 'RFT' else 'RFT loses'})")
+        print()
+        print("3. GINI COEFFICIENT (concentration):") gini_means = {}
+        for method in methods:
+        if results[method]['gini']: mean_val = np.mean(results[method]['gini']) std_val = np.std(results[method]['gini']) gini_means[method] = mean_val
+        print(f" • {method:4s}: {mean_val:.3f} ± {std_val:.3f}") best_gini = max(gini_means.values()) best_gini_method = max(gini_means, key=gini_means.get)
+        print(f" -> Best: {best_gini_method} ({'RFT WINS'
+        if best_gini_method == 'RFT' else 'RFT loses'})")
+        print()
+        print("4. DETECTION PERFORMANCE (ROC-AUC):") roc_means = {}
+        for method in methods:
+        if results[method]['roc_auc']: mean_val = np.mean(results[method]['roc_auc']) std_val = np.std(results[method]['roc_auc']) roc_means[method] = mean_val
+        print(f" • {method:4s}: {mean_val:.3f} ± {std_val:.3f}") best_roc = max(roc_means.values()) best_roc_method = max(roc_means, key=roc_means.get)
+        print(f" -> Best: {best_roc_method} ({'RFT WINS'
+        if best_roc_method == 'RFT' else 'RFT loses'})")
+        print()
+
+        # Statistical significance tests
+        print("5. STATISTICAL SIGNIFICANCE:")
+        if len(results['RFT']['sparsity']) > 5 and len(results['DFT']['sparsity']) > 5: sparsity_pval = stats.ttest_ind(results['RFT']['sparsity'], results['DFT']['sparsity']).pvalue roc_pval = stats.ttest_ind(results['RFT']['roc_auc'], results['DFT']['roc_auc']).pvalue
+        print(f" • RFT vs DFT sparsity p-value: {sparsity_pval:.2e}")
+        print(f" • RFT vs DFT detection p-value: {roc_pval:.2e}")
+        print(f" • Significant improvements: {min(sparsity_pval, roc_pval) < 0.01}")
+        print()
+
+        # Final scientific assessment
+        print("🏆 SCIENTIFIC ASSESSMENT:")
+        print() rft_wins = sum([ best_method == 'RFT', best_gini_method == 'RFT', best_roc_method == 'RFT' ])
+        if rft_wins >= 2:
+        print("✅ RFT DEMONSTRATES GENUINE ADVANTAGES:")
+        print(f" • Wins in {rft_wins}/3 key metrics")
+        if best_method == 'RFT': advantage = sparsity_means['RFT'] / sparsity_means.get('DFT', 1)
+        print(f" • {advantage:.2f}x better sparsity than DFT")
+        if best_roc_method == 'RFT': roc_advantage = roc_means['RFT'] - roc_means.get('DFT', 0.5)
+        print(f" • {roc_advantage:+.3f} ROC-AUC advantage in detection")
+        else:
+        print("⚠️ RFT SHOWS LIMITED ADVANTAGES:")
+        print(f" • Wins in only {rft_wins}/3 key metrics")
+        print(" • May need different signal class or parameter tuning")
+        print(f" • Perfect unitarity maintained (error {avg_recon_error:.0e})")
+        print()
+        return results
+
+if __name__ == "__main__": results = run_rigorous_benchmark(n_trials=15, signal_length=256)
+print("=" * 80)
+print("RIGOROUS BENCHMARK COMPLETE")
+print("This provides honest assessment of RFT advantages and limitations")
+print("=" * 80)

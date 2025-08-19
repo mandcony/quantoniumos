@@ -1,1 +1,110 @@
-/** * PyBind11 bindings for QuantoniumOS Engine Core * * This provides modern, efficient Python bindings for the C++ RFT implementation * using PyBind11 instead of ctypes for better integration and performance. */ #include <pybind11/pybind11.h> #include <pybind11/stl.h> #include <pybind11/numpy.h> #include <vector> #include <string> // Include our engine core functions (declare them here since we can't modify engine_core.h easily) extern "C" { int engine_init(); int rft_basis_forward(const double* input_real, int input_size, double* output_real, double* output_imag); int rft_basis_inverse(const double* input_real, const double* input_imag, int input_size, double* output_real); int rft_operator_apply(const double* input_real, const double* input_imag, int input_size, double* output_real, double* output_imag); } namespace py = pybind11; // Helper function to convert Python list to vector std::vector<double> list_to_vector(const py::list& input) { std::vector<double> result; result.reserve(input.size()); for (auto item : input) { result.push_back(item.cast<double>()); } return result; } // Python-friendly wrapper for rft_basis_forward py::tuple py_rft_basis_forward(const py::list& input_real) { std::vector<double> input = list_to_vector(input_real); int N = input.size(); std::vector<double> output_real(N); std::vector<double> output_imag(N); int result = rft_basis_forward(input.data(), N, output_real.data(), output_imag.data()); if (result != 0) { throw std::runtime_error("RFT basis forward failed"); } return py::make_tuple(output_real, output_imag); } // Python-friendly wrapper for rft_basis_inverse py::list py_rft_basis_inverse(const py::list& input_real, const py::list& input_imag) { std::vector<double> real = list_to_vector(input_real); std::vector<double> imag = list_to_vector(input_imag); if (real.size() != imag.size()) { throw std::invalid_argument("Real and imaginary parts must have same size"); } int N = real.size(); std::vector<double> output(N); int result = rft_basis_inverse(real.data(), imag.data(), N, output.data()); if (result != 0) { throw std::runtime_error("RFT basis inverse failed"); } py::list py_output; for (double val : output) { py_output.append(val); } return py_output; } // Python-friendly wrapper for rft_operator_apply py::tuple py_rft_operator_apply(const py::list& input_real, const py::list& input_imag) { std::vector<double> real = list_to_vector(input_real); std::vector<double> imag = list_to_vector(input_imag); if (real.size() != imag.size()) { throw std::invalid_argument("Real and imaginary parts must have same size"); } int N = real.size(); std::vector<double> output_real(N); std::vector<double> output_imag(N); int result = rft_operator_apply(real.data(), imag.data(), N, output_real.data(), output_imag.data()); if (result != 0) { throw std::runtime_error("RFT operator apply failed"); } return py::make_tuple(output_real, output_imag); } // Module definition PYBIND11_MODULE(engine_core_pybind, m) { m.doc() = "QuantoniumOS Engine Core - Modern PyBind11 bindings"; // Initialize the engine m.def("engine_init", &engine_init, "Initialize the engine core"); // RFT functions with Pythonic interfaces m.def("rft_basis_forward", &py_rft_basis_forward, "Apply forward RFT basis transform", py::arg("input_real")); m.def("rft_basis_inverse", &py_rft_basis_inverse, "Apply inverse RFT basis transform", py::arg("input_real"), py::arg("input_imag")); m.def("rft_operator_apply", &py_rft_operator_apply, "Apply RFT operator to complex signal", py::arg("input_real"), py::arg("input_imag")); // Version info m.attr("__version__") = "1.0.0"; m.attr("backend") = "C++ (PyBind11)"; } 
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
+#include "engine_core.h"
+#include <string> // Required for std::string
+
+namespace py = pybind11;
+
+PYBIND11_MODULE(engine_core_pybind, m) {
+    m.doc() = "pybind11 bindings for Quantonium EngineCore C-API";
+
+    py::class_<RFTResult>(m, "RFTResult")
+        .def_readonly("bin_count", &RFTResult::bin_count)
+        .def_readonly("hr", &RFTResult::hr)
+        .def_property_readonly("bins", [](const RFTResult& r) {
+            return py::array_t<float>(r.bin_count, r.bins, py::cast(r, py::return_value_policy::reference));
+        });
+
+    py::class_<SAVector>(m, "SAVector")
+        .def_readonly("count", &SAVector::count)
+        .def_property_readonly("values", [](const SAVector& s) {
+            return py::array_t<float>(s.count, s.values, py::cast(s, py::return_value_policy::reference));
+        });
+
+    m.def("engine_init", &engine_init, "Initialize the engine");
+    m.def("engine_final", &engine_final, "Clean up the engine");
+
+    m.def("rft_run", [](const py::bytes& data) {
+        py::buffer_info info = py::buffer(data).request();
+        return rft_run(static_cast<const char*>(info.ptr), static_cast<int>(info.size));
+    }, py::return_value_policy::take_ownership, "Run Resonance Fourier Transform on input data");
+
+    m.def("rft_free", &rft_free, "Free RFT result memory");
+
+    m.def("sa_compute", [](const py::bytes& data) {
+        py::buffer_info info = py::buffer(data).request();
+        return sa_compute(static_cast<const char*>(info.ptr), static_cast<int>(info.size));
+    }, py::return_value_policy::take_ownership, "Compute Symbolic Alignment vector");
+
+    m.def("sa_free", &sa_free, "Free SA vector memory");
+
+    m.def("wave_hash", [](const py::bytes& data) {
+        py::buffer_info info = py::buffer(data).request();
+        return std::string(wave_hash(static_cast<const char*>(info.ptr), static_cast<int>(info.size)));
+    }, "Compute waveform hash");
+
+    m.def("symbolic_xor", [](const py::bytes& plaintext, const py::bytes& key) {
+        if (py::len(plaintext) != py::len(key)) {
+            throw std::runtime_error("Plaintext and key must have the same length");
+        }
+        py::buffer_info p_info = py::buffer(plaintext).request();
+        py::buffer_info k_info = py::buffer(key).request();
+        int len = static_cast<int>(p_info.size);
+        
+        py::bytearray result(std::string(len, '\0'));
+        py::buffer_info r_info = py::buffer(result).request();
+
+        int ret = symbolic_xor(
+            static_cast<const uint8_t*>(p_info.ptr),
+            static_cast<const uint8_t*>(k_info.ptr),
+            len,
+            static_cast<uint8_t*>(r_info.ptr)
+        );
+
+        if (ret != 0) throw std::runtime_error("symbolic_xor failed");
+        return py::bytes(result);
+    }, "Encrypt data using symbolic XOR");
+
+    m.def("generate_entropy", [](int length) {
+        py::bytearray buffer(std::string(length, '\0'));
+        py::buffer_info info = py::buffer(buffer).request();
+        int ret = generate_entropy(static_cast<uint8_t*>(info.ptr), length);
+        if (ret != 0) throw std::runtime_error("generate_entropy failed");
+        return py::bytes(buffer);
+    }, "Generate quantum-inspired entropy");
+
+    m.def("rft_basis_forward", [](py::array_t<double, py::array::c_style | py::array::forcecast> x,
+                                   py::object weights_obj, py::object theta0_obj, py::object omega_obj,
+                                   double sigma0, double gamma, const std::string& sequence_type) {
+        int N = static_cast<int>(x.shape(0));
+        auto out_real = py::array_t<double>(N);
+        auto out_imag = py::array_t<double>(N);
+
+        const double* w_ptr = weights_obj.is_none() ? nullptr : py::array_t<double, py::array::c_style | py::array::forcecast>(weights_obj).data();
+        int M = weights_obj.is_none() ? 0 : static_cast<int>(py::array_t<double>(weights_obj).shape(0));
+        const double* th_ptr = theta0_obj.is_none() ? nullptr : py::array_t<double, py::array::c_style | py::array::forcecast>(theta0_obj).data();
+        const double* om_ptr = omega_obj.is_none() ? nullptr : py::array_t<double, py::array::c_style | py::array::forcecast>(omega_obj).data();
+
+        int ret = rft_basis_forward(x.data(), N, w_ptr, M, th_ptr, om_ptr, sigma0, gamma, sequence_type.c_str(), out_real.mutable_data(), out_imag.mutable_data());
+        if (ret != 0) throw std::runtime_error("rft_basis_forward failed with code " + std::to_string(ret));
+        return std::make_pair(out_real, out_imag);
+    }, py::arg("x"), py::arg("weights"), py::arg("theta0"), py::arg("omega"), py::arg("sigma0"), py::arg("gamma"), py::arg("sequence_type"), "Spec-compliant RFT (basis path): forward transform");
+
+    m.def("rft_basis_inverse", [](py::array_t<double, py::array::c_style | py::array::forcecast> X_real,
+                                   py::array_t<double, py::array::c_style | py::array::forcecast> X_imag,
+                                   py::object weights_obj, py::object theta0_obj, py::object omega_obj,
+                                   double sigma0, double gamma, const std::string& sequence_type) {
+        int N = static_cast<int>(X_real.shape(0));
+        auto out_x = py::array_t<double>(N);
+
+        const double* w_ptr = weights_obj.is_none() ? nullptr : py::array_t<double, py::array::c_style | py::array::forcecast>(weights_obj).data();
+        int M = weights_obj.is_none() ? 0 : static_cast<int>(py::array_t<double>(weights_obj).shape(0));
+        const double* th_ptr = theta0_obj.is_none() ? nullptr : py::array_t<double, py::array::c_style | py::array::forcecast>(theta0_obj).data();
+        const double* om_ptr = omega_obj.is_none() ? nullptr : py::array_t<double, py::array::c_style | py::array::forcecast>(omega_obj).data();
+
+        int ret = rft_basis_inverse(X_real.data(), X_imag.data(), N, w_ptr, M, th_ptr, om_ptr, sigma0, gamma, sequence_type.c_str(), out_x.mutable_data());
+        if (ret != 0) throw std::runtime_error("rft_basis_inverse failed with code " + std::to_string(ret));
+        return out_x;
+    }, py::arg("X_real"), py::arg("X_imag"), py::arg("weights"), py::arg("theta0"), py::arg("omega"), py::arg("sigma0"), py::arg("gamma"), py::arg("sequence_type"), "Spec-compliant RFT (basis path): inverse transform");
+}
