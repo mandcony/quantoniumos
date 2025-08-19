@@ -51,7 +51,7 @@
 ## 📋 PROJECT MANAGEMENT
 - **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community guidelines
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
-- **[LICENSE](LICENSE)** - MIT License
+- **[LICENSE](LICENSE)** - Non-Commercial License
 - **[LICENSE_COMMERCIAL.md](LICENSE_COMMERCIAL.md)** - Commercial licensing
 - **[CITATION.cff](CITATION.cff)** - Citation format
 

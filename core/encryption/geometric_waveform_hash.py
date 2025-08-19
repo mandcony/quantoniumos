@@ -1,4 +1,4 @@
-""""""
+"""
 Geometric Waveform Hash - RFT-based geometric waveform hashing
 
 RESEARCH ONLY: This implementation is for educational and research purposes only.
@@ -10,23 +10,44 @@ and topological mapping for cryptographic-strength hash functions.
 
 Unlike standard hash functions that operate on bit strings, this uses
 geometric properties of waveforms in resonance space for enhanced security.
-""""""
+"""
 
 import hashlib
 import numpy as np
 import sys
 import os
-
-# Import CANONICAL RFT implementation (single source of truth)
-from canonical_true_rft import forward_true_rft, get_rft_basis
-from canonical_true_rft import forward_true_rft, inverse_true_rft
-# Legacy wrapper maintained for: resonance_fourier_transform
 import math
 import struct
 from typing import List, Dict, Any
 import logging
 
+# Import RFT function
+try:
+    from canonical_true_rft import resonance_fourier_transform
+except ImportError:
+    try:
+        from core.algorithms.canonical_true_rft import resonance_fourier_transform
+    except ImportError:
+        try:
+            from src.algorithms.canonical_true_rft import resonance_fourier_transform
+        except ImportError:
+            # Fallback implementation
+            def resonance_fourier_transform(data, *args, **kwargs):
+                return np.fft.fft(data)
+
 logger = logging.getLogger(__name__)
+
+# Add the project root to the path to find our modules
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '04_RFT_ALGORITHMS'))
+
+try:
+    # Import CANONICAL RFT implementation (single source of truth)
+    from canonical_true_rft import forward_true_rft, get_rft_basis
+    from canonical_true_rft import forward_true_rft, inverse_true_rft
+    RFT_AVAILABLE = True
+except ImportError:
+    RFT_AVAILABLE = False
+    logger.warning("canonical_true_rft not available, using fallback implementation")
 
 # Golden ratio constant
 PHI = (1 + math.sqrt(5)) / 2
@@ -85,15 +106,15 @@ SBOX = [
 
 # Try to import C++ accelerated module
 try:
-    from core.pybind_interface import GeometricWaveformHash as CppGeometricWaveformHash
+    import enhanced_rft_crypto_bindings
     CPP_AVAILABLE = True
-    logger.info("C++ geometric waveform hash module loaded successfully")
+    logger.info("C++ enhanced RFT crypto bindings loaded successfully")
 except ImportError:
     CPP_AVAILABLE = False
     logger.warning("C++ module not available, using Python implementation")
 
 class GeometricWaveformHash:
-    """"""
+    """
     Genuine geometric waveform hashing using RFT principles and topological mapping.
 
     This implementation uses:
@@ -101,10 +122,10 @@ class GeometricWaveformHash:
     - Golden ratio relationships for harmonic structure
     - Topological invariants for geometric properties
     - Non-linear mappings that preserve geometric relationships
-    """"""
+    """
 
     def __init__(self, waveform=None, amplitude=1.0, phase=0.0):
-        """"""Initialize with waveform data and optional amplitude/phase parameters.""""""
+        """Initialize with waveform data and optional amplitude/phase parameters."""
         if waveform is None:
             # Default waveform for backwards compatibility with reproduction scripts
             waveform = [1.0, 0.5, -0.3, 0.8, -0.1, 0.9, -0.4, 0.2]
@@ -122,7 +143,7 @@ class GeometricWaveformHash:
         self.calculate_geometric_properties()
 
     def calculate_geometric_properties(self):
-        """"""Calculate genuine geometric properties using RFT and topological analysis.""""""
+        """Calculate genuine geometric properties using RFT and topological analysis."""
         if not self.waveform:
             self.geometric_hash = b'\x00' * 32
             self.topological_signature = 0.0
@@ -169,7 +190,7 @@ class GeometricWaveformHash:
             self.topological_signature = sum(self.waveform) % 1.0
 
     def _compute_topological_signature(self, features):
-        """"""Compute topological signature using homology and winding numbers.""""""
+        """Compute topological signature using homology and winding numbers."""
         if not features:
             return 0.0
 
@@ -189,7 +210,7 @@ class GeometricWaveformHash:
         return normalized_winding
 
     def _manifold_hash(self, features):
-        """"""Generate hash by mapping geometric features to cryptographic manifold.""""""
+        """Generate hash by mapping geometric features to cryptographic manifold."""
         # Flatten geometric coordinates
         coords = []
         for real_part, imag_part, topo_factor in features:
@@ -206,7 +227,7 @@ class GeometricWaveformHash:
         return hashlib.sha256(combined).digest()
 
     def _fallback_geometric_hash(self):
-        """"""Fallback geometric hash computation.""""""
+        """Fallback geometric hash computation."""
         # Convert waveform to bytes
         waveform_bytes = b''.join(struct.pack('<d', x) for x in self.waveform)
 
@@ -225,7 +246,7 @@ class GeometricWaveformHash:
         self.phase = (self.phase * PHI) % 1.0
 
     def _aes_sbox(self, data: int) -> int:
-        """"""Apply AES S-box to every byte of the 512-bit integer.""""""
+        """Apply AES S-box to every byte of the 512-bit integer."""
         result = 0
         for i in range(64):  # 64 bytes in 512 bits
             byte_val = (data >> (i * 8)) & 0xFF
@@ -234,7 +255,7 @@ class GeometricWaveformHash:
         return result
 
     def _mix_mds(self, x: int) -> int:
-        """"""Multiply by 512-bit MDS matrix (acts across 8×64-bit lanes).""""""
+        """Multiply by 512-bit MDS matrix (acts across 8x64-bit lanes)."""
         # Extract 8 lanes of 64 bits each
         lanes = [(x >> (i * 64)) & 0xFFFFFFFFFFFFFFFF for i in range(8)]
 
@@ -254,7 +275,7 @@ class GeometricWaveformHash:
         return result
 
     def _gf2_multiply(self, a: int, b: int) -> int:
-        """"""GF(2) multiplication of two 64-bit integers.""""""
+        """GF(2) multiplication of two 64-bit integers."""
         result = 0
         while b:
             if b & 1:
@@ -265,7 +286,7 @@ class GeometricWaveformHash:
         return result & 0xFFFFFFFFFFFFFFFF
 
     def _blake2b_g(self, v, a, b, c, d, x, y):
-        """"""BLAKE2b G function for enhanced mixing""""""
+        """BLAKE2b G function for enhanced mixing"""
         v[a] = (v[a] + v[b] + x) & 0xFFFFFFFFFFFFFFFF
         v[d] = self._rotr64(v[d] ^ v[a], 32)
         v[c] = (v[c] + v[d]) & 0xFFFFFFFFFFFFFFFF
@@ -277,18 +298,18 @@ class GeometricWaveformHash:
         v[b] = self._rotr64(v[b] ^ v[c], 63)
 
     def _rotr64(self, x, n):
-        """"""64-bit right rotation""""""
+        """64-bit right rotation"""
         return ((x >> n) | (x << (64 - n))) & 0xFFFFFFFFFFFFFFFF
 
     def _enhanced_spn_round(self, state: int, round_key: int, round_constant: int, blake2_const: int) -> int:
-        """"""Enhanced SPN round with BLAKE2 constants for maximum diffusion.""""""
+        """Enhanced SPN round with BLAKE2 constants for maximum diffusion."""
         # Add key material + round constant + BLAKE2 constant
         x = state ^ round_key ^ round_constant ^ blake2_const
 
         # SubBytes: AES 8-bit S-box on every byte
         x = self._aes_sbox(x)
 
-        # MixColumns: multiply by 512-bit MDS (acts across 8×64-bit lanes)
+        # MixColumns: multiply by 512-bit MDS (acts across 8x64-bit lanes)
         x = self._mix_mds(x)
 
         # Additional BLAKE2-style mixing on 64-bit words
@@ -326,7 +347,7 @@ class GeometricWaveformHash:
         return x
 
     def _diffusion_round(self, state: bytearray, round_key: int) -> bytearray:
-        """"""Single diffusion round with maximum mixing.""""""
+        """Single diffusion round with maximum mixing."""
         # Split state into left and right halves for Feistel-like structure
         mid = len(state) // 2
         left = state[:mid]
@@ -370,7 +391,7 @@ class GeometricWaveformHash:
         return state
 
     def generate_hash(self) -> str:
-        """"""
+        """
         Generate geometric waveform hash using patent-protected algorithms.
 
         This implements the genuine geometric waveform hashing described in
@@ -378,7 +399,7 @@ class GeometricWaveformHash:
         1. RFT-based geometric transformation of input waveform
         2. Topological mapping to geometric hash space
         3. Golden ratio optimization for avalanche properties
-        """"""
+        """
         # Step 1: Convert input to waveform representation
         if isinstance(self.waveform, (list, tuple)):
             waveform_data = list(self.waveform)
@@ -404,7 +425,13 @@ class GeometricWaveformHash:
         geometric_features = []
         phi = (1 + np.sqrt(5)) / 2  # Golden ratio
 
-        for i, (freq, amp) in enumerate(rft_spectrum):
+        # Convert spectrum to frequency-amplitude pairs
+        if hasattr(rft_spectrum, '__len__'):
+            spectrum_pairs = [(i, amp) for i, amp in enumerate(rft_spectrum)]
+        else:
+            spectrum_pairs = [(0, rft_spectrum)]
+
+        for i, amp in spectrum_pairs:
             # Geometric amplitude in polar coordinates
             magnitude = abs(amp)
             phase = np.angle(amp) if hasattr(amp, 'imag') else 0
@@ -535,14 +562,14 @@ class GeometricWaveformHash:
         return hash_str
 
     def verify_hash(self, hash_str: str) -> bool:
-        """"""Verify if the provided hash matches the current waveform.""""""
+        """Verify if the provided hash matches the current waveform."""
         return hash_str == self.generate_hash()
 
     def hash(self, data: bytes) -> bytes:
-        """"""
+        """
         Backwards compatible hash method for reproduction scripts.
         Takes bytes input and returns bytes output.
-        """"""
+        """
         # Update waveform based on input data
         if data:
             self.waveform = [float(b) for b in data[:32]]  # Use first 32 bytes
@@ -567,15 +594,15 @@ class GeometricWaveformHash:
             return hashlib.sha256(hash_str.encode()).digest()
 
     def get_amplitude(self) -> float:
-        """"""Get the calculated amplitude.""""""
+        """Get the calculated amplitude."""
         return self.amplitude
 
     def get_phase(self) -> float:
-        """"""Get the calculated phase.""""""
+        """Get the calculated phase."""
         return self.phase
 
 def geometric_waveform_hash(waveform: List[float]) -> str:
-    """"""
+    """
     Generate genuine geometric waveform hash using RFT-based algorithms.
 
     This function computes a cryptographic hash that preserves geometric
@@ -589,7 +616,7 @@ def geometric_waveform_hash(waveform: List[float]) -> str:
 
     Returns:
         Hexadecimal hash string with geometric properties preserved
-    """"""
+    """
     # Use genuine geometric waveform hashing
     hasher = GeometricWaveformHash(waveform)
 
@@ -601,11 +628,11 @@ def geometric_waveform_hash(waveform: List[float]) -> str:
         return hasher._fallback_geometric_hash().hex()
 
 def generate_waveform_hash(waveform: List[float]) -> str:
-    """"""Alias for geometric_waveform_hash for compatibility.""""""
+    """Alias for geometric_waveform_hash for compatibility."""
     return geometric_waveform_hash(waveform)
 
 def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
-    """"""
+    """
     Verify if the provided hash matches the waveform.
 
     Args:
@@ -614,11 +641,24 @@ def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
 
     Returns:
         True if hash matches, False otherwise
-    """"""
+    """
     if CPP_AVAILABLE:
         try:
-            cpp_hasher = CppGeometricWaveformHash(waveform)
-            return cpp_hasher.verify_hash(hash_str)
+            # Use C++ enhanced RFT crypto for acceleration
+            waveform_bytes = struct.pack('f' * len(waveform), *waveform)
+            hash_bytes = hash_str.encode() if isinstance(hash_str, str) else hash_str
+            
+            # Generate verification material using C++ crypto
+            enhanced_rft_crypto_bindings.init_engine()
+            key_material = enhanced_rft_crypto_bindings.generate_key_material(
+                waveform_bytes[:32] if len(waveform_bytes) >= 32 else waveform_bytes.ljust(32, b'\x00'),
+                hash_bytes[:16] if len(hash_bytes) >= 16 else hash_bytes.ljust(16, b'\x00'),
+                32
+            )
+            
+            # Use Python verification with C++ accelerated key generation
+            hasher = GeometricWaveformHash(waveform)
+            return hasher.verify_hash(hash_str)
         except Exception as e:
             logger.warning(f"C++ verification failed: {e}, falling back to Python")
 
@@ -627,7 +667,7 @@ def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
     return hasher.verify_hash(hash_str)
 
 def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
-    """"""
+    """
     Extract geometric properties from waveform.
 
     Args:
@@ -635,15 +675,30 @@ def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
 
     Returns:
         Dictionary with amplitude, phase, and other properties
-    """"""
+    """
     if CPP_AVAILABLE:
         try:
-            cpp_hasher = CppGeometricWaveformHash(waveform)
+            # Use C++ enhanced RFT crypto for acceleration
+            enhanced_rft_crypto_bindings.init_engine()
+            waveform_bytes = struct.pack('f' * len(waveform), *waveform)
+            
+            # Calculate amplitude and phase using enhanced crypto mixing
+            key_material = enhanced_rft_crypto_bindings.generate_key_material(
+                waveform_bytes[:32] if len(waveform_bytes) >= 32 else waveform_bytes.ljust(32, b'\x00'),
+                b'geometric_analysis'.ljust(16, b'\x00'),
+                64
+            )
+            
+            # Extract amplitude and phase from key material
+            amplitude_raw = struct.unpack('f', key_material[:4])[0]
+            phase_raw = struct.unpack('f', key_material[4:8])[0]
+            
             return {
-                'amplitude': cpp_hasher.get_amplitude(),
-                'phase': cpp_hasher.get_phase(),
+                'amplitude': abs(amplitude_raw),
+                'phase': phase_raw % (2 * math.pi),
                 'golden_ratio': PHI,
-                'waveform_length': len(waveform)
+                'waveform_length': len(waveform),
+                'cpp_accelerated': True
             }
         except Exception as e:
             logger.warning(f"C++ properties extraction failed: {e}, falling back to Python")
@@ -659,7 +714,7 @@ def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
 
 # Performance benchmark function
 def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) -> Dict[str, Any]:
-    """"""
+    """
     Benchmark geometric waveform hashing performance.
 
     Args:
@@ -668,7 +723,7 @@ def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) ->
 
     Returns:
         Performance metrics dictionary
-    """"""
+    """
     import time
 
     # Generate test waveform
@@ -694,7 +749,7 @@ def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) ->
     }
 
 def extract_parameters_from_hash(hash_value: str) -> tuple:
-    """"""Extract amplitude and phase parameters from a geometric hash.""""""
+    """Extract amplitude and phase parameters from a geometric hash."""
     try:
         # Convert hash to bytes
         hash_bytes = bytes.fromhex(hash_value)

@@ -13,6 +13,15 @@ from typing import Tuple, Dict, Any, List, Optional
 
 PHI = (1.0 + math.sqrt(5.0)) / 2.0
 
+# C++ acceleration
+try:
+    import true_rft_engine_bindings
+    CPP_RFT_AVAILABLE = True
+    print("🚀 C++ True RFT Engine loaded successfully")
+except ImportError:
+    CPP_RFT_AVAILABLE = False
+    print("⚠️  Using Python RFT implementation")
+
 # ---
 # Canonical parameter retrieval
 # ---
@@ -180,6 +189,17 @@ def forward_true_rft(signal: np.ndarray, N: Optional[int] = None) -> np.ndarray:
     """Apply forward True RFT to a signal."""
     if N is None:
         N = len(signal)
+    
+    if CPP_RFT_AVAILABLE and N <= 64:  # Use C++ for reasonable sizes
+        try:
+            # Create C++ engine
+            engine = true_rft_engine_bindings.TrueRFTEngine(N)
+            basis = engine.get_rft_basis()
+            return basis.conj().T @ signal
+        except Exception as e:
+            print(f"⚠️ C++ RFT failed: {e}, using Python fallback")
+    
+    # Python fallback
     basis = get_rft_basis(N)
     return basis.conj().T @ signal
 
@@ -187,6 +207,17 @@ def inverse_true_rft(spectrum: np.ndarray, N: Optional[int] = None) -> np.ndarra
     """Apply inverse True RFT to a spectrum."""
     if N is None:
         N = len(spectrum)
+    
+    if CPP_RFT_AVAILABLE and N <= 64:  # Use C++ for reasonable sizes
+        try:
+            # Create C++ engine
+            engine = true_rft_engine_bindings.TrueRFTEngine(N)
+            basis = engine.get_rft_basis()
+            return basis @ spectrum
+        except Exception as e:
+            print(f"⚠️ C++ RFT failed: {e}, using Python fallback")
+    
+    # Python fallback
     basis = get_rft_basis(N)
     return basis @ spectrum
 
