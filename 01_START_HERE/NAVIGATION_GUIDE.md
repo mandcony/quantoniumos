@@ -1,51 +1,51 @@
-# 🚀 QuantoniumOS Navigation Guide
+# QuantoniumOS Navigation Guide
 
 ## **Quick Start - Choose Your Path:**
 
-### 🎯 **For Researchers & Evaluators:**
-- **📂 [02_CORE_VALIDATORS](../02_CORE_VALIDATORS/)** ← **START HERE FOR VALIDATION**
+### **For Researchers & Evaluators:**
+- **[02_CORE_VALIDATORS](../02_CORE_VALIDATORS/)** ← **START HERE FOR VALIDATION**
   - Patent claim validators
   - Mathematical proof verification
   - Breakthrough validation systems
 
-### 🖥️ **For Users & Developers:**
-- **📂 [03_RUNNING_SYSTEMS](../03_RUNNING_SYSTEMS/)** ← **START HERE TO RUN**
+### **For Users & Developers:**
+- **[03_RUNNING_SYSTEMS](../03_RUNNING_SYSTEMS/)** ← **START HERE TO RUN**
   - Web interface (main.py)
   - Production systems
   - Ready-to-use applications
 
 ---
 
-## 📁 **Complete Directory Structure:**
+## **Complete Directory Structure:**
 
-### **🎯 MAIN VALIDATORS & SYSTEMS**
+### **Main Validators & Systems**
 | Directory | Purpose | Key Files |
 |-----------|---------|-----------|
-| **📂 02_CORE_VALIDATORS** | **Patent & Mathematical Validation** | `patent_validation_summary.py`, `definitive_quantum_validation.py` |
-| **📂 03_RUNNING_SYSTEMS** | **Production Applications** | `main.py`, `app.py`, `benchmark_controller.py` |
+| **02_CORE_VALIDATORS** | **Patent & Mathematical Validation** | `patent_validation_summary.py`, `definitive_quantum_validation.py` |
+| **03_RUNNING_SYSTEMS** | **Production Applications** | `main.py`, `app.py`, `benchmark_controller.py` |
 
-### **🔬 CORE ALGORITHMS**
+### **Core Algorithms**
 | Directory | Purpose | Key Files |
 |-----------|---------|-----------|
-| **📂 04_RFT_ALGORITHMS** | **RFT Transform Implementations** | `canonical_true_rft.py`, `production_canonical_rft.py` |
-| **📂 05_QUANTUM_ENGINES** | **Quantum Processing Systems** | `topological_vertex_engine.py`, `quantum_kernel.py` |
-| **📂 06_CRYPTOGRAPHY** | **Security & Encryption** | `cryptographic_security_enhancements.py` |
+| **04_RFT_ALGORITHMS** | **RFT Transform Implementations** | `canonical_true_rft.py`, `production_canonical_rft.py` |
+| **05_QUANTUM_ENGINES** | **Quantum Processing Systems** | `topological_vertex_engine.py`, `quantum_kernel.py` |
+| **06_CRYPTOGRAPHY** | **Security & Encryption** | `cryptographic_security_enhancements.py` |
 
-### **🧪 TESTING & ANALYSIS**
+### **Testing & Analysis**
 | Directory | Purpose | Key Files |
 |-----------|---------|-----------|
-| **📂 07_TESTS_BENCHMARKS** | **Testing & Performance** | All test_*.py files, benchmarks |
-| **📂 08_RESEARCH_ANALYSIS** | **Research & Analysis** | Mathematical proofs, research papers |
+| **07_TESTS_BENCHMARKS** | **Testing & Performance** | All test_*.py files, benchmarks |
+| **08_RESEARCH_ANALYSIS** | **Research & Analysis** | Mathematical proofs, research papers |
 
-### **🛠️ UTILITIES & LEGACY**
+### **Utilities & Legacy**
 | Directory | Purpose | Key Files |
 |-----------|---------|-----------|
-| **📂 09_LEGACY_BACKUPS** | **Backup & Archive Files** | *_backup.py, *_fixed.py files |
-| **📂 10_UTILITIES** | **Helper Scripts** | fix_*.py, setup scripts |
+| **09_LEGACY_BACKUPS** | **Backup & Archive Files** | *_backup.py, *_fixed.py files |
+| **10_UTILITIES** | **Helper Scripts** | fix_*.py, setup scripts |
 
 ---
 
-## 🚦 **Recommended Workflow:**
+## **Recommended Workflow:**
 
 ### **1. For Validation & Verification:**
 ```
@@ -64,7 +64,7 @@
 
 ---
 
-## 📋 **Quick Commands:**
+## **Quick Commands:**
 
 ### **Validate Claims:**
 ```bash
@@ -87,10 +87,10 @@ python run_comprehensive_tests.py
 
 ---
 
-## 📚 **Documentation Links:**
-- **📄 [QUICKSTART.md](../QUICKSTART.md)** - Quick setup guide
-- **📄 [README.md](../README.md)** - Main documentation
-- **📄 [QUANTONIUM_DEVELOPER_GUIDE.md](../QUANTONIUM_DEVELOPER_GUIDE.md)** - Developer reference
+## **Documentation Links:**
+- **[QUICKSTART.md](../QUICKSTART.md)** - Quick setup guide
+- **[README.md](../README.md)** - Main documentation
+- **[QUANTONIUM_DEVELOPER_GUIDE.md](../QUANTONIUM_DEVELOPER_GUIDE.md)** - Developer reference
 
 ---
 

@@ -94,7 +94,83 @@ Key Result: RFT achieves 93.2% distinctness from classical transforms (DFT, DCT,
 - `rft_non_equivalence_proof.py` - 7-step mathematical proof
 - `verify_breakthrough.py` - Automated verification script
 - `RFT_MATHEMATICAL_VERIFICATION.md` - Complete mathematical documentation
-- `rft_research_paper.tex` - Publication-ready research paper ## Applications ### Cryptographic Research The platform includes experimental cryptographic implementations using RFT properties: - **Enhanced RFT Crypto v2** - C++ implementation with Python bindings - **AEAD-style wrapper** - Authenticated encryption with salt + HKDF-SHA256 - **Performance**: ~9.2 MB/s on small buffers **Security Note**: Research implementation only. Not externally audited - do not use for production data. ### Transform Analysis - Signal processing applications leveraging novel spectral properties - Comparative analysis tools vs classical transforms - Validation frameworks for mathematical properties ## Research Status **Mathematical Proof**: Complete 7-step verification establishing RFT as new transform family **Distinctness**: 93.2% from all classical transforms (exceeds 80% threshold) **Properties**: Proven unitarity, perfect reconstruction, energy preservation **Publication**: Research paper ready for academic submission ## Patent Disclosure **Application**: 19/169,399 (Filed 2025-04-03) **Title**: Hybrid Computational Framework for Quantum and Resonance Simulation **Inventor**: Luis Michael Minier *Note: Filing does not imply grant. See license for usage terms.* ## Build & Usage ### Mathematical Verification ```bash # Run core mathematical proof python rft_non_equivalence_proof.py # Run automated verification python verify_breakthrough.py ``` ### C++ Crypto Engine (Optional) ```bash # Build optimized C++ engine c++ -O3 -march=native -flto -DNDEBUG -Wall -shared -std=c++17 -fPIC \ $(python3 -m pybind11 --includes) enhanced_rft_crypto_bindings_v2.cpp \ -o enhanced_rft_crypto$(python3-config --extension-suffix) # Test crypto implementation python test_v2_comprehensive.py ``` ### Python Crypto Usage ```python from wrappers.enhanced_v2_wrapper import FixedRFTCryptoV2 import secrets crypto = FixedRFTCryptoV2() key = secrets.token_bytes(32) message = b"Confidential data" # Encrypt (randomized output) ciphertext = crypto.encrypt(message, key) # Decrypt plaintext = crypto.decrypt(ciphertext, key) assert plaintext == message ``` ## Repository Structure | Component | Purpose | |---|---| | `rft_non_equivalence_proof.py` | Core mathematical proof (93.2% distinctness) | | `verify_breakthrough.py` | Automated verification script | | `RFT_MATHEMATICAL_VERIFICATION.md` | Complete mathematical documentation | | `rft_research_paper.tex` | Publication-ready research paper | | `enhanced_rft_crypto.cpp` | C++ crypto engine implementation | | `wrappers/enhanced_v2_wrapper.py` | Python AEAD-style crypto wrapper | | `test_v2_comprehensive.py` | Comprehensive test suite | ## IMPORTANT: NO CONFUSION SECTION
+- `rft_research_paper.tex` - Publication-ready research paper
+
+## Applications
+
+### Cryptographic Research
+The platform includes experimental cryptographic implementations using RFT properties:
+- **Enhanced RFT Crypto v2** - C++ implementation with Python bindings
+- **AEAD-Style Wrapper** - Authenticated encryption with salt + HKDF-SHA256
+- **Performance** - ~9.2 MB/s on small buffers
+
+**Security Note:** Research implementation only. Not externally audited - do not use for production data.
+
+### Transform Analysis
+- Signal processing applications leveraging novel spectral properties
+- Comparative analysis tools vs classical transforms
+- Validation frameworks for mathematical properties
+
+## Research Status
+**Mathematical Proof:** Complete 7-step verification establishing RFT as new transform family
+**Distinctness:** 93.2% from all classical transforms (exceeds 80% threshold)
+**Properties:** Proven unitarity, perfect reconstruction, energy preservation
+**Publication:** Research paper ready for academic submission
+
+## Patent Disclosure
+**Application:** 19/169,399 (Filed 2025-04-03)
+**Title:** Hybrid Computational Framework for Quantum and Resonance Simulation
+**Inventor:** Luis Michael Minier
+*Note: Filing does not imply grant. See license for usage terms.*
+
+## Build & Usage
+
+### Mathematical Verification
+```bash
+# Run core mathematical proof
+python rft_non_equivalence_proof.py
+# Run automated verification
+python verify_breakthrough.py
+```
+
+### C++ Crypto Engine (Optional)
+```bash
+# Build optimized C++ engine
+c++ -O3 -march=native -flto -DNDEBUG -Wall -shared -std=c++17 -fPIC \
+$(python3 -m pybind11 --includes) enhanced_rft_crypto_bindings_v2.cpp \
+-o enhanced_rft_crypto$(python3-config --extension-suffix)
+# Test crypto implementation
+python test_v2_comprehensive.py
+```
+
+### Python Crypto Usage
+```python
+from wrappers.enhanced_v2_wrapper import FixedRFTCryptoV2
+import secrets
+
+crypto = FixedRFTCryptoV2()
+key = secrets.token_bytes(32)
+message = b"Confidential data"
+
+# Encrypt (randomized output)
+ciphertext = crypto.encrypt(message, key)
+# Decrypt
+plaintext = crypto.decrypt(ciphertext, key)
+assert plaintext == message
+```
+
+## Repository Structure
+| Component | Purpose |
+|---|---|
+| `rft_non_equivalence_proof.py` | Core mathematical proof (93.2% distinctness) |
+| `verify_breakthrough.py` | Automated verification script |
+| `RFT_MATHEMATICAL_VERIFICATION.md` | Complete mathematical documentation |
+| `rft_research_paper.tex` | Publication-ready research paper |
+| `enhanced_rft_crypto.cpp` | C++ crypto engine implementation |
+| `wrappers/enhanced_v2_wrapper.py` | Python AEAD-style crypto wrapper |
+| `test_v2_comprehensive.py` | Comprehensive test suite |
+
+## IMPORTANT: NO CONFUSION SECTION
 
 ### WHAT IS DEFINITIVELY PROVEN:
 1. **RFT Transform Family**: 93.2% distinctness from all classical transforms
