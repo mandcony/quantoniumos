@@ -1,4 +1,4 @@
-""""""
+"""
 QuantoniumOS - Resonance Metrics
 
 This module implements the Resonance Metrics for QuantoniumOS:
@@ -8,7 +8,7 @@ This module implements the Resonance Metrics for QuantoniumOS:
 - 64-Perturbation Benchmark (reproducible avalanche tests)
 
 All proprietary algorithms are securely delegated to the core engine.
-""""""
+"""
 
 import os
 import csv
@@ -24,7 +24,7 @@ from encryption.resonance_encrypt import encrypt_symbolic
 logger = logging.getLogger("quantonium_api.metrics")
 
 def compute_rft(payload: str) -> Dict[str, Any]:
-    """"""
+    """
     Compute the Resonance Fourier Transform for input payload
 
     Args:
@@ -32,7 +32,7 @@ def compute_rft(payload: str) -> Dict[str, Any]:
 
     Returns:
         Dictionary with RFT bins, harmonic ratio, and metrics
-    """"""
+    """
     try:
         # Convert payload string to bytes for core engine
         if isinstance(payload, str):
@@ -90,7 +90,7 @@ def compute_rft(payload: str) -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Error computing RFT: {str(e)}")
-        # In production, we don't want to expose internal errors if os.environ.get("FASTAPI_ENV") == "development": raise # Return a minimal result indicating failure return { "rft": None, "hr": 0.0, "error": "Failed to compute RFT" } def compute_avalanche(plaintext: str, key: str, perturbation_count: int = 64) -> List[Dict[str, Any]]: """""" Compute the Symbolic Avalanche metric for a given plaintext/key pair This measures how small changes in input produce large changes in output, a key property of cryptographic algorithms. Args: plaintext: Original plaintext (hex) key: Original key (hex) perturbation_count: Number of perturbations to test (default: 64) Returns: List of dictionaries containing test results for each perturbation """""" results = [] # First, encrypt the original plaintext/key pair to get baseline baseline = encrypt_symbolic(plaintext, key) baseline_hr = baseline["hr"] baseline_wc = baseline["wc"] # Helper to flip a bit at position def flip_bit(hex_str: str, bit_pos: int) -> str: # Convert to binary bin_str = bin(int(hex_str, 16))[2:].zfill(len(hex_str) * 4) # Flip the bit bin_list = list(bin_str) bin_list[bit_pos] = '1' if bin_list[bit_pos] == '0' else '0' # Convert back to hex return hex(int(''.join(bin_list), 2))[2:].zfill(len(hex_str)) # Test perturbations for i in range(min(perturbation_count, 128)): # Max 128 bits in each input (plaintext/key) # Determine if we're perturbing plaintext or key
+        # In production, we don't want to expose internal errors if os.environ.get("FASTAPI_ENV") == "development": raise # Return a minimal result indicating failure return { "rft": None, "hr": 0.0, "error": "Failed to compute RFT" } def compute_avalanche(plaintext: str, key: str, perturbation_count: int = 64) -> List[Dict[str, Any]]: """ Compute the Symbolic Avalanche metric for a given plaintext/key pair This measures how small changes in input produce large changes in output, a key property of cryptographic algorithms. Args: plaintext: Original plaintext (hex) key: Original key (hex) perturbation_count: Number of perturbations to test (default: 64) Returns: List of dictionaries containing test results for each perturbation """ results = [] # First, encrypt the original plaintext/key pair to get baseline baseline = encrypt_symbolic(plaintext, key) baseline_hr = baseline["hr"] baseline_wc = baseline["wc"] # Helper to flip a bit at position def flip_bit(hex_str: str, bit_pos: int) -> str: # Convert to binary bin_str = bin(int(hex_str, 16))[2:].zfill(len(hex_str) * 4) # Flip the bit bin_list = list(bin_str) bin_list[bit_pos] = '1' if bin_list[bit_pos] == '0' else '0' # Convert back to hex return hex(int(''.join(bin_list), 2))[2:].zfill(len(hex_str)) # Test perturbations for i in range(min(perturbation_count, 128)): # Max 128 bits in each input (plaintext/key) # Determine if we're perturbing plaintext or key
         if i < 64:
             # Perturb plaintext
             perturbed_pt = flip_bit(plaintext, i)
@@ -128,7 +128,7 @@ def compute_rft(payload: str) -> Dict[str, Any]:
     return results
 
 def calculate_waveform_coherence(waveform1: List[float], waveform2: List[float]) -> float:
-    """"""
+    """
     Calculate the Waveform Coherence between two waveforms
 
     This measures the similarity between two waveforms based on their
@@ -140,7 +140,7 @@ def calculate_waveform_coherence(waveform1: List[float], waveform2: List[float])
 
     Returns:
         Coherence value between 0.0 and 1.0
-    """"""
+    """
     # Ensure equal length
     min_len = min(len(waveform1), len(waveform2))
     wf1 = waveform1[:min_len]
@@ -166,7 +166,7 @@ def calculate_waveform_coherence(waveform1: List[float], waveform2: List[float])
 BITS = 128
 
 def _flip_bit(hex_str: str, bit_pos: int) -> str:
-    """"""
+    """
     Flips a specific bit in a hex string
 
     Args:
@@ -175,14 +175,14 @@ def _flip_bit(hex_str: str, bit_pos: int) -> str:
 
     Returns:
         Modified hex string
-    """"""
+    """
     b = bytearray.fromhex(hex_str)
     byte_i, offset = divmod(bit_pos, 8)
     b[byte_i] ^= 1 << (7-offset)
     return b.hex()
 
 def run_symbolic_benchmark(base_pt: str, base_key: str) -> Tuple[str, Dict[str, Any]]:
-    """"""
+    """
     Executes the 64-vector avalanche test on the server side
 
     Args:
@@ -191,10 +191,10 @@ def run_symbolic_benchmark(base_pt: str, base_key: str) -> Tuple[str, Dict[str, 
 
     Returns:
         Tuple of (csv_path, summary_dict)
-    """"""
+    """
     # Ensure inputs are valid hex (32 chars)
     def validate_hex(input_str: str, default: str = None) -> str:
-        """"""Validate and fix hex input""""""
+        """Validate and fix hex input"""
         if not input_str:
             return default or "0" * 32
 

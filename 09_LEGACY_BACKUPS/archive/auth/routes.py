@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - Auth API Routes
 
 API endpoints for key management and authentication.
-""""""
+"""
 
 from flask import Blueprint, request, jsonify
 from auth.models import APIKey, APIKeyAuditLog
@@ -63,12 +63,12 @@ class TokenResponse(BaseModel):
 
 @auth_api.route("/token", methods=["POST"])
 def create_token():
-    """"""
+    """
     Create a JWT token from an API key
 
     This allows clients to get a short-lived token for subsequent
     requests without sending the API key each time.
-    """"""
+    """
     # Get the API key from header
     api_key = request.headers.get("X-API-Key")
 
@@ -114,9 +114,9 @@ def create_token():
 @require_jwt_auth
 @require_admin
 def list_keys():
-    """"""
+    """
     List all API keys (admin only)
-    """"""
+    """
     # Get all keys
     keys = APIKey.query.all()
 
@@ -143,9 +143,9 @@ def list_keys():
 @require_jwt_auth
 @require_admin
 def create_key():
-    """"""
+    """
     Create a new API key (admin only)
-    """"""
+    """
     # Parse and validate request
     data = CreateKeyRequest(**request.get_json())
 
@@ -197,9 +197,9 @@ def create_key():
 @require_jwt_auth
 @require_admin
 def revoke_key(key_id):
-    """"""
+    """
     Revoke an API key (admin only)
-    """"""
+    """
     # Find the key
     key = APIKey.query.filter_by(key_id=key_id).first()
 
@@ -247,11 +247,11 @@ def revoke_key(key_id):
 @require_jwt_auth
 @require_admin
 def rotate_key(key_id):
-    """"""
+    """
     Rotate an API key (admin only)
 
     Creates a new key with the same permissions, deactivates the old one.
-    """"""
+    """
     # Find the key
     key = APIKey.query.filter_by(key_id=key_id).first()
 
@@ -302,9 +302,9 @@ def rotate_key(key_id):
 @auth_api.route("/profile", methods=["GET"])
 @require_jwt_auth
 def get_profile():
-    """"""
+    """
     Get the profile of the current API key
-    """"""
+    """
     key = get_current_api_key()
 
     return jsonify({

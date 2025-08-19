@@ -1,10 +1,10 @@
-""""""
+"""
 QuantoniumOS - Engine Core Python Bindings
 
 This module provides Python bindings to the proprietary C++ engine.
 It securely wraps the C++ engine functionality, preventing direct
 access to the proprietary algorithms from frontend components.
-""""""
+"""
 
 import os
 import ctypes
@@ -49,7 +49,7 @@ _pybind_lib = None
 _initialized = False
 
 def _try_pybind11():
-    """"""Try to load PyBind11 module first""""""
+    """Try to load PyBind11 module first"""
     global _pybind_lib
     try:
         import engine_core_pybind
@@ -64,7 +64,7 @@ def _try_pybind11():
         return False
 
 def _load_library() -> Optional[ctypes.CDLL]:
-    """"""Attempt to load the engine core library""""""
+    """Attempt to load the engine core library"""
     global _lib
 
     if _lib is not None:
@@ -137,7 +137,7 @@ def _load_library() -> Optional[ctypes.CDLL]:
     return None
 
 def _setup_function_signatures(lib):
-    """"""Set up the function signatures for the C++ library""""""
+    """Set up the function signatures for the C++ library"""
     # engine_init
     lib.engine_init.argtypes = []
     lib.engine_init.restype = c_int
@@ -215,12 +215,12 @@ def _setup_function_signatures(lib):
     lib.rft_operator_apply.restype = c_int
 
 def initialize() -> bool:
-    """"""
+    """
     Initialize the engine core.
 
     Returns:
         True if initialization was successful, False otherwise
-    """"""
+    """
     global _initialized
 
     if _initialized:
@@ -255,7 +255,7 @@ def initialize() -> bool:
     return True
 
 def finalize():
-    """"""Clean up the engine core""""""
+    """Clean up the engine core"""
     global _initialized
 
     if not _initialized:
@@ -275,7 +275,7 @@ def finalize():
     _initialized = False
 
 def rft_run(data: bytes) -> Tuple[List[float], float]:
-    """"""
+    """
     Run Resonance Fourier Transform on input data.
 
     Args:
@@ -283,7 +283,7 @@ def rft_run(data: bytes) -> Tuple[List[float], float]:
 
     Returns:
         Tuple of (frequency_bins, harmonic_resonance)
-    """"""
+    """
     if not _initialized:
         initialize()
 
@@ -317,11 +317,11 @@ def rft_basis_forward(
     gamma: float = 0.3,
     sequence_type: str = "qpsk",  # Updated default to match specification
 ) -> Tuple[List[float], List[float]]:
-    """"""Spec-compliant basis RFT forward X = Psi^Hx. Returns (real, imag).
+    """Spec-compliant basis RFT forward X = Psi^Hx. Returns (real, imag).
 
     Inputs must be real-valued signal x. If library unavailable, falls back to
     a numerical eigendecomposition path (requires numpy) or a trivial DFT.
-    """"""
+    """
     if not _initialized:
         initialize()
 
@@ -389,7 +389,7 @@ def rft_basis_inverse(
     gamma: float = 0.3,
     sequence_type: str = "qpsk",  # Updated default to match specification
 ) -> List[float]:
-    """"""Spec-compliant basis inverse x = Psi X. Returns real signal list.""""""
+    """Spec-compliant basis inverse x = Psi X. Returns real signal list."""
     if not _initialized:
         initialize()
 
@@ -453,7 +453,7 @@ def rft_operator_apply(
     gamma: float = 0.3,
     sequence_type: str = "golden_ratio",
 ) -> Tuple[List[float], List[float]]:
-    """"""Apply resonance operator R to complex signal x. Returns (real, imag).""""""
+    """Apply resonance operator R to complex signal x. Returns (real, imag)."""
     if not _initialized:
         initialize()
 
@@ -496,7 +496,7 @@ def rft_operator_apply(
     return xr[:], xi[:]
 
 def _fallback_rft(data: bytes) -> Tuple[List[float], float]:
-    """"""Fallback Python implementation of RFT""""""
+    """Fallback Python implementation of RFT"""
     # Simple FFT-like operation
     bins = []
     for i in range(64):  # 64 frequency bins
@@ -519,7 +519,7 @@ def _fallback_rft(data: bytes) -> Tuple[List[float], float]:
     return bins, hr
 
 def sa_compute(data: bytes) -> List[float]:
-    """"""
+    """
     Compute Symbolic Alignment vector.
 
     Args:
@@ -527,7 +527,7 @@ def sa_compute(data: bytes) -> List[float]:
 
     Returns:
         Symbolic Alignment vector values
-    """"""
+    """
     if not _initialized:
         initialize()
 
@@ -552,7 +552,7 @@ def sa_compute(data: bytes) -> List[float]:
     return _fallback_sa(data)
 
 def _fallback_sa(data: bytes) -> List[float]:
-    """"""Fallback Python implementation of Symbolic Alignment""""""
+    """Fallback Python implementation of Symbolic Alignment"""
     values = []
     sa_length = 32
 
@@ -569,7 +569,7 @@ def _fallback_sa(data: bytes) -> List[float]:
     return values
 
 def wave_hash(data: bytes) -> str:
-    """"""
+    """
     Generate a wave hash for the input data.
 
     Args:
@@ -577,7 +577,7 @@ def wave_hash(data: bytes) -> str:
 
     Returns:
         64-character hex hash
-    """"""
+    """
     if not _initialized:
         initialize()
 
@@ -599,7 +599,7 @@ def wave_hash(data: bytes) -> str:
     return _fallback_hash(data)
 
 def _fallback_hash(data: bytes) -> str:
-    """"""Fallback Python implementation of wave hash""""""
+    """Fallback Python implementation of wave hash"""
     # Get a SHA-256 hash
     base_hash = hashlib.sha256(data).hexdigest()
 
@@ -630,7 +630,7 @@ def _fallback_hash(data: bytes) -> str:
     return ''.join(f'{b:02x}' for b in result[:32])
 
 def symbolic_xor(plaintext: bytes, key: bytes) -> bytes:
-    """"""
+    """
     Encrypt data using symbolic XOR.
 
     Args:
@@ -639,7 +639,7 @@ def symbolic_xor(plaintext: bytes, key: bytes) -> bytes:
 
     Returns:
         Encrypted data
-    """"""
+    """
     if not _initialized:
         initialize()
 
@@ -671,7 +671,7 @@ def symbolic_xor(plaintext: bytes, key: bytes) -> bytes:
     return _fallback_xor(plaintext, key)
 
 def _fallback_xor(plaintext: bytes, key: bytes) -> bytes:
-    """"""Fallback Python implementation of symbolic XOR""""""
+    """Fallback Python implementation of symbolic XOR"""
     result = bytearray()
 
     for i in range(len(plaintext)):
@@ -693,7 +693,7 @@ def _fallback_xor(plaintext: bytes, key: bytes) -> bytes:
     return bytes(result)
 
 def generate_entropy(length: int) -> bytes:
-    """"""
+    """
     Generate quantum-inspired entropy.
 
     Args:
@@ -701,7 +701,7 @@ def generate_entropy(length: int) -> bytes:
 
     Returns:
         Random bytes
-    """"""
+    """
     if not _initialized:
         initialize()
 
@@ -727,7 +727,7 @@ def generate_entropy(length: int) -> bytes:
     return _fallback_entropy(length)
 
 def _fallback_entropy(length: int) -> bytes:
-    """"""Fallback Python implementation of entropy generation""""""
+    """Fallback Python implementation of entropy generation"""
     import random
 
     # Mix in some system entropy sources
@@ -745,7 +745,7 @@ def _fallback_entropy(length: int) -> bytes:
     return bytes(rng.randint(0, 255) for _ in range(length))
 
 def symbolic_eigenvector_reduction(waves: List[WaveNumber], threshold: float) -> List[WaveNumber]:
-    """"""
+    """
     Apply symbolic eigenvector reduction to a list of waves.
 
     Args:
@@ -754,7 +754,7 @@ def symbolic_eigenvector_reduction(waves: List[WaveNumber], threshold: float) ->
 
     Returns:
         Filtered list of WaveNumber objects
-    """"""
+    """
     if not _initialized:
         initialize()
 
@@ -789,7 +789,7 @@ def symbolic_eigenvector_reduction(waves: List[WaveNumber], threshold: float) ->
     return _fallback_eigenvector_reduction(waves, threshold)
 
 def _fallback_eigenvector_reduction(waves: List[WaveNumber], threshold: float) -> List[WaveNumber]:
-    """"""Fallback Python implementation of symbolic eigenvector reduction""""""
+    """Fallback Python implementation of symbolic eigenvector reduction"""
     filtered = []
     merged_amp = 0.0
     merged_phase = 0.0

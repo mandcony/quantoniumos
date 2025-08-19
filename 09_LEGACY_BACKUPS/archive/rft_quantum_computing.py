@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 RFT-Based Quantum Computing Implementation This module implements quantum computing directly in the RFT (Resonance Fourier Transform) basis, providing two approaches: A) Basis-hop: Apply gates in computational basis, transform in/out of RFT B) Local conjugation: Pre-compute conjugated gates for direct RFT application Key advantages: 1. Quantum operations in natural resonance frequency space 2. Enhanced coherence through RFT's unitary structure 3. Potential speedups for quantum algorithms using resonance properties 4. Integration with QuantoniumOS's development RFT cryptographic system
 """
 """
@@ -33,7 +33,7 @@ class RFTQuantumComputer:
     HIGH-PERFORMANCE RFT Quantum Computer with Pre-Conjugated Gates SURGICAL FIXES APPLIED: 1. Pre-conjugate entire gate set once at init -> zero B/B⁻¹ per gate 2. All measurements in consistent (computational) basis 3. Fast conjugated gate cache with id-based lookup 4. Separate RFT/computational coherence metrics Performance: ~100× faster than basis-hop approach
 """
 """
-    def __init__(self, num_qubits: int, rft_params: Dict = None, approach: str = "fast_conjugated"): """""" Initialize high-performance RFT quantum computer Args: num_qubits: Number of qubits to simulate rft_params: Parameters for RFT construction (optional) approach: "fast_conjugated" (default), "basis_hop", or "local_conjugation" """"""
+    def __init__(self, num_qubits: int, rft_params: Dict = None, approach: str = "fast_conjugated"): """ Initialize high-performance RFT quantum computer Args: num_qubits: Number of qubits to simulate rft_params: Parameters for RFT construction (optional) approach: "fast_conjugated" (default), "basis_hop", or "local_conjugation" """
         self.num_qubits = num_qubits
         self.state_size = 2 ** num_qubits
         self.approach = approach
@@ -85,7 +85,7 @@ class RFTQuantumComputer:
 
         # Entanglement tracking
         self.entanglement_map = {}
-    def _precompute_conjugated_gates(self): """"""
+    def _precompute_conjugated_gates(self): """
         PRE-COMPUTE all conjugated gates once at initialization This eliminates the B/B⁻¹ bottleneck by paying the conjugation cost only once instead of per gate application.
 """
 """
@@ -120,7 +120,7 @@ class RFTQuantumComputer:
         self._conjugated_gates[key] = B_tensor @ CNOT @ np.conj(B_tensor.T)
         print(f"Pre-conjugated {len(
         self._conjugated_gates)} gate variants.")
-    def _default_rft_params(self) -> Dict: """"""
+    def _default_rft_params(self) -> Dict: """
         Generate default RFT parameters optimized for quantum computing
 """
 """
@@ -151,7 +151,7 @@ class RFTQuantumComputer:
 
         # If not sufficiently unitary, use polar decomposition Q, H = scipy.linalg.polar(B) B = Q
         return B
-    def _construct_single_qubit_rft_basis(self, qubit: int) -> np.ndarray: """"""
+    def _construct_single_qubit_rft_basis(self, qubit: int) -> np.ndarray: """
         Construct 2×2 unitary basis for a single qubit (for approach B) Args: qubit: Index of the qubit Returns: 2×2 unitary matrix B_1^(qubit)
 """
 """
@@ -185,7 +185,7 @@ class RFTQuantumComputer:
         self.gate_count = 0
         self.entanglement_map = {}
         self.operation_times = {}
-    def get_computational_state(self) -> np.ndarray: """"""
+    def get_computational_state(self) -> np.ndarray: """
         Get current state in computational basis (ALWAYS consistent basis for measurements)
 """
 """
@@ -197,7 +197,7 @@ class RFTQuantumComputer:
         else:
         return
         self.state_computational.copy()
-    def get_rft_state(self) -> np.ndarray: """"""
+    def get_rft_state(self) -> np.ndarray: """
         Get current state in RFT basis (for analysis only)
 """
 """
@@ -215,7 +215,7 @@ class RFTQuantumComputer:
         return
         self.rft_basis_matrix @
         self.state_computational
-    def set_computational_state(self, comp_state: np.ndarray): """"""
+    def set_computational_state(self, comp_state: np.ndarray): """
         Set state from computational basis vector
 """
         """ comp_state = np.asarray(comp_state, dtype=complex)
@@ -239,7 +239,7 @@ class RFTQuantumComputer:
         # Mark as out-of-sync # ===
 
         # APPROACH C: FAST PRE-CONJUGATED GATES (THE PERFORMANCE FIX) # ===
-    def apply_gate_fast_conjugated(self, gate_name: str, qubits: List[int], gate_matrix: np.ndarray = None): """"""
+    def apply_gate_fast_conjugated(self, gate_name: str, qubits: List[int], gate_matrix: np.ndarray = None): """
         Apply pre-conjugated gate with ZERO basis transformation overhead This is the surgical fix for the ~100× slowdown. Gates are pre-conjugated once at init, then applied directly without any B/B⁻¹ multiplications. Args: gate_name: Name of the gate ('H', 'X', 'CNOT', etc.) qubits: List of qubit indices gate_matrix: Custom gate matrix (will be conjugated on-the-fly)
 """
         """ start_time = time.time()
@@ -292,7 +292,7 @@ class RFTQuantumComputer:
         self.operation_times[gate_name_stats].append(time.time() - start_time) # ===
 
         # APPROACH A: BASIS-HOP IMPLEMENTATION (SLOW - for comparison only) # ===
-    def apply_gate_basis_hop(self, gate: np.ndarray, qubits: List[int]): """"""
+    def apply_gate_basis_hop(self, gate: np.ndarray, qubits: List[int]): """
         Apply quantum gate using basis-hop approach 1. Convert psi_rft -> psi_std (computational basis) 2. Apply gate: psi_std' = G psi_std 3. Convert back: psi_rft' = B psi_std' Args: gate: Gate matrix (2^k × 2^k for k-qubit gate) qubits: List of qubit indices the gate acts on
 """
         """ start_time = time.time()
@@ -320,7 +320,7 @@ class RFTQuantumComputer:
         self.operation_times:
         self.operation_times[gate_name] = []
         self.operation_times[gate_name].append(time.time() - start_time)
-    def _apply_single_qubit_gate_inplace(self, state: np.ndarray, gate: np.ndarray, qubit: int) -> np.ndarray: """"""
+    def _apply_single_qubit_gate_inplace(self, state: np.ndarray, gate: np.ndarray, qubit: int) -> np.ndarray: """
         Apply single-qubit gate in-place (computational basis) - FIXED bit ordering
 """
 """
@@ -404,7 +404,7 @@ class RFTQuantumComputer:
         self.operation_times:
         self.operation_times[gate_name] = []
         self.operation_times[gate_name].append(time.time() - start_time)
-    def _get_conjugated_single_qubit_gate(self, gate: np.ndarray, qubit: int) -> np.ndarray: """"""
+    def _get_conjugated_single_qubit_gate(self, gate: np.ndarray, qubit: int) -> np.ndarray: """
         Compute conjugated single-qubit gate: G̃ = B_1 G B_1^dagger Args: gate: 2×2 gate matrix qubit: Target qubit index Returns: 2×2 conjugated gate matrix
 """
         """ cache_key = (id(gate), qubit, "1q")
@@ -421,7 +421,7 @@ class RFTQuantumComputer:
         # Cache result
         self._conjugated_gates_cache[cache_key] = conjugated_gate
         return conjugated_gate
-    def _get_conjugated_two_qubit_gate(self, gate: np.ndarray, qubit1: int, qubit2: int) -> np.ndarray: """"""
+    def _get_conjugated_two_qubit_gate(self, gate: np.ndarray, qubit1: int, qubit2: int) -> np.ndarray: """
         Compute conjugated two-qubit gate: G̃ = (B_1^(c) tensor B_1^(t)) G (B_1^(c) tensor B_1^(t))^dagger Args: gate: 4×4 gate matrix qubit1: First qubit index qubit2: Second qubit index Returns: 4×4 conjugated gate matrix
 """
         """ cache_key = (id(gate), min(qubit1, qubit2), max(qubit1, qubit2), "2q")
@@ -443,38 +443,38 @@ class RFTQuantumComputer:
         return conjugated_gate # ===
 
         # HIGH-LEVEL QUANTUM GATE INTERFACE - AUTOMATICALLY USES OPTIMAL APPROACH # ===
-    def apply_hadamard(self, qubit: int): """"""
+    def apply_hadamard(self, qubit: int): """
         Apply Hadamard gate using optimal approach
         for this instance
 """
 """
         self._apply_gate_optimal("H", [qubit], HADAMARD)
-    def apply_x(self, qubit: int): """"""
+    def apply_x(self, qubit: int): """
         Apply Pauli-X gate using optimal approach
 """
 """
         self._apply_gate_optimal("X", [qubit], PAULI_X)
-    def apply_y(self, qubit: int): """"""
+    def apply_y(self, qubit: int): """
         Apply Pauli-Y gate using optimal approach
 """
 """
         self._apply_gate_optimal("Y", [qubit], PAULI_Y)
-    def apply_z(self, qubit: int): """"""
+    def apply_z(self, qubit: int): """
         Apply Pauli-Z gate using optimal approach
 """
 """
         self._apply_gate_optimal("Z", [qubit], PAULI_Z)
-    def apply_s(self, qubit: int): """"""
+    def apply_s(self, qubit: int): """
         Apply S gate (phase) using optimal approach
 """
 """
         self._apply_gate_optimal("S", [qubit], PHASE_S)
-    def apply_t(self, qubit: int): """"""
+    def apply_t(self, qubit: int): """
         Apply T gate using optimal approach
 """
 """
         self._apply_gate_optimal("T", [qubit], PHASE_T)
-    def apply_cnot(self, control: int, target: int): """"""
+    def apply_cnot(self, control: int, target: int): """
         Apply CNOT gate using optimal approach
 """
 """
@@ -489,22 +489,22 @@ class RFTQuantumComputer:
         self.entanglement_map[control].add(target)
         self.entanglement_map[target].add(control)
         self._apply_gate_optimal("CNOT", [control, target], CNOT)
-    def apply_rotation_x(self, qubit: int, angle: float): """"""
+    def apply_rotation_x(self, qubit: int, angle: float): """
         Apply rotation around X axis using optimal approach
 """
         """ cos_half = np.cos(angle / 2) sin_half = np.sin(angle / 2) rx = np.array([ [cos_half, -1j * sin_half], [-1j * sin_half, cos_half] ], dtype=complex)
         self._apply_gate_optimal("RX", [qubit], rx)
-    def apply_rotation_y(self, qubit: int, angle: float): """"""
+    def apply_rotation_y(self, qubit: int, angle: float): """
         Apply rotation around Y axis using optimal approach
 """
         """ cos_half = np.cos(angle / 2) sin_half = np.sin(angle / 2) ry = np.array([ [cos_half, -sin_half], [sin_half, cos_half] ], dtype=complex)
         self._apply_gate_optimal("RY", [qubit], ry)
-    def apply_rotation_z(self, qubit: int, angle: float): """"""
+    def apply_rotation_z(self, qubit: int, angle: float): """
         Apply rotation around Z axis using optimal approach
 """
         """ exp_neg = np.exp(-1j * angle / 2) exp_pos = np.exp(1j * angle / 2) rz = np.array([ [exp_neg, 0], [0, exp_pos] ], dtype=complex)
         self._apply_gate_optimal("RZ", [qubit], rz)
-    def _apply_gate_optimal(self, gate_name: str, qubits: List[int], gate_matrix: np.ndarray): """"""
+    def _apply_gate_optimal(self, gate_name: str, qubits: List[int], gate_matrix: np.ndarray): """
         Apply gate using the optimal approach
         for this instance
 """
@@ -526,7 +526,7 @@ class RFTQuantumComputer:
         self.approach}") # ===
 
         # MEASUREMENT AND ANALYSIS # ===
-    def measure_all(self) -> str: """"""
+    def measure_all(self) -> str: """
         Measure all qubits in computational basis
 """
 """
@@ -672,7 +672,7 @@ class RFTQuantumComputer:
         return results # ===
 
         # DEMONSTRATION AND TESTING FUNCTIONS # ===
-    def demo_bell_state_rft(): """"""
+    def demo_bell_state_rft(): """
         Demonstrate Bell state creation in RFT basis with performance fix
 """
 """
@@ -701,7 +701,7 @@ class RFTQuantumComputer:
         # Show speedup if "fast_conjugated_total_time" in results and "basis_hop_total_time" in results: fast_time = results["fast_conjugated_total_time"] slow_time = results["basis_hop_total_time"] speedup = slow_time / fast_time
         if fast_time > 0 else float('inf')
         print(f"\nSPEEDUP: {speedup:.1f}× faster with pre-conjugated gates!")
-    def demo_quantum_fourier_transform_rft(): """"""
+    def demo_quantum_fourier_transform_rft(): """
         Demonstrate Quantum Fourier Transform in RFT basis with performance fix
 """
 """
@@ -733,7 +733,7 @@ class RFTQuantumComputer:
         print("Top probability amplitudes:") for state, prob in sorted_probs[:4]:
         if prob > 1e-6:
         print(f" |||{state}>: {prob:.4f}")
-    def demo_performance_comparison(): """"""
+    def demo_performance_comparison(): """
         Compare performance with surgical fixes applied
 """
 """
@@ -773,7 +773,7 @@ class RFTQuantumComputer:
 
         # Estimate speedup (we know it's ~100× from the analysis)
         print(f" -> Estimated speedup: ~100× (basis transformation eliminated)")
-    def main(): """"""
+    def main(): """
         Run comprehensive RFT quantum computing demonstration with performance fixes
 """
 """

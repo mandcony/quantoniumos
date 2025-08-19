@@ -1,1 +1,1 @@
-""""""QuantoniumOS security package.""""""
+"""QuantoniumOS security package."""

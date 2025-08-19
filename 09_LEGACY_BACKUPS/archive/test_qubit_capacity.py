@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Quantum Simulator Capacity Test with RFT Integration This test determines the maximum number of qubits that can be accurately simulated in the current environment by measuring memory usage, computation time, and numerical precision. Now includes RFT-based quantum computing capabilities.
 """
 """
@@ -20,7 +20,7 @@ try: from rft_quantum_computing
 import RFTQuantumComputer HAS_RFT_QUANTUM = True
 except ImportError: HAS_RFT_QUANTUM = False
 print("Warning: RFT quantum computing not available")
-def get_memory_usage() -> float: """"""
+def get_memory_usage() -> float: """
         Get current memory usage in MB
 """
 """
@@ -103,7 +103,7 @@ def test_qubit_capacity(max_qubits: int = 20, include_rft: bool = True) -> Dict[
         print(f"⚠️ Memory usage high ({memory_used:.1f}MB), stopping test") break except Exception as e: results[n_qubits] = { 'success': False, 'error': str(e), 'memory_used_mb': get_memory_usage() - memory_before }
         print(f"✗ Error: {str(e)}") break
         return results
-def analyze_results(results: Dict) -> None: """"""
+def analyze_results(results: Dict) -> None: """
         Analyze and display test results
 """
 """
@@ -162,7 +162,7 @@ def analyze_results(results: Dict) -> None: """"""
         print(" ✅ Good for educational/research purposes")
         else:
         print(" 📚 Suitable for basic quantum algorithm testing")
-def test_specific_quantum_algorithms(max_qubits: int) -> None: """"""
+def test_specific_quantum_algorithms(max_qubits: int) -> None: """
         Test specific quantum algorithms to verify practical capability
 """
 """

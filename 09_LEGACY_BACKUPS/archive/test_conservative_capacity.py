@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Conservative Qubit Capacity Test Tests qubit capacity with careful memory monitoring and early termination to avoid system overload.
 """
 """
@@ -63,7 +63,7 @@ def safe_test_qubits(n_qubits: int, memory_limit_mb: float = 500) -> Dict:
         print(f" ✅ Success: {total_time:.3f}s, {total_memory_used:.1f}MB actual vs {theoretical_memory_mb:.1f}MB theoretical")
         return result except Exception as e: memory_after = get_memory_usage()
         return { 'success': False, 'n_qubits': n_qubits, 'state_size': 2**n_qubits, 'memory_used': memory_after - memory_before, 'error': str(e) }
-def determine_capacity(): """"""
+def determine_capacity(): """
         Determine actual qubit capacity with conservative approach
 """
 """

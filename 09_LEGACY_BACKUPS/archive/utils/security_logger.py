@@ -1,10 +1,10 @@
-""""""
+"""
 Quantonium OS - Security Logging Utilities - NIST Compliant
 
 This module provides enhanced security logging capabilities that track
 security-related events with detailed contextual information, following
 NIST SP 800-53 Rev. 5 audit and accountability controls (AU family).
-""""""
+"""
 
 import logging
 import json
@@ -62,7 +62,7 @@ except Exception as e:
 
 # Security event types for categorization (aligned with NIST SP 800-53)
 class SecurityEventType(str, Enum):
-    """"""Enumeration of security event types based on NIST categories""""""
+    """Enumeration of security event types based on NIST categories"""
     AUTHENTICATION = "authentication"  # AU-14, IA-2
     AUTHORIZATION = "authorization"    # AC-3
     ACCESS_DENIED = "access_denied"    # AC-7
@@ -79,7 +79,7 @@ class SecurityEventType(str, Enum):
 
 # Outcome types
 class SecurityOutcome(str, Enum):
-    """"""Enumeration of security event outcomes""""""
+    """Enumeration of security event outcomes"""
     SUCCESS = "success"
     FAILURE = "failure"
     BLOCKED = "blocked"
@@ -90,19 +90,19 @@ class SecurityOutcome(str, Enum):
 
 # NIST Impact Levels
 class ImpactLevel(str, Enum):
-    """"""NIST FIPS 199 impact levels""""""
+    """NIST FIPS 199 impact levels"""
     LOW = "low"
     MODERATE = "moderate"
     HIGH = "high"
 
 def get_system_info() -> Dict[str, str]:
-    """"""
+    """
     Get basic system information for contextual logging.
     Does not include sensitive information.
 
     Returns:
         Dictionary with basic system information
-    """"""
+    """
     return {
         "hostname": socket.gethostname(),
         "platform": platform.system(),
@@ -111,12 +111,12 @@ def get_system_info() -> Dict[str, str]:
     }
 
 def generate_event_id() -> str:
-    """"""
+    """
     Generate a unique event ID for correlation.
 
     Returns:
         Unique event ID
-    """"""
+    """
     # Combine current time with a random UUID
     timestamp = datetime.datetime.now().isoformat()
     random_component = str(uuid.uuid4())
@@ -139,7 +139,7 @@ def log_security_event(
     correlation_id: Optional[str] = None,
     include_stack_trace: bool = False
 ):
-    """"""
+    """
     Log a security event with enriched context following NIST guidelines.
 
     Args:
@@ -155,7 +155,7 @@ def log_security_event(
         source_ip: Source IP address for the event (if applicable)
         correlation_id: ID for correlating related events
         include_stack_trace: Whether to include stack trace for errors
-    """"""
+    """
     # Generate an event ID for correlation if not provided
     event_id = correlation_id or generate_event_id()
 
@@ -217,7 +217,7 @@ def log_security_event(
     return event_id
 
 def sanitize_sensitive_data(data: Dict[str, Any]) -> Dict[str, Any]:
-    """"""
+    """
     Sanitize potentially sensitive data from logs.
 
     Args:
@@ -225,7 +225,7 @@ def sanitize_sensitive_data(data: Dict[str, Any]) -> Dict[str, Any]:
 
     Returns:
         Sanitized dictionary
-    """"""
+    """
     sensitive_keys = [
         'password', 'token', 'secret', 'key', 'credential', 'auth',
         'apikey', 'api_key', 'private', 'ssn', 'creditcard', 'credit_card',
@@ -263,7 +263,7 @@ def log_rate_limit_exceeded(
     metadata: Optional[Dict[str, Any]] = None,
     user_id: Optional[str] = None
 ):
-    """"""
+    """
     Specialized method to log rate limit exceeded events for NIST AC-7.
 
     Args:
@@ -272,7 +272,7 @@ def log_rate_limit_exceeded(
         message: Optional custom message
         metadata: Additional metadata
         user_id: ID of the user (if known)
-    """"""
+    """
     if not message:
         message = f"Rate limit exceeded for {client_ip} on {resource}"
 
@@ -309,7 +309,7 @@ def log_suspicious_activity(
     user_id: Optional[str] = None,
     impact_level: ImpactLevel = ImpactLevel.MODERATE
 ):
-    """"""
+    """
     Log potentially suspicious activity for review per NIST SI-4.
 
     Args:
@@ -320,7 +320,7 @@ def log_suspicious_activity(
         metadata: Additional metadata
         user_id: ID of the user (if known)
         impact_level: NIST impact level of the suspicious activity
-    """"""
+    """
     if not metadata:
         metadata = {}
 
@@ -352,7 +352,7 @@ def log_audit_event(
     metadata: Optional[Dict[str, Any]] = None,
     client_ip: Optional[str] = None
 ):
-    """"""
+    """
     Log an audit event for compliance purposes per NIST AU-2.
 
     Args:
@@ -363,7 +363,7 @@ def log_audit_event(
         outcome: Outcome of the action
         metadata: Additional metadata
         client_ip: IP address of the client
-    """"""
+    """
     if not metadata:
         metadata = {}
 
@@ -392,7 +392,7 @@ def log_data_validation_failure(
     resource: Optional[str] = None,
     metadata: Optional[Dict[str, Any]] = None
 ):
-    """"""
+    """
     Log input validation failures per NIST SI-10.
 
     Args:
@@ -402,7 +402,7 @@ def log_data_validation_failure(
         client_ip: IP address of the client
         resource: Resource targeted by the input
         metadata: Additional metadata
-    """"""
+    """
     if not metadata:
         metadata = {}
 
@@ -428,7 +428,7 @@ def log_data_validation_failure(
 
 # Flask app setup function (compatibility with existing code)
 def setup_security_logger(app, log_dir="/tmp/logs", log_level=logging.INFO):
-    """"""
+    """
     Set up a security logger for the Flask application.
 
     This is a compatibility function for the existing application.
@@ -441,7 +441,7 @@ def setup_security_logger(app, log_dir="/tmp/logs", log_level=logging.INFO):
 
     Returns:
         The configured logger
-    """"""
+    """
     # Create the log directory if it doesn't exist os.makedirs(log_dir, exist_ok=True) # Add file handler for security log if not already added handler_exists = False for handler in logger.handlers: if isinstance(handler, logging.FileHandler) and handler.baseFilename.endswith("security.log"): handler_exists = True break if not handler_exists: try: # Add a dedicated security log file security_file = os.path.join(log_dir, "security.log") handler = logging.FileHandler(security_file) handler.setLevel(log_level) formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s') handler.setFormatter(formatter) logger.addHandler(handler) # Log initialization message logger.info("Security logger initialized") # Add security logging to the application if Flask is available if request is not None and hasattr(app, 'before_request'): @app.before_request def log_request_info(): # Skip logging for static files and assets if hasattr(request, 'path'): if request.path.startswith('/static/') or request.path.endswith(('.js', '.css', '.png', '.jpg', '.ico')): return # Log basic request info log_security_event( event_type=SecurityEventType.AUDIT, message=f"Request: {request.method} {request.path}", outcome=SecurityOutcome.UNKNOWN, level=logging.INFO, target_resource=request.path, metadata={ "method": request.method, "ip": request.remote_addr, "user_agent": request.headers.get('User-Agent', 'Unknown')
                             },
                             security_labels=["http-request"],

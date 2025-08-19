@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Non-linear Optimization Benchmark Tests RFT-guided optimization against standard methods on complex optimization problems with symbolic constraints.
 """
 """
@@ -40,7 +40,7 @@ class OptimizationBenchmark(ConfigurableBenchmark):
         else: dimensions = base_dimensions
         print(f"Testing dimensions: {dimensions}")
         print(f"Max iterations: {max_iterations}, Restarts: {num_restarts}")
-    def rosenbrock_with_resonance_constraint(x): """"""
+    def rosenbrock_with_resonance_constraint(x): """
         Rosenbrock function with symbolic resonance constraint
 """
         """ n = len(x) result = 0
@@ -109,7 +109,7 @@ class OptimizationBenchmark(ConfigurableBenchmark):
         print()
         self.results = results
         return results
-    def main(): """"""
+    def main(): """
         Run optimization benchmark with CLI arguments
 """
         """ parser = argparse.ArgumentParser(description="RFT Non-linear Optimization Benchmark") parser.add_argument("--dimensions", nargs='+', type=int, default=[10, 20, 50, 100], help="Problem dimensions to test") parser.add_argument("--max-iterations", type=int, default=1000, help="Maximum optimization iterations") parser.add_argument("--num-restarts", type=int, default=3, help="Number of restart attempts") parser.add_argument("--scale", choices=['small', 'medium', 'large', 'xlarge'], default='medium', help="Scale factor for test size") parser.add_argument("--output", type=str, default="optimization_benchmark_results.json", help="Output file for results") parser.add_argument("--random-seed", type=int, default=42, help="Random seed for reproducibility") args = parser.parse_args() config = { 'dimensions': args.dimensions, 'max_iterations': args.max_iterations, 'num_restarts': args.num_restarts, 'scale': args.scale, 'random_seed': args.random_seed } benchmark = OptimizationBenchmark(config) results = benchmark.run_benchmark()

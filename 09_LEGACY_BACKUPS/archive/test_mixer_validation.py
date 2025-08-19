@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 RFT Non-Diagonal Mixer Validation === This test specifically validates that the C(i) mixing matrices in the RFT formulation R = Sumᵢ wᵢ Dphiᵢ C(i) Dphiᵢdagger are truly non-diagonal, preventing collapse to per-bin scaling (DFT-adjacent behavior). Key Mathematical Insight: If any C(i) is diagonal, then: Dphiᵢ C(i) Dphiᵢdagger = Dphiᵢ diag(sigmaᵢ) Dphiᵢdagger = diag(sigmaᵢ) And the whole operator becomes: R = Sumᵢ wᵢ diag(sigmaᵢ) = diag(Sumᵢ wᵢ sigmaᵢ) This is just per-bin scaling, which is DFT-adjacent and not genuinely new. To prove true separation, we must show: 1. C(i) have significant off-diagonal structure 2. The resulting R operators don't collapse to diagonal form 3. Non-commutation persists even with realistic mixing constraints
 """
 """
@@ -46,7 +46,7 @@ def test_mixer_non_diagonal_requirement(N: int = 8) -> Dict:
         for result in mixer_results:
         if not result['is_essentially_diagonal']: min_strength_for_non_diagonal = result['mixing_strength'] break
         return { 'test_name': 'Mixer Non-Diagonal Requirement', 'size': N, 'mixer_analysis': mixer_results, 'min_strength_for_non_diagonal': min_strength_for_non_diagonal }
-def test_collapse_prevention(N: int = 8) -> Dict: """"""
+def test_collapse_prevention(N: int = 8) -> Dict: """
         Test that with proper non-diagonal mixers, we prevent collapse to per-bin scaling behavior.
 """
 """
@@ -63,12 +63,12 @@ def test_collapse_prevention(N: int = 8) -> Dict: """"""
         print(f" ||[R_diag, R_non_diag]||2: {commutator_norm:.6f}")
         print(f" Collapse prevented: {result['collapse_prevented']}")
         return result
-def test_realistic_mixer_constraints(N: int = 8) -> Dict: """"""
+def test_realistic_mixer_constraints(N: int = 8) -> Dict: """
         Test separation under realistic constraints on mixing matrices. In practice, C(i) might have physical constraints (e.g., locality, energy bounds) that limit how non-diagonal they can be.
 """
 """
         print(f"Testing realistic mixer constraints for N={N}...")
-def generate_constrained_mixer(N: int, locality: int, strength: float) -> np.ndarray: """"""
+def generate_constrained_mixer(N: int, locality: int, strength: float) -> np.ndarray: """
         Generate mixer with locality constraint (only k-local interactions)
 """
         """ np.random.seed(42) C = np.zeros((N, N), dtype=complex)
@@ -104,7 +104,7 @@ def generate_constrained_mixer(N: int, locality: int, strength: float) -> np.nda
         for result in locality_results:
         if result['proves_separation']: min_locality_for_separation = result['locality'] break
         return { 'test_name': 'Realistic Mixer Constraints', 'size': N, 'locality_analysis': locality_results, 'min_locality_for_separation': min_locality_for_separation }
-def test_canonical_rft_mixer_analysis() -> Dict: """"""
+def test_canonical_rft_mixer_analysis() -> Dict: """
         Analyze the actual mixing structure in the canonical RFT implementation to verify it satisfies non-diagonal requirements.
 """
 """
@@ -117,7 +117,7 @@ import get_rft_basis results = {}
         # Analyze its off-diagonal structure structure = measure_off_diagonal_strength(RFT_canonical) results[f'N_{N}'] = structure
         print(f" N={N}: off-diagonal ratio = {structure['off_diagonal_ratio']:.3f}, " f"essentially diagonal = {structure['is_essentially_diagonal']}")
         return { 'test_name': 'Canonical RFT Mixer Analysis', 'canonical_structure_analysis': results }
-def main(): """"""
+def main(): """
         Run comprehensive mixer validation tests.
 """
 """

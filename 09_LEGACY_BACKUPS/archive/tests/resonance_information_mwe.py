@@ -9,7 +9,7 @@ print("=========================================")
 
 # Define our own simplified RFT function for demonstration
 def simple_rft(waveform):
-    """"""Simplified Resonance Fourier Transform for demonstration""""""
+    """Simplified Resonance Fourier Transform for demonstration"""
     n = len(waveform)
     result = []
 

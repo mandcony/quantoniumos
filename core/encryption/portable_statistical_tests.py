@@ -1,6 +1,6 @@
-""""""
+"""
 Statistical test suite for QuantoniumOS encryption using built-in Python tools
-""""""
+"""
 
 import os
 import math
@@ -19,7 +19,7 @@ class StatisticalTester:
         os.makedirs(self.results_dir, exist_ok=True)
 
     def generate_test_data(self) -> bytes:
-        """"""Generate test data using our encryption""""""
+        """Generate test data using our encryption"""
         print(f"Generating {self.sample_size // 8 // 1024 // 1024}MB test data...")
 
         key = hashlib.sha256(str(time.time()).encode()).hexdigest()
@@ -37,7 +37,7 @@ class StatisticalTester:
         return bytes(data[:self.sample_size // 8])
 
     def monobit_test(self, data: bytes) -> Dict:
-        """"""Frequency (Monobit) Test""""""
+        """Frequency (Monobit) Test"""
         ones = sum(bin(b).count('1') for b in data)
         n = len(data) * 8
         s_obs = abs(ones - (n/2)) / math.sqrt(n/4)
@@ -54,7 +54,7 @@ class StatisticalTester:
         }
 
     def block_frequency_test(self, data: bytes, block_size: int = 128) -> Dict:
-        """"""Block Frequency Test""""""
+        """Block Frequency Test"""
         n = len(data) * 8
         num_blocks = n // block_size
         if num_blocks == 0:
@@ -83,7 +83,7 @@ class StatisticalTester:
         }
 
     def runs_test(self, data: bytes) -> Dict:
-        """"""Runs Test""""""
+        """Runs Test"""
         bits = ''.join(format(b, '08b') for b in data)
         n = len(bits)
 
@@ -120,7 +120,7 @@ class StatisticalTester:
         }
 
     def longest_run_ones_test(self, data: bytes) -> Dict:
-        """"""Longest Run of Ones Test""""""
+        """Longest Run of Ones Test"""
         bits = ''.join(format(b, '08b') for b in data)
         n = len(bits)
 
@@ -166,7 +166,7 @@ class StatisticalTester:
         }
 
     def run_all_tests(self, data: bytes) -> Dict[str, Dict]:
-        """"""Run all statistical tests""""""
+        """Run all statistical tests"""
         results = {}
 
         # Run tests
@@ -178,7 +178,7 @@ class StatisticalTester:
         return results
 
     def run_full_battery(self) -> Dict:
-        """"""Run complete test battery and save results""""""
+        """Run complete test battery and save results"""
         start_time = time.time()
 
         # Generate test data
@@ -204,7 +204,7 @@ class StatisticalTester:
         return final_results
 
 def print_results_summary(results: Dict):
-    """"""Print formatted summary of test results""""""
+    """Print formatted summary of test results"""
     print("\nStatistical Test Results")
     print("=" * 50)
 

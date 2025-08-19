@@ -1,4 +1,4 @@
-""""""
+"""
 Quantonium OS - Security Configuration Implements security middleware, headers, and protection mechanisms.
 """
 """
@@ -19,7 +19,7 @@ from utils.security_logger import ( log_security_event, SecurityEventType, Secur
 # Allow same-origin embedding }
 
 # Configure CORS
-def get_cors_origins(): """"""
+def get_cors_origins(): """
         Get allowed CORS origins from environment variable Returns list of allowed origins
 """
         """ origins_env = os.environ.get('CORS_ORIGINS', '')
@@ -42,7 +42,7 @@ def get_cors_origins(): """"""
         # Split by comma and strip whitespace
         return [origin.strip()
         for origin in origins_env.split(',')]
-def cors_check(): """"""
+def cors_check(): """
         Check
         if the request's Origin header is in the allowed list If not, abort with 403 Forbidden Exception: API endpoints and static resources are allowed from any origin.
 """
@@ -61,7 +61,7 @@ def cors_check(): """"""
         if allowed_origins and origin not in allowed_origins:
 
         # Log security event with enhanced context log_security_event( event_type=SecurityEventType.ACCESS_DENIED, message=f"Rejected cross-origin request from {origin} to {request.path}", outcome=SecurityOutcome.BLOCKED, level=logging.WARNING, target_resource=request.path, metadata={ "origin": origin, "ip_address": request.remote_addr, "allowed_origins": allowed_origins, "user_agent": request.headers.get('User-Agent', 'Unknown') }, security_labels=["cors-violation"] ) abort(403, f"Origin {origin} not allowed")
-def configure_security(app: Flask): """"""
+def configure_security(app: Flask): """
         Configure all security middleware for the Flask app
 """
 """
@@ -102,7 +102,7 @@ import redis_cluster, REDIS_AVAILABLE
         # Create a simple limiter with basic configuration limiter = Limiter( app=app, key_func=get_remote_address, default_limits=default_limits )
 
         # Register a custom error handler for 429 errors @app.errorhandler(429)
-def ratelimit_error_handler(e): """"""
+def ratelimit_error_handler(e): """
         Custom rate limit exceeded handler with enhanced security logging
 """
 """

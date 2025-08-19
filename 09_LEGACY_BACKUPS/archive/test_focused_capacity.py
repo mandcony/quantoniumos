@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Focused Quantum Simulator Capacity Test This test determines the exact qubit limit by testing incrementally and provides detailed memory and performance analysis.
 """
 """
@@ -43,7 +43,7 @@ def test_single_qubit_count(n_qubits: int) -> Dict:
         return result except Exception as e: memory_after = get_memory_usage() result = { 'success': False, 'n_qubits': n_qubits, 'error': str(e), 'memory_used': memory_after - memory_before }
         print(f" ❌ Failed: {str(e)}")
         return result
-def find_maximum_capacity(): """"""
+def find_maximum_capacity(): """
         Find the maximum number of qubits we can simulate
 """
 """

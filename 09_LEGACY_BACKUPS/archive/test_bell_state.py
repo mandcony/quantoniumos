@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Quick test of Bell state correctness after CNOT fix
 """
 """

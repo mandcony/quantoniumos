@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 REMOVE ALL EMOJIS FROM PROJECT Remove all Unicode emoji characters from Python files in the project
 """
 """
@@ -23,7 +23,7 @@ import Path
 # Dingbats "\U000024C2-||U0001F251"
 
 # Various symbols "]+", flags=re.UNICODE )
-def remove_emojis_from_file(file_path): """"""
+def remove_emojis_from_file(file_path): """
         Remove emojis from a single file
 """
 """
@@ -41,7 +41,7 @@ def remove_emojis_from_file(file_path): """"""
         return emoji_count except Exception as e:
         print(f"Error processing {file_path}: {e}")
         return 0
-def main(): """"""
+def main(): """
         Remove emojis from all Python files in the project
 """
         """ project_root = Path("/workspaces/quantoniumos")

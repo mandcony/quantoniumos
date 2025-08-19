@@ -1,18 +1,18 @@
-""""""
+"""
 Simple version of resonance encryption for testing core functionality
 
 RESEARCH ONLY: This implementation is for educational and research purposes only.
 Not intended for production cryptographic applications.
-""""""
+"""
 
 import hashlib
 import secrets
 
 def simple_resonance_encrypt(plaintext: str, key: str) -> bytes:
-    """"""
+    """
     Simplified version of resonance encryption for testing.
     Only implements core functionality without complex diffusion.
-    """"""
+    """
     # Convert inputs to bytes
     if not isinstance(plaintext, str):
         plaintext = str(plaintext)
@@ -40,9 +40,9 @@ def simple_resonance_encrypt(plaintext: str, key: str) -> bytes:
     return signature + token + bytes(result)
 
 def simple_resonance_decrypt(encrypted_data: bytes, key: str) -> str:
-    """"""
+    """
     Simplified version of resonance decryption for testing.
-    """"""
+    """
     # Generate key hash
     key_hash = hashlib.sha256(key.encode()).digest()
 
@@ -72,9 +72,9 @@ def simple_resonance_decrypt(encrypted_data: bytes, key: str) -> str:
     return result.decode('utf-8', errors='surrogateescape')
 
 def test_simple_resonance():
-    """"""
+    """
     Test the simple resonance encryption
-    """"""
+    """
     print("Testing simple resonance encryption...")
 
     # Test data

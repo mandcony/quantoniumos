@@ -1,10 +1,10 @@
-""""""
+"""
 QuantoniumOS - Symbolic Interface API
 
 This module provides the high-level API for the patent validation system.
 It serves as a secure interface to the proprietary algorithms, preventing
 direct access to the core implementation details.
-""""""
+"""
 
 import logging
 import time
@@ -22,7 +22,7 @@ from encryption.wave_primitives import WaveNumber, calculate_coherence
 logger = logging.getLogger("quantonium_api.interface")
 
 def run_rft(waveform: List[float]) -> List[complex]:
-    """"""
+    """
     Thin wrapper to run Resonance Fourier Transform on a waveform.
     For testing purposes only.
 
@@ -31,7 +31,7 @@ def run_rft(waveform: List[float]) -> List[complex]:
 
     Returns:
         Complex values representing the frequency components
-    """"""
+    """
     # Use CANONICAL True RFT implementation (single source of truth)
     from canonical_true_rft import forward_true_rft
 
@@ -42,7 +42,7 @@ def run_rft(waveform: List[float]) -> List[complex]:
     return spectrum.tolist() if hasattr(spectrum, 'tolist') else list(spectrum)
 
 def inverse_rft(freq_components: List[complex]) -> List[float]:
-    """"""
+    """
     Thin wrapper to run inverse Resonance Fourier Transform.
     For testing purposes only.
 
@@ -51,7 +51,7 @@ def inverse_rft(freq_components: List[complex]) -> List[float]:
 
     Returns:
         Real waveform values
-    """"""
+    """
     # Use CANONICAL True RFT implementation (single source of truth)
     from canonical_true_rft import inverse_true_rft
 
@@ -59,7 +59,7 @@ def inverse_rft(freq_components: List[complex]) -> List[float]:
     return inverse_true_rft(freq_components)
 
 def encrypt_data(plaintext: str, key: str) -> Dict[str, Any]:
-    """"""
+    """
     Encrypt data using the patent-protected symbolic encryption.
 
     This high-level function delegates to the secure encryption implementation
@@ -71,7 +71,7 @@ def encrypt_data(plaintext: str, key: str) -> Dict[str, Any]:
 
     Returns:
         Encryption result with metrics
-    """"""
+    """
     logger.info("Processing encrypt request")
 
     try:
@@ -87,7 +87,7 @@ def encrypt_data(plaintext: str, key: str) -> Dict[str, Any]:
         raise
 
 def decrypt_data(ciphertext: str, key: str) -> Dict[str, Any]:
-    """"""
+    """
     Decrypt data using the patent-protected symbolic decryption.
 
     Args:
@@ -96,7 +96,7 @@ def decrypt_data(ciphertext: str, key: str) -> Dict[str, Any]:
 
     Returns:
         Decryption result with metrics
-    """"""
+    """
     logger.info("Processing decrypt request")
 
     try:
@@ -109,7 +109,7 @@ def decrypt_data(ciphertext: str, key: str) -> Dict[str, Any]:
         raise
 
 def analyze_waveform(waveform_data: List[float]) -> Dict[str, Any]:
-    """"""
+    """
     Analyze a waveform using Resonance Fourier Transform.
 
     Args:
@@ -117,7 +117,7 @@ def analyze_waveform(waveform_data: List[float]) -> Dict[str, Any]:
 
     Returns:
         Analysis result with metrics
-    """"""
+    """
     logger.info("Processing waveform analysis request")
 
     try:
@@ -161,7 +161,7 @@ def analyze_waveform(waveform_data: List[float]) -> Dict[str, Any]:
         raise
 
 def generate_entropy(amount: int = 32) -> Dict[str, Any]:
-    """"""
+    """
     Generate signal processing entropy.
 
     Args:
@@ -169,7 +169,7 @@ def generate_entropy(amount: int = 32) -> Dict[str, Any]:
 
     Returns:
         Dictionary with entropy as base64 and hex strings, plus metrics
-    """"""
+    """
     logger.info(f"Generating {amount} bytes of entropy")
 
     try:
@@ -206,11 +206,11 @@ def generate_entropy(amount: int = 32) -> Dict[str, Any]:
         raise
 
 def unlock_container(waveform: List[float], hash_value: str) -> Dict[str, Any]:
-    """"""
+    """
     Attempt to unlock a symbolic container using a waveform and hash.
 
     According to the patent claims, a container can only be unlocked
-    if the provided waveform produces a hash that matches the container's hash. Args: waveform: List of float values representing the key waveform hash_value: 64-character hex hash of the container Returns: Dictionary with unlock status and metrics """""" logger.info("Processing container unlock request") try: # Validate hash format if len(hash_value) != 64: raise ValueError("Container hash must be 64 hex characters") # Convert waveform to bytes for hash calculation bytes_data = bytes([int(min(max(v, 0.0), 1.0) * 255) for v in waveform]) # Generate hash from the provided waveform generated_hash = wave_hash(bytes_data) # Extract expected wave parameters from container hash expected_waves, coherence_threshold = extract_wave_parameters(hash_value) # Convert input waveform to WaveNumbers input_waves = [] for i, v in enumerate(waveform): phase = (i / len(waveform)) * 6.28318 # 2π input_waves.append(WaveNumber(v, phase)) # Calculate coherence between input and expected waves coherence_sum = 0.0 count = min(len(input_waves), len(expected_waves)) for i in range(count): coherence_sum += calculate_coherence( input_waves[i % len(input_waves)], expected_waves[i] ) wc = coherence_sum / count if count > 0 else 0.0 # Determine if unlock was successful # The hash must match exactly, or the waveform coherence must exceed the threshold success = (generated_hash == hash_value) or (wc >= coherence_threshold) # Create result timestamp = time.strftime("%Y-%m-%dT%H:%M:%S.%fZ", time.gmtime()) result = { "status": "unlocked" if success else "denied", "wc": wc, "coherence_threshold": coherence_threshold, "hash_match": generated_hash == hash_value, "timestamp": timestamp } # Add signature for integrity verification signature = hashlib.sha256( f"{result['status']},{wc:.6f},{coherence_threshold:.6f},{result['hash_match']},{timestamp}".encode()
+    if the provided waveform produces a hash that matches the container's hash. Args: waveform: List of float values representing the key waveform hash_value: 64-character hex hash of the container Returns: Dictionary with unlock status and metrics """ logger.info("Processing container unlock request") try: # Validate hash format if len(hash_value) != 64: raise ValueError("Container hash must be 64 hex characters") # Convert waveform to bytes for hash calculation bytes_data = bytes([int(min(max(v, 0.0), 1.0) * 255) for v in waveform]) # Generate hash from the provided waveform generated_hash = wave_hash(bytes_data) # Extract expected wave parameters from container hash expected_waves, coherence_threshold = extract_wave_parameters(hash_value) # Convert input waveform to WaveNumbers input_waves = [] for i, v in enumerate(waveform): phase = (i / len(waveform)) * 6.28318 # 2π input_waves.append(WaveNumber(v, phase)) # Calculate coherence between input and expected waves coherence_sum = 0.0 count = min(len(input_waves), len(expected_waves)) for i in range(count): coherence_sum += calculate_coherence( input_waves[i % len(input_waves)], expected_waves[i] ) wc = coherence_sum / count if count > 0 else 0.0 # Determine if unlock was successful # The hash must match exactly, or the waveform coherence must exceed the threshold success = (generated_hash == hash_value) or (wc >= coherence_threshold) # Create result timestamp = time.strftime("%Y-%m-%dT%H:%M:%S.%fZ", time.gmtime()) result = { "status": "unlocked" if success else "denied", "wc": wc, "coherence_threshold": coherence_threshold, "hash_match": generated_hash == hash_value, "timestamp": timestamp } # Add signature for integrity verification signature = hashlib.sha256( f"{result['status']},{wc:.6f},{coherence_threshold:.6f},{result['hash_match']},{timestamp}".encode()
         ).hexdigest()
         result["signature"] = signature
 
@@ -220,7 +220,7 @@ def unlock_container(waveform: List[float], hash_value: str) -> Dict[str, Any]:
         raise
 
 def run_avalanche_test() -> Dict[str, Any]:
-    """"""
+    """
     Run the 64-test symbolic avalanche test suite to validate the patent claims.
 
     The patent requires:
@@ -229,7 +229,7 @@ def run_avalanche_test() -> Dict[str, Any]:
 
     Returns:
         Dictionary with test results and validation status
-    """"""
+    """
     logger.info("Running avalanche test suite")
 
     try:

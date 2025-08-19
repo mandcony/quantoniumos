@@ -1,19 +1,19 @@
-""""""
+"""
 QuantoniumOS - Wave Primitives Module
 
 RESEARCH ONLY: This implementation is for educational and research purposes only.
 Not intended for production cryptographic applications.
 
 This module implements the fundamental wave-based primitives for the system.
-""""""
+"""
 
 import math
 
 class WaveNumber:
-    """"""
+    """
     A wave-based number representation for signal processing computations.
     Combines amplitude and phase information.
-    """"""
+    """
     def __init__(self, amplitude=1.0, phase=0.0):
         self.amplitude = float(amplitude)
         self.phase = float(phase)
@@ -22,7 +22,7 @@ class WaveNumber:
         return f"WaveNumber(amplitude={self.amplitude:.4f}, phase={self.phase:.4f})"
 
     def __add__(self, other):
-        """"""Add two wave numbers by vector addition in polar form""""""
+        """Add two wave numbers by vector addition in polar form"""
         if not isinstance(other, WaveNumber):
             other = WaveNumber(other, 0)
 
@@ -35,7 +35,7 @@ class WaveNumber:
         return WaveNumber(abs(result), math.atan2(result.imag, result.real))
 
     def __mul__(self, other):
-        """"""Multiply two wave numbers""""""
+        """Multiply two wave numbers"""
         if not isinstance(other, WaveNumber):
             other = WaveNumber(other, 0)
 
@@ -45,36 +45,36 @@ class WaveNumber:
         return WaveNumber(amplitude, phase)
 
     def conjugate(self):
-        """"""Return the complex conjugate of this wave number""""""
+        """Return the complex conjugate of this wave number"""
         return WaveNumber(self.amplitude, -self.phase)
 
     def to_complex(self):
-        """"""Convert to complex number representation""""""
+        """Convert to complex number representation"""
         return self.amplitude * (math.cos(self.phase) + 1j * math.sin(self.phase))
 
     @classmethod
     def from_complex(cls, z):
-        """"""Create a WaveNumber from a complex number""""""
+        """Create a WaveNumber from a complex number"""
         return cls(abs(z), math.atan2(z.imag, z.real))
 
     def to_bytes(self):
-        """"""Convert to byte representation for serialization""""""
+        """Convert to byte representation for serialization"""
         # Pack amplitude and phase as two double-precision floats
         import struct
         return struct.pack('dd', self.amplitude, self.phase)
 
     @classmethod
     def from_bytes(cls, data):
-        """"""Create a WaveNumber from byte representation""""""
+        """Create a WaveNumber from byte representation"""
         import struct
         amplitude, phase = struct.unpack('dd', data)
         return cls(amplitude, phase)
 
 def calculate_coherence(wave1: WaveNumber, wave2: WaveNumber) -> float:
-    """"""
+    """
     Calculate coherence between two wave numbers.
     Returns a value between 0 and 1.
-    """"""
+    """
     # Convert to complex numbers
     z1 = wave1.to_complex()
     z2 = wave2.to_complex()

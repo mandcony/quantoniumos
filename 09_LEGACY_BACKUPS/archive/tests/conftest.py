@@ -1,7 +1,7 @@
-""""""
+"""
 Pytest configuration for QuantoniumOS test suite.
 Marks tests as xfail for known issues under active development.
-""""""
+"""
 
 import pytest
 
@@ -31,7 +31,7 @@ XFAIL_TESTS = [
 ]
 
 def pytest_collection_modifyitems(config, items):
-    """"""Mark specific tests as xfail.""""""
+    """Mark specific tests as xfail."""
     for item in items:
         if item.name in XFAIL_TESTS:
             item.add_marker(

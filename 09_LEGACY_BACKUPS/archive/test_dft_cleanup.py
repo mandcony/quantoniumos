@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Test script to verify DFT cleanup and True RFT operation
 """
 """
@@ -19,7 +19,7 @@ def test_no_dft_in_main_module():
         else:
         print("✅ No DFT references found in main module")
         return True
-def test_true_rft_works(): """"""
+def test_true_rft_works(): """
         Test that True RFT implementation works correctly.
 """
 """
@@ -47,7 +47,7 @@ import numpy as np
         return False except Exception as e:
         print(f"❌ True RFT test failed: {e}")
         return False
-def test_duplicate_files_removed(): """"""
+def test_duplicate_files_removed(): """
         Test that duplicate files have been removed.
 """
 """

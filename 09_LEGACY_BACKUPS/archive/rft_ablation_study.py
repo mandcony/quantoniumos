@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 RFT Ablation Study - Isolating the Mathematical Contributions This implements the ablation controls requested: 1. DFT limit (M=1, phi===1) 2. No-resonance ablation (C_sigma -> I) 3. Parameter sensitivity analysis 4. Bootstrap confidence intervals Scientific goal: Understand what components of RFT actually contribute to performance.
 """
 """

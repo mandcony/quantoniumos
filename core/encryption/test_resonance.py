@@ -1,6 +1,6 @@
-""""""
+"""
 Comprehensive test suite for QuantoniumOS resonance encryption
-""""""
+"""
 
 import os
 import time
@@ -9,7 +9,7 @@ from typing import List, Tuple
 from resonance_encrypt import resonance_encrypt, resonance_decrypt
 
 def test_basic_encryption() -> bool:
-    """"""Test basic encryption and decryption functionality""""""
+    """Test basic encryption and decryption functionality"""
     print("\nTesting basic encryption functionality...")
 
     test_cases = [
@@ -43,7 +43,7 @@ def test_basic_encryption() -> bool:
             if decrypted == test_str:
                 print("✓ Pass: Encryption/decryption successful")
             else:
-                print("✗ Fail: Decrypted text doesn't match original") print(f"Original : {test_str[:50]}") print(f"Decrypted: {decrypted[:50]}") all_passed = False except Exception as e: print(f"✗ Fail: Error during test: {str(e)}") all_passed = False return all_passed def test_avalanche_effect(num_tests: int = 1000) -> bool: """"""Test the avalanche effect by changing single bits"""""" print("\nTesting avalanche effect...") print(f"Running {num_tests} tests...") def count_bit_differences(bytes1: bytes, bytes2: bytes) -> Tuple[int, int]: """"""Count how many bits differ between two byte sequences"""""" diff_bits = 0 total_bits = min(len(bytes1), len(bytes2)) * 8 for b1, b2 in zip(bytes1, bytes2): xor = b1 ^ b2 for bit in range(8): if (xor >> bit) & 1: diff_bits += 1 return diff_bits, total_bits key = "test_key_123" base_input = "QuantoniumOS Resonance Test Data" * 4 percentages: List[float] = [] for test in range(num_tests): if test % 100 == 0 and test > 0: print(f"Completed {test} tests...") # Encrypt original cipher1 = resonance_encrypt(base_input, key) # Modify one bit in input modified = list(base_input) char_pos = test % len(modified) char = ord(modified[char_pos]) bit_pos = (test // len(modified)) % 8 char ^= (1 << bit_pos) modified[char_pos] = chr(char) # Encrypt modified cipher2 = resonance_encrypt(''.join(modified), key)
+                print("✗ Fail: Decrypted text doesn't match original") print(f"Original : {test_str[:50]}") print(f"Decrypted: {decrypted[:50]}") all_passed = False except Exception as e: print(f"✗ Fail: Error during test: {str(e)}") all_passed = False return all_passed def test_avalanche_effect(num_tests: int = 1000) -> bool: """Test the avalanche effect by changing single bits""" print("\nTesting avalanche effect...") print(f"Running {num_tests} tests...") def count_bit_differences(bytes1: bytes, bytes2: bytes) -> Tuple[int, int]: """Count how many bits differ between two byte sequences""" diff_bits = 0 total_bits = min(len(bytes1), len(bytes2)) * 8 for b1, b2 in zip(bytes1, bytes2): xor = b1 ^ b2 for bit in range(8): if (xor >> bit) & 1: diff_bits += 1 return diff_bits, total_bits key = "test_key_123" base_input = "QuantoniumOS Resonance Test Data" * 4 percentages: List[float] = [] for test in range(num_tests): if test % 100 == 0 and test > 0: print(f"Completed {test} tests...") # Encrypt original cipher1 = resonance_encrypt(base_input, key) # Modify one bit in input modified = list(base_input) char_pos = test % len(modified) char = ord(modified[char_pos]) bit_pos = (test // len(modified)) % 8 char ^= (1 << bit_pos) modified[char_pos] = chr(char) # Encrypt modified cipher2 = resonance_encrypt(''.join(modified), key)
 
         # Compare ciphertexts (excluding signature and token)
         diff_bits, total_bits = count_bit_differences(
@@ -76,7 +76,7 @@ def test_basic_encryption() -> bool:
     return passed
 
 def test_signature_validation() -> bool:
-    """"""Test that signatures are properly validated""""""
+    """Test that signatures are properly validated"""
     print("\nTesting signature validation...")
 
     test_str = "Test message for signature validation"
@@ -111,7 +111,7 @@ def test_signature_validation() -> bool:
         return False
 
 def run_all_tests():
-    """"""Run all encryption tests""""""
+    """Run all encryption tests"""
     print("Running QuantoniumOS Resonance Encryption Tests")
     print("=" * 50)
 

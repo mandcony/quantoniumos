@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 High-Dimensional Pattern Recognition Benchmark Tests RFT-based symbolic pattern recognition against standard PCA on high-dimensional data with embedded resonance patterns.
 """
 """
@@ -112,7 +112,7 @@ import KMeans sklearn_available = True
         print()
         self.results = results
         return results
-    def _manual_kmeans(self, data: np.ndarray, n_clusters: int, max_iters: int = 100) -> np.ndarray: """"""
+    def _manual_kmeans(self, data: np.ndarray, n_clusters: int, max_iters: int = 100) -> np.ndarray: """
         Manual K-means implementation when sklearn is not available
 """
 """

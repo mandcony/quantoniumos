@@ -28,7 +28,7 @@ def fix_line_breaks(content):
     content = re.sub(r'def ([a-zA-Z_][a-zA-Z0-9_]*)\([^)]*\): [a-zA-Z]', r'def \1(\2):\n        \3', content)
     
     # Fix triple quotes
-    content = re.sub(r'""""""', r'"""', content)
+    content = re.sub(r'"""', r'"""', content)
     content = re.sub(r'"""([^"]+)"""([a-zA-Z])', r'"""\1"""\n        \2', content)
     
     # Fix if/else/for/while statements

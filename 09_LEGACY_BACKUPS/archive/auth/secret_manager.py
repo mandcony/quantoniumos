@@ -1,10 +1,10 @@
-""""""
+"""
 Quantonium OS - Secret Management
 
 This module handles encryption, decryption, and rotation of sensitive secrets
 such as JWT signing keys. It ensures that no secrets are stored in plaintext
 in the database.
-""""""
+"""
 
 import os
 import base64
@@ -26,10 +26,10 @@ _encryption_key = None
 _key_rotation_schedule = {}
 
 def get_master_key():
-    """"""
+    """
     Get the master encryption key from environment variable.
     If not set, generate a secure random key and advise the user to save it.
-    """"""
+    """
     key = os.environ.get(MASTER_KEY_ENV)
 
     if not key:
@@ -50,10 +50,10 @@ def get_master_key():
     return key
 
 def derive_encryption_key():
-    """"""
+    """
     Derive the encryption key using PBKDF2 with the master key as input.
     This adds an extra layer of security and ensures the key is the right length.
-    """"""
+    """
     global _encryption_key
 
     if _encryption_key is not None:
@@ -75,7 +75,7 @@ def derive_encryption_key():
     return derived_key
 
 def encrypt_secret(plaintext):
-    """"""
+    """
     Encrypt a secret value for storage.
 
     Args:
@@ -83,7 +83,7 @@ def encrypt_secret(plaintext):
 
     Returns:
         Encrypted and base64-encoded string
-    """"""
+    """
     if plaintext is None:
         return None
 
@@ -102,7 +102,7 @@ def encrypt_secret(plaintext):
     return base64.urlsafe_b64encode(encrypted).decode('ascii')
 
 def decrypt_secret(encrypted):
-    """"""
+    """
     Decrypt a stored secret value.
 
     Args:
@@ -110,7 +110,7 @@ def decrypt_secret(encrypted):
 
     Returns:
         Decrypted string or None if decryption fails
-    """"""
+    """
     if not encrypted:
         return None
 
@@ -133,34 +133,34 @@ def decrypt_secret(encrypted):
         return None
 
 def generate_jwt_secret():
-    """"""
+    """
     Generate a new secure random JWT signing secret.
 
     Returns:
         A 64-character hex string (32 bytes)
-    """"""
+    """
     return secrets.token_hex(32)
 
 def schedule_key_rotation(key_id, days=90):
-    """"""
+    """
     Schedule a key for rotation.
 
     Args:
         key_id: The ID of the key to rotate
         days: Number of days until rotation
-    """"""
+    """
     global _key_rotation_schedule
 
     rotation_date = datetime.utcnow() + timedelta(days=days)
     _key_rotation_schedule[key_id] = rotation_date
 
 def get_keys_due_for_rotation():
-    """"""
+    """
     Get a list of key IDs that are due for rotation.
 
     Returns:
         List of key IDs
-    """"""
+    """
     global _key_rotation_schedule
 
     now = datetime.utcnow()

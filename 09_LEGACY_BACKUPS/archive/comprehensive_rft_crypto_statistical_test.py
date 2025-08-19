@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 COMPREHENSIVE RFT-BASED CRYPTOGRAPHIC STATISTICAL TEST SUITE This script runs NIST SP 800-22 and Dieharder statistical tests on: 1. RFT-enhanced resonance encryption output 2. RFT-based geometric waveform hash output 3. Combined RFT crypto pipeline output Tests your actual working implementations: - optimized_resonance_encrypt/decrypt (the fixed one with ~50% avalanche) - GeometricWaveformHash with RFT basis - Combines both for ultimate statistical strength assessment INDEPENDENT VALIDATION - No dependency on crypto_secure module
 """
 """
@@ -28,7 +28,7 @@ except ImportError:
 print("✗ Could not
 import GeometricWaveformHash") sys.exit(1)
 
-class ComprehensiveRFTCryptoTester: """"""
+class ComprehensiveRFTCryptoTester: """
     Comprehensive statistical testing of RFT-based cryptographic primitives
 """
 """
@@ -45,7 +45,7 @@ class ComprehensiveRFTCryptoTester: """"""
         print(f"📏 Sample size: {sample_size_mb}MB ({
         self.sample_size_bits:,} bits)")
         print("=" * 70)
-    def test_rft_encryption_randomness(self) -> str: """"""
+    def test_rft_encryption_randomness(self) -> str: """
         Generate test vector using RFT-enhanced resonance encryption
 """
 """
@@ -93,7 +93,7 @@ class ComprehensiveRFTCryptoTester: """"""
         print(f" ⚠️ Error with key {current_key}: {e}") continue
         print(f"✅ Generated {bytes_written:,} bytes of RFT-encrypted data")
         return output_file
-    def test_rft_geometric_hash_randomness(self) -> str: """"""
+    def test_rft_geometric_hash_randomness(self) -> str: """
         Generate test vector using RFT-based geometric waveform hash
 """
 """
@@ -149,7 +149,7 @@ import math waveform = [math.sin(2 * math.pi * i / waveform_length) + 0.1 * math
         print(f" ⚠️ Hash error at counter {counter}: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes from {counter} RFT geometric hashes")
         return output_file
-    def test_combined_rft_crypto_pipeline(self) -> str: """"""
+    def test_combined_rft_crypto_pipeline(self) -> str: """
         Test the combined RFT encryption + geometric hash pipeline
 """
 """
@@ -193,7 +193,7 @@ import math waveform = [math.sin(2 * math.pi * i / waveform_length) + 0.1 * math
         print(f" ⚠️ Pipeline error at counter {counter}: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes from {counter} RFT pipeline operations")
         return output_file
-    def run_dieharder_tests(self, data_file: str, test_name: str) -> Dict[str, Any]: """"""
+    def run_dieharder_tests(self, data_file: str, test_name: str) -> Dict[str, Any]: """
         Run Dieharder statistical tests on binary data file
 """
 """
@@ -217,7 +217,7 @@ import math waveform = [math.sin(2 * math.pi * i / waveform_length) + 0.1 * math
         if t.get("result") == "WEAK"])
         print(f" Results: {passed} PASSED, {weak} WEAK, {failed} FAILED") except subprocess.TimeoutExpired: results = {"error": "Test timed out after 30 minutes", "success": False} except subprocess.CalledProcessError as e: results = {"error": f"Test failed: {e}", "success": False} except Exception as e: results = {"error": f"Unexpected error: {e}", "success": False}
         return results
-    def parse_dieharder_output(self, output: str) -> List[Dict[str, Any]]: """"""
+    def parse_dieharder_output(self, output: str) -> List[Dict[str, Any]]: """
         Parse Dieharder test results from output
 """
         """ tests = []
@@ -241,7 +241,7 @@ import math waveform = [math.sin(2 * math.pi * i / waveform_length) + 0.1 * math
         else: result = "UNKNOWN" tests.append({ "name": test_name, "p_value": p_value, "result": result, "assessment": assessment })
         except: continue
         return tests
-    def basic_entropy_analysis(self, data_file: str, test_name: str) -> Dict[str, float]: """"""
+    def basic_entropy_analysis(self, data_file: str, test_name: str) -> Dict[str, float]: """
         Basic entropy and statistical analysis
 """
 """
@@ -265,7 +265,7 @@ import math waveform = [math.sin(2 * math.pi * i / waveform_length) + 0.1 * math
         print(f" Variance: {variance:.2f}")
         print(f" Chi-Square: {chi_square:.2f}")
         return { "shannon_entropy": entropy, "mean": mean, "variance": variance, "chi_square": chi_square }
-    def run_full_test_suite(self): """"""
+    def run_full_test_suite(self): """
         Run the complete RFT cryptographic statistical test suite
 """
         """ start_time = time.time() results = { "timestamp":
@@ -300,7 +300,7 @@ import math waveform = [math.sin(2 * math.pi * i / waveform_length) + 0.1 * math
         print(f"\n✅ COMPLETE! Total test time: {total_duration/60:.1f} minutes")
         print(f"📄 Full results saved to: {results_file}")
         return results
-    def generate_summary_report(self, results: Dict[str, Any]): """"""
+    def generate_summary_report(self, results: Dict[str, Any]): """
         Generate human-readable summary report
 """
         """ report_file = os.path.join(
@@ -331,7 +331,7 @@ import math waveform = [math.sin(2 * math.pi * i / waveform_length) + 0.1 * math
 
         # Interpretation\n\n") f.write("- **Shannon Entropy close to 8.0:** Good randomness\n") f.write("- **Mean close to 127.5:** Uniform byte distribution\n") f.write("- **Dieharder pass rate >95%:** Excellent statistical properties\n") f.write("- **Dieharder pass rate 90-95%:** Good statistical properties\n") f.write("- **Dieharder pass rate <90%:** May indicate statistical weaknesses\n\n") f.write("---\n") f.write("*Generated by QuantoniumOS RFT Crypto Statistical Test Suite*\n")
         print(f"📋 Summary report saved to: {report_file}")
-    def main(): """"""
+    def main(): """
         Main execution function
 """
 """

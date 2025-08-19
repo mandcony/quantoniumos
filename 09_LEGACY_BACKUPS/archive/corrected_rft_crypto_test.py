@@ -35,7 +35,7 @@ import quantum_engine
 print("✓ C++ quantum engine loaded and tested") HAS_CPP_QUANTUM = True except Exception as e:
 print(f"✗ C++ quantum engine failed: {e}") HAS_CPP_QUANTUM = False
 
-class CorrectedRFTCryptoTester: """"""
+class CorrectedRFTCryptoTester: """
     Statistical testing with corrected C++ API usage
 """
 """
@@ -53,7 +53,7 @@ class CorrectedRFTCryptoTester: """"""
         print(f" C++ Quantum: {HAS_CPP_QUANTUM}")
         print(f"🐍 Python Crypto: {HAS_PYTHON_CRYPTO}")
         print("="*50)
-    def test_python_crypto_only(self) -> str: """"""
+    def test_python_crypto_only(self) -> str: """
         Test your working Python crypto (baseline)
 """
 """
@@ -82,7 +82,7 @@ class CorrectedRFTCryptoTester: """"""
         print(f" Error: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes from Python crypto")
         return output_file
-    def test_cpp_rft_enhanced(self) -> str: """"""
+    def test_cpp_rft_enhanced(self) -> str: """
         Test C++ RFT + Python crypto pipeline
 """
 """
@@ -123,7 +123,7 @@ class CorrectedRFTCryptoTester: """"""
         print(f" RFT error {counter}: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes using {counter} C++ RFT operations")
         return output_file
-    def test_cpp_quantum_hash(self) -> str: """"""
+    def test_cpp_quantum_hash(self) -> str: """
         Test C++ quantum geometric hash
 """
 """
@@ -176,7 +176,7 @@ class CorrectedRFTCryptoTester: """"""
         print(f" Hash error {counter}: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes from {counter} C++ quantum hashes")
         return output_file
-    def quick_entropy_check(self, file_path: str, name: str) -> Dict[str, float]: """"""
+    def quick_entropy_check(self, file_path: str, name: str) -> Dict[str, float]: """
         Quick entropy analysis
 """
 """
@@ -194,7 +194,7 @@ class CorrectedRFTCryptoTester: """"""
         print(f" Mean: {mean:.2f}")
         print(f" Chi-Square: {chi_square:.2f}")
         return { "entropy": entropy, "mean": mean, "chi_square": chi_square }
-    def run_quick_dieharder(self, file_path: str, name: str) -> Dict[str, Any]: """"""
+    def run_quick_dieharder(self, file_path: str, name: str) -> Dict[str, Any]: """
         Run selected Dieharder tests
 """
 """
@@ -211,7 +211,7 @@ class CorrectedRFTCryptoTester: """"""
         if total > 0 else 0, "raw_output": output } except Exception as e:
         print(f" Dieharder error: {e}")
         return {"error": str(e), "total": 0}
-    def run_test_suite(self): """"""
+    def run_test_suite(self): """
         Run the corrected test suite
 """
         """ start_time = time.time() results = {"timestamp":

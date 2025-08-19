@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-""""""
+"""
 Quantonium OS - 64-Perturbation Benchmark Sanity Test
 
 This script performs a sanity test on the 64-Perturbation Benchmark
 to ensure all test vectors are properly executed and results are valid.
-""""""
+"""
 
 import sys
 import logging
@@ -19,12 +19,12 @@ logger = logging.getLogger("benchmark-sanity")
 BASE_URL = "http://localhost:5000"
 
 def run_sanity_test() -> bool:
-    """"""
+    """
     Run the sanity test for the 64-perturbation benchmark
 
     Returns:
         bool: True if all tests pass, False otherwise
-    """"""
+    """
     logger.info("Starting 64-perturbation benchmark sanity test")
 
     # 1. Test plaintext and key
@@ -109,7 +109,7 @@ def run_sanity_test() -> bool:
             logger.info("Quantum test successful")
         except Exception as e:
             logger.warning(f"Quantum test failed with error: {str(e)}")
-            # Just log and continue - we don't want to fail the whole test for this logger.info("All individual module tests completed successfully") logger.info("Benchmark sanity test PASSED ✓") return True except Exception as e: logger.error(f"Error during benchmark test: {str(e)}") return False def check_database_security() -> bool: """""" Check if API key tables are properly secured Returns: bool: True if security issues are found, False if tables are secure """""" logger.info("Checking database security for API key tables") try: # This requires authentication and shouldn't work if properly secured
+            # Just log and continue - we don't want to fail the whole test for this logger.info("All individual module tests completed successfully") logger.info("Benchmark sanity test PASSED ✓") return True except Exception as e: logger.error(f"Error during benchmark test: {str(e)}") return False def check_database_security() -> bool: """ Check if API key tables are properly secured Returns: bool: True if security issues are found, False if tables are secure """ logger.info("Checking database security for API key tables") try: # This requires authentication and shouldn't work if properly secured
         # Attempt to directly access API key tables through a typical API
         response = requests.get(f"{BASE_URL}/api_keys")
 

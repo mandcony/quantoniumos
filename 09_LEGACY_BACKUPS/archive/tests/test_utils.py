@@ -1,7 +1,7 @@
-""""""
+"""
 Shared testing utilities for QuantoniumOS
 Reduces code duplication between test files
-""""""
+"""
 
 import os
 import time
@@ -11,11 +11,11 @@ import logging
 logger = logging.getLogger("test_utils")
 
 def get_api_key_from_env():
-    """"""Get API key from environment variables""""""
+    """Get API key from environment variables"""
     return os.environ.get("QUANTONIUM_API_KEY")
 
 def get_auth_token(base_url, api_key, timeout=10):
-    """"""Get JWT token using API key - shared between tests""""""
+    """Get JWT token using API key - shared between tests"""
     if not api_key:
         return None
 
@@ -37,7 +37,7 @@ def get_auth_token(base_url, api_key, timeout=10):
         return None
 
 def get_test_headers(base_url=None, api_key=None, token=None):
-    """"""Get headers for API testing""""""
+    """Get headers for API testing"""
     headers = {"Content-Type": "application/json"}
 
     if token:
@@ -53,7 +53,7 @@ def get_test_headers(base_url=None, api_key=None, token=None):
     return headers
 
 def wait_for_health_check(base_url, timeout=60, interval=2):
-    """"""Wait for server health check to pass""""""
+    """Wait for server health check to pass"""
     logger.info(f"Waiting for server at {base_url}...")
     start_time = time.time()
 
@@ -72,11 +72,11 @@ def wait_for_health_check(base_url, timeout=60, interval=2):
     return False
 
 def test_basic_imports():
-    """"""Test that basic imports work - minimal test for CI pipeline""""""
+    """Test that basic imports work - minimal test for CI pipeline"""
     assert True  # Basic test to ensure pytest can run
 
 def test_environment_setup():
-    """"""Test that environment is set up correctly""""""
+    """Test that environment is set up correctly"""
     import sys
     import os
 
@@ -88,7 +88,7 @@ def test_environment_setup():
     assert os.path.exists("requirements.txt"), "requirements.txt should exist"
 
 def test_test_utils_functions():
-    """"""Test that test utility functions work""""""
+    """Test that test utility functions work"""
     api_key = get_api_key_from_env()
     headers = get_test_headers()
 

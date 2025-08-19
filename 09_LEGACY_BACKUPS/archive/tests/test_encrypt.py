@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""""""
+"""
 Quantonium OS - Encryption Test Suite
 
 Tests for the resonance encryption module with enhanced security features.
-""""""
+"""
 
 import unittest
 import time
@@ -18,10 +18,10 @@ from core.encryption.resonance_encrypt import (
 from core.encryption.geometric_waveform_hash import generate_waveform_hash
 
 class TestResonanceEncryption(unittest.TestCase):
-    """"""Test cases for resonance encryption and decryption""""""
+    """Test cases for resonance encryption and decryption"""
 
     def test_encrypt_decrypt_roundtrip(self):
-        """"""Test basic encryption and decryption roundtrip""""""
+        """Test basic encryption and decryption roundtrip"""
         plaintext = "Test quantum message"
         key = "secure-test-key"
 
@@ -35,7 +35,7 @@ class TestResonanceEncryption(unittest.TestCase):
         self.assertEqual(plaintext, decrypted)
 
     def test_encrypt_returns_valid_dict(self):
-        """"""Test that encrypt() returns a dict with correct fields""""""
+        """Test that encrypt() returns a dict with correct fields"""
         plaintext = "Test message for dict return"
         key = "secure-test-key"
 
@@ -54,7 +54,7 @@ class TestResonanceEncryption(unittest.TestCase):
         self.assertEqual(result["sig"], expected_sig)
 
     def test_invalid_signature_raises_error(self):
-        """"""Test that invalid signatures are properly rejected""""""
+        """Test that invalid signatures are properly rejected"""
         plaintext = "Secret data"
         key = "secure-test-key"
 
@@ -75,7 +75,7 @@ class TestResonanceEncryption(unittest.TestCase):
             resonance_decrypt(bytes(tampered), A, phi)
 
     def test_wrong_key_fails_to_decrypt(self):
-        """"""Test that using wrong key fails to decrypt""""""
+        """Test that using wrong key fails to decrypt"""
         plaintext = "Sensitive information"
         key1 = "secure-key-one"
         key2 = "secure-key-two"
@@ -91,7 +91,7 @@ class TestResonanceEncryption(unittest.TestCase):
         self.assertTrue(decrypted.startswith("Decryption failed"))
 
     def test_encryption_is_deterministic_with_same_token(self):
-        """"""Test that encryption is deterministic given the same inputs and token""""""
+        """Test that encryption is deterministic given the same inputs and token"""
         plaintext = "Deterministic test"
         key = "fixed-test-key"
 
@@ -111,7 +111,7 @@ class TestResonanceEncryption(unittest.TestCase):
             self.assertEqual(encrypted1, encrypted2)
 
     def test_timestamp_is_recent(self):
-        """"""Test that the timestamp in encrypt() result is recent""""""
+        """Test that the timestamp in encrypt() result is recent"""
         plaintext = "Timestamp test"
         key = "secure-test-key"
 
@@ -128,7 +128,7 @@ class TestResonanceEncryption(unittest.TestCase):
         self.assertTrue(before <= result["ts"] <= after)
 
     def test_waveform_hash_consistency(self):
-        """"""Test that waveform hash generation is consistent""""""
+        """Test that waveform hash generation is consistent"""
         # Test parameters
         A = 0.5
         phi = 0.75

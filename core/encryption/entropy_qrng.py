@@ -1,4 +1,4 @@
-""""""
+"""
 Quantonium OS - Advanced Entropy QRNG Module
 
 Implements genuine quantum-inspired entropy generation using:
@@ -9,7 +9,7 @@ Implements genuine quantum-inspired entropy generation using:
 
 This goes beyond simple os.urandom() to provide quantum-inspired entropy
 generation with enhanced statistical properties.
-""""""
+"""
 
 import os
 import base64
@@ -26,7 +26,7 @@ from canonical_true_rft import forward_true_rft
 logger = logging.getLogger(__name__)
 
 def generate_quantum_inspired_entropy(amount: int = 32, entropy_source: Optional[str] = None) -> str:
-    """"""
+    """
     Generate genuine quantum-inspired entropy using RFT principles.
 
     This implementation creates quantum-like superposition states using:
@@ -36,7 +36,7 @@ def generate_quantum_inspired_entropy(amount: int = 32, entropy_source: Optional
     4. Non-linear feedback for enhanced unpredictability
 
     Returns a base64-encoded string with quantum-inspired properties.
-    """"""
+    """
     try:
         # Step 1: Gather multiple entropy sources
         entropy_sources = []
@@ -84,7 +84,7 @@ def generate_quantum_inspired_entropy(amount: int = 32, entropy_source: Optional
         return _fallback_entropy_generation(amount)
 
 def _get_high_precision_time_entropy() -> bytes:
-    """"""Generate entropy from high-precision timing measurements.""""""
+    """Generate entropy from high-precision timing measurements."""
     timing_data = []
 
     # Collect multiple timing measurements with CPU variance
@@ -106,7 +106,7 @@ def _get_high_precision_time_entropy() -> bytes:
     return hashlib.sha512(timing_bytes).digest()
 
 def _get_process_entropy() -> bytes:
-    """"""Generate entropy from process and system state.""""""
+    """Generate entropy from process and system state."""
     process_data = []
 
     # Process ID and parent process variations
@@ -131,7 +131,7 @@ def _get_process_entropy() -> bytes:
     return hashlib.sha512(combined).digest()
 
 def _create_quantum_superposition(entropy_sources: List[bytes], target_length: int) -> np.ndarray:
-    """"""Create quantum-like superposition state from multiple entropy sources.""""""
+    """Create quantum-like superposition state from multiple entropy sources."""
     # Convert entropy sources to amplitude arrays
     amplitude_arrays = []
 
@@ -172,7 +172,7 @@ def _create_quantum_superposition(entropy_sources: List[bytes], target_length: i
     return superposition
 
 def _apply_topological_entanglement(state: np.ndarray) -> np.ndarray:
-    """"""Apply topological entanglement patterns to the quantum state.""""""
+    """Apply topological entanglement patterns to the quantum state."""
     N = len(state)
 
     # Create topological coupling matrix using canonical mathematical approach
@@ -196,7 +196,7 @@ def _apply_topological_entanglement(state: np.ndarray) -> np.ndarray:
     return entangled_state
 
 def _quantum_measurement_extraction(quantum_state: np.ndarray, target_bytes: int) -> bytes:
-    """"""Simulate quantum measurement to extract classical entropy.""""""
+    """Simulate quantum measurement to extract classical entropy."""
     # Compute probability distribution from quantum state
     probabilities = np.abs(quantum_state) ** 2
 
@@ -225,7 +225,7 @@ def _quantum_measurement_extraction(quantum_state: np.ndarray, target_bytes: int
     return bytes(extracted_bytes)
 
 def _fallback_entropy_generation(amount: int) -> str:
-    """"""Enhanced fallback entropy generation.""""""
+    """Enhanced fallback entropy generation."""
     # Multiple system sources
     entropy_parts = [
         os.urandom(amount),
@@ -243,14 +243,14 @@ def _fallback_entropy_generation(amount: int) -> str:
 
 # Maintain backward compatibility
 def generate_entropy(amount: int = 32, entropy_source: Optional[str] = None) -> str:
-    """"""Backward compatibility wrapper.""""""
+    """Backward compatibility wrapper."""
     return generate_quantum_inspired_entropy(amount, entropy_source)
 
 def calculate_symbolic_entropy(data: List[float]) -> float:
-    """"""
+    """
     Calculate a symbolic entropy score from sample data.
     Higher values indicate more randomness in the data.
-    """"""
+    """
     if not data:
         return 0.0
 
@@ -288,9 +288,9 @@ def calculate_symbolic_entropy(data: List[float]) -> float:
     return min(1.0, abs(entropy_sum))
 
 def generate_symbolic_qrng_sequence(length: int = 8) -> List[float]:
-    """"""
+    """
     Generate a sequence of quantum-inspired random numbers.
-    """"""
+    """
     # Generate random bytes
     random_bytes = os.urandom(length * 4)  # 4 bytes per float
 

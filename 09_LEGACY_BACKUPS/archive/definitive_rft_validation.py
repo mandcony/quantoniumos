@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Definitive Mathematical RFT Validation === SCIENTIFIC HONESTY: This benchmark reports exactly where RFT excels and where it doesn't, based on rigorous mathematical testing. PROVEN MATHEMATICAL FACTS: ✓ Perfect unitarity (machine precision) ✓ Exact energy conservation (Parseval's theorem) ✓ Non-DFT orthogonal basis (correlation < 0.01) ✓ Sparsity advantage on structured signals (1.15-1.30x improvement) ✗ Energy concentration worse than DFT (0.87x performance) ✗ Detection metrics favor DFT in most cases DOMAIN OF ADVANTAGE: Multi-component amplitude-modulated signals MATHEMATICAL BASIS: Unitary linear transformation with exact reconstruction
 """
 """
@@ -36,7 +36,7 @@ def mathematical_validation_suite() -> Dict[str, any]:
         print(f" Independent basis: {independent_basis}") results['independence'] = { 'correlation': mean_correlation, 'independent': independent_basis }
         print() # 3. REPRESENTATION QUALITY (HONEST COMPARISON)
         print("3. REPRESENTATION PERFORMANCE")
-def generate_structured_signal(): """"""
+def generate_structured_signal(): """
         Signal type where RFT should excel
 """
         """ t = np.linspace(0, 1, N)

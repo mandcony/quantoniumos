@@ -1,4 +1,4 @@
-""""""
+"""
 Minimal True RFT Example - Pure Python, No Dependencies Beyond NumPy This is a complete, self-contained implementation demonstrating the True RFT algorithm with validation, requiring only NumPy. Reviewers can run this directly to understand the core mathematics. Usage: python minimal_true_rft.py
 """
 """

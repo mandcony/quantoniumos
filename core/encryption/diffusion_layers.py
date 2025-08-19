@@ -1,10 +1,10 @@
-""""""
+"""
 QuantoniumOS - Cryptographic Diffusion and Avalanche Testing
 
 This module implements diffusion functions to ensure strong avalanche effects
 for the QuantoniumOS cryptographic primitives. It also provides testing functions
 to verify avalanche properties.
-""""""
+"""
 
 import numpy as np
 import secrets
@@ -34,7 +34,7 @@ MDS_MATRIX_INV = np.array([
 ], dtype=np.uint8)
 
 def bytes_to_matrix(data: bytes) -> np.ndarray:
-    """"""
+    """
     Convert bytes to a 4×4 matrix (column-major order)
 
     Args:
@@ -42,7 +42,7 @@ def bytes_to_matrix(data: bytes) -> np.ndarray:
 
     Returns:
         4×4 numpy array
-    """"""
+    """
     if len(data) != 16:
         raise ValueError(f"Data must be exactly 16 bytes (got {len(data)})")
 
@@ -51,7 +51,7 @@ def bytes_to_matrix(data: bytes) -> np.ndarray:
     return array.reshape(4, 4)
 
 def matrix_to_bytes(matrix: np.ndarray) -> bytes:
-    """"""
+    """
     Convert a 4×4 matrix back to bytes (column-major order)
 
     Args:
@@ -59,7 +59,7 @@ def matrix_to_bytes(matrix: np.ndarray) -> bytes:
 
     Returns:
         16-byte bytes object
-    """"""
+    """
     if matrix.shape != (4, 4):
         raise ValueError(f"Matrix must be 4×4 (got {matrix.shape})")
 
@@ -67,7 +67,7 @@ def matrix_to_bytes(matrix: np.ndarray) -> bytes:
     return matrix.flatten().tobytes()
 
 def galois_multiply(a: int, b: int) -> int:
-    """"""
+    """
     Multiply two numbers in the Galois Field GF(2^8)
 
     Args:
@@ -76,7 +76,7 @@ def galois_multiply(a: int, b: int) -> int:
 
     Returns:
         Result of multiplication in GF(2^8)
-    """"""
+    """
     p = 0
     for _ in range(8):
         if b & 1:
@@ -90,7 +90,7 @@ def galois_multiply(a: int, b: int) -> int:
     return p & 0xFF
 
 def mix_columns(state: np.ndarray) -> np.ndarray:
-    """"""
+    """
     Apply MDS matrix to each column of the state matrix for diffusion
 
     Args:
@@ -98,7 +98,7 @@ def mix_columns(state: np.ndarray) -> np.ndarray:
 
     Returns:
         4×4 state matrix after mixing columns
-    """"""
+    """
     result = np.zeros((4, 4), dtype=np.uint8)
 
     for col in range(4):
@@ -111,7 +111,7 @@ def mix_columns(state: np.ndarray) -> np.ndarray:
     return result
 
 def inv_mix_columns(state: np.ndarray) -> np.ndarray:
-    """"""
+    """
     Apply inverse MDS matrix to each column of the state matrix
 
     Args:
@@ -119,7 +119,7 @@ def inv_mix_columns(state: np.ndarray) -> np.ndarray:
 
     Returns:
         4×4 state matrix after inverse mixing columns
-    """"""
+    """
     result = np.zeros((4, 4), dtype=np.uint8)
 
     for col in range(4):
@@ -132,7 +132,7 @@ def inv_mix_columns(state: np.ndarray) -> np.ndarray:
     return result
 
 def shift_rows(state: np.ndarray) -> np.ndarray:
-    """"""
+    """
     Shift rows of the state matrix for diffusion
     Row 0: No shift
     Row 1: Shift left by 1
@@ -144,7 +144,7 @@ def shift_rows(state: np.ndarray) -> np.ndarray:
 
     Returns:
         4×4 state matrix after shifting rows
-    """"""
+    """
     result = state.copy()
 
     # Row 0: No shift
@@ -158,7 +158,7 @@ def shift_rows(state: np.ndarray) -> np.ndarray:
     return result
 
 def inv_shift_rows(state: np.ndarray) -> np.ndarray:
-    """"""
+    """
     Inverse of shift_rows
 
     Args:
@@ -166,7 +166,7 @@ def inv_shift_rows(state: np.ndarray) -> np.ndarray:
 
     Returns:
         4×4 state matrix after inverse shifting rows
-    """"""
+    """
     result = state.copy()
 
     # Row 0: No shift
@@ -180,7 +180,7 @@ def inv_shift_rows(state: np.ndarray) -> np.ndarray:
     return result
 
 def add_diffusion_layer(block: bytes) -> bytes:
-    """"""
+    """
     Add a strong diffusion layer to a 16-byte block
 
     This function:
@@ -194,7 +194,7 @@ def add_diffusion_layer(block: bytes) -> bytes:
 
     Returns:
         16-byte output block with diffusion applied
-    """"""
+    """
     # Convert to matrix
     state = bytes_to_matrix(block)
 
@@ -208,7 +208,7 @@ def add_diffusion_layer(block: bytes) -> bytes:
     return matrix_to_bytes(state)
 
 def remove_diffusion_layer(block: bytes) -> bytes:
-    """"""
+    """
     Reverse the diffusion layer for a 16-byte block (for decryption)
 
     This function:
@@ -222,7 +222,7 @@ def remove_diffusion_layer(block: bytes) -> bytes:
 
     Returns:
         16-byte output block with diffusion reversed
-    """"""
+    """
     # Convert to matrix
     state = bytes_to_matrix(block)
 
@@ -234,7 +234,7 @@ def remove_diffusion_layer(block: bytes) -> bytes:
     return matrix_to_bytes(state)
 
 def add_multi_round_diffusion(data: bytes, rounds: int = 3) -> bytes:
-    """"""
+    """
     Apply multiple rounds of diffusion to ensure strong avalanche effect
 
     Args:
@@ -243,7 +243,7 @@ def add_multi_round_diffusion(data: bytes, rounds: int = 3) -> bytes:
 
     Returns:
         Data with diffusion applied
-    """"""
+    """
     result = bytearray(data)
 
     # Apply diffusion to each 16-byte block
@@ -264,7 +264,7 @@ def add_multi_round_diffusion(data: bytes, rounds: int = 3) -> bytes:
     return bytes(result)
 
 def remove_multi_round_diffusion(data: bytes, rounds: int = 3) -> bytes:
-    """"""
+    """
     Remove multiple rounds of diffusion (for decryption)
 
     Args:
@@ -273,7 +273,7 @@ def remove_multi_round_diffusion(data: bytes, rounds: int = 3) -> bytes:
 
     Returns:
         Original data with diffusion removed
-    """"""
+    """
     result = bytearray(data)
 
     # Remove diffusion from each 16-byte block
@@ -294,7 +294,7 @@ def remove_multi_round_diffusion(data: bytes, rounds: int = 3) -> bytes:
     return bytes(result)
 
 def test_avalanche_effect(data: bytes, rounds: int = 3, bits_to_flip: int = 1) -> Dict[str, Any]:
-    """"""
+    """
     Test avalanche effect by flipping bits and measuring diffusion
 
     Args:
@@ -304,7 +304,7 @@ def test_avalanche_effect(data: bytes, rounds: int = 3, bits_to_flip: int = 1) -
 
     Returns:
         Dictionary with avalanche statistics
-    """"""
+    """
     if len(data) < 16:
         data = data + b'\x00' * (16 - len(data))
 
@@ -357,14 +357,14 @@ def test_avalanche_effect(data: bytes, rounds: int = 3, bits_to_flip: int = 1) -
     }
 
 def plot_avalanche_distribution(data: bytes, rounds: list = [1, 2, 3, 4], output_file: str = None):
-    """"""
+    """
     Plot avalanche effect distribution for different numbers of rounds
 
     Args:
         data: Input data bytes
         rounds: List of round counts to test
         output_file: Path to save the plot
-    """"""
+    """
     plt.figure(figsize=(12, 8))
 
     for r in rounds:
@@ -420,7 +420,7 @@ def plot_avalanche_distribution(data: bytes, rounds: list = [1, 2, 3, 4], output
     plt.close()
 
 def generate_test_vectors(count: int = 10, key_size: int = 32) -> List[Dict[str, Any]]:
-    """"""
+    """
     Generate test vectors for diffusion layer validation
 
     Args:
@@ -429,7 +429,7 @@ def generate_test_vectors(count: int = 10, key_size: int = 32) -> List[Dict[str,
 
     Returns:
         List of test vector dictionaries
-    """"""
+    """
     test_vectors = []
 
     for i in range(count):
@@ -454,12 +454,12 @@ def generate_test_vectors(count: int = 10, key_size: int = 32) -> List[Dict[str,
     return test_vectors
 
 def validate_diffusion_implementation():
-    """"""
+    """
     Validate that diffusion layer correctly implements inverse operations
 
     Returns:
         True if validation passes, False otherwise
-    """"""
+    """
     # Generate test data
     test_data = secrets.token_bytes(64)
 

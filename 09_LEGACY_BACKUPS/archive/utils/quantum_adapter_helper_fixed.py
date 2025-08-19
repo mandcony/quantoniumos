@@ -1,9 +1,9 @@
-""""""
+"""
 Quantum Adapter Helper - Fixed Implementation
 
 This module provides working implementations using real AES-GCM crypto
 instead of the missing quantum_engine_adapter.
-""""""
+"""
 
 import base64
 import json
@@ -12,16 +12,16 @@ from typing import Dict, List
 from utils.crypto_secure import encrypt_data as real_encrypt, decrypt_data as real_decrypt
 
 def get_quantum_adapter():
-    """"""
+    """
     Get the global quantum adapter instance (stub - returns None).
 
     Returns:
         None: No actual adapter implemented
-    """"""
+    """
     return None
 
 def encrypt_data(plaintext: str, key: str) -> str:
-    """"""
+    """
     Encrypt text using AES-GCM (delegating to crypto_secure).
 
     Args:
@@ -30,12 +30,12 @@ def encrypt_data(plaintext: str, key: str) -> str:
 
     Returns:
         Base64-encoded encrypted bundle as JSON string
-    """"""
+    """
     result = real_encrypt(plaintext, key)
     return base64.b64encode(json.dumps(result).encode()).decode()
 
 def decrypt_data(ciphertext: str, key: str) -> str:
-    """"""
+    """
     Decrypt text using AES-GCM (delegating to crypto_secure).
 
     Args:
@@ -44,13 +44,13 @@ def decrypt_data(ciphertext: str, key: str) -> str:
 
     Returns:
         Decrypted plaintext
-    """"""
+    """
     bundle = json.loads(base64.b64decode(ciphertext).decode())
     result = real_decrypt(bundle, key)
     return result.decode('utf-8')
 
 def generate_quantum_entropy(amount: int = 32) -> str:
-    """"""
+    """
     Generate cryptographically secure entropy.
 
     Args:
@@ -58,12 +58,12 @@ def generate_quantum_entropy(amount: int = 32) -> str:
 
     Returns:
         Base64-encoded entropy
-    """"""
+    """
     entropy = secrets.token_bytes(amount)
     return base64.b64encode(entropy).decode()
 
 def apply_quantum_rft(waveform: list) -> dict:
-    """"""
+    """
     Apply basic FFT-like transform to a waveform (stub).
 
     Args:
@@ -71,7 +71,7 @@ def apply_quantum_rft(waveform: list) -> dict:
 
     Returns:
         Dictionary with basic frequency analysis
-    """"""
+    """
     import math
     N = len(waveform)
     freqs = [i * 1.0 / N for i in range(N//2)]
@@ -81,7 +81,7 @@ def apply_quantum_rft(waveform: list) -> dict:
     return {'frequencies': freqs, 'amplitudes': mags, 'phases': phases}
 
 def unlock_quantum_container(waveform: list, container_hash: str, key: str) -> dict:
-    """"""
+    """
     Stub for container unlocking (not implemented).
 
     Args:
@@ -91,11 +91,11 @@ def unlock_quantum_container(waveform: list, container_hash: str, key: str) -> d
 
     Returns:
         Empty result
-    """"""
+    """
     return {'status': 'not_implemented', 'content': None}
 
 def run_quantum_benchmark(max_qubits: int = 150, full_benchmark: bool = False) -> dict:
-    """"""
+    """
     Run genuine quantum benchmarks using the QuantoniumOS quantum simulator.
 
     Args:
@@ -104,7 +104,7 @@ def run_quantum_benchmark(max_qubits: int = 150, full_benchmark: bool = False) -
 
     Returns:
         Real benchmark results from quantum entanglement simulation
-    """"""
+    """
     import time
     import sys
     import os

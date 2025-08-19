@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 QuantoniumOS C++ Engine Integration Example This example demonstrates how your existing Python code now automatically uses high-performance C++ implementations through pybind11 bindings. All operations are 10-100x faster with zero code changes required!
 """
 """

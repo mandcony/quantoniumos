@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 QuantoniumOS Deterministic Cryptographic Test Suite Validates all high-priority fixes: 1. Deterministic geometric hashing 2. Cryptographically secure randomness 3. Domain separation 4. Cross-platform consistency 5. Side-effect freedom
 """
 """
@@ -32,7 +32,7 @@ import QuantoniumEngineCore engine = QuantoniumEngineCore()
         print(f" Result: {'✅ PASSED'
         if deterministic else '❌ FAILED'}") all_passed = all_passed and deterministic
         return all_passed
-def test_domain_separation(): """"""
+def test_domain_separation(): """
         Test that different modes produce different hashes.
 """
 """
@@ -49,7 +49,7 @@ import QuantoniumEngineCore engine = QuantoniumEngineCore() test_data = [1.0, 2.
         print(f"Result: {'✅ PASSED'
         if passed else '❌ FAILED'}")
         return passed
-def test_cryptographic_randomness(): """"""
+def test_cryptographic_randomness(): """
         Test that entropy generation uses cryptographically secure randomness.
 """
 """
@@ -82,7 +82,7 @@ import crypto_secure_random_bytes, crypto_secure_randrange
         if csprng_ok else '❌ FAILED'}") except Exception as e:
         print(f"CSPRNG test failed: {e}") csprng_ok = False
         return entropy_different and csprng_ok
-def test_side_effect_freedom(): """"""
+def test_side_effect_freedom(): """
         Test that hash function has no side effects or global state.
 """
 """
@@ -104,7 +104,7 @@ import QuantoniumEngineCore
         print(f"All identical: {'✅ PASSED'
         if no_side_effects else '❌ FAILED'}")
         return no_side_effects
-def test_cross_implementation_consistency(): """"""
+def test_cross_implementation_consistency(): """
         Test that C++ and Python implementations produce identical results.
 """
 """
@@ -129,7 +129,7 @@ import geometric_waveform_hash_deterministic test_data = [1.0, 0.5, -0.3, 0.8]
         if py_consistent else '❌ FAILED'}") both_consistent = cpp_consistent and py_consistent except Exception as e:
         print(f"Cross-implementation test failed: {e}") both_consistent = False
         return both_consistent
-def test_known_answer_tests(): """"""
+def test_known_answer_tests(): """
         Test with known answer test vectors.
 """
 """
@@ -155,7 +155,7 @@ import QuantoniumEngineCore engine = QuantoniumEngineCore()
         # Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n") for test_data, hash_result in kat_results: f.write(f"{test_data} -> {hash_result}\n")
         print("KATs saved to known_answer_tests.txt")
         return all_passed
-def main(): """"""
+def main(): """
         Run all high-priority fix validation tests.
 """
 """

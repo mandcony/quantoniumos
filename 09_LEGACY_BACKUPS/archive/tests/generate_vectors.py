@@ -1,7 +1,7 @@
-""""""
+"""
 QuantoniumOS Test Vector Generator
 Generates machine-readable Known Answer Tests (KATs) for reproducible validation
-""""""
+"""
 
 import json
 import hashlib
@@ -10,7 +10,7 @@ from typing import Dict, Any
 from pathlib import Path
 
 def generate_rft_vectors() -> Dict[str, Any]:
-    """"""Generate RFT Known Answer Test vectors""""""
+    """Generate RFT Known Answer Test vectors"""
     vectors = {
         "description": "Resonance Fourier Transform Known Answer Tests",
         "version": "1.0",
@@ -36,7 +36,7 @@ def generate_rft_vectors() -> Dict[str, Any]:
     return vectors
 
 def generate_geometric_hash_vectors() -> Dict[str, Any]:
-    """"""Generate Geometric Hash Known Answer Test vectors""""""
+    """Generate Geometric Hash Known Answer Test vectors"""
     vectors = {
         "description": "Geometric Waveform Hash Known Answer Tests",
         "version": "1.0",
@@ -66,7 +66,7 @@ def generate_geometric_hash_vectors() -> Dict[str, Any]:
     return vectors
 
 def generate_encryption_vectors() -> Dict[str, Any]:
-    """"""Generate Encryption Known Answer Test vectors""""""
+    """Generate Encryption Known Answer Test vectors"""
     vectors = {
         "description": "Resonance Encryption Known Answer Tests",
         "version": "1.0",
@@ -92,7 +92,7 @@ def generate_encryption_vectors() -> Dict[str, Any]:
     return vectors
 
 def generate_all_vectors():
-    """"""Generate all test vectors and save to public_test_vectors/""""""
+    """Generate all test vectors and save to public_test_vectors/"""
     output_dir = Path("public_test_vectors")
     output_dir.mkdir(exist_ok=True)
 

@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Branch Cut Continuity Regression Test Suite === This test suite ensures that the safe_log_unitary function maintains path-continuity across the branch cut at ±pi and never regresses to the problematic ~2.0 gap behavior. Tests: 1. Phase continuity across ±pi boundary 2. Smooth eigenvalue tracking through branch cut 3. Reconstruction error consistency 4. No discontinuous jumps in extracted phases 5. Regression prevention with edge cases
 """
 """
@@ -92,7 +92,7 @@ class BranchCutContinuityValidator:
         print(f" Max phase jump: {result['max_phase_jump']:.3f}")
         self.results['fine_continuity'] = result
         return result
-    def test_branch_cut_crossing_sequences(self) -> Dict: """"""
+    def test_branch_cut_crossing_sequences(self) -> Dict: """
         Test 2: Explicit branch cut crossing sequences Tests sequences that explicitly cross ±pi to ensure no discontinuous behavior.
 """
 """
@@ -118,7 +118,7 @@ class BranchCutContinuityValidator:
         for seq in sequence_results) result = { 'test_name': 'Branch Cut Crossing Sequences', 'sequences': sequence_results, 'all_sequences_pass': all_pass, 'passes': all_pass }
         self.results['crossing_sequences'] = result
         return result
-    def test_eigenvalue_tracking_continuity(self) -> Dict: """"""
+    def test_eigenvalue_tracking_continuity(self) -> Dict: """
         Test 3: Eigenvalue tracking continuity Ensures that as we vary phases continuously, the eigenvalues of the extracted Hamiltonian also vary continuously.
 """
 """
@@ -148,7 +148,7 @@ class BranchCutContinuityValidator:
         print(f" Max derivative jump: {result['max_derivative_jump']:.3f}")
         self.results['eigenvalue_tracking'] = result
         return result
-    def test_regression_prevention_edge_cases(self) -> Dict: """"""
+    def test_regression_prevention_edge_cases(self) -> Dict: """
         Test 4: Regression prevention with edge cases Tests specific edge cases that could cause regression to the old ~2.0 gap behavior.
 """
 """
@@ -178,7 +178,7 @@ class BranchCutContinuityValidator:
         for case in edge_case_results) result = { 'test_name': 'Regression Prevention Edge Cases', 'edge_cases': edge_case_results, 'all_cases_pass': all_pass, 'no_regression_detected': no_regression, 'passes': all_pass and no_regression }
         self.results['edge_cases'] = result
         return result
-    def run_full_continuity_suite(self) -> Dict: """"""
+    def run_full_continuity_suite(self) -> Dict: """
         Run the complete branch cut continuity test suite.
 """
 """
@@ -204,7 +204,7 @@ class BranchCutContinuityValidator:
         print("❌ SOME TESTS FAIL - Potential regression detected")
         print("=" * 70)
         return suite_results
-    def main(): """"""
+    def main(): """
         Run the branch cut continuity validation.
 """
         """ validator = BranchCutContinuityValidator(tolerance=1e-14) results = validator.run_full_continuity_suite()

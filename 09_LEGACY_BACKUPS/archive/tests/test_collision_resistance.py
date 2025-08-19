@@ -1,11 +1,11 @@
-""""""
+"""
 Formal Collision Resistance Tests for QuantoniumOS Hash Functions
 
 This module implements rigorous collision resistance testing based on
 formal cryptographic definitions, not just avalanche statistics.
 
 Tests the actual security properties required for cryptographic hash functions.
-""""""
+"""
 
 import hashlib
 import secrets
@@ -24,7 +24,7 @@ except ImportError:
 
 @dataclass
 class CollisionResult:
-    """"""Result from a collision resistance test""""""
+    """Result from a collision resistance test"""
     test_type: str
     inputs_tested: int
     collisions_found: int
@@ -35,12 +35,12 @@ class CollisionResult:
     actual_vs_expected: float
 
 class CollisionResistanceTester:
-    """"""
+    """
     Formal collision resistance testing for cryptographic hash functions.
 
     Implements the mathematical definition: A hash function H is collision
     resistant if no efficient algorithm can find x != y such that H(x) = H(y).
-    """"""
+    """
 
     def __init__(self, hash_function=None):
         if hash_function is None and HASH_AVAILABLE:
@@ -57,12 +57,12 @@ class CollisionResistanceTester:
         self.collision_pairs = []
 
     def birthday_attack_test(self, num_samples: int = 10000) -> CollisionResult:
-        """"""
+        """
         Birthday attack test: Sample random inputs and look for collisions.
 
         Based on birthday paradox - expect collision after ~sqrt(2^n) samples
         for an n-bit hash function.
-        """"""
+        """
         start_time = time.time()
         hash_values = {}
         collisions = []
@@ -117,11 +117,11 @@ class CollisionResistanceTester:
         )
 
     def structured_collision_test(self) -> CollisionResult:
-        """"""
+        """
         Test for collisions with structured inputs that might reveal weaknesses.
 
         This looks for patterns that cryptanalysts might exploit.
-        """"""
+        """
         start_time = time.time()
         hash_values = {}
         collisions = []
@@ -194,11 +194,11 @@ class CollisionResistanceTester:
         )
 
     def prefix_collision_test(self) -> CollisionResult:
-        """"""
+        """
         Test for prefix collisions and related weaknesses.
 
         This tests whether messages with common prefixes produce related hashes.
-        """"""
+        """
         start_time = time.time()
         collisions = []
         inputs_tested = 0
@@ -243,11 +243,11 @@ class CollisionResistanceTester:
         )
 
     def multicollision_test(self, target_collisions: int = 3) -> CollisionResult:
-        """"""
+        """
         Test for multicollisions: Finding multiple inputs that hash to same value.
 
         A secure hash should make finding even 3-way collisions computationally hard.
-        """"""
+        """
         start_time = time.time()
         hash_buckets = defaultdict(list)
         inputs_tested = 0
@@ -298,7 +298,7 @@ class CollisionResistanceTester:
         )
 
 def run_comprehensive_collision_tests() -> str:
-    """"""Run all collision resistance tests and generate report""""""
+    """Run all collision resistance tests and generate report"""
 
     tester = CollisionResistanceTester()
 

@@ -1,9 +1,9 @@
-""""""
+"""
 Symbolic Container implementation for QuantoniumOS
 
 This module provides container management with symbolic encryption
 for secure data storage and access control.
-""""""
+"""
 
 import hashlib
 import json
@@ -11,7 +11,7 @@ import os
 from typing import Dict, Any, Optional
 
 def hash_file(file_path: str) -> str:
-    """"""Generate SHA-256 hash of a file.""""""
+    """Generate SHA-256 hash of a file."""
     hasher = hashlib.sha256()
     try:
         with open(file_path, 'rb') as f:
@@ -22,9 +22,9 @@ def hash_file(file_path: str) -> str:
         return "file_not_found"
 
 class SymbolicContainer:
-    """"""
+    """
     A symbolic container for secure data storage with cryptographic sealing.
-    """"""
+    """
 
     def __init__(self, container_id: str):
         self.container_id = container_id
@@ -34,7 +34,7 @@ class SymbolicContainer:
         self.access_keys = set()
 
     def seal(self, data: Any, seal_key: str = None) -> Dict[str, Any]:
-        """"""
+        """
         Seal the container with provided data.
 
         Args:
@@ -43,7 +43,7 @@ class SymbolicContainer:
 
         Returns:
             Dictionary with seal status and metadata
-        """"""
+        """
         # Convert data to JSON for hashing
         if isinstance(data, dict):
             data_str = json.dumps(data, sort_keys=True)
@@ -71,7 +71,7 @@ class SymbolicContainer:
         }
 
     def unlock(self, unlock_key: str) -> Dict[str, Any]:
-        """"""
+        """
         Attempt to unlock the sealed container.
 
         Args:
@@ -79,7 +79,7 @@ class SymbolicContainer:
 
         Returns:
             Dictionary with unlock status
-        """"""
+        """
         if not self.sealed:
             return {"status": "error", "message": "Container not sealed"}
 
@@ -99,7 +99,7 @@ class SymbolicContainer:
             }
 
     def get_status(self) -> Dict[str, Any]:
-        """"""Get container status information.""""""
+        """Get container status information."""
         return {
             "container_id": self.container_id,
             "sealed": self.sealed,

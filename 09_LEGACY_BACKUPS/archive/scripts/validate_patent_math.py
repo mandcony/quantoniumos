@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-""""""
+"""
 Patent Mathematics Validation Script
 Validates that all mathematical formulas from U.S. Patent Application No. 19/169,399
 are correctly implemented in the QuantoniumOS codebase.
 
 Author: Luis Minier
 Date: August 7, 2025
-""""""
+"""
 
 import sys
 import time
@@ -20,7 +20,7 @@ sys.path.insert(0, str(project_root / "core"))
 sys.path.insert(0, str(project_root / "tests"))
 
 def print_header():
-    """"""Print validation header""""""
+    """Print validation header"""
     print("🔬 Patent Mathematics Validation")
     print("=" * 70)
     print("U.S. Patent Application No. 19/169,399")
@@ -31,7 +31,7 @@ def print_header():
     print()
 
 def validate_all_patent_math():
-    """"""Run comprehensive validation of all patent mathematics""""""
+    """Run comprehensive validation of all patent mathematics"""
 
     print_header()
 
@@ -178,7 +178,7 @@ def validate_all_patent_math():
     return passed == total
 
 def main():
-    """"""Main validation function""""""
+    """Main validation function"""
     print("Starting Patent Mathematics Validation...\n")
 
     # Check for verbose flag

@@ -1,18 +1,18 @@
-""""""
+"""
 QuantoniumOS - Formal Mathematical Derivations
 
 This module provides the actual algebraic derivations behind security bounds,
 not just narrative statements. Each bound is derived from first principles
 with explicit mathematical steps that can be verified line-by-line.
-""""""
+"""
 
 import math
 # import numpy as np  # Not needed for basic derivations
 from typing import Dict
 
 class GroverResistanceDerivation:
-    """"""
-    Complete mathematical derivation of Grover's algorithm resistance for the QuantoniumOS RFT-based encryption scheme. This shows the exact algebra that produces the π/4 · 2^(n/2) bound. """""" def __init__(self, security_parameter: int = 128): self.n = security_parameter # Security parameter in bits self.derivation_steps = [] def derive_grover_bound_step_by_step(self) -> Dict: """""" Complete algebraic derivation of the Grover resistance bound. Returns the exact mathematical steps that lead to π/4 · 2^(n/2). """""" print("FORMAL DERIVATION: Grover's Algorithm Resistance")
+    """
+    Complete mathematical derivation of Grover's algorithm resistance for the QuantoniumOS RFT-based encryption scheme. This shows the exact algebra that produces the π/4 · 2^(n/2) bound. """ def __init__(self, security_parameter: int = 128): self.n = security_parameter # Security parameter in bits self.derivation_steps = [] def derive_grover_bound_step_by_step(self) -> Dict: """ Complete algebraic derivation of the Grover resistance bound. Returns the exact mathematical steps that lead to π/4 · 2^(n/2). """ print("FORMAL DERIVATION: Grover's Algorithm Resistance")
         print("=" * 60)
 
         # Step 1: Problem Setup
@@ -99,7 +99,7 @@ class GroverResistanceDerivation:
         }
 
     def _calculate_exact_grover_iterations(self) -> Dict:
-        """"""Calculate the exact number of Grover iterations needed""""""
+        """Calculate the exact number of Grover iterations needed"""
         N = 2**self.n
 
         # Exact rotation angle
@@ -120,14 +120,14 @@ class GroverResistanceDerivation:
         }
 
     def _analyze_success_probability(self) -> Dict:
-        """"""Analyze the success probability of Grover's algorithm"""""" N = 2**self.n theta = 2 * math.asin(1/math.sqrt(N)) t_opt = math.floor(math.pi / (4 * theta) - 0.5) # Success probability after t_opt iterations success_prob = math.sin((2*t_opt + 1) * theta / 2)**2 return { "step": 5, "description": "Success Probability Analysis", "optimal_iterations": t_opt, "success_probability": success_prob, "theoretical_maximum": 1.0 } def verify_bound_tightness(self) -> Dict: """""" Verify that our π/4 · 2^(n/2) bound is tight by checking edge cases. """""" print("\nBOUND TIGHTNESS VERIFICATION") print("=" * 40) results = {} # Test for different security parameters for n in [64, 128, 256]: N = 2**n theta = 2 * math.asin(1/math.sqrt(N)) t_exact = math.pi / (4 * theta) - 0.5 t_approx = math.pi/4 * math.sqrt(N) relative_error = abs(t_exact - t_approx) / t_exact results[n] = { "exact_iterations": t_exact, "approximate_bound": t_approx, "relative_error": relative_error } print(f"n = {n}:") print(f" Exact: {t_exact:.2f}") print(f" Bound: {t_approx:.2f}") print(f" Error: {relative_error:.6f} ({relative_error*100:.4f}%)") return results class RFTHardnessReduction: """""" Shows how the QRFT_Hardness assumption reduces to well-studied problems. This addresses the reviewer concern about non-standard assumptions. """""" def __init__(self): self.reductions = {} def reduce_to_rlwe(self) -> Dict: """""" Show that breaking QRFT_Hardness reduces to solving Ring-LWE. This proves that QRFT_Hardness is as hard as a well-studied problem. """""" print("FORMAL REDUCTION: QRFT_Hardness → Ring-LWE") print("=" * 50) reduction = { "theorem": "QRFT_Hardness reduces to Ring-LWE with polynomial loss", "setup": { "ring": "R = Z[X]/(X^n + 1) where n is power of 2", "error_distribution": "chi = discrete Gaussian over R with parameter sigma", "secret": "s ← chi (secret key)", "samples": "(a_i, b_i = a_i·s + e_i mod q) where a_i ← R_q, e_i ← chi" }, "reduction_algorithm": { "input": "QRFT challenge (F, y) where y should equal RFT(x)", "step1": "Interpret F as polynomial coefficients in R", "step2": "Map RFT operation to ring multiplication: RFT(x) ~= F·x mod (X^n+1)", "step3": "Add discrete Gaussian noise: b = F·x + e where e ← chi", "step4": "Output Ring-LWE sample (F, b)" }, "security_loss": "At most polynomial in n", "conclusion": "If Ring-LWE is hard, then QRFT_Hardness is hard" } print("Theorem:", reduction["theorem"]) print("\nSetup:") for key, value in reduction["setup"].items(): print(f" {key}: {value}") print("\nReduction Algorithm:") for key, value in reduction["reduction_algorithm"].items(): print(f" {key}: {value}") print(f"\nSecurity Loss: {reduction['security_loss']}") print(f"Conclusion: {reduction['conclusion']}")
+        """Analyze the success probability of Grover's algorithm""" N = 2**self.n theta = 2 * math.asin(1/math.sqrt(N)) t_opt = math.floor(math.pi / (4 * theta) - 0.5) # Success probability after t_opt iterations success_prob = math.sin((2*t_opt + 1) * theta / 2)**2 return { "step": 5, "description": "Success Probability Analysis", "optimal_iterations": t_opt, "success_probability": success_prob, "theoretical_maximum": 1.0 } def verify_bound_tightness(self) -> Dict: """ Verify that our π/4 · 2^(n/2) bound is tight by checking edge cases. """ print("\nBOUND TIGHTNESS VERIFICATION") print("=" * 40) results = {} # Test for different security parameters for n in [64, 128, 256]: N = 2**n theta = 2 * math.asin(1/math.sqrt(N)) t_exact = math.pi / (4 * theta) - 0.5 t_approx = math.pi/4 * math.sqrt(N) relative_error = abs(t_exact - t_approx) / t_exact results[n] = { "exact_iterations": t_exact, "approximate_bound": t_approx, "relative_error": relative_error } print(f"n = {n}:") print(f" Exact: {t_exact:.2f}") print(f" Bound: {t_approx:.2f}") print(f" Error: {relative_error:.6f} ({relative_error*100:.4f}%)") return results class RFTHardnessReduction: """ Shows how the QRFT_Hardness assumption reduces to well-studied problems. This addresses the reviewer concern about non-standard assumptions. """ def __init__(self): self.reductions = {} def reduce_to_rlwe(self) -> Dict: """ Show that breaking QRFT_Hardness reduces to solving Ring-LWE. This proves that QRFT_Hardness is as hard as a well-studied problem. """ print("FORMAL REDUCTION: QRFT_Hardness → Ring-LWE") print("=" * 50) reduction = { "theorem": "QRFT_Hardness reduces to Ring-LWE with polynomial loss", "setup": { "ring": "R = Z[X]/(X^n + 1) where n is power of 2", "error_distribution": "chi = discrete Gaussian over R with parameter sigma", "secret": "s ← chi (secret key)", "samples": "(a_i, b_i = a_i·s + e_i mod q) where a_i ← R_q, e_i ← chi" }, "reduction_algorithm": { "input": "QRFT challenge (F, y) where y should equal RFT(x)", "step1": "Interpret F as polynomial coefficients in R", "step2": "Map RFT operation to ring multiplication: RFT(x) ~= F·x mod (X^n+1)", "step3": "Add discrete Gaussian noise: b = F·x + e where e ← chi", "step4": "Output Ring-LWE sample (F, b)" }, "security_loss": "At most polynomial in n", "conclusion": "If Ring-LWE is hard, then QRFT_Hardness is hard" } print("Theorem:", reduction["theorem"]) print("\nSetup:") for key, value in reduction["setup"].items(): print(f" {key}: {value}") print("\nReduction Algorithm:") for key, value in reduction["reduction_algorithm"].items(): print(f" {key}: {value}") print(f"\nSecurity Loss: {reduction['security_loss']}") print(f"Conclusion: {reduction['conclusion']}")
 
         return reduction
 
 def demonstrate_formal_derivation():
-    """"""
+    """
     Demonstrate the complete formal derivation for a specific bound.
-    """"""
+    """
 
     print("QUANTONIUMOS FORMAL MATHEMATICAL DERIVATIONS")
     print("=" * 60)

@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 SURGICAL PRODUCTION FIX ROLLOUT Applies quantonium_core delegate across entire project
 """
 """
@@ -40,7 +40,7 @@ def apply_surgical_fix_to_file(file_path):
         return False except Exception as e:
         print(f"❌ Error processing {file_path}: {e}")
         return False
-def rollout_surgical_fix(): """"""
+def rollout_surgical_fix(): """
         Roll out surgical fix across project
 """
 """

@@ -1,7 +1,7 @@
 # LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL
 # from canonical_true_rft import forward_true_rft, inverse_true_rft
 
-""""""
+"""
 QuantoniumOS - Resonance Fourier Transform Module
 
 This module provides the core mathematical implementation supporting USPTO Patent Claims:
@@ -15,7 +15,7 @@ Operator Form: X = Psi_dagger x where Psi are eigenvectors of resonance kernel R
 
 The implementation uses C++ engine bindings for high-performance computation when available,
 with Python fallback for development and testing.
-""""""
+"""
 
 import math
 from typing import List, Dict, Tuple, Any, Optional
@@ -53,7 +53,7 @@ def resonance_fourier_transform(
     theta: Optional[np.ndarray] = None,
     symbols: Optional[np.ndarray] = None
 ) -> List[Tuple[float, complex]]:
-    """"""
+    """
     Apply True RFT to a signal.
 
     This function routes to the mathematically rigorous True RFT implementation
@@ -68,7 +68,7 @@ def resonance_fourier_transform(
 
     Returns:
         List of (frequency, complex_amplitude) tuples
-    """"""
+    """
     # Map parameters to True RFT interface
     kwargs = {
         'sigma0': alpha,
@@ -99,7 +99,7 @@ def inverse_resonance_fourier_transform(
     theta: Optional[np.ndarray] = None,
     symbols: Optional[np.ndarray] = None
 ) -> List[float]:
-    """"""
+    """
     Apply inverse True RFT to frequency components.
 
     Args:
@@ -111,7 +111,7 @@ def inverse_resonance_fourier_transform(
 
     Returns:
         Reconstructed signal
-    """"""
+    """
     # Convert from legacy format
     rft_coeffs = [coeff for _, coeff in frequency_components]
 
@@ -135,7 +135,7 @@ def perform_rft(
     theta: Optional[np.ndarray] = None,
     symbols: Optional[np.ndarray] = None
 ) -> Dict[str, float]:
-    """"""Route to True RFT implementation.""""""
+    """Route to True RFT implementation."""
     kwargs = {'sigma0': alpha, 'gamma': beta}
     if theta is not None:
         kwargs['theta0_values'] = theta.diagonal().tolist() if hasattr(theta, 'diagonal') else [0.0, np.pi/4]
@@ -158,7 +158,7 @@ def perform_irft(
     theta: Optional[np.ndarray] = None,
     symbols: Optional[np.ndarray] = None
 ) -> List[float]:
-    """"""Route to True IRFT implementation.""""""
+    """Route to True IRFT implementation."""
     kwargs = {'sigma0': alpha, 'gamma': beta}
     if theta is not None:
         kwargs['theta0_values'] = theta.diagonal().tolist() if hasattr(theta, 'diagonal') else [0.0, np.pi/4]
@@ -174,11 +174,11 @@ def perform_irft(
 
 # Legacy compatibility functions
 def perform_rft_list(signal: List[float]) -> List[Tuple[float, complex]]:
-    """"""Legacy compatibility - routes to True RFT.""""""
+    """Legacy compatibility - routes to True RFT."""
     return resonance_fourier_transform(signal)
 
 def perform_irft_list(frequency_components: List[Tuple[float, complex]]) -> List[float]:
-    """"""Legacy compatibility - routes to True RFT.""""""
+    """Legacy compatibility - routes to True RFT."""
     return inverse_resonance_fourier_transform(frequency_components)
 
 # Forward additional True RFT functions for direct access

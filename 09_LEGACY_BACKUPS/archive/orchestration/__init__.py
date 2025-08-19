@@ -1,3 +1,3 @@
-""""""
+"""
 Orchestration module for QuantoniumOS
-""""""
+"""

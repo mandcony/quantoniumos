@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 CORRECTED RFT Quantum Computing with Proper Physics The surgical fix: Use computational basis for all gate operations, RFT only for analysis and coherence measurement. This maintains exact quantum mechanical correctness
 while providing RFT insights.
 """
@@ -89,7 +89,7 @@ class HighPerformanceRFTQuantum:
         self.operation_times:
         self.operation_times["single_qubit_gate"] = []
         self.operation_times["single_qubit_gate"].append(time.time() - start_time)
-    def apply_two_qubit_gate(self, gate: np.ndarray, qubit1: int, qubit2: int): """"""
+    def apply_two_qubit_gate(self, gate: np.ndarray, qubit1: int, qubit2: int): """
         Apply two-qubit gate with correct quantum mechanics
 """
         """ start_time = time.time() new_state = np.zeros_like(
@@ -118,7 +118,7 @@ class HighPerformanceRFTQuantum:
         self.operation_times["two_qubit_gate"].append(time.time() - start_time)
 
         # High-level gate interface
-    def apply_hadamard(self, qubit: int): """"""
+    def apply_hadamard(self, qubit: int): """
         Apply Hadamard gate
 """
 """
@@ -309,7 +309,7 @@ class HighPerformanceRFTQuantum:
         print(f" RFT energy: {rft_analysis['rft_energy']:.6f}")
         print(f" RFT entropy: {rft_analysis['rft_entropy']:.6f}")
         print(f" Coherence score: {qc.get_coherence_score():.6f}")
-    def performance_benchmark(): """"""
+    def performance_benchmark(): """
         Benchmark corrected implementation
 """
 """
@@ -327,7 +327,7 @@ class HighPerformanceRFTQuantum:
         print(f" Avg: {avg_gate_time*1000:.3f}ms/gate")
         print(f" Coherence: {qc.get_coherence_score():.3f}")
         print(f" Entanglement: {qc.get_entanglement_score():.3f}")
-    def main(): """"""
+    def main(): """
         Test corrected RFT quantum implementation
 """
 """

@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - JSON Logger Module
 
 Implements structured JSON logging with timed rotation and custom formatting.
-""""""
+"""
 
 import os
 import json
@@ -14,15 +14,15 @@ from datetime import datetime
 from flask import request, g
 
 class JSONFormatter(logging.Formatter):
-    """"""
+    """
     Custom formatter that outputs log messages as JSON objects
     with standardized fields for API request auditing.
-    """"""
+    """
 
     def format(self, record):
-        """"""
+        """
         Format the log record as a JSON object with standardized fields.
-        """"""
+        """
         # Create the base JSON structure
         log_data = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -65,14 +65,14 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log_data)
 
 def setup_json_logger(app, log_dir="logs", log_level=logging.INFO):
-    """"""
+    """
     Set up JSON logging with TimedRotatingFileHandler.
 
     Args:
         app: Flask application instance
         log_dir: Directory to store log files
         log_level: Logging level to use
-    """"""
+    """
     # Use /tmp/logs for better permission handling in containerized environments
     log_dir = "/tmp/logs" if log_dir == "logs" else log_dir
 

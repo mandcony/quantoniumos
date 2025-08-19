@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Quantonium OS - API Key Management CLI
 
 This CLI tool enables operations staff to create, list, revoke, and rotate API keys
@@ -10,7 +10,7 @@ Usage:
     python -m auth.cli list
     python -m auth.cli revoke --id KEY_ID
     python -m auth.cli rotate --id KEY_ID
-""""""
+"""
 
 import os
 import sys
@@ -22,7 +22,7 @@ from flask import Flask
 from auth.models import db, APIKey, APIKeyAuditLog
 
 def create_app():
-    """"""Create a minimal Flask app for CLI database access""""""
+    """Create a minimal Flask app for CLI database access"""
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -31,19 +31,19 @@ def create_app():
 
 @contextmanager
 def app_context():
-    """"""Context manager to handle Flask app context""""""
+    """Context manager to handle Flask app context"""
     app = create_app()
     with app.app_context():
         yield db
 
 def format_datetime(dt):
-    """"""Format datetime for display""""""
+    """Format datetime for display"""
     if not dt:
         return "Never"
     return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 def create_key(args):
-    """"""Create a new API key""""""
+    """Create a new API key"""
     with app_context():
         # Create key with specified parameters
         expires_in_days = args.expires_in_days if args.expires_in_days else None
@@ -88,7 +88,7 @@ def create_key(args):
             print(json.dumps(data, indent=2))
 
 def list_keys(args):
-    """"""List all API keys""""""
+    """List all API keys"""
     with app_context():
         keys = APIKey.query.all()
 
@@ -122,7 +122,7 @@ def list_keys(args):
             print(tabulate(rows, headers=headers, tablefmt="pretty"))
 
 def revoke_key(args):
-    """"""Revoke an API key""""""
+    """Revoke an API key"""
     with app_context():
         key = APIKey.query.filter_by(key_id=args.id).first()
 
@@ -154,7 +154,7 @@ def revoke_key(args):
         print(f"API key {key.key_id} ({key.name}) has been revoked.")
 
 def rotate_key(args):
-    """"""Rotate an API key""""""
+    """Rotate an API key"""
     with app_context():
         key = APIKey.query.filter_by(key_id=args.id).first()
 
@@ -206,7 +206,7 @@ def rotate_key(args):
             print(json.dumps(data, indent=2))
 
 def view_logs(args):
-    """"""View audit logs for an API key""""""
+    """View audit logs for an API key"""
     with app_context():
         # Get the key
         key = APIKey.query.filter_by(key_id=args.id).first() if args.id else None
@@ -249,7 +249,7 @@ def view_logs(args):
             print(tabulate(rows, headers=headers, tablefmt="pretty"))
 
 def main():
-    """"""Main CLI entrypoint""""""
+    """Main CLI entrypoint"""
     parser = argparse.ArgumentParser(description="Quantonium OS API Key Management CLI")
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 

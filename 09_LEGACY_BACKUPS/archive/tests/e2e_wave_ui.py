@@ -1,9 +1,9 @@
-""""""
+"""
 Quantonium OS - Wave UI End-to-End Tests
 
 End-to-end tests for the waveform visualization UI using Playwright.
 These tests validate the UI functionality and interaction with the API.
-""""""
+"""
 
 import os
 import asyncio
@@ -20,7 +20,7 @@ EXPECTED_EVENTS = 10
 
 @pytest.mark.asyncio
 async def test_wave_ui_loads():
-    """"""Test that the wave UI loads successfully""""""
+    """Test that the wave UI loads successfully"""
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
@@ -43,7 +43,7 @@ async def test_wave_ui_loads():
 
 @pytest.mark.asyncio
 async def test_encrypt_mode():
-    """"""Test the encrypt mode functionality""""""
+    """Test the encrypt mode functionality"""
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
@@ -87,7 +87,7 @@ async def test_encrypt_mode():
 
 @pytest.mark.asyncio
 async def test_stream_mode():
-    """"""Test the stream mode functionality""""""
+    """Test the stream mode functionality"""
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
@@ -150,7 +150,7 @@ async def test_stream_mode():
 
 @pytest.mark.asyncio
 async def test_mode_switching():
-    """"""Test switching between encrypt and stream modes""""""
+    """Test switching between encrypt and stream modes"""
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
@@ -180,7 +180,7 @@ async def test_mode_switching():
 
 @pytest.mark.asyncio
 async def test_canvas_rendering():
-    """"""Test that the canvas is rendering properly""""""
+    """Test that the canvas is rendering properly"""
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()

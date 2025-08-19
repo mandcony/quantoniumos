@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Mathematically Reversible RFT Cipher Fixed version that addresses the core reversibility issues: 1. No quantization between rounds (stay in complex domain) 2. Multiplicative-only magnitude modulation (perfectly reversible) 3. Stable matrix operations (avoid poorly conditioned matrices) 4. Proper padding handling
 """
 """

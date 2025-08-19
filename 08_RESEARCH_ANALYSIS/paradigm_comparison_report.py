@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 PARADIGM COMPARISON REPORT Classical Statistical Tests vs. Symbolic Resonance Validation This demonstrates why classical randomness tests are inappropriate for Luis Minier's Symbolic Resonance Encryption system. Classical tests look for RANDOM noise. Symbolic Resonance systems produce INTENTIONAL coherent patterns. They are fundamentally different paradigms!
 """
 """
@@ -72,7 +72,7 @@ def generate_paradigm_comparison_report():
         print(f"\n💾 Paradigm comparison report saved to: paradigm_comparison_report.json")
         print("||n PARADIGM COMPARISON ANALYSIS COMPLETE! ")
         return report
-def main(): """"""
+def main(): """
         Generate the paradigm comparison report
 """
 """

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 CRYPTOGRAPHIC SECURITY ENHANCEMENTS === Implementation of Priority A critical fixes: 1. Output whitening/extractor (SHAKE256) 2. Keyed non-linear diffusion (ARX rounds) These fixes address the critical gaps identified in our security analysis.
 """
 """
@@ -36,7 +36,7 @@ class CryptographicEnhancer:
 
         # Generate key using SHAKE256 shake = hashlib.shake_256() shake.update(b"QuantoniumOS-RFT-Key-v1||" + key_material)
         return shake.digest(32) # 256-bit key
-    def output_whitening_extractor(self, biased_bytes: bytes, key: bytes, output_length: int) -> bytes: """"""
+    def output_whitening_extractor(self, biased_bytes: bytes, key: bytes, output_length: int) -> bytes: """
         Strong extractor/whitener using SHAKE256 XOF This should flip quantum engine stats to green
 """
 """
@@ -45,7 +45,7 @@ class CryptographicEnhancer:
 
         # Extract the desired number of bytes
         return shake.digest(output_length)
-    def arx_round(self, x: int, key: int, rotation: int = 7, constant: int = 0x9E3779B9) -> int: """"""
+    def arx_round(self, x: int, key: int, rotation: int = 7, constant: int = 0x9E3779B9) -> int: """
         ARX (Add-Rotate-XOR) round for non-linear diffusion x = (x + rotl(x^k, r)) ^ (x*const)
 """
 """
@@ -92,7 +92,7 @@ class CryptographicEnhancer:
         # Convert back to bytes result = b''
         for word in words: result += struct.pack('<I', word)
         return result
-    def enhanced_rft_output(self, rft_raw_output: bytes, user_key: bytes, nonce: Optional[bytes] = None, output_length: int = 32) -> bytes: """"""
+    def enhanced_rft_output(self, rft_raw_output: bytes, user_key: bytes, nonce: Optional[bytes] = None, output_length: int = 32) -> bytes: """
         Complete enhanced RFT output processing: 1. Apply keyed non-linear diffusion 2. Apply output whitening/extractor
 """
 """
@@ -108,7 +108,7 @@ class CryptographicEnhancer:
         # Step 3: Apply output whitening/extractor (kill bias & correlation) final_output =
         self.output_whitening_extractor(diffused_output, extraction_key, output_length)
         return final_output
-    def domain_separated_hash(self, message: bytes, domain_tag: str, output_length: int = 32) -> bytes: """"""
+    def domain_separated_hash(self, message: bytes, domain_tag: str, output_length: int = 32) -> bytes: """
         Proper hash framing with domain separation
 """
 """
@@ -119,7 +119,7 @@ class CryptographicEnhancer:
 
         # Hash using SHAKE256 with proper capacity shake = hashlib.shake_256() shake.update(tagged_input)
         return shake.digest(output_length)
-    def test_enhanced_cryptographic_system(): """"""
+    def test_enhanced_cryptographic_system(): """
         Test the enhanced cryptographic system
 """
 """

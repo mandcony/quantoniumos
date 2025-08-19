@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 SURGICAL STOPGAP: quantonium_core delegation wrapper Until core engine is rewritten, delegate to working resonance_engine
 """
 """
@@ -51,7 +51,7 @@ class ResonanceFourierTransform:
 
         # Additional compatibility exports
 
-class GeometricWaveformHash: """"""
+class GeometricWaveformHash: """
         Forward to quantum_engine
 """
 """

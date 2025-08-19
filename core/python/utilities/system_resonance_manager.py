@@ -1,4 +1,4 @@
-""""""
+"""
 QuantoniumOS - System Resonance Manager This module implements the core system resonance management for process scheduling using quantum-inspired resonance patterns and geometric containers.
 """
 """
@@ -130,7 +130,7 @@ class Process(GeometricContainer):
         if new_state == "terminated" and
         self.end_time is None:
         self.end_time = now
-    def get_metrics(self) -> Dict[str, Any]: """"""
+    def get_metrics(self) -> Dict[str, Any]: """
         Get process metrics for monitoring and analysis
 """
 """
@@ -150,7 +150,7 @@ class Process(GeometricContainer):
         if
         self.end_time and
         self.start_time else None }
-    def monitor_resonance_states(processes, dt=0.1, max_samples=10): """"""
+    def monitor_resonance_states(processes, dt=0.1, max_samples=10): """
         Advanced monitor for process resonance states that simulates quantum-inspired fluctuations in priority, amplitude, and resonance. Args: processes: List of Process objects dt: Time step for simulation max_samples: Maximum number of samples to record Returns: List of state snapshots and process metrics over time
 """
         """ results = [] freq_val = 1.0

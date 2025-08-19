@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Debug qubit indexing and CNOT behavior
 """
 """
@@ -18,7 +18,7 @@ def test_state_indexing():
         for i in range(4): binary = format(i, '02b')
         print(f"Index {i}: |{binary}>")
         print()
-def test_cnot_step_by_step(): """"""
+def test_cnot_step_by_step(): """
         Test CNOT step by step
 """
         """ qc = RFTQuantumComputer(num_qubits=2, approach="fast_conjugated")
@@ -42,7 +42,7 @@ def test_cnot_step_by_step(): """"""
         print(f"||nAfter CNOT(0,1) through our system:") qc.apply_cnot(0, 1) state = qc.get_computational_state() for i, amp in enumerate(state):
         if abs(amp) > 1e-10: binary = format(i, '02b')
         print(f" {amp:.6f}|{binary}>")
-def test_cnot_indexing(): """"""
+def test_cnot_indexing(): """
         Test CNOT qubit indexing convention
 """
 """

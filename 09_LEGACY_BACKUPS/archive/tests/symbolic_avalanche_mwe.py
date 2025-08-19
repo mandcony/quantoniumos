@@ -9,7 +9,7 @@ print("================================")
 
 # Define a simplified version of the analyze_waveform function
 def analyze_waveform(wave_data):
-    """"""Simplified analyze_waveform function for demonstration""""""
+    """Simplified analyze_waveform function for demonstration"""
     n = len(wave_data)
 
     # Calculate "bins" - simplified version of your algorithm

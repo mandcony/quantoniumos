@@ -1,10 +1,10 @@
-""""""
+"""
 Patent Mathematics Test Suite
 Comprehensive validation of U.S. Patent Application No. 19/169,399 mathematics
 
 This test suite validates that all mathematical formulas from the patent
 are correctly implemented in the codebase.
-""""""
+"""
 
 import pytest
 import numpy as np
@@ -37,13 +37,13 @@ except ImportError as e:
     def waveform_hash_mixing(*args): return (0.0, 0.0)
 
 class TestPatentMathImplementation:
-    """"""Test suite to validate patent mathematics implementation""""""
+    """Test suite to validate patent mathematics implementation"""
 
     def test_xor_encryption_with_geometric_hash(self):
-        """"""
+        """
         Patent Math: XOR Encryption with Geometric Hash
         C_i = D_i ⊕ H(W_i), where H(W_i) = mod(A_i * cos(ϕ_i), p)
-        """"""
+        """
         # Test data
         data = [0x41, 0x42, 0x43]  # "ABC"
         amplitudes = [1.0, 2.0, 1.5]
@@ -77,10 +77,10 @@ class TestPatentMathImplementation:
         assert hash_values == hash_values_2, "Hash function not deterministic"
 
     def test_waveform_hash_mixing(self):
-        """"""
+        """
         Patent Math: Geometric Waveform Hash Mixing
         W_combined = (A + A_x, (ϕ + ϕ_x) mod 2pi)
-        """"""
+        """
         A1, phi1 = 1.0, np.pi/4
         A2, phi2 = 2.0, np.pi/2
 
@@ -103,10 +103,10 @@ class TestPatentMathImplementation:
         assert abs(phase_wrap - expected_wrap) < 1e-10
 
     def test_rft_forward_transform(self):
-        """"""
+        """
         Patent Math: Forward RFT
         RFT_k = Sum A_n * e^{iϕ_n} * e^{-2piikn/N}
-        """"""
+        """
         N = 4
         amplitudes = [1.0, 1.0, 1.0, 1.0]
         phases = [0, np.pi/2, np.pi, 3*np.pi/2]
@@ -136,10 +136,10 @@ class TestPatentMathImplementation:
         assert abs(rft_result[2]) < 1e-10, "Nyquist component should be near zero"
 
     def test_inverse_rft_mathematical(self):
-        """"""
+        """
         Patent Math: Inverse RFT
         W_n = (1/N) Sum RFT_k * e^{2piikn/N}
-        """"""
+        """
         N = 8
 
         # Create test RFT data
@@ -161,7 +161,7 @@ class TestPatentMathImplementation:
             assert abs(inverse_result[i] - np_ifft[i]) < 1e-10, f"Inverse RFT mismatch at index {i}"
 
     def test_rft_roundtrip(self):
-        """"""Test that Forward RFT -> Inverse RFT recovers original signal""""""
+        """Test that Forward RFT -> Inverse RFT recovers original signal"""
         N = 16
 
         # Create test signal
@@ -182,10 +182,10 @@ class TestPatentMathImplementation:
             assert abs(original_signal[i] - recovered_signal[i]) < 1e-10, f"Roundtrip failed at index {i}"
 
     def test_symbolic_entropy_function(self):
-        """"""
+        """
         Patent Math: Symbolic Entropy Function
         H(W) = -Sum p_i log(p_i) where p_i = A_i^2 / Sum A_j^2
-        """"""
+        """
         # Test case 1: Equal amplitudes (maximum entropy)
         equal_amplitudes = [1.0, 1.0, 1.0, 1.0]
         entropy_equal = symbolic_entropy_calculation(equal_amplitudes)
@@ -217,10 +217,10 @@ class TestPatentMathImplementation:
         assert 0 <= entropy_func <= np.log2(len(amplitudes)), "Entropy out of bounds"
 
     def test_grover_amplification(self):
-        """"""
+        """
         Patent Math: Grover Amplification
         s'_i = -s_i if i = target, else s'_i = 2*avg - s_i
-        """"""
+        """
         amplitudes = [0.5, 0.3, 0.8, 0.1]
         target_index = 2
 
@@ -246,11 +246,11 @@ class TestPatentMathImplementation:
             grover_amplitude_amplification([1, 2, 3], 5)
 
     def test_symbolic_qubit_hadamard(self):
-        """"""
+        """
         Patent Math: Symbolic Qubit and Hadamard Gate
         |psi> = alpha|0> + beta|1> where alpha = A_0 * e^{iϕ_0}, beta = A_1 * e^{iϕ_1}
         H|psi> = (1/sqrt2) * [[1, 1], [1, -1]] * [alpha, beta]
-        """"""
+        """
         # Test |0> state
         qubit_0 = SymbolicQubitGate(1.0, 0.0, 0.0, 0.0)
         h_qubit_0 = qubit_0.hadamard_gate()
@@ -287,10 +287,10 @@ class TestPatentMathImplementation:
         assert abs(x_probs[1] - 1.0) < 1e-10, "Pauli-X failed"
 
     def test_frequency_matching_search(self):
-        """"""
+        """
         Patent Math: Frequency Matching
         x* = argmin_x ||f_target - f_x||_resonance
-        """"""
+        """
         frequencies = [1.0, 2.5, 4.2, 7.8, 12.1]
 
         # Test exact match
@@ -315,7 +315,7 @@ class TestPatentMathImplementation:
         assert edge_match == 0, "Should find first of equally close matches"
 
     def test_bloch_sphere_representation(self):
-        """"""Test Bloch sphere coordinate calculation for symbolic qubits""""""
+        """Test Bloch sphere coordinate calculation for symbolic qubits"""
         # Test |0> state (north pole: z = +1)
         qubit_0 = SymbolicQubitGate(1.0, 0.0, 0.0, 0.0)
         x, y, z = qubit_0.bloch_sphere_coordinates()
@@ -338,7 +338,7 @@ class TestPatentMathImplementation:
         assert abs(z - 0.0) < 1e-10, "Bloch z-coordinate wrong for |+>"
 
     def test_patent_math_integration(self):
-        """"""Integration test combining multiple patent math components""""""
+        """Integration test combining multiple patent math components"""
         # Create a symbolic waveform
         N = 8
         amplitudes = [1.0, 0.8, 1.2, 0.6, 0.9, 1.1, 0.7, 1.0]

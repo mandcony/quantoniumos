@@ -1,4 +1,4 @@
-""""""
+"""
 QuantoniumOS - Quantum Scheduler
 
 This module implements the quantum-inspired scheduler for QuantoniumOS,
@@ -12,7 +12,7 @@ Key features:
 
 This implementation demonstrates the real-world application of the quantum-resonance
 formalism to process scheduling, showing clear advantages over traditional schedulers.
-""""""
+"""
 
 import os
 import sys
@@ -36,7 +36,7 @@ logging.basicConfig(
 
 @dataclass
 class Process:
-    """"""Process representation in the quantum-resonance scheduler""""""
+    """Process representation in the quantum-resonance scheduler"""
     pid: int
     priority: float
     amplitude: complex
@@ -54,25 +54,25 @@ class Process:
             self.freq = self.calculate_characteristic_frequency()
 
     def calculate_characteristic_frequency(self) -> float:
-        """"""
+        """
         Calculates characteristic frequency for the process
         Implements Axiom 71: f = freq(π, ΔA)
-        """"""
+        """
         base_freq = 0.1 + 0.9 * self.priority  # Scale 0.1-1.0 based on priority
         # Add some variation based on process attributes
         variation = (hash(self.pid) % 1000) / 10000  # Small variation
         return base_freq + variation
 
 class QuantumScheduler:
-    """"""
+    """
     Quantum-inspired OS scheduler using resonance and amplitudes
 
     This scheduler implements the following axioms:
     - Axiom 69: A' = constrain(A, C) - Axiom 70: S' = memory(S, PT)
     - Axiom 71: f = freq(π, ΔA)
     - Axiom 72: k = decide(A)
-    - Axiom 73: A' = run(A) - Axiom 74: k = schedule(S, f, A) """""" def __init__(self): """"""Initialize the quantum scheduler"""""" self.processes: Dict[int, Process] = {} self.running_pid: Optional[int] = None self.time_quantum: int = 4 self.resonance_threshold: float = 0.6 self.resource_limit: float = 4.0 # Arbitrary resource limit self.page_table: Dict[int, Dict[int, int]] = {} # pid -> {page_id -> frame_id} self.memory_frames: Dict[int, int] = {} # frame_id -> pid self.frame_count: int = 64 # Total memory frames self.time: float = 0.0 self.prev_amplitudes: Dict[int, complex] = {} # Previous amplitudes for tracking changes self.schedule_log: List[Dict[str, Any]] = [] def add_process(self, process: Process) -> None: """"""Add a new process to the scheduler"""""" self.processes[process.pid] = process self.prev_amplitudes[process.pid] = process.amplitude # Allocate memory pages (simplified) self.page_table[process.pid] = {} for i, page in enumerate(process.mem_pages): # Find a free frame for frame in range(self.frame_count): if frame not in self.memory_frames: self.memory_frames[frame] = process.pid self.page_table[process.pid][page] = frame break def remove_process(self, pid: int) -> None: """"""Remove a process from the scheduler"""""" if pid in self.processes: # Free memory if pid in self.page_table: for frame in list(self.memory_frames.keys()): if self.memory_frames[frame] == pid: del self.memory_frames[frame] del self.page_table[pid] # Remove process del self.processes[pid] if pid in self.prev_amplitudes: del self.prev_amplitudes[pid] if self.running_pid == pid: self.running_pid = None def update_memory(self) -> None: """""" Process memory events and update process amplitudes Implements Axiom 70: S' = memory(S, PT)
-        """"""
+    - Axiom 73: A' = run(A) - Axiom 74: k = schedule(S, f, A) """ def __init__(self): """Initialize the quantum scheduler""" self.processes: Dict[int, Process] = {} self.running_pid: Optional[int] = None self.time_quantum: int = 4 self.resonance_threshold: float = 0.6 self.resource_limit: float = 4.0 # Arbitrary resource limit self.page_table: Dict[int, Dict[int, int]] = {} # pid -> {page_id -> frame_id} self.memory_frames: Dict[int, int] = {} # frame_id -> pid self.frame_count: int = 64 # Total memory frames self.time: float = 0.0 self.prev_amplitudes: Dict[int, complex] = {} # Previous amplitudes for tracking changes self.schedule_log: List[Dict[str, Any]] = [] def add_process(self, process: Process) -> None: """Add a new process to the scheduler""" self.processes[process.pid] = process self.prev_amplitudes[process.pid] = process.amplitude # Allocate memory pages (simplified) self.page_table[process.pid] = {} for i, page in enumerate(process.mem_pages): # Find a free frame for frame in range(self.frame_count): if frame not in self.memory_frames: self.memory_frames[frame] = process.pid self.page_table[process.pid][page] = frame break def remove_process(self, pid: int) -> None: """Remove a process from the scheduler""" if pid in self.processes: # Free memory if pid in self.page_table: for frame in list(self.memory_frames.keys()): if self.memory_frames[frame] == pid: del self.memory_frames[frame] del self.page_table[pid] # Remove process del self.processes[pid] if pid in self.prev_amplitudes: del self.prev_amplitudes[pid] if self.running_pid == pid: self.running_pid = None def update_memory(self) -> None: """ Process memory events and update process amplitudes Implements Axiom 70: S' = memory(S, PT)
+        """
         for pid, process in list(self.processes.items()):
             if process.state == "finished":
                 continue
@@ -87,19 +87,19 @@ class QuantumScheduler:
                 logger.debug(f"Process {pid} had a page fault, new amplitude: {process.amplitude}")
 
     def calculate_resonance(self, freq1: float, freq2: float) -> float:
-        """"""
+        """
         Calculate resonance between two frequencies using a Gaussian model
         Implements Axiom 17: A_res = max(R(f, A))
-        """"""
+        """
         # Gaussian resonance function, peaks at freq1 == freq2
         sigma = 0.2  # Width of the resonance peak
         return np.exp(-((freq1 - freq2) ** 2) / (2 * sigma ** 2))
 
     def apply_resource_constraints(self) -> None:
-        """"""
+        """
         Apply resource constraints to process amplitudes
-        Implements Axiom 69: A' = constrain(A, C) """""" # Calculate total "energy" of the system total_energy = sum(abs(p.amplitude) ** 2 for p in self.processes.values()) # If exceeds limit, normalize if total_energy > self.resource_limit: scale_factor = np.sqrt(self.resource_limit / total_energy) for pid, process in self.processes.items(): process.amplitude *= scale_factor def decide_next_process(self) -> Optional[int]: """""" Select the next process to run based on amplitudes and resonance Implements Axiom 72: k = decide(A) """""" if not self.processes: return None # Get all ready processes ready_procs = {pid: proc for pid, proc in self.processes.items() if proc.state in ["ready", "waiting"] and proc.wait_time <= 0} if not ready_procs: return None # Calculate a system frequency based on time sys_freq = 0.5 + 0.5 * math.sin(self.time / 10) # Find process with highest resonance * amplitude magnitude max_score = -1 selected_pid = None for pid, proc in ready_procs.items(): # Calculate resonance res = self.calculate_resonance(proc.freq, sys_freq) # Score based on resonance and amplitude magnitude score = res * abs(proc.amplitude) if score > max_score: max_score = score selected_pid = pid return selected_pid def update_running_process(self) -> None: """""" Update the amplitude for the running process Implements Axiom 73: A' = run(A)
-        """"""
+        Implements Axiom 69: A' = constrain(A, C) """ # Calculate total "energy" of the system total_energy = sum(abs(p.amplitude) ** 2 for p in self.processes.values()) # If exceeds limit, normalize if total_energy > self.resource_limit: scale_factor = np.sqrt(self.resource_limit / total_energy) for pid, process in self.processes.items(): process.amplitude *= scale_factor def decide_next_process(self) -> Optional[int]: """ Select the next process to run based on amplitudes and resonance Implements Axiom 72: k = decide(A) """ if not self.processes: return None # Get all ready processes ready_procs = {pid: proc for pid, proc in self.processes.items() if proc.state in ["ready", "waiting"] and proc.wait_time <= 0} if not ready_procs: return None # Calculate a system frequency based on time sys_freq = 0.5 + 0.5 * math.sin(self.time / 10) # Find process with highest resonance * amplitude magnitude max_score = -1 selected_pid = None for pid, proc in ready_procs.items(): # Calculate resonance res = self.calculate_resonance(proc.freq, sys_freq) # Score based on resonance and amplitude magnitude score = res * abs(proc.amplitude) if score > max_score: max_score = score selected_pid = pid return selected_pid def update_running_process(self) -> None: """ Update the amplitude for the running process Implements Axiom 73: A' = run(A)
+        """
         if self.running_pid is None or self.running_pid not in self.processes:
             return
 
@@ -121,10 +121,10 @@ class QuantumScheduler:
             logger.info(f"Process {proc.pid} finished execution")
 
     def update_waiting_processes(self) -> None:
-        """"""
+        """
         Update amplitudes for waiting processes
         Implements a variation of Axiom 73
-        """"""
+        """
         for pid, process in self.processes.items():
             if process.state == "waiting":
                 # Decrease wait time
@@ -139,13 +139,13 @@ class QuantumScheduler:
                 process.amplitude *= np.exp(1j * small_angle)
 
     def schedule(self) -> Dict[str, Any]:
-        """"""
+        """
         Main scheduling function integrating all quantum axioms
         Implements Axiom 74: k = schedule(S, f, A)
 
         Returns:
             Dict with scheduling results for this tick
-        """"""
+        """
         self.time += 1
 
         # Update memory state (page faults, etc)
@@ -196,7 +196,7 @@ class QuantumScheduler:
         return metrics
 
     def run_simulation(self, steps: int = 100) -> List[Dict[str, Any]]:
-        """"""Run the scheduler for a specified number of steps""""""
+        """Run the scheduler for a specified number of steps"""
         for _ in range(steps):
             self.schedule()
 
@@ -207,7 +207,7 @@ class QuantumScheduler:
         return self.schedule_log
 
 def demo_quantum_scheduler():
-    """"""Demonstrate the quantum scheduler with a simple simulation""""""
+    """Demonstrate the quantum scheduler with a simple simulation"""
     scheduler = QuantumScheduler()
 
     # Create some test processes

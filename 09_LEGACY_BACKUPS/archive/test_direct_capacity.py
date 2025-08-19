@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Direct Qubit Limit Test Simple test to find exact qubit capacity without extra overhead
 """
 """
@@ -51,7 +51,7 @@ def test_direct_qubit_capacity():
         return n_qubits - 1
         print(f"\n REACHED END OF TEST")
         return n_qubits
-def test_with_simulator(): """"""
+def test_with_simulator(): """
         Test using the actual QuantumSimulator class
 """
 """

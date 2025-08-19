@@ -1,9 +1,9 @@
 import pytest
 #!/usr/bin/env python3
-""""""
+"""
 Geometric Waveform Cipher Known-Answer Tests (KATs)
 Test vectors for validating geometric waveform hashing and encryption
-""""""
+"""
 
 import sys
 import json
@@ -22,14 +22,14 @@ except ImportError:
     GEOWAVE_AVAILABLE = False
 
 class GeometricWaveformKAT:
-    """"""Known-Answer Tests for Geometric Waveform Cipher""""""
+    """Known-Answer Tests for Geometric Waveform Cipher"""
 
     def __init__(self):
         self.test_results = []
         self.known_test_vectors = self.generate_known_test_vectors()
 
     def generate_known_test_vectors(self) -> List[Dict[str, Any]]:
-        """"""Generate known test vectors for validation""""""
+        """Generate known test vectors for validation"""
         test_vectors = []
 
         # Test Vector 1: Simple sine wave
@@ -107,7 +107,7 @@ class GeometricWaveformKAT:
         return test_vectors
 
     def test_geometric_hash_consistency(self):
-        """"""Test that geometric hashing produces consistent results""""""
+        """Test that geometric hashing produces consistent results"""
         if not GEOWAVE_AVAILABLE:
             self.test_results.append({
                 'test': 'geometric_hash_consistency',
@@ -149,7 +149,7 @@ class GeometricWaveformKAT:
 
     @pytest.mark.xfail(reason='Hash collision edge case - see issue #2', strict=False)
     def test_hash_uniqueness(self):
-        """"""Test that different waveforms produce different hashes""""""
+        """Test that different waveforms produce different hashes"""
         if not GEOWAVE_AVAILABLE:
             self.test_results.append({
                 'test': 'hash_uniqueness',
@@ -199,7 +199,7 @@ class GeometricWaveformKAT:
             })
 
     def test_waveform_hash_format(self):
-        """"""Test that hash output format is correct""""""
+        """Test that hash output format is correct"""
         if not GEOWAVE_AVAILABLE:
             self.test_results.append({
                 'test': 'waveform_hash_format',
@@ -244,7 +244,7 @@ class GeometricWaveformKAT:
                 })
 
     def test_golden_ratio_properties(self):
-        """"""Test that golden ratio optimization is applied correctly""""""
+        """Test that golden ratio optimization is applied correctly"""
         if not GEOWAVE_AVAILABLE:
             self.test_results.append({
                 'test': 'golden_ratio_properties',
@@ -313,7 +313,7 @@ class GeometricWaveformKAT:
             })
 
     def test_empty_waveform_handling(self):
-        """"""Test handling of edge cases like empty waveforms""""""
+        """Test handling of edge cases like empty waveforms"""
         if not GEOWAVE_AVAILABLE:
             self.test_results.append({
                 'test': 'empty_waveform_handling',
@@ -354,7 +354,7 @@ class GeometricWaveformKAT:
                 })
 
     def run_all_tests(self):
-        """"""Run all known-answer tests""""""
+        """Run all known-answer tests"""
         print("Running Geometric Waveform Cipher Known-Answer Tests...")
         print("=" * 60)
 
@@ -412,7 +412,7 @@ class GeometricWaveformKAT:
         return failed_tests == 0 and error_tests == 0
 
 def main():
-    """"""Run geometric waveform cipher KATs""""""
+    """Run geometric waveform cipher KATs"""
     tester = GeometricWaveformKAT()
     success = tester.run_all_tests()
 

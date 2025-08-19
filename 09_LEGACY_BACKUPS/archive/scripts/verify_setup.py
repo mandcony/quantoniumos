@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""""""
+"""
 QuantoniumOS Setup Verification Script
 Verifies all dependencies and configurations are correctly installed.
 Run: python scripts/verify_setup.py
-""""""
+"""
 
 import sys
 import subprocess
@@ -20,7 +20,7 @@ if Path('.env').exists():
         pass  # dotenv not installed, skip loading
 
 def check_python_version():
-    """"""Check Python version requirement""""""
+    """Check Python version requirement"""
     min_version = (3, 9)
     current = sys.version_info[:2]
 
@@ -33,7 +33,7 @@ def check_python_version():
         return False
 
 def check_package(package_name, import_name=None):
-    """"""Check if a Python package is installed""""""
+    """Check if a Python package is installed"""
     import_name = import_name or package_name
     try:
         importlib.import_module(import_name)
@@ -44,7 +44,7 @@ def check_package(package_name, import_name=None):
         return False
 
 def check_system_command(command, name=None):
-    """"""Check if a system command is available""""""
+    """Check if a system command is available"""
     name = name or command
     try:
         subprocess.run([command, '--version'],
@@ -56,7 +56,7 @@ def check_system_command(command, name=None):
         return False
 
 def check_database_connection():
-    """"""Check database connection (SQLite or PostgreSQL)""""""
+    """Check database connection (SQLite or PostgreSQL)"""
     try:
         db_url = os.getenv('DATABASE_URL', 'sqlite:///quantonium_dev.db')
 
@@ -81,7 +81,7 @@ def check_database_connection():
         return False
 
 def check_redis_connection():
-    """"""Check Redis connection (optional for development)""""""
+    """Check Redis connection (optional for development)"""
     try:
         import redis
         redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
@@ -95,7 +95,7 @@ def check_redis_connection():
         return True  # Not critical for development
 
 def check_file_structure():
-    """"""Check essential file structure""""""
+    """Check essential file structure"""
     essential_files = [
         'quantoniumos/main.py',
         'quantoniumos/app.py',
@@ -115,7 +115,7 @@ def check_file_structure():
     return len(missing_files) == 0
 
 def check_environment_variables():
-    """"""Check important environment variables""""""
+    """Check important environment variables"""
     env_vars = {
         'DATABASE_URL': 'Database connection string',
         'REDIS_URL': 'Redis connection string',
@@ -134,7 +134,7 @@ def check_environment_variables():
     return len(missing_vars) == 0
 
 def main():
-    """"""Run all verification checks""""""
+    """Run all verification checks"""
     print("🔍 QuantoniumOS Setup Verification")
     print("=" * 50)
 

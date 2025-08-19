@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 RFT Import Cleanup Script - Replace All Duplicate RFT Implementations This script systematically replaces all duplicate/legacy RFT implementations with imports from the canonical source, addressing the major reviewer concern. PROBLEM: 50+ files with conflicting RFT implementations confuse reviewers SOLUTION: Replace all with canonical_true_rft.py imports
 """
 """
@@ -25,7 +25,7 @@ import or define RFT functions.
         if any(re.search(pattern, content, re.IGNORECASE)
         for pattern in patterns): rft_files.append(py_file) except (UnicodeDecodeError, PermissionError): continue
         return rft_files
-def fix_file(filepath): """"""
+def fix_file(filepath): """
         Fix RFT imports in a single file.
 """
 """

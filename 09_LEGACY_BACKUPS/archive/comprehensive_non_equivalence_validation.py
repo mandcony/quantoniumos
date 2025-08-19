@@ -2,7 +2,7 @@
 
 # LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL # from canonical_true_rft
 import forward_true_rft, inverse_true_rft #!/usr/bin/env python3
-""""""
+"""
 Comprehensive RFT Non-Equivalence and Sigma-Tightening Validation Suite This module implements the complete test plan for demonstrating: 1. RFT != scaled/permuted DFT (non-equivalence tests) 2. Hash avalanche variance sigma <= 2 (sigma-tightening validation) Designed for publication-grade cryptographic validation.
 """
 """
@@ -66,7 +66,7 @@ import forward_true_rft, inverse_true_rft
         for n in (8, 12, 16): Psi = build_rft_matrix(forward_true_rft)(n) ok, _, _ = sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8) results[f"sinkhorn_uniform_moduli_success_n{n}"] = bool(ok) logger.info(f" n={n}: Sinkhorn convergence = {ok}") test_rft_moduli_not_scalable_to_uniform() results["test_c_uniform_moduli"] = "PASS" except Exception as e: logger.error(f"Test C failed: {e}") results["test_c_uniform_moduli"] = f"FAIL: {e}"
         return results except ImportError as e: logger.error(f"Import error in non-equivalence tests: {e}")
         return {"error": f"Import error: {e}"}
-def run_sigma_tightening_tests(): """"""
+def run_sigma_tightening_tests(): """
         Run sigma-tightening validation tests and
         return results.
 """
@@ -85,7 +85,7 @@ import geometric_waveform_hash_bytes results = {} key = b'RFT-key-0123456789ABCD
         try: test_hash_avalanche_sigma_tightened() results["sigma_tightening_test"] = "PASS" logger.info("sigma-tightening test: PASS") except AssertionError as e: results["sigma_tightening_test"] = f"FAIL: {e}" logger.warning(f"sigma-tightening test: FAIL - {e}")
         return results except ImportError as e: logger.error(f"Import error in sigma-tightening tests: {e}")
         return {"error": f"Import error: {e}"}
-def run_comprehensive_validation(): """"""
+def run_comprehensive_validation(): """
         Run complete validation suite and save results.
 """
         """ logger.info("Starting comprehensive RFT validation suite...")

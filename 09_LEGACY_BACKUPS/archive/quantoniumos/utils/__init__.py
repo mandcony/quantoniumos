@@ -1,1 +1,1 @@
-""""""QuantoniumOS utils package.""""""
+"""QuantoniumOS utils package."""

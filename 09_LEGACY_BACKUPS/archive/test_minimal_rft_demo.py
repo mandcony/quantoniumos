@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Test suite for minimal RFT encryption demo === Ensures the minimal_rft_encrypt_demo.py works correctly in CI environments and provides automated validation of the canonical RFT encryption properties.
 """
 """
@@ -31,7 +31,7 @@ class TestMinimalRFTDemo:
         """ key1 = derive_key("test_password") key2 = derive_key("test_password") assert key1 == key2 assert len(key1) == 32
 
         # SHA-256 output length
-    def test_keystream_deterministic(self): """"""
+    def test_keystream_deterministic(self): """
         Test that keystream generation is deterministic
 """
 """
@@ -51,7 +51,7 @@ class TestMinimalRFTDemo:
         Test basic encryption/decryption round trip
 """
         """ passphrase = "test_secret_123" plaintext = "Hello RFT World!" ciphertext = encrypt(passphrase, plaintext) recovered = decrypt(passphrase, ciphertext) assert recovered == plaintext
-    def test_encrypt_decrypt_various_lengths(self): """"""
+    def test_encrypt_decrypt_various_lengths(self): """
         Test with different plaintext lengths
 """
         """ passphrase = "consistent_key" test_cases = [ "",
@@ -66,7 +66,7 @@ class TestMinimalRFTDemo:
 
         # Unicode content ]
         for plaintext in test_cases: ciphertext = encrypt(passphrase, plaintext) recovered = decrypt(passphrase, ciphertext) assert recovered == plaintext, f"Failed for: {plaintext}"
-    def test_ciphertext_format(self): """"""
+    def test_ciphertext_format(self): """
         Test ciphertext format compliance
 """
         """ ciphertext = encrypt("key", "message")
@@ -79,7 +79,7 @@ class TestMinimalRFTDemo:
 
         # Should not
         raise exception
-    def test_wrong_password_fails(self): """"""
+    def test_wrong_password_fails(self): """
         Test that wrong password produces garbage or fails
 """
         """ plaintext = "Secret message" ciphertext = encrypt("correct_password", plaintext)
@@ -90,7 +90,7 @@ class TestMinimalRFTDemo:
         # If it doesn't fail, result should differ except (UnicodeDecodeError, ValueError): pass
 
         # Expected failure is also acceptable
-    def test_canonical_rft_integration(self): """"""
+    def test_canonical_rft_integration(self): """
         Test that the demo actually uses canonical RFT functions
 """
 """

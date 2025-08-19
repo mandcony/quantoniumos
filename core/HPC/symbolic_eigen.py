@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - Symbolic Eigenvector HPC Module
 
 Implements high-performance computing routines for symbolic eigenvector calculations.
-""""""
+"""
 
 import hashlib
 import logging
@@ -22,11 +22,11 @@ except ImportError:
     logger.warning("⚠️ HPC engine_core module not found, using fallback implementation")
 
 def compute_eigenvectors(data_bytes: ByteString) -> Dict[str, Any]:
-    """"""
+    """
     Compute symbolic eigenvectors for the given data.
     If HPC backend is available, uses optimized C++ implementation.
     Otherwise, uses a Python fallback implementation.
-    """"""
+    """
     if HPC_BACKEND_LOADED:
         try:
             # Call the C++ module if available
@@ -51,11 +51,11 @@ def compute_eigenvectors(data_bytes: ByteString) -> Dict[str, Any]:
     return eigen_basis
 
 def transform_basis(data_bytes: ByteString, eigen_basis: Dict[str, Any]) -> ByteString:
-    """"""
+    """
     Transform data using the eigenvector basis.
     If HPC backend is available, uses optimized C++ implementation.
     Otherwise, uses a Python fallback implementation.
-    """"""
+    """
     if HPC_BACKEND_LOADED:
         try:
             # Call the C++ module if available
@@ -77,11 +77,11 @@ def transform_basis(data_bytes: ByteString, eigen_basis: Dict[str, Any]) -> Byte
     return bytes(transformed)
 
 def generate_eigenstate_entropy(quantum_stream: ByteString, size: int) -> ByteString:
-    """"""
+    """
     Generate entropy using eigenstate transitions.
     If HPC backend is available, uses optimized C++ implementation.
     Otherwise, uses a Python fallback implementation.
-    """"""
+    """
     if HPC_BACKEND_LOADED:
         try:
             # Call the C++ module if available

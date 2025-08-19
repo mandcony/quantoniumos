@@ -1,7 +1,7 @@
 
 
 # LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL # from canonical_true_rft
-import forward_true_rft, inverse_true_rft """"""
+import forward_true_rft, inverse_true_rft """
 QuantoniumOS High-Performance Engine Interface Routes all cryptographic operations through C++ engines with Python fallback This module provides the primary interface for all QuantoniumOS cryptographic operations, automatically routing calls to high-performance C++ implementations when available, with seamless fallback to Python implementations.
 """
 """
@@ -27,7 +27,7 @@ if not (HAS_RESONANCE_ENGINE or HAS_CORE_ENGINE): logger.info("🐍 Using Python
 from canonical_true_rft import ( forward_true_rft as _py_forward_rft, inverse_true_rft as _py_inverse_rft, encode_symbolic_resonance as _py_encode_symbolic ) from core.encryption.geometric_waveform_hash
 import GeometricWaveformHash as _PyGeometricHash
 
-class QuantoniumEngineCore: """"""
+class QuantoniumEngineCore: """
     Unified interface to QuantoniumOS high-performance engines. This class automatically routes operations to the best available implementation: 1. C++ Resonance Engine (fastest) 2. C++ Quantum Engine (quantum-enhanced) 3. C++ Core Engine (basic C++) 4. Python fallback (always available)
 """
 """
@@ -44,7 +44,7 @@ class QuantoniumEngineCore: """"""
         try:
         self.quantum_engine = quantum_engine.QuantumEntropyEngine()
         self.quantum_hasher = quantum_engine.QuantumGeometricHasher() logger.info("Quantum Engine initialized") except Exception as e: logger.error(f"Failed to initialize Quantum Engine: {e}")
-    def get_engine_status(self) -> Dict[str, bool]: """"""
+    def get_engine_status(self) -> Dict[str, bool]: """
         Get status of all available engines.
 """
 """
@@ -67,7 +67,7 @@ class QuantoniumEngineCore: """"""
         return 'core_engine'
         else:
         return 'python_fallback' # ==================== RFT Operations (Patent Claim 1) ====================
-    def forward_true_rft( self, input_data: Union[List[float], np.ndarray], weights: Optional[List[float]] = None, theta0_values: Optional[List[float]] = None, omega_values: Optional[List[float]] = None, sigma0: float = 1.0, gamma: float = 0.3, sequence_type: str = "qpsk" ) -> List[complex]: """"""
+    def forward_true_rft( self, input_data: Union[List[float], np.ndarray], weights: Optional[List[float]] = None, theta0_values: Optional[List[float]] = None, omega_values: Optional[List[float]] = None, sigma0: float = 1.0, gamma: float = 0.3, sequence_type: str = "qpsk" ) -> List[complex]: """
         High-performance forward RFT with quantum amplitude decomposition. Automatically routes to best available implementation: - C++ Resonance Engine (preferred) - Python fallback Args: input_data: Input signal weights: Resonance weights theta0_values: Phase parameters omega_values: Frequency parameters (defaults include golden ratio) sigma0: Gaussian width parameter gamma: Exponential decay parameter sequence_type: Sequence type for resonance kernel Returns: Complex RFT coefficients with quantum amplitude decomposition
 """
 """
@@ -94,7 +94,7 @@ class QuantoniumEngineCore: """"""
         try: result = _py_forward_rft( input_data, weights, theta0_values, omega_values, sigma0, gamma, sequence_type ) logger.debug(f"🐍 RFT forward via Python fallback: {len(result)} coefficients")
         return result except Exception as e: logger.error(f"All RFT forward implementations failed: {e}")
         raise
-    def inverse_true_rft( self, rft_data: Union[List[complex], np.ndarray], weights: Optional[List[float]] = None, theta0_values: Optional[List[float]] = None, omega_values: Optional[List[float]] = None, sigma0: float = 1.0, gamma: float = 0.3, sequence_type: str = "qpsk" ) -> List[float]: """"""
+    def inverse_true_rft( self, rft_data: Union[List[complex], np.ndarray], weights: Optional[List[float]] = None, theta0_values: Optional[List[float]] = None, omega_values: Optional[List[float]] = None, sigma0: float = 1.0, gamma: float = 0.3, sequence_type: str = "qpsk" ) -> List[float]: """
         High-performance inverse RFT for perfect reconstruction. Args: rft_data: RFT coefficients to transform back (other args same as forward_true_rft) Returns: Reconstructed real-valued signal
 """
 """
@@ -119,7 +119,7 @@ class QuantoniumEngineCore: """"""
         try: result = _py_inverse_rft( rft_data, weights, theta0_values, omega_values, sigma0, gamma, sequence_type ) logger.debug(f"🐍 RFT inverse via Python fallback: {len(result)} samples")
         return result except Exception as e: logger.error(f"All RFT inverse implementations failed: {e}")
         raise
-    def encode_symbolic_resonance( self, data: str, resonance_key: Optional[np.ndarray] = None, eigenmode_count: int = 16 ) -> Tuple[np.ndarray, Dict[str, Any]]: """"""
+    def encode_symbolic_resonance( self, data: str, resonance_key: Optional[np.ndarray] = None, eigenmode_count: int = 16 ) -> Tuple[np.ndarray, Dict[str, Any]]: """
         Patent Claim 1: Symbolic transformation engine with quantum amplitude decomposition. Args: data: String data to encode resonance_key: Optional resonance key (not used in current implementation) eigenmode_count: Number of eigenmodes in encoding Returns: Tuple of (encoded_waveform, metadata)
 """
 """
@@ -138,7 +138,7 @@ class QuantoniumEngineCore: """"""
         try: result = _py_encode_symbolic(data, resonance_key, eigenmode_count) logger.debug(f"🐍 Symbolic encoding via Python fallback")
         return result except Exception as e: logger.error(f"All symbolic encoding implementations failed: {e}")
         raise # ==================== Geometric Hash Operations (Patent Claim 3) ====================
-    def generate_geometric_waveform_hash( self, waveform: Union[List[float], np.ndarray, str], hash_length: int = 64, key: Optional[bytes] = None, nonce: Optional[bytes] = None, use_quantum_enhancement: bool = True ) -> str: """"""
+    def generate_geometric_waveform_hash( self, waveform: Union[List[float], np.ndarray, str], hash_length: int = 64, key: Optional[bytes] = None, nonce: Optional[bytes] = None, use_quantum_enhancement: bool = True ) -> str: """
         Patent Claim 3: Deterministic RFT-based geometric structures for cryptographic waveform hashing. Args: waveform: Input waveform, numpy array, or string hash_length: Desired hash length in hex characters key: Optional key for keyed hashing mode nonce: Optional nonce for unique outputs use_quantum_enhancement: Use quantum-enhanced hashing
         if available Returns: Deterministic hexadecimal hash string
 """
@@ -188,7 +188,7 @@ import hashlib data_str = str(waveform_data) + str(key) + str(nonce) hash_bytes 
         # Emergency fallback - basic hash
 import hashlib
         return hashlib.sha256(str(waveform_data).encode()).hexdigest()[:hash_length] # === Quantum Operations ===
-    def generate_quantum_entropy( self, count: int, coherence: float = 0.5 ) -> List[float]: """"""
+    def generate_quantum_entropy( self, count: int, coherence: float = 0.5 ) -> List[float]: """
         Generate quantum-inspired entropy for cryptographic operations. Args: count: Number of entropy values to generate coherence: Quantum coherence factor (0.0 = classical, 1.0 = fully quantum) Returns: List of entropy values in [0, 1]
 """
 """
@@ -207,7 +207,7 @@ import numpy as np np.random.seed(None)
         # Add quantum-like phase modulation phases = np.random.normal(0, coherence, count) quantum_mod = np.abs(classical * np.exp(1j * phases)) result = (quantum_mod % 1.0).tolist()
         else: result = classical.tolist() logger.debug(f"🐍 Quantum entropy via Python fallback: {len(result)} values")
         return result
-    def create_quantum_superposition( self, state1: List[float], state2: List[float], alpha: float = 0.7071067811865476, # 1/sqrt2 beta: float = 0.7071067811865476 ) -> List[float]: """"""
+    def create_quantum_superposition( self, state1: List[float], state2: List[float], alpha: float = 0.7071067811865476, # 1/sqrt2 beta: float = 0.7071067811865476 ) -> List[float]: """
         Create quantum superposition state: α|psi_1⟩ + β|psi_2⟩ Args: state1: First quantum state state2: Second quantum state alpha: Amplitude for state1 beta: Amplitude for state2 Returns: Superposition state
 """
 """
@@ -221,7 +221,7 @@ import numpy as np np.random.seed(None)
 
         # Python fallback result = [alpha * s1 + beta * s2 for s1, s2 in zip(state1, state2)] logger.debug(f"🐍 Quantum superposition via Python fallback")
         return result # === Validation and Testing ===
-    def validate_roundtrip_accuracy( self, test_signal: Union[List[float], np.ndarray] ) -> float: """"""
+    def validate_roundtrip_accuracy( self, test_signal: Union[List[float], np.ndarray] ) -> float: """
         Validate RFT roundtrip accuracy: IRFT(RFT(x)) ~= x Args: test_signal: Signal to test Returns: Root mean square error of reconstruction
 """
 """
@@ -242,7 +242,7 @@ import numpy as np np.random.seed(None)
         # Calculate RMSE mse = sum((orig - recon)**2 for orig, recon in zip(test_signal, reconstructed)) rmse = (mse / len(test_signal))**0.5 logger.debug(f"🐍 Roundtrip validation via Python: RMSE = {rmse}")
         return rmse except Exception as e: logger.error(f"Roundtrip validation failed: {e}")
         return float('inf')
-    def benchmark_performance( self, signal_size: int = 64, iterations: int = 1000 ) -> Dict[str, float]: """"""
+    def benchmark_performance( self, signal_size: int = 64, iterations: int = 1000 ) -> Dict[str, float]: """
         Benchmark performance of available engines. Args: signal_size: Size of test signal iterations: Number of iterations for timing Returns: Performance metrics for each engine
 """
 """
@@ -263,7 +263,7 @@ import time results = {}
         return results
 
         # Create global instance _engine_instance = None
-    def get_engine() -> QuantoniumEngineCore: """"""
+    def get_engine() -> QuantoniumEngineCore: """
         Get the global QuantoniumEngineCore instance.
 """
 """

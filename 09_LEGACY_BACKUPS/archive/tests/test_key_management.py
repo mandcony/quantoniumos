@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""""""
+"""
 Quantonium OS - API Key Management Test Script
 
 Tests the API key management endpoints in the Quantonium OS API with JWT authentication.
-""""""
+"""
 
 import os
 import requests
@@ -21,7 +21,7 @@ API_KEY = os.environ.get("QUANTONIUM_API_KEY", "")  # Get from environment varia
 token_data = None
 
 def get_auth_token():
-    """"""Get a JWT token using the API key""""""
+    """Get a JWT token using the API key"""
     global token_data
 
     # Only get a new token if we don't have one or it's expired
@@ -62,7 +62,7 @@ def get_auth_token():
         sys.exit(1)
 
 def get_headers():
-    """"""Get headers with authentication token""""""
+    """Get headers with authentication token"""
     token = get_auth_token()
 
     return {
@@ -71,7 +71,7 @@ def get_headers():
     }
 
 def test_create_api_key():
-    """"""Test creating a new API key""""""
+    """Test creating a new API key"""
     # Admin access is required for this operation
     payload = {
         "name": "Test API Key",
@@ -104,7 +104,7 @@ def test_create_api_key():
     return None, None
 
 def test_list_api_keys():
-    """"""Test listing all API keys""""""
+    """Test listing all API keys"""
     response = requests.get(
         f"{BASE_URL}/api/auth/keys",
         headers=get_headers()
@@ -118,7 +118,7 @@ def test_list_api_keys():
         print(f"Response text: {response.text}")
 
 def test_revoke_api_key(key_id):
-    """"""Test revoking an API key""""""
+    """Test revoking an API key"""
     if not key_id:
         print("No key ID provided, skipping revoke test")
         return
@@ -137,7 +137,7 @@ def test_revoke_api_key(key_id):
         print(f"Response text: {response.text}")
 
 def test_rotate_api_key(key_id):
-    """"""Test rotating an API key""""""
+    """Test rotating an API key"""
     if not key_id:
         print("No key ID provided, skipping rotate test")
         return
@@ -165,7 +165,7 @@ def test_rotate_api_key(key_id):
     return None, None
 
 def test_get_profile():
-    """"""Test getting the current API key profile""""""
+    """Test getting the current API key profile"""
     response = requests.get(
         f"{BASE_URL}/api/auth/profile",
         headers=get_headers()

@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 SIMPLIFIED RFT CRYPTOGRAPHIC STATISTICAL TEST SUITE Independent validation of your RFT-based cryptography using: 1. Your working optimized_resonance_encrypt/decrypt 2. A simplified RFT-based hash using your available RFT functions 3. Combined pipeline testing NO dependency on problematic imports - uses only your working code!
 """
 """
@@ -31,7 +31,7 @@ except ImportError:
 print("✗ Could not
 import RFT functions") RFT_AVAILABLE = False
 
-class SimpleRFTGeometricHash: """"""
+class SimpleRFTGeometricHash: """
     Simplified RFT-based geometric hash using your available functions
 """
 """
@@ -90,7 +90,7 @@ class SimpleRFTGeometricHash: """"""
         print(f"Hash computation error: {e}")
         self.hash_bytes = hashlib.sha256(str(
         self.waveform).encode()).digest()
-    def _fallback_geometric_hash(self) -> List[float]: """"""
+    def _fallback_geometric_hash(self) -> List[float]: """
         Fallback geometric computation when RFT fails
 """
 """
@@ -126,7 +126,7 @@ class SimplifiedRFTCryptoTester:
         self.results_dir}")
         print(f"📏 Sample: {sample_size_mb}MB")
         print("="*50)
-    def test_rft_encryption_only(self) -> str: """"""
+    def test_rft_encryption_only(self) -> str: """
         Test just your working RFT encryption
 """
 """
@@ -160,7 +160,7 @@ class SimplifiedRFTCryptoTester:
         print(f" Error: {e}") continue
         print(f"✅ Generated {bytes_written:,} bytes")
         return output_file
-    def test_simple_rft_hash(self) -> str: """"""
+    def test_simple_rft_hash(self) -> str: """
         Test simplified RFT-based geometric hashing
 """
 """
@@ -201,7 +201,7 @@ class SimplifiedRFTCryptoTester:
         print(f" Hash error: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes from {counter} hashes")
         return output_file
-    def basic_entropy_check(self, file_path: str, name: str): """"""
+    def basic_entropy_check(self, file_path: str, name: str): """
         Quick entropy assessment
 """
 """
@@ -225,7 +225,7 @@ class SimplifiedRFTCryptoTester:
         if len(data) >= 256 else len(data)//2
         print(f" Run test: {runs} runs (expected: ~{expected_runs:.0f})")
         return entropy
-    def run_quick_dieharder(self, file_path: str, name: str) -> Dict[str, Any]: """"""
+    def run_quick_dieharder(self, file_path: str, name: str) -> Dict[str, Any]: """
         Run a subset of Dieharder tests for faster execution
 """
 """
@@ -249,7 +249,7 @@ class SimplifiedRFTCryptoTester:
         if r.get("result") == "PASSED"]) total = len(results)
         print(f" Results: {passed}/{total} tests passed")
         return {"tests": results, "summary": {"passed": passed, "total": total}}
-    def run_test_suite(self): """"""
+    def run_test_suite(self): """
         Run the simplified test suite
 """
         """ start_time = time.time() results = {}

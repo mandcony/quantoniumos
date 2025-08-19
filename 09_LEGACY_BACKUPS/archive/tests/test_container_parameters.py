@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""""""
+"""
 Quantonium OS - Container Parameters API Test Suite
 
 Tests for the container parameters extraction API endpoint.
-""""""
+"""
 
 import unittest
 import json
@@ -14,10 +14,10 @@ from main import create_app
 from core.encryption.geometric_waveform_hash import generate_waveform_hash
 
 class TestContainerParametersAPI(unittest.TestCase):
-    """"""Test cases for container parameters API endpoint""""""
+    """Test cases for container parameters API endpoint"""
 
     def setUp(self):
-        """"""Set up test client and test data""""""
+        """Set up test client and test data"""
         # Create a test Flask app
         self.app = create_app()
         self.app.config['TESTING'] = True
@@ -29,7 +29,7 @@ class TestContainerParametersAPI(unittest.TestCase):
         self.test_hash = generate_waveform_hash(self.test_amplitude, self.test_phase)
 
     def test_extract_parameters_success(self):
-        """"""Test parameter extraction with a valid hash""""""
+        """Test parameter extraction with a valid hash"""
         response = self.client.post(
             '/api/container/parameters',
             data=json.dumps({'hash': self.test_hash}),
@@ -48,7 +48,7 @@ class TestContainerParametersAPI(unittest.TestCase):
         self.assertAlmostEqual(data['phase'], self.test_phase, places=4)
 
     def test_extract_parameters_invalid_hash(self):
-        """"""Test parameter extraction with an invalid hash""""""
+        """Test parameter extraction with an invalid hash"""
         response = self.client.post(
             '/api/container/parameters',
             data=json.dumps({'hash': 'invalid_hash_format'}),
@@ -67,7 +67,7 @@ class TestContainerParametersAPI(unittest.TestCase):
         self.assertIn('Invalid hash format', data['message'])
 
     def test_extract_parameters_missing_hash(self):
-        """"""Test parameter extraction with missing hash parameter""""""
+        """Test parameter extraction with missing hash parameter"""
         response = self.client.post(
             '/api/container/parameters',
             data=json.dumps({}),

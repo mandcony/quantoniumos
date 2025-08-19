@@ -1,10 +1,10 @@
-""""""
+"""
 Quantonium OS - Container Access Control Test Suite
 
 This module tests the secure container access mechanisms that enforce the
 lock-and-key principle where only the specific hash that created a container
 can unlock it when paired with the correct key.
-""""""
+"""
 
 import sys
 import random
@@ -25,7 +25,7 @@ TEST_DATA = "0123456789abcdef0123456789abcdef"  # 32 chars (128 bits) hex
 TEST_KEY = "fedcba9876543210fedcba9876543210"  # 32 chars (128 bits) hex
 
 def generate_test_data_set(count=5):
-    """"""Generate a set of test plaintext and key values""""""
+    """Generate a set of test plaintext and key values"""
     data_set = []
     for i in range(count):
         # Generate random hex strings of the right length
@@ -35,7 +35,7 @@ def generate_test_data_set(count=5):
     return data_set
 
 def test_container_creation_and_access():
-    """"""Test creating containers and accessing them with the correct hash and key""""""
+    """Test creating containers and accessing them with the correct hash and key"""
     print("\nTest: Container creation and valid access")
 
     # Generate test data
@@ -85,7 +85,7 @@ def test_container_creation_and_access():
     return containers
 
 def test_container_tamper_prevention():
-    """"""Test that containers cannot be accessed with incorrect hash or key""""""
+    """Test that containers cannot be accessed with incorrect hash or key"""
     print("\nTest: Container tamper prevention")
 
     # Generate test data and create a container
@@ -130,7 +130,7 @@ def test_container_tamper_prevention():
     print(" ✓ Access granted with correct hash and key")
 
 def test_container_collision_resistance():
-    """"""Test that container hashes are collision resistant""""""
+    """Test that container hashes are collision resistant"""
     print("\nTest: Container collision resistance")
 
     # Generate a set of plaintext values with minor differences
@@ -187,7 +187,7 @@ def test_container_collision_resistance():
     print(" ✓ Each container can only be accessed with its specific hash")
 
 def run_all_tests():
-    """"""Run all container access tests""""""
+    """Run all container access tests"""
     print("\n=== Quantonium OS Container Access Tests ===\n")
 
     try:

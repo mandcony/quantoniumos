@@ -1,4 +1,4 @@
-""""""
+"""
 Production Safety Remediation Script for QuantoniumOS
 
 This script addresses critical defects identified in the security audit:
@@ -6,13 +6,13 @@ This script addresses critical defects identified in the security audit:
 2. Creates proper namespace package structure
 3. Replaces sys.path manipulation with relative imports
 4. Validates production-safe configuration
-""""""
+"""
 
 import sys
 from pathlib import Path
 
 def remove_sys_path_manipulation():
-    """"""Replace sys.path.insert/append calls with proper namespace imports.""""""
+    """Replace sys.path.insert/append calls with proper namespace imports."""
 
     replacements = {
         "sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))":
@@ -74,7 +74,7 @@ def remove_sys_path_manipulation():
                 f.write('\n'.join(new_lines))
 
 def create_namespace_structure():
-    """"""Create proper namespace package structure.""""""
+    """Create proper namespace package structure."""
     print("Phase 2: Creating namespace package structure...")
 
     # Ensure quantoniumos package structure exists
@@ -93,10 +93,10 @@ def create_namespace_structure():
         init_file = Path(dir_path) / "__init__.py"
         if not init_file.exists():
             with open(init_file, 'w') as f:
-                f.write(f'""""""QuantoniumOS {dir_path.split("/")[-1]} package.""""""\n')
+                f.write(f'"""QuantoniumOS {dir_path.split("/")[-1]} package."""\n')
 
 def validate_entropy_safety():
-    """"""Validate that no dangerous entropy bypass hooks exist.""""""
+    """Validate that no dangerous entropy bypass hooks exist."""
     print("Phase 3: Validating entropy safety...")
 
     dangerous_patterns = [
@@ -135,16 +135,16 @@ def validate_entropy_safety():
         print(" ✅ No obvious entropy bypass patterns detected")
 
 def create_production_validator():
-    """"""Create a production safety validator.""""""
+    """Create a production safety validator."""
     print("Phase 4: Creating production safety validator...")
 
-    validator_content = '''"""""" Production Safety Validator for QuantoniumOS Run this before deploying to production to ensure security compliance. """""" import os import sys from pathlib import Path def validate_production_deployment(): """"""Validate that the deployment is production-safe."""""" errors = [] warnings = [] # Check 1: Ensure not in debug mode if __debug__: errors.append("Python running in debug mode - use 'python -O' for production") # Check 2: Check for dangerous environment variables dangerous_env_vars = [ 'QUANTONIUM_ALLOW_TEST_ENTROPY', 'QUANTONIUM_CRYPTO_DEBUG', 'FLASK_DEBUG' ] for var in dangerous_env_vars: if os.environ.get(var): errors.append(f"Dangerous environment variable set: {var}") # Check 3: Ensure cache directories are not in deployment cache_dirs = ['.mypy_cache', '.ruff_cache', '__pycache__', '.pytest_cache'] for cache_dir in cache_dirs: if Path(cache_dir).exists(): warnings.append(f"Cache directory present: {cache_dir}") # Check 4: Validate secure configuration try: from core.security.secure_config import SecureConfig if not SecureConfig.validate_production_safety(): errors.append("SecureConfig validation failed") except ImportError: errors.append("SecureConfig not available for validation") return errors, warnings if __name__ == "__main__": print("QuantoniumOS Production Safety Validator") print("=" * 50) errors, warnings = validate_production_deployment() if errors: print("❌ ERRORS - Deployment blocked:") for error in errors: print(f" - {error}") if warnings: print("⚠️ WARNINGS:") for warning in warnings: print(f" - {warning}") if not errors and not warnings: print("✅ Production deployment validated successfully") sys.exit(0) elif errors: print("\\n🚫 Production deployment BLOCKED due to errors") sys.exit(1) else: print("\\n⚠️ Production deployment permitted with warnings") sys.exit(0) '''
+    validator_content = '''""" Production Safety Validator for QuantoniumOS Run this before deploying to production to ensure security compliance. """ import os import sys from pathlib import Path def validate_production_deployment(): """Validate that the deployment is production-safe.""" errors = [] warnings = [] # Check 1: Ensure not in debug mode if __debug__: errors.append("Python running in debug mode - use 'python -O' for production") # Check 2: Check for dangerous environment variables dangerous_env_vars = [ 'QUANTONIUM_ALLOW_TEST_ENTROPY', 'QUANTONIUM_CRYPTO_DEBUG', 'FLASK_DEBUG' ] for var in dangerous_env_vars: if os.environ.get(var): errors.append(f"Dangerous environment variable set: {var}") # Check 3: Ensure cache directories are not in deployment cache_dirs = ['.mypy_cache', '.ruff_cache', '__pycache__', '.pytest_cache'] for cache_dir in cache_dirs: if Path(cache_dir).exists(): warnings.append(f"Cache directory present: {cache_dir}") # Check 4: Validate secure configuration try: from core.security.secure_config import SecureConfig if not SecureConfig.validate_production_safety(): errors.append("SecureConfig validation failed") except ImportError: errors.append("SecureConfig not available for validation") return errors, warnings if __name__ == "__main__": print("QuantoniumOS Production Safety Validator") print("=" * 50) errors, warnings = validate_production_deployment() if errors: print("❌ ERRORS - Deployment blocked:") for error in errors: print(f" - {error}") if warnings: print("⚠️ WARNINGS:") for warning in warnings: print(f" - {warning}") if not errors and not warnings: print("✅ Production deployment validated successfully") sys.exit(0) elif errors: print("\\n🚫 Production deployment BLOCKED due to errors") sys.exit(1) else: print("\\n⚠️ Production deployment permitted with warnings") sys.exit(0) '''
 
     with open("validate_production.py", 'w') as f:
         f.write(validator_content)
 
 def main():
-    """"""Main remediation process.""""""
+    """Main remediation process."""
     print("QuantoniumOS Production Safety Remediation")
     print("=" * 50)
 

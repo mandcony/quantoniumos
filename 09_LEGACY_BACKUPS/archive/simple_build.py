@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Simple C++ engine builder using pybind11
 """
 """
@@ -15,14 +15,14 @@ def get_python_cmd():
 """
 """
         return "/home/codespace/.python/current/bin/python"
-def build_module(name, sources, includes=None): """"""
+def build_module(name, sources, includes=None): """
         Build a single pybind11 module.
 """
 """
-        if includes is None: includes = [] cmd = [ get_python_cmd(), "-c", f"""""" from pybind11.setup_helpers
+        if includes is None: includes = [] cmd = [ get_python_cmd(), "-c", f""" from pybind11.setup_helpers
 import Pybind11Extension, build_ext from setuptools
 import setup
-import pybind11 ext = Pybind11Extension( "{name}", {sources}, include_dirs=[ pybind11.get_cmake_dir(), "core/include", "/usr/include/eigen3", {includes} ], cxx_std=17, define_macros=[("VERSION_INFO", '"dev"')], ) setup( ext_modules=[ext], cmdclass={{"build_ext": build_ext}}, script_args=["build_ext", "--inplace"] ) """""" ]
+import pybind11 ext = Pybind11Extension( "{name}", {sources}, include_dirs=[ pybind11.get_cmake_dir(), "core/include", "/usr/include/eigen3", {includes} ], cxx_std=17, define_macros=[("VERSION_INFO", '"dev"')], ) setup( ext_modules=[ext], cmdclass={{"build_ext": build_ext}}, script_args=["build_ext", "--inplace"] ) """ ]
         print(f"Building {name}...") result = subprocess.run(cmd, shell=False)
         return result.returncode == 0
 def main():

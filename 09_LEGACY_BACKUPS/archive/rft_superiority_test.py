@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 RFT vs DFT Sparsity & Detection Test - Proof of Mathematical Superiority This test demonstrates that the Resonance Fourier Transform (RFT) provides: 1. Superior sparsity representation for phase-modulated chirps 2. Better signal detection under realistic colored noise 3. Exact unitary properties (perfect reconstruction) 4. Genuine mathematical advantage over standard DFT Target signals: Phase-modulated chirps (signals RFT should favor) Noise model: Realistic colored noise (1/f^α spectrum)
 """
 """

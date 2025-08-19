@@ -1,9 +1,9 @@
-""""""
+"""
 QuantoniumOS - System Benchmark
 
 This module provides comprehensive system benchmarking capabilities to evaluate
 the performance of QuantoniumOS across multiple dimensions.
-""""""
+"""
 
 import os
 import sys
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 # CPU Benchmark
 def cpu_benchmark(n):
-    """"""
+    """
     Benchmark CPU performance by performing intensive computations.
 
     Args:
@@ -40,7 +40,7 @@ def cpu_benchmark(n):
 
     Returns:
         Time taken in seconds
-    """"""
+    """
     start = time.time()
     for i in range(n):
         [x**2 for x in range(1000)]
@@ -48,7 +48,7 @@ def cpu_benchmark(n):
 
 # Memory Benchmark
 def memory_benchmark(n):
-    """"""
+    """
     Benchmark memory allocation and access performance.
 
     Args:
@@ -56,7 +56,7 @@ def memory_benchmark(n):
 
     Returns:
         Time taken in seconds
-    """"""
+    """
     start = time.time()
     large_array = [np.random.random((1000,1000)) for _ in range(n)]
     duration = time.time() - start
@@ -65,7 +65,7 @@ def memory_benchmark(n):
 
 # Encryption Benchmark
 def encryption_benchmark(n, algorithm="standard"):
-    """"""
+    """
     Benchmark encryption performance.
 
     Args:
@@ -74,7 +74,7 @@ def encryption_benchmark(n, algorithm="standard"):
 
     Returns:
         Time taken in seconds
-    """"""
+    """
     data = b"benchmark" * 1000
 
     if algorithm == "quantum":
@@ -89,7 +89,7 @@ def encryption_benchmark(n, algorithm="standard"):
         return time.time() - start
 
 def entropy_generation_benchmark(n, size=1024):
-    """"""
+    """
     Benchmark entropy generation performance.
 
     Args:
@@ -98,7 +98,7 @@ def entropy_generation_benchmark(n, size=1024):
 
     Returns:
         Time taken in seconds and entropy quality assessment
-    """"""
+    """
     start = time.time()
     for _ in range(n):
         entropy = get_quantum_random_bytes(size)
@@ -116,7 +116,7 @@ def entropy_generation_benchmark(n, size=1024):
     return duration, chi_squared
 
 def run_system_benchmark(iterations=[10, 50, 100, 200, 500]):
-    """"""
+    """
     Run a comprehensive system benchmark and return the results.
 
     Args:
@@ -124,7 +124,7 @@ def run_system_benchmark(iterations=[10, 50, 100, 200, 500]):
 
     Returns:
         Dictionary containing benchmark results
-    """"""
+    """
     logger.info("Starting system benchmark")
 
     results = {
@@ -167,7 +167,7 @@ def run_system_benchmark(iterations=[10, 50, 100, 200, 500]):
     return results
 
 def plot_benchmark_results(results, save_path=None):
-    """"""
+    """
     Create a 3D visualization of benchmark results.
 
     Args:
@@ -176,7 +176,7 @@ def plot_benchmark_results(results, save_path=None):
 
     Returns:
         Matplotlib figure object
-    """"""
+    """
     fig = plt.figure(figsize=(12, 8))
     ax = fig.add_subplot(111, projection='3d')
 

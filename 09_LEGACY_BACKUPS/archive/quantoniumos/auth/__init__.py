@@ -1,1 +1,1 @@
-""""""QuantoniumOS auth package.""""""
+"""QuantoniumOS auth package."""

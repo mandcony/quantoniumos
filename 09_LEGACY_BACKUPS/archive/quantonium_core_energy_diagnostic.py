@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 QUANTONIUM_CORE ENERGY DIAGNOSTIC === Focused test to identify the normalization/scaling issue causing energy loss Testing the 3 key invariants: 1. Parseval (unitary scaling): ||Ux||^2 = ||x^2 2. Matrix orthonormality: QdaggerQ = I 3. Forward/inverse scaling consistency: ab = 1/N or a=b=1/sqrtN
 """
 """
@@ -21,7 +21,7 @@ print(f"Failed to load quantonium_core: {e}") sys.exit(1)
 class EnergyDiagnostic:
     def __init__(self):
         self.golden_ratio = (1 + 5**0.5) / 2
-    def test_parseval_invariant(self): """"""
+    def test_parseval_invariant(self): """
         Test 1: Parseval theorem - unitary scaling
 """
 """
@@ -63,7 +63,7 @@ class EnergyDiagnostic:
         print(f" UNEXPECTED scaling pattern") results[N] = { 'input_energy': input_energy, 'output_energy': output_energy, 'ratio': energy_ratio, 'closest_expected': closest_match } except Exception as e:
         print(f" Test failed: {e}") results[N] = {'error': str(e)}
         return results
-    def test_forward_inverse_consistency(self): """"""
+    def test_forward_inverse_consistency(self): """
         Test 2: Forward/inverse scaling consistency
 """
 """
@@ -123,7 +123,7 @@ class EnergyDiagnostic:
         return { 'forward_scale': forward_scale, 'inverse_scale': inverse_scale, 'product': product, 'reconstruction_error': reconstruction_error } except Exception as e:
         print(f" Test failed: {e}")
         return {'error': str(e)}
-    def test_basis_orthonormality(self): """"""
+    def test_basis_orthonormality(self): """
         Test 3: Check
         if the transform basis is orthonormal
 """
@@ -192,7 +192,7 @@ class EnergyDiagnostic:
         if diagonal_values else False } except Exception as e:
         print(f" Test failed: {e}")
         return {'error': str(e)}
-    def main(): """"""
+    def main(): """
         Run comprehensive energy diagnostic
 """
         """ diagnostic = EnergyDiagnostic()

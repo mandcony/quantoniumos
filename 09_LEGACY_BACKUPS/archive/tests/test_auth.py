@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-""""""
+"""
 Quantonium OS - Authentication Testing
 
 Test suite for the authentication framework.
-""""""
+"""
 
 import unittest
 import time
@@ -17,10 +17,10 @@ from auth.models import db, APIKey, APIKeyAuditLog
 from auth.jwt_auth import authenticate_key, verify_token
 
 class TestAuthentication(unittest.TestCase):
-    """"""Test suite for the authentication framework""""""
+    """Test suite for the authentication framework"""
 
     def setUp(self):
-        """"""Set up test app and database""""""
+        """Set up test app and database"""
         self.app = Flask(__name__)
         self.app.config['TESTING'] = True
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -34,7 +34,7 @@ class TestAuthentication(unittest.TestCase):
             db.create_all()
 
     def test_api_key_creation(self):
-        """"""Test API key creation and validation""""""
+        """Test API key creation and validation"""
         with self.app.app_context():
             # Create a test key
             key, raw_key = APIKey.create(
@@ -71,7 +71,7 @@ class TestAuthentication(unittest.TestCase):
             self.assertIsNone(invalid_key)
 
     def test_api_key_rotation(self):
-        """"""Test API key rotation""""""
+        """Test API key rotation"""
         with self.app.app_context():
             # Create a test key
             key, raw_key = APIKey.create(
@@ -101,7 +101,7 @@ class TestAuthentication(unittest.TestCase):
             self.assertEqual(new_auth.id, new_key.id)
 
     def test_api_key_revocation(self):
-        """"""Test API key revocation""""""
+        """Test API key revocation"""
         with self.app.app_context():
             # Create a test key
             key, raw_key = APIKey.create(
@@ -127,7 +127,7 @@ class TestAuthentication(unittest.TestCase):
             self.assertIsNone(auth_after)
 
     def test_jwt_token_creation_and_verification(self):
-        """"""Test JWT token creation and verification""""""
+        """Test JWT token creation and verification"""
         with self.app.app_context():
             # Create a test key
             key, raw_key = APIKey.create(
@@ -184,7 +184,7 @@ class TestAuthentication(unittest.TestCase):
             self.assertIsNone(expired_payload)
 
     def test_api_key_audit_logging(self):
-        """"""Test API key audit logging""""""
+        """Test API key audit logging"""
         with self.app.app_context():
             # Create a test key
             key, raw_key = APIKey.create(
@@ -212,7 +212,7 @@ class TestAuthentication(unittest.TestCase):
             self.assertEqual(test_log.details, "Test log entry")
 
     def test_permissions_check(self):
-        """"""Test API key permission checking""""""
+        """Test API key permission checking"""
         with self.app.app_context():
             # Create regular key with limited permissions
             regular_key, _ = APIKey.create(

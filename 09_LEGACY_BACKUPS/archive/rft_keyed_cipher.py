@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 RFT Keyed Cipher with 4-Phase Geometric Waveform Hashing A proper cryptographic system using RFT with: 1. Secret key integration through resonance modulation 2. 4-phase geometric waveform structure (phi, phi^2, phi^3, phi⁴) 3. Non-linear key-dependent transformations 4. Reversible operations for decryption
 """
 """
@@ -135,7 +135,7 @@ class RFTKeyedCipher:
         self.num_rounds - 1: state =
         self._mix_columns(state, key)
         return state
-    def decrypt_block(self, ciphertext_block: np.ndarray, key: RFTCipherKey) -> np.ndarray: """"""
+    def decrypt_block(self, ciphertext_block: np.ndarray, key: RFTCipherKey) -> np.ndarray: """
         Decrypt a single block by reversing the encryption process
 """
 """

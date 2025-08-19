@@ -1,4 +1,4 @@
-""""""
+"""
 Patent Mathematics Implementation: Grover Amplification and Symbolic Quantum Operations Supporting U.S. Patent Application No. 19/169,399 This module implements the mathematical foundations from the patent: - Grover Amplification: s'_i = -s_i
 if i = target, else s'_i = 2*avg - s_i - Frequency Matching: x* = argmin_x ||f_target - f_x||_resonance - Symbolic Qubit Representation: |psi⟩ = α|0⟩ + β|1⟩ where α = A_0 * e^{iϕ_0}, β = A_1 * e^{iϕ_1} - Hadamard Gate: H|psi⟩ = (1/sqrt2) * [[1, 1], [1, -1]] * [α, β]
 """
@@ -27,7 +27,7 @@ def grover_amplitude_amplification( amplitudes: List[float], target_index: int )
 
         # Invert about average logger.debug(f"Grover amplification: target={target_index}, avg={avg:.4f}")
         return result.tolist()
-def symbolic_resonance_search( frequency_spectrum: List[float], target_frequency: float, tolerance: float = 1e-6 ) -> int: """"""
+def symbolic_resonance_search( frequency_spectrum: List[float], target_frequency: float, tolerance: float = 1e-6 ) -> int: """
         Patent Math: Frequency Matching x* = argmin_x ||f_target - f_x||_resonance Args: frequency_spectrum: List of frequencies to search target_frequency: Target frequency to match tolerance: Matching tolerance Returns: Index of best matching frequency, or -1
         if no match within tolerance
 """
@@ -43,7 +43,7 @@ def symbolic_resonance_search( frequency_spectrum: List[float], target_frequency
         else: logger.debug(f"No resonance match found, best diff={differences[min_index]:.2e} > tolerance={tolerance}")
         return -1
 
-class SymbolicQubitGate: """"""
+class SymbolicQubitGate: """
         Patent Math: Symbolic Qubit Representation |psi⟩ = α|0⟩ + β|1⟩ where α = A_0 * e^{iϕ_0}, β = A_1 * e^{iϕ_1}
 """
 """
@@ -65,7 +65,7 @@ class SymbolicQubitGate: """"""
         self.beta /= norm logger.debug(f"Created symbolic qubit: α={
         self.alpha}, β={
         self.beta}")
-    def hadamard_gate(self) -> 'SymbolicQubitGate': """"""
+    def hadamard_gate(self) -> 'SymbolicQubitGate': """
         Patent Math: Hadamard Gate H|psi⟩ = (1/sqrt2) * [[1, 1], [1, -1]] * [α, β] Returns: New SymbolicQubitGate after Hadamard transformation
 """
 """
@@ -135,7 +135,7 @@ class SymbolicQubitGate: """"""
         return f"SymbolicQubit(α={
         self.alpha:.3f}, β={
         self.beta:.3f})"
-    def symbolic_entropy_calculation(amplitudes: List[float]) -> float: """"""
+    def symbolic_entropy_calculation(amplitudes: List[float]) -> float: """
         Patent Math: Symbolic Entropy Function H(W) = -Sigma p_i log(p_i) where p_i = A_i^2 / Sigma A_j^2 Args: amplitudes: List of amplitude values Returns: Entropy value in bits
 """
 """
@@ -152,12 +152,12 @@ class SymbolicQubitGate: """"""
 
         # Avoid log(0) entropy -= p * np.log2(p) logger.debug(f"Calculated entropy: {entropy:.4f} bits from {len(amplitudes)} amplitudes")
         return entropy
-    def waveform_hash_mixing( amplitude_1: float, phase_1: float, amplitude_2: float, phase_2: float ) -> Tuple[float, float]: """"""
+    def waveform_hash_mixing( amplitude_1: float, phase_1: float, amplitude_2: float, phase_2: float ) -> Tuple[float, float]: """
         Patent Math: Geometric Waveform Hash Mixing W_combined = (A + A_x, (ϕ + ϕ_x) mod 2π) Args: amplitude_1: First waveform amplitude phase_1: First waveform phase (radians) amplitude_2: Second waveform amplitude phase_2: Second waveform phase (radians) Returns: Tuple of (combined_amplitude, combined_phase)
 """
         """ combined_amplitude = amplitude_1 + amplitude_2 combined_phase = (phase_1 + phase_2) % (2 * np.pi) logger.debug(f"Mixed waveforms: A={combined_amplitude:.3f}, ϕ={combined_phase:.3f}")
         return combined_amplitude, combined_phase
-    def validate_patent_mathematics() -> bool: """"""
+    def validate_patent_mathematics() -> bool: """
         Validate all patent mathematics implementations Returns: True
         if all validations pass, False otherwise
 """

@@ -1,7 +1,7 @@
-""""""
+"""
 NIST Statistical Test Suite runner for QuantoniumOS encryption
 Generates large test vectors and runs complete NIST SP 800-22 battery
-""""""
+"""
 
 import os
 import time
@@ -20,7 +20,7 @@ class NISTTester:
         os.makedirs(self.results_dir, exist_ok=True)
 
     def generate_test_data(self) -> str:
-        """"""Generate large test vector using our encryption""""""
+        """Generate large test vector using our encryption"""
         print(f"Generating {self.sample_size // 8 // 1024 // 1024}MB test data...")
 
         output_file = os.path.join(self.results_dir, "test_vector.bin")
@@ -45,7 +45,7 @@ class NISTTester:
         return output_file
 
     def run_nist_tests(self, data_file: str) -> Dict[str, Any]:
-        """"""Run full NIST SP 800-22 test suite""""""
+        """Run full NIST SP 800-22 test suite"""
         print("\nRunning NIST Statistical Test Suite...")
 
         # NIST tests to run and their parameters
@@ -89,7 +89,7 @@ class NISTTester:
         return results
 
     def run_dieharder_tests(self, data_file: str) -> Dict[str, Any]:
-        """"""Run Dieharder test suite""""""
+        """Run Dieharder test suite"""
         print("\nRunning Dieharder test suite...")
 
         results = {}
@@ -110,7 +110,7 @@ class NISTTester:
         return results
 
     def extract_p_value(self, output: str) -> float:
-        """"""Extract p-value from NIST test output""""""
+        """Extract p-value from NIST test output"""
         try:
             p_value_line = [l for l in output.split('\n') if 'P-value' in l][0]
             return float(p_value_line.split('=')[1].strip())
@@ -118,7 +118,7 @@ class NISTTester:
             return 0.0
 
     def parse_dieharder_output(self, output: str) -> List[Dict[str, Any]]:
-        """"""Parse Dieharder test results""""""
+        """Parse Dieharder test results"""
         tests = []
         for line in output.split('\n'):
             if '|' not in line:
@@ -139,7 +139,7 @@ class NISTTester:
         return tests
 
     def run_full_battery(self):
-        """"""Run complete test battery and save results""""""
+        """Run complete test battery and save results"""
         start_time = time.time()
 
         # Generate test data
@@ -173,7 +173,7 @@ class NISTTester:
         return results
 
 def summarize_results(results: Dict[str, Any]):
-    """"""Print summary of test results""""""
+    """Print summary of test results"""
     print("\nTest Results Summary")
     print("=" * 50)
 

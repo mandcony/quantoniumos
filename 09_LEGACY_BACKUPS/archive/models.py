@@ -1,4 +1,4 @@
-""""""
+"""
 Quantonium OS - API Data Models Defines Pydantic-style request schemas for symbolic endpoints and quantum API. Includes comprehensive validation for all API inputs.
 """
 """
@@ -35,7 +35,7 @@ class EncryptRequest(BaseModel):
         raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
         return v
 
-class RFTRequest(BaseModel): """"""
+class RFTRequest(BaseModel): """
         Request model for Resonance Fourier Transform operations.
 """
         """ waveform: List[float] = Field( ..., example=[0.1, 0.5, 0.9], description="Waveform data as a list of floating point values" ) @validator('waveform')
@@ -53,12 +53,12 @@ class RFTRequest(BaseModel): """"""
         raise ValueError(f"Waveform values must be between 0.0 and 1.0, got {val}")
         return v
 
-class EntropyRequest(BaseModel): """"""
+class EntropyRequest(BaseModel): """
         Request model for generating quantum-inspired entropy.
 """
         """ amount: int = Field( 32, ge=1, le=1024, example=64, description="Amount of entropy to generate in bytes" )
 
-class DecryptRequest(BaseModel): """"""
+class DecryptRequest(BaseModel): """
         Request model for decrypting data using resonance techniques.
 """
         """ ciphertext: str = Field( ..., example="Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==", description="Ciphertext to decrypt (base64 encoded)" ) key: str = Field( ..., example="symbolic-key", description="Decryption key" ) @validator('ciphertext')
@@ -86,7 +86,7 @@ class DecryptRequest(BaseModel): """"""
         raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
         return v
 
-class ContainerUnlockRequest(BaseModel): """"""
+class ContainerUnlockRequest(BaseModel): """
         Request model for unlocking symbolic containers.
 """
         """ waveform: List[float] = Field( ..., example=[0.2, 0.7, 0.3], description="Waveform data as a list of floating point values" ) hash: str = Field( ..., example="Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==", description="Container hash identifier" ) key: str = Field( ..., example="symbolic-key", description="Decryption key" ) @validator('waveform')
@@ -120,7 +120,7 @@ class ContainerUnlockRequest(BaseModel): """"""
         raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
         return v
 
-class SignRequest(BaseModel): """"""
+class SignRequest(BaseModel): """
         Request model for signing data using wave HMAC.
 """
         """ message: str = Field( ..., example="message to sign", description="Message to sign" ) key: str = Field( ..., example="symbolic-key", description="Signing key" ) use_phase_info: bool = Field( True, example=True, description="Whether to include phase information in signature" ) @validator('message')
@@ -139,7 +139,7 @@ class SignRequest(BaseModel): """"""
         raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
         return v
 
-class VerifyRequest(BaseModel): """"""
+class VerifyRequest(BaseModel): """
         Request model for verifying signatures using wave HMAC.
 """
         """ message: str = Field( ..., example="message to verify", description="Original message" ) signature: str = Field( ..., example="Pm0C/vQlcaH4OL71EYN5zlIcWyltZNnjlD6XQqZwTLvLSkwfu2xvUA==", description="Signature to verify (base64 encoded)" ) key: str = Field( ..., example="symbolic-key", description="Verification key" ) use_phase_info: bool = Field( True, example=True, description="Whether phase information was used in signature" ) @validator('message')
@@ -166,7 +166,7 @@ class VerifyRequest(BaseModel): """"""
         raise ValueError(f"Key too long (max {MAX_KEY_LENGTH} characters)")
         return v
 
-class IRFTRequest(BaseModel): """"""
+class IRFTRequest(BaseModel): """
         Request model for Inverse Resonance Fourier Transform operations.
 """
         """ frequency_data: Dict[str, Any] = Field( ..., example={ "frequencies": [0.1, 0.3, 0.5], "amplitudes": [0.7, 0.3, 0.1], "phases": [0.0, 0.25, 0.5] }, description="Frequency domain data with frequencies, amplitudes, and phases" ) @validator('frequency_data')
@@ -194,17 +194,17 @@ class IRFTRequest(BaseModel): """"""
 
         # Structured quantum circuit validation
 
-class Gate(BaseModel): """"""
+class Gate(BaseModel): """
         Model for a quantum gate definition.
 """
         """ name: str = Field(..., example="h") target: int = Field(..., example=0, ge=0) control: Optional[int] = Field(None, example=1, ge=0)
 
-class QuantumCircuit(BaseModel): """"""
+class QuantumCircuit(BaseModel): """
         Model for a complete quantum circuit definition.
 """
         """ gates: List[Gate] = Field(..., example=[ {"name": "h", "target": 0}, {"name": "cnot", "control": 0, "target": 1} ])
 
-class QuantumCircuitRequest(BaseModel): """"""
+class QuantumCircuitRequest(BaseModel): """
         Request model for quantum circuit processing API.
 """
         """ circuit: Dict[str, Any] = Field( ..., example={ "gates": [ {"name": "h", "target": 0}, {"name": "cnot", "control": 0, "target": 1} ] }, description="Quantum circuit definition" ) qubit_count: int = Field( 3, ge=1, le=150, example=3, description="Number of qubits to use in the circuit (1-150)" ) @validator('circuit')
@@ -242,7 +242,7 @@ class QuantumCircuitRequest(BaseModel): """"""
         raise ValueError(f"Gate {i} control {gate['control']} is out of range for qubit_count {qubit_count}")
         return v
 
-class QuantumBenchmarkRequest(BaseModel): """"""
+class QuantumBenchmarkRequest(BaseModel): """
         Request model for quantum benchmarking API.
 """
         """ max_qubits: int = Field( 150, ge=1, le=150, example=150, description="Maximum number of qubits to benchmark (1-150)" ) run_full_benchmark: bool = Field( False, example=True, description="Whether to run the full benchmark suite" )

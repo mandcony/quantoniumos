@@ -1,7 +1,7 @@
-""""""
+"""
 Long-run statistical test executor for QuantoniumOS encryption
 Runs multiple large test vectors through NIST and Dieharder suites
-""""""
+"""
 
 import os
 import json
@@ -15,14 +15,14 @@ def run_long_statistical_validation(
     sample_size_mb: int = 10,
     export_dir: str = "statistical_validation"
 ):
-    """"""
+    """
     Run multiple iterations of statistical tests with large samples
 
     Args:
         num_iterations: Number of test iterations to run
         sample_size_mb: Size of each test vector in MB
         export_dir: Directory to export results
-    """"""
+    """
     start_time = time.time()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -68,7 +68,7 @@ def run_long_statistical_validation(
     return aggregate
 
 def aggregate_results(results: List[Dict]) -> Dict:
-    """"""Aggregate statistics across multiple test runs""""""
+    """Aggregate statistics across multiple test runs"""
     aggregate = {
         "iterations": len(results),
         "total_sample_size_mb": sum(r["sample_size_mb"] for r in results),
@@ -115,7 +115,7 @@ def aggregate_results(results: List[Dict]) -> Dict:
     return aggregate
 
 def write_summary_report(f, aggregate: Dict, total_time: float):
-    """"""Write detailed summary report""""""
+    """Write detailed summary report"""
     f.write("QuantoniumOS Statistical Validation Report\n")
     f.write("=" * 50 + "\n\n")
 

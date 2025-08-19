@@ -1,10 +1,10 @@
-""""""
+"""
 Detailed avalanche test showing bit changes visually
-""""""
+"""
 from fixed_resonance_encrypt import fixed_resonance_encrypt
 
 def visualize_bit_changes(bytes1, bytes2):
-    """"""Show exactly which bits changed between two byte sequences""""""
+    """Show exactly which bits changed between two byte sequences"""
     changes = []
     for b1, b2 in zip(bytes1, bytes2):
         # Get binary representation of each byte
@@ -21,7 +21,7 @@ def visualize_bit_changes(bytes1, bytes2):
     return changes
 
 def test_single_bit_avalanche(position=0):
-    """"""Test avalanche effect by changing a single bit and showing the changes""""""
+    """Test avalanche effect by changing a single bit and showing the changes"""
     print("Detailed Avalanche Effect Analysis")
     print("=================================")
 

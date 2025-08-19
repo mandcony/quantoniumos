@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Simple RFT Benchmark Runner - No Fluff Edition Run individual benchmarks to validate RFT paradigm with fair comparisons: - Crypto: Avalanche/differential score (RFT vs AES) - Quantum: Coherence ratio vs baseline - Optimization: Rosenbrock minima (RFT vs standard) - Pattern: Silhouette score difference on resonance patterns
 """
 """
@@ -7,7 +7,7 @@ import subprocess
 import sys
 import json from pathlib
 import Path
-def run_benchmark(name, scale="small"): """"""
+def run_benchmark(name, scale="small"): """
         Run a single benchmark and
         return the key validation metric
 """
@@ -28,7 +28,7 @@ def run_benchmark(name, scale="small"): """"""
         print(f"❌ {name} failed: {e}")
         print(f"Stderr: {e.stderr}")
         return None
-def extract_key_metric(benchmark_name, results): """"""
+def extract_key_metric(benchmark_name, results): """
         Extract the single metric that proves RFT advantage
 """
 """
@@ -52,7 +52,7 @@ def extract_key_metric(benchmark_name, results): """"""
         # Silhouette score difference
         return results.get("silhouette_improvement", 0)
         return 0
-def validate_rft_paradigm(): """"""
+def validate_rft_paradigm(): """
         Run all benchmarks and check
         if RFT shows consistent improvement
 """

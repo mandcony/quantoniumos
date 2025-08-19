@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Updated Crypto Benchmark - RFT with Proper Keyed Structure This shows how RFT COULD be used cryptographically
 if properly implemented with secret keys and the 4-phase geometric waveform structure.
 """
@@ -88,7 +88,7 @@ class ImprovedCryptoBenchmark(ConfigurableBenchmark):
         print(f" 3. Non-linear round functions")
         print(f" 4. Reversible operations for decryption")
         return results
-    def main(): """"""
+    def main(): """
         Run the improved crypto analysis
 """
         """ config = { 'num_tests': 50,

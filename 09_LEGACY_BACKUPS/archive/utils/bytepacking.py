@@ -1,15 +1,15 @@
-""""""
+"""
 Byte packing utilities for canonical hash output
 Converts numeric arrays to deterministic byte representations
-""""""
+"""
 
 import numpy as np
 
 def to_packed_bytes(data):
-    """"""
+    """
     Canonical packing: zscore normalization -> clip to ±6sigma -> uint32
     Ensures deterministic, high-entropy byte representation
-    """"""
+    """
     if isinstance(data, (list, tuple)):
         data = np.array(data, dtype=complex)
 
@@ -45,10 +45,10 @@ def to_packed_bytes(data):
     return uint32_data.tobytes()
 
 def squeeze_to_hash_size(data, target_bytes=32):
-    """"""
+    """
     Squeeze byte array to target size using XOR folding
     Preserves entropy while reducing length
-    """"""
+    """
     if len(data) <= target_bytes:
         # Pad with zeros if too short
         return data + b'\x00' * (target_bytes - len(data))

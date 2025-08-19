@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 QuantoniumOS Test Vector Generator
 
 This script generates standardized test vectors for QuantoniumOS cryptographic primitives
@@ -7,13 +7,13 @@ and publishes them to the public test vector directory.
 
 These test vectors serve as a public reference for validating implementations across
 different platforms and languages.
-""""""
+"""
 
 import os
 import shutil
 from datetime import datetime
 
-# Fix import paths - add the project root to Python's module search path current_dir = os.path.dirname(os.path.abspath(__file__)) project_root = os.path.abspath(os.path.join(current_dir, '..')) # Import cryptanalysis module from core.testing.cryptanalysis import generate_public_test_vectors def main(): """"""Generate and publish test vectors"""""" print("="*80) print("QuantoniumOS Test Vector Generator") print("="*80) # Generate test vectors result = generate_public_test_vectors() # Create public directory if it doesn't exist
+# Fix import paths - add the project root to Python's module search path current_dir = os.path.dirname(os.path.abspath(__file__)) project_root = os.path.abspath(os.path.join(current_dir, '..')) # Import cryptanalysis module from core.testing.cryptanalysis import generate_public_test_vectors def main(): """Generate and publish test vectors""" print("="*80) print("QuantoniumOS Test Vector Generator") print("="*80) # Generate test vectors result = generate_public_test_vectors() # Create public directory if it doesn't exist
     public_dir = os.path.join('docs', 'public_test_vectors')
     os.makedirs(public_dir, exist_ok=True)
 

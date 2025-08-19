@@ -1,12 +1,12 @@
-""""""
+"""
 Minimal version of resonance encryption for debugging
-""""""
+"""
 
 import hashlib
 import secrets
 
 def minimal_encrypt(plaintext: str, key: str) -> bytes:
-    """"""Minimal encryption for debugging""""""
+    """Minimal encryption for debugging"""
     # Convert to bytes
     data = plaintext.encode('utf-8')
 
@@ -29,7 +29,7 @@ def minimal_encrypt(plaintext: str, key: str) -> bytes:
     return signature + token + bytes(result)
 
 def minimal_decrypt(ciphertext: bytes, key: str) -> str:
-    """"""Minimal decryption for debugging""""""
+    """Minimal decryption for debugging"""
     # Generate key hash
     key_hash = hashlib.sha256(key.encode()).digest()
 
@@ -55,7 +55,7 @@ def minimal_decrypt(ciphertext: bytes, key: str) -> str:
     return result.decode('utf-8')
 
 def test_minimal():
-    """"""Test minimal encryption""""""
+    """Test minimal encryption"""
     print("Testing minimal encryption...")
 
     key = "test_key_123"

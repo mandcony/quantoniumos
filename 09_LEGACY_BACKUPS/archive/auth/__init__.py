@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - Authentication Module
 
 Contains the authentication framework for the Quantonium API.
-""""""
+"""
 
 __version__ = "0.3.0-rc1"
 
@@ -14,13 +14,13 @@ import secrets
 logger = logging.getLogger(__name__)
 
 def initialize_auth(app=None):
-    """"""
+    """
     Initialize the authentication system.
     This includes setting up the master encryption key if not present.
 
     Args:
         app: Optional Flask app to configure
-    """"""
+    """
     from auth.secret_manager import get_master_key
 
     # Check if master key exists, which will generate one if missing

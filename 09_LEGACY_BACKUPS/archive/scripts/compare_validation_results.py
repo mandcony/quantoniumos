@@ -1,6 +1,6 @@
-""""""
+"""
 Compare validation results between C++ and Rust implementations
-""""""
+"""
 
 import sys
 import json

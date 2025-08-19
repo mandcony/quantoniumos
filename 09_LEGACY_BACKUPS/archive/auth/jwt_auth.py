@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - JWT Authentication Module
 
 Implements JWT-based auth with API keys for the Quantonium API.
-""""""
+"""
 
 import jwt
 from functools import wraps
@@ -15,7 +15,7 @@ JWT_HEADER = "Authorization"
 BEARER_PREFIX = "Bearer "
 
 def authenticate_key(api_key):
-    """"""
+    """
     Authenticate an API key and return the corresponding APIKey object
 
     Args:
@@ -23,7 +23,7 @@ def authenticate_key(api_key):
 
     Returns:
         The APIKey object if valid, otherwise None
-    """"""
+    """
     # Fast fail if no key
     if not api_key:
         return None
@@ -47,7 +47,7 @@ def authenticate_key(api_key):
     return None
 
 def get_token_from_request():
-    """"""Extract JWT token from Authorization header""""""
+    """Extract JWT token from Authorization header"""
     auth_header = request.headers.get(JWT_HEADER)
 
     if auth_header and auth_header.startswith(BEARER_PREFIX):
@@ -56,11 +56,11 @@ def get_token_from_request():
     return None
 
 def get_api_key_from_request():
-    """"""Extract API key from X-API-Key header""""""
+    """Extract API key from X-API-Key header"""
     return request.headers.get(API_KEY_HEADER)
 
 def verify_token(token):
-    """"""
+    """
     Verify a JWT token and return the corresponding APIKey
 
     Args:
@@ -69,7 +69,7 @@ def verify_token(token):
     Returns:
         Tuple of (APIKey object, decoded token payload) if valid,
         otherwise (None, None)
-    """"""
+    """
     if not token:
         return None, None
 
@@ -87,7 +87,7 @@ def verify_token(token):
         if not key:
             return None, None
 
-        # Verify with the key's secret payload = key.verify_token(token) if not payload: return None, None # Update usage stats key.update_last_used() return key, payload except jwt.PyJWTError: return None, None def get_current_api_key(): """""" Get the authenticated API key from the current request First tries JWT token, then falls back to API key header Stores the key in g.api_key for access in views Returns: The authenticated APIKey object or None """""" # Check if we've already authenticated
+        # Verify with the key's secret payload = key.verify_token(token) if not payload: return None, None # Update usage stats key.update_last_used() return key, payload except jwt.PyJWTError: return None, None def get_current_api_key(): """ Get the authenticated API key from the current request First tries JWT token, then falls back to API key header Stores the key in g.api_key for access in views Returns: The authenticated APIKey object or None """ # Check if we've already authenticated
     if hasattr(g, 'api_key'):
         return g.api_key
 
@@ -139,9 +139,9 @@ def verify_token(token):
     return None
 
 def require_jwt_auth(f):
-    """"""
+    """
     Decorator to require JWT authentication
-    """"""
+    """
     @wraps(f)
     def decorated(*args, **kwargs):
         key = get_current_api_key()
@@ -158,10 +158,10 @@ def require_jwt_auth(f):
     return decorated
 
 def require_permission(permission):
-    """"""
+    """
     Decorator to require a specific permission
     Must be used after @require_jwt_auth
-    """"""
+    """
     def decorator(f):
         @wraps(f)
         def decorated(*args, **kwargs):
@@ -181,10 +181,10 @@ def require_permission(permission):
     return decorator
 
 def require_admin(f):
-    """"""
+    """
     Decorator to require admin privileges
     Must be used after @require_jwt_auth
-    """"""
+    """
     @wraps(f)
     def decorated(*args, **kwargs):
         key = get_current_api_key()

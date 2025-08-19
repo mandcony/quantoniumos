@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Advanced Validation Suite - Missing 33% Coverage Implementation This suite implements the missing advanced validation tests identified: 1. Perturbation Bound Testing (noise injection & Lipschitz constants) 2. Cryptographic Correlation Immunity & Entropy Retention 3. Collision/Preimage Gradient-based Search Attacks 4. Spectral Fidelity & Compression Analysis vs FFT 5. Cross-Platform Bit-Level Consistency Author: QuantoniumOS Development Team Date: August 2025 Patent Reference: USPTO Application 19/169,399
 """
 """
@@ -45,7 +45,7 @@ import generate_deterministic_hash as geometric_waveform_hash_deterministic exce
 print(f"Fallback imports also failed: {e2}")
 
 # Define minimal fallbacks
-def geometric_waveform_hash_deterministic(data, key=None, nonce=None): """"""
+def geometric_waveform_hash_deterministic(data, key=None, nonce=None): """
         Minimal deterministic hash fallback
 """
 """
@@ -90,7 +90,7 @@ class AdvancedValidationSuite:
 """
         """ logging.basicConfig( level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', handlers=[ logging.FileHandler('advanced_validation.log'), logging.StreamHandler(sys.stdout) ] )
         self.logger = logging.getLogger("AdvancedValidation")
-    def log_result(self, test_name: str, passed: bool, score: float, details: Dict, exec_time: float, error: str = None): """"""
+    def log_result(self, test_name: str, passed: bool, score: float, details: Dict, exec_time: float, error: str = None): """
         Log a validation result
 """
         """ result = ValidationResult(test_name, passed, score, details, exec_time, error)
@@ -105,7 +105,7 @@ class AdvancedValidationSuite:
         self.logger.info(f" {key}: {value:.4f}")
         else:
         self.logger.info(f" {key}: {value}") # === # 2. ROBUSTNESS & PERTURBATION ANALYSIS - Missing Tests # ===
-    def test_perturbation_bounds(self) -> bool: """"""
+    def test_perturbation_bounds(self) -> bool: """
         Test perturbation bounds and estimate Lipschitz constant. Injects controlled noise into RFT coefficients and measures reconstruction error vs noise magnitude to estimate stability bounds.
 """
 """
@@ -166,7 +166,7 @@ class AdvancedValidationSuite:
         raise ValueError("No valid Lipschitz estimates computed") except Exception as e: exec_time = time.time() - start_time
         self.log_result("Perturbation Bounds", False, 0.0, {}, exec_time, str(e))
         return False # === # 3. CRYPTOGRAPHIC SOUNDNESS - Missing Tests # ===
-    def test_correlation_immunity(self) -> bool: """"""
+    def test_correlation_immunity(self) -> bool: """
         Test correlation immunity: ciphertext bits should not correlate with plaintext bits under fixed key.
 """
 """
@@ -226,7 +226,7 @@ class AdvancedValidationSuite:
         raise ValueError("No valid correlations computed") except Exception as e: exec_time = time.time() - start_time
         self.log_result("Correlation Immunity", False, 0.0, {}, exec_time, str(e))
         return False
-    def test_entropy_retention(self) -> bool: """"""
+    def test_entropy_retention(self) -> bool: """
         Test entropy retention in RFT+Cipher pipeline. Verify that the transform preserves or improves entropy.
 """
 """
@@ -281,7 +281,7 @@ class AdvancedValidationSuite:
         raise ValueError("No valid entropy measurements") except Exception as e: exec_time = time.time() - start_time
         self.log_result("Entropy Retention", False, 0.0, {}, exec_time, str(e))
         return False # === # 4. COLLISION & PREIMAGE ANALYSIS - Missing Tests # ===
-    def test_gradient_collision_search(self) -> bool: """"""
+    def test_gradient_collision_search(self) -> bool: """
         Test resistance to gradient-based collision attacks. Try to find distinct inputs that produce same hash using optimization.
 """
 """
@@ -348,7 +348,7 @@ class AdvancedValidationSuite:
         return collision_resistance except Exception as e: exec_time = time.time() - start_time
         self.log_result("Gradient Collision Search", False, 0.0, {}, exec_time, str(e))
         return False
-    def test_simple_collision_search(self) -> bool: """"""
+    def test_simple_collision_search(self) -> bool: """
         Simplified collision search when SciPy not available
 """
 """
@@ -365,7 +365,7 @@ class AdvancedValidationSuite:
         # Good resistance
         if no collisions in 10k attempts
         return collisions == 0
-    def test_preimage_search(self) -> bool: """"""
+    def test_preimage_search(self) -> bool: """
         Test preimage resistance: given hash H(x), try to find x.
 """
 """
@@ -393,7 +393,7 @@ class AdvancedValidationSuite:
         return preimage_resistant except Exception as e: exec_time = time.time() - start_time
         self.log_result("Preimage Search", False, 0.0, {}, exec_time, str(e))
         return False # === # 5. COMPARATIVE BENCHMARKS - Missing Tests # ===
-    def test_spectral_fidelity_comparison(self) -> bool: """"""
+    def test_spectral_fidelity_comparison(self) -> bool: """
         Compare spectral fidelity: RFT vs FFT vs Windowed FFT. Measure leakage, resolution, and noise tolerance.
 """
 """
@@ -460,7 +460,7 @@ class AdvancedValidationSuite:
         return fidelity_good except Exception as e: exec_time = time.time() - start_time
         self.log_result("Spectral Fidelity", False, 0.0, {}, exec_time, str(e))
         return False
-    def test_compression_efficiency(self) -> bool: """"""
+    def test_compression_efficiency(self) -> bool: """
         Test compression efficiency: how many RFT coefficients needed for reconstruction within 1% error vs FFT.
 """
 """
@@ -529,7 +529,7 @@ class AdvancedValidationSuite:
         return False # ===
 
         # MAIN EXECUTION # ===
-    def run_all_advanced_tests(self) -> Dict[str, bool]: """"""
+    def run_all_advanced_tests(self) -> Dict[str, bool]: """
         Run all missing advanced validation tests
 """
 """

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 COMPREHENSIVE STATISTICAL TESTING SUITE === Implements all required statistical tests to validate cryptographic quality: - Entropy analysis (>=100 MB datasets) - Chi-square tests - Correlation analysis - Run tests - Compression testing - Indistinguishability testing
 """
 """
@@ -128,7 +128,7 @@ class ComprehensiveStatisticalTester:
         for i in range(size_mb): chunk = generator_func(chunk_size) data += chunk if (i + 1) % 10 == 0:
         print(f" Generated {i + 1}/{size_mb} MB...")
         return data
-    def indistinguishability_test(self, test_data: bytes, reference_generator) -> Tuple[float, bool]: """"""
+    def indistinguishability_test(self, test_data: bytes, reference_generator) -> Tuple[float, bool]: """
         Basic indistinguishability test using simple statistical measures More sophisticated classifiers would be better but this gives a baseline
 """
 """
@@ -155,7 +155,7 @@ class ComprehensiveStatisticalTester:
 
         # Good indistinguishability: accuracy close to 50% passes = 0.48 <= accuracy <= 0.52
         return accuracy, passes
-    def comprehensive_validation(self, data_generator, generator_name: str, test_size_mb: int = 10) -> Dict[str, Any]: """"""
+    def comprehensive_validation(self, data_generator, generator_name: str, test_size_mb: int = 10) -> Dict[str, Any]: """
         Run comprehensive validation on a data generator
 """
 """
@@ -222,7 +222,7 @@ class ComprehensiveStatisticalTester:
         print(f" Tests passed: {passed_tests}/{total_tests} ({passed_tests/total_tests*100:.1f}%)")
         print(f" Overall status: {results['summary']['overall_status']}")
         return results
-    def test_enhanced_system_with_comprehensive_validation(): """"""
+    def test_enhanced_system_with_comprehensive_validation(): """
         Test our enhanced system with comprehensive statistical validation
 """
 """
@@ -235,7 +235,7 @@ import CryptographicEnhancer
         # Test user key test_user_key = b"quantonium_test_key_2025_v1"
 
         # Define enhanced generator
-    def enhanced_rft_generator(size: int) -> bytes: """"""
+    def enhanced_rft_generator(size: int) -> bytes: """
         Generator using our enhanced RFT system
 """
         """ output = b'' current_nonce = os.urandom(16)

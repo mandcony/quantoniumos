@@ -1,42 +1,58 @@
 #!/usr/bin/env python3
 """
-Quick script to fix malformed docstrings with 6+ quotes
+Fix malformed docstrings with 6 quotes instead of 3
 """
 
+import os
 import re
-import sys
+import glob
 
-def fix_docstrings(file_path):
-    """Fix malformed docstrings in a Python file"""
+def fix_docstrings_in_file(filepath):
+    """Fix malformed docstrings in a single file."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Fix docstrings with 6+ quotes at start and end
-        # Pattern: """"""text""""""  ->  """text"""
-        pattern = r'"{6,}([^"]*?)"{6,}'
-        fixed_content = re.sub(pattern, r'"""\1"""', content)
+        # Track changes
+        original_content = content
         
-        # Fix docstrings with 6+ quotes at start only
-        # Pattern: """"""text"""  ->  """text"""
-        pattern2 = r'"{6,}([^"]*?)"{3}'
-        fixed_content = re.sub(pattern2, r'"""\1"""', fixed_content)
+        # Fix opening docstrings: """" -> """
+        content = re.sub(r'"""', '"""', content)
         
-        # Fix docstrings with 6+ quotes at end only
-        # Pattern: """text""""""  ->  """text"""
-        pattern3 = r'"{3}([^"]*?)"{6,}'
-        fixed_content = re.sub(pattern3, r'"""\1"""', fixed_content)
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(fixed_content)
-        
-        print(f"✅ Fixed docstrings in {file_path}")
-        return True
-        
+        if content != original_content:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(content)
+            print(f"✅ Fixed docstrings in: {filepath}")
+            return True
+        else:
+            return False
+            
     except Exception as e:
-        print(f"❌ Error fixing {file_path}: {e}")
+        print(f"❌ Error processing {filepath}: {e}")
         return False
 
+def main():
+    """Fix all Python files with malformed docstrings."""
+    
+    # Find all Python files
+    python_files = []
+    for root, dirs, files in os.walk('.'):
+        # Skip certain directories
+        if any(skip in root for skip in ['__pycache__', '.git', 'node_modules', 'venv', 'env']):
+            continue
+            
+        for file in files:
+            if file.endswith('.py'):
+                python_files.append(os.path.join(root, file))
+    
+    print(f"🔍 Found {len(python_files)} Python files to check...")
+    
+    fixed_count = 0
+    for filepath in python_files:
+        if fix_docstrings_in_file(filepath):
+            fixed_count += 1
+    
+    print(f"\n✅ Fixed docstrings in {fixed_count} files")
+
 if __name__ == "__main__":
-    file_path = sys.argv[1] if len(sys.argv) > 1 else "core/encryption/geometric_waveform_hash.py"
-    fix_docstrings(file_path)
+    main()

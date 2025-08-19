@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - Key Rotation Service
 
 This module provides functions for automated key rotation based on schedules.
-""""""
+"""
 
 import logging
 from datetime import datetime, timedelta
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_ROTATION_DAYS = 90
 
 def rotate_keys_by_age(max_age_days=DEFAULT_ROTATION_DAYS):
-    """"""
+    """
     Rotate API keys that are older than the specified age.
 
     Args:
@@ -24,7 +24,7 @@ def rotate_keys_by_age(max_age_days=DEFAULT_ROTATION_DAYS):
 
     Returns:
         List of rotated key IDs
-    """"""
+    """
     cutoff_date = datetime.utcnow() - timedelta(days=max_age_days)
     old_keys = APIKey.query.filter(
         APIKey.created_at < cutoff_date,
@@ -55,12 +55,12 @@ def rotate_keys_by_age(max_age_days=DEFAULT_ROTATION_DAYS):
     return rotated_keys
 
 def rotate_scheduled_keys():
-    """"""
+    """
     Rotate keys that are scheduled for rotation.
 
     Returns:
         List of rotated key IDs
-    """"""
+    """
     due_keys = get_keys_due_for_rotation()
     rotated_keys = []
 
@@ -91,13 +91,13 @@ def rotate_scheduled_keys():
     return rotated_keys
 
 def rotate_expired_keys():
-    """"""
+    """
     Rotate keys that are about to expire.
     This ensures continuity of service by creating new keys before old ones expire.
 
     Returns:
         List of rotated key IDs
-    """"""
+    """
     # Get keys that expire within the next 7 days
     soon = datetime.utcnow() + timedelta(days=7)
     expiring_keys = APIKey.query.filter(
@@ -138,12 +138,12 @@ def rotate_expired_keys():
     return rotated_keys
 
 def run_key_rotation():
-    """"""
+    """
     Run all key rotation functions.
 
     Returns:
         Dictionary with counts of keys rotated by each method
-    """"""
+    """
     results = {
         'by_age': len(rotate_keys_by_age()),
         'by_schedule': len(rotate_scheduled_keys()),

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Shared utilities for RFT benchmark suite
 """
 """
@@ -88,13 +88,13 @@ class BenchmarkUtils:
 """
         """ phi = (1 + np.sqrt(5)) / 2
         return MinimalTrueRFT( weights=[0.5, 0.3, 0.2], theta0_values=[0.0, np.pi/4, np.pi/2], omega_values=[1.0, phi, phi**2], sigma0=1.8, gamma=0.15 ) @staticmethod
-    def print_benchmark_header(title: str, emoji: str = "🔬") -> None: """"""
+    def print_benchmark_header(title: str, emoji: str = "🔬") -> None: """
         Print standardized benchmark header
 """
 """
         print(f"{emoji} BENCHMARK: {title}")
         print("=" * 50) @staticmethod
-    def print_results_table(headers: list, rows: list) -> None: """"""
+    def print_results_table(headers: list, rows: list) -> None: """
         Print formatted results table
 """
 """
@@ -113,7 +113,7 @@ class BenchmarkUtils:
         for i in range(len(row)))
         print(row_str)
 
-class ConfigurableBenchmark: """"""
+class ConfigurableBenchmark: """
         Base class for configurable benchmarks
 """
 """

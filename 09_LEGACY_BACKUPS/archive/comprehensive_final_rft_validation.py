@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 COMPREHENSIVE RFT CRYPTOGRAPHIC STATISTICAL TEST SUITE - FINAL VERSION This runs COMPREHENSIVE statistical tests on your RFT-based crypto system: ✓ Python crypto (optimized_resonance_encrypt) - the one with ~50% avalanche ✓ C++ RFT engine (quantonium_core.ResonanceFourierTransform) ✓ C++ quantum geometric hasher (quantum_engine.QuantumGeometricHasher) - FIXED ✓ Combined pipelines ✓ Full Dieharder test battery (not just quick tests) This is your DEFINITIVE statistical validation!
 """
 """
@@ -33,7 +33,7 @@ import quantum_engine test_hasher = quantum_engine.QuantumGeometricHasher() test
 print("✓ C++ quantum engine loaded and tested") HAS_CPP_QUANTUM = True except Exception as e:
 print(f"✗ C++ quantum engine failed: {e}") HAS_CPP_QUANTUM = False
 
-class ComprehensiveRFTStatisticalValidator: """"""
+class ComprehensiveRFTStatisticalValidator: """
     Comprehensive statistical validation of RFT cryptographic system
 """
 """
@@ -54,7 +54,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
         print(f"🐍 Python Crypto Engine: {'✅ ACTIVE'
         if HAS_PYTHON_CRYPTO else '❌ UNAVAILABLE'}")
         print("="*70)
-    def generate_python_crypto_data(self) -> str: """"""
+    def generate_python_crypto_data(self) -> str: """
         Generate baseline data using your working Python crypto
 """
 """
@@ -115,7 +115,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
         print(f" Crypto error at {counter}: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes from {counter} Python crypto operations")
         return output_file
-    def generate_cpp_rft_enhanced_data(self) -> str: """"""
+    def generate_cpp_rft_enhanced_data(self) -> str: """
         Generate data using C++ RFT + Python crypto pipeline
 """
 """
@@ -162,7 +162,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
         print(f" RFT error at {counter}: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes from {counter} C++ RFT enhanced operations")
         return output_file
-    def generate_cpp_quantum_hash_data(self) -> str: """"""
+    def generate_cpp_quantum_hash_data(self) -> str: """
         Generate data using C++ quantum geometric hasher
 """
 """
@@ -246,7 +246,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
         print(f" Quantum hash error at {counter}: {e}") counter += 1 continue
         print(f"✅ Generated {bytes_written:,} bytes from {counter} C++ quantum geometric hashes")
         return output_file
-    def comprehensive_entropy_analysis(self, file_path: str, name: str) -> Dict[str, float]: """"""
+    def comprehensive_entropy_analysis(self, file_path: str, name: str) -> Dict[str, float]: """
         Comprehensive entropy and statistical analysis
 """
 """
@@ -292,7 +292,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
         if overall_score >= 60 else "POOR"
         print(f" Overall Quality: {quality} ({overall_score:.1f}/100)")
         return { "shannon_entropy": entropy, "mean": mean, "variance": variance, "chi_square": chi_square, "chi_square_pass_95": chi_square < chi_square_critical_95, "chi_square_pass_99": chi_square < chi_square_critical_99, "runs": runs, "expected_runs": expected_runs, "serial_correlation": correlation, "max_run_length": max_run, "overall_quality_score": overall_score, "quality_rating": quality }
-    def run_comprehensive_dieharder(self, file_path: str, name: str) -> Dict[str, Any]: """"""
+    def run_comprehensive_dieharder(self, file_path: str, name: str) -> Dict[str, Any]: """
         Run comprehensive Dieharder statistical test battery
 """
 """
@@ -341,7 +341,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
         return {"error": "Timeout after 40 minutes", "success": False} except Exception as e:
         print(f" ⚠️ Dieharder error: {e}")
         return {"error": str(e), "success": False}
-    def _parse_comprehensive_dieharder(self, output: str) -> List[Dict[str, Any]]: """"""
+    def _parse_comprehensive_dieharder(self, output: str) -> List[Dict[str, Any]]: """
         Parse comprehensive Dieharder output with detailed test extraction
 """
         """ tests = []
@@ -378,7 +378,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
         if p_value >= 0.001: result = "WEAK"
         else: result = "FAILED" tests.append({ "name": test_name, "p_value": p_value, "result": result, "assessment": assessment, "raw_line": line }) except (ValueError, IndexError) as e: continue
         return tests
-    def run_comprehensive_validation_suite(self): """"""
+    def run_comprehensive_validation_suite(self): """
         Execute the complete comprehensive validation suite
 """
 """
@@ -423,7 +423,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
         print(f"⏱️ Total Duration: {total_duration/3600:.2f} hours ({total_duration/60:.1f} minutes)")
         print(f" Complete Results: {results_file}")
         return results
-    def _generate_final_validation_report(self, results: Dict[str, Any]): """"""
+    def _generate_final_validation_report(self, results: Dict[str, Any]): """
         Generate comprehensive final validation report
 """
         """ report_file = os.path.join(
@@ -456,7 +456,7 @@ class ComprehensiveRFTStatisticalValidator: """"""
 
         # Validation Standards\\n") f.write("- **Entropy >=7.9 bits/byte:** Cryptographically acceptable randomness\\n") f.write("- **Dieharder Pass Rate >=90%:** Strong statistical properties\\n") f.write("- **Chi-Square Test Pass:** Uniform distribution\\n") f.write("- **Low Serial Correlation:** Independence\\n\\n") f.write("---\\n") f.write("*This report was generated by the QuantoniumOS Comprehensive RFT*\\n") f.write("*Cryptographic Statistical Validation Suite using industry-standard*\\n") f.write("*statistical analysis tools and methodologies.*\\n")
         print(f"📋 Final validation report: {report_file}")
-    def main(): """"""
+    def main(): """
         Main execution function
 """
 """

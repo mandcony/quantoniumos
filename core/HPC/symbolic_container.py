@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - Symbolic Container HPC Module
 
 Implements the high-performance container validation routines for symbolic resonance containers.
-""""""
+"""
 
 import hashlib
 import sys
@@ -31,11 +31,11 @@ except ImportError:
     logger.warning("⚠️ HPC quantum_os module not found, using fallback implementation")
 
 def create_resonance_signature(waveform_array: List[float]) -> Dict[str, Any]:
-    """"""
+    """
     Create a resonance signature from the waveform array.
     If HPC backend is available, uses optimized C++ implementation.
     Otherwise, uses a Python fallback implementation.
-    """"""
+    """
     if HPC_BACKEND_LOADED:
         try:
             # Call the C++ module if available
@@ -55,11 +55,11 @@ def create_resonance_signature(waveform_array: List[float]) -> Dict[str, Any]:
     return signature
 
 def verify_container_waveform(signature: ByteString, hash_value: str) -> bool:
-    """"""
+    """
     Verify a container using the resonance signature and hash.
     If HPC backend is available, uses optimized C++ implementation.
     Otherwise, uses a Python fallback implementation.
-    """"""
+    """
     if HPC_BACKEND_LOADED:
         try:
             # Call the C++ module if available

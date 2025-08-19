@@ -9,7 +9,7 @@ if _QOS.exists() and str(_QOS) not in sys.path:
 from encryption.resonance_encrypt import wave_hmac, verify_wave_hmac
 
 def test_wave_hmac_sign_verify():
-    """"""Test the wave_hmac signature and verification""""""
+    """Test the wave_hmac signature and verification"""
 
     # Generate random test data
     message = os.urandom(128)

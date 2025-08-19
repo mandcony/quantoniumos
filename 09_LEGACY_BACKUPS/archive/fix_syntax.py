@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Quick syntax fixer for indentation issues caused by emoji removal
 """
 """

@@ -1,4 +1,4 @@
-""""""
+"""
 QuantoniumOS - Resonance Process Implementation
 """
 """

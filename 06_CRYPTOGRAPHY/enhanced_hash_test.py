@@ -1,4 +1,4 @@
-||""""""
+||"""
 Enhanced Hash Test Module This module provides the enhanced_geometric_hash function needed for avalanche effect testing in publication_ready_validation.py. Features: - RFT-based spectral analysis - Golden ratio geometric transformations - Multi-round diffusion layers - Keyed non-linear transformations for research-grade cryptographic diffusion
 """
 """
@@ -28,12 +28,12 @@ def hkdf_sha256(ikm: bytes, salt: bytes, info: bytes, length: int) -> bytes:
 import hmac prk = hmac.new(salt, ikm, hashlib.sha256).digest() okm, t, ctr = b"", b"", 1
         while len(okm) < length: t = hmac.new(prk, t + info + bytes([ctr]), hashlib.sha256).digest() okm += t ctr += 1
         return okm[:length]
-def derive_round_key(master_key: bytes, round_num: int, outlen: int = 32) -> bytes: """"""
+def derive_round_key(master_key: bytes, round_num: int, outlen: int = 32) -> bytes: """
         Derive round key using HKDF
 """
         """ salt = b"RFT-hash-salt" info = b"RFT-round-" + round_num.to_bytes(4, "big")
         return hkdf_sha256(master_key, salt, info, outlen)
-def sbox_bytes(buf: bytes) -> bytes: """"""
+def sbox_bytes(buf: bytes) -> bytes: """
         Apply AES S-box (truly non-linear substitution)
 """
 """
@@ -152,7 +152,7 @@ def _keyed_diffusion_round(state: bytes, key: bytes, round_num: int) -> bytes:
         # Lightweight linear diffusion (invertible) y = bytearray(64)
         for i in range(64): y[i] = (x[i] ^ x[(i+1) & 63] ^ ((x[(i+5) & 63] << 1) & 0xFF))
         return bytes(y[:32]) # collapse to 256-bit
-def _finalize_output(state: bytes, key: bytes) -> bytes: """"""
+def _finalize_output(state: bytes, key: bytes) -> bytes: """
         Final output conditioning with key-dependent finalization.
 """
 """

@@ -1,9 +1,9 @@
-""""""
+"""
 Constant-time and side-channel resistance tests for QuantoniumOS cryptographic primitives.
 
 This module implements micro-benchmarks to assert <=5ns variance across
 key-dependent branches, ensuring constant-time execution.
-""""""
+"""
 
 import time
 import secrets
@@ -15,7 +15,7 @@ import pytest
 MAX_TIMING_VARIANCE_NS = 5.0
 
 def measure_timing_variance(func: Callable, test_inputs: List[Any], iterations: int = 1000) -> float:
-    """"""
+    """
     Measure timing variance across different inputs.
 
     Args:
@@ -25,7 +25,7 @@ def measure_timing_variance(func: Callable, test_inputs: List[Any], iterations: 
 
     Returns:
         Timing variance in nanoseconds
-    """"""
+    """
     all_timings = []
 
     # Warm up to minimize JIT/cache effects
@@ -45,7 +45,7 @@ def measure_timing_variance(func: Callable, test_inputs: List[Any], iterations: 
     return statistics.variance(all_timings)
 
 def generate_crypto_test_inputs(size: int = 32) -> List[bytes]:
-    """"""Generate cryptographic test inputs with different bit patterns.""""""
+    """Generate cryptographic test inputs with different bit patterns."""
     return [
         b'\x00' * size,  # All zeros
         b'\xff' * size,  # All ones
@@ -57,10 +57,10 @@ def generate_crypto_test_inputs(size: int = 32) -> List[bytes]:
     ]
 
 class ConstantTimeTestSuite:
-    """"""Test suite for constant-time cryptographic operations.""""""
+    """Test suite for constant-time cryptographic operations."""
 
     def test_constant_time_property(self, func: Callable, test_name: str) -> bool:
-        """"""
+        """
         Test that a function has constant-time properties.
 
         Args:
@@ -69,7 +69,7 @@ class ConstantTimeTestSuite:
 
         Returns:
             True if timing variance is within acceptable bounds
-        """"""
+        """
         test_inputs = generate_crypto_test_inputs()
         variance = measure_timing_variance(func, test_inputs)
 
@@ -78,7 +78,7 @@ class ConstantTimeTestSuite:
         return variance <= MAX_TIMING_VARIANCE_NS
 
     def test_key_independent_timing(self, encryption_func: Callable) -> bool:
-        """"""
+        """
         Test that encryption timing is independent of key values.
 
         Args:
@@ -86,7 +86,7 @@ class ConstantTimeTestSuite:
 
         Returns:
             True if key-independent timing verified
-        """"""
+        """
         plaintext = b'\x00' * 32  # Fixed plaintext
         keys = generate_crypto_test_inputs(32)  # Different key patterns
 
@@ -112,7 +112,7 @@ class ConstantTimeTestSuite:
         return variance <= MAX_TIMING_VARIANCE_NS
 
     def test_data_independent_timing(self, encryption_func: Callable) -> bool:
-        """"""
+        """
         Test that encryption timing is independent of plaintext values.
 
         Args:
@@ -120,7 +120,7 @@ class ConstantTimeTestSuite:
 
         Returns:
             True if data-independent timing verified
-        """"""
+        """
         key = secrets.token_bytes(32)  # Fixed key
         plaintexts = generate_crypto_test_inputs(32)  # Different plaintext patterns
 
@@ -146,7 +146,7 @@ class ConstantTimeTestSuite:
         return variance <= MAX_TIMING_VARIANCE_NS
 
 def test_geometric_waveform_hash_constant_time():
-    """"""Test constant-time properties of geometric waveform hash.""""""
+    """Test constant-time properties of geometric waveform hash."""
     try:
         from core.encryption.geometric_waveform_hash import GeometricWaveformHash
 
@@ -168,7 +168,7 @@ def test_geometric_waveform_hash_constant_time():
         pytest.skip("GeometricWaveformHash not available")
 
 def test_symbolic_xor_constant_time():
-    """"""Test constant-time properties of symbolic XOR encryption.""""""
+    """Test constant-time properties of symbolic XOR encryption."""
     try:
         from quantoniumos.core.encryption import encrypt_symbolic
 
@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
     # Test example function (replace with actual crypto functions)
     def example_crypto_func(data: bytes) -> bytes:
-        """"""Example function for testing - replace with real crypto implementations.""""""
+        """Example function for testing - replace with real crypto implementations."""
         return data  # Placeholder
 
     # Run tests

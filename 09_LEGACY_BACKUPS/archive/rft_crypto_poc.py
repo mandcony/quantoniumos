@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 RFT-Enhanced Cryptographic Proof of Concept Demonstrates how RFT can be used in cryptography with proper key management and the 4-phase geometric waveform structure based on golden ratio powers. This is a proof of concept showing the cryptographic potential, not a production cipher.
 """
 """
@@ -24,7 +24,7 @@ class RFTCryptoProofOfConcept:
         self.phi, # phi^1
         self.phi**2, # phi^2
         self.phi**3 # phi^3 ])
-    def derive_key(self, password: bytes, salt: bytes = b"rft_salt") -> Dict[str, np.ndarray]: """"""
+    def derive_key(self, password: bytes, salt: bytes = b"rft_salt") -> Dict[str, np.ndarray]: """
         Derive cryptographic keys from password using RFT structure
 """
 """

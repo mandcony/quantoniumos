@@ -1,8 +1,8 @@
-""""""
+"""
 QuantoniumOS - Symbolic Collision Analysis
 
 This module tests the collision resistance and avalanche effect of the geometric waveform hash.
-""""""
+"""
 
 import os
 import random
@@ -25,14 +25,14 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 def generate_random_glyph(length=5):
-    """"""
+    """
     Generates a random glyph (string) of the given length using uppercase letters and digits.
-    """"""
+    """
     characters = string.ascii_uppercase + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
 
 def test_collision_analysis(num_samples=1000):
-    """"""
+    """
     Generates num_samples random glyphs, computes their geometric waveform hash,
     and reports on the number of unique hashes and collisions.
 
@@ -41,7 +41,7 @@ def test_collision_analysis(num_samples=1000):
 
     Returns:
         Dictionary containing collision analysis results
-    """"""
+    """
     hash_dict = {}   # Maps hash -> glyph (first occurrence)
     collisions = {}  # Maps hash -> list of glyphs with that hash (if more than one)
 
@@ -78,7 +78,7 @@ def test_collision_analysis(num_samples=1000):
     return results
 
 def avalanche_analysis(num_samples=1000, bit_flips=1):
-    """"""
+    """
     Tests the avalanche effect by flipping bits in the input and measuring
     the Hamming distance in the output hash.
 
@@ -88,7 +88,7 @@ def avalanche_analysis(num_samples=1000, bit_flips=1):
 
     Returns:
         Dictionary containing avalanche analysis results
-    """"""
+    """
     results = {
         "samples": num_samples,
         "bit_flips": bit_flips,
@@ -157,7 +157,7 @@ def avalanche_analysis(num_samples=1000, bit_flips=1):
     return results
 
 def plot_collision_results(results, save_path=None):
-    """"""
+    """
     Create a visualization of collision analysis results.
 
     Args:
@@ -166,7 +166,7 @@ def plot_collision_results(results, save_path=None):
 
     Returns:
         Matplotlib figure object
-    """"""
+    """
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # Basic stats
@@ -191,7 +191,7 @@ def plot_collision_results(results, save_path=None):
     return fig
 
 def plot_avalanche_results(results, save_path=None):
-    """"""
+    """
     Create a visualization of avalanche analysis results.
 
     Args:
@@ -200,7 +200,7 @@ def plot_avalanche_results(results, save_path=None):
 
     Returns:
         Matplotlib figure object
-    """"""
+    """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
     # Plot histogram of Hamming distances

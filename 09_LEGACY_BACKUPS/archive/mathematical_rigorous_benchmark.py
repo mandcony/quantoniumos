@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Mathematical Rigorous RFT Benchmark === Honest scientific assessment of Resonance Fourier Transform (RFT) performance against Discrete Fourier Transform (DFT) across multiple mathematical criteria. Core Mathematical Properties Tested: 1. Unitarity (exact Parseval's theorem) 2. Orthogonality (basis independence from DFT) 3. Sparsity representation (L1/L2 norms) 4. Energy concentration (coefficient magnitude distribution) 5. Signal class specificity (structured vs random)
 """
 """
@@ -14,7 +14,7 @@ import forward_true_rft, inverse_true_rft
 except ImportError: RFT_AVAILABLE = False
 print("RFT module not available - implementing mathematical reference")
 
-class MathematicalBenchmark: """"""
+class MathematicalBenchmark: """
     Rigorous mathematical comparison framework
 """
 """

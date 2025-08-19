@@ -1,12 +1,12 @@
-""""""
+"""
 Test diffusion properties of the optimized resonance encryption
-""""""
+"""
 import secrets
 import statistics
 from optimized_resonance_encrypt import optimized_resonance_encrypt
 
 def count_bit_differences(bytes1, bytes2):
-    """"""Count how many bits differ between two byte sequences""""""
+    """Count how many bits differ between two byte sequences"""
     diff_bits = 0
     for b1, b2 in zip(bytes1, bytes2):
         xor = b1 ^ b2
@@ -16,7 +16,7 @@ def count_bit_differences(bytes1, bytes2):
     return diff_bits
 
 def test_avalanche_effect(num_tests=1000):
-    """"""Test the avalanche effect by changing single bits and measuring diffusion""""""
+    """Test the avalanche effect by changing single bits and measuring diffusion"""
     print("Testing avalanche effect...")
     print(f"Running {num_tests} tests...")
 

@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 4-Phase RFT Cryptographic Primitive === Production-grade cryptographic hash using RFT spectral mixing in a geometrically secure wide-pipe construction. Architecture: Phase 1: Geometric Container Initialization (wide-pipe state) Phase 2: Spectral Mixing via RFT Engine (data-adaptive diffusion) Phase 3: Non-Linear Locking Layer (AES S-box + ARX) Phase 4: Compression & Feed-Forward (Davies-Meyer style) This addresses the cryptographic gaps in the current RFT implementation: - Wide-pipe resistance against meet-in-the-middle - Non-linear diffusion to prevent linear cryptanalysis - Sponge-style domain separation for length extension resistance - Feed-forward chaining for collision/preimage hardness
 """
 """
@@ -108,7 +108,7 @@ class RFTCryptographicPrimitive:
         # Inject counter across state
         for i in range(8):
         self.state[i + 64] ^= counter_bytes[i]
-    def _phase2_spectral_mixing(self, round_num: int) -> None: """"""
+    def _phase2_spectral_mixing(self, round_num: int) -> None: """
         Phase 2: Apply RFT spectral mixing with advanced quantization
 """
 """
@@ -252,7 +252,7 @@ class RFTCryptographicPrimitive:
         # Extract final output
         return bytes(
         self.state[:OUTPUT_BITS // 8])
-    def rft_crypto_hash(data: bytes) -> bytes: """"""
+    def rft_crypto_hash(data: bytes) -> bytes: """
         Compute 4-phase RFT cryptographic hash
 """
 """

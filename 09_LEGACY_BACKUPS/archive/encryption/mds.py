@@ -5,10 +5,10 @@ def _rotl32(x, r):
     return ((x << r) & 0xFFFFFFFF) | (x >> (32 - r))
 
 def mds_mix32(words: np.ndarray) -> np.ndarray:
-    """"""
+    """
     In-place 4x4 word MDS-like linear layer over Z/2^32Z using rotations/XOR.
     Branch-friendly and fast. Length must be multiple of 4.
-    """"""
+    """
     assert words.dtype == np.uint32
     n = len(words)
     assert n % 4 == 0
@@ -22,10 +22,10 @@ def mds_mix32(words: np.ndarray) -> np.ndarray:
     return words
 
 def keyed_weyl_add(words: np.ndarray, key_words: np.ndarray, ctr: int) -> None:
-    """"""
+    """
     Cheap keyed 'round constants' via a Weyl progression, different per word index.
     Keeps distribution flatter across inputs.
-    """"""
+    """
     C = 0x9E3779B1  # phi*2^32
     s = (ctr * C) & 0xFFFFFFFF
     for j in range(len(words)):

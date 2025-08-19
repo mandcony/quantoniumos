@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-""""""
+"""
 QuantoniumOS Desktop Launcher
 
 This script launches the full QuantoniumOS desktop environment
 by starting the quantonium_os_main.py module from the attached_assets directory.
-""""""
+"""
 import os
 import sys
 import subprocess
@@ -22,11 +22,11 @@ logging.basicConfig(
 logger = logging.getLogger("QuantoniumLauncher")
 
 def find_python_executable():
-    """"""Find the Python executable path.""""""
+    """Find the Python executable path."""
     return sys.executable
 
 def find_asset_directory():
-    """"""Find the QuantoniumOS files directory.""""""
+    """Find the QuantoniumOS files directory."""
     # Get the directory of this script
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -46,7 +46,7 @@ def find_asset_directory():
     return assets_dir
 
 def launch_quantonium_os():
-    """"""Launch the QuantoniumOS desktop environment.""""""
+    """Launch the QuantoniumOS desktop environment."""
     logger.info("🔹 Starting QuantoniumOS Desktop Environment...")
 
     # Find Python executable and asset directory

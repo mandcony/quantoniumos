@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - JSON Logger Test Suite
 
 Tests for verifying structured JSON logging setup and functionality.
-""""""
+"""
 
 import os
 import json
@@ -14,10 +14,10 @@ from flask import Flask, request, jsonify
 from utils.json_logger import setup_json_logger
 
 class TestJSONLogger(unittest.TestCase):
-    """"""Test cases for JSON logging functionality""""""
+    """Test cases for JSON logging functionality"""
 
     def setUp(self):
-        """"""Set up a test Flask app and temporary log file""""""
+        """Set up a test Flask app and temporary log file"""
         # Create a temporary directory for logs
         self.log_dir = tempfile.mkdtemp()
         self.log_file = os.path.join(self.log_dir, 'quantonium_api.log')
@@ -45,7 +45,7 @@ class TestJSONLogger(unittest.TestCase):
         self.client = self.app.test_client()
 
     def tearDown(self):
-        """"""Clean up temporary log files""""""
+        """Clean up temporary log files"""
         # Clean up any files in the temporary directory
         for filename in os.listdir(self.log_dir):
             file_path = os.path.join(self.log_dir, filename)
@@ -62,7 +62,7 @@ class TestJSONLogger(unittest.TestCase):
             print(f"Error removing directory {self.log_dir}: {e}")
 
     def test_log_file_created(self):
-        """"""Test that the log file is created when a request is made""""""
+        """Test that the log file is created when a request is made"""
         # Make a test request
         self.client.get('/test1')
 
@@ -70,7 +70,7 @@ class TestJSONLogger(unittest.TestCase):
         self.assertTrue(os.path.exists(self.log_file))
 
     def test_log_format_json(self):
-        """"""Test that the log entries are valid JSON with required fields""""""
+        """Test that the log entries are valid JSON with required fields"""
         # Make a test request
         response = self.client.get('/test1')
         self.assertEqual(response.status_code, 200)
@@ -95,7 +95,7 @@ class TestJSONLogger(unittest.TestCase):
         self.assertIsInstance(log_entry['elapsed_ms'], int)
 
     def test_multiple_requests_logged(self):
-        """"""Test that multiple requests are properly logged""""""
+        """Test that multiple requests are properly logged"""
         # Make three test requests
         self.client.get('/test1')
         self.client.get('/test2')
@@ -120,7 +120,7 @@ class TestJSONLogger(unittest.TestCase):
         self.assertIn('/test3', routes)
 
     def test_request_body_hashing(self):
-        """"""Test that request bodies are hashed in the log""""""
+        """Test that request bodies are hashed in the log"""
         # Make a POST request with a JSON body
         test_data = {"secret": "confidential_data", "public": "public_data"}
         self.client.post('/test3', json=test_data)
@@ -135,7 +135,7 @@ class TestJSONLogger(unittest.TestCase):
         self.assertEqual(len(log_entry['sha256_body']), 64)  # SHA-256 is 64 hex chars
 
     def test_timing_header(self):
-        """"""Test that the X-Request-Time header is added to responses""""""
+        """Test that the X-Request-Time header is added to responses"""
         # Make a test request
         response = self.client.get('/test1')
 

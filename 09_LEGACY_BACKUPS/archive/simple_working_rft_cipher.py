@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Simple Reversible RFT Cipher - Proof of Concept This demonstrates the cryptographic potential of RFT with proper reversibility. Focus: Make it work correctly first, then optimize for security.
 """
 """

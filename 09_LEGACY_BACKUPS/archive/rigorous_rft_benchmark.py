@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Rigorous RFT vs Baselines Benchmark - Scientific Evaluation This addresses the limitations identified in the previous tests: 1. Uses proper detection metrics (ROC-AUC, matched statistics) 2. Unit-normalized FFT for fair comparison 3. Multiple baselines beyond just DFT 4. Confidence intervals and statistical rigor 5. Ablation studies to isolate RFT contributions 6. Tests on signals that should genuinely favor RFT structure
 """
 """
@@ -99,7 +99,7 @@ def detection_roc_analysis(clean_signal, noisy_signal, coeffs_dict):
 
         # Random performance fallback
         return roc_results
-def run_rigorous_benchmark(n_trials=20, signal_length=512): """"""
+def run_rigorous_benchmark(n_trials=20, signal_length=512): """
         Run rigorous benchmark with proper statistical controls
 """
 """

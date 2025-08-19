@@ -1,4 +1,4 @@
-""""""
+"""
 Publication-Ready Validation: Canonical RFT Definition + Non-Equivalence Proof + Avalanche Results Reviewer-proof validation with logged parameters and minimal counterexamples.
 """
 """
@@ -34,7 +34,7 @@ import quantonium_core
         print("• Engine: Python fallback (core/true_rft.py)") engine_status = "Python fallback"
         print()
         return engine_status
-def show_minimal_non_equivalence_proof(): """"""
+def show_minimal_non_equivalence_proof(): """
         Show small N=4 counterexample proving Psi != permuted DFT basis.
 """
 """
@@ -83,7 +83,7 @@ import quantonium_core
         return min_diff >= 1e-3 except Exception as e:
         print(f"Error in proof generation: {e}")
         return False
-def measure_avalanche_with_logged_params(): """"""
+def measure_avalanche_with_logged_params(): """
         Measure avalanche effect with logged parameters and engine path.
 """
 """
@@ -161,7 +161,7 @@ def bit_avalanche_rate(h1, h2):
         print(f"Error in avalanche measurement: {e}")
 import traceback traceback.print_exc()
         return None, None, "ERROR"
-def main(): """"""
+def main(): """
         Run complete publication-ready validation.
 """
 """

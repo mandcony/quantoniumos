@@ -1,9 +1,9 @@
-""""""
+"""
 Quantonium OS - CCP Engine HPC Module
 
 Implements the Conscious Computation Process (CCP) engine for
 high-performance resonance filtering and expansion operations.
-""""""
+"""
 
 import logging
 import math
@@ -31,11 +31,11 @@ except ImportError:
     logger.warning("⚠️ HPC quantum_os module not found, using fallback implementation")
 
 def run_ccp_expansion(waveform_array: List[float], resonance_matrix: List[List[float]]) -> Dict[str, Any]:
-    """"""
+    """
     Apply CCP expansion to the waveform using the resonance matrix.
     If HPC backend is available, uses optimized C++ implementation.
     Otherwise, uses a Python fallback implementation.
-    """"""
+    """
     if HPC_BACKEND_LOADED:
         try:
             # Call the C++ module if available
@@ -60,11 +60,11 @@ def run_ccp_expansion(waveform_array: List[float], resonance_matrix: List[List[f
     return result
 
 def apply_resonance_filter(coefficients: List[float]) -> List[float]:
-    """"""
+    """
     Apply resonance filtering to the CCP-expanded coefficients.
     If HPC backend is available, uses optimized C++ implementation.
     Otherwise, uses a Python fallback implementation.
-    """"""
+    """
     if HPC_BACKEND_LOADED:
         try:
             # Call the C++ module if available

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 Debug CNOT gate implementation
 """
 """
@@ -23,7 +23,7 @@ def test_cnot_matrix():
 
         # Find the output state max_idx = np.argmax(np.abs(result))
         print(f" -> {labels[max_idx]}")
-def test_manual_cnot(): """"""
+def test_manual_cnot(): """
         Test manual CNOT application
 """
 """

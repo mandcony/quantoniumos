@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 SIMPLE SCALING VERIFICATION Test with impulse input [1,0,0,0...] to isolate scaling factor
 """
 """

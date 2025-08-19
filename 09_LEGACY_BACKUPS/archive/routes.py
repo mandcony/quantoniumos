@@ -1,4 +1,4 @@
-""""""
+"""
 Quantonium OS - API Route Definitions Defines all token-protected endpoints to access symbolic stack modules. Includes new authentication, non-repudiation, and inverse RFT endpoints.
 """
 """
@@ -32,12 +32,12 @@ print(f"Could not load config, using default feature flags: {str(e)}")
 # This replaces the old before_request handler
 
 # Each endpoint is protected individually for more granular control @api.route("/", methods=["GET"])
-def root_status(): """"""
+def root_status(): """
         API root status - public endpoint, no auth required
 """
 """
         return jsonify({ "name": "Quantonium OS Cloud Runtime", "status": "operational", "version": "1.1.0", "auth": "JWT/HMAC auth required for all endpoints" }) @api.route("/encrypt", methods=["POST"])
-def encrypt(): """"""
+def encrypt(): """
         Encrypt data using resonance techniques
 """
         """ data = EncryptRequest(**request.get_json()) result = symbolic.encrypt(data.plaintext, data.key)
@@ -63,7 +63,7 @@ import register_container register_container( hash_value=hash_value, plaintext=d
         if available
         if hasattr(g, 'api_key') and g.api_key: response["key_id"] = g.api_key.key_id
         return jsonify(sign_response(response)) @api.route("/decrypt", methods=["POST"])
-def decrypt(): """"""
+def decrypt(): """
         Decrypt data using resonance techniques
 """
         """ data = DecryptRequest(**request.get_json()) result = symbolic.decrypt(data.ciphertext, data.key)
@@ -76,7 +76,7 @@ def decrypt(): """"""
         if available
         if hasattr(g, 'api_key') and g.api_key: response["key_id"] = g.api_key.key_id
         return jsonify(sign_response(response)) @api.route("/simulate/rft", methods=["POST"])
-def simulate_rft(): """"""
+def simulate_rft(): """
         Perform Resonance Fourier Transform on waveform data
 """
         """ data = RFTRequest(**request.get_json())
@@ -97,12 +97,12 @@ def simulate_rft(): """"""
         return jsonify(sign_response(response))
 
         # Alias for benchmark compatibility @api.route("/rft", methods=["POST"])
-def rft_alias(): """"""
+def rft_alias(): """
         Alias for benchmark compatibility
 """
 """
         return simulate_rft() @api.route("/entropy/sample", methods=["POST"])
-def sample_entropy(): """"""
+def sample_entropy(): """
         Generate quantum-inspired entropy
 """
         """ data = EntropyRequest(**request.get_json()) result = symbolic.get_entropy(data.amount)
@@ -113,7 +113,7 @@ def sample_entropy(): """"""
         if available
         if hasattr(g, 'api_key') and g.api_key: response["key_id"] = g.api_key.key_id
         return jsonify(sign_response(response)) @api.route("/container/extract_parameters", methods=["POST"])
-def extract_container_parameters(): """"""
+def extract_container_parameters(): """
         Extract waveform parameters from a container hash
 """
         """ data = request.get_json() hash_value = data.get("hash", "")
@@ -129,7 +129,7 @@ import get_container_parameters as extract_params
         if available
         if hasattr(g, 'api_key') and g.api_key: result["key_id"] = g.api_key.key_id
         return jsonify(sign_response(result)) @api.route("/container/unlock", methods=["POST"])
-def unlock(): """"""
+def unlock(): """
         Unlock symbolic containers using waveform, hash, and encryption key
 """
         """ data = ContainerUnlockRequest(**request.get_json())
@@ -176,7 +176,7 @@ import check_container_access, get_container_by_hash, verify_container_key
         if available
         if hasattr(g, 'api_key') and g.api_key: response["key_id"] = g.api_key.key_id
         return jsonify(sign_response(response)) @api.route("/container/legacy_parameters", methods=["POST"])
-def get_legacy_container_parameters(): """"""
+def get_legacy_container_parameters(): """
         Legacy method to extract waveform parameters from a container hash
 """
 """
@@ -198,16 +198,16 @@ import extract_parameters_from_hash amplitude, phase = extract_parameters_from_h
         return jsonify(sign_response({ "success": False, "message": f"Error: {str(e)}" }))
 
         # Alias for benchmark compatibility @api.route("/unlock", methods=["POST"])
-def unlock_alias(): """"""
+def unlock_alias(): """
         Alias for container unlock for benchmark compatibility
 """
 """
         return unlock() @api.route("/stream/wave", methods=["GET"])
-def stream_wave(): """""" Server-Sent Events (SSE) endpoint that streams live resonance data Returns a continuous stream of JSON data with the format: {"timestamp": timestamp_ms, "amplitude": [amplitude_values], "phase": [phase_values]} Each event is sent approximately every 100ms Note: This endpoint is public to allow the visualization to work without auth """"""
+def stream_wave(): """ Server-Sent Events (SSE) endpoint that streams live resonance data Returns a continuous stream of JSON data with the format: {"timestamp": timestamp_ms, "amplitude": [amplitude_values], "phase": [phase_values]} Each event is sent approximately every 100ms Note: This endpoint is public to allow the visualization to work without auth """
 
         # Configure the response with proper SSE headers response = Response( stream_with_context(get_stream()), mimetype="text/event-stream", headers={ "Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive" } )
         return response # --- 64-Perturbation Benchmark Endpoints --- @api.route("/benchmark", methods=["POST"])
-def benchmark(): """"""
+def benchmark(): """
         Run 64-test perturbation suite for symbolic avalanche testing 1 base PT/KEY + 32 plaintext 1-bit flips + 31 key flips. Returns JSON and drops a timestamped CSV into /logs/. Enhanced to
         return detailed results for visualization.
 """
@@ -261,7 +261,7 @@ import random results = []
 
         # Add results to response response["results"] = results
         return jsonify(sign_response(response)) @api.route("/log/<csv_name>", methods=["GET"])
-def download_csv(csv_name): """"""
+def download_csv(csv_name): """
         Public download of benchmark CSVs (read-only) Args: csv_name: Name of the CSV file to download
 """
 """
@@ -273,7 +273,7 @@ def download_csv(csv_name): """"""
 
         # Send the file
         return send_file( full_path, mimetype="text/csv", as_attachment=True, download_name=csv_name ) # --- Inverse RFT Endpoint --- @api.route("/irft", methods=["POST"])
-def inverse_rft(): """"""
+def inverse_rft(): """
         Perform Inverse Resonance Fourier Transform on frequency data. This endpoint takes the result of an RFT operation and reconstructs the original waveform. This enables full bidirectional transform capability. Feature-flagged with FEATURE_IRFT.
 """
 """
@@ -290,7 +290,7 @@ def inverse_rft(): """"""
         if hasattr(g, 'api_key') and g.api_key: response["key_id"] = g.api_key.key_id
         return jsonify(sign_response(response)) except Exception as e:
         return jsonify(sign_response({ "status": "error", "message": f"IRFT processing error: {str(e)}" })), 500 # --- Authentication Endpoints --- @api.route("/sign", methods=["POST"])
-def sign_payload(): """"""
+def sign_payload(): """
         Sign a message using wave_hmac for non-repudiation. This endpoint creates a cryptographic signature using wave-based HMAC, which combines traditional HMAC with resonance phase information. The resulting signature can be verified with the /verify endpoint. Feature-flagged with FEATURE_AUTH.
 """
 """
@@ -322,7 +322,7 @@ import random_phase phi = str(random_phase())
         if hasattr(g, 'api_key') and g.api_key: response["key_id"] = g.api_key.key_id
         return jsonify(sign_response(response)) except Exception as e:
         return jsonify(sign_response({ "status": "error", "message": f"Signing error: {str(e)}" })), 500 @api.route("/verify", methods=["POST"])
-def verify_signature(): """"""
+def verify_signature(): """
         Verify a signature created by the /sign endpoint. This endpoint checks the authenticity and integrity of a message using the wave_hmac signature algorithm. Feature-flagged with FEATURE_AUTH.
 """
 """
@@ -374,7 +374,7 @@ def verify_signature(): """"""
         if original_phase: os.environ['QUANTONIUM_PRIVATE_PHASE'] = original_phase
         else: if 'QUANTONIUM_PRIVATE_PHASE' in os.environ: del os.environ['QUANTONIUM_PRIVATE_PHASE'] except Exception as e:
         return jsonify(sign_response({ "status": "error", "message": f"Verification error: {str(e)}" })), 500 @api.route("/entropy/stream", methods=["GET"])
-def entropy_stream(): """"""
+def entropy_stream(): """
         Return last-N entropy samples for dashboard tiny-chart.
 """
 """
@@ -408,7 +408,7 @@ import csv with latest_benchmark.open() as f: reader = csv.DictReader(f)
         # Seed with timestamp for pseudo-randomness random.seed(int(time.time()))
         for i in range(10): ent.append(0.5 + random.random() * 0.5)
         return jsonify({"series": ent[-50:], "t": time.time()}) @api.route("/analyze/resonance", methods=["POST"])
-def analyze_image_resonance(): """"""
+def analyze_image_resonance(): """
         Analyze an uploaded image to detect resonance patterns using QuantoniumOS algorithms This endpoint accepts an image file and applies QuantoniumOS resonance mathematics to extract patterns, symmetry, and potential symbolic meaning. Returns a JSON object containing detailed resonance analysis results.
 """
         """ if 'image' not in request.files:

@@ -1,4 +1,4 @@
-""""""
+"""
 Wave Primitives - Mathematical constructs for waveform operations
 
 RESEARCH ONLY: This implementation is for educational and research purposes only.
@@ -8,7 +8,7 @@ Provides fundamental wave-based mathematical primitives for use
 in resonance-based encryption and hashing operations.
 
 WaveNumber class for signal processing computations.
-""""""
+"""
 
 import numpy as np
 from typing import Union, List, Optional
@@ -16,21 +16,21 @@ import hashlib
 import cmath
 
 class WaveNumber:
-    """"""
+    """
     Represents a wave number in the signal processing cryptographic system.
 
     A wave number encodes both magnitude and phase information for use
     in resonance-based encryption and hashing operations.
-    """"""
+    """
 
     def __init__(self, magnitude: float = 1.0, phase: float = 0.0):
-        """"""
+        """
         Initialize a wave number with magnitude and phase.
 
         Args:
             magnitude: The amplitude of the wave (default: 1.0)
             phase: The phase angle in radians (default: 0.0)
-        """"""
+        """
         self.magnitude = float(magnitude)
         self.phase = float(phase) % (2 * np.pi)  # Normalize phase to [0, 2π)
 
@@ -38,7 +38,7 @@ class WaveNumber:
         self.complex = self.magnitude * cmath.exp(1j * self.phase)
 
     def __add__(self, other):
-        """"""Add two wave numbers.""""""
+        """Add two wave numbers."""
         if isinstance(other, WaveNumber):
             result_complex = self.complex + other.complex
             return WaveNumber.from_complex(result_complex)
@@ -47,7 +47,7 @@ class WaveNumber:
             return WaveNumber(self.magnitude + other, self.phase)
 
     def __mul__(self, other):
-        """"""Multiply two wave numbers.""""""
+        """Multiply two wave numbers."""
         if isinstance(other, WaveNumber):
             result_complex = self.complex * other.complex
             return WaveNumber.from_complex(result_complex)
@@ -56,7 +56,7 @@ class WaveNumber:
             return WaveNumber(self.magnitude * other, self.phase)
 
     def __abs__(self):
-        """"""Return the magnitude of the wave number.""""""
+        """Return the magnitude of the wave number."""
         return self.magnitude
 
     def __repr__(self):
@@ -64,14 +64,14 @@ class WaveNumber:
 
     @classmethod
     def from_complex(cls, z: complex):
-        """"""Create a WaveNumber from a complex number.""""""
+        """Create a WaveNumber from a complex number."""
         magnitude = abs(z)
         phase = cmath.phase(z)
         return cls(magnitude, phase)
 
     @classmethod
     def from_bytes(cls, data: bytes):
-        """"""Create a WaveNumber from byte data using hash.""""""
+        """Create a WaveNumber from byte data using hash."""
         # Use SHA-256 to convert bytes to deterministic wave parameters
         hash_digest = hashlib.sha256(data).digest()
 
@@ -86,17 +86,17 @@ class WaveNumber:
         return cls(magnitude, phase)
 
     def conjugate(self):
-        """"""Return the complex conjugate of the wave number.""""""
+        """Return the complex conjugate of the wave number."""
         return WaveNumber(self.magnitude, -self.phase)
 
     def normalize(self):
-        """"""Return a normalized wave number with magnitude 1.""""""
+        """Return a normalized wave number with magnitude 1."""
         if self.magnitude == 0:
             return WaveNumber(0, 0)
         return WaveNumber(1.0, self.phase)
 
     def to_bytes(self, length: int = 32) -> bytes:
-        """"""Convert wave number to byte representation.""""""
+        """Convert wave number to byte representation."""
         # Combine magnitude and phase into deterministic bytes
         mag_normalized = int(self.magnitude * 1000) % 256
         phase_normalized = int(self.phase * 1000) % 256
@@ -111,7 +111,7 @@ class WaveNumber:
         return pattern[:length]
 
 def wave_interference(wave1: WaveNumber, wave2: WaveNumber) -> WaveNumber:
-    """"""
+    """
     Compute wave interference pattern between two wave numbers.
 
     Args:
@@ -120,13 +120,13 @@ def wave_interference(wave1: WaveNumber, wave2: WaveNumber) -> WaveNumber:
 
     Returns:
         WaveNumber representing the interference pattern
-    """"""
+    """
     # Constructive/destructive interference
     interference_complex = wave1.complex + wave2.complex
     return WaveNumber.from_complex(interference_complex)
 
 def wave_modulation(carrier: WaveNumber, signal: WaveNumber) -> WaveNumber:
-    """"""
+    """
     Perform wave modulation for encryption operations.
 
     Args:
@@ -135,12 +135,12 @@ def wave_modulation(carrier: WaveNumber, signal: WaveNumber) -> WaveNumber:
 
     Returns:
         WaveNumber representing the modulated wave
-    """"""
+    """
     modulated_complex = carrier.complex * signal.complex
     return WaveNumber.from_complex(modulated_complex)
 
 def generate_wave_sequence(seed: bytes, length: int) -> List[WaveNumber]:
-    """"""
+    """
     Generate a sequence of wave numbers from a seed.
 
     Args:
@@ -149,7 +149,7 @@ def generate_wave_sequence(seed: bytes, length: int) -> List[WaveNumber]:
 
     Returns:
         List of WaveNumber objects
-    """"""
+    """
     sequence = []
     current_hash = seed
 

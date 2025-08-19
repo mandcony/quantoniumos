@@ -1,9 +1,9 @@
-""""""
+"""
 Quantonium OS - Streaming Module
 
 Provides real-time resonance waveform data streaming capabilities
 with Server-Sent Events (SSE) protocol.
-""""""
+"""
 
 import time
 import json
@@ -39,11 +39,11 @@ SAMPLE_COUNT = 64        # Number of samples per frame
 MAX_CLIENTS = 100        # Maximum number of simultaneous clients
 
 def get_current_ms() -> int:
-    """"""Get current time in milliseconds""""""
+    """Get current time in milliseconds"""
     return int(time.time() * 1000)
 
 def update_encrypt_data(ciphertext: str, key: str) -> None:
-    """"""
+    """
     Update the shared wave data based on encryption operations
 
     When a user encrypts data, this function is called to update
@@ -52,7 +52,7 @@ def update_encrypt_data(ciphertext: str, key: str) -> None:
     Args:
         ciphertext: The encrypted data
         key: The key used for encryption
-    """"""
+    """
     global _shared_wave_data
 
     # Generate deterministic but unique waveform based on the
@@ -97,14 +97,14 @@ def update_encrypt_data(ciphertext: str, key: str) -> None:
             raise NotImplementedError("TODO: implement")
 
 def _generate_wave_packet() -> Dict:
-    """"""
+    """
     Generate a single wave packet with timestamp, amplitude and phase data
 
     Used internally by the resonance generator to create streaming data
 
     Returns:
         Dictionary with timestamp, amplitude and phase data
-    """"""
+    """
     # Current timestamp in milliseconds
     timestamp = get_current_ms()
 
@@ -154,10 +154,10 @@ def _generate_wave_packet() -> Dict:
     }
 
 def resonance_generator() -> None:
-    """"""
+    """
     Background thread function that generates resonance data
     and adds it to the wave queue
-    """"""
+    """
     while True:
         try:
             # Generate a new wave packet
@@ -186,11 +186,11 @@ def resonance_generator() -> None:
             time.sleep(1)  # Sleep longer on error
 
 def start_resonance_generator() -> None:
-    """"""
+    """
     Start the background thread that generates resonance data
 
     This should be called once during application initialization
-    """"""
+    """
     generator_thread = threading.Thread(
         target=resonance_generator,
         daemon=True
@@ -198,12 +198,12 @@ def start_resonance_generator() -> None:
     generator_thread.start()
 
 def get_stream() -> Generator[str, None, None]:
-    """"""
+    """
     Generate an SSE stream of resonance data
 
     Yields:
         SSE-formatted strings with resonance data
-    """"""
+    """
     # Generate a unique client ID
     client_id = random.randint(1, 100000)
 
@@ -215,7 +215,7 @@ def get_stream() -> Generator[str, None, None]:
     client_queue = queue.Queue(maxsize=10)
 
     def queue_reader():
-        """"""Read from the global queue and put into client queue""""""
+        """Read from the global queue and put into client queue"""
         try:
             while True:
                 try:

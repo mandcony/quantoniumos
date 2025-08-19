@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 QuantoniumOS Engine Core Adapter - Linux Integration Adapts the Windows DLL engine_core to work with your proven Linux C++ engines: - quantonium_core (ResonanceFourierTransform) - Your 98.2% development engine - quantum_engine (QuantumGeometricHasher) - Your 100% validation engine - resonance_engine - Your proven resonance system This provides native speed symbolic resonance encoding using your existing engines.
 """
 """
@@ -26,7 +26,7 @@ print("✓ QuantoniumOS resonance engine loaded")
 except ImportError: HAS_RESONANCE_ENGINE = False
 print("⚠ Resonance engine not available")
 
-class QuantoniumEngineCore: """"""
+class QuantoniumEngineCore: """
     Linux adaptation of engine_core.dll using your proven C++ engines Maintains the same API but uses your development validation algorithms
 """
 """
@@ -37,7 +37,7 @@ class QuantoniumEngineCore: """"""
         self.quantum_hasher = quantum_engine.QuantumGeometricHasher()
         if HAS_QUANTUM_ENGINE else None
         print("✅ QuantoniumOS Engine Core initialized with proven algorithms")
-    def apply_u(self, state: np.ndarray, derivative: np.ndarray, dt: float) -> np.ndarray: """"""
+    def apply_u(self, state: np.ndarray, derivative: np.ndarray, dt: float) -> np.ndarray: """
         Unitary evolution operator using your proven RFT engine Applies U(dt) = exp(-i*H*dt) transformation
 """
 """
@@ -62,7 +62,7 @@ class QuantoniumEngineCore: """"""
         for c in evolved_state[:len(state)]]) except Exception as e:
         print(f"⚠ RFT evolution failed: {e}, using fallback")
         return state + derivative * dt
-    def apply_t(self, state: np.ndarray, transform: np.ndarray) -> np.ndarray: """"""
+    def apply_t(self, state: np.ndarray, transform: np.ndarray) -> np.ndarray: """
         Transformation operator using quantum geometric hashing Applies geometric transformation T to state vector
 """
 """
@@ -92,7 +92,7 @@ class QuantoniumEngineCore: """"""
         return transformed_state except Exception as e:
         print(f"⚠ Quantum transformation failed: {e}, using fallback")
         return state * transform
-    def compute_eigenvectors(self, state: np.ndarray) -> Tuple[np.ndarray, np.ndarray]: """"""
+    def compute_eigenvectors(self, state: np.ndarray) -> Tuple[np.ndarray, np.ndarray]: """
         Eigenvalue decomposition using combined RFT + quantum analysis Returns eigenvalues and eigenvectors of state-derived matrix
 """
         """ n = len(state)
@@ -121,7 +121,7 @@ class QuantoniumEngineCore: """"""
 
         # Simple diagonal matrix eigenvalues = state.copy() eigenvectors = np.eye(n)
         return eigenvalues, eigenvectors
-    def encode_resonance(self, data: str) -> str: """"""
+    def encode_resonance(self, data: str) -> str: """
         Symbolic resonance encoding using your development algorithms Combines RFT + quantum geometric hashing for maximum entropy
 """
 """
@@ -162,7 +162,7 @@ class QuantoniumEngineCore: """"""
         return hash_obj.hexdigest() except Exception as e:
         print(f"⚠ Resonance encoding failed: {e}, using fallback")
         return hashlib.sha256(data_bytes).hexdigest()
-    def decode_resonance(self, encoded_data: str) -> str: """"""
+    def decode_resonance(self, encoded_data: str) -> str: """
         Symbolic resonance decoding - reverse of encoding process Uses inverse RFT + quantum pattern matching
 """
 """
@@ -208,7 +208,7 @@ class QuantoniumEngineCore: """"""
         return f"RESONANCE_DECODED_{encoded_data[:16]}" except Exception as e:
         print(f"⚠ Resonance decoding failed: {e}")
         return f"DECODE_ERROR_{encoded_data[:8]}"
-    def compute_similarity(self, url1: str, url2: str) -> float: """"""
+    def compute_similarity(self, url1: str, url2: str) -> float: """
         Quantum-enhanced similarity computation using geometric hashing
 """
 """
@@ -259,7 +259,7 @@ class QuantoniumEngineCore: """"""
         # Global instance for compatibility _engine_core = QuantoniumEngineCore()
 
         # API functions matching original DLL interface
-    def apply_u(state: np.ndarray, derivative: np.ndarray, dt: float) -> np.ndarray: """"""
+    def apply_u(state: np.ndarray, derivative: np.ndarray, dt: float) -> np.ndarray: """
         Unitary evolution using your development RFT algorithm
 """
 """

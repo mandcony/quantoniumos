@@ -1,4 +1,4 @@
-""""""
+"""
 QuantoniumOS - Comparative Benchmarks
 
 This module implements comprehensive benchmarks comparing QuantoniumOS algorithms
@@ -8,7 +8,7 @@ with traditional cryptographic methods (AES, SHA-256, etc.) to demonstrate:
 3. Resistance to specific types of attacks
 
 All benchmarks are reproducible and CSV logs are generated for analysis.
-""""""
+"""
 
 import os
 import time
@@ -69,7 +69,7 @@ DATA_SIZES = [64, 256, 1024, 4096, 16384]  # Data sizes in bytes
 TEST_VECTORS = ["all_zeros", "all_ones", "random", "structured"]
 
 def generate_test_data(size: int, data_type: str) -> bytes:
-    """"""Generate test data of specified size and type""""""
+    """Generate test data of specified size and type"""
     if data_type == "all_zeros":
         return b'\x00' * size
     elif data_type == "all_ones":
@@ -85,7 +85,7 @@ def generate_test_data(size: int, data_type: str) -> bytes:
         raise ValueError(f"Unknown data type: {data_type}")
 
 def aes_encrypt(data: bytes, key: bytes) -> bytes:
-    """"""Standard AES encryption for comparison""""""
+    """Standard AES encryption for comparison"""
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     encryptor = cipher.encryptor()
@@ -99,11 +99,11 @@ def aes_encrypt(data: bytes, key: bytes) -> bytes:
     return iv + ciphertext
 
 def sha256_hash(data: bytes) -> bytes:
-    """"""Standard SHA-256 hash for comparison""""""
+    """Standard SHA-256 hash for comparison"""
     return hashlib.sha256(data).digest()
 
 def benchmark_encryption_speed(title: str, save_csv: bool = True) -> Dict[str, Any]:
-    """"""
+    """
     Benchmark encryption speed for different algorithms and data sizes
 
     Args:
@@ -112,7 +112,7 @@ def benchmark_encryption_speed(title: str, save_csv: bool = True) -> Dict[str, A
 
     Returns:
         Dictionary with benchmark results
-    """"""
+    """
     results = {
         "title": title,
         "timestamp": datetime.now().isoformat(),
@@ -189,7 +189,7 @@ def benchmark_encryption_speed(title: str, save_csv: bool = True) -> Dict[str, A
     return results
 
 def benchmark_hashing_speed(title: str, save_csv: bool = True) -> Dict[str, Any]:
-    """"""
+    """
     Benchmark hashing speed for different algorithms and data sizes
 
     Args:
@@ -198,7 +198,7 @@ def benchmark_hashing_speed(title: str, save_csv: bool = True) -> Dict[str, Any]
 
     Returns:
         Dictionary with benchmark results
-    """"""
+    """
     results = {
         "title": title,
         "timestamp": datetime.now().isoformat(),
@@ -274,7 +274,7 @@ def benchmark_hashing_speed(title: str, save_csv: bool = True) -> Dict[str, Any]
     return results
 
 def benchmark_avalanche_effect(title: str, save_csv: bool = True) -> Dict[str, Any]:
-    """"""
+    """
     Benchmark avalanche effect (bit change propagation) for different algorithms
 
     Args:
@@ -283,7 +283,7 @@ def benchmark_avalanche_effect(title: str, save_csv: bool = True) -> Dict[str, A
 
     Returns:
         Dictionary with benchmark results
-    """"""
+    """
     results = {
         "title": title,
         "timestamp": datetime.now().isoformat(),
@@ -358,7 +358,7 @@ def benchmark_avalanche_effect(title: str, save_csv: bool = True) -> Dict[str, A
     return results
 
 def benchmark_quantum_resistance(title: str, save_csv: bool = True) -> Dict[str, Any]:
-    """"""
+    """
     Simulate quantum resistance by testing against theoretical quantum attacks
 
     Args:
@@ -367,7 +367,7 @@ def benchmark_quantum_resistance(title: str, save_csv: bool = True) -> Dict[str,
 
     Returns:
         Dictionary with benchmark results
-    """"""
+    """
     # This is a simplified simulation of quantum resistance
     # In a real scenario, this would use a quantum simulator to test attacks
 
@@ -434,7 +434,7 @@ def benchmark_quantum_resistance(title: str, save_csv: bool = True) -> Dict[str,
     return results
 
 def benchmark_resource_usage(title: str, save_csv: bool = True) -> Dict[str, Any]:
-    """"""
+    """
     Benchmark memory and CPU usage for different algorithms
 
     Args:
@@ -443,7 +443,7 @@ def benchmark_resource_usage(title: str, save_csv: bool = True) -> Dict[str, Any
 
     Returns:
         Dictionary with benchmark results
-    """"""
+    """
     import psutil
 
     results = {
@@ -528,7 +528,7 @@ def benchmark_resource_usage(title: str, save_csv: bool = True) -> Dict[str, Any
     return results
 
 def run_all_benchmarks():
-    """"""Run all benchmarks and save results""""""
+    """Run all benchmarks and save results"""
     timestamp = int(time.time())
     summary = {
         "timestamp": timestamp,

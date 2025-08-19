@@ -1,4 +1,4 @@
-""""""
+"""
 QuantoniumOS - Comprehensive Cryptanalytic Test Suite
 
 This module implements a comprehensive cryptanalytic test suite for QuantoniumOS,
@@ -14,7 +14,7 @@ incorporating industry-standard test batteries including:
 This suite validates the cryptographic properties of QuantoniumOS primitives
 and compares them against established standards. All tests provide detailed
 p-value reporting for scientific verification and peer review.
-""""""
+"""
 
 import os
 import math
@@ -25,14 +25,14 @@ import json
 from datetime import datetime
 from typing import Dict, List, Any
 
-# Fix import paths - add the project root to Python's module search path current_dir = os.path.dirname(os.path.abspath(__file__)) project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) # Import QuantoniumOS modules from core.encryption.wave_entropy_engine import WaveformEntropyEngine from core.encryption.geometric_waveform_hash import GeometricWaveformHash # Create a wrapper class to maintain compatibility class ResonanceEncryption: """""" Wrapper class for resonance encryption functions to provide an object-oriented interface """""" def encrypt(self, data, key): """"""Encrypt data using resonance encryption"""""" # For avalanche testing, we need to handle random binary data properly # Convert bytes to hex string for consistent handling if isinstance(data, bytes): data_hex = data.hex() else: data_hex = data if isinstance(key, bytes): key_hex = key.hex() else: key_hex = key # For avalanche testing, use a simpler encryption that works with binary data # This is a simplified version that maintains the same interface key_hash = hashlib.sha256(key_hex.encode()).hexdigest() data_hash = hashlib.sha256(data_hex.encode()).hexdigest() # Simple XOR-based encryption for testing result = bytearray() for i in range(len(data_hash)): result.append(ord(data_hash[i % len(data_hash)]) ^ ord(key_hash[i % len(key_hash)])) return bytes(result) def decrypt(self, data, key): """"""Decrypt data using resonance encryption"""""" # For test compatibility, we implement a reversible operation # In real usage, use decrypt_data from the module if isinstance(key, bytes): key_hex = key.hex() else: key_hex = key key_hash = hashlib.sha256(key_hex.encode()).hexdigest() # Simple XOR-based decryption (same as encryption for testing) result = bytearray() for i in range(len(data)): result.append(data[i] ^ ord(key_hash[i % len(key_hash)])) return bytes(result) class CryptoTestResult: """"""Class to store and analyze cryptographic test results"""""" def __init__(self, test_name: str, algorithm_name: str): self.test_name = test_name self.algorithm_name = algorithm_name self.timestamp = datetime.now().isoformat() self.results = {} self.passed = False self.p_values = [] self.test_statistics = {} def add_result(self, subtest_name: str, result: Any, passed: bool = None, p_value: float = None): """"""Add a test result"""""" self.results[subtest_name] = { "result": result, "passed": passed, "p_value": p_value } if p_value is not None: self.p_values.append(p_value) def calculate_overall_result(self): """"""Calculate the overall test result"""""" if not self.results: self.passed = False return # If all subtests have a 'passed' value, use them if all('passed' in result and result['passed'] is not None for result in self.results.values()): self.passed = all(result['passed'] for result in self.results.values()) # If we have p-values, check if they're uniformly distributed
+# Fix import paths - add the project root to Python's module search path current_dir = os.path.dirname(os.path.abspath(__file__)) project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) # Import QuantoniumOS modules from core.encryption.wave_entropy_engine import WaveformEntropyEngine from core.encryption.geometric_waveform_hash import GeometricWaveformHash # Create a wrapper class to maintain compatibility class ResonanceEncryption: """ Wrapper class for resonance encryption functions to provide an object-oriented interface """ def encrypt(self, data, key): """Encrypt data using resonance encryption""" # For avalanche testing, we need to handle random binary data properly # Convert bytes to hex string for consistent handling if isinstance(data, bytes): data_hex = data.hex() else: data_hex = data if isinstance(key, bytes): key_hex = key.hex() else: key_hex = key # For avalanche testing, use a simpler encryption that works with binary data # This is a simplified version that maintains the same interface key_hash = hashlib.sha256(key_hex.encode()).hexdigest() data_hash = hashlib.sha256(data_hex.encode()).hexdigest() # Simple XOR-based encryption for testing result = bytearray() for i in range(len(data_hash)): result.append(ord(data_hash[i % len(data_hash)]) ^ ord(key_hash[i % len(key_hash)])) return bytes(result) def decrypt(self, data, key): """Decrypt data using resonance encryption""" # For test compatibility, we implement a reversible operation # In real usage, use decrypt_data from the module if isinstance(key, bytes): key_hex = key.hex() else: key_hex = key key_hash = hashlib.sha256(key_hex.encode()).hexdigest() # Simple XOR-based decryption (same as encryption for testing) result = bytearray() for i in range(len(data)): result.append(data[i] ^ ord(key_hash[i % len(key_hash)])) return bytes(result) class CryptoTestResult: """Class to store and analyze cryptographic test results""" def __init__(self, test_name: str, algorithm_name: str): self.test_name = test_name self.algorithm_name = algorithm_name self.timestamp = datetime.now().isoformat() self.results = {} self.passed = False self.p_values = [] self.test_statistics = {} def add_result(self, subtest_name: str, result: Any, passed: bool = None, p_value: float = None): """Add a test result""" self.results[subtest_name] = { "result": result, "passed": passed, "p_value": p_value } if p_value is not None: self.p_values.append(p_value) def calculate_overall_result(self): """Calculate the overall test result""" if not self.results: self.passed = False return # If all subtests have a 'passed' value, use them if all('passed' in result and result['passed'] is not None for result in self.results.values()): self.passed = all(result['passed'] for result in self.results.values()) # If we have p-values, check if they're uniformly distributed
         elif self.p_values:
             # Apply the NIST recommendation for p-values
             # At least 96% of p-values should be above 0.01
             count_above_threshold = sum(1 for p in self.p_values if p >= 0.01)
             self.passed = (count_above_threshold / len(self.p_values)) >= 0.96
 
-        # Otherwise, can't determine pass/fail else: self.passed = None def to_dict(self): """"""Convert the result to a dictionary"""""" return { "test_name": self.test_name, "algorithm_name": self.algorithm_name, "timestamp": self.timestamp, "passed": self.passed, "results": self.results, "summary": self.get_summary() } def get_summary(self): """"""Get a summary of the test results"""""" self.calculate_overall_result() # Calculate statistics on p-values if available p_value_stats = {} if self.p_values: p_value_stats = { "mean": np.mean(self.p_values), "min": np.min(self.p_values), "max": np.max(self.p_values), "std": np.std(self.p_values), "percent_above_0.01": sum(1 for p in self.p_values if p >= 0.01) / len(self.p_values) * 100 } return { "passed": self.passed, "total_subtests": len(self.results), "passed_subtests": sum(1 for r in self.results.values() if r.get("passed", False)), "failed_subtests": sum(1 for r in self.results.values() if r.get("passed") is not None and not r.get("passed")), "p_value_statistics": p_value_stats } def plot_p_value_distribution(self, save_path: str = None): """"""Plot the distribution of p-values"""""" if not self.p_values: return plt.figure(figsize=(10, 6)) plt.hist(self.p_values, bins=20, alpha=0.7, color="blue", edgecolor="black") plt.axhline(y=len(self.p_values)/20, color="red", linestyle="--", label="Expected uniform distribution") plt.xlabel("p-value") plt.ylabel("Frequency") plt.title(f"P-value Distribution: {self.test_name} on {self.algorithm_name}") plt.grid(True, alpha=0.3) plt.legend() if save_path: plt.savefig(save_path) plt.close() else: plt.show() class NISTTests: """"""Implementation of NIST SP 800-22 statistical tests"""""" def __init__(self, output_dir: str = "test_results/nist"): self.output_dir = output_dir os.makedirs(output_dir, exist_ok=True) def run_nist_tests(self, binary_data: bytes, algorithm_name: str) -> CryptoTestResult: """""" Run the complete NIST test suite on the provided binary data In a real implementation, this would interface with the actual NIST test suite. Here we're implementing a simplified version of the key tests.
+        # Otherwise, can't determine pass/fail else: self.passed = None def to_dict(self): """Convert the result to a dictionary""" return { "test_name": self.test_name, "algorithm_name": self.algorithm_name, "timestamp": self.timestamp, "passed": self.passed, "results": self.results, "summary": self.get_summary() } def get_summary(self): """Get a summary of the test results""" self.calculate_overall_result() # Calculate statistics on p-values if available p_value_stats = {} if self.p_values: p_value_stats = { "mean": np.mean(self.p_values), "min": np.min(self.p_values), "max": np.max(self.p_values), "std": np.std(self.p_values), "percent_above_0.01": sum(1 for p in self.p_values if p >= 0.01) / len(self.p_values) * 100 } return { "passed": self.passed, "total_subtests": len(self.results), "passed_subtests": sum(1 for r in self.results.values() if r.get("passed", False)), "failed_subtests": sum(1 for r in self.results.values() if r.get("passed") is not None and not r.get("passed")), "p_value_statistics": p_value_stats } def plot_p_value_distribution(self, save_path: str = None): """Plot the distribution of p-values""" if not self.p_values: return plt.figure(figsize=(10, 6)) plt.hist(self.p_values, bins=20, alpha=0.7, color="blue", edgecolor="black") plt.axhline(y=len(self.p_values)/20, color="red", linestyle="--", label="Expected uniform distribution") plt.xlabel("p-value") plt.ylabel("Frequency") plt.title(f"P-value Distribution: {self.test_name} on {self.algorithm_name}") plt.grid(True, alpha=0.3) plt.legend() if save_path: plt.savefig(save_path) plt.close() else: plt.show() class NISTTests: """Implementation of NIST SP 800-22 statistical tests""" def __init__(self, output_dir: str = "test_results/nist"): self.output_dir = output_dir os.makedirs(output_dir, exist_ok=True) def run_nist_tests(self, binary_data: bytes, algorithm_name: str) -> CryptoTestResult: """ Run the complete NIST test suite on the provided binary data In a real implementation, this would interface with the actual NIST test suite. Here we're implementing a simplified version of the key tests.
 
         Args:
             binary_data: Binary data to test
@@ -40,7 +40,7 @@ from typing import Dict, List, Any
 
         Returns:
             CryptoTestResult object containing the test results
-        """"""
+        """
         result = CryptoTestResult("NIST SP 800-22", algorithm_name)
 
         # Convert binary data to a bit sequence
@@ -76,7 +76,7 @@ from typing import Dict, List, Any
         return result
 
     def _bytes_to_bits(self, data: bytes) -> List[int]:
-        """"""Convert bytes to a list of bits (0 and 1)""""""
+        """Convert bytes to a list of bits (0 and 1)"""
         result = []
         for byte in data:
             for i in range(8):
@@ -84,7 +84,7 @@ from typing import Dict, List, Any
         return result
 
     def _frequency_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Frequency (Monobit) Test""""""
+        """NIST Frequency (Monobit) Test"""
         n = len(bits)
         s = sum(2*bit - 1 for bit in bits)  # Convert to -1/+1
         s_obs = abs(s) / np.sqrt(n)
@@ -94,7 +94,7 @@ from typing import Dict, List, Any
         result.add_result("Frequency (Monobit) Test", s_obs, passed, p_value)
 
     def _block_frequency_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Block Frequency Test""""""
+        """NIST Block Frequency Test"""
         # Simplified implementation
         n = len(bits)
         block_size = 128  # Recommended block size
@@ -118,7 +118,7 @@ from typing import Dict, List, Any
         result.add_result("Block Frequency Test", chi_square, passed, p_value)
 
     def _runs_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Runs Test""""""
+        """NIST Runs Test"""
         # Simplified implementation
         n = len(bits)
         pi = sum(bits) / n
@@ -144,67 +144,67 @@ from typing import Dict, List, Any
 
     # Implementation of other NIST tests would follow a similar pattern
     def _longest_run_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Longest Run of Ones in a Block Test""""""
+        """NIST Longest Run of Ones in a Block Test"""
         # Simplified implementation
         result.add_result("Longest Run Test", "Implemented", True, 0.3)
 
     def _matrix_rank_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Binary Matrix Rank Test""""""
+        """NIST Binary Matrix Rank Test"""
         # Simplified implementation
         result.add_result("Matrix Rank Test", "Implemented", True, 0.42)
 
     def _fft_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Discrete Fourier Transform Test""""""
+        """NIST Discrete Fourier Transform Test"""
         # Simplified implementation
         result.add_result("Discrete Fourier Transform Test", "Implemented", True, 0.53)
 
     def _non_overlapping_template_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Non-overlapping Template Matching Test""""""
+        """NIST Non-overlapping Template Matching Test"""
         # Simplified implementation
         result.add_result("Non-overlapping Template Test", "Implemented", True, 0.62)
 
     def _overlapping_template_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Overlapping Template Matching Test""""""
+        """NIST Overlapping Template Matching Test"""
         # Simplified implementation
         result.add_result("Overlapping Template Test", "Implemented", True, 0.71)
 
     def _universal_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Universal Statistical Test""""""
+        """NIST Universal Statistical Test"""
         # Simplified implementation
         result.add_result("Universal Statistical Test", "Implemented", True, 0.83)
 
     def _linear_complexity_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Linear Complexity Test""""""
+        """NIST Linear Complexity Test"""
         # Simplified implementation
         result.add_result("Linear Complexity Test", "Implemented", True, 0.92)
 
     def _serial_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Serial Test""""""
+        """NIST Serial Test"""
         # Simplified implementation
         result.add_result("Serial Test", "Implemented", True, 0.51)
 
     def _approximate_entropy_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Approximate Entropy Test""""""
+        """NIST Approximate Entropy Test"""
         # Simplified implementation
         result.add_result("Approximate Entropy Test", "Implemented", True, 0.67)
 
     def _cumulative_sums_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Cumulative Sums Test""""""
+        """NIST Cumulative Sums Test"""
         # Simplified implementation
         result.add_result("Cumulative Sums Test", "Implemented", True, 0.78)
 
     def _random_excursions_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Random Excursions Test""""""
+        """NIST Random Excursions Test"""
         # Simplified implementation
         result.add_result("Random Excursions Test", "Implemented", True, 0.85)
 
     def _random_excursions_variant_test(self, bits: List[int], result: CryptoTestResult):
-        """"""NIST Random Excursions Variant Test""""""
+        """NIST Random Excursions Variant Test"""
         # Simplified implementation
         result.add_result("Random Excursions Variant Test", "Implemented", True, 0.93)
 
     def _save_results(self, result: CryptoTestResult):
-        """"""Save test results to file""""""
+        """Save test results to file"""
         result_dict = result.to_dict()
 
         # Ensure all values are JSON serializable
@@ -243,19 +243,19 @@ from typing import Dict, List, Any
             json.dump(result_dict, f, indent=2)
 
 class DieharderTests:
-    """"""Implementation of Dieharder test suite""""""
+    """Implementation of Dieharder test suite"""
 
     def __init__(self, output_dir: str = "test_results/dieharder"):
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
 
     def run_dieharder_tests(self, binary_data: bytes, algorithm_name: str) -> CryptoTestResult:
-        """"""
+        """
         Run the Dieharder test suite on the provided binary data
 
         In a real implementation, this would interface with the actual Dieharder test suite.
-        Here we're implementing a simplified version. Args: binary_data: Binary data to test algorithm_name: Name of the algorithm being tested Returns: CryptoTestResult object containing the test results """""" result = CryptoTestResult("Dieharder", algorithm_name) # In a real implementation, we would write the binary data to a file # and call the dieharder executable # Simulate Dieharder tests dieharder_tests = [ "Diehard Birthdays Test", "Diehard OPERM5 Test", "Diehard Rank 32x32 Test", "Diehard Rank 6x8 Test", "Diehard Bitstream Test", "Diehard OPSO Test", "Diehard OQSO Test", "Diehard DNA Test", "Diehard Count 1s Stream Test", "Diehard Count 1s Byte Test", "Diehard Parking Lot Test", "Diehard Minimum Distance Test", "Diehard 3D Sphere Test", "Diehard Squeeze Test", "Diehard Sums Test", "Diehard Runs Test", "Diehard Craps Test", "Marsaglia and Tsang GCD Test", "STS Monobit Test", "STS Runs Test", "RGB Bit Distribution Test", "RGB Generalized Minimum Distance Test", "RGB Permutations Test", "RGB Lagged Sum Test", "RGB Kolmogorov-Smirnov Test" ] # Simulate test results with random p-values np.random.seed(42) # For reproducibility for test_name in dieharder_tests: p_value = np.random.uniform(0.05, 1.0) # Biased toward passing for example passed = p_value >= 0.01 result.add_result(test_name, p_value, passed, p_value) # Calculate overall result result.calculate_overall_result() # Save results self._save_results(result) # Plot p-value distribution result.plot_p_value_distribution(os.path.join(self.output_dir, f"dieharder_pvalues_{algorithm_name}.png")) return result def _save_results(self, result: CryptoTestResult): """"""Save test results to file"""""" result_dict = result.to_dict() # Ensure all values are JSON serializable def json_serializable(obj): if isinstance(obj, np.ndarray): return obj.tolist() elif isinstance(obj, np.integer): return int(obj) elif isinstance(obj, np.floating): return float(obj) elif isinstance(obj, (set, frozenset)): return list(obj) elif hasattr(obj, 'to_dict'): return obj.to_dict() else: return str(obj) # Convert any non-serializable values def convert_to_serializable(item): if isinstance(item, dict): return {k: convert_to_serializable(v) for k, v in item.items()} elif isinstance(item, list): return [convert_to_serializable(i) for i in item] elif isinstance(item, (str, int, float, bool, type(None))): return item else: return json_serializable(item) # Convert result dict to ensure JSON serializable result_dict = convert_to_serializable(result_dict) # Save as JSON timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") filename = f"dieharder_{result.algorithm_name}_{timestamp}.json" with open(os.path.join(self.output_dir, filename), 'w') as f: json.dump(result_dict, f, indent=2) class TestU01: """"""Implementation of TestU01 test suite"""""" def __init__(self, output_dir: str = "test_results/testu01"): self.output_dir = output_dir os.makedirs(output_dir, exist_ok=True) def run_small_crush(self, binary_data: bytes, algorithm_name: str) -> CryptoTestResult: """"""Run the SmallCrush battery from TestU01"""""" result = CryptoTestResult("TestU01 SmallCrush", algorithm_name) # Simulate SmallCrush tests small_crush_tests = [ "Birthday Spacings", "Overlapping 5-permutations", "Binary Rank (31x31)", "Binary Rank (32x32)", "Binary Rank (6x8)", "Count-the-1's (stream)",
-            "Count-the-1's (bytes)", "Parking Lot", "Minimum Distance (2D)", "3D Spheres" ] # Simulate test results with random p-values np.random.seed(43) # Different seed for variety for test_name in small_crush_tests: p_value = np.random.uniform(0.05, 1.0) passed = p_value >= 0.01 result.add_result(test_name, p_value, passed, p_value) # Calculate overall result result.calculate_overall_result() # Save results self._save_results(result) # Plot p-value distribution result.plot_p_value_distribution(os.path.join(self.output_dir, f"testu01_smallcrush_pvalues_{algorithm_name}.png")) return result def run_crush(self, binary_data: bytes, algorithm_name: str) -> CryptoTestResult: """"""Run the Crush battery from TestU01"""""" result = CryptoTestResult("TestU01 Crush", algorithm_name) # In a real implementation, we would interface with the TestU01 library # Simulate Crush tests (just a few for brevity) crush_tests = [ "Maximum-of-t", "Collision over Intervals", "Birthday Spacings", "Close Pairs", "Simpson's Statistic",
+        Here we're implementing a simplified version. Args: binary_data: Binary data to test algorithm_name: Name of the algorithm being tested Returns: CryptoTestResult object containing the test results """ result = CryptoTestResult("Dieharder", algorithm_name) # In a real implementation, we would write the binary data to a file # and call the dieharder executable # Simulate Dieharder tests dieharder_tests = [ "Diehard Birthdays Test", "Diehard OPERM5 Test", "Diehard Rank 32x32 Test", "Diehard Rank 6x8 Test", "Diehard Bitstream Test", "Diehard OPSO Test", "Diehard OQSO Test", "Diehard DNA Test", "Diehard Count 1s Stream Test", "Diehard Count 1s Byte Test", "Diehard Parking Lot Test", "Diehard Minimum Distance Test", "Diehard 3D Sphere Test", "Diehard Squeeze Test", "Diehard Sums Test", "Diehard Runs Test", "Diehard Craps Test", "Marsaglia and Tsang GCD Test", "STS Monobit Test", "STS Runs Test", "RGB Bit Distribution Test", "RGB Generalized Minimum Distance Test", "RGB Permutations Test", "RGB Lagged Sum Test", "RGB Kolmogorov-Smirnov Test" ] # Simulate test results with random p-values np.random.seed(42) # For reproducibility for test_name in dieharder_tests: p_value = np.random.uniform(0.05, 1.0) # Biased toward passing for example passed = p_value >= 0.01 result.add_result(test_name, p_value, passed, p_value) # Calculate overall result result.calculate_overall_result() # Save results self._save_results(result) # Plot p-value distribution result.plot_p_value_distribution(os.path.join(self.output_dir, f"dieharder_pvalues_{algorithm_name}.png")) return result def _save_results(self, result: CryptoTestResult): """Save test results to file""" result_dict = result.to_dict() # Ensure all values are JSON serializable def json_serializable(obj): if isinstance(obj, np.ndarray): return obj.tolist() elif isinstance(obj, np.integer): return int(obj) elif isinstance(obj, np.floating): return float(obj) elif isinstance(obj, (set, frozenset)): return list(obj) elif hasattr(obj, 'to_dict'): return obj.to_dict() else: return str(obj) # Convert any non-serializable values def convert_to_serializable(item): if isinstance(item, dict): return {k: convert_to_serializable(v) for k, v in item.items()} elif isinstance(item, list): return [convert_to_serializable(i) for i in item] elif isinstance(item, (str, int, float, bool, type(None))): return item else: return json_serializable(item) # Convert result dict to ensure JSON serializable result_dict = convert_to_serializable(result_dict) # Save as JSON timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") filename = f"dieharder_{result.algorithm_name}_{timestamp}.json" with open(os.path.join(self.output_dir, filename), 'w') as f: json.dump(result_dict, f, indent=2) class TestU01: """Implementation of TestU01 test suite""" def __init__(self, output_dir: str = "test_results/testu01"): self.output_dir = output_dir os.makedirs(output_dir, exist_ok=True) def run_small_crush(self, binary_data: bytes, algorithm_name: str) -> CryptoTestResult: """Run the SmallCrush battery from TestU01""" result = CryptoTestResult("TestU01 SmallCrush", algorithm_name) # Simulate SmallCrush tests small_crush_tests = [ "Birthday Spacings", "Overlapping 5-permutations", "Binary Rank (31x31)", "Binary Rank (32x32)", "Binary Rank (6x8)", "Count-the-1's (stream)",
+            "Count-the-1's (bytes)", "Parking Lot", "Minimum Distance (2D)", "3D Spheres" ] # Simulate test results with random p-values np.random.seed(43) # Different seed for variety for test_name in small_crush_tests: p_value = np.random.uniform(0.05, 1.0) passed = p_value >= 0.01 result.add_result(test_name, p_value, passed, p_value) # Calculate overall result result.calculate_overall_result() # Save results self._save_results(result) # Plot p-value distribution result.plot_p_value_distribution(os.path.join(self.output_dir, f"testu01_smallcrush_pvalues_{algorithm_name}.png")) return result def run_crush(self, binary_data: bytes, algorithm_name: str) -> CryptoTestResult: """Run the Crush battery from TestU01""" result = CryptoTestResult("TestU01 Crush", algorithm_name) # In a real implementation, we would interface with the TestU01 library # Simulate Crush tests (just a few for brevity) crush_tests = [ "Maximum-of-t", "Collision over Intervals", "Birthday Spacings", "Close Pairs", "Simpson's Statistic",
             "Sum Collector",
             "Appearance Spacings"
         ]
@@ -276,7 +276,7 @@ class DieharderTests:
         return result
 
     def _save_results(self, result: CryptoTestResult):
-        """"""Save test results to file""""""
+        """Save test results to file"""
         result_dict = result.to_dict()
 
         # Ensure all values are JSON serializable
@@ -315,14 +315,14 @@ class DieharderTests:
             json.dump(result_dict, f, indent=2)
 
 class AvalancheTests:
-    """"""Custom avalanche effect tests""""""
+    """Custom avalanche effect tests"""
 
     def __init__(self, output_dir: str = "test_results/avalanche"):
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
 
     def test_encryption_avalanche(self, algorithm, algorithm_name: str) -> CryptoTestResult:
-        """"""
+        """
         Test the avalanche effect for an encryption algorithm
 
         The avalanche effect is measured by:
@@ -333,7 +333,7 @@ class AvalancheTests:
 
         A good encryption algorithm should show that ~50% of output bits change
         when a single input bit is changed.
-        """"""
+        """
         result = CryptoTestResult("Avalanche Effect (Encryption)", algorithm_name)
 
         # Number of test cases
@@ -409,11 +409,11 @@ class AvalancheTests:
         return result
 
     def test_hash_avalanche(self, hash_function, algorithm_name: str) -> CryptoTestResult:
-        """"""
+        """
         Test the avalanche effect for a hash function
 
         Similar to the encryption test, but for hash functions
-        """"""
+        """
         result = CryptoTestResult("Avalanche Effect (Hash)", algorithm_name)
 
         # Number of test cases
@@ -491,7 +491,7 @@ class AvalancheTests:
         return result
 
     def _save_results(self, result: CryptoTestResult, bit_change_percentages: List[float]):
-        """"""Save test results to file""""""
+        """Save test results to file"""
         result_dict = result.to_dict()
 
         # Add raw data
@@ -535,12 +535,12 @@ class AvalancheTests:
             json.dump(result_dict, f, indent=2)
 
 class TestVectors:
-    """"""
+    """
     Generate and validate standardized test vectors for cryptographic functions
 
     These test vectors serve as a public reference for validating implementations
     and ensuring consistent behavior across platforms.
-    """"""
+    """
 
     def __init__(self, output_dir: str = "test_results/test_vectors"):
         self.output_dir = output_dir
@@ -548,7 +548,7 @@ class TestVectors:
 
     def generate_encryption_vectors(self, encrypt_func, algorithm_name: str,
                                    num_vectors: int = 20) -> CryptoTestResult:
-        """"""
+        """
         Generate standardized test vectors for an encryption function
 
         Args:
@@ -558,7 +558,7 @@ class TestVectors:
 
         Returns:
             CryptoTestResult with the test vectors
-        """"""
+        """
         result = CryptoTestResult("Test Vectors (Encryption)", algorithm_name)
 
         # Generate vectors with different sizes and patterns
@@ -658,7 +658,7 @@ class TestVectors:
 
     def generate_hash_vectors(self, hash_func, algorithm_name: str,
                              num_vectors: int = 20) -> CryptoTestResult:
-        """"""
+        """
         Generate standardized test vectors for a hash function
 
         Args:
@@ -668,7 +668,7 @@ class TestVectors:
 
         Returns:
             CryptoTestResult with the test vectors
-        """"""
+        """
         result = CryptoTestResult("Test Vectors (Hash)", algorithm_name)
 
         # Generate vectors with different sizes and patterns
@@ -767,7 +767,7 @@ class TestVectors:
         return result, vectors
 
     def validate_vectors(self, func, vectors: List[Dict], func_type: str) -> CryptoTestResult:
-        """"""
+        """
         Validate a function against previously generated test vectors
 
         Args:
@@ -777,7 +777,7 @@ class TestVectors:
 
         Returns:
             CryptoTestResult with validation results
-        """"""
+        """
         result = CryptoTestResult(f"Vector Validation ({func_type.capitalize()})",
                                  func.__name__ if hasattr(func, "__name__") else "Unknown")
 
@@ -833,7 +833,7 @@ class TestVectors:
         return result
 
     def _save_vectors(self, vectors: List[Dict], algorithm_name: str, vector_type: str):
-        """"""Save test vectors to JSON file""""""
+        """Save test vectors to JSON file"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"vectors_{algorithm_name}_{vector_type}_{timestamp}.json"
         filepath = os.path.join(self.output_dir, filename)
@@ -865,14 +865,14 @@ class TestVectors:
             json.dump(output, f, indent=2)
 
     def _generate_html_vectors(self, vectors: List[Dict], algorithm_name: str, vector_type: str):
-        """"""Generate HTML display of test vectors""""""
+        """Generate HTML display of test vectors"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"vectors_{algorithm_name}_{vector_type}_{timestamp}.html"
         filepath = os.path.join(self.output_dir, filename)
 
         with open(filepath, 'w') as f:
             # Write HTML header
-            f.write(""""""<!DOCTYPE html>
+            f.write("""<!DOCTYPE html>
             <html>
             <head>
                 <meta charset="utf-8">
@@ -889,10 +889,10 @@ class TestVectors:
                 </style>
             </head>
             <body>
-            """""")
+            """)
 
             # Write header information
-            f.write(f""""""
+            f.write(f"""
             <h1>QuantoniumOS Test Vectors</h1>
             <p><strong>Algorithm:</strong> {algorithm_name}</p>
             <p><strong>Type:</strong> {vector_type.capitalize()}</p>
@@ -900,14 +900,14 @@ class TestVectors:
             <p><strong>Number of Vectors:</strong> {len(vectors)}</p>
 
             <h2>Test Vectors</h2>
-            """""")
+            """)
 
             # Write table of vectors
             f.write("<table>")
 
             # Write header row
             if vector_type == "encryption":
-                f.write(""""""
+                f.write("""
                 <tr>
                     <th>ID</th>
                     <th>Type</th>
@@ -917,9 +917,9 @@ class TestVectors:
                     <th>Key (hex)</th>
                     <th>Ciphertext (hex)</th>
                 </tr>
-                """""")
+                """)
             else:  # hash
-                f.write(""""""
+                f.write("""
                 <tr>
                     <th>ID</th>
                     <th>Type</th>
@@ -927,12 +927,12 @@ class TestVectors:
                     <th>Input (hex)</th>
                     <th>Hash (hex)</th>
                 </tr>
-                """""")
+                """)
 
             # Write each vector row
             for vector in vectors:
                 if vector_type == "encryption":
-                    f.write(f""""""
+                    f.write(f"""
                     <tr>
                         <td>{vector['id']}</td>
                         <td>{vector['type']}</td>
@@ -942,9 +942,9 @@ class TestVectors:
                         <td class="monospace">{vector['key_hex']}</td>
                         <td class="monospace">{vector['ciphertext_hex']}</td>
                     </tr>
-                    """""")
+                    """)
                 else:  # hash
-                    f.write(f""""""
+                    f.write(f"""
                     <tr>
                         <td>{vector['id']}</td>
                         <td>{vector['type']}</td>
@@ -952,16 +952,16 @@ class TestVectors:
                         <td class="monospace">{vector['input_hex']}</td>
                         <td class="monospace">{vector['hash_hex']}</td>
                     </tr>
-                    """""")
+                    """)
 
             f.write("</table>")
 
             # Write footer
-            f.write(""""""
+            f.write("""
             <p><em>These test vectors are provided for implementation validation and cross-platform verification.</em></p>
             </body>
             </html>
-            """""")
+            """)
 
         # Also save latest version without timestamp
         latest_filename = f"vectors_{algorithm_name}_{vector_type}_latest.html"
@@ -971,7 +971,7 @@ class TestVectors:
         shutil.copy(filepath, latest_filepath)
 
 class CryptanalysisTestSuite:
-    """"""Comprehensive cryptanalytic test suite for QuantoniumOS""""""
+    """Comprehensive cryptanalytic test suite for QuantoniumOS"""
 
     def __init__(self, output_dir: str = "test_results"):
         self.output_dir = output_dir
@@ -985,12 +985,12 @@ class CryptanalysisTestSuite:
         self.test_vectors = TestVectors(os.path.join(output_dir, "test_vectors"))
 
     def run_full_test_suite(self, algorithm_name: str):
-        """"""
+        """
         Run the full test suite on QuantoniumOS cryptographic primitives
 
         Args:
             algorithm_name: Name of the algorithm to test (e.g., "ResonanceEncryption")
-        """"""
+        """
         print(f"Running comprehensive cryptanalytic test suite on {algorithm_name}...")
         results = {}
 
@@ -1087,13 +1087,13 @@ class CryptanalysisTestSuite:
         return results
 
     def _generate_report(self, results: Dict[str, CryptoTestResult], algorithm_name: str):
-        """"""
+        """
         Generate a comprehensive test report
 
         Args:
             results: Dictionary of test results
             algorithm_name: Name of the algorithm being tested
-        """"""
+        """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_file = os.path.join(self.output_dir, f"report_{algorithm_name}_{timestamp}.html")
 
@@ -1104,7 +1104,7 @@ class CryptanalysisTestSuite:
 
         # Generate HTML report
         with open(report_file, 'w') as f:
-            f.write(f""""""
+            f.write(f"""
             <!DOCTYPE html>
             <html>
             <head>
@@ -1144,11 +1144,11 @@ class CryptanalysisTestSuite:
                         </tr>
                     </table>
                 </div>
-            """""")
+            """)
 
             # Add details for each test category
             for test_name, result in results.items():
-                f.write(f""""""
+                f.write(f"""
                 <h2>{result.test_name} Results</h2>
                 <p><b>Status:</b> <span class="{'pass' if result.passed else 'fail'}">
                     {'PASS' if result.passed else 'FAIL'}
@@ -1160,7 +1160,7 @@ class CryptanalysisTestSuite:
                         <th>P-value</th>
                         <th>Status</th>
                     </tr>
-                """""")
+                """)
 
                 for subtest, data in result.results.items():
                     p_value = data.get("p_value", "N/A")
@@ -1168,14 +1168,14 @@ class CryptanalysisTestSuite:
                     status = "PASS" if data.get("passed", False) else "FAIL"
                     status_class = "pass" if data.get("passed", False) else "fail"
 
-                    f.write(f""""""
+                    f.write(f"""
                     <tr>
                         <td>{subtest}</td>
                         <td>{data['result']}</td>
                         <td>{p_value_str}</td>
                         <td class="{status_class}">{status}</td>
                     </tr>
-                    """""")
+                    """)
 
                 f.write("</table>")
 
@@ -1183,39 +1183,39 @@ class CryptanalysisTestSuite:
                 if test_name in ["encryption_avalanche", "hash_avalanche"]:
                     algorithm_suffix = "_Encryption" if test_name == "encryption_avalanche" else "_Hash"
                     plot_file = f"avalanche/{test_name.split('_')[0]}_avalanche_{algorithm_name}{algorithm_suffix}.png"
-                    f.write(f""""""
+                    f.write(f"""
                     <h3>Avalanche Effect Distribution</h3>
                     <img src="{plot_file}" alt="Avalanche Effect Distribution">
-                    """""")
+                    """)
                 elif test_name in ["nist", "dieharder", "testu01_smallcrush"]:
                     plot_prefix = "nist" if test_name == "nist" else (
                         "dieharder" if test_name == "dieharder" else "testu01_smallcrush")
                     plot_file = f"{test_name}/{plot_prefix}_pvalues_{algorithm_name}.png"
-                    f.write(f""""""
+                    f.write(f"""
                     <h3>P-value Distribution</h3>
                     <img src="{plot_file}" alt="P-value Distribution">
-                    """""")
+                    """)
                 elif test_name in ["encryption_vectors", "hash_vectors"]:
                     vector_type = "encryption" if test_name == "encryption_vectors" else "hash"
                     vector_file = f"test_vectors/vectors_{algorithm_name}_{vector_type}_latest.html"
-                    f.write(f""""""
+                    f.write(f"""
                     <h3>Test Vectors</h3>
                     <p>Standardized test vectors are available for implementation verification:</p>
                     <p><a href="{vector_file}" target="_blank">View {vector_type.capitalize()} Test Vectors</a></p>
-                    """""")
+                    """)
 
-            f.write(""""""
+            f.write("""
             </body>
             </html>
-            """""")
+            """)
 
 def run_comparative_tests():
-    """"""
+    """
     Run comparative tests between QuantoniumOS and standard algorithms (AES, SHA)
 
     This compares the statistical properties, security, and performance of
     QuantoniumOS against industry standards.
-    """"""
+    """
     suite = CryptanalysisTestSuite(output_dir="test_results/comparative")
 
     # Test QuantoniumOS
@@ -1233,13 +1233,13 @@ def run_comparative_tests():
     return quantoniumos_results
 
 def generate_public_test_vectors():
-    """"""
+    """
     Generate and publish standardized test vectors for QuantoniumOS
 
     These test vectors serve as a public reference for validating implementations
     across different platforms and languages. The vectors include both typical and
     edge cases.
-    """"""
+    """
     print("Generating public test vectors for QuantoniumOS...")
 
     # Initialize output directory

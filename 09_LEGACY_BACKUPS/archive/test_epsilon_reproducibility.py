@@ -1,4 +1,4 @@
-""""""
+"""
 Epsilon_N Reproducibility Test This test ensures that the epsilonₙ values computed for the formal derivation remain stable and above the critical threshold of 1e-3, preventing future refactors from accidentally re-introducing DFT-like behavior.
 """
 """
@@ -42,7 +42,7 @@ def test_epsilon_values_above_threshold():
 
         # Reasonable range check (allow some numerical variation) assert epsilon_n > min_expected * 0.5, f"epsilonₙ({N}) = {epsilon_n:.6f} is below expected range"
         print(f"✓ epsilon_{N} = {epsilon_n:.6f} (> {min_expected:.3f} expected, >> 1e-3 threshold)")
-def test_epsilon_increases_with_complexity(): """"""
+def test_epsilon_increases_with_complexity(): """
         Test that epsilonₙ shows reasonable variation across different N values.
 """
         """ N_values = [8, 12, 16] epsilon_values = [compute_epsilon_n(N)

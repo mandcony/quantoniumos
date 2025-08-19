@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""""" RFT Separation Proof: Non-Commutation Test === This test proves that RFT defines a genuinely new class of transformations that is mathematically distinct from DFT/wavelets/graph-spectral methods. The key insight: If C(i) are non-diagonal mixers and the resulting operators are not jointly diagonalizable, then we get true separation. If any C(i) is diagonal, the whole thing collapses to per-bin scaling (DFT-adjacent). Test Strategy: 1) Build two distinct RFT instances R1, R2 with different (phi, sigma, w) 2) Compute commutator norm ||[R1, R2]||2 3) If ||[R1, R2]|| != 0, then they don't share a common eigenbasis 4) This kills "single common basis" property and proves separation Mathematical Framework: R = Sumᵢ wᵢ Dphiᵢ C(i) Dphiᵢdagger Where: - Dphiᵢ = phase shift operators - C(i) = non-diagonal mixing matrices - wᵢ = weights If C(i) are truly non-diagonal and operators are not jointly diagonalizable, then we have genuine separation from classical spectral methods. """"""
+""" RFT Separation Proof: Non-Commutation Test === This test proves that RFT defines a genuinely new class of transformations that is mathematically distinct from DFT/wavelets/graph-spectral methods. The key insight: If C(i) are non-diagonal mixers and the resulting operators are not jointly diagonalizable, then we get true separation. If any C(i) is diagonal, the whole thing collapses to per-bin scaling (DFT-adjacent). Test Strategy: 1) Build two distinct RFT instances R1, R2 with different (phi, sigma, w) 2) Compute commutator norm ||[R1, R2]||2 3) If ||[R1, R2]|| != 0, then they don't share a common eigenbasis 4) This kills "single common basis" property and proves separation Mathematical Framework: R = Sumᵢ wᵢ Dphiᵢ C(i) Dphiᵢdagger Where: - Dphiᵢ = phase shift operators - C(i) = non-diagonal mixing matrices - wᵢ = weights If C(i) are truly non-diagonal and operators are not jointly diagonalizable, then we have genuine separation from classical spectral methods. """
 
 import numpy as np
 import scipy.linalg from typing
@@ -77,7 +77,7 @@ def test_diagonal_collapse_check(N: int = 8) -> Dict:
         print(f" Off-diagonal norm in eigenbasis: {off_diagonal_norm:.2e}")
         print(f" Collapses to per-bin scaling: {is_essentially_diagonal}")
         return result
-def test_non_commutation_separation(N: int = 8) -> Dict: """"""
+def test_non_commutation_separation(N: int = 8) -> Dict: """
         Main test: Prove separation by demonstrating non-commutation Build two distinct RFT operators and show they don't commute, proving they don't share a common eigenbasis.
 """
 """
@@ -100,7 +100,7 @@ def test_non_commutation_separation(N: int = 8) -> Dict: """"""
         print(f" Operators commute: {not non_commuting}")
         print(f" Proves separation from DFT: {proves_separation}")
         return result
-def test_canonical_rft_separation(N: int = 8) -> Dict: """"""
+def test_canonical_rft_separation(N: int = 8) -> Dict: """
         Test separation using actual canonical RFT implementation
 """
 """
@@ -117,7 +117,7 @@ def test_canonical_rft_separation(N: int = 8) -> Dict: """"""
         print(f" ||[RFT_canonical, DFT]2: {dft_commutator_norm:.6f}")
         print(f" Distinct from DFT: {non_commuting_with_dft}")
         return result
-def test_mixer_criticality(N: int = 8) -> Dict: """"""
+def test_mixer_criticality(N: int = 8) -> Dict: """
         Test how critical the non-diagonal nature of mixers is
 """
 """
@@ -132,7 +132,7 @@ def test_mixer_criticality(N: int = 8) -> Dict: """"""
         for x in commutator_norms[:3]]}...")
         return result
 
-class RFTSeparationProof: """"""
+class RFTSeparationProof: """
         Test suite to prove RFT separation from classical spectral methods.
 """
 """
@@ -171,7 +171,7 @@ class RFTSeparationProof: """"""
         print(" May collapse to existing spectral methods")
         print("=" * 70)
         return suite_results
-    def main(): """"""
+    def main(): """
         Run RFT separation proof.
 """
         """ prover = RFTSeparationProof() results = prover.run_separation_proof_suite([4, 8, 16])

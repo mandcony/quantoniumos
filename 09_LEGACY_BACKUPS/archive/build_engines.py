@@ -1,6 +1,6 @@
 ||#!/usr/bin/env python3
 from canonical_true_rft
-import forward_true_rft, inverse_true_rft """"""
+import forward_true_rft, inverse_true_rft """
 QuantoniumOS C++ Engine Build Script This script builds all C++ engines using pybind11 and makes them available to Python with automatic fallback handling.
 """
 """
@@ -63,7 +63,7 @@ import numpy
         return False
         print("✅ All dependencies satisfied")
         return True
-def setup_build_directory(): """"""
+def setup_build_directory(): """
         Set up build directory.
 """
 """
@@ -98,7 +98,7 @@ def build_with_cmake():
         return False
         print("✅ Build successful")
         return True
-def build_with_setuptools_fallback(): """"""
+def build_with_setuptools_fallback(): """
         Fallback build using setuptools and pybind11.
 """
 """
@@ -116,7 +116,7 @@ import pybind11
         # Build in place setup( ext_modules=extensions, cmdclass={"build_ext": build_ext}, script_name="setup.py", script_args=["build_ext", "--inplace"] )
         print("✅ Setuptools build successful")
         return True
-def install_modules(): """"""
+def install_modules(): """
         Install/copy built modules to the correct locations.
 """
 """
@@ -140,7 +140,7 @@ def install_modules(): """"""
         if not found:
         print(f"⚠️ Module {module} not found")
         return installed_count > 0
-def test_engines(): """"""
+def test_engines(): """
         Test the built engines.
 """
 """
@@ -164,7 +164,7 @@ import quantonium_core rft = quantonium_core.ResonanceFourierTransform([1.0, 0.5
         for result in test_results.values()
         if result.startswith('✓'))
         return working_engines > 0
-def main(): """"""
+def main(): """
         Main build process.
 """
 """

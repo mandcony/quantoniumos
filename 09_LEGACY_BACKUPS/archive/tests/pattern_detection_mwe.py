@@ -9,7 +9,7 @@ print("=============================================")
 
 # Define our own simplified RFT function for demonstration
 def simple_rft(waveform):
-    """"""Simplified Resonance Fourier Transform for demonstration""""""
+    """Simplified Resonance Fourier Transform for demonstration"""
     n = len(waveform)
     result = []
 
@@ -32,7 +32,7 @@ def simple_rft(waveform):
 
 # Define our own coherence function
 def calculate_coherence(result):
-    """"""Calculate coherence from RFT results""""""
+    """Calculate coherence from RFT results"""
     magnitudes = [abs(v) for v in result]
     return np.std(magnitudes) / np.mean(magnitudes) if np.mean(magnitudes) > 0 else 0
 

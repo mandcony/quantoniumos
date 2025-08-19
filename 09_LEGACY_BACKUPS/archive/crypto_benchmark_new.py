@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Cryptographic Robustness Benchmark Tests RFT-based cryptographic transformations against standard methods for resistance to differential cryptanalysis attacks.
 """
 """
@@ -67,7 +67,7 @@ class CryptoBenchmark(ConfigurableBenchmark):
         print()
         self.results = results
         return results
-    def main(): """"""
+    def main(): """
         Run cryptographic benchmark with CLI arguments
 """
         """ parser = argparse.ArgumentParser(description="RFT Cryptographic Robustness Benchmark") parser.add_argument("--num-tests", type=int, default=1000, help="Number of test pairs") parser.add_argument("--scale", choices=['small', 'medium', 'large', 'xlarge'], default='medium', help="Scale factor for test size") parser.add_argument("--output", type=str, default="crypto_benchmark_results.json", help="Output file for results") parser.add_argument("--random-seed", type=int, default=42, help="Random seed for reproducibility") args = parser.parse_args() config = { 'num_tests': args.num_tests, 'scale': args.scale, 'random_seed': args.random_seed } benchmark = CryptoBenchmark(config) results = benchmark.run_benchmark()

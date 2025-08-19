@@ -1,8 +1,8 @@
-""""""
+"""
 Quantonium OS - Authentication Models
 
 This module defines the SQLAlchemy models for API keys and related authentication entities.
-""""""
+"""
 
 import uuid
 import secrets
@@ -18,7 +18,7 @@ from auth.secret_manager import encrypt_secret, decrypt_secret, generate_jwt_sec
 db = SQLAlchemy()
 
 class APIKey(db.Model):
-    """"""API Key model for authenticated API access""""""
+    """API Key model for authenticated API access"""
     __tablename__ = 'api_keys'
 
     id = Column(Integer, primary_key=True)
@@ -54,14 +54,14 @@ class APIKey(db.Model):
 
     @staticmethod
     def generate_key():
-        """"""Generate a new random API key with prefix""""""
+        """Generate a new random API key with prefix"""
         raw_key = secrets.token_urlsafe(42)
         prefix = raw_key[:8]
         return f"{prefix}.{raw_key}"
 
     @classmethod
     def create(cls, name, description=None, expires_in_days=None, permissions="api:read", is_admin=False):
-        """"""
+        """
         Create a new API key with generated values
 
         Args:
@@ -73,7 +73,7 @@ class APIKey(db.Model):
 
         Returns:
             Tuple of (APIKey object, raw_key)
-        """"""
+        """
         # Generate key material
         raw_key = cls.generate_key()
         prefix = raw_key.split('.')[0]
@@ -115,7 +115,7 @@ class APIKey(db.Model):
         return key, raw_key
 
     def verify_key(self, api_key):
-        """"""Verify if the provided key matches this record""""""
+        """Verify if the provided key matches this record"""
         if not self.is_active or self.revoked:
             return False
 
@@ -125,20 +125,20 @@ class APIKey(db.Model):
         return check_password_hash(self.key_hash, api_key)
 
     def update_last_used(self):
-        """"""Update the last used timestamp and use count""""""
+        """Update the last used timestamp and use count"""
         self.last_used_at = datetime.utcnow()
         self.use_count += 1
         db.session.commit()
 
     def revoke(self):
-        """"""Revoke this API key""""""
+        """Revoke this API key"""
         self.revoked = True
         self.revoked_at = datetime.utcnow()
         self.is_active = False
         db.session.commit()
 
     def create_token(self, expiry_minutes=15):
-        """"""Create a JWT token for this API key""""""
+        """Create a JWT token for this API key"""
         now = datetime.utcnow()
         expiry = now + timedelta(minutes=expiry_minutes)
 
@@ -168,7 +168,7 @@ class APIKey(db.Model):
         return token
 
     def verify_token(self, token):
-        """"""Verify a JWT token created by this key""""""
+        """Verify a JWT token created by this key"""
         try:
             # Decrypt the JWT secret for verification
             secret = decrypt_secret(self.jwt_secret)
@@ -198,10 +198,10 @@ class APIKey(db.Model):
             return False
 
     def rotate(self, keep_name=True):
-        """"""
+        """
         Rotate this API key, generating a new one to replace it
         Returns the new API key
-        """"""
+        """
         # Create a new key with the same attributes
         new_key, raw_key = self.__class__.create(
             name=self.name if keep_name else f"{self.name} (Rotated)",
@@ -219,7 +219,7 @@ class APIKey(db.Model):
         return new_key, raw_key
 
     def has_permission(self, permission):
-        """"""Check if this key has a specific permission""""""
+        """Check if this key has a specific permission"""
         if not self.is_active or self.revoked:
             return False
 
@@ -232,7 +232,7 @@ class APIKey(db.Model):
         return f"<APIKey {self.key_id} ({self.name})>"
 
 class APIKeyAuditLog(db.Model):
-    """"""Audit log for API key actions""""""
+    """Audit log for API key actions"""
     __tablename__ = 'api_key_audit_logs'
 
     id = Column(Integer, primary_key=True)
@@ -251,7 +251,7 @@ class APIKeyAuditLog(db.Model):
 
     @classmethod
     def log(cls, api_key, action, ip_address=None, user_agent=None, request_path=None, status_code=None, details=None):
-        """"""
+        """
         Create an audit log entry for an API key action
 
         Args:
@@ -262,7 +262,7 @@ class APIKeyAuditLog(db.Model):
             request_path: Request path
             status_code: HTTP status code
             details: Additional details
-        """"""
+        """
         log_entry = cls(
             api_key_id=api_key.id,
             key_id=api_key.key_id,

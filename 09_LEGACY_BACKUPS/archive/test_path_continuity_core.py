@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 Core Path-Continuity Test for Branch Cut Fix === This test focuses on the ESSENTIAL requirement: path-continuity of the unitary matrix reconstruction across the ±pi branch cut. The key insight: Individual eigenvalues can have discontinuities, but the RECONSTRUCTION U approx exp(-iH) must be continuous and accurate.
 """
 """
@@ -61,7 +61,7 @@ def test_path_continuity_core() -> bool:
         print("\n❌ PATH-CONTINUITY VIOLATION")
         print(" Potential regression detected")
         return path_continuity_maintained
-def test_continuous_sweep() -> bool: """"""
+def test_continuous_sweep() -> bool: """
         Test continuous phase sweep across multiple branch cut crossings. Returns: bool: True
         if sweep is continuous, False
         if discontinuities detected
@@ -93,7 +93,7 @@ def test_continuous_sweep() -> bool: """"""
         else:
         print("❌ SWEEP DISCONTINUOUS")
         return sweep_continuous
-def main(): """"""
+def main(): """
         Run core path-continuity tests.
 """
 """

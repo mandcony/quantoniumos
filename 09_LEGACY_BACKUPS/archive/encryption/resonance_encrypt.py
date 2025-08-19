@@ -1,11 +1,11 @@
-""""""
+"""
 Quantonium OS - Resonance Encryption Module
 
 RESEARCH ONLY: This implementation is for educational and research purposes only.
 Not intended for production cryptographic applications.
 
 Implements resonance-based data encryption algorithms that utilize amplitude-phase fluctuation patterns.
-""""""
+"""
 
 import secrets
 import time
@@ -24,10 +24,10 @@ logger = logging.getLogger("resonance_encrypt_encryption")
 logger.setLevel(logging.INFO)
 
 def resonance_encrypt(plaintext, A, phi):
-    """"""
+    """
     Encrypt plaintext using resonance parameters A (amplitude) and phi (phase).
     Uses geometric waveform hash for signature validation.
-    """"""
+    """
     if not isinstance(plaintext, str):
         plaintext = str(plaintext)
 
@@ -71,10 +71,10 @@ def resonance_encrypt(plaintext, A, phi):
     return bytes(ciphertext_bytes)
 
 def resonance_decrypt(encrypted_data, A, phi):
-    """"""
+    """
     Decrypt data using resonance parameters A (amplitude) and phi (phase).
     Uses geometric waveform hash for signature validation.
-    """"""
+    """
     # Ensure float64 precision for cryptographic accuracy
     A = np.float64(A)
     phi = np.float64(phi)
@@ -119,17 +119,17 @@ def resonance_decrypt(encrypted_data, A, phi):
     return plaintext
 
 def encrypt_data(plaintext: str, key: str) -> str:
-    """"""
+    """
     Encrypt plaintext using the resonance encryption algorithm.
     Returns just the encrypted string (for use by protected module).
-    """"""
+    """
     return _perform_resonance_encryption(plaintext, key)
 
 def decrypt_data(ciphertext: str, key: str) -> str:
-    """"""
+    """
     Decrypt ciphertext using the resonance encryption algorithm.
     Returns the original plaintext (for use by protected module).
-    """"""
+    """
     try:
         # Decode the base64 ciphertext
         encrypted_bytes = base64.b64decode(ciphertext)
@@ -146,9 +146,9 @@ def decrypt_data(ciphertext: str, key: str) -> str:
         return f"Decryption failed: {str(e)}"
 
 def _perform_resonance_encryption(plaintext: str, key: str) -> str:
-    """"""
+    """
     Internal function to perform resonance encryption using a string key.
-    """"""
+    """
     # Extract amplitude and phase from key
     key_hash = hashlib.sha256(key.encode()).hexdigest()
     A = float(int(key_hash[:8], 16) % 1000) / 1000
@@ -161,10 +161,10 @@ def _perform_resonance_encryption(plaintext: str, key: str) -> str:
     return base64.b64encode(encrypted).decode("utf-8")
 
 def encrypt(plaintext: str, key: str) -> dict:
-    """"""
+    """
     Encrypt plaintext using the resonance encryption algorithm with a string key.
     Returns a dict with ciphertext, timestamp, and signature.
-    """"""
+    """
     start_time = time.time()
 
     # Extract amplitude and phase from key
@@ -193,10 +193,10 @@ def encrypt(plaintext: str, key: str) -> dict:
 
 # Backwards compatibility wrapper for reproduction scripts
 def resonance_encrypt_compat(data, key):
-    """"""
+    """
     Backwards compatible wrapper for resonance_encrypt.
     Takes data (bytes) and key (bytes) and returns encrypted bytes.
-    """"""
+    """
     if isinstance(data, bytes):
         data = data.decode('utf-8', errors='ignore')
 
@@ -215,11 +215,11 @@ def resonance_encrypt_compat(data, key):
 
 # Alias for backwards compatibility
 def resonance_encrypt_wrapper(data, key):
-    """"""Alias for backwards compatibility with reproduction scripts.""""""
+    """Alias for backwards compatibility with reproduction scripts."""
     return resonance_encrypt_compat(data, key)
 
 def wave_hmac(message, key, phase_info=True):
-    """"""
+    """
     Generate a wave-based HMAC signature using resonance encryption principles.
 
     Args:
@@ -229,7 +229,7 @@ def wave_hmac(message, key, phase_info=True):
 
     Returns:
         Base64-encoded signature string
-    """"""
+    """
     if isinstance(message, str):
         message = message.encode('utf-8')
     if isinstance(key, str):
@@ -260,7 +260,7 @@ def wave_hmac(message, key, phase_info=True):
     return base64.b64encode(wave_signature).decode('ascii')
 
 def verify_wave_hmac(message, signature, key, phase_info=True):
-    """"""
+    """
     Verify a wave-based HMAC signature.
 
     Args:
@@ -271,7 +271,7 @@ def verify_wave_hmac(message, signature, key, phase_info=True):
 
     Returns:
         True if signature is valid, False otherwise
-    """"""
+    """
     try:
         # Generate expected signature
         expected_signature = wave_hmac(message, key, phase_info)
@@ -282,7 +282,7 @@ def verify_wave_hmac(message, signature, key, phase_info=True):
         return False
 
 def encrypt_symbolic(plaintext, key):
-    """"""
+    """
     Symbolic encryption wrapper for compatibility.
 
     Args:
@@ -291,7 +291,7 @@ def encrypt_symbolic(plaintext, key):
 
     Returns:
         Dictionary with 'ciphertext' key
-    """"""
+    """
     encrypted_bytes = resonance_encrypt_compat(plaintext, key)
     return {
         "ciphertext": encrypted_bytes.hex() if isinstance(encrypted_bytes, bytes) else str(encrypted_bytes)

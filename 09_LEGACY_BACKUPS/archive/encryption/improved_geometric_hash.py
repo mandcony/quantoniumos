@@ -1,7 +1,7 @@
-""""""
+"""
 Improved Geometric Waveform Hash with sigma-tightening
 Canonical implementation with proper diffusion and packing
-""""""
+"""
 
 import numpy as np
 import sys
@@ -15,7 +15,7 @@ from canonical_true_rft import forward_true_rft
 # Remove duplicate RFT implementation - use canonical source
 
 def post_rft_mixing(X):
-    """"""Post-RFT mixing for enhanced diffusion""""""
+    """Post-RFT mixing for enhanced diffusion"""
     if len(X) == 0:
         return X
 
@@ -37,7 +37,7 @@ def post_rft_mixing(X):
     return mixed
 
 def geometric_waveform_hash(msg: bytes, key: bytes, rounds: int = 3, rft=None) -> bytes:
-    """"""
+    """
     Canonical geometric waveform hash with sigma-tightening
 
     Args:
@@ -48,7 +48,7 @@ def geometric_waveform_hash(msg: bytes, key: bytes, rounds: int = 3, rft=None) -
 
     Returns:
         32-byte hash with target avalanche properties (mu~50%, sigma<=2%)
-    """"""
+    """
     if len(msg) == 0:
         msg = b'\x00'
 
@@ -92,5 +92,5 @@ def geometric_waveform_hash(msg: bytes, key: bytes, rounds: int = 3, rft=None) -
 
 # Compatibility wrapper
 def geometric_waveform_hash_bytes(msg: bytes, key: bytes, rounds: int = 3, rft_params=None) -> bytes:
-    """"""Drop-in replacement for existing function""""""
+    """Drop-in replacement for existing function"""
     return geometric_waveform_hash(msg, key, rounds=rounds)

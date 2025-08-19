@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""""""
+"""
 QUICK TRUE RFT SYSTEM TEST Test your cleaned True RFT system after emoji removal
 """
 """

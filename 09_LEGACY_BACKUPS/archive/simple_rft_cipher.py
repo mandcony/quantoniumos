@@ -1,5 +1,5 @@
 ||#!/usr/bin/env python3
-""""""
+"""
 RFT Keyed Cipher with 4-Phase Geometric Waveform Structure - Simplified Version A robust cryptographic system using RFT with proper numerical stability.
 """
 """

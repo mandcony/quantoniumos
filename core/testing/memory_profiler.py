@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-""""""
+"""
 QuantoniumOS Memory Profiler
 
 This script provides detailed memory profiling for QuantoniumOS cryptographic operations.
 It helps identify memory usage patterns, potential leaks, and optimization opportunities.
-""""""
+"""
 
 import os
 import sys
@@ -16,11 +16,11 @@ import numpy as np
 from typing import Dict, List, Callable, Any
 from datetime import datetime
 
-# Fix import paths - add the project root to Python's module search path current_dir = os.path.dirname(os.path.abspath(__file__)) project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) # Import core components try: from core.encryption.resonance_encrypt import encrypt as resonance_encrypt, decrypt_data from core.encryption.geometric_waveform_hash import GeometricWaveformHash from core.encryption.wave_entropy_engine import WaveformEntropyEngine # Create a wrapper class to maintain compatibility class ResonanceEncryption: """""" Wrapper class for resonance encryption functions to provide an object-oriented interface """""" def encrypt(self, data, key): """"""Encrypt data using resonance encryption"""""" if isinstance(data, bytes): data = data.decode('utf-8', errors='surrogate') if isinstance(key, bytes): key = key.decode('utf-8', errors='surrogate') result = resonance_encrypt(data, key) return result.get('ciphertext', '').encode('utf-8') def decrypt(self, data, key): """"""Decrypt data using resonance encryption"""""" if isinstance(data, bytes): data = data.decode('utf-8', errors='surrogate') if isinstance(key, bytes): key = key.decode('utf-8', errors='surrogate') return decrypt_data(data, key).encode('utf-8') except ImportError as e: print(f"Error importing QuantoniumOS modules: {e}") print("Make sure you're running this script from the project root or the correct modules are installed.")
+# Fix import paths - add the project root to Python's module search path current_dir = os.path.dirname(os.path.abspath(__file__)) project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) # Import core components try: from core.encryption.resonance_encrypt import encrypt as resonance_encrypt, decrypt_data from core.encryption.geometric_waveform_hash import GeometricWaveformHash from core.encryption.wave_entropy_engine import WaveformEntropyEngine # Create a wrapper class to maintain compatibility class ResonanceEncryption: """ Wrapper class for resonance encryption functions to provide an object-oriented interface """ def encrypt(self, data, key): """Encrypt data using resonance encryption""" if isinstance(data, bytes): data = data.decode('utf-8', errors='surrogate') if isinstance(key, bytes): key = key.decode('utf-8', errors='surrogate') result = resonance_encrypt(data, key) return result.get('ciphertext', '').encode('utf-8') def decrypt(self, data, key): """Decrypt data using resonance encryption""" if isinstance(data, bytes): data = data.decode('utf-8', errors='surrogate') if isinstance(key, bytes): key = key.decode('utf-8', errors='surrogate') return decrypt_data(data, key).encode('utf-8') except ImportError as e: print(f"Error importing QuantoniumOS modules: {e}") print("Make sure you're running this script from the project root or the correct modules are installed.")
     sys.exit(1)
 
 class MemoryProfiler:
-    """"""Memory profiler for QuantoniumOS cryptographic operations""""""
+    """Memory profiler for QuantoniumOS cryptographic operations"""
 
     def __init__(self, output_dir: str = "memory_profiles"):
         self.output_dir = output_dir
@@ -31,7 +31,7 @@ class MemoryProfiler:
                         input_sizes: List[int],
                         iterations: int = 10,
                         **kwargs) -> Dict[str, Any]:
-        """"""
+        """
         Profile memory usage of a function with varying input sizes
 
         Args:
@@ -43,7 +43,7 @@ class MemoryProfiler:
 
         Returns:
             Dictionary with profiling results
-        """"""
+        """
         print(f"Profiling {func_name}...")
 
         # Initialize results
@@ -117,7 +117,7 @@ class MemoryProfiler:
     def profile_memory_growth(self, func: Callable, func_name: str,
                             input_size: int, iterations: int = 100,
                             **kwargs) -> Dict[str, Any]:
-        """"""
+        """
         Profile memory growth over repeated iterations
 
         Args:
@@ -129,7 +129,7 @@ class MemoryProfiler:
 
         Returns:
             Dictionary with profiling results
-        """"""
+        """
         print(f"Profiling memory growth for {func_name} over {iterations} iterations...")
 
         # Generate input data
@@ -193,12 +193,12 @@ class MemoryProfiler:
         return growth_results
 
     def plot_memory_usage(self, func_name: str):
-        """"""
+        """
         Plot memory usage for a function across different input sizes
 
         Args:
             func_name: Name of the function to plot
-        """"""
+        """
         if func_name not in self.results:
             print(f"No results found for {func_name}")
             return
@@ -249,12 +249,12 @@ class MemoryProfiler:
         print(f"Memory usage plot saved to {os.path.join(self.output_dir, filename)}")
 
     def plot_memory_growth(self, func_name: str):
-        """"""
+        """
         Plot memory growth for a function over repeated iterations
 
         Args:
             func_name: Name of the function to plot
-        """"""
+        """
         growth_name = f"{func_name}_growth"
 
         if growth_name not in self.results:
@@ -314,7 +314,7 @@ class MemoryProfiler:
         print(f"Memory growth plot saved to {os.path.join(self.output_dir, filename)}")
 
     def generate_report(self):
-        """"""Generate a comprehensive memory profiling report""""""
+        """Generate a comprehensive memory profiling report"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_file = os.path.join(self.output_dir, f"memory_profile_report_{timestamp}.md")
 
@@ -455,7 +455,7 @@ class MemoryProfiler:
         return report_file
 
 def profile_quantoniumos():
-    """"""Run memory profiling on QuantoniumOS cryptographic components""""""
+    """Run memory profiling on QuantoniumOS cryptographic components"""
     print("="*80)
     print("QuantoniumOS Memory Profiling")
     print("="*80)

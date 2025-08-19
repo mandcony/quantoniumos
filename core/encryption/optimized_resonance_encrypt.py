@@ -1,19 +1,19 @@
-""""""
+"""
 Optimized version of resonance encryption module
 
 RESEARCH ONLY: This implementation is for educational and research purposes only.
 Not intended for production cryptographic applications.
-""""""
+"""
 
 import secrets
 import hashlib
 import time
 
 def optimized_resonance_encrypt(plaintext, key):
-    """"""
+    """
     Optimized version of resonance encryption that maintains security
     while reducing computational complexity
-    """"""
+    """
     if not isinstance(plaintext, str):
         plaintext = str(plaintext)
 
@@ -44,9 +44,9 @@ def optimized_resonance_encrypt(plaintext, key):
     return signature + token + bytes(result)
 
 def optimized_resonance_decrypt(encrypted_data, key):
-    """"""
+    """
     Optimized version of resonance decryption
-    """"""
+    """
     # Generate key hash for signature verification
     key_hash = hashlib.sha256(key.encode()).digest()
 
@@ -81,9 +81,9 @@ def optimized_resonance_decrypt(encrypted_data, key):
         return result.hex()
 
 def test_optimized_resonance():
-    """"""
+    """
     Test the optimized resonance encryption
-    """"""
+    """
     print("Testing optimized resonance encryption...")
 
     test_data = [

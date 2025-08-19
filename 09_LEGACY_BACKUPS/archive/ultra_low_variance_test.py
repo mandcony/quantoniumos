@@ -1,4 +1,4 @@
-||""""""
+||"""
 Ultra-low variance hash test using wide-pipe diffusion.
 """
 """
@@ -11,7 +11,7 @@ try:
 import quantonium_core has_cpp = True
 except ImportError: has_cpp = False
 print("Warning: C++ engine not available, using Python fallback")
-def geometric_rft_transform(data): """"""
+def geometric_rft_transform(data): """
         Apply RFT transform with C++ engine or Python fallback.
 """
 """

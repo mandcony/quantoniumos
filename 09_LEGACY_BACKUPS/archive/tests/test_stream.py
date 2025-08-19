@@ -1,9 +1,9 @@
-""""""
+"""
 Quantonium OS - SSE Stream Contract Tests
 
 Tests for the Server-Sent Events (SSE) streaming endpoint that provides
 real-time access to resonance data.
-""""""
+"""
 
 import json
 import time
@@ -16,10 +16,10 @@ from main import create_app
 from backend.stream import update_encrypt_data, get_stream
 
 class SSEContractTest(unittest.TestCase):
-    """"""Test the SSE stream endpoint contracts and behavior""""""
+    """Test the SSE stream endpoint contracts and behavior"""
 
     def setUp(self):
-        """"""Set up test client and app""""""
+        """Set up test client and app"""
         self.app = create_app()
         self.app.config['TESTING'] = True
         self.app.config['SERVER_NAME'] = 'localhost'
@@ -33,12 +33,12 @@ class SSEContractTest(unittest.TestCase):
         self.mock_auth.return_value = MagicMock(key_id='test_key_123')
 
     def tearDown(self):
-        """"""Clean up after tests""""""
+        """Clean up after tests"""
         self.auth_patcher.stop()
         self.app_context.pop()
 
     def test_stream_endpoint_headers(self):
-        """"""Test that the stream endpoint returns the correct headers""""""
+        """Test that the stream endpoint returns the correct headers"""
         with self.client as client:
             response = client.get('/api/stream/wave')
 
@@ -51,7 +51,7 @@ class SSEContractTest(unittest.TestCase):
             self.assertEqual(response.headers['Connection'], 'keep-alive')
 
     def test_stream_receives_events(self):
-        """"""Test that the stream endpoint sends SSE events with correct format""""""
+        """Test that the stream endpoint sends SSE events with correct format"""
         # Create queue to receive events
         events_queue = queue.Queue()
 
@@ -59,7 +59,7 @@ class SSEContractTest(unittest.TestCase):
         stop_event = threading.Event()
 
         def consume_events():
-            """"""Consume SSE events in a background thread""""""
+            """Consume SSE events in a background thread"""
             response = self.client.get('/api/stream/wave', stream=True)
 
             for line in response.response:
@@ -112,7 +112,7 @@ class SSEContractTest(unittest.TestCase):
             thread.join(timeout=1)
 
     def test_update_encrypt_data(self):
-        """"""Test that update_encrypt_data properly updates the shared data state""""""
+        """Test that update_encrypt_data properly updates the shared data state"""
         # Call update_encrypt_data with test values
         test_ciphertext = "test_ciphertext"
         test_key = "test_key"
