@@ -14,12 +14,8 @@ authors = [
 requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 3 - Alpha",
-<<<<<<< HEAD
-    "Intended Audience :: Developers", 
-=======
     "Intended Audience :: Developers",
     "License :: Other/Proprietary License",
->>>>>>> a18154bfce341a92c7a5f33eac798eec9937dd1e
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -29,24 +25,15 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Mathematics"
 ]
 dependencies = [
-<<<<<<< HEAD
-    "numpy",
-    "scipy",
-=======
     "numpy>=1.21.0",
     "scipy>=1.7.0",
->>>>>>> a18154bfce341a92c7a5f33eac798eec9937dd1e
     "cryptography>=3.4.8",
     "flask>=2.0.0",
     "flask-cors>=4.0.0",
     "pydantic>=2.0.0",
     "pyjwt>=2.0.0",
-<<<<<<< HEAD
-    "pycryptodome>=3.15.0"
-=======
     "pycryptodome>=3.15.0",
     "pybind11>=2.6.0"
->>>>>>> a18154bfce341a92c7a5f33eac798eec9937dd1e
 ]
 
 [project.optional-dependencies]
@@ -67,8 +54,4 @@ include = ["quantoniumos*", "core*", "utils*", "auth*", "api*"]
 exclude = ["tests*", "build*", "dist*", "*.egg-info*"]
 
 [tool.setuptools.package-data]
-<<<<<<< HEAD
 quantoniumos = ["py.typed"]
-=======
-quantoniumos = ["py.typed"] 
->>>>>>> a18154bfce341a92c7a5f33eac798eec9937dd1e
