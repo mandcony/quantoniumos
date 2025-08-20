@@ -1,0 +1,69 @@
+# QuantoniumOS Package Manifest
+# =============================
+# Specifies which files to include in the distribution wheel
+
+# Core documentation
+include README.md
+include UNIFIED_README.md
+include PHASE3_PHASE4_INTEGRATION_GUIDE.md
+include LICENSE
+include CITATION.cff
+include *.md
+
+# Core Python files
+include *.py
+include requirements.txt
+include pyproject.toml
+include setup.py
+
+# QuantoniumOS Core System
+recursive-include 11_QUANTONIUMOS *.py *.md *.txt *.json *.conf *.qstate *.qcircuit *.rft *.qkey
+
+# RFT Algorithms
+recursive-include 04_RFT_ALGORITHMS *.py *.cpp *.h *.hpp *.json
+
+# Quantum Engines  
+recursive-include 05_QUANTUM_ENGINES *.py *.cpp *.h *.hpp
+
+# Cryptography
+recursive-include 06_CRYPTOGRAPHY *.py *.cpp *.h *.hpp
+
+# Phase 3 & 4 Integration
+recursive-include phase3 *.py
+recursive-include phase4 *.py
+
+# Web Interface
+recursive-include web *.html *.js *.css *.json
+recursive-include wave_ui *.html *.js *.css
+
+# Core modules
+recursive-include core *.py *.cpp *.h *.hpp
+
+# Launchers and scripts
+include start_quantoniumos.py
+include start_quantoniumos.ps1
+include launch_*.py
+include launch_*.ps1
+include quantoniumos.py
+include quantonium_os_unified.py
+
+# Test files
+include test_*.py
+include *_test.py
+
+# Configuration
+include *.conf
+include *.ini
+include *.cfg
+
+# Exclude unnecessary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *~
+global-exclude *.so
+global-exclude *.dll
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude .git*
+global-exclude .pytest_cache
+global-exclude .vscode

@@ -1,1 +1,15 @@
+app
+canonical_true_rft
 core
+main
+phase3
+phase4
+production_canonical_rft
+production_topological_quantum_kernel
+quantonium_os_unified
+src
+start_quantoniumos
+topological_quantum_kernel
+wave_ui
+web
+wrappers

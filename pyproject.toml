@@ -1,29 +1,49 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2", "pybind11>=2.6.0"]
+requires = [
+    "setuptools>=45", 
+    "wheel", 
+    "pybind11>=2.6.0",
+    "numpy>=1.21.0"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "quantoniumos"
-version = "0.1.0"
-description = "Advanced cryptographic operating system with Resonance Fourier Transform algorithms"
-readme = "README.md"
-license = { text = "Quantonium OS Non-Commercial License v1.0" }
+version = "1.0.0"
+description = "QuantoniumOS - Complete Quantum Operating System with 1000-qubit vertex network"
+readme = "UNIFIED_README.md"
+license = { text = "QuantoniumOS Proprietary License" }
 authors = [
-    { name = "Luis Minier" }
+    { name = "QuantoniumOS Development Team", email = "dev@quantoniumos.com" }
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: C++",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: System :: Operating System",
     "Topic :: Security :: Cryptography",
-    "Topic :: Scientific/Engineering :: Mathematics"
 ]
+keywords = [
+    "quantum computing",
+    "operating system", 
+    "rft",
+    "cryptography",
+    "physics",
+    "simulation"
+]
+
 dependencies = [
     "numpy>=1.21.0",
     "scipy>=1.7.0",
@@ -33,25 +53,69 @@ dependencies = [
     "pydantic>=2.0.0",
     "pyjwt>=2.0.0",
     "pycryptodome>=3.15.0",
-    "pybind11>=2.6.0"
+    "pybind11>=2.6.0",
+    "networkx>=2.6",
+    "psutil>=5.8.0",
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "mypy>=1.0.0",
-    "ruff>=0.1.0",
-    "pre-commit>=3.0.0"
+gui = ["tkinter"]
+web = ["flask>=2.0.0", "flask-cors>=4.0.0"]
+crypto = ["cryptography>=3.4.8", "pycryptodome>=3.15.0"]
+jwt = ["pyjwt>=2.0.0"]
+validation = ["pydantic>=2.0.0"]
+qt = ["PyQt5>=5.15.0"]
+all = [
+    "flask>=2.0.0",
+    "flask-cors>=4.0.0",
+    "cryptography>=3.4.8", 
+    "pycryptodome>=3.15.0",
+    "pyjwt>=2.0.0",
+    "pydantic>=2.0.0",
+    "PyQt5>=5.15.0",
 ]
 
 [project.scripts]
-quantonium-validate = "quantoniumos.validate_production:main"
+quantoniumos = "quantonium_os_unified:main"
+quantonium-launcher = "start_quantoniumos:main" 
+qos = "quantonium_os_unified:main"
+
+[project.urls]
+Homepage = "https://github.com/mandcony/quantoniumos"
+Repository = "https://github.com/mandcony/quantoniumos"
+"Bug Tracker" = "https://github.com/mandcony/quantoniumos/issues"
+Documentation = "https://github.com/mandcony/quantoniumos/blob/main/UNIFIED_README.md"
+
+[tool.setuptools]
+include-package-data = true
+py-modules = [
+    "quantonium_os_unified",
+    "start_quantoniumos", 
+    "main",
+    "app",
+    "canonical_true_rft",
+    "topological_quantum_kernel",
+    "production_canonical_rft",
+    "production_topological_quantum_kernel",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["quantoniumos*", "core*", "utils*", "auth*", "api*"]
-exclude = ["tests*", "build*", "dist*", "*.egg-info*"]
+include = ["core*", "phase3*", "phase4*", "src*", "wrappers*", "web*", "wave_ui*"]
+exclude = ["tests*", "build*", "dist*", "*.egg-info*", ".git*", ".venv*"]
 
 [tool.setuptools.package-data]
-quantoniumos = ["py.typed"]
+"*" = [
+    "*.py",
+    "*.md", 
+    "*.txt",
+    "*.json",
+    "*.cpp",
+    "*.h",
+    "*.pyd",
+    "*.so",
+    "*.dll",
+    "*.css",
+    "*.js",
+    "*.html",
+]
