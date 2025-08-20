@@ -1,0 +1,329 @@
+:root {
+    --primary-color: #18227c;
+    --primary-light: #4b55b6;
+    --primary-dark: #000051;
+    --secondary-color: #00e5ff;
+    --secondary-light: #6effff;
+    --secondary-dark: #00b2cc;
+    --text-on-primary: #ffffff;
+    --text-on-secondary: #000000;
+    --background-color: #121212;
+    --surface-color: #1e1e1e;
+    --error-color: #cf6679;
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --info-color: #2196f3;
+    --quantum-color: #6a1b9a;
+    --resonance-color: #00897b;
+    --symbolic-color: #1565c0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-on-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: var(--primary-dark);
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--secondary-color);
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 300;
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.mode-selector {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.mode-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.mode-btn:hover {
+    background-color: var(--primary-light);
+}
+
+.mode-btn.active {
+    background-color: var(--secondary-color);
+    color: var(--text-on-secondary);
+}
+
+.panel {
+    display: none;
+    background-color: var(--surface-color);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.panel.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--primary-dark);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-on-primary);
+    font-size: 1rem;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-color);
+    color: var(--text-on-secondary);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.action-btn:hover {
+    background-color: var(--secondary-light);
+}
+
+.action-btn:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+#result-container {
+    margin-top: 1rem;
+}
+
+.result-box {
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    min-height: 60px;
+    word-break: break-all;
+}
+
+#visualization {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+#waveform-canvas {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: 250px;
+    display: block;
+}
+
+#visualization-controls {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stream-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stream-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.stat-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.metrics-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.metric {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.meter-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.meter {
+    flex: 1;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.meter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background-color: var(--secondary-color);
+    transition: width 0.3s ease;
+}
+
+.meter-value {
+    font-weight: bold;
+    min-width: 40px;
+    text-align: right;
+}
+
+#status-bar {
+    background-color: var(--primary-dark);
+    padding: 0.5rem 1rem;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#status-message {
+    font-size: 0.9rem;
+}
+
+#status-message.error {
+    color: var(--error-color);
+}
+
+#status-message.success {
+    color: var(--success-color);
+}
+
+/* Meter colors for different metrics */
+#harmonic-resonance-meter::before {
+    background-color: var(--quantum-color);
+}
+
+#quantum-entropy-meter::before {
+    background-color: var(--info-color);
+}
+
+#symbolic-variance-meter::before {
+    background-color: var(--resonance-color);
+}
+
+#wave-coherence-meter::before {
+    background-color: var(--symbolic-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .metrics-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .stream-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .control-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    #visualization-controls {
+        flex-direction: column;
+    }
+}

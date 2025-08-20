@@ -1,0 +1,5 @@
+{
+  "algorithm": "quantum_safe_rsa",
+  "key_size": 4096,
+  "quantum_resistant": true
+}

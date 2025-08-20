@@ -1,0 +1,139 @@
+/* Wave-specific CSS animations and effects */
+.wave-animation {
+    animation: waveFlow 3s ease-in-out infinite;
+}
+
+@keyframes waveFlow {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-10px) scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.quantum-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--quantum-blue);
+    border-radius: 50%;
+    animation: particleFloat 4s linear infinite;
+    box-shadow: 0 0 10px var(--quantum-blue);
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateX(-100px) translateY(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(900px) translateY(-200px);
+        opacity: 0;
+    }
+}
+
+.wave-ripple {
+    position: absolute;
+    border: 2px solid var(--quantum-blue);
+    border-radius: 50%;
+    animation: ripple 2s linear infinite;
+}
+
+@keyframes ripple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    100% {
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+    }
+}
+
+.wave-glow {
+    box-shadow: 
+        0 0 20px var(--quantum-blue),
+        0 0 40px var(--quantum-blue),
+        0 0 60px var(--quantum-blue);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 
+            0 0 20px var(--quantum-blue),
+            0 0 40px var(--quantum-blue),
+            0 0 60px var(--quantum-blue);
+    }
+    to {
+        box-shadow: 
+            0 0 30px var(--quantum-blue),
+            0 0 60px var(--quantum-blue),
+            0 0 90px var(--quantum-blue);
+    }
+}
+
+.frequency-bar {
+    height: 4px;
+    background: linear-gradient(90deg, var(--quantum-purple), var(--quantum-blue), var(--quantum-green));
+    margin: 10px 0;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.frequency-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+.wave-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.1;
+    background: 
+        radial-gradient(circle at 25% 25%, var(--quantum-blue) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, var(--quantum-purple) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: backgroundFlow 20s linear infinite;
+}
+
+@keyframes backgroundFlow {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(50px, 50px);
+    }
+}

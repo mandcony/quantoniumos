@@ -104,7 +104,7 @@ class GeometricWaveformHash:
     """
 
     def __init__(self, waveform=None, amplitude=1.0, phase=0.0):
-        """"""Initialize with waveform data and optional amplitude/phase parameters.""""""
+        """Initialize with waveform data and optional amplitude/phase parameters."""
         if waveform is None:
             # Default waveform for backwards compatibility with reproduction scripts
             waveform = [1.0, 0.5, -0.3, 0.8, -0.1, 0.9, -0.4, 0.2]
@@ -122,7 +122,7 @@ class GeometricWaveformHash:
         self.calculate_geometric_properties()
 
     def calculate_geometric_properties(self):
-        """"""Calculate genuine geometric properties using RFT and topological analysis.""""""
+        """Calculate genuine geometric properties using RFT and topological analysis."""
         if not self.waveform:
             self.geometric_hash = b'\x00' * 32
             self.topological_signature = 0.0
@@ -169,7 +169,7 @@ class GeometricWaveformHash:
             self.topological_signature = sum(self.waveform) % 1.0
 
     def _compute_topological_signature(self, features):
-        """"""Compute topological signature using homology and winding numbers.""""""
+        """Compute topological signature using homology and winding numbers."""
         if not features:
             return 0.0
 
@@ -189,7 +189,7 @@ class GeometricWaveformHash:
         return normalized_winding
 
     def _manifold_hash(self, features):
-        """"""Generate hash by mapping geometric features to cryptographic manifold.""""""
+        """Generate hash by mapping geometric features to cryptographic manifold."""
         # Flatten geometric coordinates
         coords = []
         for real_part, imag_part, topo_factor in features:
@@ -206,7 +206,7 @@ class GeometricWaveformHash:
         return hashlib.sha256(combined).digest()
 
     def _fallback_geometric_hash(self):
-        """"""Fallback geometric hash computation.""""""
+        """Fallback geometric hash computation."""
         # Convert waveform to bytes
         waveform_bytes = b''.join(struct.pack('<d', x) for x in self.waveform)
 
@@ -225,7 +225,7 @@ class GeometricWaveformHash:
         self.phase = (self.phase * PHI) % 1.0
 
     def _aes_sbox(self, data: int) -> int:
-        """"""Apply AES S-box to every byte of the 512-bit integer.""""""
+        """Apply AES S-box to every byte of the 512-bit integer."""
         result = 0
         for i in range(64):  # 64 bytes in 512 bits
             byte_val = (data >> (i * 8)) & 0xFF
@@ -254,7 +254,7 @@ class GeometricWaveformHash:
         return result
 
     def _gf2_multiply(self, a: int, b: int) -> int:
-        """"""GF(2) multiplication of two 64-bit integers.""""""
+        """GF(2) multiplication of two 64-bit integers."""
         result = 0
         while b:
             if b & 1:
@@ -265,7 +265,7 @@ class GeometricWaveformHash:
         return result & 0xFFFFFFFFFFFFFFFF
 
     def _blake2b_g(self, v, a, b, c, d, x, y):
-        """"""BLAKE2b G function for enhanced mixing""""""
+        """BLAKE2b G function for enhanced mixing"""
         v[a] = (v[a] + v[b] + x) & 0xFFFFFFFFFFFFFFFF
         v[d] = self._rotr64(v[d] ^ v[a], 32)
         v[c] = (v[c] + v[d]) & 0xFFFFFFFFFFFFFFFF
@@ -277,11 +277,11 @@ class GeometricWaveformHash:
         v[b] = self._rotr64(v[b] ^ v[c], 63)
 
     def _rotr64(self, x, n):
-        """"""64-bit right rotation""""""
+        """64-bit right rotation"""
         return ((x >> n) | (x << (64 - n))) & 0xFFFFFFFFFFFFFFFF
 
     def _enhanced_spn_round(self, state: int, round_key: int, round_constant: int, blake2_const: int) -> int:
-        """"""Enhanced SPN round with BLAKE2 constants for maximum diffusion.""""""
+        """Enhanced SPN round with BLAKE2 constants for maximum diffusion."""
         # Add key material + round constant + BLAKE2 constant
         x = state ^ round_key ^ round_constant ^ blake2_const
 
@@ -326,7 +326,7 @@ class GeometricWaveformHash:
         return x
 
     def _diffusion_round(self, state: bytearray, round_key: int) -> bytearray:
-        """"""Single diffusion round with maximum mixing.""""""
+        """Single diffusion round with maximum mixing."""
         # Split state into left and right halves for Feistel-like structure
         mid = len(state) // 2
         left = state[:mid]
@@ -370,7 +370,7 @@ class GeometricWaveformHash:
         return state
 
     def generate_hash(self) -> str:
-        """"""
+        """
         Generate geometric waveform hash using patent-protected algorithms.
 
         This implements the genuine geometric waveform hashing described in
@@ -378,7 +378,7 @@ class GeometricWaveformHash:
         1. RFT-based geometric transformation of input waveform
         2. Topological mapping to geometric hash space
         3. Golden ratio optimization for avalanche properties
-        """"""
+        """
         # Step 1: Convert input to waveform representation
         if isinstance(self.waveform, (list, tuple)):
             waveform_data = list(self.waveform)
@@ -535,14 +535,14 @@ class GeometricWaveformHash:
         return hash_str
 
     def verify_hash(self, hash_str: str) -> bool:
-        """"""Verify if the provided hash matches the current waveform.""""""
+        """Verify if the provided hash matches the current waveform."""
         return hash_str == self.generate_hash()
 
     def hash(self, data: bytes) -> bytes:
-        """"""
+        """
         Backwards compatible hash method for reproduction scripts.
         Takes bytes input and returns bytes output.
-        """"""
+        """
         # Update waveform based on input data
         if data:
             self.waveform = [float(b) for b in data[:32]]  # Use first 32 bytes
@@ -567,15 +567,15 @@ class GeometricWaveformHash:
             return hashlib.sha256(hash_str.encode()).digest()
 
     def get_amplitude(self) -> float:
-        """"""Get the calculated amplitude.""""""
+        """Get the calculated amplitude."""
         return self.amplitude
 
     def get_phase(self) -> float:
-        """"""Get the calculated phase.""""""
+        """Get the calculated phase."""
         return self.phase
 
 def geometric_waveform_hash(waveform: List[float]) -> str:
-    """"""
+    """
     Generate genuine geometric waveform hash using RFT-based algorithms.
 
     This function computes a cryptographic hash that preserves geometric
@@ -589,7 +589,7 @@ def geometric_waveform_hash(waveform: List[float]) -> str:
 
     Returns:
         Hexadecimal hash string with geometric properties preserved
-    """"""
+    """
     # Use genuine geometric waveform hashing
     hasher = GeometricWaveformHash(waveform)
 
@@ -601,11 +601,11 @@ def geometric_waveform_hash(waveform: List[float]) -> str:
         return hasher._fallback_geometric_hash().hex()
 
 def generate_waveform_hash(waveform: List[float]) -> str:
-    """"""Alias for geometric_waveform_hash for compatibility.""""""
+    """Alias for geometric_waveform_hash for compatibility."""
     return geometric_waveform_hash(waveform)
 
 def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
-    """"""
+    """
     Verify if the provided hash matches the waveform.
 
     Args:
@@ -614,7 +614,7 @@ def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
 
     Returns:
         True if hash matches, False otherwise
-    """"""
+    """
     if CPP_AVAILABLE:
         try:
             cpp_hasher = CppGeometricWaveformHash(waveform)
@@ -627,7 +627,7 @@ def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
     return hasher.verify_hash(hash_str)
 
 def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
-    """"""
+    """
     Extract geometric properties from waveform.
 
     Args:
@@ -635,7 +635,7 @@ def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
 
     Returns:
         Dictionary with amplitude, phase, and other properties
-    """"""
+    """
     if CPP_AVAILABLE:
         try:
             cpp_hasher = CppGeometricWaveformHash(waveform)
@@ -659,7 +659,7 @@ def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
 
 # Performance benchmark function
 def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) -> Dict[str, Any]:
-    """"""
+    """
     Benchmark geometric waveform hashing performance.
 
     Args:
@@ -668,7 +668,7 @@ def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) ->
 
     Returns:
         Performance metrics dictionary
-    """"""
+    """
     import time
 
     # Generate test waveform
@@ -694,7 +694,7 @@ def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) ->
     }
 
 def extract_parameters_from_hash(hash_value: str) -> tuple:
-    """"""Extract amplitude and phase parameters from a geometric hash.""""""
+    """Extract amplitude and phase parameters from a geometric hash."""
     try:
         # Convert hash to bytes
         hash_bytes = bytes.fromhex(hash_value)

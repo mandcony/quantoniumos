@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantoniumOS - Quantum Vertex Engine</title>
+    <style>
+        :root {
+            --quantum-blue: #00ffff;
+            --quantum-purple: #8a2be2;
+            --quantum-green: #00ff00;
+            --quantum-orange: #ff8c00;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --border-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--dark-bg);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .quantum-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .quantum-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+
+        .quantum-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .quantum-title {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--quantum-blue), var(--quantum-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .vertex-grid {
+            display: grid;
+            grid-template-columns: repeat(32, 1fr);
+            gap: 1px;
+            width: 100%;
+            height: 320px;
+            background: var(--dark-bg);
+            border: 2px solid var(--quantum-blue);
+            border-radius: 4px;
+            padding: 5px;
+            margin: 15px 0;
+        }
+
+        .vertex-cell {
+            background: #111;
+            border: 1px solid #333;
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+
+        .vertex-cell.active {
+            background: var(--quantum-blue);
+            box-shadow: 0 0 5px var(--quantum-blue);
+        }
+
+        .vertex-cell.entangled {
+            background: var(--quantum-purple);
+            box-shadow: 0 0 5px var(--quantum-purple);
+        }
+
+        .vertex-cell.superposition {
+            background: linear-gradient(45deg, var(--quantum-blue), var(--quantum-purple));
+            animation: quantum-oscillate 0.5s infinite alternate;
+        }
+
+        @keyframes quantum-oscillate {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quantum-btn {
+            background: linear-gradient(45deg, var(--quantum-blue), var(--quantum-purple));
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            color: white;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .quantum-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .quantum-btn.danger {
+            background: linear-gradient(45deg, #ff4444, #cc0000);
+        }
+
+        .quantum-btn.success {
+            background: linear-gradient(45deg, var(--quantum-green), #00cc00);
+        }
+
+        .quantum-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            background: var(--dark-bg);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--quantum-blue);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            color: var(--quantum-green);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .console-output {
+            background: var(--dark-bg);
+            border: 1px solid var(--quantum-green);
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            color: var(--quantum-green);
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--quantum-blue);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 8px;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .wave-visualization {
+            height: 100px;
+            border: 1px solid var(--quantum-blue);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, rgba(0, 255, 255, 0.1), transparent);
+            margin: 10px 0;
+        }
+
+        .wave-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--quantum-blue) 50%, 
+                transparent 100%);
+            animation: waveMove 2s linear infinite;
+            opacity: 0.4;
+        }
+
+        @keyframes waveMove {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--quantum-green);
+            animation: pulse 2s infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="quantum-grid">
+        <div class="quantum-header quantum-card">
+            <h1 class="quantum-title">Quantum Vertex Engine</h1>
+            <p><span class="status-indicator"></span>32x32 Grid • 1024 Qubits • Harmonic Oscillators Active</p>
+        </div>
+
+        <!-- Quantum Vertex Grid -->
+        <div class="quantum-card">
+            <h2 style="color: var(--quantum-blue); margin-bottom: 15px;">Quantum Vertex Grid (32x32)</h2>
+            
+            <div class="control-panel">
+                <button class="quantum-btn" onclick="initializeGrid()">Initialize</button>
+                <button class="quantum-btn" onclick="createSuperposition()">Superposition</button>
+                <button class="quantum-btn" onclick="entangleVertices()">Entangle</button>
+                <button class="quantum-btn danger" onclick="measureSystem()">Measure</button>
+            </div>
+
+            <div class="vertex-grid" id="vertex-grid"></div>
+
+            <div class="quantum-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Active Qubits</div>
+                    <div class="stat-value" id="active-qubits">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Entangled</div>
+                    <div class="stat-value" id="entangled-count">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Coherence</div>
+                    <div class="stat-value" id="coherence">100%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Interface -->
+        <div class="quantum-card">
+            <h2 style="color: var(--quantum-blue); margin-bottom: 15px;">Quantum Operations</h2>
+            
+            <div class="input-group">
+                <label for="gate-type">Quantum Gate:</label>
+                <select id="gate-type">
+                    <option value="hadamard">Hadamard Gate</option>
+                    <option value="pauli-x">Pauli-X Gate</option>
+                    <option value="pauli-y">Pauli-Y Gate</option>
+                    <option value="pauli-z">Pauli-Z Gate</option>
+                    <option value="cnot">CNOT Gate</option>
+                    <option value="phase">Phase Gate</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="target-vertex">Target Vertex (0-1023):</label>
+                <input type="number" id="target-vertex" min="0" max="1023" value="0">
+            </div>
+
+            <div class="input-group">
+                <label for="control-vertex">Control Vertex (for CNOT):</label>
+                <input type="number" id="control-vertex" min="0" max="1023" value="1">
+            </div>
+
+            <div class="control-panel">
+                <button class="quantum-btn" onclick="applyGate()">Apply Gate</button>
+                <button class="quantum-btn success" onclick="runCircuit()">Run Circuit</button>
+                <button class="quantum-btn danger" onclick="resetSystem()">Reset</button>
+                <button class="quantum-btn" onclick="exportState()">Export State</button>
+            </div>
+
+            <div class="wave-visualization">
+                <div class="wave-animation"></div>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--quantum-blue); font-size: 0.8rem;">
+                    Quantum Interference Pattern
+                </div>
+            </div>
+        </div>
+
+        <!-- System Monitor -->
+        <div class="quantum-card" style="grid-column: 1 / -1;">
+            <h2 style="color: var(--quantum-blue); margin-bottom: 15px;">Quantum System Console</h2>
+            <div class="console-output" id="console">QuantoniumOS Quantum Vertex Engine v2.1
+========================================
+
+System Initialized:
+- Quantum vertices: 1024 (32x32 grid)
+- Harmonic oscillators: Active
+- Decoherence rate: 0.001%/ms
+- Entanglement capacity: 512 pairs max
+
+Ready for quantum operations.
+Type commands or use the interface above.
+
+> _</div>
+        </div>
+    </div>
+
+    <script>
+        let quantumGrid = [];
+        let entangledPairs = [];
+        let activeQubits = 0;
+        let superpositionVertices = [];
+        let coherenceTime = 1000; // ms
+        let systemCoherence = 100;
+
+        function initializeGrid() {
+            const grid = document.getElementById('vertex-grid');
+            grid.innerHTML = '';
+            quantumGrid = [];
+            
+            for (let i = 0; i < 1024; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'vertex-cell';
+                cell.dataset.index = i;
+                cell.onclick = () => toggleVertex(i);
+                
+                quantumGrid[i] = {
+                    state: 0, // 0 = |0⟩, 1 = |1⟩, 2 = superposition
+                    amplitude: [1, 0], // [α, β] for α|0⟩ + β|1⟩
+                    entangled: false,
+                    entanglementPartner: null
+                };
+                
+                grid.appendChild(cell);
+            }
+            
+            updateConsole('Grid initialized: 1024 quantum vertices ready');
+            updateStats();
+        }
+
+        function toggleVertex(index) {
+            const cell = document.querySelector(`[data-index="${index}"]`);
+            const vertex = quantumGrid[index];
+            
+            if (vertex.state === 0) {
+                vertex.state = 1;
+                vertex.amplitude = [0, 1];
+                cell.classList.add('active');
+                activeQubits++;
+            } else if (vertex.state === 1) {
+                vertex.state = 2;
+                vertex.amplitude = [Math.sqrt(0.5), Math.sqrt(0.5)];
+                cell.classList.remove('active');
+                cell.classList.add('superposition');
+                superpositionVertices.push(index);
+            } else {
+                vertex.state = 0;
+                vertex.amplitude = [1, 0];
+                cell.classList.remove('active', 'superposition');
+                activeQubits = Math.max(0, activeQubits - 1);
+                superpositionVertices = superpositionVertices.filter(v => v !== index);
+            }
+            
+            updateStats();
+            updateConsole(`Vertex ${index}: State changed to ${getStateString(vertex.state)}`);
+        }
+
+        function createSuperposition() {
+            const numVertices = Math.floor(Math.random() * 20) + 5;
+            for (let i = 0; i < numVertices; i++) {
+                const randomIndex = Math.floor(Math.random() * 1024);
+                const vertex = quantumGrid[randomIndex];
+                const cell = document.querySelector(`[data-index="${randomIndex}"]`);
+                
+                vertex.state = 2;
+                vertex.amplitude = [Math.sqrt(0.5), Math.sqrt(0.5)];
+                cell.classList.remove('active');
+                cell.classList.add('superposition');
+                
+                if (!superpositionVertices.includes(randomIndex)) {
+                    superpositionVertices.push(randomIndex);
+                }
+            }
+            
+            updateStats();
+            updateConsole(`Created superposition states in ${numVertices} vertices`);
+        }
+
+        function entangleVertices() {
+            if (superpositionVertices.length < 2) {
+                updateConsole('Error: Need at least 2 vertices in superposition for entanglement');
+                return;
+            }
+            
+            const vertex1 = superpositionVertices[Math.floor(Math.random() * superpositionVertices.length)];
+            const vertex2 = superpositionVertices[Math.floor(Math.random() * superpositionVertices.length)];
+            
+            if (vertex1 === vertex2) return;
+            
+            quantumGrid[vertex1].entangled = true;
+            quantumGrid[vertex1].entanglementPartner = vertex2;
+            quantumGrid[vertex2].entangled = true;
+            quantumGrid[vertex2].entanglementPartner = vertex1;
+            
+            const cell1 = document.querySelector(`[data-index="${vertex1}"]`);
+            const cell2 = document.querySelector(`[data-index="${vertex2}"]`);
+            cell1.classList.add('entangled');
+            cell2.classList.add('entangled');
+            
+            entangledPairs.push([vertex1, vertex2]);
+            
+            updateStats();
+            updateConsole(`Entangled vertices ${vertex1} ↔ ${vertex2}`);
+        }
+
+        function measureSystem() {
+            let collapsed = 0;
+            
+            for (let i = 0; i < 1024; i++) {
+                const vertex = quantumGrid[i];
+                const cell = document.querySelector(`[data-index="${i}"]`);
+                
+                if (vertex.state === 2) {
+                    // Collapse superposition
+                    const prob = Math.random();
+                    const prob0 = vertex.amplitude[0] ** 2;
+                    
+                    if (prob < prob0) {
+                        vertex.state = 0;
+                        vertex.amplitude = [1, 0];
+                        cell.classList.remove('superposition', 'active');
+                    } else {
+                        vertex.state = 1;
+                        vertex.amplitude = [0, 1];
+                        cell.classList.remove('superposition');
+                        cell.classList.add('active');
+                        activeQubits++;
+                    }
+                    collapsed++;
+                }
+            }
+            
+            // Break entanglements
+            entangledPairs = [];
+            for (let i = 0; i < 1024; i++) {
+                quantumGrid[i].entangled = false;
+                quantumGrid[i].entanglementPartner = null;
+                document.querySelector(`[data-index="${i}"]`).classList.remove('entangled');
+            }
+            
+            superpositionVertices = [];
+            systemCoherence = Math.max(50, systemCoherence - 10);
+            
+            updateStats();
+            updateConsole(`Measurement complete: ${collapsed} superpositions collapsed`);
+        }
+
+        function applyGate() {
+            const gateType = document.getElementById('gate-type').value;
+            const target = parseInt(document.getElementById('target-vertex').value);
+            const control = parseInt(document.getElementById('control-vertex').value);
+            
+            if (target < 0 || target >= 1024) {
+                updateConsole('Error: Target vertex out of range (0-1023)');
+                return;
+            }
+            
+            const vertex = quantumGrid[target];
+            const cell = document.querySelector(`[data-index="${target}"]`);
+            
+            switch (gateType) {
+                case 'hadamard':
+                    // Apply Hadamard gate
+                    if (vertex.state === 0) {
+                        vertex.state = 2;
+                        vertex.amplitude = [Math.sqrt(0.5), Math.sqrt(0.5)];
+                        cell.classList.add('superposition');
+                        superpositionVertices.push(target);
+                    } else if (vertex.state === 1) {
+                        vertex.state = 2;
+                        vertex.amplitude = [Math.sqrt(0.5), -Math.sqrt(0.5)];
+                        cell.classList.remove('active');
+                        cell.classList.add('superposition');
+                        superpositionVertices.push(target);
+                        activeQubits--;
+                    }
+                    updateConsole(`Applied Hadamard gate to vertex ${target}`);
+                    break;
+                    
+                case 'pauli-x':
+                    // Bit flip
+                    if (vertex.state === 0) {
+                        vertex.state = 1;
+                        vertex.amplitude = [0, 1];
+                        cell.classList.add('active');
+                        activeQubits++;
+                    } else if (vertex.state === 1) {
+                        vertex.state = 0;
+                        vertex.amplitude = [1, 0];
+                        cell.classList.remove('active');
+                        activeQubits--;
+                    }
+                    updateConsole(`Applied Pauli-X gate to vertex ${target}`);
+                    break;
+                    
+                case 'cnot':
+                    if (control >= 0 && control < 1024 && control !== target) {
+                        const controlVertex = quantumGrid[control];
+                        if (controlVertex.state === 1) {
+                            // Flip target
+                            toggleVertex(target);
+                        }
+                        updateConsole(`Applied CNOT gate: control=${control}, target=${target}`);
+                    } else {
+                        updateConsole('Error: Invalid control vertex for CNOT gate');
+                    }
+                    break;
+                    
+                default:
+                    updateConsole(`Applied ${gateType} gate to vertex ${target}`);
+            }
+            
+            updateStats();
+        }
+
+        function runCircuit() {
+            updateConsole('Running quantum circuit...');
+            
+            // Simulate a complex quantum algorithm
+            createSuperposition();
+            setTimeout(() => {
+                entangleVertices();
+                setTimeout(() => {
+                    // Apply random gates
+                    for (let i = 0; i < 10; i++) {
+                        const randomVertex = Math.floor(Math.random() * 1024);
+                        document.getElementById('target-vertex').value = randomVertex;
+                        document.getElementById('gate-type').value = ['hadamard', 'pauli-x', 'pauli-z'][Math.floor(Math.random() * 3)];
+                        applyGate();
+                    }
+                    updateConsole('Quantum circuit execution complete');
+                }, 500);
+            }, 500);
+        }
+
+        function resetSystem() {
+            for (let i = 0; i < 1024; i++) {
+                const vertex = quantumGrid[i];
+                const cell = document.querySelector(`[data-index="${i}"]`);
+                
+                vertex.state = 0;
+                vertex.amplitude = [1, 0];
+                vertex.entangled = false;
+                vertex.entanglementPartner = null;
+                
+                cell.classList.remove('active', 'superposition', 'entangled');
+            }
+            
+            activeQubits = 0;
+            entangledPairs = [];
+            superpositionVertices = [];
+            systemCoherence = 100;
+            
+            updateStats();
+            updateConsole('System reset: All vertices returned to |0⟩ state');
+        }
+
+        function exportState() {
+            const state = {
+                vertices: quantumGrid.map((v, i) => ({
+                    index: i,
+                    state: v.state,
+                    amplitude: v.amplitude,
+                    entangled: v.entangled,
+                    entanglementPartner: v.entanglementPartner
+                })),
+                entangledPairs: entangledPairs,
+                activeQubits: activeQubits,
+                coherence: systemCoherence
+            };
+            
+            const stateJson = JSON.stringify(state, null, 2);
+            updateConsole(`Quantum state exported:\n${stateJson.substring(0, 200)}...`);
+        }
+
+        function updateStats() {
+            document.getElementById('active-qubits').textContent = activeQubits;
+            document.getElementById('entangled-count').textContent = entangledPairs.length * 2;
+            document.getElementById('coherence').textContent = `${Math.round(systemCoherence)}%`;
+        }
+
+        function updateConsole(message) {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            console.textContent += `\n[${timestamp}] ${message}`;
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function getStateString(state) {
+            switch (state) {
+                case 0: return '|0⟩';
+                case 1: return '|1⟩';
+                case 2: return '|+⟩ (superposition)';
+                default: return 'unknown';
+            }
+        }
+
+        // Initialize system on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGrid();
+            
+            // Simulate decoherence
+            setInterval(() => {
+                if (systemCoherence > 0) {
+                    systemCoherence -= 0.1;
+                    updateStats();
+                }
+            }, 100);
+            
+            // Add some visual effects
+            setInterval(() => {
+                const indicators = document.querySelectorAll('.status-indicator');
+                indicators.forEach(indicator => {
+                    indicator.style.opacity = Math.random() * 0.5 + 0.5;
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

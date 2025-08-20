@@ -1,0 +1,6 @@
+{
+  "total_vertices": 1000,
+  "grid_topology": "32x32",
+  "coherence_threshold": 0.95,
+  "evolution_rate": 0.01
+}

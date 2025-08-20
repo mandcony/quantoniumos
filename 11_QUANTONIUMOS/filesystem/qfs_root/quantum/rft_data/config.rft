@@ -1,0 +1,6 @@
+{
+  "engine": "production_canonical_rft",
+  "N": 32,
+  "sigma": 2.0,
+  "phi": 1.618033988749895
+}
