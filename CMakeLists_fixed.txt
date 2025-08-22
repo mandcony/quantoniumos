@@ -20,7 +20,7 @@ target_include_directories(Eigen3::Eigen INTERFACE ${EIGEN3_INCLUDE_DIR})
 
 # Compiler flags for optimization
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native -ffast-math")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions -fno-rtti")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DEIGEN_VECTORIZE_SSE4_2")
 
 # Core engine source files (check if these exist)
@@ -60,13 +60,10 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/core/enhanced_rft_crypto.cpp")
 endif()
 
 # True RFT Engine module
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/04_RFT_ALGORITHMS/true_rft_engine.cpp" AND 
-   EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/04_RFT_ALGORITHMS/true_rft_engine_bindings.cpp")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/04_RFT_ALGORITHMS/true_rft_engine.cpp")
     pybind11_add_module(true_rft_engine 
-        04_RFT_ALGORITHMS/true_rft_engine_bindings.cpp
         04_RFT_ALGORITHMS/true_rft_engine.cpp
     )
-    target_include_directories(true_rft_engine PRIVATE 04_RFT_ALGORITHMS core/include)
     target_link_libraries(true_rft_engine PRIVATE Eigen3::Eigen)
     target_compile_definitions(true_rft_engine PRIVATE VERSION_INFO="${PROJECT_VERSION}")
     
@@ -80,77 +77,12 @@ endif()
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/core/resonance_engine_bindings.cpp")
     pybind11_add_module(resonance_engine 
         core/resonance_engine_bindings.cpp
-        core/resonance_engine_simple.cpp
     )
-    target_include_directories(resonance_engine PRIVATE core/include)
     target_link_libraries(resonance_engine PRIVATE Eigen3::Eigen)
     target_compile_definitions(resonance_engine PRIVATE VERSION_INFO="${PROJECT_VERSION}")
     
     # Copy to source directory for development
     add_custom_command(TARGET resonance_engine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:resonance_engine> ${CMAKE_SOURCE_DIR}/
-    )
-endif()
-
-# Quantonium Core module
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/core/cpp/bindings/pybind_interface.cpp")
-    pybind11_add_module(quantonium_core 
-        core/cpp/bindings/pybind_interface.cpp
-        core/resonance_engine_simple.cpp
-    )
-    target_include_directories(quantonium_core PRIVATE core/include)
-    target_link_libraries(quantonium_core PRIVATE Eigen3::Eigen)
-    target_compile_definitions(quantonium_core PRIVATE VERSION_INFO="${PROJECT_VERSION}")
-    
-    # Copy to source directory for development
-    add_custom_command(TARGET quantonium_core POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:quantonium_core> ${CMAKE_SOURCE_DIR}/
-    )
-endif()
-
-# Quantum Engine module
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/core/cpp/bindings/quantum_engine_bindings.cpp")
-    pybind11_add_module(quantum_engine 
-        core/cpp/bindings/quantum_engine_bindings.cpp
-        core/resonance_engine_simple.cpp
-    )
-    target_include_directories(quantum_engine PRIVATE core/include)
-    target_link_libraries(quantum_engine PRIVATE Eigen3::Eigen)
-    target_compile_definitions(quantum_engine PRIVATE VERSION_INFO="${PROJECT_VERSION}")
-    
-    # Copy to source directory for development
-    add_custom_command(TARGET quantum_engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:quantum_engine> ${CMAKE_SOURCE_DIR}/
-    )
-endif()
-
-# Engine Core Pybind module
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/core/cpp/bindings/engine_core_pybind.cpp")
-    pybind11_add_module(engine_core_pybind 
-        core/cpp/bindings/engine_core_pybind.cpp
-        core/resonance_engine_simple.cpp
-    )
-    target_include_directories(engine_core_pybind PRIVATE core/include)
-    target_link_libraries(engine_core_pybind PRIVATE Eigen3::Eigen)
-    target_compile_definitions(engine_core_pybind PRIVATE VERSION_INFO="${PROJECT_VERSION}")
-    
-    # Copy to source directory for development
-    add_custom_command(TARGET engine_core_pybind POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:engine_core_pybind> ${CMAKE_SOURCE_DIR}/
-    )
-endif()
-
-# Vertex Engine module - NEW ADDITION FOR QUANTUM VERTEX OPERATIONS
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/core/vertex_engine_bindings.cpp")
-    pybind11_add_module(vertex_engine 
-        core/vertex_engine_bindings.cpp
-    )
-    target_include_directories(vertex_engine PRIVATE core/include)
-    target_link_libraries(vertex_engine PRIVATE Eigen3::Eigen)
-    target_compile_definitions(vertex_engine PRIVATE VERSION_INFO="${PROJECT_VERSION}")
-    
-    # Copy to source directory for development
-    add_custom_command(TARGET vertex_engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:vertex_engine> ${CMAKE_SOURCE_DIR}/
     )
 endif()

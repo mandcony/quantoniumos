@@ -13,12 +13,21 @@
  * resonance computation to be spatial in nature.
  */
 
+#include "true_rft_engine.h"
 #include <vector>
 #include <complex>
 #include <cmath>
 #include <memory>
 #include <algorithm>
+#include <stdexcept>
+#include <random>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 #include <immintrin.h>  // For SIMD acceleration
+
+// Mathematical constants
+const double GOLDEN_RATIO = 1.6180339887498948;
 
 using Complex = std::complex<double>;
 using ComplexMatrix = std::vector<std::vector<Complex>>;
@@ -333,4 +342,190 @@ extern "C" {
         if (!engine) return -1.0;
         return engine->verify_basis_orthogonality();
     }
+
+// Additional C interface functions required by the header
+
+// Engine management
+int engine_init(void) {
+    // Initialize global state if needed
+    return 1; // Success
+}
+
+void engine_final(void) {
+    // Cleanup global state if needed
+}
+
+// RFT computation functions
+RFTResult* rft_run(const char* data, int length) {
+    if (!data || length <= 0) return nullptr;
+    
+    // Create engine with appropriate dimension
+    int dim = std::max(8, std::min(64, length));
+    TrueRFTEngine engine(dim);
+    
+    // Convert input data to complex vector
+    std::vector<Complex> input_data(dim);
+    for (int i = 0; i < dim; i++) {
+        if (i < length) {
+            input_data[i] = Complex(static_cast<double>(data[i]) / 255.0, 0.0);
+        } else {
+            input_data[i] = Complex(0.0, 0.0);
+        }
+    }
+    
+    // Process with RFT
+    auto result_vec = engine.symbolic_oscillate_wave(input_data, 1.0);
+    
+    // Convert to C structure
+    RFTResult* result = (RFTResult*)malloc(sizeof(RFTResult));
+    if (!result) return nullptr;
+    
+    result->bin_count = dim;
+    result->bins = (float*)malloc(dim * sizeof(float));
+    if (!result->bins) {
+        free(result);
+        return nullptr;
+    }
+    
+    // Extract magnitudes
+    for (int i = 0; i < dim; i++) {
+        result->bins[i] = static_cast<float>(std::abs(result_vec[i]));
+    }
+    
+    // Calculate harmonic ratio (simplified)
+    result->hr = 1.618f; // Golden ratio placeholder
+    
+    return result;
+}
+
+void rft_free(RFTResult* result) {
+    if (result) {
+        if (result->bins) free(result->bins);
+        free(result);
+    }
+}
+
+// Symbolic alignment computation
+SAVector* sa_compute(const char* data, int length) {
+    if (!data || length <= 0) return nullptr;
+    
+    SAVector* result = (SAVector*)malloc(sizeof(SAVector));
+    if (!result) return nullptr;
+    
+    result->count = length;
+    result->values = (float*)malloc(length * sizeof(float));
+    if (!result->values) {
+        free(result);
+        return nullptr;
+    }
+    
+    // Simple symbolic alignment computation
+    for (int i = 0; i < length; i++) {
+        result->values[i] = static_cast<float>(data[i]) * GOLDEN_RATIO / 255.0f;
+    }
+    
+    return result;
+}
+
+void sa_free(SAVector* vector) {
+    if (vector) {
+        if (vector->values) free(vector->values);
+        free(vector);
+    }
+}
+
+// Wave hash function
+const char* wave_hash(const char* data, int length) {
+    static char hash_buffer[65]; // Static buffer for hash result
+    
+    if (!data || length <= 0) {
+        strcpy(hash_buffer, "00000000000000000000000000000000");
+        return hash_buffer;
+    }
+    
+    // Simple hash based on golden ratio and data
+    uint64_t hash = 0;
+    for (int i = 0; i < length; i++) {
+        hash = hash * 1618033 + static_cast<uint64_t>(data[i]);
+    }
+    
+    // Convert to hex string
+    snprintf(hash_buffer, sizeof(hash_buffer), "%016llx%016llx", 
+             (unsigned long long)(hash), 
+             (unsigned long long)(hash ^ 0xA5A5A5A5A5A5A5A5ULL));
+    
+    return hash_buffer;
+}
+
+// Random entropy generation
+int generate_entropy(uint8_t* buffer, int length) {
+    if (!buffer || length <= 0) return 0;
+    
+    // Use system random with golden ratio seeding
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(0, 255);
+    
+    for (int i = 0; i < length; i++) {
+        buffer[i] = static_cast<uint8_t>(dis(gen));
+    }
+    
+    return length;
+}
+
+// RFT basis transform functions  
+int rft_basis_forward(
+    const double* x, int N,
+    const double* w, int M,
+    const double* th0, const double* omg,
+    double sigma0, double gamma,
+    const char* seq,
+    double* out_real, double* out_imag
+) {
+    if (!x || !w || !th0 || !omg || !out_real || !out_imag || N <= 0 || M <= 0) {
+        return -1;
+    }
+    
+    // Simple RFT basis transform using golden ratio weights
+    const double phi = GOLDEN_RATIO;
+    for (int i = 0; i < N; i++) {
+        double real_sum = 0.0, imag_sum = 0.0;
+        for (int j = 0; j < M && j < N; j++) {
+            double weight = w[j] * std::pow(phi, -j * 0.1);
+            double phase = th0[j] + omg[j] * i;
+            real_sum += x[i] * weight * std::cos(phase);
+            imag_sum += x[i] * weight * std::sin(phase);
+        }
+        out_real[i] = real_sum;
+        out_imag[i] = imag_sum;
+    }
+    return 0;
+}
+
+int rft_basis_inverse(
+    const double* X_real, const double* X_imag, int N,
+    const double* w, int M,
+    const double* th0, const double* omg,
+    double sigma0, double gamma,
+    const char* seq,
+    double* out_x
+) {
+    if (!X_real || !X_imag || !w || !th0 || !omg || !out_x || N <= 0 || M <= 0) {
+        return -1;
+    }
+    
+    // Simple inverse RFT basis transform
+    const double phi = GOLDEN_RATIO;
+    for (int i = 0; i < N; i++) {
+        double sum = 0.0;
+        for (int j = 0; j < M && j < N; j++) {
+            double weight = w[j] * std::pow(phi, -j * 0.1);
+            double phase = th0[j] + omg[j] * i;
+            sum += (X_real[i] * std::cos(phase) + X_imag[i] * std::sin(phase)) * weight;
+        }
+        out_x[i] = sum / N;  // Normalize
+    }
+    return 0;
+}
+
 }

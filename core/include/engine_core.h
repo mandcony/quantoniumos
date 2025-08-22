@@ -14,17 +14,23 @@ extern "C" {
 #endif
 
 // RFT Result structure
+#ifndef RFT_RESULT_DEFINED
+#define RFT_RESULT_DEFINED
 typedef struct {
     float* bins;
     int bin_count;
     float hr;  // Harmonic Resonance
 } RFTResult;
+#endif
 
 // SA Vector structure
+#ifndef SA_VECTOR_DEFINED
+#define SA_VECTOR_DEFINED
 typedef struct {
     float* values;
     int count;
 } SAVector;
+#endif
 
 /**
  * Initialize the engine

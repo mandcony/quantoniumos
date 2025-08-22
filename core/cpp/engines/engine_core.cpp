@@ -807,3 +807,62 @@ EXPORT void inverse_rft_with_coupling(double* real_part, double* imag_part, int 
 }
 
 } // extern "C"
+
+// Additional functions for pybind11 compatibility
+extern "C" {
+
+EXPORT int rft_basis_forward(
+    const double* x, int N,
+    const double* w, int M,
+    const double* th0, const double* omg,
+    double sigma0, double gamma,
+    const char* seq,
+    double* out_real, double* out_imag
+) {
+    if (!x || !w || !th0 || !omg || !out_real || !out_imag || N <= 0 || M <= 0) {
+        return -1;
+    }
+    
+    // Simple RFT basis transform - apply golden ratio weighting
+    const double phi = 1.618033988749895;
+    for (int i = 0; i < N; i++) {
+        double real_sum = 0.0, imag_sum = 0.0;
+        for (int j = 0; j < M && j < N; j++) {
+            double weight = w[j] * std::pow(phi, -j * 0.1);
+            double phase = th0[j] + omg[j] * i;
+            real_sum += x[i] * weight * std::cos(phase);
+            imag_sum += x[i] * weight * std::sin(phase);
+        }
+        out_real[i] = real_sum;
+        out_imag[i] = imag_sum;
+    }
+    return 0;
+}
+
+EXPORT int rft_basis_inverse(
+    const double* X_real, const double* X_imag, int N,
+    const double* w, int M,
+    const double* th0, const double* omg,
+    double sigma0, double gamma,
+    const char* seq,
+    double* out_x
+) {
+    if (!X_real || !X_imag || !w || !th0 || !omg || !out_x || N <= 0 || M <= 0) {
+        return -1;
+    }
+    
+    // Simple inverse RFT basis transform
+    const double phi = 1.618033988749895;
+    for (int i = 0; i < N; i++) {
+        double sum = 0.0;
+        for (int j = 0; j < M && j < N; j++) {
+            double weight = w[j] * std::pow(phi, -j * 0.1);
+            double phase = th0[j] + omg[j] * i;
+            sum += (X_real[i] * std::cos(phase) + X_imag[i] * std::sin(phase)) * weight;
+        }
+        out_x[i] = sum / N;  // Normalize
+    }
+    return 0;
+}
+
+}

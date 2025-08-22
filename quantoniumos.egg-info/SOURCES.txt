@@ -13,6 +13,7 @@ MATHEMATICAL_VALIDATION_FINAL_REPORT.md
 PHASE3_PHASE4_INTEGRATION_GUIDE.md
 QUANTONIUM_DEVELOPER_GUIDE.md
 QUANTONIUM_FINAL_STATUS.md
+QUANTONIUM_FRONTEND_DESIGN_MANUAL.md
 QUANTUM_VERTEX_VALIDATION_REPORT.md
 QUICKSTART.md
 README.md
@@ -47,6 +48,7 @@ fix_markdown_unicode.py
 fix_roundtrip_integrity.py
 full_patent_test.py
 full_patent_test_fixed.py
+import pytest.py
 incremental_qubit_boost.py
 launch_flask.ps1
 launch_flask_simple.ps1
@@ -69,7 +71,6 @@ quantonium_memory_analysis.py
 quantonium_os_unified.py
 quantoniumos.py
 quantum_verification_suite.py
-remove_marketing_language.py
 requirements.txt
 rigorous_quantum_vertex_validation.py
 run_comprehensive_tests.py

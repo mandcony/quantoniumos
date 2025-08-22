@@ -2,8 +2,11 @@
 #include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 #include "true_rft_engine.h"
+#include "../core/include/engine_core.h"
 
 namespace py = pybind11;
+using namespace pybind11::literals;
+using namespace pybind11::literals;  // Enable _a literal
 
 // This file provides the Python bindings for the C++ True RFT engine.
 // It exposes the C-style interface from true_rft_engine.h to Python.
@@ -37,7 +40,7 @@ py::list sa_vector_to_list(const SAVector* sa_vector) {
 }
 
 
-PYBIND11_MODULE(true_rft_engine_bindings, m) {
+PYBIND11_MODULE(true_rft_engine, m) {
     m.doc() = "True RFT Engine - Symbolic Resonance Kernel for Quantum Simulation";
 
     m.def("engine_init", &engine_init, "Initialize the engine");
