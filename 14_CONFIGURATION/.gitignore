@@ -1,0 +1,89 @@
+# Development environment files
+.env
+.env.local
+.env.production
+.env.test
+
+# Build artifacts
+build/
+dist/
+*.o
+*.so
+*.dll
+*.dylib
+*.exe
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.venv/
+pip-log.txt
+
+# Caches and temporary files
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+ruff_cache/
+
+# Benchmark and test results (should not be version controlled)
+benchmark_results/
+test_results/
+demonstration_results/
+validation_results/
+verification_results/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Logs
+logs/
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Security sensitive files
+*.key
+*.pem
+*.p12
+secrets.json
+config/production.json
+
+# Test artifacts
+.coverage
+.pytest_cache/
+.tox/
+coverage.xml
+*.cover
+
+# Documentation build
+docs/_build/
+
+# Node modules (if any frontend tools)
+node_modules/
+
+# Project-local ignores
+.env*
+.vscode/
+*.log
+verification_results/
+
+# venv
+.venv/

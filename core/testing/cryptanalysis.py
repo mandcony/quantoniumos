@@ -16,14 +16,15 @@ and compares them against established standards. All tests provide detailed
 p-value reporting for scientific verification and peer review.
 """
 
-import os
-import math
 import hashlib
-import numpy as np
-import matplotlib.pyplot as plt
 import json
+import math
+import os
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Any, Dict, List
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Fix import paths - add the project root to Python's module search path current_dir = os.path.dirname(os.path.abspath(__file__)) project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) # Import QuantoniumOS modules from core.encryption.wave_entropy_engine import WaveformEntropyEngine from core.encryption.geometric_waveform_hash import GeometricWaveformHash # Create a wrapper class to maintain compatibility class ResonanceEncryption: """ Wrapper class for resonance encryption functions to provide an object-oriented interface """ def encrypt(self, data, key): """Encrypt data using resonance encryption""" # For avalanche testing, we need to handle random binary data properly # Convert bytes to hex string for consistent handling if isinstance(data, bytes): data_hex = data.hex() else: data_hex = data if isinstance(key, bytes): key_hex = key.hex() else: key_hex = key # For avalanche testing, use a simpler encryption that works with binary data # This is a simplified version that maintains the same interface key_hash = hashlib.sha256(key_hex.encode()).hexdigest() data_hash = hashlib.sha256(data_hex.encode()).hexdigest() # Simple XOR-based encryption for testing result = bytearray() for i in range(len(data_hash)): result.append(ord(data_hash[i % len(data_hash)]) ^ ord(key_hash[i % len(key_hash)])) return bytes(result) def decrypt(self, data, key): """Decrypt data using resonance encryption""" # For test compatibility, we implement a reversible operation # In real usage, use decrypt_data from the module if isinstance(key, bytes): key_hex = key.hex() else: key_hex = key key_hash = hashlib.sha256(key_hex.encode()).hexdigest() # Simple XOR-based decryption (same as encryption for testing) result = bytearray() for i in range(len(data)): result.append(data[i] ^ ord(key_hash[i % len(key_hash)])) return bytes(result) class CryptoTestResult: """Class to store and analyze cryptographic test results""" def __init__(self, test_name: str, algorithm_name: str): self.test_name = test_name self.algorithm_name = algorithm_name self.timestamp = datetime.now().isoformat() self.results = {} self.passed = False self.p_values = [] self.test_statistics = {} def add_result(self, subtest_name: str, result: Any, passed: bool = None, p_value: float = None): """Add a test result""" self.results[subtest_name] = { "result": result, "passed": passed, "p_value": p_value } if p_value is not None: self.p_values.append(p_value) def calculate_overall_result(self): """Calculate the overall test result""" if not self.results: self.passed = False return # If all subtests have a 'passed' value, use them if all('passed' in result and result['passed'] is not None for result in self.results.values()): self.passed = all(result['passed'] for result in self.results.values()) # If we have p-values, check if they're uniformly distributed
         elif self.p_values:

@@ -12,44 +12,46 @@ Advanced 3D visualization system for quantum vertex networks:
 
 import json
 import math
-import time
-import threading
-from pathlib import Path
 import sys
+import threading
+import time
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from pathlib import Path
 
 # Add kernel path
 sys.path.insert(0, str(Path(__file__).parent.parent / "kernel"))
 
 try:
     from quantum_vertex_kernel import QuantoniumKernel
+
     kernel_available = True
 except ImportError:
     kernel_available = False
 
+
 class QuantumVisualizationEngine:
     """Advanced visualization engine for quantum vertex networks"""
-    
+
     def __init__(self, kernel=None):
         self.kernel = kernel
         self.visualization_data = {}
         self.update_thread = None
         self.running = False
-        
+
     def start_visualization(self):
         """Start real-time visualization updates"""
         self.running = True
         self.update_thread = threading.Thread(target=self._update_loop, daemon=True)
         self.update_thread.start()
         print("🎬 Visualization engine started")
-    
+
     def stop_visualization(self):
         """Stop visualization updates"""
         self.running = False
         if self.update_thread:
             self.update_thread.join()
         print("⏹️ Visualization engine stopped")
-    
+
     def _update_loop(self):
         """Main visualization update loop"""
         while self.running:
@@ -59,255 +61,295 @@ class QuantumVisualizationEngine:
             except Exception as e:
                 print(f"❌ Visualization update error: {e}")
                 time.sleep(1)
-    
+
     def _generate_vertex_data(self):
         """Generate visualization data for vertices"""
         if not self.kernel:
             # Generate synthetic data for demo
             self._generate_synthetic_data()
             return
-        
+
         # Real quantum vertex data
         vertex_data = []
-        
+
         try:
             # Sample vertices for performance
             vertex_items = list(self.kernel.vertices.items())[:500]
-            
+
             for vid, vertex in vertex_items:
                 # Calculate 3D position
                 position = self._calculate_vertex_position(vid, vertex)
-                
+
                 # Get quantum state
-                alpha_mag = abs(vertex.alpha) if hasattr(vertex, 'alpha') else 0.5
-                beta_mag = abs(vertex.beta) if hasattr(vertex, 'beta') else 0.5
-                phase = math.atan2(vertex.alpha.imag, vertex.alpha.real) if hasattr(vertex, 'alpha') else 0
-                
+                alpha_mag = abs(vertex.alpha) if hasattr(vertex, "alpha") else 0.5
+                beta_mag = abs(vertex.beta) if hasattr(vertex, "beta") else 0.5
+                phase = (
+                    math.atan2(vertex.alpha.imag, vertex.alpha.real)
+                    if hasattr(vertex, "alpha")
+                    else 0
+                )
+
                 # Calculate visual properties
                 vertex_info = {
-                    'id': vid,
-                    'position': position,
-                    'quantum_state': {
-                        'alpha_magnitude': float(alpha_mag),
-                        'beta_magnitude': float(beta_mag),
-                        'phase': float(phase),
-                        'coherence': alpha_mag**2 + beta_mag**2
+                    "id": vid,
+                    "position": position,
+                    "quantum_state": {
+                        "alpha_magnitude": float(alpha_mag),
+                        "beta_magnitude": float(beta_mag),
+                        "phase": float(phase),
+                        "coherence": alpha_mag**2 + beta_mag**2,
                     },
-                    'activity': {
-                        'processes': len([p for p in vertex.processes if p.state == 'running']),
-                        'memory_usage': sum(p.memory for p in vertex.processes),
-                        'last_operation': getattr(vertex, 'last_operation', 'idle')
+                    "activity": {
+                        "processes": len(
+                            [p for p in vertex.processes if p.state == "running"]
+                        ),
+                        "memory_usage": sum(p.memory for p in vertex.processes),
+                        "last_operation": getattr(vertex, "last_operation", "idle"),
                     },
-                    'connections': vertex.neighbors[:8],  # Limit for performance
-                    'visual_effects': self._calculate_visual_effects(vertex, alpha_mag, beta_mag, phase)
+                    "connections": vertex.neighbors[:8],  # Limit for performance
+                    "visual_effects": self._calculate_visual_effects(
+                        vertex, alpha_mag, beta_mag, phase
+                    ),
                 }
-                
+
                 vertex_data.append(vertex_info)
-            
+
             self.visualization_data = {
-                'vertices': vertex_data,
-                'network_stats': self._calculate_network_stats(),
-                'timestamp': time.time()
+                "vertices": vertex_data,
+                "network_stats": self._calculate_network_stats(),
+                "timestamp": time.time(),
             }
-            
+
         except Exception as e:
             print(f"❌ Error generating vertex data: {e}")
-    
+
     def _generate_synthetic_data(self):
         """Generate synthetic data for demo mode"""
         current_time = time.time()
         vertex_data = []
-        
+
         for vid in range(100):  # 100 demo vertices
             # Create wave-like patterns
             wave_phase = current_time + vid * 0.1
             alpha_mag = (math.sin(wave_phase) + 1) * 0.5
             beta_mag = (math.cos(wave_phase * 1.3) + 1) * 0.5
             phase = wave_phase % (2 * math.pi)
-            
+
             # 3D grid position with some dynamics
             x = (vid % 10) * 4 - 18 + math.sin(current_time + vid) * 0.5
             y = (vid // 10) * 4 - 18 + math.cos(current_time + vid * 0.7) * 0.5
             z = math.sin(current_time * 0.5 + vid * 0.3) * 3
-            
+
             vertex_info = {
-                'id': vid,
-                'position': [x, y, z],
-                'quantum_state': {
-                    'alpha_magnitude': alpha_mag,
-                    'beta_magnitude': beta_mag,
-                    'phase': phase,
-                    'coherence': alpha_mag**2 + beta_mag**2
+                "id": vid,
+                "position": [x, y, z],
+                "quantum_state": {
+                    "alpha_magnitude": alpha_mag,
+                    "beta_magnitude": beta_mag,
+                    "phase": phase,
+                    "coherence": alpha_mag**2 + beta_mag**2,
                 },
-                'activity': {
-                    'processes': int(alpha_mag * 3),
-                    'memory_usage': beta_mag * 100,
-                    'last_operation': ['idle', 'gate', 'measure', 'evolve'][vid % 4]
+                "activity": {
+                    "processes": int(alpha_mag * 3),
+                    "memory_usage": beta_mag * 100,
+                    "last_operation": ["idle", "gate", "measure", "evolve"][vid % 4],
                 },
-                'connections': [(vid + i) % 100 for i in range(1, 5)],
-                'visual_effects': {
-                    'glow_intensity': alpha_mag,
-                    'pulse_rate': beta_mag * 2,
-                    'particle_density': (alpha_mag + beta_mag) * 10,
-                    'entanglement_strength': math.sin(phase) * 0.5 + 0.5
-                }
+                "connections": [(vid + i) % 100 for i in range(1, 5)],
+                "visual_effects": {
+                    "glow_intensity": alpha_mag,
+                    "pulse_rate": beta_mag * 2,
+                    "particle_density": (alpha_mag + beta_mag) * 10,
+                    "entanglement_strength": math.sin(phase) * 0.5 + 0.5,
+                },
             }
-            
+
             vertex_data.append(vertex_info)
-        
+
         self.visualization_data = {
-            'vertices': vertex_data,
-            'network_stats': {
-                'total_vertices': 100,
-                'active_processes': int(sum(v['activity']['processes'] for v in vertex_data)),
-                'avg_coherence': sum(v['quantum_state']['coherence'] for v in vertex_data) / len(vertex_data),
-                'total_memory': sum(v['activity']['memory_usage'] for v in vertex_data),
-                'entanglement_pairs': 25,
-                'quantum_fidelity': 0.997
+            "vertices": vertex_data,
+            "network_stats": {
+                "total_vertices": 100,
+                "active_processes": int(
+                    sum(v["activity"]["processes"] for v in vertex_data)
+                ),
+                "avg_coherence": sum(
+                    v["quantum_state"]["coherence"] for v in vertex_data
+                )
+                / len(vertex_data),
+                "total_memory": sum(v["activity"]["memory_usage"] for v in vertex_data),
+                "entanglement_pairs": 25,
+                "quantum_fidelity": 0.997,
             },
-            'timestamp': current_time
+            "timestamp": current_time,
         }
-    
+
     def _calculate_vertex_position(self, vid, vertex):
         """Calculate 3D position for vertex"""
-        if hasattr(vertex, 'position') and vertex.position is not None:
+        if hasattr(vertex, "position") and vertex.position is not None:
             return vertex.position.tolist()
-        
+
         # Default grid layout with some quantum-inspired positioning
         grid_size = 10
         x = (vid % grid_size) * 4 - (grid_size * 2)
         y = (vid // grid_size) * 4 - (grid_size * 2)
-        
+
         # Add quantum state influence to Z position
-        alpha_mag = abs(vertex.alpha) if hasattr(vertex, 'alpha') else 0.5
+        alpha_mag = abs(vertex.alpha) if hasattr(vertex, "alpha") else 0.5
         z = (alpha_mag - 0.5) * 10
-        
+
         return [float(x), float(y), float(z)]
-    
+
     def _calculate_visual_effects(self, vertex, alpha_mag, beta_mag, phase):
         """Calculate visual effects for vertex"""
         return {
-            'glow_intensity': alpha_mag,
-            'pulse_rate': beta_mag * 3,
-            'particle_density': (alpha_mag + beta_mag) * 8,
-            'entanglement_strength': math.cos(phase) * 0.5 + 0.5,
-            'quantum_interference': math.sin(phase * 2) * alpha_mag,
-            'superposition_blur': alpha_mag * beta_mag * 2,
-            'decoherence_factor': 1.0 - (alpha_mag**2 + beta_mag**2)
+            "glow_intensity": alpha_mag,
+            "pulse_rate": beta_mag * 3,
+            "particle_density": (alpha_mag + beta_mag) * 8,
+            "entanglement_strength": math.cos(phase) * 0.5 + 0.5,
+            "quantum_interference": math.sin(phase * 2) * alpha_mag,
+            "superposition_blur": alpha_mag * beta_mag * 2,
+            "decoherence_factor": 1.0 - (alpha_mag**2 + beta_mag**2),
         }
-    
+
     def _calculate_network_stats(self):
         """Calculate network-wide statistics"""
         if not self.kernel:
             return {}
-        
+
         try:
-            total_processes = sum(len([p for p in v.processes if p.state == 'running']) 
-                                for v in self.kernel.vertices.values())
-            
+            total_processes = sum(
+                len([p for p in v.processes if p.state == "running"])
+                for v in self.kernel.vertices.values()
+            )
+
             coherence_values = []
             for vertex in self.kernel.vertices.values():
-                if hasattr(vertex, 'alpha') and hasattr(vertex, 'beta'):
-                    coherence = abs(vertex.alpha)**2 + abs(vertex.beta)**2
+                if hasattr(vertex, "alpha") and hasattr(vertex, "beta"):
+                    coherence = abs(vertex.alpha) ** 2 + abs(vertex.beta) ** 2
                     coherence_values.append(coherence)
-            
+
             return {
-                'total_vertices': len(self.kernel.vertices),
-                'active_processes': total_processes,
-                'avg_coherence': sum(coherence_values) / len(coherence_values) if coherence_values else 0,
-                'total_memory': sum(sum(p.memory for p in v.processes) for v in self.kernel.vertices.values()),
-                'entanglement_pairs': len([v for v in self.kernel.vertices.values() if len(v.neighbors) > 2]),
-                'quantum_fidelity': 0.995 + (sum(coherence_values) / len(coherence_values) * 0.005) if coherence_values else 0.997
+                "total_vertices": len(self.kernel.vertices),
+                "active_processes": total_processes,
+                "avg_coherence": sum(coherence_values) / len(coherence_values)
+                if coherence_values
+                else 0,
+                "total_memory": sum(
+                    sum(p.memory for p in v.processes)
+                    for v in self.kernel.vertices.values()
+                ),
+                "entanglement_pairs": len(
+                    [v for v in self.kernel.vertices.values() if len(v.neighbors) > 2]
+                ),
+                "quantum_fidelity": 0.995
+                + (sum(coherence_values) / len(coherence_values) * 0.005)
+                if coherence_values
+                else 0.997,
             }
         except Exception as e:
             print(f"❌ Error calculating network stats: {e}")
             return {}
-    
+
     def get_visualization_data(self):
         """Get current visualization data"""
         return self.visualization_data
-    
+
     def get_vertex_details(self, vertex_id):
         """Get detailed information for specific vertex"""
         if not self.kernel or vertex_id not in self.kernel.vertices:
             return None
-        
+
         vertex = self.kernel.vertices[vertex_id]
-        
+
         return {
-            'id': vertex_id,
-            'quantum_state': {
-                'alpha': {
-                    'real': float(vertex.alpha.real) if hasattr(vertex, 'alpha') else 0.707,
-                    'imag': float(vertex.alpha.imag) if hasattr(vertex, 'alpha') else 0.0,
-                    'magnitude': float(abs(vertex.alpha)) if hasattr(vertex, 'alpha') else 0.707
+            "id": vertex_id,
+            "quantum_state": {
+                "alpha": {
+                    "real": float(vertex.alpha.real)
+                    if hasattr(vertex, "alpha")
+                    else 0.707,
+                    "imag": float(vertex.alpha.imag)
+                    if hasattr(vertex, "alpha")
+                    else 0.0,
+                    "magnitude": float(abs(vertex.alpha))
+                    if hasattr(vertex, "alpha")
+                    else 0.707,
                 },
-                'beta': {
-                    'real': float(vertex.beta.real) if hasattr(vertex, 'beta') else 0.707,
-                    'imag': float(vertex.beta.imag) if hasattr(vertex, 'beta') else 0.0,
-                    'magnitude': float(abs(vertex.beta)) if hasattr(vertex, 'beta') else 0.707
+                "beta": {
+                    "real": float(vertex.beta.real)
+                    if hasattr(vertex, "beta")
+                    else 0.707,
+                    "imag": float(vertex.beta.imag) if hasattr(vertex, "beta") else 0.0,
+                    "magnitude": float(abs(vertex.beta))
+                    if hasattr(vertex, "beta")
+                    else 0.707,
                 },
-                'bloch_sphere': self._calculate_bloch_coordinates(vertex)
+                "bloch_sphere": self._calculate_bloch_coordinates(vertex),
             },
-            'processes': [
+            "processes": [
                 {
-                    'pid': p.pid,
-                    'state': p.state,
-                    'memory': p.memory,
-                    'priority': p.priority,
-                    'runtime': time.time() - p.start_time
+                    "pid": p.pid,
+                    "state": p.state,
+                    "memory": p.memory,
+                    "priority": p.priority,
+                    "runtime": time.time() - p.start_time,
                 }
                 for p in vertex.processes
             ],
-            'connections': {
-                'neighbors': vertex.neighbors,
-                'degree': len(vertex.neighbors),
-                'clustering_coefficient': self._calculate_clustering_coefficient(vertex_id)
+            "connections": {
+                "neighbors": vertex.neighbors,
+                "degree": len(vertex.neighbors),
+                "clustering_coefficient": self._calculate_clustering_coefficient(
+                    vertex_id
+                ),
             },
-            'history': {
-                'operations_count': getattr(vertex, 'operations_count', 0),
-                'last_gate': getattr(vertex, 'last_gate', None),
-                'measurement_count': getattr(vertex, 'measurement_count', 0)
-            }
+            "history": {
+                "operations_count": getattr(vertex, "operations_count", 0),
+                "last_gate": getattr(vertex, "last_gate", None),
+                "measurement_count": getattr(vertex, "measurement_count", 0),
+            },
         }
-    
+
     def _calculate_bloch_coordinates(self, vertex):
         """Calculate Bloch sphere coordinates for vertex"""
-        if not hasattr(vertex, 'alpha') or not hasattr(vertex, 'beta'):
-            return {'x': 0, 'y': 0, 'z': 1}
-        
+        if not hasattr(vertex, "alpha") or not hasattr(vertex, "beta"):
+            return {"x": 0, "y": 0, "z": 1}
+
         alpha, beta = vertex.alpha, vertex.beta
-        
+
         # Normalize
-        norm = abs(alpha)**2 + abs(beta)**2
+        norm = abs(alpha) ** 2 + abs(beta) ** 2
         if norm > 0:
             alpha, beta = alpha / math.sqrt(norm), beta / math.sqrt(norm)
-        
+
         # Bloch sphere coordinates
         x = 2 * (alpha.conjugate() * beta).real
         y = 2 * (alpha.conjugate() * beta).imag
-        z = abs(alpha)**2 - abs(beta)**2
-        
-        return {'x': float(x), 'y': float(y), 'z': float(z)}
-    
+        z = abs(alpha) ** 2 - abs(beta) ** 2
+
+        return {"x": float(x), "y": float(y), "z": float(z)}
+
     def _calculate_clustering_coefficient(self, vertex_id):
         """Calculate clustering coefficient for vertex"""
         if not self.kernel or vertex_id not in self.kernel.vertices:
             return 0
-        
+
         vertex = self.kernel.vertices[vertex_id]
         neighbors = vertex.neighbors
-        
+
         if len(neighbors) < 2:
             return 0
-        
+
         # Count edges between neighbors
         edges_between_neighbors = 0
         for i, n1 in enumerate(neighbors):
-            for n2 in neighbors[i+1:]:
-                if n1 in self.kernel.vertices and n2 in self.kernel.vertices[n1].neighbors:
+            for n2 in neighbors[i + 1 :]:
+                if (
+                    n1 in self.kernel.vertices
+                    and n2 in self.kernel.vertices[n1].neighbors
+                ):
                     edges_between_neighbors += 1
-        
+
         # Clustering coefficient
         possible_edges = len(neighbors) * (len(neighbors) - 1) // 2
         return edges_between_neighbors / possible_edges if possible_edges > 0 else 0
@@ -315,7 +357,7 @@ class QuantumVisualizationEngine:
 
 def create_advanced_visualization_html():
     """Create advanced HTML/JS for 3D visualization"""
-    return '''
+    return """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -887,37 +929,37 @@ def create_advanced_visualization_html():
     </script>
 </body>
 </html>
-    '''
+    """
 
 
-def run_visualization_server(host='localhost', port=8081):
+def run_visualization_server(host="localhost", port=8081):
     """Run the visualization server"""
     print("🎬 Starting QuantoniumOS 3D Visualization Server")
     print("=" * 50)
-    
+
     # Initialize visualization engine
     kernel = QuantoniumKernel() if kernel_available else None
     viz_engine = QuantumVisualizationEngine(kernel)
     viz_engine.start_visualization()
-    
+
     # Simple HTTP server for the visualization
     class VisualizationHandler(SimpleHTTPRequestHandler):
         def do_GET(self):
-            if self.path == '/':
+            if self.path == "/":
                 self.send_response(200)
-                self.send_header('Content-type', 'text/html')
+                self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write(create_advanced_visualization_html().encode())
-            elif self.path == '/api/visualization':
+            elif self.path == "/api/visualization":
                 data = viz_engine.get_visualization_data()
                 self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header("Content-type", "application/json")
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(json.dumps(data).encode())
             else:
                 super().do_GET()
-    
+
     try:
         with HTTPServer((host, port), VisualizationHandler) as httpd:
             print(f"🌐 3D Visualization running at http://{host}:{port}")

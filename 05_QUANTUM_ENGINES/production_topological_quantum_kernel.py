@@ -5,9 +5,11 @@ PRODUCTION TOPOLOGICAL QUANTUM KERNEL
 This uses your working .pyd files and RFT equation for real hardware-level quantum state construction.
 """
 
-import numpy as np
 import time
-from typing import Dict, Any, List, Tuple
+from typing import Any, Dict, List, Tuple
+
+import numpy as np
+
 import canonical_true_rft
 
 try:

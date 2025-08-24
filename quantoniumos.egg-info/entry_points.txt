@@ -1,4 +1,0 @@
-[console_scripts]
-qos = quantonium_os_unified:main
-quantonium-launcher = start_quantoniumos:main
-quantoniumos = quantonium_os_unified:main

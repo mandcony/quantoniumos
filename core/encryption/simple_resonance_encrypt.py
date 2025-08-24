@@ -8,6 +8,48 @@ Not intended for production cryptographic applications.
 import hashlib
 import secrets
 
+
+def encrypt(data, key):
+    """
+    Encrypt data using the simple resonance encryption.
+
+    Args:
+        data: Data to encrypt (bytes or string)
+        key: Encryption key (bytes or string)
+
+    Returns:
+        Encrypted data as bytes
+    """
+    if isinstance(data, str):
+        data = data.encode("utf-8")
+    if isinstance(key, str):
+        key = key.encode("utf-8")
+
+    return simple_resonance_encrypt(
+        data.decode("utf-8", errors="surrogateescape"),
+        key.decode("utf-8", errors="surrogateescape"),
+    )
+
+
+def decrypt(encrypted_data, key):
+    """
+    Decrypt data using the simple resonance encryption.
+
+    Args:
+        encrypted_data: Data to decrypt (bytes)
+        key: Encryption key (bytes or string)
+
+    Returns:
+        Decrypted data as bytes
+    """
+    if isinstance(key, str):
+        key = key.encode("utf-8")
+
+    return simple_resonance_decrypt(
+        encrypted_data, key.decode("utf-8", errors="surrogateescape")
+    ).encode("utf-8")
+
+
 def simple_resonance_encrypt(plaintext: str, key: str) -> bytes:
     """
     Simplified version of resonance encryption for testing.
@@ -16,7 +58,7 @@ def simple_resonance_encrypt(plaintext: str, key: str) -> bytes:
     # Convert inputs to bytes
     if not isinstance(plaintext, str):
         plaintext = str(plaintext)
-    plaintext_bytes = bytearray(plaintext.encode('utf-8', errors='surrogateescape'))
+    plaintext_bytes = bytearray(plaintext.encode("utf-8", errors="surrogateescape"))
 
     # Generate key-based values
     key_hash = hashlib.sha256(key.encode()).digest()
@@ -29,7 +71,7 @@ def simple_resonance_encrypt(plaintext: str, key: str) -> bytes:
     # Extend keystream if needed
     while len(keystream) < len(plaintext_bytes):
         keystream += hashlib.sha256(keystream).digest()
-    keystream = keystream[:len(plaintext_bytes)]
+    keystream = keystream[: len(plaintext_bytes)]
 
     # Simple encryption: XOR with keystream
     result = bytearray(len(plaintext_bytes))
@@ -38,6 +80,7 @@ def simple_resonance_encrypt(plaintext: str, key: str) -> bytes:
 
     # Return signature + token + encrypted data
     return signature + token + bytes(result)
+
 
 def simple_resonance_decrypt(encrypted_data: bytes, key: str) -> str:
     """
@@ -61,7 +104,7 @@ def simple_resonance_decrypt(encrypted_data: bytes, key: str) -> str:
     # Extend keystream if needed
     while len(keystream) < len(ciphertext):
         keystream += hashlib.sha256(keystream).digest()
-    keystream = keystream[:len(ciphertext)]
+    keystream = keystream[: len(ciphertext)]
 
     # Decrypt: XOR with keystream
     result = bytearray(len(ciphertext))
@@ -69,7 +112,8 @@ def simple_resonance_decrypt(encrypted_data: bytes, key: str) -> str:
         result[i] = ciphertext[i] ^ keystream[i]
 
     # Convert back to string
-    return result.decode('utf-8', errors='surrogateescape')
+    return result.decode("utf-8", errors="surrogateescape")
+
 
 def test_simple_resonance():
     """
@@ -98,6 +142,7 @@ def test_simple_resonance():
         print("Test passed: encryption/decryption successful")
     else:
         print("Test failed: decrypted text doesn't match original")
+
 
 if __name__ == "__main__":
     test_simple_resonance()

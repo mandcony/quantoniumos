@@ -5,10 +5,10 @@ Implements the high-performance container validation routines for symbolic reson
 """
 
 import hashlib
-import sys
-import os
 import logging
-from typing import List, Dict, Any, ByteString
+import os
+import sys
+from typing import Any, ByteString, Dict, List
 
 # Try to import the HPC backend modules
 try:
@@ -21,6 +21,7 @@ try:
 
     # Annotate with type ignore for mypy
     from core.python_bindings import quantum_os  # type: ignore
+
     HPC_BACKEND_LOADED = True
     logger = logging.getLogger("symbolic_container")
     logger.info("✅ HPC quantum_os module loaded successfully")
@@ -29,6 +30,7 @@ except ImportError:
     HPC_BACKEND_LOADED = False
     logger = logging.getLogger("symbolic_container")
     logger.warning("⚠️ HPC quantum_os module not found, using fallback implementation")
+
 
 def create_resonance_signature(waveform_array: List[float]) -> Dict[str, Any]:
     """
@@ -53,6 +55,7 @@ def create_resonance_signature(waveform_array: List[float]) -> Dict[str, Any]:
     signature = hashlib.sha256(waveform_str.encode()).digest()[:8]
 
     return signature
+
 
 def verify_container_waveform(signature: ByteString, hash_value: str) -> bool:
     """

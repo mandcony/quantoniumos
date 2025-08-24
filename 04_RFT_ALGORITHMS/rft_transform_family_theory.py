@@ -3,13 +3,22 @@
 RFT Transform Family Theory - Mathematical Foundations === This module establishes the mathematical foundations needed to prove that the Resonance Fourier Transform (RFT) constitutes a new transform family with distinguishing properties comparable to DFT, wavelets, and fractional Fourier transforms. We prove the following distinguishing theorems: 1. Frame Properties and Conditioning 2. Invariant Structures 3. Non-equivalence to Known Bases 4. Theoretical Stability Bounds 5. Completeness and Parseval Relations
 """
 
+import math
+import time
+import typing
+
+import Any
+import Dict
+import generate_phi_sequence
+import get_rft_basis
+import List
 import numpy as np
+import Optional
 import scipy.linalg
 import scipy.special
-import math
-import time from typing
-import Tuple, Dict, Any, List, Optional from canonical_true_rft
-import generate_phi_sequence, get_rft_basis
+import Tuple
+
+import canonical_true_rft
 
 # Golden ratio for consistency PHI = (1.0 + math.sqrt(5.0)) / 2.0
 

@@ -1,97 +1,121 @@
 # QuantoniumOS Navigation Guide
 
-## **Quick Start - Choose Your Path:**
+## Welcome to QuantoniumOS!
 
-### **For Researchers & Evaluators:**
-- **[02_CORE_VALIDATORS](../02_CORE_VALIDATORS/)** ← **START HERE FOR VALIDATION**
-  - Patent claim validators
-  - Mathematical proof verification
-  - Breakthrough validation systems
+This guide will help you navigate the newly organized project structure.
 
-### **For Users & Developers:**
-- **[03_RUNNING_SYSTEMS](../03_RUNNING_SYSTEMS/)** ← **START HERE TO RUN**
-  - Web interface (main.py)
-  - Production systems
-  - Ready-to-use applications
+## Directory Structure
 
----
+### Numbered Directories
+- **01_START_HERE** - Start Here
+- **02_CORE_VALIDATORS** - Core Validators
+- **03_RUNNING_SYSTEMS** - Running Systems
+- **04_RFT_ALGORITHMS** - Rft Algorithms
+- **05_QUANTUM_ENGINES** - Quantum Engines
+- **06_CRYPTOGRAPHY** - Cryptography
+- **07_TESTS_BENCHMARKS** - Tests Benchmarks
+- **08_RESEARCH_ANALYSIS** - Research Analysis
+- **09_LEGACY_BACKUPS** - Legacy Backups
+- **10_UTILITIES** - Utilities
+- **11_QUANTONIUMOS** - Quantoniumos
+- **12_TEST_RESULTS** - Test Results
+- **13_DOCUMENTATION** - Documentation
+- **14_CONFIGURATION** - Configuration
+- **15_DEPLOYMENT** - Deployment
+- **16_EXPERIMENTAL** - Experimental
+- **17_BUILD_ARTIFACTS** - Build Artifacts
+- **18_DEBUG_TOOLS** - Debug Tools
 
-## **Complete Directory Structure:**
+### Infrastructure Directories
+- **apps/** - Quantum applications
+- **core/** - Core libraries
+- **src/** - Source code
+- **third_party/** - External dependencies
 
-### **Main Validators & Systems**
-| Directory | Purpose | Key Files |
-|-----------|---------|-----------|
-| **02_CORE_VALIDATORS** | **Patent & Mathematical Validation** | `patent_validation_summary.py`, `definitive_quantum_validation.py` |
-| **03_RUNNING_SYSTEMS** | **Production Applications** | `main.py`, `app.py`, `benchmark_controller.py` |
+## Getting Started
 
-### **Core Algorithms**
-| Directory | Purpose | Key Files |
-|-----------|---------|-----------|
-| **04_RFT_ALGORITHMS** | **RFT Transform Implementations** | `canonical_true_rft.py`, `production_canonical_rft.py` |
-| **05_QUANTUM_ENGINES** | **Quantum Processing Systems** | `topological_vertex_engine.py`, `quantum_kernel.py` |
-| **06_CRYPTOGRAPHY** | **Security & Encryption** | `cryptographic_security_enhancements.py` |
+1. Run the main application:
+   ```
+   python launch_quantoniumos.py
+   ```
 
-### **Testing & Analysis**
-| Directory | Purpose | Key Files |
-|-----------|---------|-----------|
-| **07_TESTS_BENCHMARKS** | **Testing & Performance** | All test_*.py files, benchmarks |
-| **08_RESEARCH_ANALYSIS** | **Research & Analysis** | Mathematical proofs, research papers |
+2. Explore the documentation:
+   ```
+   13_DOCUMENTATION/guides/
+   ```
 
-### **Utilities & Legacy**
-| Directory | Purpose | Key Files |
-|-----------|---------|-----------|
-| **09_LEGACY_BACKUPS** | **Backup & Archive Files** | *_backup.py, *_fixed.py files |
-| **10_UTILITIES** | **Helper Scripts** | fix_*.py, setup scripts |
+3. Run tests and validators:
+   ```
+   python 07_TESTS_BENCHMARKS/run_test_suite.py
+   python 02_CORE_VALIDATORS/validate_system.py
+   ```
 
----
+## Directory Contents
 
-## **Recommended Workflow:**
+### 01_START_HERE
 
-### **1. For Validation & Verification:**
-```
-01_START_HERE → 02_CORE_VALIDATORS → Run patent validators
-```
+### 02_CORE_VALIDATORS
 
-### **2. For Using the System:**
-```
-01_START_HERE → 03_RUNNING_SYSTEMS → Launch main.py
-```
+### 03_RUNNING_SYSTEMS
 
-### **3. For Development:**
-```
-01_START_HERE → 04_RFT_ALGORITHMS → Study core algorithms
-```
+### 04_RFT_ALGORITHMS
 
----
+### 05_QUANTUM_ENGINES
 
-## **Quick Commands:**
+### 06_CRYPTOGRAPHY
 
-### **Validate Claims:**
-```bash
-cd 02_CORE_VALIDATORS
-python patent_validation_summary.py
-python definitive_quantum_validation.py
-```
+### 07_TESTS_BENCHMARKS
 
-### **Run Main System:**
-```bash
-cd 03_RUNNING_SYSTEMS
-python main.py
-```
+### 08_RESEARCH_ANALYSIS
 
-### **Run Benchmarks:**
-```bash
-cd 07_TESTS_BENCHMARKS
-python run_comprehensive_tests.py
-```
+### 09_LEGACY_BACKUPS
 
----
+### 10_UTILITIES
 
-## **Documentation Links:**
-- **[QUICKSTART.md](../QUICKSTART.md)** - Quick setup guide
-- **[README.md](../README.md)** - Main documentation
-- **[QUANTONIUM_DEVELOPER_GUIDE.md](../QUANTONIUM_DEVELOPER_GUIDE.md)** - Developer reference
+### 11_QUANTONIUMOS
 
----
+### 12_TEST_RESULTS
+- **validation_reports/** - Validation Reports
+- **rft_validation/** - Rft Validation
+- **benchmark_results/** - Benchmark Results
+- **test_logs/** - Test Logs
 
-*This navigation guide routes you directly to the main claim validators and running systems for maximum clarity and efficiency.*
+### 13_DOCUMENTATION
+- **research_papers/** - Research Papers
+- **reports/** - Reports
+- **implementation/** - Implementation
+- **guides/** - Guides
+- **legal/** - Legal
+
+### 14_CONFIGURATION
+- **build_configs/** - Build Configs
+- **requirements/** - Requirements
+- **ci_cd/** - Ci Cd
+- **environment/** - Environment
+
+### 15_DEPLOYMENT
+- **launchers/** - Launchers
+- **installers/** - Installers
+- **production/** - Production
+
+### 16_EXPERIMENTAL
+- **prototypes/** - Prototypes
+- **research_data/** - Research Data
+- **analysis/** - Analysis
+
+### 17_BUILD_ARTIFACTS
+- **compiled/** - Compiled
+- **binaries/** - Binaries
+- **cache/** - Cache
+
+### 18_DEBUG_TOOLS
+- **validators/** - Validators
+- **fixers/** - Fixers
+- **cleaners/** - Cleaners
+- **debug_scripts/** - Debug Scripts
+
+## Need Help?
+
+If you need assistance navigating the project, please refer to the complete documentation in `13_DOCUMENTATION/`.
+
+Happy quantum computing!

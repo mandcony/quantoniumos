@@ -9,11 +9,13 @@ This module wraps the C++ implementations of:
 """
 
 import ctypes
-import numpy as np
 import os
+
+import numpy as np
 
 # Try to load the C++ library
 _engine_lib = None
+
 
 def _load_engine_library():
     """Load the engine core C++ library"""
@@ -25,14 +27,14 @@ def _load_engine_library():
     # Possible library paths
     library_paths = [
         "build/libengine_core.so",  # Linux
-        "build/engine_core.dll",   # Windows
+        "build/engine_core.dll",  # Windows
         "build/libengine_core.dylib",  # macOS
         "core/libengine_core.so",
         "core/engine_core.dll",
         "core/libengine_core.dylib",
         "./libengine_core.so",
         "./engine_core.dll",
-        "./libengine_core.dylib"
+        "./libengine_core.dylib",
     ]
 
     for lib_path in library_paths:
@@ -44,7 +46,9 @@ def _load_engine_library():
             continue
 
     if _engine_lib is None:
-        print("Warning: Could not load C++ engine library. Using Python fallback implementations.")
+        print(
+            "Warning: Could not load C++ engine library. Using Python fallback implementations."
+        )
         return None
 
     # Define function signatures
@@ -53,7 +57,7 @@ def _load_engine_library():
         _engine_lib.forward_rft_run.argtypes = [
             ctypes.POINTER(ctypes.c_double),  # real_part
             ctypes.POINTER(ctypes.c_double),  # imag_part
-            ctypes.c_int                      # size
+            ctypes.c_int,  # size
         ]
         _engine_lib.forward_rft_run.restype = None
 
@@ -61,7 +65,7 @@ def _load_engine_library():
         _engine_lib.inverse_rft_run.argtypes = [
             ctypes.POINTER(ctypes.c_double),  # real_part
             ctypes.POINTER(ctypes.c_double),  # imag_part
-            ctypes.c_int                      # size
+            ctypes.c_int,  # size
         ]
         _engine_lib.inverse_rft_run.restype = None
 
@@ -79,6 +83,7 @@ def _load_engine_library():
         return None
 
     return _engine_lib
+
 
 def forward_rft_cpp(waveform_data: np.ndarray) -> np.ndarray:
     """
@@ -124,6 +129,7 @@ def forward_rft_cpp(waveform_data: np.ndarray) -> np.ndarray:
         print(f"C++ RFT failed, using Python fallback: {e}")
         return np.fft.fft(waveform_data)
 
+
 def inverse_rft_cpp(rft_data: np.ndarray) -> np.ndarray:
     """
     Patent Math: Inverse RFT using C++ implementation
@@ -168,6 +174,7 @@ def inverse_rft_cpp(rft_data: np.ndarray) -> np.ndarray:
         print(f"C++ Inverse RFT failed, using Python fallback: {e}")
         return np.fft.ifft(rft_data)
 
+
 def test_rft_roundtrip(size: int = 16) -> bool:
     """
     Test that Forward RFT -> Inverse RFT recovers the original signal
@@ -180,7 +187,9 @@ def test_rft_roundtrip(size: int = 16) -> bool:
     """
     # Create test signal
     t = np.arange(size)
-    original_signal = np.exp(1j * 2 * np.pi * t / size) + 0.5 * np.exp(1j * 4 * np.pi * t / size)
+    original_signal = np.exp(1j * 2 * np.pi * t / size) + 0.5 * np.exp(
+        1j * 4 * np.pi * t / size
+    )
 
     # Forward RFT
     rft_result = forward_rft_cpp(original_signal)
@@ -197,7 +206,10 @@ def test_rft_roundtrip(size: int = 16) -> bool:
 
     return success
 
-def geometric_hash_python(data: bytes, amplitude: float, phase: float, prime: int = 251) -> int:
+
+def geometric_hash_python(
+    data: bytes, amplitude: float, phase: float, prime: int = 251
+) -> int:
     """
     Python implementation of geometric hash
     H(W_i) = mod(A_i * cos(ϕ_i) + data_influence, p)
@@ -225,6 +237,7 @@ def geometric_hash_python(data: bytes, amplitude: float, phase: float, prime: in
     # Combine and take modulus
     hash_value = int(geometric_component + data_influence) % prime
     return hash_value
+
 
 def symbolic_xor_python(plaintext: bytes, key: bytes) -> bytes:
     """
@@ -256,6 +269,7 @@ def symbolic_xor_python(plaintext: bytes, key: bytes) -> bytes:
         result.append(encrypted_byte)
 
     return bytes(result)
+
 
 def validate_cpp_bindings() -> bool:
     """
@@ -291,7 +305,7 @@ def validate_cpp_bindings() -> bool:
     # Test encryption
     try:
         plaintext = b"Hello, Patent Math!"
-        key = b"SecretKey123456789"[:len(plaintext)]  # Truncate to match length
+        key = b"SecretKey123456789"[: len(plaintext)]  # Truncate to match length
 
         encrypted = symbolic_xor_python(plaintext, key)
         decrypted = symbolic_xor_python(encrypted, key)  # XOR is self-inverse
@@ -313,6 +327,7 @@ def validate_cpp_bindings() -> bool:
         print("⚠️ Some C++ binding validations failed.")
 
     return success
+
 
 if __name__ == "__main__":
     # Run validation when executed directly

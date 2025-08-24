@@ -3,13 +3,20 @@
 BULLETPROOF QUANTUM KERNEL - REALITY CHECKED === Accurate memory accounting, no φ overflow, defensible results
 """
 
-import numpy as np
+import sys
 import time
-import psutil
 import tracemalloc
-import sys from typing
-import Dict, Any, List, Tuple
+import typing
+
+import Any
+import Dict
+import List
+import numpy as np
+import psutil
+import Tuple
+
 import canonical_true_rft
+
 
 # Strict engine imports with path verification
 def verify_cpp_engines(): """
@@ -19,19 +26,54 @@ def verify_cpp_engines(): """
 
         # TRUE RFT ENGINE - For symbolic oscillating wave processing
         try:
-import true_rft_engine_bindings engines['true_rft_engine'] = { 'module': true_rft_engine_bindings, 'path': true_rft_engine_bindings.__file__, 'functions': ['TrueRFTEngine', 'symbolic_oscillate_wave', 'process_quantum_block'] }
+import 'functions':
+import 'path':
+import 'process_quantum_block'] }
+import 'symbolic_oscillate_wave'
+import =
+import ['TrueRFTEngine'
+import engines['true_rft_engine']
+import true_rft_engine_bindings
+import true_rft_engine_bindings.__file__
+import { 'module':
+
         print(f"✅ TRUE RFT Engine: {true_rft_engine_bindings.__file__}") except ImportError as e: engines['true_rft_engine'] = None
         print(f"❌ TRUE RFT Engine failed: {e}")
 
         # CRYPTO RFT ENGINE - For cryptographic processing
         try:
-import enhanced_rft_crypto_bindings engines['rft_crypto_engine'] = { 'module': enhanced_rft_crypto_bindings, 'path': enhanced_rft_crypto_bindings.__file__, 'functions': ['init_engine', 'encrypt_block', 'decrypt_block', 'generate_key_material', 'avalanche_test'] } enhanced_rft_crypto_bindings.init_engine()
+import 'avalanche_test'] }
+import 'decrypt_block'
+import 'encrypt_block'
+import 'functions':
+import 'generate_key_material'
+import 'path':
+import =
+import ['init_engine'
+import engines['rft_crypto_engine']
+import enhanced_rft_crypto_bindings
+import enhanced_rft_crypto_bindings.__file__
+import enhanced_rft_crypto_bindings.init_engine
+import { 'module':
+
         print(f"✅ RFT Crypto Engine: {enhanced_rft_crypto_bindings.__file__}") except ImportError as e: engines['rft_crypto_engine'] = None
         print(f"❌ RFT Crypto Engine failed: {e}")
 
         # FEISTEL ENGINE - For cryptographic processing
         try:
-import minimal_feistel_bindings engines['feistel_engine'] = { 'module': minimal_feistel_bindings, 'path': minimal_feistel_bindings.__file__, 'functions': ['init', 'encrypt', 'decrypt', 'generate_key'] } minimal_feistel_bindings.init()
+import 'decrypt'
+import 'encrypt'
+import 'functions':
+import 'generate_key'] }
+import 'path':
+import =
+import ['init'
+import engines['feistel_engine']
+import minimal_feistel_bindings
+import minimal_feistel_bindings.__file__
+import minimal_feistel_bindings.init
+import { 'module':
+
         print(f"✅ Feistel Engine: {minimal_feistel_bindings.__file__}") except ImportError as e: engines['feistel_engine'] = None
         print(f"❌ Feistel Engine failed: {e}")
         return engines

@@ -11,6 +11,7 @@ and demonstrate resistance against specific attack models.
 """
 
 import math
+
 # import sympy - Not needed for basic proof validation
 
 class SecurityProof:

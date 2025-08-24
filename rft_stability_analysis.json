@@ -1,1 +1,0 @@
-{ "stability_N16": { "condition_analysis": { "condition_2_norm": 1.0000000000000007, "condition_frobenius": { "real": 15.999999999999998, "imag": 0.0 }, "gram_condition": 1.000000000000001, "spectral_radius": 1.0000000000000013, "spectral_gap": 1.9984014443252818e-15, "well_conditioned": 

@@ -9,12 +9,13 @@ It helps identify memory usage patterns, potential leaks, and optimization oppor
 import os
 import sys
 import time
-import psutil
 import tracemalloc
+from datetime import datetime
+from typing import Any, Callable, Dict, List
+
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Dict, List, Callable, Any
-from datetime import datetime
+import psutil
 
 # Fix import paths - add the project root to Python's module search path current_dir = os.path.dirname(os.path.abspath(__file__)) project_root = os.path.abspath(os.path.join(current_dir, '..', '..')) # Import core components try: from core.encryption.resonance_encrypt import encrypt as resonance_encrypt, decrypt_data from core.encryption.geometric_waveform_hash import GeometricWaveformHash from core.encryption.wave_entropy_engine import WaveformEntropyEngine # Create a wrapper class to maintain compatibility class ResonanceEncryption: """ Wrapper class for resonance encryption functions to provide an object-oriented interface """ def encrypt(self, data, key): """Encrypt data using resonance encryption""" if isinstance(data, bytes): data = data.decode('utf-8', errors='surrogate') if isinstance(key, bytes): key = key.decode('utf-8', errors='surrogate') result = resonance_encrypt(data, key) return result.get('ciphertext', '').encode('utf-8') def decrypt(self, data, key): """Decrypt data using resonance encryption""" if isinstance(data, bytes): data = data.decode('utf-8', errors='surrogate') if isinstance(key, bytes): key = key.decode('utf-8', errors='surrogate') return decrypt_data(data, key).encode('utf-8') except ImportError as e: print(f"Error importing QuantoniumOS modules: {e}") print("Make sure you're running this script from the project root or the correct modules are installed.")
     sys.exit(1)

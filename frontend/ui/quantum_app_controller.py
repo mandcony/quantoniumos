@@ -3,20 +3,19 @@ QuantoniumOS Application Controller
 Main controller for all Quantum applications with integrated window management
 """
 
-import sys
-import os
 import importlib
+import os
+import sys
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, List, Optional
 
 try:
-    from PyQt5.QtWidgets import (QMainWindow, QApplication, QWidget, 
-                                QVBoxLayout, QHBoxLayout, QPushButton,
-                                QTabWidget, QDockWidget, QToolBar,
-                                QAction, QMenu, QMenuBar, QStatusBar,
-                                QLabel, QSplitter, QFrame)
-    from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread
+    from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
     from PyQt5.QtGui import QIcon, QKeySequence, QPixmap
+    from PyQt5.QtWidgets import (QAction, QApplication, QDockWidget, QFrame,
+                                 QHBoxLayout, QLabel, QMainWindow, QMenu,
+                                 QMenuBar, QPushButton, QSplitter, QStatusBar,
+                                 QTabWidget, QToolBar, QVBoxLayout, QWidget)
     PYQT5_AVAILABLE = True
 except ImportError:
     print("⚠️ PyQt5 not available - using fallback mode")
@@ -1113,7 +1112,8 @@ class QuantumAppController(QMainWindow if PYQT5_AVAILABLE else object):
     
     def create_embedded_app_widget(self, app_name: str, app_function) -> QWidget:
         """Create widget that embeds the actual running application"""
-        from PyQt5.QtWidgets import QTextEdit, QVBoxLayout, QHBoxLayout, QPushButton
+        from PyQt5.QtWidgets import (QHBoxLayout, QPushButton, QTextEdit,
+                                     QVBoxLayout)
         
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -1298,7 +1298,7 @@ class QuantumAppController(QMainWindow if PYQT5_AVAILABLE else object):
         """Update system information display"""
         try:
             import psutil
-            
+
             # Update CPU usage
             cpu_percent = psutil.cpu_percent(interval=0.1)
             self.cpu_label.setText(f"⚡ CPU: {cpu_percent:.1f}%")

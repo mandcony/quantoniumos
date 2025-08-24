@@ -9,6 +9,7 @@ that satisfies cryptographic reviewers.
 import math
 from typing import Dict
 
+
 class TightBoundAnalysis:
     """
     Rigorous error analysis for all approximations in security proofs.

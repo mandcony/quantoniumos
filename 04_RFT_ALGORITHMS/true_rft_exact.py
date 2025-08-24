@@ -3,12 +3,25 @@
 True Resonance Fourier Transform: Exact Implementation === This implements the RFT exactly as specified: R = Σ_i w_i D_φi C_σi D_φi† where: - C_σi is a Gaussian correlation kernel (Hermitian PSD) - D_φi applies phase modulation - w_i are weights The RFT basis Ψ is the eigenvector matrix of R: R = Ψ Λ Ψ† Transform: X = Ψ† x NO BULLSHIT - just exactly what you asked for.
 """
 
-import numpy as np
-import math from typing
-import Dict, Any, List, Tuple
 import json
+import math
+import os
+import sys
+import typing
+from pathlib import Path
 
-# Golden ratio PHI = (1.0 + math.sqrt(5.0)) / 2.0
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.append(str(project_root))
+
+import Any
+import Dict
+import List
+import numpy as np
+import Tuple
+
+# Golden ratio 
+PHI = (1.0 + math.sqrt(5.0)) / 2.0
 
 class TrueResonanceFourierTransform: """
     The ACTUAL Resonance Fourier Transform R = Σ_i w_i D_φi C_σi D_φi† Eigendecompose: R = Ψ Λ Ψ† Transform: X = Ψ† x
@@ -265,4 +278,49 @@ class TrueResonanceFourierTransform: """
         print(f"\n📄 Results saved to 'true_rft_results.json'")
         return all_results
 
-if __name__ == "__main__": results = demonstrate_true_rft()
+if __name__ == "__main__": 
+    results = demonstrate_true_rft()
+    
+    # Run validation tests if requested
+    if "--validate" in sys.argv:
+        def run_validation_tests():
+            """Run validation tests for the TrueResonanceFourierTransform"""
+            try:
+                # Import validation modules
+                sys.path.append(str(Path(__file__).parent.parent))
+                import importlib
+                
+                validators = [
+                    "02_CORE_VALIDATORS.validate_energy_conservation",
+                    "02_CORE_VALIDATORS.true_rft_patent_validator",
+                    "02_CORE_VALIDATORS.basic_scientific_validator"
+                ]
+                
+                results = {}
+                for validator in validators:
+                    try:
+                        module = importlib.import_module(validator)
+                        if hasattr(module, "run_validation"):
+                            print(f"Running validator: {validator}")
+                            results[validator] = module.run_validation()
+                        elif hasattr(module, "main"):
+                            print(f"Running validator: {validator}")
+                            results[validator] = module.main()
+                        else:
+                            print(f"Validator {validator} has no run_validation() or main() function")
+                    except Exception as e:
+                        print(f"Error running validator {validator}: {e}")
+                
+                return results
+            except Exception as e:
+                print(f"Error running validation tests: {e}")
+                return {"status": "ERROR", "message": str(e)}
+        
+        print("\nRunning validation tests...")
+        validation_results = run_validation_tests()
+        print("\nValidation Results:")
+        for validator, result in validation_results.items():
+            if isinstance(result, dict) and "status" in result:
+                print(f"  {validator.split('.')[-1]}: {result['status']}")
+            else:
+                print(f"  {validator.split('.')[-1]}: {result}")

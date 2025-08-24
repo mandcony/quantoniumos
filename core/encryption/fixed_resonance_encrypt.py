@@ -5,9 +5,10 @@ RESEARCH ONLY: This implementation is for educational and research purposes only
 Not intended for production cryptographic applications.
 """
 
-import secrets
 import hashlib
+import secrets
 from typing import Union
+
 
 def generate_keystream(seed: bytes, length: int, max_chunk_size: int = 1024*1024) -> bytes:
     """Generate keystream in chunks for better memory usage"""

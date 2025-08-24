@@ -10,15 +10,17 @@ tools for detecting timing, cache, power, and electromagnetic side-channel
 leaks in the C++ implementation.
 """
 
+import ctypes
+import json
 import os
 import re
-import numpy as np
-import matplotlib.pyplot as plt
-from typing import Dict, List, Optional
-import json
 import time
-import ctypes
 from datetime import datetime
+from typing import Dict, List, Optional
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 class CppSourceFile:
     """Class representing aC++ source file for analysis"""

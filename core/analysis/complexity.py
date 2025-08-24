@@ -8,12 +8,14 @@ The analysis justifies the claimed O(N log phi) complexity for core operations,
 where phi = (1 + sqrt5)/2 represents the golden ratio.
 """
 
-import numpy as np
+from typing import Callable, List
+
 import matplotlib.pyplot as plt
-from typing import List, Callable
+import numpy as np
 
 # Define the golden ratio phi
 PHI = (1 + 5**0.5) / 2  # phi = (1 + sqrt5)/2 (exact golden ratio)
+
 
 class ComplexityAnalysis:
     """Base class for algorithmic complexity analysis"""
@@ -23,18 +25,22 @@ class ComplexityAnalysis:
         self.theoretical_bounds = {}
         self.empirical_data = {}
 
-    def add_theoretical_bound(self, operation: str, time_complexity: str, space_complexity: str):
+    def add_theoretical_bound(
+        self, operation: str, time_complexity: str, space_complexity: str
+    ):
         """Add theoretical complexity bounds for an operation"""
         self.theoretical_bounds[operation] = {
             "time_complexity": time_complexity,
-            "space_complexity": space_complexity
+            "space_complexity": space_complexity,
         }
 
-    def add_empirical_data(self, operation: str, input_sizes: List[int], execution_times: List[float]):
+    def add_empirical_data(
+        self, operation: str, input_sizes: List[int], execution_times: List[float]
+    ):
         """Add empirical data points for validation"""
         self.empirical_data[operation] = {
             "input_sizes": input_sizes,
-            "execution_times": execution_times
+            "execution_times": execution_times,
         }
 
     def validate_complexity(self, operation: str, fit_function: Callable):
@@ -63,12 +69,17 @@ class ComplexityAnalysis:
         # Calculate R-squared value
         residuals = execution_times - fit_function(input_sizes, *params)
         ss_res = np.sum(residuals**2)
-        ss_tot = np.sum((execution_times - np.mean(execution_times))**2)
+        ss_tot = np.sum((execution_times - np.mean(execution_times)) ** 2)
         r_squared = 1 - (ss_res / ss_tot)
 
         return params, r_squared
 
-    def plot_complexity(self, operation: str, fit_function: Callable = None, fit_params: List[float] = None):
+    def plot_complexity(
+        self,
+        operation: str,
+        fit_function: Callable = None,
+        fit_params: List[float] = None,
+    ):
         """
         Plot empirical data and theoretical complexity function
 
@@ -101,6 +112,7 @@ class ComplexityAnalysis:
         plt.savefig(f"docs/complexity_{self.algorithm_name}_{operation}.png")
         plt.close()
 
+
 class ResonanceEncryptionComplexity(ComplexityAnalysis):
     """Complexity analysis for Resonance Encryption"""
 
@@ -109,19 +121,15 @@ class ResonanceEncryptionComplexity(ComplexityAnalysis):
 
         # Add theoretical complexity bounds
         self.add_theoretical_bound(
-            "encryption",
-            time_complexity="O(N log phi)",
-            space_complexity="O(N)"
+            "encryption", time_complexity="O(N log phi)", space_complexity="O(N)"
         )
         self.add_theoretical_bound(
-            "decryption",
-            time_complexity="O(N log phi)",
-            space_complexity="O(N)"
+            "decryption", time_complexity="O(N log phi)", space_complexity="O(N)"
         )
         self.add_theoretical_bound(
             "key_generation",
             time_complexity="O(log N * log phi)",
-            space_complexity="O(log N)"
+            space_complexity="O(log N)",
         )
 
         # Add mathematical proof of the N log phi complexity
@@ -205,6 +213,7 @@ class ResonanceEncryptionComplexity(ComplexityAnalysis):
         plt.savefig("docs/complexity_comparison.png")
         plt.close()
 
+
 class GeometricWaveformHashComplexity(ComplexityAnalysis):
     """Complexity analysis for Geometric Waveform Hash"""
 
@@ -213,14 +222,10 @@ class GeometricWaveformHashComplexity(ComplexityAnalysis):
 
         # Add theoretical complexity bounds
         self.add_theoretical_bound(
-            "hash_computation",
-            time_complexity="O(N log phi)",
-            space_complexity="O(N)"
+            "hash_computation", time_complexity="O(N log phi)", space_complexity="O(N)"
         )
         self.add_theoretical_bound(
-            "verification",
-            time_complexity="O(log phi)",
-            space_complexity="O(1)"
+            "verification", time_complexity="O(log phi)", space_complexity="O(1)"
         )
 
         # Add mathematical proof of the hash complexity
@@ -270,10 +275,11 @@ class GeometricWaveformHashComplexity(ComplexityAnalysis):
         # through the hash function and affect the output
         # Quantum algorithm complexity analysis
         return {
-            'grover_speedup': np.sqrt(n),
-            'shor_applicable': False,  # RFT is not RSA/ECC based
-            'quantum_advantage': 'Limited to search problems'
+            "grover_speedup": np.sqrt(n),
+            "shor_applicable": False,  # RFT is not RSA/ECC based
+            "quantum_advantage": "Limited to search problems",
         }
+
 
 class SystemSchedulerComplexity(ComplexityAnalysis):
     """Complexity analysis for QuantoniumOS Scheduler"""
@@ -283,19 +289,15 @@ class SystemSchedulerComplexity(ComplexityAnalysis):
 
         # Add theoretical complexity bounds
         self.add_theoretical_bound(
-            "task_scheduling",
-            time_complexity="O(N log phi)",
-            space_complexity="O(N)"
+            "task_scheduling", time_complexity="O(N log phi)", space_complexity="O(N)"
         )
         self.add_theoretical_bound(
             "resource_allocation",
             time_complexity="O(N log phi)",
-            space_complexity="O(N)"
+            space_complexity="O(N)",
         )
         self.add_theoretical_bound(
-            "priority_computation",
-            time_complexity="O(log N)",
-            space_complexity="O(1)"
+            "priority_computation", time_complexity="O(log N)", space_complexity="O(1)"
         )
 
         # Add mathematical proof of the scheduler complexity
@@ -336,6 +338,7 @@ class SystemSchedulerComplexity(ComplexityAnalysis):
     def fit_function_scheduler(self, n, a, b):
         """Model function for scheduler complexity"""
         return a * n * np.log(PHI) + b
+
 
 def validate_n_log_phi_complexity():
     """Validate the O(N log phi) complexity claim with empirical data"""

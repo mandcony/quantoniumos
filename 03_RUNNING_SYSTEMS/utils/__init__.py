@@ -1,7 +1,8 @@
 """
-Utilities package for QuantoniumOS Flask application
+QuantoniumOS Utils Package
+
+Utility functions and helper modules for QuantoniumOS
+running systems and applications.
 """
 
-from .json_logger import setup_json_logger, log_api_request, log_rft_operation, log_error, default_logger
-
-__all__ = ['setup_json_logger', 'log_api_request', 'log_rft_operation', 'log_error', 'default_logger']
+__version__ = "1.0.0"

@@ -1,12 +1,13 @@
-import numpy as np
 import random
+
+import numpy as np
 
 
 class MultiQubitState:
     def __init__(self, num_qubits):
         """Initializes a quantum state with n qubits in |0> state."""
         self.num_qubits = num_qubits
-        self.size = 2 ** num_qubits  # 2^num_qubits possible states
+        self.size = 2**num_qubits  # 2^num_qubits possible states
         self.state_vector = np.zeros(self.size, dtype=complex)
         self.state_vector[0] = 1.0  # |000...0> initial state
 
@@ -21,7 +22,10 @@ class MultiQubitState:
         for i in range(self.size):
             if (i >> control) & 1:  # If control qubit is 1
                 flip_index = i ^ (1 << target)  # Flip the target qubit
-                new_state[flip_index], new_state[i] = self.state_vector[i], self.state_vector[flip_index]
+                new_state[flip_index], new_state[i] = (
+                    self.state_vector[i],
+                    self.state_vector[flip_index],
+                )
         self.state_vector = new_state
 
     def apply_x(self, target):
@@ -32,13 +36,19 @@ class MultiQubitState:
     def apply_single_qubit_gate(self, gate, target):
         """Applies a single-qubit gate to the target qubit."""
         new_state = np.copy(self.state_vector)
-        step = 2 ** target
+        step = 2**target
         for i in range(0, self.size, step * 2):
             for j in range(step):
                 i0 = i + j
                 i1 = i0 + step
-                new_state[i0] = gate[0, 0] * self.state_vector[i0] + gate[0, 1] * self.state_vector[i1]
-                new_state[i1] = gate[1, 0] * self.state_vector[i0] + gate[1, 1] * self.state_vector[i1]
+                new_state[i0] = (
+                    gate[0, 0] * self.state_vector[i0]
+                    + gate[0, 1] * self.state_vector[i1]
+                )
+                new_state[i1] = (
+                    gate[1, 0] * self.state_vector[i0]
+                    + gate[1, 1] * self.state_vector[i1]
+                )
         self.state_vector = new_state
 
     def measure_all(self):
@@ -52,7 +62,10 @@ class MultiQubitState:
 
     def get_amplitudes(self):
         """Returns the symbolic amplitude representation of the state."""
-        return [f"{np.round(amp.real, 3)} + {np.round(amp.imag, 3)}i" for amp in self.state_vector]
+        return [
+            f"{np.round(amp.real, 3)} + {np.round(amp.imag, 3)}i"
+            for amp in self.state_vector
+        ]
 
 
 # TESTING MULTI-QUBIT STATE SYSTEM
@@ -75,4 +88,4 @@ if __name__ == "__main__":
     measurement_result = q_state.measure_all()
     print("\nMeasurement result:", measurement_result)
     print("State after measurement:")
-    print(q_state.get_amplitudes()) 
+    print(q_state.get_amplitudes())

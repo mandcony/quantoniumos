@@ -9,7 +9,7 @@ import logging
 import math
 import os
 import sys
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 # Try to import the HPC backend modules
 try:
@@ -21,6 +21,7 @@ try:
 
     # Annotate with type ignore for mypy
     from core.python_bindings import quantum_os  # type: ignore
+
     HPC_BACKEND_LOADED = True
     logger = logging.getLogger("ccp_engine")
     logger.info("✅ HPC quantum_os module loaded successfully")
@@ -30,7 +31,10 @@ except ImportError:
     logger = logging.getLogger("ccp_engine")
     logger.warning("⚠️ HPC quantum_os module not found, using fallback implementation")
 
-def run_ccp_expansion(waveform_array: List[float], resonance_matrix: List[List[float]]) -> Dict[str, Any]:
+
+def run_ccp_expansion(
+    waveform_array: List[float], resonance_matrix: List[List[float]]
+) -> Dict[str, Any]:
     """
     Apply CCP expansion to the waveform using the resonance matrix.
     If HPC backend is available, uses optimized C++ implementation.
@@ -58,6 +62,7 @@ def run_ccp_expansion(waveform_array: List[float], resonance_matrix: List[List[f
         result.append(math.sin(val) * 0.5 + 0.5)
 
     return result
+
 
 def apply_resonance_filter(coefficients: List[float]) -> List[float]:
     """
@@ -89,7 +94,7 @@ def apply_resonance_filter(coefficients: List[float]) -> List[float]:
         # Compute weighted average
         window = coefficients[start:end]
         weights = [0.25, 0.5, 0.25]  # Simple low-pass filter weights
-        weights = weights[:(end-start)]  # Adjust weights for edge cases
+        weights = weights[: (end - start)]  # Adjust weights for edge cases
 
         # Normalize weights
         weight_sum = sum(weights)

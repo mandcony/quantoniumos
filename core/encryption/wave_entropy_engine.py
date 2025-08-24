@@ -5,9 +5,9 @@ This module implements a quantum-inspired entropy engine using waveform dynamics
 to generate high-quality entropy for cryptographic applications.
 """
 
+import logging
 import math
 import os
-import logging
 
 try:
     from core.encryption.wave_primitives import WaveNumber

@@ -2,9 +2,9 @@
 """
 Build script for True RFT Engine - Symbolic Resonance Kernel
 """
+import pybind11
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
-import pybind11
 
 ext_modules = [
     Pybind11Extension(

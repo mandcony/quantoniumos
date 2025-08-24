@@ -3,11 +3,21 @@
 Canonical Resonance Fourier Transform (RFT) Implementation === This module implements the formally defined Resonance Fourier Transform with explicit analytic kernels, resonance operator diagonalization, and transform laws. Based on the development Sierpinski fractal construction that achieved 80.3% distinctness from existing transforms at N=256.
 """
 
+import abc
+import dataclasses
+import math
+import typing
+
+import ABC
+import abstractmethod
+import Any
+import dataclass
+import Dict
+import List
 import numpy as np
-import math from typing
-import Dict, Any, List, Tuple, Optional, Union from dataclasses
-import dataclass from abc
-import ABC, abstractmethod
+import Optional
+import Tuple
+import Union
 
 # Golden ratio constant PHI = (1.0 + math.sqrt(5.0)) / 2.0 @dataclass
 
@@ -406,10 +416,17 @@ if __name__ == "__main__":
 # Run migration to canonical RFT migration_results = migrate_to_canonical_rft()
 
 # Save results
-import json with open('canonical_rft_migration_results.json', 'w') as f:
+import json
 
-# Convert numpy arrays to lists for JSON serialization
-def serialize_numpy(obj):
+import 'canonical_rft_migration_results.json'
+import 'w' as f:  # Convert numpy arrays to lists for JSON serialization
+import :
+import def
+import obj
+import open
+import serialize_numpy
+import with
+
         if isinstance(obj, np.ndarray):
         return obj.tolist()
         el

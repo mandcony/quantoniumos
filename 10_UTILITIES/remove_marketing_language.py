@@ -3,11 +3,17 @@
 while preserving: 1. Technical patent claims and references (US 19/169,399) 2. Functional code and mathematical content 3. Scientific accuracy and data integrity Target removals: - "quantum processing", "topological processing", "", "methodological change" - Marketing emojis and excessive punctuation - Hype language
 while keeping factual claims """
 
+import json
 import os
+import pathlib
 import re
-import json from typing
-import Dict, List, Tuple from pathlib
+import typing
+
+import Dict
+import List
 import Path
+import Tuple
+
 
 class ScientificLanguageCleaner:
     def __init__(self, repo_path: str):

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-import enhanced_rft_crypto
+import secrets
 import struct
 import time
-import secrets
+
+import enhanced_rft_crypto
+
 
 class FixedRFTCryptoV2: """
     Wrapper for enhanced RFT crypto v2 with proper length handling.

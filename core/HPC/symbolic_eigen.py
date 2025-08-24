@@ -6,12 +6,13 @@ Implements high-performance computing routines for symbolic eigenvector calculat
 
 import hashlib
 import logging
-from typing import Dict, Any, ByteString
+from typing import Any, ByteString, Dict
 
 # Try to import the HPC backend modules
 try:
     # Import from the proper package path
     from core.python_bindings import engine_core  # type: ignore
+
     HPC_BACKEND_LOADED = True
     logger = logging.getLogger("symbolic_eigen")
     logger.info("✅ HPC engine_core module loaded successfully")
@@ -20,6 +21,7 @@ except ImportError:
     HPC_BACKEND_LOADED = False
     logger = logging.getLogger("symbolic_eigen")
     logger.warning("⚠️ HPC engine_core module not found, using fallback implementation")
+
 
 def compute_eigenvectors(data_bytes: ByteString) -> Dict[str, Any]:
     """
@@ -42,13 +44,14 @@ def compute_eigenvectors(data_bytes: ByteString) -> Dict[str, Any]:
     # Create a simulated eigenvector from the hash
     eigen_basis = []
     for i in range(0, len(hash_bytes), 4):
-        chunk = hash_bytes[i:i+4]
+        chunk = hash_bytes[i : i + 4]
         if len(chunk) < 4:
-            chunk = chunk + b'\x00' * (4 - len(chunk))
-        value = int.from_bytes(chunk, byteorder='big') / (2**32 - 1)
+            chunk = chunk + b"\x00" * (4 - len(chunk))
+        value = int.from_bytes(chunk, byteorder="big") / (2**32 - 1)
         eigen_basis.append(value)
 
     return eigen_basis
+
 
 def transform_basis(data_bytes: ByteString, eigen_basis: Dict[str, Any]) -> ByteString:
     """
@@ -76,6 +79,7 @@ def transform_basis(data_bytes: ByteString, eigen_basis: Dict[str, Any]) -> Byte
     # Return the transformed data
     return bytes(transformed)
 
+
 def generate_eigenstate_entropy(quantum_stream: ByteString, size: int) -> ByteString:
     """
     Generate entropy using eigenstate transitions.
@@ -92,12 +96,12 @@ def generate_eigenstate_entropy(quantum_stream: ByteString, size: int) -> ByteSt
 
     # Fallback implementation (simulated eigenstate entropy)
     if isinstance(quantum_stream, str):
-        data = quantum_stream.encode('utf-8')
+        data = quantum_stream.encode("utf-8")
     elif isinstance(quantum_stream, bytes):
         data = quantum_stream
     else:
         # Convert to string and then to bytes
-        data = str(quantum_stream).encode('utf-8')
+        data = str(quantum_stream).encode("utf-8")
 
     # Generate entropy from the data
     hash_obj = hashlib.sha512(data)

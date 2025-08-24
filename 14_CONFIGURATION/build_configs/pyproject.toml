@@ -1,0 +1,235 @@
+[build-system]
+requires = ["setuptools>=64", "wheel", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantoniumos"
+description = "Quantum-Enhanced Operating System with Resonance Fourier Transform Algorithms"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "QuantoniumOS Team", email = "team@quantoniumos.org"}
+]
+maintainers = [
+    {name = "QuantoniumOS Team", email = "team@quantoniumos.org"}
+]
+keywords = [
+    "quantum",
+    "operating-system", 
+    "fourier-transform",
+    "cryptography",
+    "resonance"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research", 
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Security :: Cryptography",
+    "Topic :: System :: Operating System",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.7.0", 
+    "cryptography>=3.4.0",
+    "pydantic>=2.0.0",
+    "click>=8.0.0",
+    "rich>=13.0.0",
+    "structlog>=23.0.0",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/mandcony/quantoniumos"
+Documentation = "https://quantoniumos.readthedocs.io"
+Repository = "https://github.com/mandcony/quantoniumos.git"
+Issues = "https://github.com/mandcony/quantoniumos/issues"
+Changelog = "https://github.com/mandcony/quantoniumos/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-benchmark>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0", 
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+    "bandit[toml]>=1.7.0",
+    "pip-audit>=2.6.0",
+    "coverage[toml]>=7.0.0",
+    "detect-secrets>=1.4.0",
+]
+docs = [
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "myst-parser>=2.0.0",
+]
+gui = [
+    "PyQt5>=5.15.0; platform_system != 'Darwin'",
+    "PyQt6>=6.5.0; platform_system == 'Darwin'",
+]
+performance = [
+    "numba>=0.58.0",
+    "cython>=3.0.0",
+]
+
+[project.scripts]
+quantoniumos = "quantoniumos.cli:main"
+qos-validate = "quantoniumos.validation:main"
+qos-bench = "quantoniumos.benchmarks:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["quantoniumos*"]
+
+[tool.setuptools_scm]
+write_to = "src/quantoniumos/_version.py"
+
+# ============================================================================
+# TESTING CONFIGURATION
+# ============================================================================
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "--strict-markers", 
+    "--strict-config",
+    "--cov=quantoniumos",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+    "--cov-fail-under=60",
+]
+testpaths = ["tests"]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "benchmark: marks tests as benchmarks",
+    "crypto: marks tests as cryptographic tests",
+    "quantum: marks tests as quantum algorithm tests",
+]
+
+[tool.coverage.run]
+source = ["quantoniumos"]
+branch = true
+parallel = true
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/_version.py",
+    "*/conftest.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# ============================================================================
+# CODE QUALITY CONFIGURATION  
+# ============================================================================
+[tool.black]
+target-version = ["py39", "py310", "py311", "py312"]
+line-length = 88
+skip-string-normalization = true
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings  
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long, handled by black
+    "B008",   # do not perform function calls in argument defaults
+    "C901",   # too complex
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*" = ["B011", "B018", "RUF012"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["quantoniumos"]
+
+[tool.mypy]
+python_version = "3.9"
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+# ============================================================================
+# SECURITY CONFIGURATION
+# ============================================================================
+[tool.bandit]
+exclude_dirs = ["tests", "third_party"]
+skips = ["B101", "B601"]
+
+[tool.bandit.assert_used]
+skips = ["*_test.py", "*/test_*.py"]
+
+# ============================================================================
+# PRE-COMMIT CONFIGURATION  
+# ============================================================================
+[tool.detect-secrets]
+filters_used = [
+    {"path" = "detect_secrets.filters.allowlist.is_line_allowlisted"},
+    {"path" = "detect_secrets.filters.common.is_baseline_file"},
+    {"path" = "detect_secrets.filters.common.is_ignored_due_to_verification_policies", "min_level" = 2},
+    {"path" = "detect_secrets.filters.heuristic.is_indirect_reference"},
+    {"path" = "detect_secrets.filters.heuristic.is_likely_id_string"},
+    {"path" = "detect_secrets.filters.heuristic.is_lock_file"},
+    {"path" = "detect_secrets.filters.heuristic.is_not_alphanumeric_string"},
+    {"path" = "detect_secrets.filters.heuristic.is_potential_uuid"},
+    {"path" = "detect_secrets.filters.heuristic.is_prefixed_with_dollar_sign"},
+    {"path" = "detect_secrets.filters.heuristic.is_sequential_string"},
+    {"path" = "detect_secrets.filters.heuristic.is_swagger_file"},
+    {"path" = "detect_secrets.filters.heuristic.is_templated_secret"},
+]

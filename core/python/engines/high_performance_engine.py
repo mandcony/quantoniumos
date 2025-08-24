@@ -199,7 +199,9 @@ import hashlib
         return result except Exception as e: logger.warning(f"Quantum entropy failed, falling back: {e}")
 
         # Python fallback using numpy random
-import numpy as np np.random.seed(None)
+import None
+import np.random.seed
+import numpy as np
 
         # Use system entropy classical = np.random.random(count)
         if coherence > 0:
@@ -246,7 +248,11 @@ import numpy as np np.random.seed(None)
         Benchmark performance of available engines. Args: signal_size: Size of test signal iterations: Number of iterations for timing Returns: Performance metrics for each engine
 """
 """
-import time results = {}
+import time
+
+import =
+import results
+import {}
 
         # Generate test signal test_signal = [np.sin(2 * np.pi * i / signal_size)
         for i in range(signal_size)]

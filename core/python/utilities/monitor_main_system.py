@@ -1,11 +1,14 @@
 import time
+
 # Add project root to path for imports
 from core.quantum_link import QuantumLink
+
 
 def launch_app(app_name):
     print(f"Launching app: {app_name} (simulated)")
     time.sleep(1)
     print(f"App {app_name} launched successfully")
+
 
 def monitor_main_system():
     print("Monitoring system... Starting up!")
@@ -15,6 +18,7 @@ def monitor_main_system():
     launch_app("QuantumApp1")
     launch_app("QuantumApp2")
     print("Monitor complete.")
+
 
 if __name__ == "__main__":
     monitor_main_system()

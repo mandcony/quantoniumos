@@ -5,8 +5,9 @@ C++ RFT Engine Wrapper
 Wrapper to use the existing C++ RFT functions with the topological quantum kernel
 """
 
-import numpy as np
 import enhanced_rft_crypto_bindings
+import numpy as np
+
 
 class CppRftWrapper:
     """
@@ -35,15 +36,17 @@ class CppRftWrapper:
             # Pad data to 16-byte blocks
             padded_data = data_bytes
             while len(padded_data) % 16 != 0:
-                padded_data += b'\x00'
+                padded_data += b"\x00"
 
             # Encrypt in 16-byte blocks
             encrypted_blocks = []
             for i in range(0, len(padded_data), 16):
-                block = padded_data[i:i+16]
-                encrypted_block = enhanced_rft_crypto_bindings.encrypt_block(block, key_material)
+                block = padded_data[i : i + 16]
+                encrypted_block = enhanced_rft_crypto_bindings.encrypt_block(
+                    block, key_material
+                )
                 encrypted_blocks.append(encrypted_block)
-            return b''.join(encrypted_blocks)
+            return b"".join(encrypted_blocks)
         except Exception as e:
             print(f"C++ encryption failed: {e}")
             return data_bytes  # Return original data on failure
@@ -62,14 +65,16 @@ class CppRftWrapper:
             # Decrypt in 16-byte blocks
             decrypted_blocks = []
             for i in range(0, len(data_bytes), 16):
-                block = data_bytes[i:i+16]
+                block = data_bytes[i : i + 16]
                 if len(block) == 16:  # Only decrypt complete blocks
-                    decrypted_block = enhanced_rft_crypto_bindings.decrypt_block(block, key_material)
+                    decrypted_block = enhanced_rft_crypto_bindings.decrypt_block(
+                        block, key_material
+                    )
                     decrypted_blocks.append(decrypted_block)
-            
+
             # Remove padding
-            decrypted_data = b''.join(decrypted_blocks)
-            return decrypted_data.rstrip(b'\x00')
+            decrypted_data = b"".join(decrypted_blocks)
+            return decrypted_data.rstrip(b"\x00")
         except Exception as e:
             print(f"C++ decryption failed: {e}")
             return data_bytes  # Return original data on failure
@@ -88,11 +93,13 @@ class CppRftWrapper:
             print(f"C++ avalanche test failed: {e}")
             return False
 
+
 # Create a class that matches the expected interface
 class PyEnhancedRFTCrypto:
     """
     Interface-compatible wrapper for the C++ RFT engine
     """
+
     def __init__(self):
         self.wrapper = CppRftWrapper()
 
@@ -101,6 +108,7 @@ class PyEnhancedRFTCrypto:
 
     def decrypt(self, data_bytes: bytes, key_bytes: bytes) -> bytes:
         return self.wrapper.decrypt(data_bytes, key_bytes)
+
 
 if __name__ == "__main__":
     # Test the wrapper

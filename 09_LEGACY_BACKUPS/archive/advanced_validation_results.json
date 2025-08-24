@@ -1,1 +1,0 @@
-{ "test_results": { "perturbation_bounds": false, "correlation_immunity": false, "entropy_retention": false, "gradient_collision_search": true, "preimage_search": false, "spectral_fidelity": true, "compression_efficiency": 

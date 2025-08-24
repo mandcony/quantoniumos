@@ -1,1 +1,0 @@
-{ "verification_date": "2025-08-17", "total_scripts": 1, "successful_runs": 1, "best_distinctness": 1.0, "breakthrough_achieved": true, "transform_family_established": true, "detailed_results": { "Core RFT Mathematical Proof": { "status": "success", "distinctness": 1.0, "output_file": "rft_non_equivalence_proof.json" } } }

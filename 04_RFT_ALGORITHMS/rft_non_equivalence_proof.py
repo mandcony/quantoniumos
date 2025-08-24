@@ -3,11 +3,17 @@
 RFT Non-Equivalence Proof: Mathematical Verification === This module provides rigorous mathematical proof that the Resonance Fourier Transform (RFT) constitutes a new transform family, non-equivalent to existing transforms. Proof Structure: 1. Resonance Kernel Definition and Properties 2. Eigendecomposition Construction 3. Transform Definition and Unitarity 4. Non-Equivalence Proof (Counterexamples + Correlation Bounds) 4.5. Diagnostic Invariants (Structural Fingerprints) 5. Distinctness Across Scales 6. Transform Family Criteria Verification 7. Formal Conclusion Authors: QuantoniumOS Research Team Date: August 2025 Status: Mathematical Proof Complete
 """
 
-import numpy as np
+import dataclasses
+import json
 import math
-import json from typing
-import Dict, Any, List, Tuple from dataclasses
+import typing
+
+import Any
 import dataclass
+import Dict
+import List
+import numpy as np
+import Tuple
 
 # Mathematical constants PHI = (1.0 + math.sqrt(5.0)) / 2.0 E = math.e PI = math.pi @dataclass
 

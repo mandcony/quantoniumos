@@ -3,12 +3,23 @@
 STABLE TOPOLOGICAL QUANTUM KERNEL - PRODUCTION VERSION === Based on Patent Claims US 19/169,399 - Hybrid Computational Framework Stable implementation using your RFT equation with proper frequency scaling for oscillated wave propagation in resonance topology.
 """
 
+import time
+import typing
+
+import Any
+import Dict
+import List
 import numpy as np
-import time from typing
-import Dict, Any, List, Tuple
+import Tuple
+
 import canonical_true_rft
+
 try: from cpp_rft_wrapper
-import PyEnhancedRFTCrypto CPP_ENGINE_AVAILABLE = True
+import =
+import CPP_ENGINE_AVAILABLE
+import PyEnhancedRFTCrypto
+import True
+
 print("✅ C++ Enhanced RFT Engine loaded via wrapper")
 except ImportError: CPP_ENGINE_AVAILABLE = False
 print("⚠️ C++ Enhanced RFT Engine not available, using Python fallback")

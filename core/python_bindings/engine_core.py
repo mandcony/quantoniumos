@@ -6,14 +6,16 @@ It securely wraps the C++ engine functionality, preventing direct
 access to the proprietary algorithms from frontend components.
 """
 
-import os
 import ctypes
-import logging
 import hashlib
+import logging
+import os
 import platform
 import time
-from typing import Optional, List, Tuple
-from ctypes import c_int, c_double, c_char_p, c_uint8, c_float, POINTER, Structure
+from ctypes import (POINTER, Structure, c_char_p, c_double, c_float, c_int,
+                    c_uint8)
+from typing import List, Optional, Tuple
+
 try:
     import numpy as np
 except Exception:  # numpy is optional for fallbacks
@@ -23,36 +25,32 @@ from encryption.wave_primitives import WaveNumber
 
 logger = logging.getLogger("quantonium_os.engine")
 
+
 # Define the required C structures
 class _RFTResult(Structure):
-    _fields_ = [
-        ("bins", POINTER(c_float)),
-        ("bin_count", c_int),
-        ("hr", c_float)
-    ]
+    _fields_ = [("bins", POINTER(c_float)), ("bin_count", c_int), ("hr", c_float)]
+
 
 class _SAVector(Structure):
-    _fields_ = [
-        ("values", POINTER(c_float)),
-        ("count", c_int)
-    ]
+    _fields_ = [("values", POINTER(c_float)), ("count", c_int)]
+
 
 class _WaveNumber(Structure):
-    _fields_ = [
-        ("amplitude", c_double),
-        ("phase", c_double)
-    ]
+    _fields_ = [("amplitude", c_double), ("phase", c_double)]
+
 
 # Library singleton
 _lib = None
 _pybind_lib = None
 _initialized = False
 
+
 def _try_pybind11():
     """Try to load PyBind11 module first"""
     global _pybind_lib
     try:
         import engine_core_pybind
+
         _pybind_lib = engine_core_pybind
         logger.info("Loaded C++ engine via PyBind11")
         return True
@@ -62,6 +60,7 @@ def _try_pybind11():
     except Exception as e:
         logger.warning(f"Failed to load PyBind11 module: {e}")
         return False
+
 
 def _load_library() -> Optional[ctypes.CDLL]:
     """Attempt to load the engine core library"""
@@ -86,7 +85,7 @@ def _load_library() -> Optional[ctypes.CDLL]:
         os.path.join(os.path.dirname(__file__), "..", "..", "build"),
         os.path.join(os.path.dirname(__file__), ".."),
         os.path.dirname(__file__),
-        os.path.join(os.path.dirname(__file__), "..", "..", "attached_assets")
+        os.path.join(os.path.dirname(__file__), "..", "..", "attached_assets"),
     ]
 
     # Try to load the library
@@ -106,7 +105,9 @@ def _load_library() -> Optional[ctypes.CDLL]:
                         try:
                             # Pre-load MinGW dependencies explicitly
                             try:
-                                ctypes.CDLL(os.path.join(abs_path, "libgcc_s_seh-1.dll"))
+                                ctypes.CDLL(
+                                    os.path.join(abs_path, "libgcc_s_seh-1.dll")
+                                )
                                 ctypes.CDLL(os.path.join(abs_path, "libstdc++-6.dll"))
                             except:
                                 pass  # Dependencies might already be loaded or not needed
@@ -135,6 +136,7 @@ def _load_library() -> Optional[ctypes.CDLL]:
 
     logger.info("Engine core library not found, using fallback implementation")
     return None
+
 
 def _setup_function_signatures(lib):
     """Set up the function signatures for the C++ library"""
@@ -167,7 +169,12 @@ def _setup_function_signatures(lib):
     lib.wave_hash.restype = c_char_p
 
     # symbolic_xor
-    lib.symbolic_xor.argtypes = [POINTER(c_uint8), POINTER(c_uint8), c_int, POINTER(c_uint8)]
+    lib.symbolic_xor.argtypes = [
+        POINTER(c_uint8),
+        POINTER(c_uint8),
+        c_int,
+        POINTER(c_uint8),
+    ]
     lib.symbolic_xor.restype = c_int
 
     # generate_entropy
@@ -175,44 +182,61 @@ def _setup_function_signatures(lib):
     lib.generate_entropy.restype = c_int
 
     # symbolic_eigenvector_reduction
-    lib.symbolic_eigenvector_reduction.argtypes = [POINTER(_WaveNumber), c_int, c_double, POINTER(_WaveNumber)]
+    lib.symbolic_eigenvector_reduction.argtypes = [
+        POINTER(_WaveNumber),
+        c_int,
+        c_double,
+        POINTER(_WaveNumber),
+    ]
     lib.symbolic_eigenvector_reduction.restype = c_int
 
     # Spec-compliant RFT APIs
     lib.rft_basis_forward.argtypes = [
-        POINTER(c_double), c_int,                 # x, N
-        POINTER(c_double), c_int,                 # weights, M
-        POINTER(c_double),                        # theta0
-        POINTER(c_double),                        # omega
-        c_double, c_double,                       # sigma0, gamma
-        c_char_p,                                 # sequence_type
-        POINTER(c_double), POINTER(c_double)      # out_real, out_imag
+        POINTER(c_double),
+        c_int,  # x, N
+        POINTER(c_double),
+        c_int,  # weights, M
+        POINTER(c_double),  # theta0
+        POINTER(c_double),  # omega
+        c_double,
+        c_double,  # sigma0, gamma
+        c_char_p,  # sequence_type
+        POINTER(c_double),
+        POINTER(c_double),  # out_real, out_imag
     ]
     lib.rft_basis_forward.restype = c_int
 
     lib.rft_basis_inverse.argtypes = [
-        POINTER(c_double), POINTER(c_double),     # X_real, X_imag
-        c_int,                                    # N
-        POINTER(c_double), c_int,                 # weights, M
-        POINTER(c_double),                        # theta0
-        POINTER(c_double),                        # omega
-        c_double, c_double,                       # sigma0, gamma
-        c_char_p,                                 # sequence_type
-        POINTER(c_double)                         # out_x (real)
+        POINTER(c_double),
+        POINTER(c_double),  # X_real, X_imag
+        c_int,  # N
+        POINTER(c_double),
+        c_int,  # weights, M
+        POINTER(c_double),  # theta0
+        POINTER(c_double),  # omega
+        c_double,
+        c_double,  # sigma0, gamma
+        c_char_p,  # sequence_type
+        POINTER(c_double),  # out_x (real)
     ]
     lib.rft_basis_inverse.restype = c_int
 
     lib.rft_operator_apply.argtypes = [
-        POINTER(c_double), POINTER(c_double),     # x_real, x_imag
-        c_int,                                    # N
-        POINTER(c_double), c_int,                 # weights, M
-        POINTER(c_double),                        # theta0
-        POINTER(c_double),                        # omega
-        c_double, c_double,                       # sigma0, gamma
-        c_char_p,                                 # sequence_type
-        POINTER(c_double), POINTER(c_double)      # out_real, out_imag
+        POINTER(c_double),
+        POINTER(c_double),  # x_real, x_imag
+        c_int,  # N
+        POINTER(c_double),
+        c_int,  # weights, M
+        POINTER(c_double),  # theta0
+        POINTER(c_double),  # omega
+        c_double,
+        c_double,  # sigma0, gamma
+        c_char_p,  # sequence_type
+        POINTER(c_double),
+        POINTER(c_double),  # out_real, out_imag
     ]
     lib.rft_operator_apply.restype = c_int
+
 
 def initialize() -> bool:
     """
@@ -230,7 +254,7 @@ def initialize() -> bool:
     if _try_pybind11():
         try:
             result = _pybind_lib.engine_init()
-            _initialized = (result == 0)
+            _initialized = result == 0
             logger.info(f"Engine core initialized via PyBind11: {_initialized}")
             return _initialized
         except Exception as e:
@@ -243,7 +267,7 @@ def initialize() -> bool:
         # Call the initialization function
         try:
             result = lib.engine_init()
-            _initialized = (result == 0)
+            _initialized = result == 0
             logger.info(f"Engine core initialized: {_initialized}")
             return _initialized
         except Exception as e:
@@ -253,6 +277,7 @@ def initialize() -> bool:
     logger.info("Using fallback Python implementation")
     _initialized = True
     return True
+
 
 def finalize():
     """Clean up the engine core"""
@@ -273,6 +298,7 @@ def finalize():
             logger.error(f"Failed to finalize engine core: {e}")
 
     _initialized = False
+
 
 def rft_run(data: bytes) -> Tuple[List[float], float]:
     """
@@ -308,6 +334,7 @@ def rft_run(data: bytes) -> Tuple[List[float], float]:
     # Fallback to Python implementation
     return _fallback_rft(data)
 
+
 def rft_basis_forward(
     x: List[float],
     weights: Optional[List[float]] = None,
@@ -329,7 +356,15 @@ def rft_basis_forward(
     if _pybind_lib is None:
         _try_pybind11()
 
-    if _pybind_lib is not None and weights is None and theta0 is None and omega is None and sigma0 == 1.0 and gamma == 0.3 and sequence_type == "qpsk":
+    if (
+        _pybind_lib is not None
+        and weights is None
+        and theta0 is None
+        and omega is None
+        and sigma0 == 1.0
+        and gamma == 0.3
+        and sequence_type == "qpsk"
+    ):
         try:
             return _pybind_lib.rft_basis_forward(x)
         except Exception as e:
@@ -350,18 +385,24 @@ def rft_basis_forward(
                 w_ptr = (c_double * M)(*weights)
             th_ptr = (c_double * M)(*theta0) if (theta0 and M > 0) else None
             om_ptr = (c_double * M)(*omega) if (omega and M > 0) else None
-            seq_bytes = sequence_type.encode("utf-8") if sequence_type else b"qpsk"  # Updated default
+            seq_bytes = (
+                sequence_type.encode("utf-8") if sequence_type else b"qpsk"
+            )  # Updated default
             out_r = (c_double * N)()
             out_i = (c_double * N)()
 
             status = lib.rft_basis_forward(
-                x_arr, N,
-                w_ptr, M,
+                x_arr,
+                N,
+                w_ptr,
+                M,
                 th_ptr,
                 om_ptr,
-                c_double(sigma0), c_double(gamma),
+                c_double(sigma0),
+                c_double(gamma),
                 c_char_p(seq_bytes),
-                out_r, out_i
+                out_r,
+                out_i,
             )
             if status != 0:
                 raise RuntimeError(f"rft_basis_forward failed with status {status}")
@@ -378,6 +419,7 @@ def rft_basis_forward(
     x_np = np.asarray(x, dtype=float)
     X = np.fft.fft(x_np)
     return X.real.astype(float).tolist(), X.imag.astype(float).tolist()
+
 
 def rft_basis_inverse(
     X_real: List[float],
@@ -397,7 +439,15 @@ def rft_basis_inverse(
     if _pybind_lib is None:
         _try_pybind11()
 
-    if _pybind_lib is not None and weights is None and theta0 is None and omega is None and sigma0 == 1.0 and gamma == 0.3 and sequence_type == "qpsk":
+    if (
+        _pybind_lib is not None
+        and weights is None
+        and theta0 is None
+        and omega is None
+        and sigma0 == 1.0
+        and gamma == 0.3
+        and sequence_type == "qpsk"
+    ):
         try:
             return _pybind_lib.rft_basis_inverse(X_real, X_imag)
         except Exception as e:
@@ -417,17 +467,23 @@ def rft_basis_inverse(
                 w_ptr = (c_double * M)(*weights)
             th_ptr = (c_double * M)(*theta0) if (theta0 and M > 0) else None
             om_ptr = (c_double * M)(*omega) if (omega and M > 0) else None
-            seq_bytes = sequence_type.encode("utf-8") if sequence_type else b"qpsk"  # Updated default
+            seq_bytes = (
+                sequence_type.encode("utf-8") if sequence_type else b"qpsk"
+            )  # Updated default
             out_x = (c_double * N)()
 
             status = lib.rft_basis_inverse(
-                Xr, Xi, N,
-                w_ptr, M,
+                Xr,
+                Xi,
+                N,
+                w_ptr,
+                M,
                 th_ptr,
                 om_ptr,
-                c_double(sigma0), c_double(gamma),
+                c_double(sigma0),
+                c_double(gamma),
                 c_char_p(seq_bytes),
-                out_x
+                out_x,
             )
             if status != 0:
                 raise RuntimeError(f"rft_basis_inverse failed with status {status}")
@@ -442,6 +498,7 @@ def rft_basis_inverse(
     X = np.array(X_real, dtype=float) + 1j * np.array(X_imag, dtype=float)
     x = np.fft.ifft(X)
     return x.real.astype(float).tolist()
+
 
 def rft_operator_apply(
     x_real: List[float],
@@ -473,18 +530,25 @@ def rft_operator_apply(
                 w_ptr = (c_double * M)(*weights)
             th_ptr = (c_double * M)(*theta0) if (theta0 and M > 0) else None
             om_ptr = (c_double * M)(*omega) if (omega and M > 0) else None
-            seq_bytes = sequence_type.encode("utf-8") if sequence_type else b"golden_ratio"
+            seq_bytes = (
+                sequence_type.encode("utf-8") if sequence_type else b"golden_ratio"
+            )
             out_r = (c_double * N)()
             out_i = (c_double * N)()
 
             status = lib.rft_operator_apply(
-                xr_arr, xi_arr, N,
-                w_ptr, M,
+                xr_arr,
+                xi_arr,
+                N,
+                w_ptr,
+                M,
                 th_ptr,
                 om_ptr,
-                c_double(sigma0), c_double(gamma),
+                c_double(sigma0),
+                c_double(gamma),
                 c_char_p(seq_bytes),
-                out_r, out_i
+                out_r,
+                out_i,
             )
             if status != 0:
                 raise RuntimeError(f"rft_operator_apply failed with status {status}")
@@ -494,6 +558,7 @@ def rft_operator_apply(
 
     # Fallback: identity
     return xr[:], xi[:]
+
 
 def _fallback_rft(data: bytes) -> Tuple[List[float], float]:
     """Fallback Python implementation of RFT"""
@@ -517,6 +582,7 @@ def _fallback_rft(data: bytes) -> Tuple[List[float], float]:
         hr = max(bins) / avg if avg > 0 else 0.0
 
     return bins, hr
+
 
 def sa_compute(data: bytes) -> List[float]:
     """
@@ -551,6 +617,7 @@ def sa_compute(data: bytes) -> List[float]:
     # Fallback to Python implementation
     return _fallback_sa(data)
 
+
 def _fallback_sa(data: bytes) -> List[float]:
     """Fallback Python implementation of Symbolic Alignment"""
     values = []
@@ -567,6 +634,7 @@ def _fallback_sa(data: bytes) -> List[float]:
         values.append(min(abs(sum_val) / len(data), 1.0))
 
     return values
+
 
 def wave_hash(data: bytes) -> str:
     """
@@ -589,7 +657,7 @@ def wave_hash(data: bytes) -> str:
             result = lib.wave_hash(data, len(data))
 
             # Convert to Python string
-            hash_str = ctypes.string_at(result).decode('utf-8')
+            hash_str = ctypes.string_at(result).decode("utf-8")
 
             return hash_str
         except Exception as e:
@@ -597,6 +665,7 @@ def wave_hash(data: bytes) -> str:
 
     # Fallback to Python implementation
     return _fallback_hash(data)
+
 
 def _fallback_hash(data: bytes) -> str:
     """Fallback Python implementation of wave hash"""
@@ -608,7 +677,7 @@ def _fallback_hash(data: bytes) -> str:
     state = 0.5  # Initial state
 
     for i in range(0, len(base_hash), 2):
-        chunk = base_hash[i:i+2]
+        chunk = base_hash[i : i + 2]
         if not chunk:
             continue
 
@@ -627,7 +696,8 @@ def _fallback_hash(data: bytes) -> str:
         result.append((last * 17 + 255) % 256)
 
     # Convert to hex
-    return ''.join(f'{b:02x}' for b in result[:32])
+    return "".join(f"{b:02x}" for b in result[:32])
+
 
 def symbolic_xor(plaintext: bytes, key: bytes) -> bytes:
     """
@@ -670,6 +740,7 @@ def symbolic_xor(plaintext: bytes, key: bytes) -> bytes:
     # Fallback to Python implementation
     return _fallback_xor(plaintext, key)
 
+
 def _fallback_xor(plaintext: bytes, key: bytes) -> bytes:
     """Fallback Python implementation of symbolic XOR"""
     result = bytearray()
@@ -691,6 +762,7 @@ def _fallback_xor(plaintext: bytes, key: bytes) -> bytes:
         result.append(byte_val)
 
     return bytes(result)
+
 
 def generate_entropy(length: int) -> bytes:
     """
@@ -726,6 +798,7 @@ def generate_entropy(length: int) -> bytes:
     # Fallback to Python implementation
     return _fallback_entropy(length)
 
+
 def _fallback_entropy(length: int) -> bytes:
     """Fallback Python implementation of entropy generation"""
     import random
@@ -744,7 +817,10 @@ def _fallback_entropy(length: int) -> bytes:
     # Generate the entropy bytes
     return bytes(rng.randint(0, 255) for _ in range(length))
 
-def symbolic_eigenvector_reduction(waves: List[WaveNumber], threshold: float) -> List[WaveNumber]:
+
+def symbolic_eigenvector_reduction(
+    waves: List[WaveNumber], threshold: float
+) -> List[WaveNumber]:
     """
     Apply symbolic eigenvector reduction to a list of waves.
 
@@ -774,12 +850,15 @@ def symbolic_eigenvector_reduction(waves: List[WaveNumber], threshold: float) ->
 
             # Call the C++ function
             result_count = lib.symbolic_eigenvector_reduction(
-                wave_array, wave_count, threshold, output_array)
+                wave_array, wave_count, threshold, output_array
+            )
 
             # Convert result to WaveNumber objects
             result = []
             for i in range(result_count):
-                result.append(WaveNumber(output_array[i].amplitude, output_array[i].phase))
+                result.append(
+                    WaveNumber(output_array[i].amplitude, output_array[i].phase)
+                )
 
             return result
         except Exception as e:
@@ -788,7 +867,10 @@ def symbolic_eigenvector_reduction(waves: List[WaveNumber], threshold: float) ->
     # Fallback to Python implementation
     return _fallback_eigenvector_reduction(waves, threshold)
 
-def _fallback_eigenvector_reduction(waves: List[WaveNumber], threshold: float) -> List[WaveNumber]:
+
+def _fallback_eigenvector_reduction(
+    waves: List[WaveNumber], threshold: float
+) -> List[WaveNumber]:
     """Fallback Python implementation of symbolic eigenvector reduction"""
     filtered = []
     merged_amp = 0.0

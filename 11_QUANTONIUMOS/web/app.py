@@ -10,27 +10,29 @@ Flask-based web GUI for QuantoniumOS providing:
 - Responsive design for all devices
 """
 
-from flask import Flask, render_template, jsonify, request
-from flask_socketio import SocketIO, emit
 import json
+import sys
 import threading
 import time
-import sys
 from pathlib import Path
+
+from flask import Flask, jsonify, render_template, request
+from flask_socketio import SocketIO, emit
 
 # Add kernel path
 sys.path.insert(0, str(Path(__file__).parent.parent / "kernel"))
 
 try:
-    from quantum_vertex_kernel import QuantoniumKernel
     from patent_integration import QuantoniumOSIntegration
+    from quantum_vertex_kernel import QuantoniumKernel
+
     kernel_available = True
 except ImportError as e:
     print(f"Warning: Kernel not available: {e}")
     kernel_available = False
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'quantonium_secret_key_2025'
+app.config["SECRET_KEY"] = "quantonium_secret_key_2025"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Global quantum system instances
@@ -42,11 +44,11 @@ system_running = False
 def initialize_quantum_system():
     """Initialize QuantoniumOS backend"""
     global quantum_kernel, quantum_integration, system_running
-    
+
     if not kernel_available:
         print("⚠️ Running web interface in demo mode")
         return False
-    
+
     try:
         print("🚀 Initializing QuantoniumOS backend for web interface...")
         quantum_kernel = QuantoniumKernel()
@@ -66,161 +68,186 @@ def system_monitor_thread():
             try:
                 status = quantum_kernel.get_system_status()
                 integration_status = quantum_integration.get_integration_report()
-                
+
                 # Emit real-time data to connected clients
-                socketio.emit('system_update', {
-                    'kernel_status': status,
-                    'integration_status': integration_status,
-                    'timestamp': time.time()
-                })
-                
+                socketio.emit(
+                    "system_update",
+                    {
+                        "kernel_status": status,
+                        "integration_status": integration_status,
+                        "timestamp": time.time(),
+                    },
+                )
+
             except Exception as e:
                 print(f"Monitor error: {e}")
-        
+
         time.sleep(2)  # Update every 2 seconds
 
 
-@app.route('/')
+@app.route("/")
 def index():
     """Main QuantoniumOS web interface"""
-    return render_template('index.html')
+    return render_template("index.html")
 
 
-@app.route('/api/status')
+@app.route("/api/status")
 def api_status():
     """Get system status via API"""
     if quantum_kernel and system_running:
         status = quantum_kernel.get_system_status()
         integration = quantum_integration.get_integration_report()
-        return jsonify({
-            'success': True,
-            'kernel': status,
-            'integration': integration,
-            'system_running': True
-        })
+        return jsonify(
+            {
+                "success": True,
+                "kernel": status,
+                "integration": integration,
+                "system_running": True,
+            }
+        )
     else:
-        return jsonify({
-            'success': False,
-            'message': 'Quantum kernel offline',
-            'system_running': False
-        })
+        return jsonify(
+            {
+                "success": False,
+                "message": "Quantum kernel offline",
+                "system_running": False,
+            }
+        )
 
 
-@app.route('/api/spawn_process', methods=['POST'])
+@app.route("/api/spawn_process", methods=["POST"])
 def api_spawn_process():
     """Spawn quantum process via API"""
     if not quantum_kernel or not system_running:
-        return jsonify({'success': False, 'message': 'Quantum kernel offline'})
-    
+        return jsonify({"success": False, "message": "Quantum kernel offline"})
+
     data = request.get_json()
-    vertex_id = data.get('vertex_id', 0)
-    priority = data.get('priority', 1)
-    
+    vertex_id = data.get("vertex_id", 0)
+    priority = data.get("priority", 1)
+
     try:
         pid = quantum_kernel.spawn_quantum_process(vertex_id, priority)
-        return jsonify({
-            'success': True,
-            'pid': pid,
-            'vertex_id': vertex_id,
-            'message': f'Process {pid} spawned on vertex {vertex_id}'
-        })
+        return jsonify(
+            {
+                "success": True,
+                "pid": pid,
+                "vertex_id": vertex_id,
+                "message": f"Process {pid} spawned on vertex {vertex_id}",
+            }
+        )
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({"success": False, "message": str(e)})
 
 
-@app.route('/api/apply_gate', methods=['POST'])
+@app.route("/api/apply_gate", methods=["POST"])
 def api_apply_gate():
     """Apply quantum gate via API"""
     if not quantum_kernel or not system_running:
-        return jsonify({'success': False, 'message': 'Quantum kernel offline'})
-    
+        return jsonify({"success": False, "message": "Quantum kernel offline"})
+
     data = request.get_json()
-    vertex_id = data.get('vertex_id', 0)
-    gate = data.get('gate', 'H')
-    
+    vertex_id = data.get("vertex_id", 0)
+    gate = data.get("gate", "H")
+
     try:
         success = quantum_kernel.apply_quantum_gate(vertex_id, gate)
-        return jsonify({
-            'success': success,
-            'vertex_id': vertex_id,
-            'gate': gate,
-            'message': f'{gate} gate applied to vertex {vertex_id}' if success else 'Gate application failed'
-        })
+        return jsonify(
+            {
+                "success": success,
+                "vertex_id": vertex_id,
+                "gate": gate,
+                "message": f"{gate} gate applied to vertex {vertex_id}"
+                if success
+                else "Gate application failed",
+            }
+        )
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({"success": False, "message": str(e)})
 
 
-@app.route('/api/evolve_system', methods=['POST'])
+@app.route("/api/evolve_system", methods=["POST"])
 def api_evolve_system():
     """Evolve quantum system via API"""
     if not quantum_kernel or not system_running:
-        return jsonify({'success': False, 'message': 'Quantum kernel offline'})
-    
+        return jsonify({"success": False, "message": "Quantum kernel offline"})
+
     data = request.get_json()
-    steps = data.get('steps', 5)
-    
+    steps = data.get("steps", 5)
+
     try:
+
         def evolve():
             quantum_kernel.evolve_quantum_system(time_steps=steps)
-        
+
         threading.Thread(target=evolve, daemon=True).start()
-        return jsonify({
-            'success': True,
-            'steps': steps,
-            'message': f'System evolution started ({steps} steps)'
-        })
+        return jsonify(
+            {
+                "success": True,
+                "steps": steps,
+                "message": f"System evolution started ({steps} steps)",
+            }
+        )
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({"success": False, "message": str(e)})
 
 
-@app.route('/api/enhance_vertex', methods=['POST'])
+@app.route("/api/enhance_vertex", methods=["POST"])
 def api_enhance_vertex():
     """Enhance vertex with patent technologies via API"""
     if not quantum_integration or not system_running:
-        return jsonify({'success': False, 'message': 'Integration layer offline'})
-    
+        return jsonify({"success": False, "message": "Integration layer offline"})
+
     data = request.get_json()
-    vertex_id = data.get('vertex_id', 0)
-    
+    vertex_id = data.get("vertex_id", 0)
+
     try:
         if vertex_id not in quantum_kernel.vertices:
-            return jsonify({'success': False, 'message': f'Vertex {vertex_id} does not exist'})
-        
+            return jsonify(
+                {"success": False, "message": f"Vertex {vertex_id} does not exist"}
+            )
+
         vertex = quantum_kernel.vertices[vertex_id]
         vertex_state = vertex.alpha + 1j * vertex.beta
-        
-        enhanced = quantum_integration.enhance_vertex_with_patents(vertex_state, vertex_id)
-        
-        return jsonify({
-            'success': True,
-            'vertex_id': vertex_id,
-            'enhancement': enhanced,
-            'message': f'Vertex {vertex_id} enhanced with patent technologies'
-        })
+
+        enhanced = quantum_integration.enhance_vertex_with_patents(
+            vertex_state, vertex_id
+        )
+
+        return jsonify(
+            {
+                "success": True,
+                "vertex_id": vertex_id,
+                "enhancement": enhanced,
+                "message": f"Vertex {vertex_id} enhanced with patent technologies",
+            }
+        )
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({"success": False, "message": str(e)})
 
 
-@socketio.on('connect')
+@socketio.on("connect")
 def handle_connect():
     """Handle WebSocket connection"""
-    print('Client connected to QuantoniumOS web interface')
-    emit('connection_status', {'status': 'connected', 'message': 'Welcome to QuantoniumOS!'})
+    print("Client connected to QuantoniumOS web interface")
+    emit(
+        "connection_status",
+        {"status": "connected", "message": "Welcome to QuantoniumOS!"},
+    )
 
 
-@socketio.on('disconnect')
+@socketio.on("disconnect")
 def handle_disconnect():
     """Handle WebSocket disconnection"""
-    print('Client disconnected from QuantoniumOS web interface')
+    print("Client disconnected from QuantoniumOS web interface")
 
 
 def create_templates():
     """Create HTML templates for the web interface"""
-    templates_dir = Path(__file__).parent / 'templates'
+    templates_dir = Path(__file__).parent / "templates"
     templates_dir.mkdir(exist_ok=True)
-    
+
     # Main HTML template
-    html_content = '''<!DOCTYPE html>
+    html_content = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -673,9 +700,9 @@ def create_templates():
         });
     </script>
 </body>
-</html>'''
-    
-    with open(templates_dir / 'index.html', 'w') as f:
+</html>"""
+
+    with open(templates_dir / "index.html", "w") as f:
         f.write(html_content)
 
 
@@ -684,23 +711,23 @@ def main():
     print("🌐 LAUNCHING QUANTONIUMOS WEB INTERFACE")
     print("🎯 1000-Qubit Quantum Operating System")
     print("=" * 50)
-    
+
     # Create templates
     create_templates()
-    
+
     # Initialize quantum system
     initialize_quantum_system()
-    
+
     # Start system monitor thread
     monitor_thread = threading.Thread(target=system_monitor_thread, daemon=True)
     monitor_thread.start()
-    
+
     # Start web server
     print("🌐 Starting web server on http://localhost:5000")
     print("🔗 Open your browser to access QuantoniumOS")
-    
+
     try:
-        socketio.run(app, host='0.0.0.0', port=5000, debug=False)
+        socketio.run(app, host="0.0.0.0", port=5000, debug=False)
     except KeyboardInterrupt:
         print("\n🔄 QuantoniumOS web interface shutdown")
     except Exception as e:

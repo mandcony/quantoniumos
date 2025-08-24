@@ -12,271 +12,290 @@ Modern React-style web interface with:
 """
 
 import json
-import time
-import threading
 import math
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
 import socketserver
-from pathlib import Path
 import sys
+import threading
+import time
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 # Add kernel path
 sys.path.insert(0, str(Path(__file__).parent.parent / "kernel"))
 
 try:
-    from quantum_vertex_kernel import QuantoniumKernel
     from patent_integration import QuantoniumOSIntegration
+    from quantum_vertex_kernel import QuantoniumKernel
+
     kernel_available = True
 except ImportError as e:
     print(f"Warning: Kernel not available: {e}")
     kernel_available = False
 
+
 class QuantumWebServer(SimpleHTTPRequestHandler):
     """Enhanced web server for QuantoniumOS Phase 2"""
-    
+
     def __init__(self, *args, quantum_system=None, **kwargs):
         self.quantum_system = quantum_system
         super().__init__(*args, **kwargs)
-    
+
     def do_GET(self):
         """Handle GET requests"""
         parsed_path = urlparse(self.path)
-        
-        if parsed_path.path == '/':
+
+        if parsed_path.path == "/":
             self.serve_main_interface()
-        elif parsed_path.path == '/api/quantum/status':
+        elif parsed_path.path == "/api/quantum/status":
             self.serve_quantum_status()
-        elif parsed_path.path == '/api/quantum/vertices':
+        elif parsed_path.path == "/api/quantum/vertices":
             self.serve_vertex_data()
-        elif parsed_path.path == '/api/patents/list':
+        elif parsed_path.path == "/api/patents/list":
             self.serve_patent_list()
-        elif parsed_path.path.startswith('/api/'):
+        elif parsed_path.path.startswith("/api/"):
             self.serve_api_endpoint(parsed_path)
         else:
             # Serve static files
             super().do_GET()
-    
+
     def do_POST(self):
         """Handle POST requests"""
         parsed_path = urlparse(self.path)
-        content_length = int(self.headers['Content-Length'])
+        content_length = int(self.headers["Content-Length"])
         post_data = self.rfile.read(content_length)
-        
+
         try:
-            data = json.loads(post_data.decode('utf-8'))
+            data = json.loads(post_data.decode("utf-8"))
         except:
             data = {}
-        
-        if parsed_path.path == '/api/quantum/spawn_process':
+
+        if parsed_path.path == "/api/quantum/spawn_process":
             self.handle_spawn_process(data)
-        elif parsed_path.path == '/api/quantum/apply_gate':
+        elif parsed_path.path == "/api/quantum/apply_gate":
             self.handle_apply_gate(data)
-        elif parsed_path.path == '/api/quantum/evolve':
+        elif parsed_path.path == "/api/quantum/evolve":
             self.handle_evolve_system(data)
-        elif parsed_path.path == '/api/patents/demo':
+        elif parsed_path.path == "/api/patents/demo":
             self.handle_patent_demo(data)
         else:
             self.send_error(404, "API endpoint not found")
-    
+
     def serve_main_interface(self):
         """Serve the main QuantoniumOS interface"""
         html_content = self.generate_main_interface()
         self.send_response(200)
-        self.send_header('Content-type', 'text/html')
+        self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write(html_content.encode())
-    
+
     def serve_quantum_status(self):
         """Serve quantum system status"""
         if self.quantum_system and self.quantum_system.kernel:
             status = self.quantum_system.kernel.get_system_status()
-            integration_status = self.quantum_system.integration.get_integration_report()
-            
+            integration_status = (
+                self.quantum_system.integration.get_integration_report()
+            )
+
             response = {
-                'success': True,
-                'kernel': status,
-                'integration': integration_status,
-                'timestamp': time.time()
+                "success": True,
+                "kernel": status,
+                "integration": integration_status,
+                "timestamp": time.time(),
             }
         else:
             response = {
-                'success': False,
-                'message': 'Quantum system offline',
-                'timestamp': time.time()
+                "success": False,
+                "message": "Quantum system offline",
+                "timestamp": time.time(),
             }
-        
+
         self.send_json_response(response)
-    
+
     def serve_vertex_data(self):
         """Serve vertex network data for 3D visualization"""
         if not self.quantum_system or not self.quantum_system.kernel:
-            self.send_json_response({'success': False, 'message': 'Kernel offline'})
+            self.send_json_response({"success": False, "message": "Kernel offline"})
             return
-        
+
         # Generate vertex data for 3D visualization
         vertices = []
-        for vid, vertex in list(self.quantum_system.kernel.vertices.items())[:100]:  # Limit for performance
+        for vid, vertex in list(self.quantum_system.kernel.vertices.items())[
+            :100
+        ]:  # Limit for performance
             vertex_data = {
-                'id': vid,
-                'position': vertex.position.tolist() if hasattr(vertex, 'position') else [vid % 32, vid // 32, 0],
-                'alpha': float(vertex.alpha.real),
-                'beta': float(vertex.beta.real),
-                'alpha_imag': float(vertex.alpha.imag),
-                'beta_imag': float(vertex.beta.imag),
-                'processes': len([p for p in vertex.processes if p.state == 'running']),
-                'neighbors': vertex.neighbors[:4]  # Limit neighbors for JSON size
+                "id": vid,
+                "position": vertex.position.tolist()
+                if hasattr(vertex, "position")
+                else [vid % 32, vid // 32, 0],
+                "alpha": float(vertex.alpha.real),
+                "beta": float(vertex.beta.real),
+                "alpha_imag": float(vertex.alpha.imag),
+                "beta_imag": float(vertex.beta.imag),
+                "processes": len([p for p in vertex.processes if p.state == "running"]),
+                "neighbors": vertex.neighbors[:4],  # Limit neighbors for JSON size
             }
             vertices.append(vertex_data)
-        
+
         response = {
-            'success': True,
-            'vertices': vertices,
-            'total_vertices': len(self.quantum_system.kernel.vertices),
-            'timestamp': time.time()
+            "success": True,
+            "vertices": vertices,
+            "total_vertices": len(self.quantum_system.kernel.vertices),
+            "timestamp": time.time(),
         }
-        
+
         self.send_json_response(response)
-    
+
     def serve_patent_list(self):
         """Serve list of available patent demonstrations"""
         patents = [
             {
-                'id': 'rft_analyzer',
-                'name': 'RFT Frequency Analyzer',
-                'description': 'Real-time Resonant Frequency Transform analysis',
-                'category': 'signal_processing',
-                'status': 'active'
+                "id": "rft_analyzer",
+                "name": "RFT Frequency Analyzer",
+                "description": "Real-time Resonant Frequency Transform analysis",
+                "category": "signal_processing",
+                "status": "active",
             },
             {
-                'id': 'quantum_crypto',
-                'name': 'Quantum Cryptography Suite',
-                'description': 'Quantum-safe encryption and key generation',
-                'category': 'cryptography',
-                'status': 'active'
+                "id": "quantum_crypto",
+                "name": "Quantum Cryptography Suite",
+                "description": "Quantum-safe encryption and key generation",
+                "category": "cryptography",
+                "status": "active",
             },
             {
-                'id': 'vertex_entanglement',
-                'name': 'Vertex Entanglement Engine',
-                'description': 'Generate and manage quantum entanglement',
-                'category': 'quantum_mechanics',
-                'status': 'active'
+                "id": "vertex_entanglement",
+                "name": "Vertex Entanglement Engine",
+                "description": "Generate and manage quantum entanglement",
+                "category": "quantum_mechanics",
+                "status": "active",
             },
             {
-                'id': 'rft_encryption',
-                'name': 'RFT-Enhanced Encryption',
-                'description': 'Cryptography with RFT frequency patterns',
-                'category': 'hybrid_systems',
-                'status': 'experimental'
-            }
+                "id": "rft_encryption",
+                "name": "RFT-Enhanced Encryption",
+                "description": "Cryptography with RFT frequency patterns",
+                "category": "hybrid_systems",
+                "status": "experimental",
+            },
         ]
-        
-        self.send_json_response({'success': True, 'patents': patents})
-    
+
+        self.send_json_response({"success": True, "patents": patents})
+
     def handle_spawn_process(self, data):
         """Handle process spawning"""
         if not self.quantum_system or not self.quantum_system.kernel:
-            self.send_json_response({'success': False, 'message': 'Kernel offline'})
+            self.send_json_response({"success": False, "message": "Kernel offline"})
             return
-        
-        vertex_id = data.get('vertex_id', 0)
-        priority = data.get('priority', 1)
-        
+
+        vertex_id = data.get("vertex_id", 0)
+        priority = data.get("priority", 1)
+
         try:
             pid = self.quantum_system.kernel.spawn_quantum_process(vertex_id, priority)
-            self.send_json_response({
-                'success': True,
-                'pid': pid,
-                'vertex_id': vertex_id,
-                'message': f'Process {pid} spawned on vertex {vertex_id}'
-            })
+            self.send_json_response(
+                {
+                    "success": True,
+                    "pid": pid,
+                    "vertex_id": vertex_id,
+                    "message": f"Process {pid} spawned on vertex {vertex_id}",
+                }
+            )
         except Exception as e:
-            self.send_json_response({'success': False, 'message': str(e)})
-    
+            self.send_json_response({"success": False, "message": str(e)})
+
     def handle_apply_gate(self, data):
         """Handle quantum gate application"""
         if not self.quantum_system or not self.quantum_system.kernel:
-            self.send_json_response({'success': False, 'message': 'Kernel offline'})
+            self.send_json_response({"success": False, "message": "Kernel offline"})
             return
-        
-        vertex_id = data.get('vertex_id', 0)
-        gate = data.get('gate', 'H')
-        
+
+        vertex_id = data.get("vertex_id", 0)
+        gate = data.get("gate", "H")
+
         try:
             success = self.quantum_system.kernel.apply_quantum_gate(vertex_id, gate)
-            self.send_json_response({
-                'success': success,
-                'vertex_id': vertex_id,
-                'gate': gate,
-                'message': f'{gate} gate applied to vertex {vertex_id}' if success else 'Gate application failed'
-            })
+            self.send_json_response(
+                {
+                    "success": success,
+                    "vertex_id": vertex_id,
+                    "gate": gate,
+                    "message": f"{gate} gate applied to vertex {vertex_id}"
+                    if success
+                    else "Gate application failed",
+                }
+            )
         except Exception as e:
-            self.send_json_response({'success': False, 'message': str(e)})
-    
+            self.send_json_response({"success": False, "message": str(e)})
+
     def handle_evolve_system(self, data):
         """Handle system evolution"""
         if not self.quantum_system or not self.quantum_system.kernel:
-            self.send_json_response({'success': False, 'message': 'Kernel offline'})
+            self.send_json_response({"success": False, "message": "Kernel offline"})
             return
-        
-        steps = data.get('steps', 5)
-        
+
+        steps = data.get("steps", 5)
+
         try:
+
             def evolve():
                 self.quantum_system.kernel.evolve_quantum_system(time_steps=steps)
-            
+
             threading.Thread(target=evolve, daemon=True).start()
-            self.send_json_response({
-                'success': True,
-                'steps': steps,
-                'message': f'System evolution started ({steps} steps)'
-            })
+            self.send_json_response(
+                {
+                    "success": True,
+                    "steps": steps,
+                    "message": f"System evolution started ({steps} steps)",
+                }
+            )
         except Exception as e:
-            self.send_json_response({'success': False, 'message': str(e)})
-    
+            self.send_json_response({"success": False, "message": str(e)})
+
     def handle_patent_demo(self, data):
         """Handle patent demonstration requests"""
-        patent_id = data.get('patent_id', '')
-        
+        patent_id = data.get("patent_id", "")
+
         # Simulate patent demonstrations
         demo_results = {
-            'rft_analyzer': {
-                'frequencies': [1.618, 2.618, 4.236, 6.854],
-                'distinctness': 0.803,
-                'transform_quality': 'Excellent',
-                'resonance_detected': True
+            "rft_analyzer": {
+                "frequencies": [1.618, 2.618, 4.236, 6.854],
+                "distinctness": 0.803,
+                "transform_quality": "Excellent",
+                "resonance_detected": True,
             },
-            'quantum_crypto': {
-                'key_generation': 'Quantum-safe RSA 4096',
-                'encryption_strength': '256-bit quantum resistant',
-                'protocols': ['QKD', 'Post-quantum RSA', 'Lattice-based']
+            "quantum_crypto": {
+                "key_generation": "Quantum-safe RSA 4096",
+                "encryption_strength": "256-bit quantum resistant",
+                "protocols": ["QKD", "Post-quantum RSA", "Lattice-based"],
             },
-            'vertex_entanglement': {
-                'entangled_pairs': 25,
-                'fidelity': 0.997,
-                'coherence_time': '2.3 seconds',
-                'bell_violations': 2.82
-            }
+            "vertex_entanglement": {
+                "entangled_pairs": 25,
+                "fidelity": 0.997,
+                "coherence_time": "2.3 seconds",
+                "bell_violations": 2.82,
+            },
         }
-        
-        result = demo_results.get(patent_id, {'error': 'Patent demo not found'})
-        self.send_json_response({
-            'success': patent_id in demo_results,
-            'patent_id': patent_id,
-            'demo_result': result
-        })
-    
+
+        result = demo_results.get(patent_id, {"error": "Patent demo not found"})
+        self.send_json_response(
+            {
+                "success": patent_id in demo_results,
+                "patent_id": patent_id,
+                "demo_result": result,
+            }
+        )
+
     def send_json_response(self, data):
         """Send JSON response"""
         self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header("Content-type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
-    
+
     def generate_main_interface(self):
         """Generate the main web interface HTML"""
-        return '''<!DOCTYPE html>
+        return """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -865,17 +884,17 @@ class QuantumWebServer(SimpleHTTPRequestHandler):
         });
     </script>
 </body>
-</html>'''
+</html>"""
 
 
 class QuantumSystemManager:
     """Manages the quantum system for Phase 2"""
-    
+
     def __init__(self):
         self.kernel = None
         self.integration = None
         self.initialize_system()
-    
+
     def initialize_system(self):
         """Initialize quantum components"""
         if kernel_available:
@@ -892,24 +911,26 @@ class QuantumSystemManager:
 
 def create_server_handler(quantum_system):
     """Create server handler with quantum system"""
+
     class Handler(QuantumWebServer):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, quantum_system=quantum_system, **kwargs)
+
     return Handler
 
 
-def run_phase2_server(host='localhost', port=8080):
+def run_phase2_server(host="localhost", port=8080):
     """Run QuantoniumOS Phase 2 web server"""
     print("🚀 QUANTONIUMOS PHASE 2 - ADVANCED GUI FRAMEWORK")
     print("🌌 Web-based Quantum Interface with 3D Visualization")
     print("=" * 60)
-    
+
     # Initialize quantum system
     quantum_system = QuantumSystemManager()
-    
+
     # Create server
     Handler = create_server_handler(quantum_system)
-    
+
     with HTTPServer((host, port), Handler) as httpd:
         print(f"🌐 Phase 2 interface running at http://{host}:{port}")
         print("🔮 Features:")
@@ -920,7 +941,7 @@ def run_phase2_server(host='localhost', port=8080):
         print("   • REST API for quantum operations")
         print("\n🎯 Open your browser to experience QuantoniumOS Phase 2!")
         print("Press Ctrl+C to stop the server")
-        
+
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

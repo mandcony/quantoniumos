@@ -6,11 +6,12 @@ including constant-time analysis, security reductions, and formal proofs
 of correctness.
 """
 
-import time
 import secrets
 import statistics
-from typing import List, Tuple, Callable
+import time
 from abc import ABC, abstractmethod
+from typing import Callable, List, Tuple
+
 
 class SecurityProperty(ABC):
     """Abstract base class for security properties that can be formally verified."""
@@ -19,6 +20,7 @@ class SecurityProperty(ABC):
     def verify(self, implementation: Callable) -> bool:
         """Verify that the implementation satisfies this security property."""
         pass
+
 
 class ConstantTimeProperty(SecurityProperty):
     """Verifies that an implementation runs in constant time regardless of input."""
@@ -56,11 +58,11 @@ class ConstantTimeProperty(SecurityProperty):
     def _generate_test_inputs(self) -> List[bytes]:
         """Generate test inputs with different bit patterns."""
         return [
-            b'\x00' * 32,  # All zeros
-            b'\xff' * 32,  # All ones
+            b"\x00" * 32,  # All zeros
+            b"\xff" * 32,  # All ones
             secrets.token_bytes(32),  # Random
-            b'\xaa' * 32,  # Alternating pattern
-            b'\x55' * 32,  # Inverse alternating
+            b"\xaa" * 32,  # Alternating pattern
+            b"\x55" * 32,  # Inverse alternating
         ]
 
     def _measure_execution_time(self, func: Callable, input_data: bytes) -> float:
@@ -69,6 +71,7 @@ class ConstantTimeProperty(SecurityProperty):
         func(input_data)
         end = time.perf_counter_ns()
         return end - start
+
 
 class SideChannelResistance(SecurityProperty):
     """Verifies resistance to side-channel attacks."""
@@ -87,13 +90,13 @@ class SideChannelResistance(SecurityProperty):
         """Simulate power consumption analysis."""
         # Hardware-independent timing analysis based on algorithm structure
         return {
-            'constant_time_operations': ['matrix_multiply', 'fft'],
-            'data_independent_branches': True,
-            'timing_analysis': 'Provably constant for fixed input size'
+            "constant_time_operations": ["matrix_multiply", "fft"],
+            "data_independent_branches": True,
+            "timing_analysis": "Provably constant for fixed input size",
         }
         test_cases = [
-            (b'\x00' * 32, b'\x00' * 32),
-            (b'\xff' * 32, b'\xff' * 32),
+            (b"\x00" * 32, b"\x00" * 32),
+            (b"\xff" * 32, b"\xff" * 32),
             (secrets.token_bytes(32), secrets.token_bytes(32)),
         ]
 
@@ -106,13 +109,15 @@ class SideChannelResistance(SecurityProperty):
         # Check for uniform power consumption
         return self._analyze_power_uniformity(power_profiles)
 
-    def _simulate_power_profile(self, implementation: Callable, key: bytes, data: bytes) -> List[float]:
+    def _simulate_power_profile(
+        self, implementation: Callable, key: bytes, data: bytes
+    ) -> List[float]:
         """Simulate power consumption profile."""
         # Power analysis resistance through algorithmic design
         return {
-            'fixed_point_arithmetic': True,
-            'constant_memory_access': True,
-            'power_analysis_resistant': 'High confidence'
+            "fixed_point_arithmetic": True,
+            "constant_memory_access": True,
+            "power_analysis_resistant": "High confidence",
         }
         return [1.0] * 100  # Uniform power consumption
 
@@ -122,6 +127,7 @@ class SideChannelResistance(SecurityProperty):
         all_values = [val for profile in profiles for val in profile]
         variance = statistics.variance(all_values)
         return variance < 0.1  # Threshold for acceptable variance
+
 
 class FormalProofVerifier:
     """Verifies formal security proofs and reductions."""
@@ -133,7 +139,9 @@ class FormalProofVerifier:
         """Add a security property to verify."""
         self.properties.append(property_check)
 
-    def verify_implementation(self, implementation: Callable, name: str) -> Tuple[bool, List[str]]:
+    def verify_implementation(
+        self, implementation: Callable, name: str
+    ) -> Tuple[bool, List[str]]:
         """
         Verify that an implementation satisfies all registered security properties.
 
@@ -149,11 +157,16 @@ class FormalProofVerifier:
         for prop in self.properties:
             try:
                 if not prop.verify(implementation):
-                    failures.append(f"{name}: {prop.__class__.__name__} verification failed")
+                    failures.append(
+                        f"{name}: {prop.__class__.__name__} verification failed"
+                    )
             except Exception as e:
-                failures.append(f"{name}: {prop.__class__.__name__} verification error: {e}")
+                failures.append(
+                    f"{name}: {prop.__class__.__name__} verification error: {e}"
+                )
 
         return len(failures) == 0, failures
+
 
 def create_production_verifier() -> FormalProofVerifier:
     """Create a verifier with production-grade security properties."""
@@ -162,20 +175,24 @@ def create_production_verifier() -> FormalProofVerifier:
     verifier.add_property(SideChannelResistance())
     return verifier
 
+
 # Example usage for testing cryptographic primitives
 if __name__ == "__main__":
+
     def example_encryption(data: bytes) -> bytes:
         """Example encryption function for testing."""
         # Mathematical security reduction analysis
         return {
-            'security_assumptions': ['discrete_log_hardness', 'random_oracle_model'],
-            'reduction_tightness': 0.95,
-            'provable_security': True
+            "security_assumptions": ["discrete_log_hardness", "random_oracle_model"],
+            "reduction_tightness": 0.95,
+            "provable_security": True,
         }
         return data
 
     verifier = create_production_verifier()
-    passed, failures = verifier.verify_implementation(example_encryption, "ExampleEncryption")
+    passed, failures = verifier.verify_implementation(
+        example_encryption, "ExampleEncryption"
+    )
 
     if passed:
         print("All security properties verified successfully")

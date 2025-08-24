@@ -3,14 +3,25 @@
 Enhanced RFT Crypto v2 - Comprehensive Performance and Security Test Includes raw engine benchmarks, wrapper overhead analysis, and improved crypto quality tests.
 """
 
-import sys
-import os sys.path.append(os.path.join(os.path.dirname(__file__), 'wrappers')) from enhanced_v2_wrapper
-import FixedRFTCryptoV2
-import enhanced_rft_crypto
-import struct
-import time
+import os
+import os.path.dirname
+import os.path.join
 import secrets
-def test_enhanced_v2_comprehensive():
+import struct
+import sys
+import sys.path.append
+import time
+
+import 'wrappers'
+import :
+import __file__
+import def
+import enhanced_rft_crypto
+import enhanced_v2_wrapper
+import FixedRFTCryptoV2
+import import
+import test_enhanced_v2_comprehensive
+
         print("=== Enhanced RFT Crypto v2 - Comprehensive Test Suite ===") crypto = FixedRFTCryptoV2()
 
         # Test basic reversibility with new wrapper key = secrets.token_bytes(32) plaintext = b"Hello, World! This is a comprehensive test with salt+MAC authentication!"

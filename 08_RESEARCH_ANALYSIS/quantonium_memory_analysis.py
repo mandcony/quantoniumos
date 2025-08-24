@@ -3,8 +3,11 @@
 QuantoniumOS Memory Analysis - Qubit Simulation Capacity & OS Equivalent === Analyze current capabilities and project OS-level memory requirements
 """
 
-import numpy as np
 import math
+
+import numpy as np
+
+
 def analyze_qubit_memory(): """
         Analyze memory requirements for different qubit counts
 """

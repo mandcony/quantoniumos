@@ -4,18 +4,28 @@ Quantonium OS - Resonance Encryption Module
 Implements resonance-based data encryption algorithms that utilize amplitude-phase fluctuation patterns.
 """
 
-import secrets
-import time
 import base64
 import hashlib
 import hmac
 import logging
+import os
+import secrets
+import sys
+import time
+
 import numpy as np
+
+# Add parent directory to path for imports
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 from core.encryption.geometric_waveform_hash import generate_waveform_hash
+from paper_compliant_rft_fixed import FixedRFTCryptoBindings, PaperCompliantRFT
 
 # Configure logger
 logger = logging.getLogger("resonance_encrypt_encryption")
 logger.setLevel(logging.INFO)
+
 
 def resonance_encrypt(plaintext, A, phi):
     """
@@ -33,36 +43,55 @@ def resonance_encrypt(plaintext, A, phi):
     # Create a simple sinusoidal waveform: A * sin(n * phi) for n = 0 to 99
     waveform = [A * np.sin(np.float64(n) * phi) for n in range(100)]
 
+    # Use the RFT crypto bindings for encryption
+    rft_crypto = FixedRFTCryptoBindings()
+    rft_crypto.init_engine(seed=int(A * 1000))
+
     # Generate the waveform hash for signature validation
     waveform_hash = generate_waveform_hash(waveform)
     signature = hashlib.sha256(waveform_hash.encode()).digest()[:4]
 
-    # Generate key from amplitude and phase with full precision
-    key = f"{A:.15f}_{phi:.15f}"
+    # Convert plaintext to numeric data for RFT processing
+    input_data = np.array([ord(c) for c in plaintext])
 
-    # Generate secure random token for keystream
+    # Pad to required size
+    if len(input_data) < 64:
+        input_data = np.pad(input_data, (0, 64 - len(input_data)))
+
+    # Apply RFT to generate keystream
+    rft = PaperCompliantRFT(size=max(64, len(input_data)))
+    result = rft.transform(input_data)
+
+    if result["status"] != "SUCCESS":
+        raise ValueError(
+            f"RFT transform failed: {result.get('message', 'Unknown error')}"
+        )
+
+    # Generate token from the RFT output
     token = secrets.token_bytes(32)
 
-    # Create keystream using SHA-256(key + token)
-    keystream_seed = hashlib.sha256(key.encode() + token).digest()
-    keystream = []
+    # Use the transformed data as a keystream
+    transformed_data = result["transformed"]
+    keystream = np.abs(transformed_data).astype(np.uint8).tobytes()
 
-    # Generate keystream bytes that match the plaintext length
-    for i in range(0, len(plaintext), 32):
-        chunk_seed = hashlib.sha256(keystream_seed + str(i).encode()).digest()
-        keystream.extend(chunk_seed)
+    # Ensure keystream is long enough
+    while len(keystream) < len(plaintext):
+        keystream += keystream
 
     # Trim keystream to match plaintext length
-    keystream = keystream[:len(plaintext)]
+    keystream = keystream[: len(plaintext)]
 
     # XOR encryption
-    ciphertext_bytes = bytearray([(ord(char) ^ keystream[i]) for i, char in enumerate(plaintext)])
+    ciphertext_bytes = bytearray(
+        [(ord(char) ^ keystream[i]) for i, char in enumerate(plaintext)]
+    )
 
     # Include the token in the encrypted data for proper decryption
     # Format: [signature (4 bytes)][token (32 bytes)][ciphertext]
     ciphertext_bytes = signature + token + ciphertext_bytes
 
     return bytes(ciphertext_bytes)
+
 
 def resonance_decrypt(encrypted_data, A, phi):
     """
@@ -76,6 +105,10 @@ def resonance_decrypt(encrypted_data, A, phi):
     # Generate a waveform from amplitude and phase parameters (same as encrypt)
     waveform = [A * np.sin(np.float64(n) * phi) for n in range(100)]
 
+    # Use the RFT crypto bindings for decryption
+    rft_crypto = FixedRFTCryptoBindings()
+    rft_crypto.init_engine(seed=int(A * 1000))
+
     # Generate the waveform hash for verification
     waveform_hash = generate_waveform_hash(waveform)
 
@@ -84,10 +117,9 @@ def resonance_decrypt(encrypted_data, A, phi):
     expected_sig = hashlib.sha256(waveform_hash.encode()).digest()[:4]
 
     if not hmac.compare_digest(signature, expected_sig):
-        raise ValueError("Invalid resonance signature - waveform parameters do not match")
-
-    # Generate key from amplitude and phase with full precision
-    key = f"{A:.15f}_{phi:.15f}"
+        raise ValueError(
+            "Invalid resonance signature - waveform parameters do not match"
+        )
 
     # Extract token (next 32 bytes after signature)
     token = encrypted_data[4:36]
@@ -95,22 +127,38 @@ def resonance_decrypt(encrypted_data, A, phi):
     # Extract actual ciphertext (after signature and token)
     ciphertext = encrypted_data[36:]
 
-    # Create keystream using SHA-256(key + token)
-    keystream_seed = hashlib.sha256(key.encode() + token).digest()
-    keystream = []
+    # Convert to numeric data for RFT processing
+    input_data = np.array([int(b) for b in token])
 
-    # Generate keystream bytes that match the ciphertext length
-    for i in range(0, len(ciphertext), 32):
-        chunk_seed = hashlib.sha256(keystream_seed + str(i).encode()).digest()
-        keystream.extend(chunk_seed)
+    # Pad to required size
+    if len(input_data) < 64:
+        input_data = np.pad(input_data, (0, 64 - len(input_data)))
+
+    # Apply RFT to generate keystream
+    rft = PaperCompliantRFT(size=max(64, len(input_data)))
+    result = rft.transform(input_data)
+
+    if result["status"] != "SUCCESS":
+        raise ValueError(
+            f"RFT transform failed: {result.get('message', 'Unknown error')}"
+        )
+
+    # Use the transformed data as a keystream
+    transformed_data = result["transformed"]
+    keystream = np.abs(transformed_data).astype(np.uint8).tobytes()
+
+    # Ensure keystream is long enough
+    while len(keystream) < len(ciphertext):
+        keystream += keystream
 
     # Trim keystream to match ciphertext length
-    keystream = keystream[:len(ciphertext)]
+    keystream = keystream[: len(ciphertext)]
 
     # XOR decryption
-    plaintext = ''.join([chr(byte ^ keystream[i]) for i, byte in enumerate(ciphertext)])
+    plaintext = "".join([chr(byte ^ keystream[i]) for i, byte in enumerate(ciphertext)])
 
     return plaintext
+
 
 def encrypt_data(plaintext: str, key: str) -> str:
     """
@@ -118,6 +166,7 @@ def encrypt_data(plaintext: str, key: str) -> str:
     Returns just the encrypted string (for use by protected module).
     """
     return _perform_resonance_encryption(plaintext, key)
+
 
 def decrypt_data(ciphertext: str, key: str) -> str:
     """
@@ -139,6 +188,7 @@ def decrypt_data(ciphertext: str, key: str) -> str:
         logger.error(f"Decryption error: {str(e)}")
         return f"Decryption failed: {str(e)}"
 
+
 def _perform_resonance_encryption(plaintext: str, key: str) -> str:
     """
     Internal function to perform resonance encryption using a string key.
@@ -153,6 +203,7 @@ def _perform_resonance_encryption(plaintext: str, key: str) -> str:
 
     # Return base64 encoded string
     return base64.b64encode(encrypted).decode("utf-8")
+
 
 def encrypt(plaintext: str, key: str) -> dict:
     """
@@ -179,11 +230,8 @@ def encrypt(plaintext: str, key: str) -> dict:
     sig_data = encrypted + str(ts) + key
     sig = hashlib.sha256(sig_data.encode()).hexdigest()
 
-    return {
-        "ciphertext": encrypted,
-        "ts": ts,
-        "sig": sig
-    }
+    return {"ciphertext": encrypted, "ts": ts, "sig": sig}
+
 
 # Backwards compatibility wrapper for reproduction scripts
 def resonance_encrypt_compat(data, key):
@@ -192,13 +240,15 @@ def resonance_encrypt_compat(data, key):
     Takes data (bytes) and key (bytes) and returns encrypted bytes.
     """
     if isinstance(data, bytes):
-        data = data.decode('utf-8', errors='ignore')
+        data = data.decode("utf-8", errors="ignore")
 
     if isinstance(key, bytes):
         # Convert key bytes to amplitude and phase parameters
         key_hash = hashlib.sha256(key).digest()
-        A = float(int.from_bytes(key_hash[:8], 'big')) / (2**64)  # Normalize to 0-1
-        phi = float(int.from_bytes(key_hash[8:16], 'big')) / (2**64) * 2 * np.pi  # 0-2π
+        A = float(int.from_bytes(key_hash[:8], "big")) / (2**64)  # Normalize to 0-1
+        phi = (
+            float(int.from_bytes(key_hash[8:16], "big")) / (2**64) * 2 * np.pi
+        )  # 0-2π
     else:
         A = 0.5
         phi = np.pi / 4
@@ -207,10 +257,12 @@ def resonance_encrypt_compat(data, key):
     result = resonance_encrypt(data, A, phi)
     return result
 
+
 # Alias for backwards compatibility
 def resonance_encrypt_wrapper(data, key):
     """Alias for backwards compatibility with reproduction scripts."""
     return resonance_encrypt_compat(data, key)
+
 
 def wave_hmac(message, key, phase_info=True):
     """
@@ -225,14 +277,14 @@ def wave_hmac(message, key, phase_info=True):
         Base64-encoded signature string
     """
     if isinstance(message, str):
-        message = message.encode('utf-8')
+        message = message.encode("utf-8")
     if isinstance(key, str):
-        key = key.encode('utf-8')
+        key = key.encode("utf-8")
 
     # Generate wave parameters from key
     key_hash = hashlib.sha256(key).digest()
-    A = float(int.from_bytes(key_hash[:8], 'big')) / (2**64)  # Normalize to 0-1
-    phi = float(int.from_bytes(key_hash[8:16], 'big')) / (2**64) * 2 * np.pi  # 0-2π
+    A = float(int.from_bytes(key_hash[:8], "big")) / (2**64)  # Normalize to 0-1
+    phi = float(int.from_bytes(key_hash[8:16], "big")) / (2**64) * 2 * np.pi  # 0-2π
 
     # Create wave-based signature
     waveform = [A * np.sin(np.float64(n) * phi) for n in range(len(message))]
@@ -243,15 +295,18 @@ def wave_hmac(message, key, phase_info=True):
 
     if phase_info:
         # Include phase information in signature
-        phase_bytes = phi.hex().encode('utf-8')[:16]  # Limit phase info size
-        enhanced_hmac = hmac.new(key, standard_hmac + phase_bytes, hashlib.sha256).digest()
+        phase_bytes = phi.hex().encode("utf-8")[:16]  # Limit phase info size
+        enhanced_hmac = hmac.new(
+            key, standard_hmac + phase_bytes, hashlib.sha256
+        ).digest()
     else:
         enhanced_hmac = standard_hmac
 
     # Combine with waveform hash
     wave_signature = hashlib.sha256(enhanced_hmac + waveform_hash.encode()).digest()
 
-    return base64.b64encode(wave_signature).decode('ascii')
+    return base64.b64encode(wave_signature).decode("ascii")
+
 
 def verify_wave_hmac(message, signature, key, phase_info=True):
     """

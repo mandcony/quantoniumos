@@ -36,12 +36,14 @@ try:
     from .start_quantoniumos import main as launch
 except ImportError:
     # Fallback for development environment
-    import sys
     import os
+    import sys
+
     sys.path.insert(0, os.path.dirname(__file__))
     try:
-        from quantonium_os_unified import QuantoniumOSUnified
         from start_quantoniumos import main as launch
+
+        from quantonium_os_unified import QuantoniumOSUnified
     except ImportError:
         QuantoniumOSUnified = None
         launch = None
@@ -55,9 +57,11 @@ __all__ = [
     "__email__",
 ]
 
+
 def version():
     """Return the current QuantoniumOS version."""
     return __version__
+
 
 def info():
     """Display QuantoniumOS package information."""
@@ -80,6 +84,7 @@ License: {__license__}
     print(info_text)
     return info_text
 
+
 def quick_start():
     """Launch QuantoniumOS with default configuration."""
     if QuantoniumOSUnified is not None:
@@ -89,6 +94,7 @@ def quick_start():
     else:
         print("❌ QuantoniumOS core modules not available")
         print("Please ensure the package is properly installed")
+
 
 # Package initialization
 if __name__ == "__main__":

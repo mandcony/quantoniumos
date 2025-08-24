@@ -6,10 +6,13 @@ Operating equations on vertices and edges instead of linear space
 Based on Patent Claims 1 & 3: Geometric Structures for RFT-Based Processing
 """
 
-import numpy as np
+from typing import Any, Dict, Tuple
+
 import networkx as nx
-from typing import Dict, Any, List, Tuple, Optional
+import numpy as np
+
 import canonical_true_rft
+
 
 class QuantumOscillator:
     """Quantum harmonic oscillator at each vertex"""
@@ -37,16 +40,18 @@ class QuantumOscillator:
         """Couple two oscillators (entanglement)"""
         freq_diff = abs(self.frequency - other_oscillator.frequency)
         if freq_diff < self.frequency * 0.5:
-            coupled_amp = coupling_strength * (self.amplitude * np.conj(other_oscillator.amplitude))
+            coupled_amp = coupling_strength * (
+                self.amplitude * np.conj(other_oscillator.amplitude)
+            )
             self.amplitude += coupled_amp
             other_oscillator.amplitude += np.conj(coupled_amp)
 
     def vibrational_mode(self, mode: str, parameter: float = 1.0):
         """Apply vibrational modes"""
         phi = (1 + np.sqrt(5)) / 2
-        
+
         if mode == "stretch":
-            self.frequency *= (1 + parameter * 0.1)
+            self.frequency *= 1 + parameter * 0.1
             self.amplitude *= np.exp(1j * phi * parameter)
         elif mode == "bend":
             self.phase += parameter * np.pi / 4
@@ -58,6 +63,7 @@ class QuantumOscillator:
             self.excite(parameter)
             self.amplitude *= phi**parameter
 
+
 class TopologicalRFTSpace:
     """Creates a topological geometric space for RFT operations"""
 
@@ -68,27 +74,29 @@ class TopologicalRFTSpace:
         self.vertex_states = {}
         self.vertex_oscillators = {}
         self.edge_resonances = {}
-        
+
         try:
             self.rft_basis = canonical_true_rft.get_rft_basis(dimension)
         except:
             self.rft_basis = np.eye(dimension, dtype=complex)
-        
+
         print(f"🔺 Topological RFT Space created: {dimension} vertices")
 
     def create_vertex_grid(self) -> Dict[int, complex]:
         """Create vertices with quantum oscillators"""
         vertices = {}
         phi = (1 + np.sqrt(5)) / 2
-        
+
         for i in range(self.dimension):
-            amplitude = complex(np.random.normal(0, 1), np.random.normal(0, 1)) / np.sqrt(self.dimension)
+            amplitude = complex(
+                np.random.normal(0, 1), np.random.normal(0, 1)
+            ) / np.sqrt(self.dimension)
             vertices[i] = amplitude
-            
-            base_freq = phi**(i / self.dimension)
+
+            base_freq = phi ** (i / self.dimension)
             oscillator = QuantumOscillator(base_freq, amplitude)
             self.vertex_oscillators[i] = oscillator
-            
+
         self.vertex_states = vertices
         print(f"✅ Created {len(vertices)} vertices with oscillators")
         return vertices
@@ -97,7 +105,7 @@ class TopologicalRFTSpace:
         """Create edges based on resonance connections"""
         phi = (1 + np.sqrt(5)) / 2
         edges = {}
-        
+
         for i in range(self.num_vertices):
             for j in range(i + 1, self.num_vertices):
                 distance = abs(i - j)
@@ -105,7 +113,7 @@ class TopologicalRFTSpace:
                     weight = np.exp(1j * phi * distance) / (distance + 1)
                     edges[(i, j)] = weight
                     self.graph.add_edge(i, j, weight=weight)
-                    
+
         self.edge_resonances = edges
         print(f"✅ Created {len(edges)} resonance edges")
         return edges
@@ -114,9 +122,9 @@ class TopologicalRFTSpace:
         """Perform RFT operations at a specific vertex"""
         if vertex_id not in self.vertex_states:
             raise ValueError(f"Vertex {vertex_id} does not exist")
-        
+
         oscillator = self.vertex_oscillators[vertex_id]
-        
+
         if operation == "resonance":
             oscillator.vibrational_mode("resonance_burst", 0.5)
         elif operation == "correlation":
@@ -132,7 +140,7 @@ class TopologicalRFTSpace:
             oscillator.excite(0.3)
         else:
             raise ValueError(f"Unknown operation: {operation}")
-        
+
         self.vertex_states[vertex_id] = oscillator.amplitude
         return oscillator.amplitude
 
@@ -140,12 +148,12 @@ class TopologicalRFTSpace:
         """Perform RFT operations on edges"""
         if edge not in self.edge_resonances:
             raise ValueError(f"Edge {edge} does not exist")
-            
+
         v1, v2 = edge
         state1 = self.vertex_states[v1]
         state2 = self.vertex_states[v2]
         current_weight = self.edge_resonances[edge]
-        
+
         if operation == "entangle":
             entangled_state = (state1 * np.conj(state2)) * current_weight
             self.vertex_states[v1] = state1 + 0.1 * entangled_state
@@ -158,114 +166,133 @@ class TopologicalRFTSpace:
             interference = state1 + state2 * current_weight
             self.vertex_states[v1] = 0.7 * state1 + 0.3 * interference
             self.vertex_states[v2] = 0.7 * state2 + 0.3 * np.conj(interference)
-            
+
         return self.edge_resonances[edge]
 
     def evolve_oscillator_network(self, time_steps: int = 10, dt: float = 0.1):
         """Evolve the entire network of quantum oscillators"""
         print(f"\n🔄 Evolving oscillator network ({time_steps} steps, dt={dt}):")
-        
+
         for step in range(time_steps):
             for vertex_id, oscillator in self.vertex_oscillators.items():
                 oscillator.quantum_step(dt)
-            
+
             for edge in self.edge_resonances:
                 v1, v2 = edge
                 osc1 = self.vertex_oscillators[v1]
                 osc2 = self.vertex_oscillators[v2]
                 coupling = abs(self.edge_resonances[edge]) * 0.05
                 osc1.couple_with(osc2, coupling)
-            
+
             for vertex_id, oscillator in self.vertex_oscillators.items():
                 self.vertex_states[vertex_id] = oscillator.amplitude
-            
+
             if step % 3 == 0:
-                total_energy = sum(abs(osc.amplitude)**2 for osc in self.vertex_oscillators.values())
-                avg_freq = np.mean([osc.frequency for osc in self.vertex_oscillators.values()])
-                print(f"   Step {step}: total_energy={total_energy:.4f}, avg_freq={avg_freq:.4f}")
-        
+                total_energy = sum(
+                    abs(osc.amplitude) ** 2 for osc in self.vertex_oscillators.values()
+                )
+                avg_freq = np.mean(
+                    [osc.frequency for osc in self.vertex_oscillators.values()]
+                )
+                print(
+                    f"   Step {step}: total_energy={total_energy:.4f}, avg_freq={avg_freq:.4f}"
+                )
+
         return [osc.amplitude for osc in self.vertex_oscillators.values()]
 
     def global_rft_transform(self) -> np.ndarray:
         """Apply full RFT transform using the topological structure"""
-        state_vector = np.array([self.vertex_states[i] for i in range(self.num_vertices)])
-        
+        state_vector = np.array(
+            [self.vertex_states[i] for i in range(self.num_vertices)]
+        )
+
         if self.rft_basis.shape[0] == len(state_vector):
             rft_result = self.rft_basis @ state_vector
         else:
             rft_result = state_vector
-        
+
         for i, amplitude in enumerate(rft_result):
             if i < self.num_vertices:
                 self.vertex_states[i] = amplitude
-        
+
         print(f"✅ Global RFT transform applied to {self.num_vertices} vertices")
         return rft_result
 
     def visualize_topology(self) -> Dict[str, Any]:
         """Return topology information"""
         oscillator_freqs = [osc.frequency for osc in self.vertex_oscillators.values()]
-        oscillator_energies = [osc.energy_level for osc in self.vertex_oscillators.values()]
-        
+        oscillator_energies = [
+            osc.energy_level for osc in self.vertex_oscillators.values()
+        ]
+
         return {
-            'vertices': len(self.vertex_states),
-            'edges': len(self.edge_resonances),
-            'max_amplitude': max(abs(s) for s in self.vertex_states.values()) if self.vertex_states else 0,
-            'total_energy': sum(abs(s)**2 for s in self.vertex_states.values()),
-            'connectivity': len(self.edge_resonances) / (self.num_vertices * (self.num_vertices - 1) / 2) if self.num_vertices > 1 else 0,
-            'avg_oscillator_freq': np.mean(oscillator_freqs) if oscillator_freqs else 0,
-            'max_oscillator_freq': max(oscillator_freqs) if oscillator_freqs else 0,
-            'total_quantum_energy': sum(oscillator_energies),
-            'oscillator_coherence': np.std([abs(osc.amplitude) for osc in self.vertex_oscillators.values()])
+            "vertices": len(self.vertex_states),
+            "edges": len(self.edge_resonances),
+            "max_amplitude": max(abs(s) for s in self.vertex_states.values())
+            if self.vertex_states
+            else 0,
+            "total_energy": sum(abs(s) ** 2 for s in self.vertex_states.values()),
+            "connectivity": len(self.edge_resonances)
+            / (self.num_vertices * (self.num_vertices - 1) / 2)
+            if self.num_vertices > 1
+            else 0,
+            "avg_oscillator_freq": np.mean(oscillator_freqs) if oscillator_freqs else 0,
+            "max_oscillator_freq": max(oscillator_freqs) if oscillator_freqs else 0,
+            "total_quantum_energy": sum(oscillator_energies),
+            "oscillator_coherence": np.std(
+                [abs(osc.amplitude) for osc in self.vertex_oscillators.values()]
+            ),
         }
+
 
 def demo_topological_rft():
     """Demonstrate geometric RFT operations"""
     print("🔺 TOPOLOGICAL RFT DEMO")
     print("=" * 50)
-    
+
     topo_space = TopologicalRFTSpace(8)
-    vertices = topo_space.create_vertex_grid()
+    topo_space.create_vertex_grid()
     edges = topo_space.create_resonance_edges()
-    
+
     print("\n📊 Initial topology:")
     topo_info = topo_space.visualize_topology()
     for key, value in topo_info.items():
         print(f"   {key}: {value}")
-    
+
     print("\n🔧 Quantum oscillator vertex operations:")
     operations = [
         ("vibrational_stretch", [0, 2]),
         ("vibrational_twist", [1, 3]),
         ("quantum_excite", [4, 6]),
-        ("resonance", [5, 7])
+        ("resonance", [5, 7]),
     ]
-    
+
     for operation, vertex_ids in operations:
         print(f"   {operation}:")
         for vertex_id in vertex_ids:
             result = topo_space.vertex_rft_operation(vertex_id, operation)
             print(f"     Vertex {vertex_id}: {result:.6f}")
-    
+
     print("\n🔄 Evolving oscillator network:")
-    final_amplitudes = topo_space.evolve_oscillator_network(time_steps=6, dt=0.2)
-    
+    topo_space.evolve_oscillator_network(time_steps=6, dt=0.2)
+
     print("\n🔗 Edge operations:")
     sample_edges = list(edges.keys())[:3]
     for edge in sample_edges:
         result = topo_space.edge_rft_operation(edge, "entangle")
         print(f"   Edge {edge} entanglement: {result:.6f}")
-    
+
     print("\n🌐 Global transform:")
     global_result = topo_space.global_rft_transform()
     print(f"   Transformed {len(global_result)} amplitudes")
-    
+
     print("\n📊 Final topology:")
     final_topo = topo_space.visualize_topology()
     for key, value in final_topo.items():
         print(f"   {key}: {value}")
-    
+
     return topo_space
+
 
 if __name__ == "__main__":
     demo_space = demo_topological_rft()

@@ -4,13 +4,20 @@ Enhanced RFT v2 with length header, per-message salt, and HMAC tag. Provides IND
 while keeping the Feistel core untouched.
 """
 
-import enhanced_rft_crypto
-import struct
-import secrets
-import hmac
 import hashlib
-import time from typing
-import Tuple MAGIC = b"R2" # format marker VER = 1 # version byte SALT_SZ = 16 TAG_SZ = 16 # truncated HMAC-SHA256
+import hmac
+import secrets
+import struct
+import time
+import typing
+
+import =
+import b"R2"
+import enhanced_rft_crypto
+import MAGIC
+import Tuple  # format marker VER = 1 # version byte SALT_SZ = 16 TAG_SZ = 16 # truncated HMAC-SHA256
+
+
 def hkdf_extract(salt: bytes, ikm: bytes) -> bytes: """
         HKDF Extract step: PRK = HMAC-Hash(salt, IKM)
 """

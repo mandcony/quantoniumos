@@ -3,10 +3,14 @@
 QUANTUM PHENOMENA VERIFICATION FOR 50-NODE NETWORK === Tests to prove real quantum mechanical behavior is happening: 1. Superposition verification (Hadamard gate creates 50/50 probability) 2. Entanglement detection (Bell state correlations) 3. Quantum interference (phase-dependent amplitudes) 4. Unitary evolution (probability conservation) 5. No-cloning theorem verification
 """
 
-import numpy as np
-import matplotlib.pyplot as plt from topological_50_qubit_vertex_engine
-import Network50Nodes, NetworkNode
 import json
+
+import matplotlib.pyplot as plt
+import Network50Nodes
+import NetworkNode
+import numpy as np
+import topological_50_qubit_vertex_engine
+
 
 class QuantumVerification: """
     Test suite to verify quantum mechanical behavior

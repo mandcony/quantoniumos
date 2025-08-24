@@ -13,18 +13,21 @@ geometric properties of waveforms in resonance space for enhanced security.
 """
 
 import hashlib
-import numpy as np
-import sys
-import os
-
-# Import CANONICAL RFT implementation (single source of truth)
-from canonical_true_rft import forward_true_rft, get_rft_basis
-from canonical_true_rft import forward_true_rft, inverse_true_rft
+import logging
 # Legacy wrapper maintained for: resonance_fourier_transform
 import math
+import os
 import struct
-from typing import List, Dict, Any
-import logging
+import sys
+from typing import Any, Dict, List
+
+import numpy as np
+
+# Import RFT implementation
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
+from paper_compliant_rft_fixed import FixedRFTCryptoBindings, PaperCompliantRFT
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +41,14 @@ MASK512 = (1 << 512) - 1
 
 # BLAKE2b round constants for enhanced diffusion
 BLAKE2B_IV = [
-    0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
-    0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
+    0x6A09E667F3BCC908,
+    0xBB67AE8584CAA73B,
+    0x3C6EF372FE94F82B,
+    0xA54FF53A5F1D36F1,
+    0x510E527FADE682D1,
+    0x9B05688C2B3E6C1F,
+    0x1F83D9ABFB41BD6B,
+    0x5BE0CD19137E2179,
 ]
 
 # BLAKE2b permutation constants
@@ -53,44 +62,292 @@ BLAKE2B_SIGMA = [
     [12, 5, 1, 15, 14, 13, 4, 10, 0, 7, 6, 3, 9, 2, 8, 11],
     [13, 11, 7, 14, 12, 1, 3, 9, 5, 0, 15, 4, 8, 6, 2, 10],
     [6, 15, 14, 9, 11, 3, 0, 8, 12, 2, 13, 7, 1, 4, 10, 5],
-    [10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0]
+    [10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0],
 ]
 
 # 512-bit MDS matrix over GF(2). Generated once with branch-and-bound search.
 _MDS = [
-    0x8ed2_3a18_4c5b_1729, 0xd391_f8aa_f66e_7e4b, 0x618f_a21d_941c_ae2f,
-    0x97c5_4b3f_e28d_47a6, 0xda87_3cc1_b2f0_839d, 0x3b4e_fd69_57c2_e15d,
-    0xf12c_a587_6e3b_c48f, 0x4f76_19d4_0db8_1ea9
+    0x8ED2_3A18_4C5B_1729,
+    0xD391_F8AA_F66E_7E4B,
+    0x618F_A21D_941C_AE2F,
+    0x97C5_4B3F_E28D_47A6,
+    0xDA87_3CC1_B2F0_839D,
+    0x3B4E_FD69_57C2_E15D,
+    0xF12C_A587_6E3B_C48F,
+    0x4F76_19D4_0DB8_1EA9,
 ]
 
 # AES S-box for non-linear substitution
 SBOX = [
-    0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
-    0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
-    0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15,
-    0x04, 0xC7, 0x23, 0xC3, 0x18, 0x96, 0x05, 0x9A, 0x07, 0x12, 0x80, 0xE2, 0xEB, 0x27, 0xB2, 0x75,
-    0x09, 0x83, 0x2C, 0x1A, 0x1B, 0x6E, 0x5A, 0xA0, 0x52, 0x3B, 0xD6, 0xB3, 0x29, 0xE3, 0x2F, 0x84,
-    0x53, 0xD1, 0x00, 0xED, 0x20, 0xFC, 0xB1, 0x5B, 0x6A, 0xCB, 0xBE, 0x39, 0x4A, 0x4C, 0x58, 0xCF,
-    0xD0, 0xEF, 0xAA, 0xFB, 0x43, 0x4D, 0x33, 0x85, 0x45, 0xF9, 0x02, 0x7F, 0x50, 0x3C, 0x9F, 0xA8,
-    0x51, 0xA3, 0x40, 0x8F, 0x92, 0x9D, 0x38, 0xF5, 0xBC, 0xB6, 0xDA, 0x21, 0x10, 0xFF, 0xF3, 0xD2,
-    0xCD, 0x0C, 0x13, 0xEC, 0x5F, 0x97, 0x44, 0x17, 0xC4, 0xA7, 0x7E, 0x3D, 0x64, 0x5D, 0x19, 0x73,
-    0x60, 0x81, 0x4F, 0xDC, 0x22, 0x2A, 0x90, 0x88, 0x46, 0xEE, 0xB8, 0x14, 0xDE, 0x5E, 0x0B, 0xDB,
-    0xE0, 0x32, 0x3A, 0x0A, 0x49, 0x06, 0x24, 0x5C, 0xC2, 0xD3, 0xAC, 0x62, 0x91, 0x95, 0xE4, 0x79,
-    0xE7, 0xC8, 0x37, 0x6D, 0x8D, 0xD5, 0x4E, 0xA9, 0x6C, 0x56, 0xF4, 0xEA, 0x65, 0x7A, 0xAE, 0x08,
-    0xBA, 0x78, 0x25, 0x2E, 0x1C, 0xC6, 0xB4, 0xC1, 0x94, 0x35, 0xD9, 0x3E, 0x1D, 0x86, 0x61, 0x11,
-    0x16, 0x0E, 0x6F, 0x87, 0xE9, 0x99, 0xEE, 0x60, 0x6A, 0x0F, 0x17, 0x56, 0x68, 0x1F, 0x10, 0xFB,
-    0x2A, 0xDC, 0x12, 0x10, 0x64, 0x68, 0x23, 0xA2, 0x5E, 0x27, 0x4D, 0x6E, 0x36, 0x95, 0x38, 0xE5,
-    0x8C, 0xDF, 0xA6, 0x0B, 0x98, 0x51, 0xA0, 0x65, 0xC6, 0x12, 0xA2, 0x13, 0xAB, 0x40, 0x4C, 0xD8
+    0x63,
+    0x7C,
+    0x77,
+    0x7B,
+    0xF2,
+    0x6B,
+    0x6F,
+    0xC5,
+    0x30,
+    0x01,
+    0x67,
+    0x2B,
+    0xFE,
+    0xD7,
+    0xAB,
+    0x76,
+    0xCA,
+    0x82,
+    0xC9,
+    0x7D,
+    0xFA,
+    0x59,
+    0x47,
+    0xF0,
+    0xAD,
+    0xD4,
+    0xA2,
+    0xAF,
+    0x9C,
+    0xA4,
+    0x72,
+    0xC0,
+    0xB7,
+    0xFD,
+    0x93,
+    0x26,
+    0x36,
+    0x3F,
+    0xF7,
+    0xCC,
+    0x34,
+    0xA5,
+    0xE5,
+    0xF1,
+    0x71,
+    0xD8,
+    0x31,
+    0x15,
+    0x04,
+    0xC7,
+    0x23,
+    0xC3,
+    0x18,
+    0x96,
+    0x05,
+    0x9A,
+    0x07,
+    0x12,
+    0x80,
+    0xE2,
+    0xEB,
+    0x27,
+    0xB2,
+    0x75,
+    0x09,
+    0x83,
+    0x2C,
+    0x1A,
+    0x1B,
+    0x6E,
+    0x5A,
+    0xA0,
+    0x52,
+    0x3B,
+    0xD6,
+    0xB3,
+    0x29,
+    0xE3,
+    0x2F,
+    0x84,
+    0x53,
+    0xD1,
+    0x00,
+    0xED,
+    0x20,
+    0xFC,
+    0xB1,
+    0x5B,
+    0x6A,
+    0xCB,
+    0xBE,
+    0x39,
+    0x4A,
+    0x4C,
+    0x58,
+    0xCF,
+    0xD0,
+    0xEF,
+    0xAA,
+    0xFB,
+    0x43,
+    0x4D,
+    0x33,
+    0x85,
+    0x45,
+    0xF9,
+    0x02,
+    0x7F,
+    0x50,
+    0x3C,
+    0x9F,
+    0xA8,
+    0x51,
+    0xA3,
+    0x40,
+    0x8F,
+    0x92,
+    0x9D,
+    0x38,
+    0xF5,
+    0xBC,
+    0xB6,
+    0xDA,
+    0x21,
+    0x10,
+    0xFF,
+    0xF3,
+    0xD2,
+    0xCD,
+    0x0C,
+    0x13,
+    0xEC,
+    0x5F,
+    0x97,
+    0x44,
+    0x17,
+    0xC4,
+    0xA7,
+    0x7E,
+    0x3D,
+    0x64,
+    0x5D,
+    0x19,
+    0x73,
+    0x60,
+    0x81,
+    0x4F,
+    0xDC,
+    0x22,
+    0x2A,
+    0x90,
+    0x88,
+    0x46,
+    0xEE,
+    0xB8,
+    0x14,
+    0xDE,
+    0x5E,
+    0x0B,
+    0xDB,
+    0xE0,
+    0x32,
+    0x3A,
+    0x0A,
+    0x49,
+    0x06,
+    0x24,
+    0x5C,
+    0xC2,
+    0xD3,
+    0xAC,
+    0x62,
+    0x91,
+    0x95,
+    0xE4,
+    0x79,
+    0xE7,
+    0xC8,
+    0x37,
+    0x6D,
+    0x8D,
+    0xD5,
+    0x4E,
+    0xA9,
+    0x6C,
+    0x56,
+    0xF4,
+    0xEA,
+    0x65,
+    0x7A,
+    0xAE,
+    0x08,
+    0xBA,
+    0x78,
+    0x25,
+    0x2E,
+    0x1C,
+    0xC6,
+    0xB4,
+    0xC1,
+    0x94,
+    0x35,
+    0xD9,
+    0x3E,
+    0x1D,
+    0x86,
+    0x61,
+    0x11,
+    0x16,
+    0x0E,
+    0x6F,
+    0x87,
+    0xE9,
+    0x99,
+    0xEE,
+    0x60,
+    0x6A,
+    0x0F,
+    0x17,
+    0x56,
+    0x68,
+    0x1F,
+    0x10,
+    0xFB,
+    0x2A,
+    0xDC,
+    0x12,
+    0x10,
+    0x64,
+    0x68,
+    0x23,
+    0xA2,
+    0x5E,
+    0x27,
+    0x4D,
+    0x6E,
+    0x36,
+    0x95,
+    0x38,
+    0xE5,
+    0x8C,
+    0xDF,
+    0xA6,
+    0x0B,
+    0x98,
+    0x51,
+    0xA0,
+    0x65,
+    0xC6,
+    0x12,
+    0xA2,
+    0x13,
+    0xAB,
+    0x40,
+    0x4C,
+    0xD8,
 ]
 
 # Try to import C++ accelerated module
 try:
-    from core.pybind_interface import GeometricWaveformHash as CppGeometricWaveformHash
+    from core.pybind_interface import \
+        GeometricWaveformHash as CppGeometricWaveformHash
+
     CPP_AVAILABLE = True
     logger.info("C++ geometric waveform hash module loaded successfully")
 except ImportError:
     CPP_AVAILABLE = False
     logger.warning("C++ module not available, using Python implementation")
+
 
 class GeometricWaveformHash:
     """
@@ -124,19 +381,24 @@ class GeometricWaveformHash:
     def calculate_geometric_properties(self):
         """Calculate genuine geometric properties using RFT and topological analysis."""
         if not self.waveform:
-            self.geometric_hash = b'\x00' * 32
+            self.geometric_hash = b"\x00" * 32
             self.topological_signature = 0.0
             return
 
-        # Step 1: Apply RFT to get resonance spectrum with production defaults
+        # Step 1: Apply RFT to get resonance spectrum
         try:
-            rft_spectrum = resonance_fourier_transform(
-                self.waveform,
-                alpha=1.0,    # Production default bandwidth
-                beta=0.3,     # Production default gamma
-                theta=None,   # Let the algorithm use production defaults
-                symbols=None  # QPSK sequence type is the production default
+            # Use the PaperCompliantRFT to transform the waveform
+            rft = PaperCompliantRFT(size=max(64, len(self.waveform)))
+            padded_waveform = np.pad(
+                self.waveform, (0, max(0, rft.size - len(self.waveform)))
             )
+            result = rft.transform(padded_waveform)
+            if result["status"] != "SUCCESS":
+                raise ValueError(
+                    f"RFT transform failed: {result.get('message', 'Unknown error')}"
+                )
+
+            rft_spectrum = result["transformed"]
 
             # Step 2: Extract geometric features from spectrum
             geometric_features = []
@@ -155,10 +417,14 @@ class GeometricWaveformHash:
                 winding = int(theta / (2 * np.pi)) if theta != 0 else 0
                 topo_factor = np.cos(np.pi * winding / len(rft_spectrum))
 
-                geometric_features.append((geometric_coord.real, geometric_coord.imag, topo_factor))
+                geometric_features.append(
+                    (geometric_coord.real, geometric_coord.imag, topo_factor)
+                )
 
             # Step 3: Compute topological invariants
-            self.topological_signature = self._compute_topological_signature(geometric_features)
+            self.topological_signature = self._compute_topological_signature(
+                geometric_features
+            )
 
             # Step 4: Generate geometric hash using manifold mapping
             self.geometric_hash = self._manifold_hash(geometric_features)
@@ -196,11 +462,11 @@ class GeometricWaveformHash:
             coords.extend([real_part, imag_part, topo_factor])
 
         # Convert to bytes with high precision
-        coord_bytes = b''.join(struct.pack('<d', coord) for coord in coords)
+        coord_bytes = b"".join(struct.pack("<d", coord) for coord in coords)
 
         # Apply cryptographic hash with geometric salt
-        phi_bytes = struct.pack('<d', (1 + np.sqrt(5)) / 2)
-        combined = b'GEOMETRIC_WAVEFORM:' + phi_bytes + coord_bytes
+        phi_bytes = struct.pack("<d", (1 + np.sqrt(5)) / 2)
+        combined = b"GEOMETRIC_WAVEFORM:" + phi_bytes + coord_bytes
 
         # Use SHA-256 as final compression function
         return hashlib.sha256(combined).digest()
@@ -208,17 +474,19 @@ class GeometricWaveformHash:
     def _fallback_geometric_hash(self):
         """Fallback geometric hash computation."""
         # Convert waveform to bytes
-        waveform_bytes = b''.join(struct.pack('<d', x) for x in self.waveform)
+        waveform_bytes = b"".join(struct.pack("<d", x) for x in self.waveform)
 
         # Apply golden ratio modulation
         phi = (1 + np.sqrt(5)) / 2
-        phi_bytes = struct.pack('<d', phi)
+        phi_bytes = struct.pack("<d", phi)
 
-        return hashlib.sha256(b'FALLBACK_GEOMETRIC:' + phi_bytes + waveform_bytes).digest()
+        return hashlib.sha256(
+            b"FALLBACK_GEOMETRIC:" + phi_bytes + waveform_bytes
+        ).digest()
 
         # Calculate phase using different cryptographic hash
-        phase_hash = hashlib.sha256(b'PHS_' + waveform_bytes).digest()
-        self.phase = int.from_bytes(phase_hash[8:16], 'little') / (2**64)
+        phase_hash = hashlib.sha256(b"PHS_" + waveform_bytes).digest()
+        self.phase = int.from_bytes(phase_hash[8:16], "little") / (2**64)
 
         # Apply golden ratio optimization to maintain patent compliance
         self.amplitude = (self.amplitude * PHI) % 1.0
@@ -280,7 +548,9 @@ class GeometricWaveformHash:
         """64-bit right rotation"""
         return ((x >> n) | (x << (64 - n))) & 0xFFFFFFFFFFFFFFFF
 
-    def _enhanced_spn_round(self, state: int, round_key: int, round_constant: int, blake2_const: int) -> int:
+    def _enhanced_spn_round(
+        self, state: int, round_key: int, round_constant: int, blake2_const: int
+    ) -> int:
         """Enhanced SPN round with BLAKE2 constants for maximum diffusion."""
         # Add key material + round constant + BLAKE2 constant
         x = state ^ round_key ^ round_constant ^ blake2_const
@@ -296,7 +566,9 @@ class GeometricWaveformHash:
         for i in range(0, len(words), 4):
             if i + 3 < len(words):
                 # Apply G function to each 4-word group
-                self._blake2b_g(words, i, i+1, i+2, i+3, blake2_const, round_constant)
+                self._blake2b_g(
+                    words, i, i + 1, i + 2, i + 3, blake2_const, round_constant
+                )
 
         # Reconstruct state from mixed words
         x = 0
@@ -394,10 +666,10 @@ class GeometricWaveformHash:
         # Step 2: Apply RFT-based geometric transformation with production defaults
         rft_spectrum = resonance_fourier_transform(
             waveform_data,
-            alpha=1.0,    # Production default bandwidth
-            beta=0.3,     # Production default gamma
-            theta=None,   # Use production defaults
-            symbols=None  # QPSK sequence type is the production default
+            alpha=1.0,  # Production default bandwidth
+            beta=0.3,  # Production default gamma
+            theta=None,  # Use production defaults
+            symbols=None,  # QPSK sequence type is the production default
         )
 
         # Step 3: Extract geometric properties from RFT spectrum
@@ -407,7 +679,7 @@ class GeometricWaveformHash:
         for i, (freq, amp) in enumerate(rft_spectrum):
             # Geometric amplitude in polar coordinates
             magnitude = abs(amp)
-            phase = np.angle(amp) if hasattr(amp, 'imag') else 0
+            phase = np.angle(amp) if hasattr(amp, "imag") else 0
 
             # Apply golden ratio geometric scaling
             scaled_mag = magnitude * (phi ** (i % 8))
@@ -422,8 +694,8 @@ class GeometricWaveformHash:
         # Step 4: Topological mapping to hash space
         # Map geometric features to hash values using topological invariants
         hash_components = []
-        for i in range(0, len(geometric_features)-1, 2):
-            x, y = geometric_features[i], geometric_features[i+1]
+        for i in range(0, len(geometric_features) - 1, 2):
+            x, y = geometric_features[i], geometric_features[i + 1]
 
             # Compute topological winding number
             winding = int(np.arctan2(y, x) / (2 * np.pi) * 256) % 256
@@ -440,9 +712,9 @@ class GeometricWaveformHash:
 
             # Cross-couple with adjacent components for avalanche
             if i > 0:
-                mixed ^= hash_components[i-1]
+                mixed ^= hash_components[i - 1]
             if i < len(hash_components) - 1:
-                mixed ^= hash_components[i+1]
+                mixed ^= hash_components[i + 1]
 
             optimized_hash.append(mixed % 256)
 
@@ -453,7 +725,7 @@ class GeometricWaveformHash:
         optimized_hash = optimized_hash[:32]
 
         # Convert to hexadecimal string
-        return ''.join(f'{byte:02x}' for byte in optimized_hash)
+        return "".join(f"{byte:02x}" for byte in optimized_hash)
 
         # Initialize 512-bit state from input data
         state_512bit = 0
@@ -461,10 +733,15 @@ class GeometricWaveformHash:
             state_512bit |= byte << ((i % 64) * 8)
 
         # Apply enhanced SPN rounds with BLAKE2 constants
-        for round_num in range(ROUNDS + 5):  # Extra rounds for publication-grade security
+        for round_num in range(
+            ROUNDS + 5
+        ):  # Extra rounds for publication-grade security
             # Generate round key from input and round number
-            round_key_data = input_data + round_num.to_bytes(8, 'little')
-            round_key = int.from_bytes(hashlib.sha256(round_key_data).digest()[:64], 'little') & MASK512
+            round_key_data = input_data + round_num.to_bytes(8, "little")
+            round_key = (
+                int.from_bytes(hashlib.sha256(round_key_data).digest()[:64], "little")
+                & MASK512
+            )
 
             # Generate round constant
             round_constant = int((round_num * PHI * 0x9E3779B97F4A7C15) % (2**512))
@@ -474,10 +751,12 @@ class GeometricWaveformHash:
             blake2_const = (blake2_const * ((round_num + 1) ** 2)) & MASK512
 
             # Apply enhanced SPN round
-            state_512bit = self._enhanced_spn_round(state_512bit, round_key, round_constant, blake2_const)
+            state_512bit = self._enhanced_spn_round(
+                state_512bit, round_key, round_constant, blake2_const
+            )
 
         # Convert final state to bytes
-        final_state_bytes = state_512bit.to_bytes(64, 'little')
+        final_state_bytes = state_512bit.to_bytes(64, "little")
 
         # Additional ChaCha20-style quarter round mixing for maximum diffusion
         def quarter_round(a, b, c, d):
@@ -502,32 +781,52 @@ class GeometricWaveformHash:
         # Convert to 16 words for ChaCha mixing
         words = []
         for i in range(0, len(final_state_bytes), 4):
-            chunk = final_state_bytes[i:i+4].ljust(4, b'\x00')
-            words.append(int.from_bytes(chunk, 'little'))
+            chunk = final_state_bytes[i : i + 4].ljust(4, b"\x00")
+            words.append(int.from_bytes(chunk, "little"))
 
         # Apply 20 additional ChaCha rounds for maximum diffusion
         for round_num in range(20):
             # Column rounds
-            words[0], words[4], words[8], words[12] = quarter_round(words[0], words[4], words[8], words[12])
-            words[1], words[5], words[9], words[13] = quarter_round(words[1], words[5], words[9], words[13])
-            words[2], words[6], words[10], words[14] = quarter_round(words[2], words[6], words[10], words[14])
-            words[3], words[7], words[11], words[15] = quarter_round(words[3], words[7], words[11], words[15])
+            words[0], words[4], words[8], words[12] = quarter_round(
+                words[0], words[4], words[8], words[12]
+            )
+            words[1], words[5], words[9], words[13] = quarter_round(
+                words[1], words[5], words[9], words[13]
+            )
+            words[2], words[6], words[10], words[14] = quarter_round(
+                words[2], words[6], words[10], words[14]
+            )
+            words[3], words[7], words[11], words[15] = quarter_round(
+                words[3], words[7], words[11], words[15]
+            )
 
             # Diagonal rounds
-            words[0], words[5], words[10], words[15] = quarter_round(words[0], words[5], words[10], words[15])
-            words[1], words[6], words[11], words[12] = quarter_round(words[1], words[6], words[11], words[12])
-            words[2], words[7], words[8], words[13] = quarter_round(words[2], words[7], words[8], words[13])
-            words[3], words[4], words[9], words[14] = quarter_round(words[3], words[4], words[9], words[14])
+            words[0], words[5], words[10], words[15] = quarter_round(
+                words[0], words[5], words[10], words[15]
+            )
+            words[1], words[6], words[11], words[12] = quarter_round(
+                words[1], words[6], words[11], words[12]
+            )
+            words[2], words[7], words[8], words[13] = quarter_round(
+                words[2], words[7], words[8], words[13]
+            )
+            words[3], words[4], words[9], words[14] = quarter_round(
+                words[3], words[4], words[9], words[14]
+            )
 
             # Add BLAKE2 constants for additional entropy
             for i in range(len(words)):
-                words[i] ^= int((round_num * PHI * BLAKE2B_IV[i % len(BLAKE2B_IV)]) % (2**32))
+                words[i] ^= int(
+                    (round_num * PHI * BLAKE2B_IV[i % len(BLAKE2B_IV)]) % (2**32)
+                )
 
         # Convert words back to bytes
-        mixed_bytes = b''.join(word.to_bytes(4, 'little') for word in words)
+        mixed_bytes = b"".join(word.to_bytes(4, "little") for word in words)
 
         # Final compression with SHA-256 and original input
-        final_hash = hashlib.sha256(mixed_bytes + input_data + b'final_compression').hexdigest()
+        final_hash = hashlib.sha256(
+            mixed_bytes + input_data + b"final_compression"
+        ).hexdigest()
 
         # Format with geometric parameters
         hash_str = f"A{self.amplitude:.15e}_P{self.phase:.15e}_{final_hash}"
@@ -556,7 +855,7 @@ class GeometricWaveformHash:
         hash_str = self.generate_hash()
 
         # Extract just the final hash part (after the last underscore)
-        final_hash_part = hash_str.split('_')[-1]
+        final_hash_part = hash_str.split("_")[-1]
 
         # Convert hex string to bytes
         try:
@@ -564,6 +863,7 @@ class GeometricWaveformHash:
         except ValueError:
             # Fallback: use sha256 if hex conversion fails
             import hashlib
+
             return hashlib.sha256(hash_str.encode()).digest()
 
     def get_amplitude(self) -> float:
@@ -573,6 +873,7 @@ class GeometricWaveformHash:
     def get_phase(self) -> float:
         """Get the calculated phase."""
         return self.phase
+
 
 def geometric_waveform_hash(waveform: List[float]) -> str:
     """
@@ -600,9 +901,11 @@ def geometric_waveform_hash(waveform: List[float]) -> str:
         # Fallback hash
         return hasher._fallback_geometric_hash().hex()
 
+
 def generate_waveform_hash(waveform: List[float]) -> str:
     """Alias for geometric_waveform_hash for compatibility."""
     return geometric_waveform_hash(waveform)
+
 
 def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
     """
@@ -626,6 +929,7 @@ def verify_waveform_hash(waveform: List[float], hash_str: str) -> bool:
     hasher = GeometricWaveformHash(waveform)
     return hasher.verify_hash(hash_str)
 
+
 def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
     """
     Extract geometric properties from waveform.
@@ -640,25 +944,30 @@ def get_waveform_properties(waveform: List[float]) -> Dict[str, float]:
         try:
             cpp_hasher = CppGeometricWaveformHash(waveform)
             return {
-                'amplitude': cpp_hasher.get_amplitude(),
-                'phase': cpp_hasher.get_phase(),
-                'golden_ratio': PHI,
-                'waveform_length': len(waveform)
+                "amplitude": cpp_hasher.get_amplitude(),
+                "phase": cpp_hasher.get_phase(),
+                "golden_ratio": PHI,
+                "waveform_length": len(waveform),
             }
         except Exception as e:
-            logger.warning(f"C++ properties extraction failed: {e}, falling back to Python")
+            logger.warning(
+                f"C++ properties extraction failed: {e}, falling back to Python"
+            )
 
     # Use Python implementation
     hasher = GeometricWaveformHash(waveform)
     return {
-        'amplitude': hasher.get_amplitude(),
-        'phase': hasher.get_phase(),
-        'golden_ratio': PHI,
-        'waveform_length': len(waveform)
+        "amplitude": hasher.get_amplitude(),
+        "phase": hasher.get_phase(),
+        "golden_ratio": PHI,
+        "waveform_length": len(waveform),
     }
 
+
 # Performance benchmark function
-def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) -> Dict[str, Any]:
+def benchmark_geometric_hash(
+    waveform_size: int = 32, iterations: int = 1000
+) -> Dict[str, Any]:
     """
     Benchmark geometric waveform hashing performance.
 
@@ -672,8 +981,9 @@ def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) ->
     import time
 
     # Generate test waveform
-    test_waveform = [math.sin(2 * math.pi * i / waveform_size) * 0.5
-                    for i in range(waveform_size)]
+    test_waveform = [
+        math.sin(2 * math.pi * i / waveform_size) * 0.5 for i in range(waveform_size)
+    ]
 
     # Benchmark hashing
     start_time = time.time()
@@ -685,13 +995,14 @@ def benchmark_geometric_hash(waveform_size: int = 32, iterations: int = 1000) ->
     ops_per_second = 1.0 / avg_time if avg_time > 0 else 0
 
     return {
-        'waveform_size': waveform_size,
-        'iterations': iterations,
-        'average_time_seconds': avg_time,
-        'operations_per_second': ops_per_second,
-        'cpp_available': CPP_AVAILABLE,
-        'golden_ratio': PHI
+        "waveform_size": waveform_size,
+        "iterations": iterations,
+        "average_time_seconds": avg_time,
+        "operations_per_second": ops_per_second,
+        "cpp_available": CPP_AVAILABLE,
+        "golden_ratio": PHI,
     }
+
 
 def extract_parameters_from_hash(hash_value: str) -> tuple:
     """Extract amplitude and phase parameters from a geometric hash."""
@@ -702,7 +1013,7 @@ def extract_parameters_from_hash(hash_value: str) -> tuple:
         # Extract first 8 bytes for amplitude, next 8 for phase
         if len(hash_bytes) < 16:
             # Pad with zeros if hash is too short
-            hash_bytes = hash_bytes + b'\x00' * (16 - len(hash_bytes))
+            hash_bytes = hash_bytes + b"\x00" * (16 - len(hash_bytes))
 
         # Convert bytes to floats using geometric transformation
         amp_bytes = hash_bytes[:8]

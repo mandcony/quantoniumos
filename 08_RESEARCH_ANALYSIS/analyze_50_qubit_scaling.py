@@ -6,6 +6,7 @@
 
 import math
 
+
 def analyze_50_qubit_scaling():
     print("🚀 50-QUBIT SCALING ANALYSIS")
     print("="*60)

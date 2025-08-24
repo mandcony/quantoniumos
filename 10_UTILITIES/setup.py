@@ -3,9 +3,9 @@
 Setup script for QuantoniumOS C++ extensions
 Minimal working build to verify RFT algorithm
 """
+import pybind11
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup
-import pybind11
 
 # Define a single, minimal C++ extension for testing
 ext_modules = [
@@ -13,10 +13,7 @@ ext_modules = [
     Pybind11Extension(
         "quantonium_test",
         ["core/minimal_test.cpp"],  # We'll create this simple file
-        include_dirs=[
-            "core/include",
-            pybind11.get_cmake_dir()
-        ],
+        include_dirs=["core/include", pybind11.get_cmake_dir()],
         cxx_std=17,
         define_macros=[("VERSION_INFO", '"0.3.0"')],
     ),

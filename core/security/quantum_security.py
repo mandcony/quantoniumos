@@ -12,6 +12,7 @@ with access to quantum computers, demonstrating resistance to Shor's and Grover'
 import math
 from typing import Dict
 
+
 class QuantumHardnessProblem:
     """Base class for quantum hardness assumptions"""
 
