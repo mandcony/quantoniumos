@@ -61,9 +61,7 @@ def run_python_module_directly(module_file, description=""):
 
     try:
         # Import and run the module
-        __import__(
-            module_file.replace(".py", "").replace("/", ".").replace("\\", ".")
-        )
+        __import__(module_file.replace(".py", "").replace("/", ".").replace("\\", "."))
         print("✅ MODULE LOADED AND EXECUTED")
         return True
     except Exception as e:

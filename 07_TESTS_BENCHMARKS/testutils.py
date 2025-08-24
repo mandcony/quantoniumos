@@ -10,9 +10,9 @@ import numpy as np
 import numpy._core.umath as umath
 import numpy.testing
 from numpy import ndarray
-from numpy.testing import (assert_, assert_allclose,  # noqa: F401
-                           assert_array_almost_equal_nulp, assert_raises,
-                           build_err_msg)
+from numpy.testing import assert_allclose  # noqa: F401
+from numpy.testing import (assert_, assert_array_almost_equal_nulp,
+                           assert_raises, build_err_msg)
 
 from .core import filled, getmask, mask_or, masked, masked_array, nomask
 

@@ -16,7 +16,7 @@ if str(current_dir) not in sys.path:
 import importlib.util
 
 # Import the symbiotic engine
-from symbiotic_rft_engine_adapter import (SymbioticRFTEngine)
+from symbiotic_rft_engine_adapter import SymbioticRFTEngine
 
 try:
     spec = importlib.util.find_spec("true_rft_engine_bindings")

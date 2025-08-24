@@ -5,8 +5,8 @@ from itertools import product
 import numpy as np
 import pytest
 import scipy.stats as stats
-from numpy.testing import (assert_, assert_allclose,  # avoid new uses
-                           assert_almost_equal, assert_equal)
+from numpy.testing import assert_allclose  # avoid new uses
+from numpy.testing import assert_, assert_almost_equal, assert_equal
 from pytest import raises as assert_raises
 from scipy._lib._testutils import _TestPythranFunc
 from scipy.stats import distributions

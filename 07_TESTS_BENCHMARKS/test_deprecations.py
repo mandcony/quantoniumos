@@ -373,6 +373,7 @@ class TestLibImports(_DeprecationTestCase):
 
         def data_gen():
             return TextIO("A,B\n0,1\n2,3")
+
         kwargs = {"delimiter": ",", "missing_values": "N/A", "names": True}
         self.assert_deprecated(lambda: recfromcsv(data_gen()))
         self.assert_deprecated(lambda: recfromtxt(data_gen(), **kwargs))
@@ -398,12 +399,16 @@ class TestDeprecatedDTypeAliases(_DeprecationTestCase):
 
     def test_a_dtype_alias(self):
         for dtype in ["a", "a10"]:
+
             def f():
                 return np.dtype(dtype)
+
             self._check_for_warning(f)
             self.assert_deprecated(f)
+
             def f():
                 return np.array(["hello", "world"]).astype("a10")
+
             self._check_for_warning(f)
             self.assert_deprecated(f)
 

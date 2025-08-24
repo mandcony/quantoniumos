@@ -92,7 +92,6 @@ try:
         QUANTONIUM_CORE_AVAILABLE = True
         print("✅ QuantoniumOS Core Engine loaded (canonical)")
     else:
-
         QUANTONIUM_CORE_AVAILABLE = True
         print("✅ QuantoniumOS Core Engine loaded (delegate)")
 except ImportError:

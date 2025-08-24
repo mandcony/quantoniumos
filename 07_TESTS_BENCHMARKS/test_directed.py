@@ -13,7 +13,6 @@ from networkx.generators.directed import (_random_k_out_graph_numpy,
                                           scale_free_graph)
 
 try:
-
     has_numpy = True
 except ImportError:
     has_numpy = False

@@ -92,9 +92,7 @@ class CfbTests(BlockChainingTests):
 
     def test_segment_size_64(self):
         for bits in range(8, 65, 8):
-            DES3.new(
-                self.key_192, DES3.MODE_CFB, self.iv_64, segment_size=bits
-            )
+            DES3.new(self.key_192, DES3.MODE_CFB, self.iv_64, segment_size=bits)
 
         for bits in 0, 7, 9, 63, 65:
             self.assertRaises(
@@ -430,6 +428,8 @@ def get_tests(config={}):
 
 
 if __name__ == "__main__":
+
     def suite():
         return unittest.TestSuite(get_tests())
+
     unittest.main(defaultTest="suite")

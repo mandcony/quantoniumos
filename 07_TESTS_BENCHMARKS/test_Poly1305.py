@@ -461,7 +461,6 @@ class Poly1305Test_ChaCha20(unittest.TestCase):
     key = b"\x11" * 32
 
     def test_new_positive(self):
-
         h1 = Poly1305.new(key=self.key, cipher=ChaCha20)
         self.assertEqual(h1.digest_size, 16)
         self.assertEqual(len(h1.nonce), 12)
@@ -492,6 +491,8 @@ def get_tests(config={}):
 
 
 if __name__ == "__main__":
+
     def suite():
         return unittest.TestSuite(get_tests())
+
     unittest.main(defaultTest="suite")

@@ -8,7 +8,7 @@ except ImportError:
     from mock import patch
 
 from ..ansitowin32 import StreamWrapper
-from ..initialise import (_wipe_internal_state_for_tests, init)
+from ..initialise import _wipe_internal_state_for_tests, init
 from .utils import osname, replace_by
 
 orig_stdout = sys.stdout

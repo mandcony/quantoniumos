@@ -57,7 +57,8 @@ from scipy.spatial.distance import (_METRICS_NAMES, _validate_vector,
                                     is_valid_y, jaccard, jensenshannon,
                                     kulczynski1, mahalanobis, minkowski,
                                     num_obs_dm, num_obs_y, pdist,
-                                    rogerstanimoto, russellrao, sokalsneath, sqeuclidean, squareform, yule)
+                                    rogerstanimoto, russellrao, sokalsneath,
+                                    sqeuclidean, squareform, yule)
 
 
 @pytest.fixture(params=_METRICS_NAMES, scope="session")

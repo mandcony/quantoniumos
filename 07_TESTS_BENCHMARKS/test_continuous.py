@@ -2150,8 +2150,7 @@ class TestReprs:
         # provided relevant imports are made.
         from numpy import array  # noqa: F401
         from numpy import float32  # noqa: F401
-        from scipy.stats import (Mixture, Normal, abs, exp, log,  # noqa: F401
-                                 order_statistic, truncate)
+        from scipy.stats import log  # noqa: F401
         from scipy.stats._new_distributions import Uniform  # noqa: F401
 
         new_dist = eval(repr(dist))

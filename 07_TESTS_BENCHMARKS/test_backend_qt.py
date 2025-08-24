@@ -14,9 +14,9 @@ from matplotlib._pylab_helpers import Gcf
 
 try:
     from matplotlib.backends.qt_compat import \
-        QtGui  # type: ignore[attr-defined]  # noqa: E501, F401
-    from matplotlib.backends.qt_compat import \
         QtWidgets  # type: ignore[attr-defined]
+    from matplotlib.backends.qt_compat import \
+        QtGui  # type: ignore[attr-defined]  # noqa: E501, F401
     from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip("No usable Qt bindings")

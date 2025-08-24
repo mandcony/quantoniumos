@@ -86,7 +86,7 @@ def test_design_system():
     print("\n🎨 Testing Design System...")
 
     try:
-        from quantonium_design_system import (get_design_system)
+        from quantonium_design_system import get_design_system
 
         # Test design system creation
         ds = get_design_system(1920, 1080)
@@ -170,7 +170,6 @@ def test_qt_components():
     print("\n🖥️ Testing PyQt5 Components...")
 
     try:
-
         # Test basic PyQt5 functionality
         tests = {
             "pyqt5_widgets": True,

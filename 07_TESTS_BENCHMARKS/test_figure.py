@@ -1293,9 +1293,7 @@ class TestSubplotMosaic:
     def test_single_str_input(self, fig_test, fig_ref, str_pattern):
         fig_test.subplot_mosaic(str_pattern)
 
-        fig_ref.subplot_mosaic(
-            [list(ln) for ln in str_pattern.strip().split("\n")]
-        )
+        fig_ref.subplot_mosaic([list(ln) for ln in str_pattern.strip().split("\n")])
 
     @pytest.mark.parametrize(
         "x,match",

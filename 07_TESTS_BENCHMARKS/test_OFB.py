@@ -254,6 +254,8 @@ def get_tests(config={}):
 
 
 if __name__ == "__main__":
+
     def suite():
         return unittest.TestSuite(get_tests())
+
     unittest.main(defaultTest="suite")

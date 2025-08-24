@@ -25,7 +25,6 @@ except ImportError as e:
     BULLETPROOF_AVAILABLE = False
 
 try:
-
     print("[IMPORT] Successfully imported TopologicalQuantumKernel")
     TOPOLOGICAL_AVAILABLE = True
 except ImportError as e:

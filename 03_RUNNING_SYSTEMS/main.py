@@ -218,8 +218,7 @@ def create_app():
 
     # Import enterprise security components with error handling
     try:
-        from enterprise_security import (get_security_score, monitoring,
-                                         waf)
+        from enterprise_security import get_security_score, monitoring, waf
         from quantum_security import container_isolation, intrusion_detection
 
         logger.info("Enterprise security modules loaded successfully")
@@ -232,6 +231,7 @@ def create_app():
                 return lambda *args, **kwargs: None
 
         waf = monitoring = PlaceholderSecurity()
+
         def get_security_score():
             return {"score": 75, "level": "7.5/10"}
 

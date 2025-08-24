@@ -165,6 +165,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(0, 2s)
         def kdf(x):
             return SHA256.new(x).digest()
+
         z = key_agreement(
             kdf=kdf, static_pub=self.static_pub, static_priv=self.static_priv
         )
@@ -177,6 +178,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(2e, 2s)
         def kdf(x):
             return SHA256.new(x).digest()
+
         z = key_agreement(
             kdf=kdf,
             static_pub=self.static_pub,
@@ -193,6 +195,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(1e, 2s)
         def kdf(x):
             return SHA256.new(x).digest()
+
         z = key_agreement(
             kdf=kdf,
             static_pub=self.static_pub,
@@ -208,6 +211,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(1e, 2s)
         def kdf(x):
             return SHA256.new(x).digest()
+
         z = key_agreement(
             kdf=kdf,
             static_pub=self.static_pub,
@@ -223,6 +227,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(2e, 1s) is not supported
         def kdf(x):
             return SHA256.new(x).digest()
+
         self.assertRaises(
             ValueError,
             key_agreement,
@@ -236,6 +241,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(2e, 1s) is not supported
         def kdf(x):
             return SHA256.new(x).digest()
+
         self.assertRaises(
             ValueError,
             key_agreement,
@@ -249,6 +255,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(2e, 0)
         def kdf(x):
             return SHA256.new(x).digest()
+
         z = key_agreement(kdf=kdf, eph_pub=self.eph_pub, eph_priv=self.eph_priv)
         self.assertEqual(
             hexlify(z),
@@ -259,6 +266,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(1e, 1s)
         def kdf(x):
             return SHA256.new(x).digest()
+
         z = key_agreement(kdf=kdf, static_priv=self.static_priv, eph_pub=self.eph_pub)
         self.assertEqual(
             hexlify(z),
@@ -269,6 +277,7 @@ class ECDH_Tests(unittest.TestCase):
         # C(1e, 1s)
         def kdf(x):
             return SHA256.new(x).digest()
+
         z = key_agreement(kdf=kdf, static_pub=self.static_pub, eph_priv=self.eph_priv)
         self.assertEqual(
             hexlify(z),
@@ -279,6 +288,7 @@ class ECDH_Tests(unittest.TestCase):
         # No private (local) keys
         def kdf(x):
             return SHA256.new(x).digest()
+
         self.assertRaises(
             ValueError,
             key_agreement,
@@ -291,6 +301,7 @@ class ECDH_Tests(unittest.TestCase):
         # No public (peer) keys
         def kdf(x):
             return SHA256.new(x).digest()
+
         self.assertRaises(
             ValueError,
             key_agreement,

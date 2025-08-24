@@ -1099,7 +1099,6 @@ class TestWriteGraphML(BaseGraphML):
 
     def test_write_interface(self):
         try:
-
             assert nx.write_graphml == nx.write_graphml_lxml
         except ImportError:
             assert nx.write_graphml == nx.write_graphml_xml

@@ -247,7 +247,6 @@ class DSADomainTest(unittest.TestCase):
     def test_construct_error_weak_domain(self):
         """Verify that domain parameters with composite q are rejected"""
 
-
         p, q, g = self._get_weak_domain()
         y = pow(g, 89, p)
         self.assertRaises(ValueError, DSA.construct, (y, g, p, q))
@@ -261,8 +260,10 @@ def get_tests(config={}):
 
 
 if __name__ == "__main__":
+
     def suite():
         return unittest.TestSuite(get_tests())
+
     unittest.main(defaultTest="suite")
 
 # vim:set ts=4 sw=4 sts=4 expandtab:

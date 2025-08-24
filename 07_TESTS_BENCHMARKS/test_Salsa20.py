@@ -361,6 +361,7 @@ if __name__ == "__main__":
 
     def suite():
         return unittest.TestSuite(get_tests())
+
     unittest.main(defaultTest="suite")
 
 # vim:set ts=4 sw=4 sts=4 expandtab:

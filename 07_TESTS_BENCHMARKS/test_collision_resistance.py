@@ -16,8 +16,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 try:
-    from core.encryption.geometric_waveform_hash import (
-        generate_waveform_hash)
+    from core.encryption.geometric_waveform_hash import generate_waveform_hash
 
     HASH_AVAILABLE = True
 except ImportError:

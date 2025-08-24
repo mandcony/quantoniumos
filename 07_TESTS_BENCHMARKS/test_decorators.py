@@ -381,7 +381,6 @@ class TestArgmap:
         assert container == ["c", "b", "a"]
 
     def test_tryfinally_generator(self):
-
         def singleton(x):
             return (x,)
 

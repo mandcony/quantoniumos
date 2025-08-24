@@ -15,7 +15,6 @@ This version includes:
 import math
 from dataclasses import dataclass
 
-
 # Mathematical constants
 PHI = (1.0 + math.sqrt(5.0)) / 2.0
 

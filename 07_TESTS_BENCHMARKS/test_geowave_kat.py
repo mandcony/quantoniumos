@@ -13,7 +13,7 @@ from typing import Any, Dict, List
 # Add core modules to path
 
 try:
-    from encryption.geometric_waveform_hash import (geometric_waveform_hash)
+    from encryption.geometric_waveform_hash import geometric_waveform_hash
 
     GEOWAVE_AVAILABLE = True
 except ImportError:
