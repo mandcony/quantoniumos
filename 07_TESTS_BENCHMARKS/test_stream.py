@@ -14,7 +14,7 @@ from unittest.mock import MagicMock, patch
 
 from backend.stream import get_stream, update_encrypt_data
 
-from main import create_app
+from core.main import create_app
 
 
 class SSEContractTest(unittest.TestCase):

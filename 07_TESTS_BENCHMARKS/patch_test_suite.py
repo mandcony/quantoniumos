@@ -36,10 +36,36 @@ def patch_test_suite():
     content = content.replace(init_line, patched_init)
 
     # Replace direct forward_true_rft calls
-    if "from canonical_true_rft import forward_true_rft, inverse_true_rft" in content:
+    if "import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft, inverse_true_rft = canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft" in content:
         # Remove the import since we're now using the symbiotic version
         content = content.replace(
-            "from canonical_true_rft import forward_true_rft, inverse_true_rft",
+            "import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft, inverse_true_rft = canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft",
             "# Using symbiotic_rft_engine_adapter instead",
         )
 

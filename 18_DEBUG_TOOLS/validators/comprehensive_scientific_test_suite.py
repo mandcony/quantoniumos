@@ -77,7 +77,7 @@ sys.path.append("/workspaces/quantoniumos")
 
 from test_mathematical_rft_validation import MathematicalRFTValidator
 
-from bulletproof_quantum_kernel import BulletproofQuantumKernel
+from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
 # Check for C++ engine availability
 RFT_ENGINES_AVAILABLE = len(cpp_engines_available) > 0

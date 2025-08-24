@@ -1,7 +1,6 @@
 
 
-# LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL # from canonical_true_rft
-import forward_true_rft, inverse_true_rft """
+# LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL # from 04_RFT_ALGORITHMS.canonical_true_rft import forward_true_rft, inverse_true_rft """
 QuantoniumOS High-Performance Engine Interface Routes all cryptographic operations through C++ engines with Python fallback This module provides the primary interface for all QuantoniumOS cryptographic operations, automatically routing calls to high-performance C++ implementations when available, with seamless fallback to Python implementations.
 """
 """
@@ -24,7 +23,7 @@ import quantonium_core HAS_CORE_ENGINE = True logger.info("✓ Core Engine loade
 
 # Fallback Python implementations
 if not (HAS_RESONANCE_ENGINE or HAS_CORE_ENGINE): logger.info("🐍 Using Python fallback implementations")
-from canonical_true_rft import ( forward_true_rft as _py_forward_rft, inverse_true_rft as _py_inverse_rft, encode_symbolic_resonance as _py_encode_symbolic ) from core.encryption.geometric_waveform_hash
+from 04_RFT_ALGORITHMS.canonical_true_rft import ( forward_true_rft as _py_forward_rft, inverse_true_rft as _py_inverse_rft, encode_symbolic_resonance as _py_encode_symbolic ) from core.encryption.geometric_waveform_hash
 import GeometricWaveformHash as _PyGeometricHash
 
 class QuantoniumEngineCore: """

@@ -21,10 +21,20 @@ import symbols, cos, sin, Rational SYMPY_AVAILABLE = True
 except ImportError: SYMPY_AVAILABLE = False
 print("⚠️ SymPy not available. Install with: pip install sympy")
 
-# Import core RFT functions from canonical_true_rft
-import forward_true_rft, inverse_true_rft
+# Import core RFT functions import importlib.util
+import os
 
-# Legacy wrapper maintained for: ( forward_true_rft, inverse_true_rft, compute_rft_matrix, validate_rft_unitarity ) logger = logging.getLogger(__name__)
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft, inverse_true_rft = canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft# Legacy wrapper maintained for: ( forward_true_rft, inverse_true_rft, compute_rft_matrix, validate_rft_unitarity ) logger = logging.getLogger(__name__)
 
 class RFTMathematicalValidator: """
     Comprehensive mathematical validation suite for RFT unitarity proofs.

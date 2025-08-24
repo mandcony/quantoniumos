@@ -9,9 +9,9 @@ import json
 import unittest
 
 from core.encryption.geometric_waveform_hash import generate_waveform_hash
-from main import create_app
+from core.main import create_app
 
-# Add parent directory to path to import app modules
+# Add parent directory to path to import core.app as appmodules
 
 
 class TestContainerParametersAPI(unittest.TestCase):

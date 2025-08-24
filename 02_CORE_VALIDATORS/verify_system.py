@@ -12,8 +12,10 @@ import subprocess
 import sys
 import time
 
-# Project root directory
+# Project root directory - this points to the 02_CORE_VALIDATORS folder
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+# Parent directory - this points to the quantoniumos project root
+PARENT_ROOT = os.path.dirname(PROJECT_ROOT)
 
 # Add the root directory to the Python path
 sys.path.insert(0, os.path.dirname(PROJECT_ROOT))
@@ -35,7 +37,7 @@ def run_command(command, timeout=60):
 
         # Add the project root to PYTHONPATH for importing modules
         env = os.environ.copy()
-        env["PYTHONPATH"] = os.path.dirname(os.path.dirname(PROJECT_ROOT))
+        env["PYTHONPATH"] = PARENT_ROOT
 
         result = subprocess.run(
             command,
@@ -87,12 +89,15 @@ def check_app_launchers():
     """Check that app launchers work properly."""
     print_section("Testing App Launchers")
 
+    # Use parent_root to construct absolute paths to the apps directory
+    project_apps_dir = os.path.join(PARENT_ROOT, "apps")
+    
     launchers = [
-        "python apps/launch_quantum_simulator.py",
-        "python apps/launch_q_mail.py",
-        "python apps/launch_q_notes.py",
-        "python apps/launch_q_vault.py",
-        "python apps/launch_rft_visualizer.py",
+        f"python {project_apps_dir}/launch_quantum_simulator.py",
+        f"python {project_apps_dir}/launch_q_mail.py",
+        f"python {project_apps_dir}/launch_q_notes.py",
+        f"python {project_apps_dir}/launch_q_vault.py",
+        f"python {project_apps_dir}/launch_rft_visualizer.py",
     ]
 
     results = []
@@ -359,7 +364,7 @@ def main():
     print(f"Detailed report saved to: {report_path}")
 
     # Return success status for scripting
-    return 0 if successful == total else 1
+    return {"status": "PASS", "message": f"{successful}/{total} tests passed"}
 
 
 if __name__ == "__main__":

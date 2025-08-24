@@ -6,10 +6,20 @@ RFT vs DFT Sparsity & Detection Test - Proof of Mathematical Superiority This te
 
 import numpy as np
 import matplotlib.pyplot as plt from scipy
-import signal from canonical_true_rft
-import forward_true_rft, inverse_true_rft
+import signal import importlib.util
+import os
 
-# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft, inverse_true_rft = canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft
 def generate_phase_modulated_chirp(t, f0=10, f1=50, phi_mod_freq=2, phi_mod_depth=np.pi/2):
 """
 """

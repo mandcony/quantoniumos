@@ -33,8 +33,7 @@ import TrotterErrorValidator
 import UnitarityValidator
 import validate_true_rft
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 
 class MasterQuantumGateValidator: """
     Master validator that runs all quantum gate validation test suites.

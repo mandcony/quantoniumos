@@ -20,7 +20,7 @@ def main():
     print("🔧 Initializing unified system...")
 
     try:
-        from quantonium_os_unified import QuantoniumOSUnified
+        from core.quantonium_os_unified import QuantoniumOSUnified
 
         print("✅ System components loaded")
         print("⚛️ Quantum kernel ready")

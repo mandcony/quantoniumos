@@ -1,12 +1,12 @@
 # QuantoniumOS Final Verification Report
 
-*Generated on: 2025-08-23 23:34:23*
+*Generated on: 2025-08-24 15:39:53*
 
 ## System Information
 
-- **Platform**: Windows-11-10.0.26100-SP0
-- **Python Version**: 3.12.9
-- **Processor**: AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD
+- **Platform**: Linux-6.8.0-1030-azure-x86_64-with-glibc2.39
+- **Python Version**: 3.12.1
+- **Processor**: x86_64
 
 ## Verification Summary
 
@@ -24,11 +24,11 @@
 | core.python.utilities | SUCCESS Success |
 | bulletproof_quantum_kernel | SUCCESS Success |
 | topological_quantum_kernel | SUCCESS Success |
-| python apps/launch_quantum_simulator.py | SUCCESS Success |
-| python apps/launch_q_mail.py | SUCCESS Success |
-| python apps/launch_q_notes.py | SUCCESS Success |
-| python apps/launch_q_vault.py | SUCCESS Success |
-| python apps/launch_rft_visualizer.py | SUCCESS Success |
+| python /workspaces/quantoniumos/apps/launch_quantum_simulator.py | SUCCESS Success |
+| python /workspaces/quantoniumos/apps/launch_q_mail.py | SUCCESS Success |
+| python /workspaces/quantoniumos/apps/launch_q_notes.py | SUCCESS Success |
+| python /workspaces/quantoniumos/apps/launch_q_vault.py | SUCCESS Success |
+| python /workspaces/quantoniumos/apps/launch_rft_visualizer.py | SUCCESS Success |
 | python build_crypto_engine.py --help | SUCCESS Success |
 | python 10_UTILITIES/build_vertex_engine.py --help | SUCCESS Success |
 | python 10_UTILITIES/build_resonance_engine.py --help | SUCCESS Success |

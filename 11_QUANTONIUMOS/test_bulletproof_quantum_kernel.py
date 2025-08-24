@@ -24,7 +24,7 @@ import pytest
 # Add current directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from bulletproof_quantum_kernel import (BulletproofQuantumKernel,
+from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import (BulletproofQuantumKernel,
                                         create_test_kernel)
 
 # Suppress warnings for cleaner output

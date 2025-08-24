@@ -13,8 +13,7 @@ import Optional
 import scipy.linalg
 import Tuple
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 
 def random_state(N: int) -> np.ndarray: """
         Generate a random complex state vector.

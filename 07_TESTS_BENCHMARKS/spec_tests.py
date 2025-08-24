@@ -5,10 +5,20 @@ Spec Tests - Bullet-proof validation for QuantoniumOS mathematical properties Ru
 """
 
 import numpy as np
-import secrets from canonical_true_rft
-import forward_true_rft, inverse_true_rft
+import secrets import importlib.util
+import os
 
-# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft from core.encryption.fixed_resonance_encrypt
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft, inverse_true_rft = canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft# Legacy wrapper maintained for: forward_true_rft, inverse_true_rft from core.encryption.fixed_resonance_encrypt
 import fixed_resonance_encrypt
 def test_rft_unitarity_and_energy():
 """

@@ -75,7 +75,7 @@ def start_desktop_mode():
         try:
             from PyQt5.QtWidgets import QApplication
 
-            from quantonium_os_unified import QuantoniumOSUnified
+            from core.quantonium_os_unified import QuantoniumOSUnified
 
             print("Launching QuantoniumOS Unified with Oval/Tab Dock...")
 
@@ -132,8 +132,7 @@ def start_web_mode(port=5000, debug=False):
     print(f"Starting QuantoniumOS Web Interface on port {port}...")
 
     try:
-        from web.quantonium_web_interface import app
-
+        from web.quantonium_web_interface import core.app as app
         app.run(host="0.0.0.0", port=port, debug=debug)
     except Exception as e:
         print(f"Failed to start web interface: {e}")

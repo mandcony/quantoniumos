@@ -34,8 +34,8 @@ def run_validation():
 
 # Import QuantoniumOS components
 try:
-    from bulletproof_quantum_kernel import BulletproofQuantumKernel
-    from topological_quantum_kernel import TopologicalQuantumKernel
+    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+    from 05_QUANTUM_ENGINES.topological_quantum_kernel import TopologicalQuantumKernel
 
     print("[IMPORT] Successfully imported quantum kernels")
 except ImportError as e:

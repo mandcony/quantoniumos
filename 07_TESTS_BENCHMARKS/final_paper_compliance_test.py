@@ -7,7 +7,20 @@ All targets from the research paper are now met.
 import secrets
 
 # Import the fixed implementation
-from paper_compliant_rft_fixed import FixedRFTCryptoBindings
+import importlib.util
+import os
+
+# Load the paper_compliant_rft_fixed module
+spec = importlib.util.spec_from_file_location(
+    "paper_compliant_rft_fixed", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/paper_compliant_rft_fixed.py")
+)
+paper_compliant_rft_fixed = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(paper_compliant_rft_fixed)
+
+# Import specific functions/classes
+FixedRFTCryptoBindings = paper_compliant_rft_fixed.FixedRFTCryptoBindings
 
 
 def final_paper_compliance_test():
@@ -25,7 +38,8 @@ def final_paper_compliance_test():
     test_data = b"Hello, World!123"  # 16 bytes
     key = secrets.token_bytes(32)
     salt = b"paper_compliance_test_2025"
-    key_material = rft.generate_key_material(key, salt, 32)
+    key_result = rft.generate_key(key, salt, 32)
+    key_material = key_result["key"]
 
     encrypted = rft.encrypt_block(test_data, key_material)
     decrypted = rft.decrypt_block(encrypted, key_material)
@@ -43,8 +57,10 @@ def final_paper_compliance_test():
     key2 = bytearray(key1)
     key2[0] ^= 1  # Flip one bit
 
-    km1 = rft.generate_key_material(key1, salt, 32)
-    km2 = rft.generate_key_material(bytes(key2), salt, 32)
+    km1_result = rft.generate_key(key1, salt, 32)
+    km2_result = rft.generate_key(bytes(key2), salt, 32)
+    km1 = km1_result["key"]
+    km2 = km2_result["key"]
 
     test_msg = b"Fixed test msg16"  # 16 bytes
     enc1 = rft.encrypt_block(test_msg, km1)

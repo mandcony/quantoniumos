@@ -19,9 +19,9 @@ except ImportError:
     )
 
 # Import the canonical Python implementation
-from canonical_true_rft import forward_true_rft as py_forward_true_rft
-from canonical_true_rft import get_rft_basis
-from canonical_true_rft import inverse_true_rft as py_inverse_true_rft
+from 04_RFT_ALGORITHMS.canonical_true_rft import forward_true_rft as py_forward_true_rft
+from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis
+from 04_RFT_ALGORITHMS.canonical_true_rft import inverse_true_rft as py_inverse_true_rft
 
 
 class FixedTrueRFTEngine:

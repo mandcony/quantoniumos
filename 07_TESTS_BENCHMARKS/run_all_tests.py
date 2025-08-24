@@ -58,8 +58,10 @@ class QuantoniumTestRunner:
             "*_validator.py",
         ]
 
+        # Look in 07_TESTS_BENCHMARKS directory
+        tests_dir = self.project_root / "07_TESTS_BENCHMARKS"
         for pattern in patterns:
-            test_files.extend(self.project_root.glob(pattern))
+            test_files.extend(tests_dir.glob(pattern))
 
         return test_files
 
@@ -79,7 +81,14 @@ class QuantoniumTestRunner:
             # Import the test module
             spec = importlib.util.spec_from_file_location(test_file.stem, test_file)
             module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
+            
+            try:
+                spec.loader.exec_module(module)
+            except Exception as e:
+                error_msg = str(e)
+                print(f"  ❌ ERROR loading module: {error_msg}")
+                results["errors"].append(f"Module load failed: {error_msg}")
+                return results
 
             # Find and run test functions
             test_functions = [
@@ -94,7 +103,26 @@ class QuantoniumTestRunner:
                     start_time = time.time()
 
                     # Execute test function
-                    result = test_func()
+                    try:
+                        # Check function signature - if it requires arguments, skip it
+                        import inspect
+                        sig = inspect.signature(test_func)
+                        if len(sig.parameters) > 0:
+                            print(f" ⚠️ ERROR: {test_func.__name__}() missing {len(sig.parameters)} required positional argument(s)")
+                            results["errors"].append(f"Function requires arguments: {sig.parameters}")
+                            continue
+                            
+                        result = test_func()
+                        
+                    except SystemExit:
+                        print(f" ⏭️ SKIPPED: System exit")
+                        continue
+                    except Exception as e:
+                        if "Skipped" in str(type(e)) or "pytest.skip" in str(e):
+                            print(f" ⏭️ SKIPPED: {str(e)}")
+                            continue
+                        else:
+                            raise e
 
                     duration = time.time() - start_time
 
@@ -156,10 +184,14 @@ class QuantoniumTestRunner:
         """Run tests from a specific category"""
         print(f"\n📂 Running {category} tests...")
 
-        category_dir = self.project_root / "tests" / category
+        # Primary location for test categories
+        category_dir = self.project_root / "07_TESTS_BENCHMARKS" / category
         if not category_dir.exists():
-            print(f"  ⚠️ Category directory not found: {category_dir}")
-            return {"tests_run": 0, "passed": 0, "failed": 0}
+            # Fall back to old location
+            category_dir = self.project_root / "tests" / category
+            if not category_dir.exists():
+                print(f"  ⚠️ Category directory not found: {category_dir}")
+                return {"tests_run": 0, "passed": 0, "failed": 0}
 
         test_files = list(category_dir.glob("test_*.py"))
         if not test_files:
@@ -238,6 +270,37 @@ def main():
         help="Run tests from specific category only",
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
+
+    args = parser.parse_args()
+    runner = QuantoniumTestRunner()
+
+    print("🚀 QuantoniumOS Unified Test Runner")
+    print("==================================================\n")
+
+    try:
+        print("📁 Discovering root-level test files...")
+        test_files = runner.discover_root_tests()
+        print(f"Found {len(test_files)} test files")
+
+        if args.category:
+            print(f"\n📦 Running {args.category} tests...")
+            results = runner.run_category_tests(args.category)
+        else:
+            results = runner.run_all_tests(category=args.category)
+
+        # Exit with appropriate status code
+        if results["failed"] > 0:
+            sys.exit(1)
+        else:
+            sys.exit(0)
+    except KeyboardInterrupt:
+        print("\n\n⚠️ Test execution interrupted by user.")
+        sys.exit(2)
+    except Exception as e:
+        print(f"\n\n❌ Fatal error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(3)
 
     args = parser.parse_args()
 

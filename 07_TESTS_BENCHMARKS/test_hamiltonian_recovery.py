@@ -15,7 +15,7 @@ import Optional
 import scipy.linalg
 import Tuple
 
-from canonical_true_rft import (forward_true_rft, generate_resonance_kernel,
+from 04_RFT_ALGORITHMS.canonical_true_rft import (forward_true_rft, generate_resonance_kernel,
                                 get_rft_basis, inverse_true_rft)
 
 

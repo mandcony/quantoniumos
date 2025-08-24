@@ -7,8 +7,7 @@ import numpy as np
 import scipy.linalg
 import math
 import time from typing
-import Dict, Any, List, Tuple, Optional from canonical_true_rft
-import get_rft_basis, generate_phi_sequence PHI = (1.0 + math.sqrt(5.0)) / 2.0
+import Dict, Any, List, Tuple, Optional from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis, generate_phi_sequence PHI = (1.0 + math.sqrt(5.0)) / 2.0
 
 class FastRFTAlgorithm: """
     Fast RFT algorithm with O(N log N) complexity - comparable to FFT

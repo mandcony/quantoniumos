@@ -14,7 +14,23 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.encryption.geometric_waveform_hash import GeometricWaveformHash
 # Import necessary modules
-from paper_compliant_rft_fixed import FixedRFTCryptoBindings, PaperCompliantRFT
+import importlib.util
+import os
+
+# Load the paper_compliant_rft_fixed module
+spec = importlib.util.spec_from_file_location(
+    "paper_compliant_rft_fixed", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/paper_compliant_rft_fixed.py")
+)
+paper_compliant_rft_fixed = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(paper_compliant_rft_fixed)
+
+# Import specific functions/classes
+FixedRFTCryptoBindings, PaperCompliantRFT
+
+
+class TestRFTGeometricWaveform = paper_compliant_rft_fixed.FixedRFTCryptoBindings, paper_compliant_rft_fixed.PaperCompliantRFT
 
 
 class TestRFTGeometricWaveform(unittest.TestCase):

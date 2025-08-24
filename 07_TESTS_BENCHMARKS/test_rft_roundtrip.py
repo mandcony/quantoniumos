@@ -7,16 +7,25 @@ Tests the mathematical correctness of forward and inverse RFT operations
 import json
 import math
 import sys
+import os
+import importlib.util
 from typing import List, Tuple
 
-# Add core modules to path
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
 
-try:
-    from canonical_true_rft import forward_true_rft, inverse_true_rft
-# Legacy wrapper maintained for: (
-        resonance_fourier_transform,
-        inverse_resonance_fourier_transform,
-        perform_rft_list,
+# Import functions from the loaded module
+forward_true_rft = canonical_true_rft.forward_true_rft
+inverse_true_rft = canonical_true_rft.inverse_true_rft
+resonance_fourier_transform = canonical_true_rft.resonance_fourier_transform
+inverse_resonance_fourier_transform = canonical_true_rft.inverse_resonance_fourier_transform
+perform_rft_list = canonical_true_rft.perform_rft_list
         perform_irft_list
     )
     RFT_AVAILABLE = True

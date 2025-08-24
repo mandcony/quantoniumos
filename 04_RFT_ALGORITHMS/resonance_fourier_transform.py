@@ -7,8 +7,7 @@ import numpy as np
 import math
 import json from typing
 import Dict, Any, List, Tuple, Optional, Union from dataclasses
-import dataclass from canonical_true_rft
-import generate_phi_sequence PHI = (1.0 + math.sqrt(5.0)) / 2.0 @dataclass
+import dataclass from 04_RFT_ALGORITHMS.canonical_true_rft import generate_phi_sequence PHI = (1.0 + math.sqrt(5.0)) / 2.0 @dataclass
 
 class RFTParameters: """
     Parameters defining an RFT instance

@@ -1,53 +1,99 @@
 #!/usr/bin/env python3
 """
-RFT Practical Mathematical Validation Suite This suite focuses on the practical mathematical properties of the RFT that are relevant for cryptographic applications, rather than strict unitarity. Key Properties Validated: 1. Energy Preservation - ||RFT(x)||^2 approx ||x||^2 2. Invertibility - IRFT(RFT(x)) approx x 3. Spectral Properties - Eigenvalue analysis 4. Statistical Properties - Avalanche effect, etc. Author: QuantoniumOS Development Team Patent Reference: USPTO Application 19/169,399
-"""
+RFT Practical Mathematical Validation Suite 
+
+This suite focuses on the practical mathematical properties of the RFT that are relevant 
+for cryptographic applications, rather than strict unitarity. 
+
+Key Properties Validated: 
+1. Energy Preservation - ||RFT(x)||^2 approx ||x||^2 
+2. Invertibility - IRFT(RFT(x)) approx x 
+3. Spectral Properties - Eigenvalue analysis 
+4. Statistical Properties - Avalanche effect, etc. 
+
+Author: QuantoniumOS Development Team 
+Patent Reference: USPTO Application 19/169,399
 """
 
 import sys
 import os
 import numpy as np
-import logging from pathlib
-import Path from typing
-import Dict, List, Tuple, Optional, Any
-import matplotlib.pyplot as plt from datetime
-import datetime
+import logging
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional, Any
+import matplotlib.pyplot as plt
+from datetime import datetime
 import json
 
-# Add current directory to Python path for imports current_dir = Path(__file__).parent sys.path.insert(0, str(current_dir))
+# Add current directory to Python path for imports
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
 
 # Import CANONICAL RFT functions (single source of truth)
-from canonical_true_rft import ( forward_true_rft, inverse_true_rft, validate_true_rft ) logger = logging.getLogger(__name__)
+import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions
+forward_true_rft = canonical_true_rft.forward_true_rft
+inverse_true_rft = canonical_true_rft.inverse_true_rft
+validate_true_rft = canonical_true_rft.validate_true_rft
+
+logger = logging.getLogger(__name__)
 
 class RFTPracticalValidator:
-"""
-"""
-    Practical mathematical validation suite for RFT cryptographic properties.
-"""
-"""
+    """Practical mathematical validation suite for RFT cryptographic properties."""
 
     def __init__(self):
         self.results = {}
         self.validation_log = []
+        
     def log_result(self, test_name: str, passed: bool, details: str):
-"""
-"""
-        Log validation result with timestamp
-"""
-        """ timestamp = datetime.now().isoformat() result = { 'test': test_name, 'passed': passed, 'details': details, 'timestamp': timestamp }
+        """Log validation result with timestamp"""
+        timestamp = datetime.now().isoformat()
+        result = {
+            'test': test_name,
+            'passed': passed,
+            'details': details,
+            'timestamp': timestamp
+        }
         self.validation_log.append(result)
-        self.results[test_name] = passed status = "✅ PASSED"
-        if passed else "❌ FAILED"
+        self.results[test_name] = passed
+        status = "✅ PASSED" if passed else "❌ FAILED"
         print(f"{status} {test_name}: {details}")
-    def test_energy_preservation(self) -> bool: """
-        Test that RFT preserves signal energy (Parseval's theorem analog). For cryptographic applications, energy preservation is more important than strict unitarity for information preservation.
-"""
-"""
-        print("🔋 Testing energy preservation across different signals...") test_cases = [ ("impulse", lambda n: [1.0] + [0.0] * (n-1)), ("constant", lambda n: [1.0] * n), ("linear", lambda n: [float(i)
-        for i in range(n)]), ("random", lambda n: np.random.randn(n).tolist()), ("sinusoidal", lambda n: [np.sin(2*np.pi*i/n)
-        for i in range(n)]) ] sizes = [8, 16, 32] tolerance = 0.1 # 10% energy deviation allowed passed_tests = 0 total_tests = 0 energy_ratios = []
-        for size in sizes: for signal_name, signal_gen in test_cases: total_tests += 1
-        try:
+        
+    def test_energy_preservation(self) -> bool:
+        """
+        Test that RFT preserves signal energy (Parseval's theorem analog).
+        For cryptographic applications, energy preservation is more important
+        than strict unitarity for information preservation.
+        """
+        print("🔋 Testing energy preservation across different signals...") 
+        test_cases = [
+            ("impulse", lambda n: [1.0] + [0.0] * (n-1)),
+            ("constant", lambda n: [1.0] * n),
+            ("linear", lambda n: [float(i) for i in range(n)]),
+            ("random", lambda n: np.random.randn(n).tolist()),
+            ("sinusoidal", lambda n: [np.sin(2*np.pi*i/n) for i in range(n)])
+        ]
+        sizes = [8, 16, 32]
+        tolerance = 0.1  # 10% energy deviation allowed
+        passed_tests = 0
+        total_tests = 0
+        energy_ratios = []
+        
+        for size in sizes:
+            for signal_name, signal_gen in test_cases:
+                total_tests += 1
+                try:
 
         # Generate test signal
         if signal_name == "random": np.random.seed(42)
@@ -127,8 +173,20 @@ class RFTPracticalValidator:
         for size in sizes: total_spectral += 1
         try:
 
-        # Compute RFT matrix using canonical implementation from canonical_true_rft
-import get_rft_basis K = get_rft_basis(size)
+        # Compute RFT matrix using canonical implementation import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+get_rft_basis K = canonical_true_rft.get_rft_basis K= get_rft_basis(size)
 
         # Eigenvalue analysis eigenvals = np.linalg.eigvals(K) eigenval_mags = np.abs(eigenvals)
 

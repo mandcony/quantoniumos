@@ -238,7 +238,7 @@ def validate_complete_system():
 
         # 3. HPC Pipeline
         try:
-            from quantonium_hpc_pipeline import QuantoniumHPCPipeline
+            from quantonium_hpc_pipeline.quantonium_hpc_pipeline import QuantoniumHPCPipeline
 
             pipeline = QuantoniumHPCPipeline()
             engines_status["HPC Pipeline"] = "✅ WORKING"

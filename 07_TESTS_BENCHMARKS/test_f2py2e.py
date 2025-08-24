@@ -8,7 +8,7 @@ from collections import namedtuple
 from pathlib import Path
 
 import pytest
-from numpy.f2py.f2py2e import main as f2pycli
+from numpy.f2py.f2py2e import core.main as mainas f2pycli
 from numpy.testing._private.utils import NOGIL_BUILD
 
 from . import util

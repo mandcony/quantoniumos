@@ -1,33 +1,84 @@
-||#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Test script to verify DFT cleanup and True RFT operation
 """
-"""
+
+import os
+import numpy as np
+import importlib.util
 
 def test_no_dft_in_main_module():
-"""
-"""
-        Test that the main resonance_fourier.py module contains no DFT references.
-"""
-"""
-        print("🧹 Testing: No DFT references in main module") with open('/workspaces/quantoniumos/core/encryption/resonance_fourier.py', 'r') as f: content = f.read() dft_keywords = ['windowed DFT', 'standard DFT', 'dft_kernel', 'exp(-2j * np.pi'] found_dft = []
-        for keyword in dft_keywords:
-        if keyword.lower() in content.lower(): found_dft.append(keyword)
-        if found_dft:
+    """
+    Test that the main resonance_fourier.py module contains no DFT references.
+    """
+    print("🧹 Testing: No DFT references in main module")
+    
+    resonance_fourier_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                                        "core/encryption/resonance_fourier.py")
+    
+    if not os.path.exists(resonance_fourier_path):
+        print("⚠️ Warning: Could not find resonance_fourier.py")
+        return False
+        
+    with open(resonance_fourier_path, 'r') as f:
+        content = f.read()
+        
+    dft_keywords = ['windowed DFT', 'standard DFT', 'dft_kernel', 'exp(-2j * np.pi']
+    found_dft = []
+    
+    for keyword in dft_keywords:
+        if keyword.lower() in content.lower():
+            found_dft.append(keyword)
+            
+    if found_dft:
         print(f"❌ Found DFT references: {found_dft}")
         return False
-        else:
+    else:
         print("✅ No DFT references found in main module")
         return True
-def test_true_rft_works(): """
-        Test that True RFT implementation works correctly.
-"""
-"""
-        print("\n🔬 Testing: True RFT functionality")
-        try: from canonical_true_rft
-import forward_true_rft
-import inverse_true_rft
-import numpy as np
+
+def test_true_rft_works():
+    """
+    Test that True RFT implementation works correctly.
+    """
+    print("\n🔬 Testing: True RFT functionality")
+    
+    try:
+        # Load the canonical_true_rft module
+        spec = importlib.util.spec_from_file_location(
+            "canonical_true_rft", 
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                        "04_RFT_ALGORITHMS/canonical_true_rft.py")
+        )
+        canonical_true_rft = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(canonical_true_rft)
+        
+        forward_true_rft = canonical_true_rft.forward_true_rft
+        inverse_true_rft = canonical_true_rft.inverse_true_rft
+        
+        # Simple test case
+        data = np.random.random(16)
+        transformed = forward_true_rft(data)
+        restored = inverse_true_rft(transformed)
+        
+        # Check round-trip accuracy
+        error = np.mean(np.abs(data - restored))
+        print(f"Round-trip error: {error:.10f}")
+        
+        if error < 1e-10:
+            print("✅ True RFT round-trip test passed")
+            return True
+        else:
+            print("❌ True RFT round-trip test failed")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error testing True RFT: {str(e)}")
+        return False
+
+if __name__ == "__main__":
+    test_no_dft_in_main_module()
+    test_true_rft_works()
 
         # Legacy wrapper maintained for: resonance_fourier_transform, inverse_resonance_fourier_transform
 

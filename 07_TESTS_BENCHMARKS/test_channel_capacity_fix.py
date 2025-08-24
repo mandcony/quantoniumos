@@ -10,7 +10,23 @@ import numpy as np
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from bulletproof_quantum_kernel import BulletproofQuantumKernel
+import importlib.util
+import os
+
+# Load the bulletproof_quantum_kernel module
+spec = importlib.util.spec_from_file_location(
+    "bulletproof_quantum_kernel", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "05_QUANTUM_ENGINES/bulletproof_quantum_kernel.py")
+)
+bulletproof_quantum_kernel = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bulletproof_quantum_kernel)
+
+# Import specific functions/classes
+BulletproofQuantumKernel
+
+
+def test_channel_capacity_broadcasting = bulletproof_quantum_kernel.BulletproofQuantumKernel
 
 
 def test_channel_capacity_broadcasting():

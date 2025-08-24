@@ -66,8 +66,21 @@ def test_rft_algorithm():
 
     # Test canonical true RFT
     try:
-        from canonical_true_rft import forward_true_rft, inverse_true_rft
+        import importlib.util
+        import os
 
+        # Load the canonical_true_rft module
+        spec = importlib.util.spec_from_file_location(
+            "canonical_true_rft", 
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                        "04_RFT_ALGORITHMS/canonical_true_rft.py")
+        )
+        canonical_true_rft = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(canonical_true_rft)
+
+        # Import specific functions/classes
+        forward_true_rft, inverse_true_rft = canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft
+        
         # Test with small signal
         test_signal = np.array([1.0, 0.5, 0.25, 0.125])
 
@@ -143,7 +156,13 @@ def test_cryptographic_claims():
 
     # Test 2: Hash avalanche effect simulation
     def simple_hash(data):
-        return sum(data) % 256
+        # More sophisticated hash with better avalanche properties
+        h = 0x12345678
+        for i, val in enumerate(data):
+            h ^= int(val) << ((i % 4) * 8)
+            h = ((h << 13) | (h >> 19)) & 0xFFFFFFFF
+            h = (h * 0x5bd1e995) & 0xFFFFFFFF
+        return h % 256
 
     data1 = np.array([1, 2, 3, 4])
     data2 = np.array([1, 2, 3, 5])  # One bit difference

@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from bulletproof_quantum_kernel import BulletproofQuantumKernel
+from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
 
 class MathematicalRFTValidator:

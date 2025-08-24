@@ -76,7 +76,7 @@ except ImportError:
 
 try:
     if web_deps_available:
-        from app import app, initialize_quantum_system, socketio
+        from core.app import app, initialize_quantum_system, socketio
 
         web_available = True
         print("✅ Web interface modules loaded")
@@ -158,7 +158,7 @@ class QuantoniumOSManager:
             # Initialize web backend with our kernel
             if self.kernel:
                 # Connect web interface to our kernel
-                import app as web_app
+                import core.app as appas web_app
 
                 web_app.quantum_kernel = self.kernel
                 web_app.quantum_integration = self.integration

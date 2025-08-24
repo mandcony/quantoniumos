@@ -12,8 +12,7 @@ import List
 import numpy as np
 import Tuple
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 try: from cpp_rft_wrapper
 import =
 import CPP_ENGINE_AVAILABLE

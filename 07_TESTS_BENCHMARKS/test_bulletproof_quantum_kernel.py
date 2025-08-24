@@ -22,7 +22,15 @@ import numpy as np
 # Add current directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from bulletproof_quantum_kernel import create_test_kernel
+import importlib.util
+spec = importlib.util.spec_from_file_location(
+    "bulletproof_quantum_kernel", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "05_QUANTUM_ENGINES/bulletproof_quantum_kernel.py")
+)
+bqk_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bqk_module)
+create_test_kernel = bqk_module.create_test_kernel
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore", category=RuntimeWarning)

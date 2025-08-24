@@ -1,8 +1,15 @@
 """Basic tests for QuantoniumOS package"""
 
+import os
+import sys
 import numpy as np
 
-import quantoniumos as qos
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Import the required modules
+from importlib import import_module
+qos = import_module("core.quantoniumos")
 
 
 def test_package_import():

@@ -24,7 +24,7 @@ sys.path.append(os.getcwd())
 
 # Import the canonical Python implementation of RFT
 try:
-    from canonical_true_rft import (forward_true_rft, get_rft_basis,
+    from 04_RFT_ALGORITHMS.canonical_true_rft import (forward_true_rft, get_rft_basis,
                                     inverse_true_rft)
 
     print("✅ Successfully imported canonical True RFT implementation")
@@ -43,7 +43,7 @@ except ImportError as e:
 
 # Import BulletproofQuantumKernel
 try:
-    from bulletproof_quantum_kernel import BulletproofQuantumKernel
+    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     print("✅ Successfully imported BulletproofQuantumKernel")
 except ImportError as e:

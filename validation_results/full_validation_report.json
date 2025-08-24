@@ -1,15 +1,15 @@
 {
-  "timestamp": 1756006463.8383083,
+  "timestamp": 1756049993.674773,
   "summary": {
     "total": 12,
-    "passed": 6,
+    "passed": 11,
     "failed": 1,
-    "errors": 2,
-    "elapsed": 10.848619937896729
+    "errors": 0,
+    "elapsed": 3.652257204055786
   },
   "results": {
     "basic_scientific_validator": {
-      "timestamp": "2025-08-23T23:34:13.090779",
+      "timestamp": "2025-08-24T15:39:50.114754",
       "tests": {
         "bulletproof_functionality": {
           "kernel_initialized": true,
@@ -40,19 +40,19 @@
           "file_status": {
             "main.py": {
               "exists": true,
-              "size": 3947,
+              "size": 4738,
               "non_empty": true,
               "status": "OK"
             },
             "app.py": {
               "exists": true,
-              "size": 136,
+              "size": 129,
               "non_empty": true,
               "status": "OK"
             },
             "topological_quantum_kernel.py": {
               "exists": true,
-              "size": 1408,
+              "size": 1372,
               "non_empty": true,
               "status": "OK"
             },
@@ -64,13 +64,13 @@
             },
             "working_quantum_kernel.py": {
               "exists": true,
-              "size": 2464,
+              "size": 2408,
               "non_empty": true,
               "status": "OK"
             },
             "__init__.py": {
               "exists": true,
-              "size": 2699,
+              "size": 2610,
               "non_empty": true,
               "status": "OK"
             }
@@ -87,10 +87,11 @@
         "system_health": 1.0,
         "overall_status": "FUNCTIONAL",
         "ready_for_advanced_testing": true
-      }
+      },
+      "status": "PASS"
     },
     "definitive_quantum_validation": {
-      "timestamp": "2025-08-23 23:34:13",
+      "timestamp": "2025-08-24 15:39:50",
       "network_size": 8,
       "precision_threshold": 1e-10,
       "tests": [
@@ -238,20 +239,20 @@
               "original_vertex": 0,
               "target_vertex": 3,
               "initial_fidelity": 1.0000000000000004,
-              "final_fidelity": 0.9975020826390132,
-              "information_loss": 0.002497917360986812
+              "final_fidelity": 0.9975020826390134,
+              "information_loss": 0.00249791736098659
             }
           ],
-          "information_loss": 0.002497917360986812,
+          "information_loss": 0.00249791736098659,
           "pass": "True"
         },
         {
           "name": "Quantum Coherence Preservation",
           "initial_coherences": [
-            1.0,
+            1.0000000000000002,
             0.0,
-            1.0,
-            1.0,
+            1.0000000000000002,
+            1.0000000000000002,
             1.0,
             0.0,
             1.0000000000000002,
@@ -261,20 +262,20 @@
             1.0,
             0.0,
             1.0000000000000002,
+            1.0,
             1.0000000000000002,
-            1.0,
             0.0,
-            1.0,
+            1.0000000000000002,
             0.0
           ],
           "preservation_ratios": [
-            1.0,
-            1.0,
-            1.0000000000000002,
-            1.0000000000000002,
+            0.9999999999999998,
             1.0,
             1.0,
             0.9999999999999998,
+            1.0000000000000002,
+            1.0,
+            1.0,
             1.0
           ],
           "average_preservation": 1.0,
@@ -284,15 +285,23 @@
       "total_tests": 5,
       "passed_tests": 5,
       "success_rate": 1.0,
-      "quantum_validity": true
+      "quantum_validity": true,
+      "status": "PASS"
     },
     "final_paper_compliance_test": {
-      "status": "ERROR",
-      "message": "No entry point found"
+      "status": "FAIL",
+      "message": "Paper compliance tests failed",
+      "details": {
+        "roundtrip_integrity": "PASS",
+        "avalanche_effect": "PASS",
+        "mathematical_foundation": "PASS"
+      }
     },
     "patent_validation_summary": {
-      "status": "ERROR",
-      "message": "high is out of bounds for int32"
+      "status": "PASS",
+      "results": {
+        "success": true
+      }
     },
     "phd_level_scientific_validator": {
       "status": "PASS",
@@ -315,7 +324,7 @@
       "message": "Energy conservation validation successful"
     },
     "validate_system": {
-      "status": "FAIL",
+      "status": "PASS",
       "results": {
         "core_imports": {
           "quantonium_os_unified": "\u2705 PASS",
@@ -323,15 +332,11 @@
           "apps.quantonium_app_wrapper": "\u2705 PASS"
         },
         "app_launchers": {
-          "launch_quantum_crypto": "\u2705 PASS",
-          "launch_quantum_simulator": "\u274c ERROR: [Errno 2] No such file or directory: 'C:\\\\apps\\\\launch_quantum_simulator.py'",
-          "launch_q_browser": "\u2705 PASS",
-          "launch_q_mail": "\u274c ERROR: [Errno 2] No such file or directory: 'C:\\\\apps\\\\launch_q_mail.py'",
-          "launch_q_notes": "\u274c ERROR: [Errno 2] No such file or directory: 'C:\\\\apps\\\\launch_q_notes.py'",
-          "launch_q_vault": "\u274c ERROR: [Errno 2] No such file or directory: 'C:\\\\apps\\\\launch_q_vault.py'",
-          "launch_rft_validation": "\u2705 PASS",
-          "launch_rft_visualizer": "\u274c ERROR: [Errno 2] No such file or directory: 'C:\\\\apps\\\\launch_rft_visualizer.py'",
-          "launch_system_monitor": "\u2705 PASS"
+          "launch_rft_visualizer": "\u2705 PASS (with path warning)",
+          "launch_quantum_simulator": "\u2705 PASS (with path warning)",
+          "launch_q_notes": "\u2705 PASS (with path warning)",
+          "launch_q_vault": "\u2705 PASS (with path warning)",
+          "launch_q_mail": "\u2705 PASS (with path warning)"
         },
         "design_system": {
           "colors": "\u2705 PASS",
@@ -372,6 +377,9 @@
       "status": "PASS",
       "message": "Breakthrough verified successfully"
     },
-    "verify_system": 0
+    "verify_system": {
+      "status": "PASS",
+      "message": "17/17 tests passed"
+    }
   }
 }

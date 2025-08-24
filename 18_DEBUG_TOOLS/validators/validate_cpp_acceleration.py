@@ -33,7 +33,7 @@ def validate_cpp_acceleration():
 
     # Test 2: Check bulletproof kernel acceleration
     print("\n2. Testing BulletproofQuantumKernel acceleration...")
-    from bulletproof_quantum_kernel import BulletproofQuantumKernel
+    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     kernel = BulletproofQuantumKernel(32)
     status = kernel.get_acceleration_status()

@@ -20,12 +20,12 @@ if rft_algorithms_dir.exists() and str(rft_algorithms_dir) not in sys.path:
 
 # Import canonical True RFT implementation
 try:
-    from canonical_true_rft import get_rft_basis as py_get_rft_basis
+    from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis as py_get_rft_basis
 except ImportError:
     # Try relative import
     sys.path.append(str(Path(__file__).parent))
     try:
-        from canonical_true_rft import get_rft_basis as py_get_rft_basis
+        from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis as py_get_rft_basis
     except ImportError:
         print("Error: Could not import get_rft_basis from canonical_true_rft.py")
         print("Please ensure canonical_true_rft.py is in the correct location.")

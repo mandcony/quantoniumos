@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-import quantoniumos as qos
+import core.quantoniumos as quantoniumosas qos
 
 
 def test_package_import():

@@ -13,8 +13,22 @@ import Path
 # Add project root to path for imports project_root = Path(__file__).parent sys.path.insert(0, str(project_root))
 
 # Import the minimal demo functions directly from minimal_rft_encrypt_demo
-import encrypt, decrypt, derive_key, rft_keystream from canonical_true_rft
-import PHI, forward_true_rft, inverse_true_rft
+import encrypt, decrypt, derive_key, rft_keystream import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+PHI, forward_true_rft, inverse_true_rft
+
+class TestMinimalRFTDemo = canonical_true_rft.PHI, canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft
 
 class TestMinimalRFTDemo:
 """

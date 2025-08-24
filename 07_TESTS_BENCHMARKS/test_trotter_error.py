@@ -2,23 +2,23 @@
 import math
 import time
 import typing
-
-import Any
-import Dict
-import generate_resonance_kernel
-import get_rft_basis
-import List
+from typing import Any, Dict, List, Optional, Tuple
+import os
+import importlib.util
 import numpy as np
-import Optional
 import scipy.linalg
-import Tuple
 
-import canonical_true_rft
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
 
-
-def random_state(N: int) -> np.ndarray: """
-        Generate a random complex state vector.
-"""
+def random_state(N: int) -> np.ndarray:
+    """Generate a random complex state vector."""
         rng = np.random.default_rng() real_part = rng.normal(0, 1, N) imag_part = rng.normal(0, 1, N)
         return real_part + 1j * imag_part
 def project_unitary(A: np.ndarray) -> np.ndarray: """

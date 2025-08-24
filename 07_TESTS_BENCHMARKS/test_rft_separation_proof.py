@@ -12,8 +12,7 @@ import numpy as np
 import scipy.linalg
 import Tuple
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 
 def generate_phase_shift_matrix(N: int, phi: float) -> np.ndarray:
 """

@@ -11,8 +11,7 @@ from typing import Any, Dict, List, Tuple
 import networkx as nx
 import numpy as np
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 
 class QuantumOscillator:
     """

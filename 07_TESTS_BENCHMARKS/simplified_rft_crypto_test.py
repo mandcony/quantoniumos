@@ -22,10 +22,20 @@ print("✓ Using optimized_resonance_encrypt (the working one)") CRYPTO_AVAILABL
 except ImportError:
 print("✗ Could not
 import optimized_resonance_encrypt") CRYPTO_AVAILABLE = False
-try: from canonical_true_rft
-import forward_true_rft, inverse_true_rft
+try: import importlib.util
+import os
 
-# Legacy wrapper maintained for: resonance_fourier_transform, forward_true_rft
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft, inverse_true_rft = canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft# Legacy wrapper maintained for: resonance_fourier_transform, forward_true_rft
 print("✓ Using RFT functions for geometric hashing") RFT_AVAILABLE = True
 except ImportError:
 print("✗ Could not

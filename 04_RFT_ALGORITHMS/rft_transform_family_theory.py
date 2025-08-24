@@ -18,8 +18,7 @@ import scipy.linalg
 import scipy.special
 import Tuple
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 # Golden ratio for consistency PHI = (1.0 + math.sqrt(5.0)) / 2.0
 
 class RFTTransformFamily: """

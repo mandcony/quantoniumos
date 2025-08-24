@@ -10,8 +10,7 @@ from typing
 import List, Tuple, Optional, Dict, Any
 import math
 import time # Import canonical RFT implementation (single source of truth)
-from canonical_true_rft
-import forward_true_rft, inverse_true_rft, PHI
+from 04_RFT_ALGORITHMS.canonical_true_rft import forward_true_rft, inverse_true_rft, PHI
 
 class MathematicallyRigorousRFT: """
 """

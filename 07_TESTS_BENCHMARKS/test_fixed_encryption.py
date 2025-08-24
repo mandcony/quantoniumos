@@ -133,7 +133,7 @@ def test_hpc_pipeline_attributes():
     """Test the HPC pipeline structure and attributes"""
 
     try:
-        from quantonium_hpc_pipeline import QuantoniumHPCPipeline
+        from quantonium_hpc_pipeline.quantonium_hpc_pipeline import QuantoniumHPCPipeline
 
         print("\n🚀 HPC PIPELINE STRUCTURE TEST")
         print("=" * 50)

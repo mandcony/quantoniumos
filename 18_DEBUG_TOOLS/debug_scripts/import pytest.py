@@ -3,8 +3,7 @@ import sys
 
 import pytest
 
-import bulletproof_quantum_kernel
-
+import 05_QUANTUM_ENGINES.bulletproof_quantum_kernel as bulletproof_quantum_kernel
 # Python
 
 """

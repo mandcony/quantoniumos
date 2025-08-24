@@ -5,8 +5,21 @@ Epsilon_N Reproducibility Test This test ensures that the epsilonₙ values comp
 
 import pytest
 import numpy as np
-import sys sys.path.append('.') from canonical_true_rft
-import forward_true_rft
+import sys sys.path.append('.') import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft
+def compute_epsilon_n = canonical_true_rft.forward_true_rft
 def compute_epsilon_n(N):
 """
 """
@@ -18,8 +31,20 @@ def compute_epsilon_n(N):
 
         # Golden ratio sigma0 = 1.0 gamma = 0.3
 
-        # Compute resonance matrix via canonical function from canonical_true_rft
-import generate_resonance_kernel R = generate_resonance_kernel(N, weights, theta0_values, omega_values, sigma0, gamma)
+        # Compute resonance matrix via canonical function import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+generate_resonance_kernel R = canonical_true_rft.generate_resonance_kernel R= generate_resonance_kernel(N, weights, theta0_values, omega_values, sigma0, gamma)
 
         # Cyclic shift matrix S = np.roll(np.eye(N), 1, axis=0)
 

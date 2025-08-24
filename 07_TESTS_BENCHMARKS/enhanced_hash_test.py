@@ -10,8 +10,20 @@ import Optional
 import sys sys.path.append('.')
 
 # Import canonical RFT implementation
-try: from canonical_true_rft
-import forward_true_rft, inverse_true_rft RFT_AVAILABLE = True
+try: import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft, inverse_true_rft RFT_AVAILABLE = canonical_true_rft.forward_true_rft, canonical_true_rft.inverse_true_rft RFT_AVAILABLE= True
 except ImportError: RFT_AVAILABLE = False
 
 # Constants PHI = (1 + np.sqrt(5)) / 2

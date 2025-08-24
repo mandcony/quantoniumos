@@ -163,7 +163,7 @@ class ResonanceEncryption(QWidget if PYQT5_AVAILABLE else object):
         """Load the actual RFT and crypto engines"""
         try:
             # Try to load actual RFT engine
-            from canonical_true_rft import (RFTCrypto, forward_true_rft,
+            from 04_RFT_ALGORITHMS.canonical_true_rft import (RFTCrypto, forward_true_rft,
                                             inverse_true_rft)
 
             self.rft_engine = RFTCrypto(N=16)

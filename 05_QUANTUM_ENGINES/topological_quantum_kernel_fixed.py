@@ -12,8 +12,7 @@ from typing import Any, Dict
 
 import numpy as np
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 try:
     import enhanced_rft_crypto_bindings as enhanced_rft_crypto
 

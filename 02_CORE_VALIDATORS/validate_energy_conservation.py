@@ -26,8 +26,8 @@ def run_validation():
 # Import original implementation
 sys.path.append(str(Path(__file__).parent))
 try:
-    from canonical_true_rft import forward_true_rft as py_forward_rft
-    from canonical_true_rft import inverse_true_rft as py_inverse_rft
+    from 04_RFT_ALGORITHMS.canonical_true_rft import forward_true_rft as py_forward_rft
+    from 04_RFT_ALGORITHMS.canonical_true_rft import inverse_true_rft as py_inverse_rft
 except ImportError:
     print("Warning: canonical_true_rft module not found")
 

@@ -12,7 +12,7 @@ def test_rft_basis_computation():
 
     import numpy as np
 
-    from bulletproof_quantum_kernel import BulletproofQuantumKernel
+    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     # Test cases: small (matrix-based) and large (vertex-based)
     test_cases = [

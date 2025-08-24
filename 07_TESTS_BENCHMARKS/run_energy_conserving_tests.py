@@ -18,9 +18,20 @@ try:
 
     # Import canonical Python implementation for basis
     try:
-        from canonical_true_rft import get_rft_basis
+        import importlib.util
+import os
 
-        # Cache for bases
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+get_rft_basis = canonical_true_rft.get_rft_basis# Cache for bases
         basis_cache = {}
 
         # Define energy-conserving wrapper functions

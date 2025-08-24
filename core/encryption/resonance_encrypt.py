@@ -20,7 +20,7 @@ sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 from core.encryption.geometric_waveform_hash import generate_waveform_hash
-from paper_compliant_rft_fixed import FixedRFTCryptoBindings, PaperCompliantRFT
+from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import FixedRFTCryptoBindings, PaperCompliantRFT
 
 # Configure logger
 logger = logging.getLogger("resonance_encrypt_encryption")

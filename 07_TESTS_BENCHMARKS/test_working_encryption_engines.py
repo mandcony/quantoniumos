@@ -103,7 +103,7 @@ def test_quantonium_hpc_pipeline_with_working_engines():
     """Test the HPC pipeline with working engines"""
 
     try:
-        from quantonium_hpc_pipeline import QuantoniumHPCPipeline
+        from quantonium_hpc_pipeline.quantonium_hpc_pipeline import QuantoniumHPCPipeline
 
         print("\n🚀 HPC PIPELINE WITH WORKING ENGINES")
         print("=" * 50)

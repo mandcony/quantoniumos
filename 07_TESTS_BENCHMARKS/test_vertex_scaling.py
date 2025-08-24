@@ -12,9 +12,20 @@ def test_12_qubit_vertex_approach():
 
     import numpy as np
 
-    from bulletproof_quantum_kernel import BulletproofQuantumKernel
+    import importlib.util
+import os
 
-    # Test the problematic 12-qubit case (dimension 2^12 = 4096)
+# Load the bulletproof_quantum_kernel module
+spec = importlib.util.spec_from_file_location(
+    "bulletproof_quantum_kernel", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "05_QUANTUM_ENGINES/bulletproof_quantum_kernel.py")
+)
+bulletproof_quantum_kernel = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bulletproof_quantum_kernel)
+
+# Import specific functions/classes
+BulletproofQuantumKernel = bulletproof_quantum_kernel.BulletproofQuantumKernel# Test the problematic 12-qubit case (dimension 2^12 = 4096)
     n_qubits = 12
     dimension = 2**n_qubits
 
@@ -77,9 +88,20 @@ def test_scaling_performance():
 
     import time
 
-    from bulletproof_quantum_kernel import BulletproofQuantumKernel
+    import importlib.util
+import os
 
-    results = []
+# Load the bulletproof_quantum_kernel module
+spec = importlib.util.spec_from_file_location(
+    "bulletproof_quantum_kernel", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "05_QUANTUM_ENGINES/bulletproof_quantum_kernel.py")
+)
+bulletproof_quantum_kernel = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bulletproof_quantum_kernel)
+
+# Import specific functions/classes
+BulletproofQuantumKernel = bulletproof_quantum_kernel.BulletproofQuantumKernelresults = []
 
     for n_qubits in [8, 10, 12, 14, 16]:
         dimension = 2**n_qubits

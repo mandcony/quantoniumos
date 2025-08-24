@@ -10,8 +10,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 try:
     # Use your ACTUAL working C++ engine
     import enhanced_rft_crypto_bindings

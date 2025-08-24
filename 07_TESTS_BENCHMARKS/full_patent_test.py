@@ -12,8 +12,23 @@ from typing import Any, Dict
 
 import numpy as np
 
-import canonical_true_rft
-from paper_compliant_rft_fixed import FixedRFTCryptoBindings
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rftimport importlib.util
+import os
+
+# Load the paper_compliant_rft_fixed module
+spec = importlib.util.spec_from_file_location(
+    "paper_compliant_rft_fixed", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/paper_compliant_rft_fixed.py")
+)
+paper_compliant_rft_fixed = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(paper_compliant_rft_fixed)
+
+# Import specific functions/classes
+FixedRFTCryptoBindings
+
+
+class FullPatentTestSuite = paper_compliant_rft_fixed.FixedRFTCryptoBindings
 
 
 class FullPatentTestSuite:

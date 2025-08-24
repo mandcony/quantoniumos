@@ -18,7 +18,7 @@ def run_validation():
 try:
     import numpy as np
 
-    from quantonium_hpc_pipeline import HPCTask, get_hpc_pipeline
+    from quantonium_hpc_pipeline.quantonium_hpc_pipeline import HPCTask, get_hpc_pipeline
 except ImportError as e:
     print(f"Error importing required modules: {e}")
 

@@ -3,6 +3,13 @@
 Test 12-qubit simulation to verify the vertex-based approach works
 """
 
+import sys
+import os
+
+# Add parent directories to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '05_QUANTUM_ENGINES'))
+
 
 def test_12_qubit_vertex_approach():
     print("🧪 Testing 12-qubit simulation with vertex-based holographic storage")
@@ -12,7 +19,7 @@ def test_12_qubit_vertex_approach():
 
     import numpy as np
 
-    from bulletproof_quantum_kernel import BulletproofQuantumKernel
+    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     # Test the problematic 12-qubit case (dimension 2^12 = 4096)
     n_qubits = 12
@@ -77,7 +84,7 @@ def test_scaling_performance():
 
     import time
 
-    from bulletproof_quantum_kernel import BulletproofQuantumKernel
+    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     results = []
 

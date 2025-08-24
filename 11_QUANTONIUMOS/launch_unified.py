@@ -40,8 +40,7 @@ def main():
             print(f"\n🚀 Launching QuantoniumOS in {mode} mode...")
 
             # Import and launch
-            from quantonium_os_unified import main
-
+            from core.quantonium_os_unified import core.main as main
             if mode == "desktop":
                 print("Launching desktop interface...")
                 main()
@@ -89,7 +88,7 @@ def main():
                     os_system.launch_desktop_gui()
         else:
             print("Invalid choice. Launching desktop GUI...")
-            from quantonium_os_unified import QuantoniumOSUnified
+            from core.quantonium_os_unified import QuantoniumOSUnified
 
             os_system = QuantoniumOSUnified()
             os_system.launch_desktop_gui()
@@ -100,7 +99,7 @@ def main():
         print(f"❌ Error: {e}")
         print("Falling back to desktop mode...")
         try:
-            from quantonium_os_unified import QuantoniumOSUnified
+            from core.quantonium_os_unified import QuantoniumOSUnified
 
             os_system = QuantoniumOSUnified()
             os_system.launch_desktop_gui()

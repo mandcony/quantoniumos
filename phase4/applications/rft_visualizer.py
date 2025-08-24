@@ -42,7 +42,7 @@ except ImportError:
 try:
     from production_topological_quantum_kernel import TopologicalQuantumKernel
 
-    from canonical_true_rft import CanonicalTrueRFT
+    from 04_RFT_ALGORITHMS.canonical_true_rft import CanonicalTrueRFT
 
     RFT_AVAILABLE = True
 except ImportError:

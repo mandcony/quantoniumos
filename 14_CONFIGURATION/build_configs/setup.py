@@ -52,7 +52,7 @@ Installation:
     pip install quantoniumos
 
 Quick Start:
-    python -c "from quantonium_os_unified import QuantoniumOSUnified; QuantoniumOSUnified().run()"
+    python -c "from core.quantonium_os_unified import QuantoniumOSUnified; QuantoniumOSUnified().run()"
 
 Repository: https://github.com/mandcony/quantoniumos
 Documentation: See README.md and UNIFIED_README.md

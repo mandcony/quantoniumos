@@ -22,7 +22,7 @@ from typing import List, Optional
 import numpy as np
 
 # Import CANONICAL RFT for quantum-inspired operations
-from canonical_true_rft import forward_true_rft
+from 04_RFT_ALGORITHMS.canonical_true_rft import forward_true_rft
 
 logger = logging.getLogger(__name__)
 

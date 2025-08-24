@@ -27,7 +27,7 @@ import numpy as np
 sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
-from paper_compliant_rft_fixed import FixedRFTCryptoBindings, PaperCompliantRFT
+from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import FixedRFTCryptoBindings, PaperCompliantRFT
 
 logger = logging.getLogger(__name__)
 

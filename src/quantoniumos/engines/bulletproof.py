@@ -16,7 +16,7 @@ engines_path = project_root / "05_QUANTUM_ENGINES"
 sys.path.insert(0, str(engines_path))
 
 try:
-    from working_quantum_kernel import WorkingQuantumKernel
+    from 05_QUANTUM_ENGINES.working_quantum_kernel import WorkingQuantumKernel
 
     WORKING_KERNEL_AVAILABLE = True
 except (ImportError, SyntaxError) as e:

@@ -108,8 +108,20 @@ def test_canonical_rft_mixer_analysis() -> Dict: """
         Analyze the actual mixing structure in the canonical RFT implementation to verify it satisfies non-diagonal requirements.
 """
 """
-        print("Analyzing canonical RFT mixer structure...") from canonical_true_rft
-import get_rft_basis results = {}
+        print("Analyzing canonical RFT mixer structure...") import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+get_rft_basis results = canonical_true_rft.get_rft_basis results= {}
         for N in [4, 8, 16]:
 
         # Get canonical RFT matrix RFT_canonical = get_rft_basis(N)

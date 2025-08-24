@@ -202,7 +202,7 @@ def run_comprehensive_validation():
         print("\n🔬 COMPREHENSIVE SYSTEM VALIDATION")
         print("=" * 50)
 
-        from quantonium_hpc_pipeline import QuantoniumHPCPipeline
+        from quantonium_hpc_pipeline.quantonium_hpc_pipeline import QuantoniumHPCPipeline
 
         # Test pipeline initialization
         pipeline = QuantoniumHPCPipeline()

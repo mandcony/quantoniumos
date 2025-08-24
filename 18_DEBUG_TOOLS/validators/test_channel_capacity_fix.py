@@ -10,7 +10,7 @@ import numpy as np
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from bulletproof_quantum_kernel import BulletproofQuantumKernel
+from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
 
 def test_channel_capacity_broadcasting():

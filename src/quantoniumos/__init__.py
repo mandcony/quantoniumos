@@ -12,7 +12,7 @@ Core Features:
 - Production-ready quantum kernels
 
 Example:
-    >>> import quantoniumos as qos
+    >>> import core.quantoniumos as quantoniumosas qos
     >>> kernel = qos.QuantumKernel()
     >>> result = kernel.run_quantum_algorithm(data)
 """

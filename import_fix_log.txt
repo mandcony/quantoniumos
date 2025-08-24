@@ -1,0 +1,499 @@
+QuantoniumOS Import Fix Log
+================================================================================
+
+Found 1416 Python files
+
+Updated imports in: /workspaces/quantoniumos/test_quantum_aspects.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+topological_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.topological_quantum_kernel import'
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/test_rft_unitarity.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/test_vertex_capacity.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+topological_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.topological_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/run_all_validators.py
+  - Changed 'import\s+bulletproof_quantum_kernel(?:\s|$)' to 'import 05_QUANTUM_ENGINES.bulletproof_quantum_kernel as bulletproof_quantum_kernel'
+  - Changed 'import\s+topological_quantum_kernel(?:\s|$)' to 'import 05_QUANTUM_ENGINES.topological_quantum_kernel as topological_quantum_kernel'
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+  - Changed 'import\s+quantonium_hpc_pipeline(?:\s|$)' to 'import quantonium_hpc_pipeline.quantonium_hpc_pipeline as quantonium_hpc_pipeline'
+
+Updated imports in: /workspaces/quantoniumos/__init__.py
+  - Changed 'from\s+quantoniumos\s+import' to 'from core.quantoniumos import'
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+main(?:\s|$)' to 'import core.main as main'
+
+Updated imports in: /workspaces/quantoniumos/main.py
+  - Changed 'from\s+quantoniumos\s+import' to 'from core.quantoniumos import'
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+topological_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.topological_quantum_kernel import'
+  - Changed 'from\s+working_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.working_quantum_kernel import'
+  - Changed 'from\s+quantonium_design_system\s+import' to 'from 11_QUANTONIUMOS.quantonium_design_system import'
+
+Updated imports in: /workspaces/quantoniumos/test_rft_implementation.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/test_avalanche.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/test_performance.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/quantoniumos.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+app(?:\s|$)' to 'import core.app as app'
+  - Changed 'from\s+quantonium_design_system\s+import' to 'from 11_QUANTONIUMOS.quantonium_design_system import'
+
+Updated imports in: /workspaces/quantoniumos/test_key_avalanche.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/test_encryption.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/run_quantoniumos_test.py
+  - Changed 'import\s+quantoniumos(?:\s|$)' to 'import core.quantoniumos as quantoniumos'
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/launch_quantoniumos.py
+  - Changed 'import\s+quantoniumos(?:\s|$)' to 'import core.quantoniumos as quantoniumos'
+
+Updated imports in: /workspaces/quantoniumos/test_rft_basic.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/build_crypto_engine.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/16_EXPERIMENTAL/analysis/analyze_scaling_strategy.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/16_EXPERIMENTAL/prototypes/working_quantum_kernel.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/05_QUANTUM_ENGINES/production_topological_quantum_kernel.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/05_QUANTUM_ENGINES/topological_vertex_engine.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/05_QUANTUM_ENGINES/topological_vertex_engine_fixed.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/05_QUANTUM_ENGINES/topological_vertex_geometric_engine.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/05_QUANTUM_ENGINES/stable_topological_quantum_kernel.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/05_QUANTUM_ENGINES/topological_quantum_kernel_fixed.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/src/quantoniumos/__init__.py
+  - Changed 'import\s+quantoniumos(?:\s|$)' to 'import core.quantoniumos as quantoniumos'
+
+Updated imports in: /workspaces/quantoniumos/src/quantoniumos/engines/bulletproof.py
+  - Changed 'from\s+working_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.working_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/phase4/applications/rft_visualizer.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/11_QUANTONIUMOS/launch_unified.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+main(?:\s|$)' to 'import core.main as main'
+
+Updated imports in: /workspaces/quantoniumos/11_QUANTONIUMOS/quantonium_os_complete.py
+  - Changed 'from\s+app\s+import' to 'from core.app import'
+  - Changed 'import\s+app(?:\s|$)' to 'import core.app as app'
+
+Updated imports in: /workspaces/quantoniumos/11_QUANTONIUMOS/quantoniumos.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+app(?:\s|$)' to 'import core.app as app'
+
+Updated imports in: /workspaces/quantoniumos/11_QUANTONIUMOS/test_bulletproof_quantum_kernel.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/11_QUANTONIUMOS/quantonium_os_unified.py
+  - Changed 'from\s+quantonium_design_system\s+import' to 'from 11_QUANTONIUMOS.quantonium_design_system import'
+
+Updated imports in: /workspaces/quantoniumos/11_QUANTONIUMOS/quantonium_final_validation.py
+  - Changed 'from\s+quantonium_hpc_pipeline\s+import' to 'from quantonium_hpc_pipeline.quantonium_hpc_pipeline import'
+
+Updated imports in: /workspaces/quantoniumos/08_RESEARCH_ANALYSIS/large_scale_rft_analysis.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/10_UTILITIES/launch.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+main(?:\s|$)' to 'import core.main as main'
+
+Updated imports in: /workspaces/quantoniumos/10_UTILITIES/run_energy_conserving_tests.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/10_UTILITIES/build_symbiotic_rft.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/10_UTILITIES/build_symbiotic_bridge.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/10_UTILITIES/direct_fixed_energy.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/10_UTILITIES/direct_energy_fix.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/apps/resonance_encryption.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/apps/quantonium_app_wrapper.py
+  - Changed 'from\s+quantonium_design_system\s+import' to 'from 11_QUANTONIUMOS.quantonium_design_system import'
+
+Updated imports in: /workspaces/quantoniumos/06_CRYPTOGRAPHY/final_encryption_validation.py
+  - Changed 'from\s+quantonium_hpc_pipeline\s+import' to 'from quantonium_hpc_pipeline.quantonium_hpc_pipeline import'
+
+Updated imports in: /workspaces/quantoniumos/06_CRYPTOGRAPHY/build_crypto_engine.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/core/__init__.py
+  - Changed 'from\s+quantoniumos\s+import' to 'from core.quantoniumos import'
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+main(?:\s|$)' to 'import core.main as main'
+
+Updated imports in: /workspaces/quantoniumos/core/main.py
+  - Changed 'from\s+quantoniumos\s+import' to 'from core.quantoniumos import'
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+topological_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.topological_quantum_kernel import'
+  - Changed 'from\s+working_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.working_quantum_kernel import'
+  - Changed 'from\s+quantonium_design_system\s+import' to 'from 11_QUANTONIUMOS.quantonium_design_system import'
+
+Updated imports in: /workspaces/quantoniumos/core/quantoniumos.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+app(?:\s|$)' to 'import core.app as app'
+  - Changed 'from\s+quantonium_design_system\s+import' to 'from 11_QUANTONIUMOS.quantonium_design_system import'
+
+Updated imports in: /workspaces/quantoniumos/core/launch_quantoniumos.py
+  - Changed 'import\s+quantoniumos(?:\s|$)' to 'import core.quantoniumos as quantoniumos'
+
+Updated imports in: /workspaces/quantoniumos/core/python/engines/true_rft.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/core/python/engines/high_performance_engine.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/core/encryption/entropy_qrng.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/core/encryption/geometric_waveform_hash.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/core/encryption/resonance_fourier.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/core/encryption/resonance_encrypt.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/15_DEPLOYMENT/launchers/start_quantoniumos.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+
+Updated imports in: /workspaces/quantoniumos/15_DEPLOYMENT/launchers/launch_quantoniumos.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+
+Updated imports in: /workspaces/quantoniumos/14_CONFIGURATION/build_configs/setup.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/run_all_validators.py
+  - Changed 'import\s+bulletproof_quantum_kernel(?:\s|$)' to 'import 05_QUANTUM_ENGINES.bulletproof_quantum_kernel as bulletproof_quantum_kernel'
+  - Changed 'import\s+topological_quantum_kernel(?:\s|$)' to 'import 05_QUANTUM_ENGINES.topological_quantum_kernel as topological_quantum_kernel'
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+  - Changed 'import\s+quantonium_hpc_pipeline(?:\s|$)' to 'import quantonium_hpc_pipeline.quantonium_hpc_pipeline as quantonium_hpc_pipeline'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/phd_level_scientific_validator.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+topological_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.topological_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/patent_validation_summary.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/validate_energy_conservation.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/validate_complete_hpc_pipeline.py
+  - Changed 'from\s+quantonium_hpc_pipeline\s+import' to 'from quantonium_hpc_pipeline.quantonium_hpc_pipeline import'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/validate_system.py
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'from\s+quantonium_design_system\s+import' to 'from 11_QUANTONIUMOS.quantonium_design_system import'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/final_paper_compliance_test.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/basic_scientific_validator.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/10_UTILITIES/build_resonance_engine.py
+  - Changed 'import\s+main(?:\s|$)' to 'import core.main as main'
+
+Updated imports in: /workspaces/quantoniumos/02_CORE_VALIDATORS/10_UTILITIES/build_vertex_engine.py
+  - Changed 'import\s+main(?:\s|$)' to 'import core.main as main'
+
+Updated imports in: /workspaces/quantoniumos/03_RUNNING_SYSTEMS/app.py
+  - Changed 'from\s+main\s+import' to 'from core.main import'
+
+Updated imports in: /workspaces/quantoniumos/tests/unit/test_basic.py
+  - Changed 'import\s+quantoniumos(?:\s|$)' to 'import core.quantoniumos as quantoniumos'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_quantum_aspects.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+topological_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.topological_quantum_kernel import'
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_claim2_direct.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_lie_closure.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_unitarity.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/run_quantum_gate_validation.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_state_evolution_benchmarks.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_time_evolution.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_choi_channel.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_hamiltonian_recovery.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_vertex_capacity.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+  - Changed 'from\s+topological_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.topological_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_randomized_benchmarking.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_dynamic_rft_routing.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/simplified_rft_crypto_test.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_encryption_hpc.py
+  - Changed 'from\s+quantonium_hpc_pipeline\s+import' to 'from quantonium_hpc_pipeline.quantonium_hpc_pipeline import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_separation_proof.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_claim3_direct.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_vertex_scaling.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_geometric_waveform.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_fixed_encryption.py
+  - Changed 'from\s+quantonium_hpc_pipeline\s+import' to 'from quantonium_hpc_pipeline.quantonium_hpc_pipeline import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/comprehensive_scientific_test_suite.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_container_parameters.py
+  - Changed 'from\s+main\s+import' to 'from core.main import'
+  - Changed 'import\s+app(?:\s|$)' to 'import core.app as app'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/performance_benchmark_cpp_vs_python.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/patch_test_suite.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_implementation.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_basis_fix.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/advanced_rft_compression_benchmark.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_avalanche.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/run_energy_conserving_tests.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/enhanced_hash_test.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_f2py2e.py
+  - Changed 'import\s+main(?:\s|$)' to 'import core.main as main'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_mathematical_validation.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_true_rft_symbolic_waves.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_channel_capacity_fix.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_spectral_locality.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_unitarity.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_performance.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/final_paper_compliance_test.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_bulletproof_quantum_kernel.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_key_avalanche.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_epsilon_reproducibility.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_mixer_validation.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/rft_superiority_test.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_dft_cleanup.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_trotter_error.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_non_equivalence.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/spec_tests.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_minimal_rft_demo.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_stream.py
+  - Changed 'from\s+main\s+import' to 'from core.main import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_encryption.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_roundtrip.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_claim1_direct.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/run_quantoniumos_test.py
+  - Changed 'import\s+quantoniumos(?:\s|$)' to 'import core.quantoniumos as quantoniumos'
+  - Changed 'from\s+quantonium_os_unified\s+import' to 'from core.quantonium_os_unified import'
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_patent_validation.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/full_patent_test_fixed.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_practical_validation.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_working_encryption_engines.py
+  - Changed 'from\s+quantonium_hpc_pipeline\s+import' to 'from quantonium_hpc_pipeline.quantonium_hpc_pipeline import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_mathematical_rft_validation.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_basic.py
+  - Changed 'import\s+paper_compliant_rft_fixed(?:\s|$)' to 'import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_all_claims.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/full_patent_test.py
+  - Changed 'from\s+paper_compliant_rft_fixed\s+import' to 'from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import'
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_basic.py
+  - Changed 'import\s+quantoniumos(?:\s|$)' to 'import core.quantoniumos as quantoniumos'
+
+Updated imports in: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_claim4_corrected.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/symbiotic_rft_bridge.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/rft_stability_analysis.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/symbiotic_rft_engine_adapter.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/energy_conserving_rft_adapter.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/cpp_rft_wrapper.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/resonance_fourier_transform.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/mathematically_rigorous_rft.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/rft_parameter_exploration.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/rft_final_validation.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in: /workspaces/quantoniumos/04_RFT_ALGORITHMS/rft_transform_family_theory.py
+  - Changed 'import\s+canonical_true_rft(?:\s|$)' to 'import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft'
+
+Updated imports in: /workspaces/quantoniumos/18_DEBUG_TOOLS/debug_scripts/import pytest.py
+  - Changed 'import\s+bulletproof_quantum_kernel(?:\s|$)' to 'import 05_QUANTUM_ENGINES.bulletproof_quantum_kernel as bulletproof_quantum_kernel'
+
+Updated imports in: /workspaces/quantoniumos/18_DEBUG_TOOLS/validators/validate_cpp_acceleration.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/18_DEBUG_TOOLS/validators/test_vertex_scaling.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/18_DEBUG_TOOLS/validators/comprehensive_scientific_test_suite.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/18_DEBUG_TOOLS/validators/test_rft_basis_fix.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/18_DEBUG_TOOLS/validators/test_channel_capacity_fix.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/18_DEBUG_TOOLS/validators/test_mathematical_rft_validation.py
+  - Changed 'from\s+bulletproof_quantum_kernel\s+import' to 'from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import'
+
+Updated imports in: /workspaces/quantoniumos/18_DEBUG_TOOLS/validators/test_all_claims.py
+  - Changed 'from\s+canonical_true_rft\s+import' to 'from 04_RFT_ALGORITHMS.canonical_true_rft import'
+
+Updated imports in 149 files

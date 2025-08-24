@@ -1,0 +1,55 @@
+QuantoniumOS Root Directory Cleanup Log - 2025-08-24 18:14:02
+================================================================================
+
+Removed duplicate file from root: quantoniumos.py
+Removed duplicate file from root: quantonium_os_unified.py
+Removed duplicate file from root: launch_quantoniumos.py
+Removed duplicate file from root: main.py
+Removed duplicate file from root: app.py
+Removed duplicate file from root: launch_gui.py
+Removed duplicate file from root: __init__.py
+Removed duplicate file from root: bulletproof_quantum_kernel.py
+Removed duplicate file from root: topological_quantum_kernel.py
+Removed duplicate file from root: working_quantum_kernel.py
+Removed duplicate file from root: paper_compliant_rft_fixed.py
+Removed duplicate file from root: canonical_true_rft.py
+Removed duplicate file from root: build_crypto_engine.py
+Removed duplicate file from root: test_quantum_aspects.py
+Removed duplicate file from root: test_vertex_capacity.py
+Removed duplicate file from root: test_encryption.py
+Removed duplicate file from root: test_avalanche.py
+Removed duplicate file from root: test_key_avalanche.py
+Removed duplicate file from root: test_performance.py
+Removed duplicate file from root: test_rft_basic.py
+Removed duplicate file from root: test_rft_implementation.py
+Removed duplicate file from root: test_rft_unitarity.py
+Removed duplicate file from root: run_comprehensive_quantum_tests.py
+Removed duplicate file from root: run_quantoniumos_test.py
+Removed duplicate file from root: run_all_validators.py
+Removed duplicate file from root: run_validators_with_path.sh
+Removed duplicate file from root: wire_validators.py
+Removed duplicate file from root: README.md
+Removed duplicate file from root: LICENSE.md
+Removed duplicate file from root: CONFIG_APPROACH.md
+Removed duplicate file from root: CONFIGURATION_GUIDE.md
+Removed duplicate file from root: ENCRYPTION_INTEGRATION_REPORT.md
+Removed duplicate file from root: VALIDATION_REPORT.md
+Removed duplicate file from root: VALIDATION_FIX_REPORT.md
+Removed duplicate file from root: QUANTONIUM_DESIGN_MANUAL.py
+Removed duplicate file from root: .gitignore
+Removed duplicate file from root: .pre-commit-config.yaml
+Removed duplicate file from root: quantonium_hpc_pipeline.py
+Removed duplicate file from root: quantonium_design_system.py
+Removed duplicate file from root: fix_app_paths.py
+Removed duplicate file from root: fix_null_bytes.py
+Removed duplicate file from root: consolidate_similar_code.py
+Removed duplicate file from root: remove_cleanup_files.py
+Removed duplicate file from root: basic_validation_report.json
+Removed duplicate file from root: comprehensive_claim_validation_results.json
+Removed duplicate file from root: definitive_quantum_validation_results.json
+Removed duplicate file from root: quantoniumos_validation_report.json
+Removed duplicate file from root: cleanup_files_removal_log.txt
+Removed duplicate file from root: paper_compliant_rft_fixed.py.fixed
+Removed duplicate file from root: run_all_validators.py.new
+
+Total files removed: 50

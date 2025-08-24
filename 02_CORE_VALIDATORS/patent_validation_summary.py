@@ -7,7 +7,7 @@ Final report on patent claims validation with FIXED RFT implementation.
 import secrets
 import time
 
-from paper_compliant_rft_fixed import FixedRFTCryptoBindings
+from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import FixedRFTCryptoBindings
 
 
 def performance_optimization_test():
@@ -126,10 +126,18 @@ def generate_patent_summary():
 
 def main():
     """Main patent summary function"""
-    success = generate_patent_summary()
-    return 0 if success else 1
+    try:
+        success = generate_patent_summary()
+        return {"status": "PASS" if success else "FAIL", "results": {"success": success}}
+    except Exception as e:
+        return {"status": "FAIL", "message": str(e), "details": {"error": str(e)}}
+    
+    
+def run_validation():
+    """Run validation for the validator framework"""
+    return main()
 
 
 if __name__ == "__main__":
     exit_code = main()
-    exit(exit_code)
+    exit(0 if exit_code.get("status") == "PASS" else 1)

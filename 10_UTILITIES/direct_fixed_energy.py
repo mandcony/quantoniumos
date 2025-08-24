@@ -16,11 +16,11 @@ import numpy as np
 
 # Import canonical implementation
 try:
-    from canonical_true_rft import get_rft_basis as py_get_rft_basis
+    from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis as py_get_rft_basis
 except ImportError:
     sys.path.append(str(Path(__file__).parent))
     try:
-        from canonical_true_rft import get_rft_basis as py_get_rft_basis
+        from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis as py_get_rft_basis
     except ImportError:
         print("Error: Could not import canonical_true_rft.py")
         sys.exit(1)
@@ -158,7 +158,7 @@ def apply_energy_fix():
     """
     try:
         # Import BulletproofQuantumKernel
-        from bulletproof_quantum_kernel import BulletproofQuantumKernel
+        from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
         # Store original methods for reference
         original_forward = BulletproofQuantumKernel.forward_rft
@@ -284,7 +284,7 @@ def test_energy_conservation():
         # Import test suite components
         import comprehensive_scientific_test_suite
 
-        from bulletproof_quantum_kernel import BulletproofQuantumKernel
+        from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
 
         comprehensive_scientific_test_suite.BulletproofQuantumKernel = (
             BulletproofQuantumKernel

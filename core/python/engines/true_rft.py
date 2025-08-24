@@ -6,7 +6,7 @@ LEGACY REDIRECT - Use Canonical Implementation This module has been replaced by 
 import warnings
 
 # Redirect all imports to canonical source
-from canonical_true_rft import (CANONICAL_GAMMA, CANONICAL_OMEGA,
+from 04_RFT_ALGORITHMS.canonical_true_rft import (CANONICAL_GAMMA, CANONICAL_OMEGA,
                                 CANONICAL_SIGMA0, CANONICAL_THETA0,
                                 CANONICAL_WEIGHTS, PHI, forward_true_rft,
                                 generate_gaussian_kernel,
@@ -24,8 +24,7 @@ def __getattr__(name):
 
         # Try to get the attribute from canonical implementation
         try:
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
         return getattr(canonical_true_rft, name)
         except AttributeError:
         raise AttributeError(f"Module 'core.true_rft' has no attribute '{name}'. Use canonical_true_rft instead.")

@@ -1,0 +1,78 @@
+QuantoniumOS File Organization Log - 2025-08-24 18:13:22
+================================================================================
+
+Directory already exists: /workspaces/quantoniumos/core
+  Destination file is same or newer: /workspaces/quantoniumos/core/quantoniumos.py
+  Destination file is same or newer: /workspaces/quantoniumos/core/quantonium_os_unified.py
+  Destination file is same or newer: /workspaces/quantoniumos/core/launch_quantoniumos.py
+  Destination file is same or newer: /workspaces/quantoniumos/core/main.py
+  Destination file is same or newer: /workspaces/quantoniumos/core/app.py
+  Destination file is same or newer: /workspaces/quantoniumos/core/launch_gui.py
+  Destination file is same or newer: /workspaces/quantoniumos/core/__init__.py
+
+Directory already exists: /workspaces/quantoniumos/05_QUANTUM_ENGINES
+  Destination file is same or newer: /workspaces/quantoniumos/05_QUANTUM_ENGINES/bulletproof_quantum_kernel.py
+  Destination file is same or newer: /workspaces/quantoniumos/05_QUANTUM_ENGINES/topological_quantum_kernel.py
+  Destination file is same or newer: /workspaces/quantoniumos/05_QUANTUM_ENGINES/working_quantum_kernel.py
+
+Directory already exists: /workspaces/quantoniumos/04_RFT_ALGORITHMS
+  Destination file is same or newer: /workspaces/quantoniumos/04_RFT_ALGORITHMS/paper_compliant_rft_fixed.py
+  Destination file is same or newer: /workspaces/quantoniumos/04_RFT_ALGORITHMS/canonical_true_rft.py
+
+Directory already exists: /workspaces/quantoniumos/06_CRYPTOGRAPHY
+  Destination file is same or newer: /workspaces/quantoniumos/06_CRYPTOGRAPHY/build_crypto_engine.py
+
+Directory already exists: /workspaces/quantoniumos/07_TESTS_BENCHMARKS
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_quantum_aspects.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_vertex_capacity.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_encryption.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_avalanche.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_key_avalanche.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_performance.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_basic.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_implementation.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/test_rft_unitarity.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/run_comprehensive_quantum_tests.py
+  Destination file is same or newer: /workspaces/quantoniumos/07_TESTS_BENCHMARKS/run_quantoniumos_test.py
+
+Directory already exists: /workspaces/quantoniumos/02_CORE_VALIDATORS
+  Destination file is same or newer: /workspaces/quantoniumos/02_CORE_VALIDATORS/run_all_validators.py
+  Destination file is same or newer: /workspaces/quantoniumos/02_CORE_VALIDATORS/run_validators_with_path.sh
+  Destination file is same or newer: /workspaces/quantoniumos/02_CORE_VALIDATORS/wire_validators.py
+
+Directory already exists: /workspaces/quantoniumos/13_DOCUMENTATION
+  Destination file is same or newer: /workspaces/quantoniumos/13_DOCUMENTATION/README.md
+  Destination file is same or newer: /workspaces/quantoniumos/13_DOCUMENTATION/LICENSE.md
+  Destination file is same or newer: /workspaces/quantoniumos/13_DOCUMENTATION/CONFIG_APPROACH.md
+  Destination file is same or newer: /workspaces/quantoniumos/13_DOCUMENTATION/CONFIGURATION_GUIDE.md
+  Destination file is same or newer: /workspaces/quantoniumos/13_DOCUMENTATION/ENCRYPTION_INTEGRATION_REPORT.md
+  Destination file is same or newer: /workspaces/quantoniumos/13_DOCUMENTATION/VALIDATION_REPORT.md
+  Destination file is same or newer: /workspaces/quantoniumos/13_DOCUMENTATION/VALIDATION_FIX_REPORT.md
+  Destination file is same or newer: /workspaces/quantoniumos/13_DOCUMENTATION/QUANTONIUM_DESIGN_MANUAL.py
+
+Directory already exists: /workspaces/quantoniumos/14_CONFIGURATION
+  Destination file is same or newer: /workspaces/quantoniumos/14_CONFIGURATION/.gitignore
+  Destination file is same or newer: /workspaces/quantoniumos/14_CONFIGURATION/.pre-commit-config.yaml
+
+Directory already exists: /workspaces/quantoniumos/quantonium_hpc_pipeline
+  Destination file is same or newer: /workspaces/quantoniumos/quantonium_hpc_pipeline/quantonium_hpc_pipeline.py
+
+Directory already exists: /workspaces/quantoniumos/11_QUANTONIUMOS
+  Destination file is same or newer: /workspaces/quantoniumos/11_QUANTONIUMOS/quantonium_design_system.py
+
+Directory already exists: /workspaces/quantoniumos/10_UTILITIES
+  Destination file is same or newer: /workspaces/quantoniumos/10_UTILITIES/fix_app_paths.py
+  Destination file is same or newer: /workspaces/quantoniumos/10_UTILITIES/fix_null_bytes.py
+  Destination file is same or newer: /workspaces/quantoniumos/10_UTILITIES/consolidate_similar_code.py
+  Destination file is same or newer: /workspaces/quantoniumos/10_UTILITIES/remove_cleanup_files.py
+
+Directory already exists: /workspaces/quantoniumos/validation_results
+  Destination file is same or newer: /workspaces/quantoniumos/validation_results/basic_validation_report.json
+  Destination file is same or newer: /workspaces/quantoniumos/validation_results/comprehensive_claim_validation_results.json
+  Destination file is same or newer: /workspaces/quantoniumos/validation_results/definitive_quantum_validation_results.json
+  Destination file is same or newer: /workspaces/quantoniumos/validation_results/quantoniumos_validation_report.json
+
+Directory already exists: /workspaces/quantoniumos/cleanup
+  Destination file is same or newer: /workspaces/quantoniumos/cleanup/cleanup_files_removal_log.txt
+  Destination file is same or newer: /workspaces/quantoniumos/cleanup/paper_compliant_rft_fixed.py.fixed
+  Destination file is same or newer: /workspaces/quantoniumos/cleanup/run_all_validators.py.new

@@ -19,7 +19,7 @@ def main():
 
     try:
         # Import and run the main unified OS
-        from quantonium_os_unified import main as quantonium_main
+        from core.quantonium_os_unified import core.main as mainas quantonium_main
 
         print("✅ QuantoniumOS imported successfully")
         return quantonium_main()

@@ -1,5 +1,19 @@
 # LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL
-# from canonical_true_rft import forward_true_rft, inverse_true_rft
+import os
+import importlib.util
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft = canonical_true_rft.forward_true_rft
+inverse_true_rft = canonical_true_rft.inverse_true_rft
 
 from itertools import permutations
 
@@ -86,7 +100,18 @@ def sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8):
 
 def test_rft_not_scaled_permuted_dft():
     # Use CANONICAL True RFT implementation
-    from canonical_true_rft import forward_true_rft
+    import importlib.util
+    import os
+    
+    # Load the module
+    spec = importlib.util.spec_from_file_location(
+        "canonical_true_rft", 
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                    "04_RFT_ALGORITHMS/canonical_true_rft.py")
+    )
+    canonical_true_rft = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(canonical_true_rft)
+    forward_true_rft = canonical_true_rft.forward_true_rft
 
     for n in (8, 12, 16):
         Psi_builder = build_rft_matrix(forward_true_rft)
@@ -109,7 +134,22 @@ def test_rft_not_diagonalizing_shift():
             result = rft.forward_transform()
             return np.array(result, dtype=complex)
         except:
-            from canonical_true_rft import forward_true_rft as canonical_rft
+            import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft as canonical_rft
+
+            return canonical_rft = canonical_true_rft.forward_true_rft as canonical_rft
 
             return canonical_rft(x.tolist())
 
@@ -131,7 +171,22 @@ def test_rft_moduli_not_scalable_to_uniform():
             result = rft.forward_transform()
             return np.array(result, dtype=complex)
         except:
-            from canonical_true_rft import forward_true_rft as canonical_rft
+            import importlib.util
+import os
+
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft as canonical_rft
+
+            return canonical_rft = canonical_true_rft.forward_true_rft as canonical_rft
 
             return canonical_rft(x.tolist())
 
@@ -144,9 +199,24 @@ def test_rft_moduli_not_scalable_to_uniform():
 
 
 def test_rft_not_diagonalizing_shift():
-    from canonical_true_rft import forward_true_rft
+    import importlib.util
+import os
 
-    for n in (8, 12, 16):
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft
+
+    for n in = canonical_true_rft.forward_true_rft
+
+    for n in(8, 12, 16):
         Psi = build_rft_matrix(forward_true_rft)(n)
         S = cyclic_shift(n)
         M = inv(Psi) @ S @ Psi
@@ -155,9 +225,24 @@ def test_rft_not_diagonalizing_shift():
 
 
 def test_rft_moduli_not_scalable_to_uniform():
-    from canonical_true_rft import forward_true_rft
+    import importlib.util
+import os
 
-    for n in (8, 12, 16):
+# Load the canonical_true_rft module
+spec = importlib.util.spec_from_file_location(
+    "canonical_true_rft", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "04_RFT_ALGORITHMS/canonical_true_rft.py")
+)
+canonical_true_rft = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(canonical_true_rft)
+
+# Import specific functions/classes
+forward_true_rft
+
+    for n in = canonical_true_rft.forward_true_rft
+
+    for n in(8, 12, 16):
         Psi = build_rft_matrix(forward_true_rft)(n)
         ok, _, _ = sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8)
         assert (

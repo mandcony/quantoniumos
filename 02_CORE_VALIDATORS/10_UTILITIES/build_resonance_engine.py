@@ -33,7 +33,7 @@ def main():
                 "10_UTILITIES",
             ),
         )
-        from build_resonance_engine import main as build_main
+        from build_resonance_engine import core.main as mainas build_main
 
         # Launch the build utility
         print("Redirecting to build_resonance_engine...")

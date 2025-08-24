@@ -21,7 +21,7 @@ try:
 
     # Import canonical Python implementation for basis
     try:
-        from canonical_true_rft import get_rft_basis
+        from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis
 
         # Cache for bases
         basis_cache = {}

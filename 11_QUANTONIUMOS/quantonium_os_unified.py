@@ -37,7 +37,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame,
                              QTabWidget, QTextEdit, QVBoxLayout, QWidget)
 
 # Import unified design system
-from quantonium_design_system import apply_unified_style, get_design_system
+from 11_QUANTONIUMOS.quantonium_design_system import apply_unified_style, get_design_system
 
 # Try to import qtawesome for icons
 try:

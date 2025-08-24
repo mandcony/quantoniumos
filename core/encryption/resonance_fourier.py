@@ -1,5 +1,5 @@
 # LEGACY RFT IMPLEMENTATION - REPLACE WITH CANONICAL
-# from canonical_true_rft import forward_true_rft, inverse_true_rft
+# from 04_RFT_ALGORITHMS.canonical_true_rft import forward_true_rft, inverse_true_rft
 
 """
 QuantoniumOS - Resonance Fourier Transform Module
@@ -26,7 +26,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 # Import CANONICAL True RFT implementation (single source of truth)
-from canonical_true_rft import (forward_true_rft, get_rft_basis,
+from 04_RFT_ALGORITHMS.canonical_true_rft import (forward_true_rft, get_rft_basis,
                                 inverse_true_rft, validate_true_rft)
 
 # Try to import C++ engine bindings

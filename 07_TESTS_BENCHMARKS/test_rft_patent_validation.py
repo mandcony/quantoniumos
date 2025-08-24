@@ -29,7 +29,7 @@ current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
 # Import core RFT functions
-from canonical_true_rft import (forward_true_rft, generate_resonance_kernel,
+from 04_RFT_ALGORITHMS.canonical_true_rft import (forward_true_rft, generate_resonance_kernel,
                                 get_rft_basis, inverse_true_rft)
 
 # Legacy NOTE: Removed deprecated compute_rft_matrix / compute_or_get_eig; use get_rft_basis + numpy.linalg.eigh

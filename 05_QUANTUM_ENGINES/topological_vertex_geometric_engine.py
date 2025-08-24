@@ -18,8 +18,7 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 import psutil
 
-import canonical_true_rft
-
+import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
 PHI = (1.0 + math.sqrt(5.0)) / 2.0
 
 

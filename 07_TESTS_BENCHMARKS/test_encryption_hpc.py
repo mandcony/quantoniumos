@@ -4,7 +4,7 @@ Test Encryption Through HPC Pipeline
 
 import time
 
-from quantonium_hpc_pipeline import HPCTask, get_hpc_pipeline
+from quantonium_hpc_pipeline.quantonium_hpc_pipeline import HPCTask, get_hpc_pipeline
 
 
 def test_encryption_hpc():

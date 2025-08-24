@@ -7,8 +7,7 @@ import numpy as np
 import math
 import time
 import json from typing
-import Dict, Any, List, Tuple, Optional from canonical_true_rft
-import generate_phi_sequence PHI = (1.0 + math.sqrt(5.0)) / 2.0
+import Dict, Any, List, Tuple, Optional from 04_RFT_ALGORITHMS.canonical_true_rft import generate_phi_sequence PHI = (1.0 + math.sqrt(5.0)) / 2.0
 
 class RFTParameterExploration: """
     Explore RFT parameter space for enhanced transform family properties

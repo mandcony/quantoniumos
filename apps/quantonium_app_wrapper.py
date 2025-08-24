@@ -17,7 +17,7 @@ try:
     from PyQt5.QtCore import Qt
     from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 
-    from quantonium_design_system import (apply_unified_style,
+    from 11_QUANTONIUMOS.quantonium_design_system import (apply_unified_style,
                                           get_app_geometry, get_design_system)
 
     class QuantoniumAppWrapper(QMainWindow):

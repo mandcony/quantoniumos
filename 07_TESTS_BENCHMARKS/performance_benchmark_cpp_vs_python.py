@@ -42,10 +42,20 @@ except ImportError as e:
     print(f"❌ C++ resonance_engine not available: {e}")
 
 # Import Python implementation
-from bulletproof_quantum_kernel import BulletproofQuantumKernel
+import importlib.util
+import os
 
+# Load the bulletproof_quantum_kernel module
+spec = importlib.util.spec_from_file_location(
+    "bulletproof_quantum_kernel", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "05_QUANTUM_ENGINES/bulletproof_quantum_kernel.py")
+)
+bulletproof_quantum_kernel = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bulletproof_quantum_kernel)
 
-@dataclass
+# Import specific functions/classes
+BulletproofQuantumKernel = bulletproof_quantum_kernel.BulletproofQuantumKernel@dataclass
 class BenchmarkResults:
     """Container for benchmark results"""
 

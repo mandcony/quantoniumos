@@ -2,11 +2,22 @@
 """
 Test TRUE RFT Engine for Symbolic Oscillating Wave Processing
 """
-from bulletproof_quantum_kernel
-import BulletproofQuantumKernel
-import numpy as np
+import importlib.util
+import os
 
-# Create kernel
+# Load the bulletproof_quantum_kernel module
+spec = importlib.util.spec_from_file_location(
+    "bulletproof_quantum_kernel", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "05_QUANTUM_ENGINES/bulletproof_quantum_kernel.py")
+)
+bulletproof_quantum_kernel = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bulletproof_quantum_kernel)
+
+# Import specific functions/classes
+BulletproofQuantumKernel
+import numpy as np = bulletproof_quantum_kernel.BulletproofQuantumKernel
+import numpy as np# Create kernel
 print("🧪 Testing TRUE RFT Engine for Symbolic Oscillating Wave Processing")
 print("="*70) kernel = BulletproofQuantumKernel(8)
 

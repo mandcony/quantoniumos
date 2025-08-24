@@ -74,9 +74,20 @@ sys.path.append("/workspaces/quantoniumos")
 
 from test_mathematical_rft_validation import MathematicalRFTValidator
 
-from bulletproof_quantum_kernel import BulletproofQuantumKernel
+import importlib.util
+import os
 
-# Check for C++ engine availability
+# Load the bulletproof_quantum_kernel module
+spec = importlib.util.spec_from_file_location(
+    "bulletproof_quantum_kernel", 
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "05_QUANTUM_ENGINES/bulletproof_quantum_kernel.py")
+)
+bulletproof_quantum_kernel = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bulletproof_quantum_kernel)
+
+# Import specific functions/classes
+BulletproofQuantumKernel = bulletproof_quantum_kernel.BulletproofQuantumKernel# Check for C++ engine availability
 RFT_ENGINES_AVAILABLE = len(cpp_engines_available) > 0
 CPP_RFT_AVAILABLE = "resonance_engine" in cpp_engines_available
 
