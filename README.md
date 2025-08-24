@@ -1,66 +1,94 @@
 # QuantoniumOS
 
-## Professional Quantum Computing Framework
+**Symbolic RFT • Geometric Waveform Hash • Resonance Encryption • OS Orchestrator**
 
-QuantoniumOS is a comprehensive quantum computing operating system designed for research, development, and production applications.
+QuantoniumOS is a research-grade framework that simulates quantum-style computing with **symbolic signals**. It includes a **generalized Fourier transform engine**, a **waveform/geometry-driven crypto stack**, and end-to-end **validators**.  
 
-## Getting Started
 
-1. **Run the main application**:
-   ```
-   python launch_quantoniumos.py
-   ```
+---
 
-2. **Explore the project**:
-   ```
-   python -m 01_START_HERE.explore
-   ```
+## Quick Start
 
-3. **Run tests**:
-   ```
-   python -m 07_TESTS_BENCHMARKS.run_test_suite
-   ```
+> Python 3.10+ recommended. No `.env` required. Use a virtual environment.
 
-## Project Structure
+```bash
+# 1) Create & activate a venv
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
 
-QuantoniumOS follows a professional research-grade directory structure:
+# 2) Install deps
+# If you keep a requirements file, install it here. Otherwise:
+pip install numpy scipy networkx flask
 
-### Numbered Directories
-- **01_START_HERE** - Navigation & documentation
-- **02_CORE_VALIDATORS** - Validation scripts
-- **03_RUNNING_SYSTEMS** - Production applications
-- **04_RFT_ALGORITHMS** - RFT implementations
-- **05_QUANTUM_ENGINES** - Quantum processing
-- **06_CRYPTOGRAPHY** - Cryptographic systems
-- **07_TESTS_BENCHMARKS** - Test infrastructure
-- **08_RESEARCH_ANALYSIS** - Research tools
-- **09_LEGACY_BACKUPS** - Backup storage
-- **10_UTILITIES** - Build & development tools
-- **11_QUANTONIUMOS** - Main operating system
-- **12_TEST_RESULTS** - Centralized test data
-- **13_DOCUMENTATION** - Complete documentation
-- **14_CONFIGURATION** - Configuration management
-- **15_DEPLOYMENT** - Production deployment
-- **16_EXPERIMENTAL** - Research & prototypes
-- **17_BUILD_ARTIFACTS** - Build outputs
-- **18_DEBUG_TOOLS** - Debugging & validation
+# 3) Launch a runner (pick one)
+# A) Unified CLI orchestrator
+python quantonium_os_unified.py
 
-### Infrastructure Directories
-- **apps/** - Quantum applications
-- **core/** - Core libraries
-- **src/** - Source code
-- **third_party/** - External dependencies
+# B) Full OS launcher (same root)
+python launch_quantoniumos.py
+Proven Tests (run these to verify)
+1) Canonical RFT self-test (unitarity & round-trip)
 
-## Documentation
+bash
+Copy
+Edit
+python canonical_true_rft.py
+2) Full validator bundle (math/crypto/quantum)
 
-Complete documentation is available in the `13_DOCUMENTATION` directory:
+bash
+Copy
+Edit
+python run_all_validators.py
+Outputs land in validation_results/ and JSON artifacts at repo root (e.g., definitive_quantum_validation_results.json, quantoniumos_validation_report.json).
 
-- **guides/** - User and developer guides
-- **reports/** - Project status reports
-- **research_papers/** - Academic papers and proofs
-- **implementation/** - Implementation documentation
-- **legal/** - Licenses and legal documents
+What’s Inside (top-level highlights)
+bash
+Copy
+Edit
+01_START_HERE/          # Onboarding & navigation
+02_CORE_VALIDATORS/     # Scientific validators (quantum, unitarity, crypto) 
+03_RUNNING_SYSTEMS/     # Long-running / production-style apps
+04_RFT_ALGORITHMS/      # Canonical & paper-compliant RFT code
+05_QUANTUM_ENGINES/     # Engine adapters / kernels
+06_CRYPTOGRAPHY/        # Waveform hash + resonance encryption
+07_TESTS_BENCHMARKS/    # Test infrastructure
+11_QUANTONIUMOS/        # OS layer (orchestration, runners)
+13_DOCUMENTATION/       # Guides, reports, papers, legal
+14_CONFIGURATION/       # Config files (no .env required)
+15_DEPLOYMENT/          # Packaging / deployment scripts
+src/quantoniumos/       # Installable package API (engines, algorithms)
+validation_results/     # Saved outputs from recent runs
+Other useful root scripts you can run directly:
 
-## License
+quantonium_hpc_pipeline.py – pipeline/orchestration
 
-Copyright © 2025 QuantoniumOS Project. All rights reserved.
+verify_system.py – quick system checks
+
+bulletproof_quantum_kernel.py, working_quantum_kernel.py – engine shims
+
+paper_compliant_rft_fixed.py – RFT version aligned with manuscript
+
+launch_gui.py – optional desktop launcher (if GUI deps installed)
+
+Usage Notes
+No .env required. Default config lives under 14_CONFIGURATION/.
+
+Runners save machine-verifiable artifacts (JSON reports) to the repo so others can reproduce your results.
+
+**Note:** This is research-grade crypto, not production-ready. For production systems, follow the guidance in your Security/README notes and use peer-reviewed libraries alongside this research code.
+
+Citation
+If this work helps your research, please cite the QuantoniumOS project and the associated preprints/DOIs.
+
+bibtex
+Copy
+Edit
+@software{QuantoniumOS_2025,
+  title   = {QuantoniumOS: Symbolic RFT, Geometric Waveform Hash, Resonance Encryption, and OS Framework},
+  author  = {Minier, Luis},
+  year    = {2025},
+  url     = {https://github.com/mandcony/quantoniumos}
+}
