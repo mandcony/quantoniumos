@@ -20,6 +20,16 @@ The software may **not** be used in:
 
 This ethics restriction applies to ALL uses of the software, whether commercial or non-commercial.
 
+## QUANTONIUM PILLARS AND GUARANTEES
+
+| **Pillar** | **Guarantee** |
+| --- | --- |
+|  Humanity-First Standard | All systems must retain symbolic transparency for human oversight |
+|  Anti-AI Dominance | No AI-only agents may use symbolic containers or resonance logic unlicensed |
+|  Educational Access | Universities, schools, and nonprofits receive free access to all papers/tools |
+|  Responsible Encryption | Personal encryption use permitted with appropriate safety controls and key escrow |
+|  Dual-Use Prevention | Weaponized AI systems are forbidden from using symbolic stack technology |
+
 ## NON-COMMERCIAL LICENSE SUMMARY
 
 The Non-Commercial License is free and permits:
@@ -75,7 +85,9 @@ INCLUDES:
 
 ## PATENT LICENSE GRANT
 
-Subject to payment of applicable fees and compliance with this Agreement, Licensor grants Licensee a non-exclusive license under USPTO Application #19/169,399 and any issued patents or continuations thereof, to make, use, and sell products incorporating the licensed technology. ## REVENUE REPORTING & ROYALTIES
+Subject to payment of applicable fees and compliance with this Agreement, Licensor grants Licensee a non-exclusive license under USPTO Application #19/169,399 and any issued patents or continuations thereof, to make, use, and sell products incorporating the licensed technology. 
+
+## REVENUE REPORTING & ROYALTIES
 
 1. REPORTING: Licensee shall provide quarterly reports of gross revenue from products incorporating the Software or patented technology.
 2. PAYMENT: Royalty payments are due within 30 days of quarter end.
@@ -86,7 +98,7 @@ Subject to payment of applicable fees and compliance with this Agreement, Licens
 
 Support level depends on license tier. All support is provided during normal business hours (9 AM - 5 PM EST, Monday-Friday, excluding holidays). Emergency support for production issues available for Enterprise licenses.
 
-## ## INDEMNIFICATION 
+## INDEMNIFICATION 
 
 For Enterprise and Startup licenses, Licensor will defend and indemnify Licensee against third-party patent infringement claims related to the licensed Software, provided: 
 1. Licensee promptly notifies Licensor of any claim 
@@ -94,11 +106,13 @@ For Enterprise and Startup licenses, Licensor will defend and indemnify Licensee
 3. Licensee cooperates fully 
 4. Claim relates to unmodified Software
 
+Maximum total indemnification liability for all license tiers is capped at $100.00 USD regardless of the number of claims or incidents.
+
 ## LIMITATIONS OF LIABILITY 
 
-EXCEPT FOR INDEMNIFICATION OBLIGATIONS, IN NO EVENT SHALL LICENSOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES. LICENSOR'S TOTAL LIABILITY SHALL NOT EXCEED THE FEES PAID BY LICENSEE IN THE 12 MONTHS PRECEDING THE CLAIM.
+EXCEPT FOR INDEMNIFICATION OBLIGATIONS, IN NO EVENT SHALL LICENSOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES. LICENSOR'S TOTAL LIABILITY SHALL NOT EXCEED $100.00 USD IN ALL CASES, REGARDLESS OF CLAIM OR LICENSE TIER.
 
-## ## TERMINATION
+## TERMINATION
 
 1. Either party may terminate with 90 days written notice.
 2. Licensor may terminate immediately for material breach after 30-day cure period.
@@ -112,7 +126,7 @@ EXCEPT FOR INDEMNIFICATION OBLIGATIONS, IN NO EVENT SHALL LICENSOR BE LIABLE FOR
 3. All distributed copies must retain copyright and patent notices.
 4. Third-party distribution requires separate agreement.
 
-## ## GOVERNING LAW & DISPUTES
+## GOVERNING LAW & DISPUTES
 
 This Agreement is governed by Florida law. Disputes shall be resolved through binding arbitration in Miami-Dade County, Florida, under AAA Commercial Rules. The prevailing party in any dispute is entitled to reasonable attorneys' fees.
 
@@ -128,7 +142,7 @@ This Agreement may not be assigned without prior written consent, except that Li
 
 This Agreement constitutes the entire agreement and supersedes all prior negotiations, representations, or agreements relating to the subject matter. Modifications must be in writing and signed by both parties.
 
-## ## CONTACT INFORMATION
+## CONTACT INFORMATION
 
 For licensing inquiries:  
 Luis Minier  
