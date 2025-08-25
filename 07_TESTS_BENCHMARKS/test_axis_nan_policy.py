@@ -9,7 +9,6 @@ import pickle
 import re
 import warnings
 from itertools import combinations_with_replacement, permutations, product
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_equal

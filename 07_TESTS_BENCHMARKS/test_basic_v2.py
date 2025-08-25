@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import secrets
-
 import enhanced_rft_crypto
 
 

@@ -1,6 +1,5 @@
 import pickle
 from copy import deepcopy
-
 import networkx as nx
 import pytest
 from networkx.classes import reportviews as rv

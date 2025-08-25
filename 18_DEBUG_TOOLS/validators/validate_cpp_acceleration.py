@@ -33,7 +33,9 @@ def validate_cpp_acceleration():
 
     # Test 2: Check bulletproof kernel acceleration
     print("\n2. Testing BulletproofQuantumKernel acceleration...")
-    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+    import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     kernel = BulletproofQuantumKernel(32)
     status = kernel.get_acceleration_status()
@@ -46,8 +48,7 @@ def validate_cpp_acceleration():
     # Test 3: Validate actual C++ usage
     print("\n3. Testing actual C++ engine usage...")
     import time
-
-    import numpy as np
+import numpy as np
 
     signal = np.random.randn(128)
 

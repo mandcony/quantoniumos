@@ -5,7 +5,6 @@ import sys
 import sysconfig
 import warnings
 from importlib.util import module_from_spec, spec_from_file_location
-
 import numpy as np
 import pytest
 from numpy.testing import IS_EDITABLE, IS_WASM
@@ -56,6 +55,7 @@ else:
 
     g = glob.glob(str(target_dir / "*" / "extending.pyx.c"))
     with open(g[0]) as fid:
-        txt_to_find = 'NumPy API declarations from "numpy/__init__' for line in fid: if txt_to_find in line: break else: assert False, f"Could not find '{txt_to_find}' in C file, wrong pxd used" # import without adding the directory to sys.path suffix = sysconfig.get_config_var('EXT_SUFFIX') def load(modname): so = (target_dir / modname).with_suffix(suffix) spec = spec_from_file_location(modname, so) mod = module_from_spec(spec) spec.loader.exec_module(mod) return mod # test that the module can be imported load("extending") load("extending_cpp") # actually test the cython c-extension extending_distributions = load("extending_distributions") from numpy.random import PCG64 values = extending_distributions.uniforms_ex(PCG64(0), 10, 'd') assert values.shape == (10,) assert values.dtype == np.float64 @pytest.mark.skipif(numba is None or cffi is None, reason="requires numba and cffi") def test_numba(): from numpy.random._examples.numba import extending # noqa: F401 @pytest.mark.skipif(cffi is None, reason="requires cffi")
+        txt_to_find = 'NumPy API declarations from "numpy/__init__' for line in fid: if txt_to_find in line: break else: assert False, f"Could not find '{txt_to_find}' in C file, wrong pxd used" # import without adding the directory to sys.path suffix = sysconfig.get_config_var('EXT_SUFFIX') def load(modname): so = (target_dir / modname).with_suffix(suffix) spec = spec_from_file_location(modname, so) mod = module_from_spec(spec) spec.loader.exec_module(mod) return mod # test that the module can be imported load("extending") load("extending_cpp") # actually test the cython c-extension extending_distributions = load("extending_distributions") from numpy.random
+import PCG64 values = extending_distributions.uniforms_ex(PCG64(0), 10, 'd') assert values.shape == (10,) assert values.dtype == np.float64 @pytest.mark.skipif(numba is None or cffi is None, reason="requires numba and cffi") def test_numba(): from numpy.random._examples.numba import extending # noqa: F401 @pytest.mark.skipif(cffi is None, reason="requires cffi")
 def test_cffi():
     from numpy.random._examples.cffi import extending  # noqa: F401

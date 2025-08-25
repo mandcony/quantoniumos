@@ -66,7 +66,7 @@ def test_true_rft_transform_fixed():
 
     try:
         import numpy as np
-        import true_rft_engine_bindings
+import true_rft_engine_bindings
 
         print("\n⚛️ TRUE RFT ENGINE TRANSFORM TEST (FIXED)")
         print("=" * 50)

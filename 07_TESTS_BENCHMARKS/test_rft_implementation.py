@@ -3,7 +3,9 @@
 Test script for paper_compliant_rft_fixed.py
 """
 
-import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixedimport numpy as np
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+import paper_compliant_rft_fixed as paper_compliant_rft_fixedimport numpy as np
 import os
 import time
 

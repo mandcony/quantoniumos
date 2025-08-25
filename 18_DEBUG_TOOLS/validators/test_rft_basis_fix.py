@@ -9,10 +9,11 @@ def test_rft_basis_computation():
     print("=" * 50)
 
     import time
+import numpy as np
 
-    import numpy as np
-
-    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+    import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     # Test cases: small (matrix-based) and large (vertex-based)
     test_cases = [

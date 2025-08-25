@@ -5,7 +5,6 @@ import platform
 import time
 import warnings
 from unittest import mock
-
 import matplotlib as mpl
 import matplotlib.collections as mcollections
 import matplotlib.legend as mlegend

@@ -7,7 +7,6 @@ import sys
 import tempfile
 import warnings
 from contextlib import contextmanager
-
 import hypothesis
 import numpy
 import numpy as np

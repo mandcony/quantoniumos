@@ -2,7 +2,6 @@ import os
 import sys
 import threading
 from io import BytesIO
-
 import numpy as np
 import pytest
 from numpy.testing import (IS_PYPY, assert_, assert_array_equal, assert_equal,

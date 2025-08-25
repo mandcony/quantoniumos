@@ -12,7 +12,6 @@ import re
 import warnings
 from collections import namedtuple
 from itertools import product
-
 import hypothesis
 import hypothesis.extra.numpy as npst
 import numpy as np

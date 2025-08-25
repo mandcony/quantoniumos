@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 """
-Run All Core Validators
-=======================
+Run All Core Valida    # First try to import key modules
+    try:
+        import sys
+        import os
+        
+        # Add module paths
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+        
+        import bulletproof_quantum_kernel
+        import topological_quantum_kernel=================
 This script runs all validators in the 02_CORE_VALIDATORS package and generates
 a comprehensive validation report for the entire QuantoniumOS system.
 """
@@ -46,16 +55,28 @@ def run_all_validators():
 
     # First try to import key modules
     try:
-        import 05_QUANTUM_ENGINES.bulletproof_quantum_kernel as bulletproof_quantum_kernel        import 05_QUANTUM_ENGINES.topological_quantum_kernel as topological_quantum_kernel    except ImportError as e:
+        import sys
+import os
+        
+        # Add module paths
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+        
+        import bulletproof_quantum_kernel
+import topological_quantum_kernel
+    except ImportError as e:
         print(f"[WARNING] Import failed: {e}")
         print("[ACTION] Using stub implementations for missing modules")
 
     try:
-        import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixed    except ImportError:
+        import paper_compliant_rft_fixed
+    except ImportError:
         print("[WARNING] Paper compliant RFT module not found")
 
     try:
-        import quantonium_hpc_pipeline.quantonium_hpc_pipeline as quantonium_hpc_pipeline    except ImportError:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '11_QUANTONIUMOS'))
+        import quantonium_hpc_pipeline
+    except ImportError:
         print("[WARNING] HPC pipeline module not found")
 
     results = {}

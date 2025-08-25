@@ -1,7 +1,6 @@
 """Unit tests for the :mod:`networkx.algorithms.boundary` module."""
 
 from itertools import combinations
-
 import networkx as nx
 import pytest
 from networkx import convert_node_labels_to_integers as cnlti

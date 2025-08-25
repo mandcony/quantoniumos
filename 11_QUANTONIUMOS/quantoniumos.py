@@ -190,7 +190,7 @@ def run_tests():
 
     try:
         import importlib
-        import subprocess
+import subprocess
 
         # Run core tests
         test_files = [

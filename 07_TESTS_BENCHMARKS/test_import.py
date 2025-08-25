@@ -13,7 +13,6 @@ on one version of Python.
 import re
 import tokenize
 from pathlib import Path
-
 import pytest
 import scipy
 from numpy.testing import assert_

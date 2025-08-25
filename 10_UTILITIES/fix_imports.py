@@ -33,12 +33,12 @@ FILE_MAPPING = {
 
 # Module name mapping (from original module name to new import path)
 MODULE_MAPPING = {
-    "quantoniumos": "core.quantoniumos",
-    "quantonium_os_unified": "core.quantonium_os_unified",
-    "launch_quantoniumos": "core.launch_quantoniumos",
-    "main": "core.main",
-    "app": "core.app",
-    "launch_gui": "core.launch_gui",
+    "quantoniumos": "11_QUANTONIUMOS.core.quantoniumos",
+    "quantonium_os_unified": "11_QUANTONIUMOS.quantonium_os_unified",
+    "launch_quantoniumos": "11_QUANTONIUMOS.core.launch_quantoniumos",
+    "main": "03_RUNNING_SYSTEMS.main",
+    "app": "03_RUNNING_SYSTEMS.app",
+    "launch_gui": "11_QUANTONIUMOS.core.launch_gui",
     "bulletproof_quantum_kernel": "05_QUANTUM_ENGINES.bulletproof_quantum_kernel",
     "topological_quantum_kernel": "05_QUANTUM_ENGINES.topological_quantum_kernel",
     "working_quantum_kernel": "05_QUANTUM_ENGINES.working_quantum_kernel",
@@ -46,7 +46,7 @@ MODULE_MAPPING = {
     "canonical_true_rft": "04_RFT_ALGORITHMS.canonical_true_rft",
     "build_crypto_engine": "06_CRYPTOGRAPHY.build_crypto_engine",
     "quantonium_design_system": "11_QUANTONIUMOS.quantonium_design_system",
-    "quantonium_hpc_pipeline": "quantonium_hpc_pipeline.quantonium_hpc_pipeline",
+    "quantonium_hpc_pipeline": "11_QUANTONIUMOS.quantonium_hpc_pipeline",
 }
 
 # Log file

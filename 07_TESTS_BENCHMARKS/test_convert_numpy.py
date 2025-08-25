@@ -1,5 +1,4 @@
 import itertools
-
 import networkx as nx
 import pytest
 from networkx.utils import graphs_equal

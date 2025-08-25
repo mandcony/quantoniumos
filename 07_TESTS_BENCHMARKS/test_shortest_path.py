@@ -1,6 +1,5 @@
 import warnings
 from io import StringIO
-
 import numpy as np
 import pytest
 import scipy.sparse

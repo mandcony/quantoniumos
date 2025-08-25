@@ -1,7 +1,6 @@
 """ Tests for byteorder module """
 
 import sys
-
 import scipy.io.matlab._byteordercodes as sibc
 from numpy.testing import assert_
 from pytest import raises as assert_raises

@@ -3,7 +3,6 @@ import importlib
 import io
 import textwrap
 import time
-
 import numpy as np
 import pytest
 from numpy.f2py import crackfortran

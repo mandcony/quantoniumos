@@ -1,6 +1,5 @@
 import shutil
 from pathlib import Path
-
 import pytest
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories

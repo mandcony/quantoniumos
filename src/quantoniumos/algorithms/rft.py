@@ -7,7 +7,6 @@ and performance optimizations.
 
 import logging
 from typing import Any, Dict, Optional, Tuple, Union
-
 import numpy as np
 
 logger = logging.getLogger(__name__)

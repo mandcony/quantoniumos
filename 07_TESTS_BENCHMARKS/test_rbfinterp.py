@@ -1,5 +1,4 @@
 import pickle
-
 import numpy as np
 import pytest
 from numpy.linalg import LinAlgError

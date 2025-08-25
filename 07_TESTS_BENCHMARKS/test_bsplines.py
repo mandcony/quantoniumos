@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring
 import math
-
 import numpy as np
 import pytest
 from pytest import raises

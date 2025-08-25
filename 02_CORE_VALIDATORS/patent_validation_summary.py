@@ -7,7 +7,9 @@ Final report on patent claims validation with FIXED RFT implementation.
 import secrets
 import time
 
-from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import FixedRFTCryptoBindings
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+from paper_compliant_rft_fixed import FixedRFTCryptoBindings
 
 
 def performance_optimization_test():

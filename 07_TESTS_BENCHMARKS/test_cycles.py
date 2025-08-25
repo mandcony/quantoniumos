@@ -1,7 +1,6 @@
 import random
 from itertools import chain, islice, tee
 from math import inf
-
 import networkx as nx
 import pytest
 from networkx.algorithms.traversal.edgedfs import FORWARD, REVERSE

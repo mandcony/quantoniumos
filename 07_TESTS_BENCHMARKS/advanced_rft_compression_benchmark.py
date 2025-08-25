@@ -17,7 +17,6 @@ import sys
 import time
 import warnings
 from typing import Any, Dict, List
-
 import numpy as np
 from scipy import signal
 from scipy.fft import fft, ifft

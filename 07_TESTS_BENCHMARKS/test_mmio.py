@@ -4,7 +4,6 @@ import shutil
 import textwrap
 import threading
 from tempfile import mkdtemp
-
 import numpy as np
 import pytest
 import scipy.io._fast_matrix_market as fmm

@@ -11,7 +11,6 @@ import sys
 import tempfile
 import time
 import urllib.request
-
 import matplotlib as mpl
 import pytest
 from matplotlib import _c_internal_utils
@@ -171,12 +170,12 @@ def _test_toolbar_button_la_mode_icon(fig):
 # from draw_event causes breakage as the canvas widget gets deleted too early.
 def _test_interactive_impl():
     import importlib.util
-    import io
+import io
     import json
-    import sys
+import sys
 
     import matplotlib as mpl
-    import pytest
+import pytest
     from matplotlib import pyplot as plt
     from matplotlib.backend_bases import KeyEvent
 
@@ -284,8 +283,7 @@ def test_interactive_backend(env, toolbar):
 
 def _test_thread_impl():
     from concurrent.futures import ThreadPoolExecutor
-
-    import matplotlib as mpl
+import matplotlib as mpl
     from matplotlib import pyplot as plt
 
     mpl.rcParams.update(
@@ -364,7 +362,7 @@ def test_interactive_thread_safety(env):
 
 def _impl_test_lazy_auto_backend_selection():
     import matplotlib
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
     # just importing pyplot should not be enough to trigger resolution
     bk = matplotlib.rcParams._get("backend")
@@ -383,8 +381,7 @@ def test_lazy_auto_backend_selection():
 
 def _implqt5agg():
     import sys
-
-    import matplotlib.backends.backend_qt5agg  # noqa
+import matplotlib.backends.backend_qt5agg  # noqa
 
     assert "PyQt6" not in sys.modules
     assert "pyside6" not in sys.modules
@@ -393,8 +390,7 @@ def _implqt5agg():
 
 def _implcairo():
     import sys
-
-    import matplotlib.backends.backend_qt5cairo  # noqa
+import matplotlib.backends.backend_qt5cairo  # noqa
 
     assert "PyQt6" not in sys.modules
     assert "pyside6" not in sys.modules
@@ -403,8 +399,7 @@ def _implcairo():
 
 def _implcore():
     import sys
-
-    import matplotlib.backends.backend_qt5  # noqa
+import matplotlib.backends.backend_qt5  # noqa
 
     assert "PyQt6" not in sys.modules
     assert "pyside6" not in sys.modules
@@ -450,7 +445,7 @@ def test_qt_missing():
 
 def _impl_test_cross_Qt_imports():
     import importlib
-    import sys
+import sys
     import warnings
 
     _, host_binding, mpl_binding = sys.argv
@@ -546,7 +541,7 @@ def test_webagg():
 
 def _lazy_headless():
     import os
-    import sys
+import sys
 
     backend, deps = sys.argv[1:]
     deps = deps.split(",")
@@ -674,8 +669,7 @@ def _impl_test_interactive_timers():
     # We only want singleshot if we specify that ourselves, otherwise we want
     # a repeating timer
     from unittest.mock import Mock
-
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
     pause_time = 0.5
     fig = plt.figure()
@@ -713,10 +707,9 @@ def test_interactive_timers(env):
 
 def _test_sigint_impl(backend, target_name, kwargs):
     import os
-    import sys
+import sys
     import threading
-
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
     plt.switch_backend(backend)
 
@@ -769,8 +762,7 @@ def test_sigint(env, target, kwargs):
 
 def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
     import signal
-
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
     plt.switch_backend(backend)
 

@@ -1,6 +1,5 @@
 import io
 from collections import namedtuple
-
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt

@@ -18,7 +18,6 @@ import socket
 import sys
 import time
 from unittest import mock
-
 import psutil
 from psutil import (AIX, BSD, FREEBSD, LINUX, MACOS, NETBSD, OPENBSD, POSIX,
                     SUNOS, WINDOWS)

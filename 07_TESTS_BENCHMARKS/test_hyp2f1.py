@@ -7,7 +7,6 @@ return the same branch as scipy's on the standard branch cut.
 
 import sys
 from typing import NamedTuple
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose

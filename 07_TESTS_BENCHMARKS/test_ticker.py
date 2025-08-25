@@ -3,7 +3,6 @@ import locale
 import logging
 import re
 from contextlib import nullcontext
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker

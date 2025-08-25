@@ -1,7 +1,6 @@
 import contextlib
 import itertools
 import operator
-
 import numpy as np
 import numpy._core._multiarray_tests as mt
 import pytest

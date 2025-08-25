@@ -4,7 +4,6 @@ import pickle
 import pickletools
 import sys
 from io import BytesIO
-
 import matplotlib as mpl
 import matplotlib.figure as mfigure
 import matplotlib.pyplot as plt
@@ -125,7 +124,7 @@ def test_complete(fig_test, fig_ref):
 
 def _pickle_load_subprocess():
     import os
-    import pickle
+import pickle
 
     path = os.environ["PICKLE_FILE_PATH"]
 

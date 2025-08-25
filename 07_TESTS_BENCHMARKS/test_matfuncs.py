@@ -5,7 +5,6 @@
 
 """
 import math
-
 import numpy as np
 import scipy.sparse
 import scipy.sparse.linalg

@@ -3,7 +3,6 @@ import os
 import sys
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryFile
-
 import pytest
 from numpy import (add, allclose, arange, asarray, average, isscalar, memmap,
                    multiply, ndarray, prod, subtract, sum)

@@ -1,5 +1,4 @@
 import textwrap
-
 import numpy as np
 import pytest
 from numpy.f2py.tests import util

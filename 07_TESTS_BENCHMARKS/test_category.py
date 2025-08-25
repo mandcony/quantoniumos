@@ -1,6 +1,5 @@
 """Catch all for categorical functions"""
 import warnings
-
 import matplotlib as mpl
 import matplotlib.category as cat
 import matplotlib.pyplot as plt

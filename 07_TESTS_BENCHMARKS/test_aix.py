@@ -9,7 +9,6 @@
 """AIX specific tests."""
 
 import re
-
 import psutil
 from psutil import AIX
 from psutil.tests import PsutilTestCase, pytest, sh

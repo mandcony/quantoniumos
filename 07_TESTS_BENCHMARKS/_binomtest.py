@@ -1,5 +1,4 @@
 from math import sqrt
-
 import numpy as np
 from scipy._lib._util import _validate_int
 from scipy.optimize import brentq

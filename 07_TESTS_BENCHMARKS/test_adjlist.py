@@ -3,7 +3,6 @@ Unit tests for adjlist.
 """
 
 import io
-
 import networkx as nx
 import pytest
 from networkx.utils import edges_equal, graphs_equal, nodes_equal

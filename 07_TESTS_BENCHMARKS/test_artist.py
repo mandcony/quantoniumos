@@ -1,6 +1,5 @@
 import io
 from itertools import chain
-
 import matplotlib as mpl
 import matplotlib.artist as martist
 import matplotlib.backend_bases as mbackend_bases

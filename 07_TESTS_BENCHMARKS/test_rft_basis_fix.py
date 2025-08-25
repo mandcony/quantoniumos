@@ -9,8 +9,7 @@ def test_rft_basis_computation():
     print("=" * 50)
 
     import time
-
-    import numpy as np
+import numpy as np
 
     import importlib.util
 import os

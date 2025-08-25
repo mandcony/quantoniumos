@@ -6,7 +6,6 @@ Enhanced validation with proper no-cloning test implementation
 """
 
 import time
-
 import numpy as np
 from rigorous_quantum_vertex_validation import QuantumVertexValidator
 from test_qubit_vertices import QubitVertexNetwork

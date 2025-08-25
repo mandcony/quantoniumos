@@ -3142,7 +3142,7 @@ def test_cobyla_threadsafe():
     # Verify that cobyla is threadsafe. Will segfault if it is not.
 
     import concurrent.futures
-    import time
+import time
 
     def objective1(x):
         time.sleep(0.1)

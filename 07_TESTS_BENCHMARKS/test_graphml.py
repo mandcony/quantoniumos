@@ -1,5 +1,4 @@
 import io
-
 import networkx as nx
 import pytest
 from networkx.readwrite.graphml import GraphMLWriter

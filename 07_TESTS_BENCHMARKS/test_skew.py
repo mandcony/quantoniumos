@@ -5,7 +5,6 @@ Testing that skewed Axes properly work.
 import itertools
 import platform
 from contextlib import ExitStack
-
 import matplotlib.axis as maxis
 import matplotlib.patches as mpatch
 import matplotlib.pyplot as plt

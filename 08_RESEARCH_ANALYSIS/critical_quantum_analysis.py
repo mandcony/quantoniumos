@@ -10,7 +10,6 @@ Scientific Assessment: What We're Really Testing
 
 import time
 from typing import Any, Dict
-
 import numpy as np
 
 

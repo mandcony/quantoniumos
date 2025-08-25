@@ -463,8 +463,7 @@ try:
         def test_sgemv_on_osx(self):
             import sys
             from itertools import product
-
-            import numpy as np
+import numpy as np
 
             if sys.platform != "darwin":
                 return

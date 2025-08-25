@@ -1,5 +1,4 @@
 import random
-
 import networkx as nx
 import pytest
 from networkx.algorithms.link_analysis.pagerank_alg import (_pagerank_numpy,

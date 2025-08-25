@@ -3,7 +3,6 @@ import importlib.metadata
 import os
 import pathlib
 import subprocess
-
 import numpy as np
 import numpy._core.include
 import numpy._core.lib.pkgconfig

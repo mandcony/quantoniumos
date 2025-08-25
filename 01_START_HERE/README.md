@@ -7,19 +7,28 @@ Welcome to **QuantoniumOS** - this directory is your **entry point** to navigate
 
 **Quick Test (100% Success Rate):**
 ```bash
-python test_all_claims.py
+python 02_CORE_VALIDATORS/run_all_validators.py
 ```
 
 ## **🚀 Quick Actions:**
 
-### **Want to VALIDATE the claims?**
-**➡️ Go to: [02_CORE_VALIDATORS](../02_CORE_VALIDATORS/)**
-
 ### **Want to RUN the system?**
-**➡️ Go to: [03_RUNNING_SYSTEMS](../03_RUNNING_SYSTEMS/)**
+```bash
+# From project root:
+python 11_QUANTONIUMOS/launch.py          # Interactive launcher
+python 03_RUNNING_SYSTEMS/app.py          # Web interface  
+python 11_QUANTONIUMOS/quantonium_os_unified.py  # Desktop GUI
+```
 
-### **Want to understand the structure?**
-**➡️ Read: [NAVIGATION_GUIDE.md](./NAVIGATION_GUIDE.md)**
+### **Want to VALIDATE the claims?**
+```bash
+python 02_CORE_VALIDATORS/run_all_validators.py
+```
+
+### **Want to TEST the RFT algorithms?**
+```bash
+python 04_RFT_ALGORITHMS/canonical_true_rft.py
+```
 
 ---
 
@@ -28,7 +37,7 @@ python test_all_claims.py
 - **🧪 [ESSENTIAL_TESTS_GUIDE.md](./ESSENTIAL_TESTS_GUIDE.md)** - Testing instructions
 - **🗺️ [ENGINE_ARCHITECTURE_MAP.md](./ENGINE_ARCHITECTURE_MAP.md)** - Technical architecture
 - **📄 [NAVIGATION_GUIDE.md](./NAVIGATION_GUIDE.md)** - Complete directory guide
-- **📄 [../QUICKSTART.md](../QUICKSTART.md)** - Quick setup instructions  
+- **📄 [../13_DOCUMENTATION/guides/QUICKSTART.md](../13_DOCUMENTATION/guides/QUICKSTART.md)** - Quick setup instructions  
 - **📄 [../README.md](../README.md)** - Main documentation
 
 ## **📊 Engine Status Summary:**

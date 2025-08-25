@@ -10,7 +10,6 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List
-
 import numpy as np
 
 # Configure paths
@@ -236,7 +235,7 @@ def create_numpy_basis_exporter():
     \"\"\"
     
     import numpy as np
-    import struct
+import struct
     import sys
     from pathlib import Path
     
@@ -244,12 +243,15 @@ def create_numpy_basis_exporter():
     sys.path.append(str(Path(__file__).parent))
     
     try:
-        from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis
+        import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+from canonical_true_rft import get_rft_basis
     except ImportError:
         # Try relative import
         sys.path.append(str(Path(__file__).parent))
         try:
-            from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis
+            import sys, os
+from canonical_true_rft import get_rft_basis
         except ImportError:
             print("Error: Could not import get_rft_basis from canonical_true_rft.py")
             print("Please ensure canonical_true_rft.py is in the correct location.")

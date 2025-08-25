@@ -1,7 +1,6 @@
 import json
 import shutil
 from pathlib import Path
-
 import matplotlib.dviread as dr
 import pytest
 

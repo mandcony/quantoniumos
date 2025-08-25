@@ -1,5 +1,4 @@
 import platform
-
 import numpy as np
 import pytest
 from numpy.testing import (TestCase, assert_, assert_allclose,

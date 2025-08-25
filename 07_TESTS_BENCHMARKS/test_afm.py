@@ -1,6 +1,5 @@
 import logging
 from io import BytesIO
-
 import pytest
 from matplotlib import _afm
 from matplotlib import font_manager as fm

@@ -1,5 +1,4 @@
 from itertools import chain
-
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal, assert_equal, assert_raises

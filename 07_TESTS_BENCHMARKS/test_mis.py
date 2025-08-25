@@ -4,7 +4,6 @@ Tests for maximal (not maximum) independent sets.
 """
 
 import random
-
 import networkx as nx
 import pytest
 

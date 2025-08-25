@@ -1,5 +1,4 @@
 import sysconfig
-
 import numpy as np
 import pytest
 from numpy.testing import IS_WASM, assert_raises

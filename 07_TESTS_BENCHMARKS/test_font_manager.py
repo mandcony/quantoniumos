@@ -6,7 +6,6 @@ import sys
 import warnings
 from io import BytesIO, StringIO
 from pathlib import Path
-
 import matplotlib as mpl
 import numpy as np
 import pytest
@@ -274,8 +273,7 @@ def test_missing_family(caplog):
 
 def _test_threading():
     import threading
-
-    import matplotlib.font_manager as fm
+import matplotlib.font_manager as fm
     from matplotlib.ft2font import LoadFlags
 
     def loud_excepthook(args):

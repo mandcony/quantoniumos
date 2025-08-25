@@ -11,8 +11,9 @@ import Dict
 import List
 import numpy as np
 import Tuple
-
-import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+import canonical_true_rft as canonical_true_rft
 try:
 import =
 import CPP_ENGINE_AVAILABLE

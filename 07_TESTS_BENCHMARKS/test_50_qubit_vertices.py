@@ -5,7 +5,6 @@ Test larger scale qubit vertex operations with proper output
 """
 
 from typing import Any, Dict, Tuple
-
 import networkx as nx
 import numpy as np
 import psutil

@@ -3,7 +3,6 @@ import os
 import sys
 from io import StringIO
 from os.path import join as pjoin
-
 import numpy as np
 from numpy.testing import (assert_, assert_array_almost_equal,
                            assert_array_equal, assert_equal)

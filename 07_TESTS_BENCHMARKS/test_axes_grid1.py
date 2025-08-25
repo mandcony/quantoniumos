@@ -1,7 +1,6 @@
 import io
 import platform
 from itertools import product
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -858,7 +857,7 @@ def test_imagegrid():
 
 def test_removal():
     import matplotlib.pyplot as plt
-    import mpl_toolkits.axisartist as AA
+import mpl_toolkits.axisartist as AA
 
     fig = plt.figure()
     ax = host_subplot(111, axes_class=AA.Axes, figure=fig)

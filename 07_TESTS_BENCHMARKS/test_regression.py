@@ -6,7 +6,6 @@ import tempfile
 from io import BytesIO
 from itertools import chain
 from os import path
-
 import numpy as np
 import pytest
 from numpy._utils import asbytes, asunicode

@@ -1,6 +1,5 @@
 import warnings
 from os import path
-
 import numpy as np
 import pytest
 from numpy.testing import (assert_, assert_array_equal, assert_equal,

@@ -16,7 +16,6 @@ import sys
 import time
 import traceback
 from typing import Any, Dict, List
-
 import numpy as np
 
 
@@ -67,7 +66,9 @@ def test_rft_algorithm():
 
     # Test canonical true RFT
     try:
-        from 04_RFT_ALGORITHMS.canonical_true_rft import forward_true_rft, inverse_true_rft
+        import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+from canonical_true_rft import forward_true_rft, inverse_true_rft
 
         # Test with small signal
         test_signal = np.array([1.0, 0.5, 0.25, 0.125])

@@ -1,7 +1,6 @@
 """Test functions for the sparse.linalg._expm_multiply module."""
 from functools import partial
 from itertools import product
-
 import numpy as np
 import pytest
 import scipy.linalg

@@ -8,7 +8,6 @@ import os
 import sys
 from io import StringIO
 from tempfile import NamedTemporaryFile, mkstemp
-
 import numpy as np
 import pytest
 from numpy.ma.testutils import assert_equal

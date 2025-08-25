@@ -3,7 +3,9 @@
 Automated script to fix import errors in test files
 
 This script scans Python files in the specified directory and fixes common import errors:
-1. Invalid imports like 'from 05_QUANTUM_ENGINES.xyz import abc'
+1. Invalid imports like 'import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from xyz import abc'
 2. Missing module imports
 3. Other common import patterns that need fixing
 """
@@ -54,7 +56,8 @@ abc = xyz.abc'
         
         for match in matches:
             folder_num, folder_name, module_name, imports = match
-            old_import = f"from {folder_num}_{folder_name}.{module_name} import {imports}"
+            old_import = f"from {folder_num}_{folder_name}.{module_name}
+import {imports}"
             
             # Create new import using importlib
             new_import = f"""import importlib.util

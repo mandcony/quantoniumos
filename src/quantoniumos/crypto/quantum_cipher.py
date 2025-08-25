@@ -9,7 +9,6 @@ import hashlib
 import logging
 import secrets
 from typing import Any, Dict, Optional, Tuple, Union
-
 import numpy as np
 
 logger = logging.getLogger(__name__)

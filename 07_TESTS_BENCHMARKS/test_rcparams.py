@@ -3,7 +3,6 @@ import os
 import subprocess
 import sys
 from unittest import mock
-
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
@@ -322,8 +321,8 @@ def generate_validator_testcases(valid):
                 ),
                 ("1 + 2", ValueError),  # doesn't produce a Cycler object
                 ('os.system("echo Gotcha")', ValueError),  # os not available
-                ("import os", ValueError),  # should not be able to import
-                (
+                ("import os", ValueError),  # should not be able to
+import (
                     'def badjuju(a): return a; badjuju(cycler("color", "rgb"))',
                     ValueError,
                 ),  # Should not be able to define anything

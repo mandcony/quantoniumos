@@ -19,7 +19,6 @@ import os
 import sys
 import time
 from typing import Any, Dict, List, Tuple
-
 import numpy as np
 
 # Add project paths
@@ -30,7 +29,7 @@ sys.path.insert(0, '/workspaces/quantoniumos/core/encryption')
 try:
     # Import actual QuantoniumOS implementations
     import importlib.util
-    import os
+import os
 
     # Load the canonical_true_rft module
     spec = importlib.util.spec_from_file_location(

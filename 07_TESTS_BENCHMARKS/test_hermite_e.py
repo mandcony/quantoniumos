@@ -2,7 +2,6 @@
 
 """
 from functools import reduce
-
 import numpy as np
 import numpy.polynomial.hermite_e as herme
 from numpy.polynomial.polynomial import polyval

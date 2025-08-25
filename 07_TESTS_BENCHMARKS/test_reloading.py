@@ -3,7 +3,6 @@ import subprocess
 import sys
 import textwrap
 from importlib import reload
-
 import numpy.exceptions as ex
 import pytest
 from numpy.testing import (IS_WASM, assert_, assert_equal, assert_raises,
@@ -13,7 +12,7 @@ from numpy.testing import (IS_WASM, assert_, assert_equal, assert_raises,
 def test_numpy_reloading():
     # gh-7844. Also check that relevant globals retain their identity.
     import numpy as np
-    import numpy._globals
+import numpy._globals
 
     _NoValue = np._NoValue
     VisibleDeprecationWarning = ex.VisibleDeprecationWarning
@@ -39,7 +38,9 @@ def test_novalue():
         assert_(pickle.loads(pickle.dumps(np._NoValue,
                                           protocol=proto)) is np._NoValue)
 
-@pytest.mark.skipif(IS_WASM, reason="can't start subprocess") def test_full_reimport(): """At the time of writing this, it is *not* truly supported, but apparently enough users rely on it, for it to be an annoying change when it started failing previously. """ # Test within a new process, to ensure that we do not mess with the # global state during the test run (could lead to cryptic test failures). # This is generally unsafe, especially, since we also reload the C-modules. code = textwrap.dedent(r"""""" import sys from pytest import warns import numpy as np for k in list(sys.modules.keys()): if "numpy" in k: del sys.modules[k] with warns(UserWarning): import numpy as np """""") p = subprocess.run([sys.executable, '-c', code], capture_output=True)
+@pytest.mark.skipif(IS_WASM, reason="can't start subprocess") def test_full_reimport(): """At the time of writing this, it is *not* truly supported, but apparently enough users rely on it, for it to be an annoying change when it started failing previously. """ # Test within a new process, to ensure that we do not mess with the # global state during the test run (could lead to cryptic test failures). # This is generally unsafe, especially, since we also reload the C-modules. code = textwrap.dedent(r"""""" import sys from pytest
+import warns import numpy as np for k in list(sys.modules.keys()): if "numpy" in k: del sys.modules[k] with warns(UserWarning):
+import numpy as np """""") p = subprocess.run([sys.executable, '-c', code], capture_output=True)
     if p.returncode:
         raise AssertionError(
             f"Non-zero return code: {p.returncode!r}\n\n{p.stderr.decode()}"

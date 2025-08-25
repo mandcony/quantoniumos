@@ -4,7 +4,6 @@ import textwrap
 from io import BytesIO
 from os import path
 from pathlib import Path
-
 import numpy as np
 import pytest
 from numpy.testing import (assert_, assert_array_almost_equal,

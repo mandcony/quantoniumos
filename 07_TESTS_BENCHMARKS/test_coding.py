@@ -1,7 +1,6 @@
 """Unit tests for the :mod:`~networkx.algorithms.tree.coding` module."""
 
 from itertools import product
-
 import networkx as nx
 import pytest
 from networkx.utils import edges_equal, nodes_equal

@@ -1,7 +1,6 @@
 import copy
 import itertools
 import os
-
 import numpy as np
 import pytest
 import scipy.spatial._qhull as qhull

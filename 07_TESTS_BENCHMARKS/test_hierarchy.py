@@ -32,7 +32,6 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from threading import Lock
-
 import numpy as np
 import pytest
 import scipy._lib.array_api_extra as xpx

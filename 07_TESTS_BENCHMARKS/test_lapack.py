@@ -4,7 +4,6 @@
 
 import random
 from functools import reduce
-
 import numpy as np
 import pytest
 import scipy.sparse as sps

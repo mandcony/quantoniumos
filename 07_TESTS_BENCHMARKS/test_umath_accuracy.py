@@ -2,7 +2,6 @@ import os
 import sys
 from ctypes import POINTER, c_double, c_float, c_int, c_longlong, cast, pointer
 from os import path
-
 import numpy as np
 import pytest
 from numpy._core._multiarray_umath import __cpu_features__

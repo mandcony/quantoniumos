@@ -14,11 +14,11 @@ Patent Claims Implemented:
 import math
 import tracemalloc
 from typing import Any, Dict, List, Tuple
-
 import numpy as np
 import psutil
-
-import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+import canonical_true_rft as canonical_true_rft
 PHI = (1.0 + math.sqrt(5.0)) / 2.0
 
 

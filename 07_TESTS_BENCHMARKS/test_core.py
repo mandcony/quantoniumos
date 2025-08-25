@@ -13,7 +13,6 @@ import sys
 import textwrap
 import warnings
 from functools import reduce
-
 import numpy as np
 import numpy._core.fromnumeric as fromnumeric
 import numpy._core.umath as umath

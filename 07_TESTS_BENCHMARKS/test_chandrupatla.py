@@ -1,7 +1,6 @@
 import math
 from copy import deepcopy
 from itertools import permutations
-
 import numpy as np
 import pytest
 import scipy._lib._elementwise_iterative_method as eim

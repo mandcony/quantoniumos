@@ -21,7 +21,6 @@ import time
 import warnings
 from dataclasses import dataclass
 from typing import Any, Dict, List
-
 import numpy as np
 
 # Add paths for C++ engine access
@@ -73,7 +72,6 @@ sys.path.append("/workspaces/quantoniumos/core")
 sys.path.append("/workspaces/quantoniumos")
 
 from test_mathematical_rft_validation import MathematicalRFTValidator
-
 import importlib.util
 import os
 

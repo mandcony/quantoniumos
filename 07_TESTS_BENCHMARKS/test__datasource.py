@@ -4,7 +4,6 @@ from shutil import rmtree
 from tempfile import NamedTemporaryFile, mkdtemp, mkstemp
 from urllib.error import URLError
 from urllib.parse import urlparse
-
 import numpy.lib._datasource as datasource
 import pytest
 from numpy.testing import assert_, assert_equal, assert_raises

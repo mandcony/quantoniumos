@@ -7,7 +7,6 @@ import warnings
 from collections import namedtuple
 from fractions import Fraction
 from functools import reduce
-
 import numpy as np
 import numpy._core.umath as ncu
 import pytest

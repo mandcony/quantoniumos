@@ -1,5 +1,4 @@
 import collections.abc
-
 import numpy as np
 from numpy import asmatrix, bmat, matrix
 from numpy.linalg import matrix_power

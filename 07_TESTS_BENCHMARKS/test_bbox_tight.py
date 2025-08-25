@@ -1,6 +1,5 @@
 import platform
 from io import BytesIO
-
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt

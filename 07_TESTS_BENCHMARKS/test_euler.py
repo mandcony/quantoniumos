@@ -1,5 +1,4 @@
 import collections
-
 import networkx as nx
 import pytest
 

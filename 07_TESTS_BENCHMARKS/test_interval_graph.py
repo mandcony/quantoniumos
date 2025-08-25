@@ -1,7 +1,6 @@
 """Unit tests for the :mod:`networkx.generators.interval_graph` module."""
 
 import math
-
 import networkx as nx
 import pytest
 from networkx.generators.interval_graph import interval_graph

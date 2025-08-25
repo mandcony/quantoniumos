@@ -3,7 +3,6 @@
 import itertools
 import os
 import warnings
-
 import networkx as nx
 import pytest
 
@@ -1515,7 +1514,7 @@ def test_draw_edges_toggling_with_arrows_kwarg():
       - ``arrows=False`` -> LineCollection
     """
     import matplotlib.collections
-    import matplotlib.patches
+import matplotlib.patches
 
     UG = nx.path_graph(3)
     DG = nx.path_graph(3, create_using=nx.DiGraph)

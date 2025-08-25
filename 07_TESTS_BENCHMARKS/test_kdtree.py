@@ -4,7 +4,6 @@
 import itertools
 import os
 from platform import python_implementation
-
 import numpy as np
 import pytest
 from numpy.testing import (assert_, assert_allclose, assert_almost_equal,

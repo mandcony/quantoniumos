@@ -15,7 +15,6 @@ import pickle
 import socket
 import sys
 from unittest import mock
-
 import psutil
 import psutil.tests
 from psutil import WINDOWS

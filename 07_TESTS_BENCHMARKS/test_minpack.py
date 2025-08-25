@@ -4,7 +4,6 @@ Unit tests for optimization routines from minpack.py.
 import threading
 import warnings
 from multiprocessing.pool import ThreadPool
-
 import numpy as np
 import pytest
 from numpy import array, float64

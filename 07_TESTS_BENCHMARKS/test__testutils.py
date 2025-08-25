@@ -1,5 +1,4 @@
 import sys
-
 import pytest
 from scipy._lib._testutils import _get_mem_available, _parse_size
 

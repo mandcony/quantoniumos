@@ -3,7 +3,6 @@ Unit test for Linear Programming via Simplex Algorithm.
 """
 from copy import deepcopy
 from datetime import date
-
 import numpy as np
 from numpy.exceptions import VisibleDeprecationWarning
 from numpy.testing import assert_, assert_allclose, assert_equal

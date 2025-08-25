@@ -17,7 +17,6 @@ import time
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-
 import pytz
 # Flask imports for backend API
 from flask import Flask, jsonify, request, send_from_directory

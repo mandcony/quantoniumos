@@ -21,7 +21,7 @@ def get_eigen_include_path():
 
         # Download Eigen
         import urllib.request
-        import zipfile
+import zipfile
 
         eigen_zip = "eigen-3.4.0.zip"
         eigen_url = f"https://gitlab.com/libeigen/eigen/-/archive/3.4.0/{eigen_zip}"

@@ -5,7 +5,6 @@ all of these occurrences but should catch almost all.
 import ast
 import tokenize
 from pathlib import Path
-
 import numpy
 import pytest
 

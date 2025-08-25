@@ -1,5 +1,4 @@
 from itertools import product
-
 import networkx as nx
 import pytest
 

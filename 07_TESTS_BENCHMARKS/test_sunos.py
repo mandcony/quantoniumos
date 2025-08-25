@@ -7,7 +7,6 @@
 """Sun OS specific tests."""
 
 import os
-
 import psutil
 from psutil import SUNOS
 from psutil.tests import PsutilTestCase, pytest, sh

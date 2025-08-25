@@ -20,7 +20,6 @@ Notes
 import math
 from itertools import product
 from typing import Literal, cast, get_args
-
 import numpy as np
 import pytest
 from scipy._lib._array_api import xp_assert_close, xp_assert_equal

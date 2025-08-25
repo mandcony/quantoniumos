@@ -40,7 +40,8 @@ def patch_bulletproof_quantum_kernel():
 
     # Add import for our adapter
     import_pattern = r"import numpy as np"
-    adapter_import = "import numpy as np\nfrom energy_conserving_rft_adapter import EnergyConservingRFTEngine"
+    adapter_import = "import numpy as np\nfrom energy_conserving_rft_adapter
+import EnergyConservingRFTEngine"
 
     content = re.sub(import_pattern, adapter_import, content)
 

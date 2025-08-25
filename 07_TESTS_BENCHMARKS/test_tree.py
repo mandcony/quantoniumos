@@ -1,5 +1,4 @@
 import json
-
 import networkx as nx
 import pytest
 from networkx.readwrite.json_graph import tree_data, tree_graph

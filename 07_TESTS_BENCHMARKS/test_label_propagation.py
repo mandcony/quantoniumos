@@ -1,5 +1,4 @@
 from itertools import chain, combinations
-
 import networkx as nx
 import pytest
 

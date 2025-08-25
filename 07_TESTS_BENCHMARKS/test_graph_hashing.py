@@ -1,5 +1,4 @@
 import copy
-
 import networkx as nx
 import pytest
 

@@ -1,5 +1,4 @@
 import warnings
-
 import matplotlib.pyplot as plt
 import pytest
 from matplotlib.testing.decorators import check_figures_equal

@@ -12,7 +12,6 @@ import sys
 import sysconfig
 import threading
 from importlib.util import module_from_spec, spec_from_file_location
-
 import numpy as np
 import scipy
 

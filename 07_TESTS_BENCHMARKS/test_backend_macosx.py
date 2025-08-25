@@ -1,6 +1,5 @@
 import os
 from unittest import mock
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pytest

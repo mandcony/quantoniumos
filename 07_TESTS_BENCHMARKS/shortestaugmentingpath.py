@@ -3,7 +3,6 @@ Shortest augmenting path algorithm for maximum flow problems.
 """
 
 from collections import deque
-
 import networkx as nx
 
 from .edmondskarp import edmonds_karp_core

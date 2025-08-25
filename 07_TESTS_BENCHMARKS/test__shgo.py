@@ -2,7 +2,6 @@ import logging
 import sys
 import time
 from multiprocessing import Pool
-
 import numpy as np
 import pytest
 from numpy.testing import IS_PYPY, assert_allclose

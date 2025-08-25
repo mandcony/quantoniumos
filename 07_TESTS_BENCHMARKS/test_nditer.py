@@ -1,7 +1,6 @@
 import subprocess
 import sys
 import textwrap
-
 import numpy as np
 import numpy._core._multiarray_tests as _multiarray_tests
 import numpy._core.umath as ncu

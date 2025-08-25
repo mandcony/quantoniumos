@@ -3,7 +3,9 @@
 Performance test for paper_compliant_rft_fixed.py
 """
 
-import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixedimport os
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+import paper_compliant_rft_fixed as paper_compliant_rft_fixedimport os
 import time
 
 def test_performance():

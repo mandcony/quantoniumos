@@ -1,5 +1,4 @@
 from functools import partial
-
 import networkx as nx
 import pytest
 from networkx.algorithms import isomorphism as iso

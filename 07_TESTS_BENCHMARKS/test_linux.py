@@ -21,7 +21,6 @@ import textwrap
 import time
 import warnings
 from unittest import mock
-
 import psutil
 from psutil import LINUX
 from psutil.tests import (AARCH64, GITHUB_ACTIONS, GLOBAL_TIMEOUT, HAS_BATTERY,

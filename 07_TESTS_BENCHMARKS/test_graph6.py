@@ -1,5 +1,4 @@
 from io import BytesIO
-
 import networkx as nx
 import networkx.readwrite.graph6 as g6
 import pytest

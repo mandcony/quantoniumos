@@ -1,7 +1,6 @@
 """Unit tests for the :mod:`networkx.algorithms.structuralholes` module."""
 
 import math
-
 import networkx as nx
 import pytest
 from networkx.classes.tests import dispatch_interface

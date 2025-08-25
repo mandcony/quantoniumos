@@ -4,7 +4,6 @@
 import operator
 from functools import partial
 from itertools import product
-
 import numpy as np
 import pytest
 import scipy.sparse as sparse

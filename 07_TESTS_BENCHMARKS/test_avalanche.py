@@ -3,7 +3,9 @@
 Test script for RFT key avalanche effect
 """
 
-import 04_RFT_ALGORITHMS.paper_compliant_rft_fixed as paper_compliant_rft_fixedimport os
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+import paper_compliant_rft_fixed as paper_compliant_rft_fixedimport os
 import numpy as np
 
 def test_key_avalanche(data_size=64, key_size=32, bit_flips=100):

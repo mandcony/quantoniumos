@@ -4,7 +4,6 @@ import platform
 import re
 from datetime import datetime
 from types import SimpleNamespace
-
 import matplotlib as mpl
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors

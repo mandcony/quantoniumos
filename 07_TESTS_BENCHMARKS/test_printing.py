@@ -2,7 +2,6 @@ from decimal import Decimal
 # For testing polynomial printing with object arrays
 from fractions import Fraction
 from math import inf, nan
-
 import numpy.polynomial as poly
 import pytest
 from numpy._core import arange, array, printoptions

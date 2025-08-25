@@ -1,6 +1,5 @@
 import time
 from datetime import date
-
 import numpy as np
 from numpy.lib._iotools import (LineSplitter, NameValidator, StringConverter,
                                 easy_dtype, flatten_dtype, has_nested_fields)

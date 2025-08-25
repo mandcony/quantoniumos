@@ -1,7 +1,6 @@
 import hashlib
 import os.path
 import sys
-
 import numpy as np
 import pytest
 from numpy.exceptions import AxisError
@@ -2325,7 +2324,7 @@ def test_pickle_preserves_seed_sequence():
 def test_legacy_pickle(version):
     # Pickling format was changes in 1.22.x and in 2.0.x
     import gzip
-    import pickle
+import pickle
 
     base_path = os.path.split(os.path.abspath(__file__))[0]
     pkl_file = os.path.join(

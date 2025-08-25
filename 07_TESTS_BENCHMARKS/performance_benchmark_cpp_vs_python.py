@@ -17,7 +17,6 @@ import time
 import warnings
 from dataclasses import dataclass
 from typing import Any, Dict, List
-
 import numpy as np
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)

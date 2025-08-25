@@ -1,5 +1,4 @@
 import numbers
-
 import numpy as np
 from numpy._core.numerictypes import sctypes
 from numpy.testing import assert_

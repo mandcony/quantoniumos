@@ -3,7 +3,6 @@ it for WSGI compliance.
 """
 
 from __future__ import annotations
-
 import importlib.metadata
 import os
 import sys

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import struct
-
 import enhanced_rft_crypto
 
 

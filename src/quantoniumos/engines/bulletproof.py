@@ -7,7 +7,6 @@ import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
 import numpy as np
 
 # Add the quantum engines directory to path
@@ -16,7 +15,9 @@ engines_path = project_root / "05_QUANTUM_ENGINES"
 sys.path.insert(0, str(engines_path))
 
 try:
-    from 05_QUANTUM_ENGINES.working_quantum_kernel import WorkingQuantumKernel
+    import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from working_quantum_kernel import WorkingQuantumKernel
 
     WORKING_KERNEL_AVAILABLE = True
 except (ImportError, SyntaxError) as e:

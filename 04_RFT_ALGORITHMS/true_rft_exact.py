@@ -20,7 +20,6 @@ import sys
 import typing
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-
 import numpy as np
 
 # Golden ratio 
@@ -288,6 +287,46 @@ class TrueResonanceFourierTransform:
         Get the RFT basis matrix (Ψ) - alias for get_rft_basis
         """
         return self.Psi
+
+    def validate_unitarity(self, signal: np.ndarray) -> Dict[str, Any]:
+        """
+        Validate the unitarity of the RFT transform
+        
+        Args:
+            signal: Input signal to test with
+            
+        Returns:
+            Dictionary with validation results
+        """
+        # Forward and inverse transform
+        transformed = self.transform(signal)
+        reconstructed = self.inverse_transform(transformed)
+        
+        # Calculate reconstruction error
+        reconstruction_error = np.linalg.norm(signal - reconstructed)
+        relative_error = reconstruction_error / np.linalg.norm(signal)
+        
+        # Energy conservation check (Parseval's theorem)
+        energy_original = np.linalg.norm(signal)**2
+        energy_transformed = np.linalg.norm(transformed)**2
+        energy_error = abs(energy_original - energy_transformed) / energy_original
+        
+        # Check if transform matrix is unitary (Ψ† Ψ = I)
+        identity_test = self.Psi.conj().T @ self.Psi
+        identity_error = np.linalg.norm(identity_test - np.eye(self.N), 'fro')
+        
+        # Unitarity criteria
+        is_unitary = (relative_error < 1e-12) and (identity_error < 1e-12) and (energy_error < 1e-12)
+        
+        return {
+            'is_unitary': is_unitary,
+            'reconstruction_error': reconstruction_error,
+            'relative_error': relative_error,
+            'energy_error': energy_error,
+            'identity_error': identity_error,
+            'perfect_reconstruction': relative_error < 1e-12,
+            'energy_conserved': energy_error < 1e-12
+        }
 
 
 # Helper functions to match the canonical_true_rft.py interface

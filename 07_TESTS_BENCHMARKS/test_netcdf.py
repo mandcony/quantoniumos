@@ -8,7 +8,6 @@ from glob import glob
 from io import BytesIO
 from os.path import dirname
 from os.path import join as pjoin
-
 import numpy as np
 import pytest
 from numpy.testing import (IS_PYPY, assert_, assert_allclose, assert_equal,

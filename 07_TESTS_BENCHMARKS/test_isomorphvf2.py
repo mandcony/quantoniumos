@@ -5,7 +5,6 @@ Tests for VF2 isomorphism algorithm.
 import importlib.resources
 import random
 import struct
-
 import networkx as nx
 import pytest
 from networkx.algorithms import isomorphism as iso

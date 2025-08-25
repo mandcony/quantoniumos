@@ -1,6 +1,5 @@
 import sys
 from io import StringIO
-
 import numpy as np
 import pytest
 from numpy._core.tests._locales import CommaDecimalPointLocale

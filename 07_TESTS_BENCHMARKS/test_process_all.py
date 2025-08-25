@@ -15,7 +15,6 @@ import os
 import stat
 import time
 import traceback
-
 import psutil
 from psutil import (AIX, BSD, FREEBSD, LINUX, MACOS, NETBSD, OPENBSD, OSX,
                     POSIX, WINDOWS)

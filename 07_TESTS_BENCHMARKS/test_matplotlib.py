@@ -2,7 +2,6 @@ import os
 import subprocess
 import sys
 from unittest.mock import patch
-
 import matplotlib
 import pytest
 from matplotlib.testing import subprocess_run_for_testing

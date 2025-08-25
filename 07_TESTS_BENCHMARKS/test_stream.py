@@ -13,7 +13,11 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from backend.stream import get_stream, update_encrypt_data
+import sys
+import os
 
+# Add the running systems path to import create_app
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '03_RUNNING_SYSTEMS'))
 from core.main import create_app
 
 

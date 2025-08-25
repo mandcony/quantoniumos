@@ -6,7 +6,6 @@ import subprocess
 import sys
 import weakref
 from pathlib import Path
-
 import matplotlib as mpl
 import numpy as np
 import pytest

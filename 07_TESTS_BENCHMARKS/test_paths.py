@@ -2,7 +2,6 @@
 Ensure that we can use pathlib.Path objects in all relevant IO functions.
 """
 from pathlib import Path
-
 import numpy as np
 import scipy.io
 import scipy.io.wavfile

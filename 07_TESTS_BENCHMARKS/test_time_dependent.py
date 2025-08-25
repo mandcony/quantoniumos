@@ -1,7 +1,6 @@
 """Unit testing for time dependent algorithms."""
 
 from datetime import datetime, timedelta
-
 import networkx as nx
 import pytest
 

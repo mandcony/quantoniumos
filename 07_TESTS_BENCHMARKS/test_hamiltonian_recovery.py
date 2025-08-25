@@ -6,7 +6,6 @@ Hamiltonian Recovery and Generator Consistency Test Suite === This test validate
 import math
 import time
 import typing
-
 import Any
 import Dict
 import List

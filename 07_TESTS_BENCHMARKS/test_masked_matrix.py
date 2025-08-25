@@ -1,5 +1,4 @@
 import pickle
-
 import numpy as np
 from numpy.ma.core import (MaskedArray, MaskType, add, allequal, divide,
                            getmask, hypot, log, masked, masked_array,

@@ -8,7 +8,6 @@ Test suite for the authentication framework.
 import time
 import unittest
 from datetime import datetime, timedelta
-
 import jwt
 from auth.jwt_auth import authenticate_key, verify_token
 # Import authentication modules

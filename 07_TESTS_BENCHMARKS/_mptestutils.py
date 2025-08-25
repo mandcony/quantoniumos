@@ -2,7 +2,6 @@ import os
 import sys
 import time
 from itertools import zip_longest
-
 import numpy as np
 import pytest
 from numpy.testing import assert_

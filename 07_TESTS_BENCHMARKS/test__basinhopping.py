@@ -2,7 +2,6 @@
 Unit tests for the basin hopping global minimization algorithm.
 """
 import copy
-
 import numpy as np
 import pytest
 from numpy import cos, sin

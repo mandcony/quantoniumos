@@ -3,7 +3,6 @@ import copy
 import itertools
 import unittest.mock
 from io import BytesIO
-
 import matplotlib
 import matplotlib as mpl
 import matplotlib.colorbar as mcolorbar

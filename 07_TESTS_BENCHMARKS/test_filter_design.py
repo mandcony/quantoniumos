@@ -2,7 +2,6 @@ import cmath
 import math
 import warnings
 from itertools import product
-
 import numpy as np
 import pytest
 from numpy import array, pi, sin, spacing

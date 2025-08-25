@@ -2,7 +2,6 @@
 Tests for line search routines
 """
 import threading
-
 import numpy as np
 import pytest
 import scipy.optimize._linesearch as ls

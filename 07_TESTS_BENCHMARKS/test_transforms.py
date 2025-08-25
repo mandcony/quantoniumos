@@ -1,6 +1,5 @@
 import copy
 from unittest.mock import MagicMock
-
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms

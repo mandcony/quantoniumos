@@ -4,7 +4,6 @@
 import itertools
 import platform
 import sys
-
 import numpy as np
 import pytest
 from numpy import diag, ones, r_

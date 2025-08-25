@@ -1,7 +1,6 @@
 """Greedy coloring test suite."""
 
 import itertools
-
 import networkx as nx
 import pytest
 

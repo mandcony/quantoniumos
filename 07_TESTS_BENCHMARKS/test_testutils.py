@@ -16,7 +16,6 @@ import textwrap
 import unittest
 import warnings
 from unittest import mock
-
 import psutil
 import psutil.tests
 from psutil import FREEBSD, NETBSD, POSIX

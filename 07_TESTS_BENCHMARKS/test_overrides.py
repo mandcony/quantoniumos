@@ -5,7 +5,6 @@ import sys
 import tempfile
 from io import StringIO
 from unittest import mock
-
 import numpy as np
 import pytest
 from numpy._core.overrides import (_get_implementing_args,

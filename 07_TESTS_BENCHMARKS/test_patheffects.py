@@ -1,5 +1,4 @@
 import platform
-
 import matplotlib.patches as patches
 import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt

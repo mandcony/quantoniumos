@@ -1,5 +1,4 @@
 import re
-
 import numpy as np
 import pytest
 from scipy._lib import array_api_extra as xpx

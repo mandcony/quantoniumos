@@ -1,7 +1,6 @@
 import gc
 import sys
 import textwrap
-
 import numpy as np
 import pytest
 from hypothesis import given

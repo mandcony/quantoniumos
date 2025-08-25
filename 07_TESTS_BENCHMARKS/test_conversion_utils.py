@@ -2,7 +2,6 @@
 Tests for numpy/_core/src/multiarray/conversion_utils.c
 """
 import re
-
 import numpy._core._multiarray_tests as mt
 import pytest
 from numpy._core.multiarray import CLIP, RAISE, WRAP

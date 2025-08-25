@@ -9,7 +9,6 @@
 import platform
 import re
 import time
-
 import psutil
 from psutil import MACOS, POSIX
 from psutil.tests import (CI_TESTING, HAS_BATTERY, TOLERANCE_DISK_USAGE,

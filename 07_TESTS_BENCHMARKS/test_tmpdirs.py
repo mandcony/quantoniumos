@@ -3,7 +3,6 @@ from os import getcwd
 from os.path import abspath, dirname, exists, isfile
 from os.path import join as pjoin
 from os.path import realpath
-
 import pytest
 from numpy.testing import assert_, assert_equal
 from scipy._lib._tmpdirs import in_dir, in_tempdir, tempdir

@@ -225,12 +225,15 @@ except ImportError:
 
 # Import canonical True RFT implementation
 try:
-    from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis as py_get_rft_basis
+    import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+from canonical_true_rft import get_rft_basis as py_get_rft_basis
 except ImportError:
     # Try relative import
     sys.path.append(str(Path(__file__).parent))
     try:
-        from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis as py_get_rft_basis
+        import sys, os
+from canonical_true_rft import get_rft_basis as py_get_rft_basis
     except ImportError:
         print("Error: Could not import get_rft_basis from canonical_true_rft.py")
         print("Please ensure canonical_true_rft.py is in the correct location.")
@@ -443,7 +446,7 @@ ext_modules = [
 # Build configuration
 def has_flag(compiler, flagname):
     import tempfile
-    import os
+import os
     with tempfile.NamedTemporaryFile('w', suffix='.cpp', delete=False) as f:
         f.write('int main (int argc, char **argv) { return 0; }')
         fname = f.name

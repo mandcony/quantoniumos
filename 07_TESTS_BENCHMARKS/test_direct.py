@@ -1,7 +1,6 @@
 import os
 import sys
 from os.path import join
-
 import numpy as np
 import pytest
 from numpy.random import (MT19937, PCG64, PCG64DXSM, SFC64, Generator, Philox,
@@ -516,7 +515,7 @@ class TestSFC64(Base):
     def test_legacy_pickle(self):
         # Pickling format was changed in 2.0.x
         import gzip
-        import pickle
+import pickle
 
         expected_state = np.array(
             [9957867060933711493, 532597980065565856, 14769588338631205282, 13],

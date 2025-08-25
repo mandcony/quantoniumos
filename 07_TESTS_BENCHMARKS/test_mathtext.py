@@ -1,12 +1,10 @@
 from __future__ import annotations
-
 import io
 import platform
 import re
 from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree as ET
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np

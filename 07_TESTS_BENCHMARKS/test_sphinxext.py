@@ -5,7 +5,6 @@ import os
 import shutil
 import sys
 from pathlib import Path
-
 import pytest
 from matplotlib.testing import subprocess_run_for_testing
 

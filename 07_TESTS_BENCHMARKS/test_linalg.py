@@ -8,7 +8,6 @@ import sys
 import textwrap
 import threading
 import traceback
-
 import numpy as np
 import pytest
 from numpy import (array, asarray, atleast_2d, cdouble, csingle, dot, double,

@@ -44,5 +44,5 @@ def test_limited_api(install_temp):
     """
 
     import limited_api1  # Earliest (3.6)  # noqa: F401
-    import limited_api2  # cython  # noqa: F401
+import limited_api2  # cython  # noqa: F401
     import limited_api_latest  # Latest version (current Python)  # noqa: F401

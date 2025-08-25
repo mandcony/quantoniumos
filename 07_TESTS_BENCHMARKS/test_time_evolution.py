@@ -7,7 +7,6 @@ if H time-invariant) - Loschmidt echo: L(t) = |<psi0|Udagger(t)U(t)|psi0>| appro
 import math
 import time
 import typing
-
 import Any
 import Dict
 import generate_resonance_kernel
@@ -16,8 +15,9 @@ import List
 import numpy as np
 import scipy.linalg
 import Tuple
-
-import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rft
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+import canonical_true_rft as canonical_true_rft
 
 def random_state(N: int) -> np.ndarray: """
         Generate a random complex state vector.

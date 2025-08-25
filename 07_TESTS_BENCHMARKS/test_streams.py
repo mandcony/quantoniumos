@@ -9,7 +9,6 @@ import zlib
 from contextlib import contextmanager
 from io import BytesIO
 from tempfile import mkstemp
-
 import numpy as np
 import pytest
 from numpy.testing import assert_, assert_equal

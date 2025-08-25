@@ -190,7 +190,7 @@ def create_app():
     CORS(app, resources={r"/*": {"origins": "*"}})
 
     # Configure PostgreSQL database with fallback for SQLite
-    database_url = env_config["database_uri"]
+    database_url = env_config.get("DATABASE_URL", "sqlite:///quantonium.db")
     logger.info(f"Using database URI: {database_url.split('://', 1)[0]}://*****")
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -200,7 +200,7 @@ def create_app():
     }
 
     # Initialize authentication module with database and encryption
-    initialize_auth(app)
+    initialize_auth()
 
     # Generate a master key for JWT secret encryption
     if "QUANTONIUM_MASTER_KEY" not in os.environ:
@@ -211,7 +211,7 @@ def create_app():
         )
 
     # Configure security middleware (replaces permissive CORS)
-    talisman, limiter = configure_security(app)
+    configure_security(app)
 
     # Add rate limiter middleware
     from middleware.auth import RateLimiter
@@ -235,7 +235,8 @@ def create_app():
         def get_security_score():
             return {"score": 75, "level": "7.5/10"}
 
-    app.wsgi_app = RateLimiter(calls=30, period=60)(app.wsgi_app)
+    # Configure rate limiting for the application
+    rate_limiter = RateLimiter(max_requests=30, window_seconds=60)
 
     # Add NIST 800-53 compliant security audit middleware
     try:
@@ -256,14 +257,14 @@ def create_app():
     app.url_map.strict_slashes = False
 
     # Set up structured JSON logging
-    setup_json_logger(app, log_dir="logs", log_level=logging.INFO)
+    json_logger = setup_json_logger('quantonium_app', 'INFO')
 
     # Set up specialized security logging
-    setup_security_logger(app, log_dir="/tmp/logs", log_level=logging.INFO)
+    security_logger = setup_security_logger('quantonium_security', 'WARNING')
 
-    # Create tables on startup
-    with app.app_context():
-        db.create_all()
+    # Create tables on startup - using our custom database
+    # Tables are already created in the Database constructor
+    logger.info("Database tables initialized")
 
     # Check for encryption migration
     migrate_secrets = os.environ.get("QUANTONIUM_ENCRYPT_SECRETS", "auto").lower()
@@ -328,7 +329,6 @@ def create_app():
 
     # API health check endpoint (not rate limited)
     @app.route("/api/health")
-    @limiter.exempt
     def api_health_check():
         uptime_seconds = int(time.time() - APP_START_TIME)
         return jsonify(
@@ -723,7 +723,6 @@ def create_app():
     @app.route("/api/metrics")
     def metrics():
         import os
-
         import psutil
 
         # Get process information
@@ -755,7 +754,6 @@ def create_app():
 
     # Serve OpenAPI spec as JSON
     @app.route("/openapi.json")
-    @limiter.exempt
     def openapi_spec():
         try:
             with open("openapi.json", "r") as f:

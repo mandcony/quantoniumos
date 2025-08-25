@@ -4,7 +4,6 @@ Unit tests for the differential global minimization algorithm.
 import multiprocessing
 import platform
 from multiprocessing.dummy import Pool as ThreadPool
-
 import numpy as np
 import pytest
 from numpy.testing import (assert_, assert_allclose, assert_almost_equal,

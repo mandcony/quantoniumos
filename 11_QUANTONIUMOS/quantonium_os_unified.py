@@ -17,7 +17,6 @@ import time
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-
 import pytz
 # Flask imports for backend API
 from flask import Flask, jsonify, request, send_from_directory
@@ -37,7 +36,9 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame,
                              QTabWidget, QTextEdit, QVBoxLayout, QWidget)
 
 # Import unified design system
-from 11_QUANTONIUMOS.quantonium_design_system import apply_unified_style, get_design_system
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '11_QUANTONIUMOS'))
+from quantonium_design_system import apply_unified_style, get_design_system
 
 # Try to import qtawesome for icons
 try:

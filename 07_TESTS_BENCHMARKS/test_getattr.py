@@ -1,6 +1,5 @@
 from importlib import import_module
 from pkgutil import walk_packages
-
 import matplotlib
 import pytest
 

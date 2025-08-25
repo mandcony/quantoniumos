@@ -5,7 +5,6 @@ Build the fixed true_rft_engine bindings with proper normalization.
 import os
 import subprocess
 import sys
-
 import numpy as np
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
@@ -43,7 +42,7 @@ def find_eigen_include():
     # Download Eigen3 if not found
     try:
         import urllib.request
-        import zipfile
+import zipfile
 
         eigen_url = "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip"
         eigen_zip = "eigen-3.4.0.zip"

@@ -1,202 +1,163 @@
 #!/usr/bin/env python3
 """
-QuantoniumOS Simple Launcher
+QuantoniumOS Unified Launcher
+===========================
 
-Quick launcher for QuantoniumOS with menu selection
+This is the MAIN entry point for QuantoniumOS.
+Use this script to launch the system in different modes.
+
+USAGE:
+    python launch.py                    # Interactive mode selection
+    python launch.py web                # Web interface (Flask)  
+    python launch.py gui                # Desktop GUI (Qt)
+    python launch.py test               # Run validation tests
+    python launch.py apps               # Launch application menu
+
+ENTRY POINTS HIERARCHY:
+    1. This file (launch.py) - MAIN LAUNCHER
+    2. 03_RUNNING_SYSTEMS/app.py - Web interface
+    3. 11_QUANTONIUMOS/quantonium_os_unified.py - Desktop GUI
+    4. 02_CORE_VALIDATORS/run_all_validators.py - Validation tests
 """
 
+import argparse
 import os
 import subprocess
 import sys
 from pathlib import Path
 
 
-def print_logo():
-    """Print QuantoniumOS logo"""
-    print(
-        """
-╔═══════════════════════════════════════════════════════════╗
-║                     🌌 QuantoniumOS                     ║
-║           1000-Qubit Quantum Operating System            ║
-║                                                           ║
-║        World's First Vertex-Based Quantum OS            ║
-║              🔮 Phase 1 - Now Available 🔮              ║
-╚═══════════════════════════════════════════════════════════╝
-    """
-    )
+def get_project_root():
+    """Get the project root directory"""
+    return Path(__file__).parent
 
 
-def show_menu():
-    """Show main menu"""
-    print("\n🚀 QUANTONIUMOS LAUNCHER")
-    print("═" * 50)
-    print("1. 🎬 Demo Mode           - Show system capabilities")
-    print("2. 🖥️  Desktop GUI        - Launch desktop interface")
-    print("3. 💻 CLI Mode            - Command line interface")
-    print("4. 📁 Filesystem Test     - Test quantum filesystem")
-    print("5. 🔬 Kernel Only         - Just quantum kernel")
-    print("6. 📊 System Info         - Show component status")
-    print("7. ❓ Help               - Show documentation")
-    print("8. 🚪 Exit               - Quit launcher")
-    print("═" * 50)
+def launch_web():
+    """Launch the web interface"""
+    print("🌐 Launching QuantoniumOS Web Interface...")
+    web_app = get_project_root() / "03_RUNNING_SYSTEMS" / "app.py"
+    
+    try:
+        # Try to launch the web app
+        os.chdir(get_project_root() / "03_RUNNING_SYSTEMS")
+        subprocess.run([sys.executable, str(web_app)])
+    except Exception as e:
+        print(f"❌ Web interface failed to start: {e}")
+        print("💡 Try running directly: cd 03_RUNNING_SYSTEMS && python app.py")
 
 
-def check_components():
-    """Check which components are available"""
-    base_path = Path(__file__).parent
-    components = {
-        "kernel": (base_path / "kernel" / "quantum_vertex_kernel.py").exists(),
-        "desktop": (base_path / "gui" / "desktop.py").exists(),
-        "filesystem": (base_path / "filesystem" / "quantum_fs.py").exists(),
-        "integration": (base_path / "kernel" / "patent_integration.py").exists(),
-        "complete": (base_path / "quantonium_os_complete.py").exists(),
-    }
-    return components
+def launch_gui():
+    """Launch the desktop GUI"""
+    print("🖥️ Launching QuantoniumOS Desktop GUI...")
+    gui_app = get_project_root() / "11_QUANTONIUMOS" / "quantonium_os_unified.py"
+    
+    try:
+        # Try to launch the GUI
+        os.chdir(get_project_root() / "11_QUANTONIUMOS")
+        subprocess.run([sys.executable, str(gui_app)])
+    except Exception as e:
+        print(f"❌ Desktop GUI failed to start: {e}")
+        print("💡 Try running directly: cd 11_QUANTONIUMOS && python quantonium_os_unified.py")
 
 
-def run_component(component, args=""):
-    """Run a QuantoniumOS component"""
-    base_path = Path(__file__).parent
+def run_tests():
+    """Run validation tests"""
+    print("🧪 Running QuantoniumOS Validation Tests...")
+    test_runner = get_project_root() / "02_CORE_VALIDATORS" / "run_all_validators.py"
+    
+    try:
+        subprocess.run([sys.executable, str(test_runner)])
+    except Exception as e:
+        print(f"❌ Tests failed to run: {e}")
+        print("💡 Try running directly: cd 02_CORE_VALIDATORS && python run_all_validators.py")
 
-    component_paths = {
-        "demo": "quantonium_os_complete.py demo",
-        "desktop": "gui\\desktop.py",
-        "cli": "quantonium_os_complete.py cli",
-        "filesystem": "filesystem\\quantum_fs.py",
-        "kernel": "kernel\\quantum_vertex_kernel.py",
-        "complete": f"quantonium_os_complete.py {args}",
-    }
 
-    if component in component_paths:
-        cmd = ["python", component_paths[component]]
-        print(f"\n🚀 Launching: {' '.join(cmd)}")
-        print("─" * 50)
-
-        try:
-            # Security fix: Remove shell=True to prevent command injection
-            subprocess.run(cmd, cwd=base_path)
-        except KeyboardInterrupt:
-            print("\n🔄 Component stopped by user")
-        except Exception as e:
-            print(f"❌ Error running component: {e}")
+def launch_apps():
+    """Show available applications"""
+    print("📱 QuantoniumOS Applications:")
+    apps_dir = get_project_root() / "apps"
+    
+    if apps_dir.exists():
+        print("\nAvailable applications:")
+        for app_file in apps_dir.glob("launch_*.py"):
+            app_name = app_file.stem.replace("launch_", "")
+            print(f"  • {app_name}")
+        print(f"\nTo launch an app: cd apps && python launch_<app_name>.py")
     else:
-        print(f"❌ Unknown component: {component}")
+        print("❌ Apps directory not found")
 
 
-def show_system_info():
-    """Show system information"""
-    components = check_components()
-
-    print("\n📊 QUANTONIUMOS SYSTEM INFORMATION")
-    print("═" * 60)
-    print("🎯 Version: QuantoniumOS v1.0 - Phase 1")
-    print("🔮 Architecture: 1000-qubit quantum vertex network")
-    print("📍 Location: c:\\quantoniumos-1\\11_QUANTONIUMOS")
-    print("\n🏗️ AVAILABLE COMPONENTS:")
-
-    status_icons = {True: "✅", False: "❌"}
-
-    for component, available in components.items():
-        status = status_icons[available]
-        print(
-            f"   {status} {component.title()}: {'Available' if available else 'Missing'}"
-        )
-
-    print("\n📋 FEATURES:")
-    print("   • 1000-qubit quantum vertex network")
-    print("   • Real-time quantum process management")
-    print("   • RFT (Resonant Frequency Transform) integration")
-    print("   • Quantum-safe cryptographic engine")
-    print("   • Patent-protected quantum algorithms")
-    print("   • Quantum-aware file system")
-    print("   • Desktop GUI with real-time monitoring")
-    print("   • Command-line interface")
-
-    print("\n🎯 BREAKTHROUGH ACHIEVEMENT:")
-    print("   First operating system to run quantum processes")
-    print("   directly on quantum vertices with RFT enhancement.")
-    print("═" * 60)
-
-
-def show_help():
-    """Show help documentation"""
-    print("\n📖 QUANTONIUMOS HELP")
-    print("═" * 60)
-    print("🎯 GETTING STARTED:")
-    print("   1. Run 'Demo Mode' to see system capabilities")
-    print("   2. Try 'Desktop GUI' for graphical interface")
-    print("   3. Use 'CLI Mode' for command-line control")
-    print("   4. Test 'Filesystem' for quantum file operations")
-
-    print("\n🔮 QUANTUM OPERATIONS:")
-    print("   • Spawn Process: Create quantum processes on vertices")
-    print("   • Apply Gates: Execute quantum gate operations (H, X, Z)")
-    print("   • Evolve System: Advance quantum state evolution")
-    print("   • RFT Transform: Apply resonant frequency transformations")
-
-    print("\n📁 FILE SYSTEM:")
-    print("   • .qstate files: Quantum state data")
-    print("   • .rft files: RFT transformation data")
-    print("   • .qkey files: Quantum cryptographic keys")
-    print("   • .qcircuit files: Quantum circuit definitions")
-
-    print("\n⚙️ SYSTEM REQUIREMENTS:")
-    print("   • Python 3.12+ (installed)")
-    print("   • tkinter for desktop GUI (included)")
-    print("   • Optional: Flask for web interface")
-
-    print("\n🆘 TROUBLESHOOTING:")
-    print("   • If components fail to load, check Python path")
-    print("   • For web interface: pip install flask flask-socketio")
-    print("   • All quantum operations work without external deps")
-    print("═" * 60)
+def interactive_mode():
+    """Interactive mode for selecting launch options"""
+    print("🌟 QuantoniumOS Launcher")
+    print("=" * 40)
+    print("1. Web Interface (Flask)")
+    print("2. Desktop GUI (Qt)")  
+    print("3. Run Tests")
+    print("4. Show Apps")
+    print("5. Exit")
+    
+    while True:
+        try:
+            choice = input("\nSelect option (1-5): ").strip()
+            
+            if choice == "1":
+                launch_web()
+                break
+            elif choice == "2":
+                launch_gui()
+                break
+            elif choice == "3":
+                run_tests()
+                break
+            elif choice == "4":
+                launch_apps()
+                break
+            elif choice == "5":
+                print("👋 Goodbye!")
+                break
+            else:
+                print("❌ Invalid choice. Please select 1-5.")
+                
+        except KeyboardInterrupt:
+            print("\n👋 Goodbye!")
+            break
 
 
 def main():
-    """Main launcher"""
-    print_logo()
-
-    # Check if we're in the right directory
-    if not Path("kernel").exists():
-        print("❌ Error: Please run from QuantoniumOS directory")
-        print("   Expected location: c:\\quantoniumos-1\\11_QUANTONIUMOS")
-        return
-
-    while True:
-        show_menu()
-
-        try:
-            choice = input("\nSelect option (1-8): ").strip()
-
-            if choice == "1":
-                run_component("demo")
-            elif choice == "2":
-                run_component("desktop")
-            elif choice == "3":
-                run_component("cli")
-            elif choice == "4":
-                run_component("filesystem")
-            elif choice == "5":
-                run_component("kernel")
-            elif choice == "6":
-                show_system_info()
-            elif choice == "7":
-                show_help()
-            elif choice == "8":
-                break
-            else:
-                print("❌ Invalid choice. Please select 1-8.")
-
-            if choice in ["1", "2", "3", "4", "5"]:
-                input("\nPress Enter to return to menu...")
-
-        except KeyboardInterrupt:
-            print("\n\n👋 Thanks for using QuantoniumOS!")
-            break
-        except EOFError:
-            break
-
-    print("🔄 QuantoniumOS Launcher exiting...")
+    """Main entry point"""
+    parser = argparse.ArgumentParser(
+        description="QuantoniumOS Unified Launcher",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python launch.py           # Interactive mode
+  python launch.py web       # Web interface
+  python launch.py gui       # Desktop GUI
+  python launch.py test      # Run tests
+  python launch.py apps      # Show applications
+        """
+    )
+    
+    parser.add_argument(
+        "mode",
+        nargs="?",
+        choices=["web", "gui", "test", "apps"],
+        help="Launch mode (if not provided, interactive mode is used)"
+    )
+    
+    args = parser.parse_args()
+    
+    if args.mode == "web":
+        launch_web()
+    elif args.mode == "gui":
+        launch_gui()
+    elif args.mode == "test":
+        run_tests()
+    elif args.mode == "apps":
+        launch_apps()
+    else:
+        interactive_mode()
 
 
 if __name__ == "__main__":

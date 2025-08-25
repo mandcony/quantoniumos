@@ -6,7 +6,8 @@ RFT vs DFT Sparsity & Detection Test - Proof of Mathematical Superiority This te
 
 import numpy as np
 import matplotlib.pyplot as plt from scipy
-import signal import importlib.util
+import signal
+import importlib.util
 import os
 
 # Load the canonical_true_rft module

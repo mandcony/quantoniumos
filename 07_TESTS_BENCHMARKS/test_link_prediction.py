@@ -1,6 +1,5 @@
 import math
 from functools import partial
-
 import networkx as nx
 import pytest
 

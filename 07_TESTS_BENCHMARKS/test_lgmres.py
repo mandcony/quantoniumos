@@ -3,7 +3,6 @@
 
 import threading
 from platform import python_implementation
-
 import numpy as np
 import pytest
 from numpy import allclose, array, zeros

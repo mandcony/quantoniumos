@@ -10,7 +10,6 @@ from decimal import Decimal
 from functools import partial
 from itertools import product
 from types import SimpleNamespace
-
 import dateutil.tz
 import matplotlib
 import matplotlib as mpl

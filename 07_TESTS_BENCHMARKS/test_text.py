@@ -1,7 +1,6 @@
 import random
 from itertools import product
 from textwrap import dedent
-
 import networkx as nx
 import pytest
 

@@ -1,5 +1,4 @@
 import sys
-
 import numpy as np
 import pytest
 from numpy._core import (arange, array, atleast_1d, atleast_2d, atleast_3d,

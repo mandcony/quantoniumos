@@ -17,7 +17,6 @@
 #    return res
 
 from itertools import product
-
 import numpy as np
 import pytest
 import scipy.special as sc

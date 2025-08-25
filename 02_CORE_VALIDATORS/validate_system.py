@@ -127,7 +127,9 @@ def test_design_system():
     print("\n🎨 Testing Design System...")
 
     try:
-        from 11_QUANTONIUMOS.quantonium_design_system import get_design_system
+        import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '11_QUANTONIUMOS'))
+from quantonium_design_system import get_design_system
 
         # Test design system creation
         ds = get_design_system(1920, 1080)

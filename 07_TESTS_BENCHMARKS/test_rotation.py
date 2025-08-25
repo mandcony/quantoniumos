@@ -2,7 +2,6 @@ import copy
 import math
 import pickle
 from itertools import permutations, product
-
 import numpy as np
 import pytest
 import scipy._lib.array_api_extra as xpx

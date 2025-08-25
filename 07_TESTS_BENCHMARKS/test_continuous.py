@@ -2,7 +2,6 @@ import itertools as it
 import os
 import pickle
 from copy import deepcopy
-
 import hypothesis.extra.numpy as npst
 import numpy as np
 import pytest

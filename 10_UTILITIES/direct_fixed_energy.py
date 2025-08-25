@@ -11,16 +11,18 @@ import os
 import sys
 import warnings
 from pathlib import Path
-
 import numpy as np
 
 # Import canonical implementation
 try:
-    from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis as py_get_rft_basis
+    import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+from canonical_true_rft import get_rft_basis as py_get_rft_basis
 except ImportError:
     sys.path.append(str(Path(__file__).parent))
     try:
-        from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis as py_get_rft_basis
+        import sys, os
+from canonical_true_rft import get_rft_basis as py_get_rft_basis
     except ImportError:
         print("Error: Could not import canonical_true_rft.py")
         sys.exit(1)
@@ -158,7 +160,9 @@ def apply_energy_fix():
     """
     try:
         # Import BulletproofQuantumKernel
-        from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+        import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
         # Store original methods for reference
         original_forward = BulletproofQuantumKernel.forward_rft
@@ -193,7 +197,7 @@ def fix_test_suite():
     """
     try:
         # Try to import the test suite
-        import types
+import types
 
         import comprehensive_scientific_test_suite
 
@@ -283,8 +287,8 @@ def test_energy_conservation():
         # Import BulletproofQuantumKernel after patching
         # Import test suite components
         import comprehensive_scientific_test_suite
-
-        from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+import sys, os
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
         comprehensive_scientific_test_suite.BulletproofQuantumKernel = (
             BulletproofQuantumKernel

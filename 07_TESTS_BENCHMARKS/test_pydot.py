@@ -1,7 +1,6 @@
 """Unit tests for pydot drawing functions."""
 
 from io import StringIO
-
 import networkx as nx
 import pytest
 from networkx.utils import graphs_equal

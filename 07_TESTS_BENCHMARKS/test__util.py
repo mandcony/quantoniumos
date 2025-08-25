@@ -4,7 +4,6 @@ import re
 from fractions import Fraction
 from multiprocessing import Pool
 from multiprocessing.pool import Pool as PWL
-
 import numpy as np
 import pytest
 import scipy._lib.array_api_extra as xpx

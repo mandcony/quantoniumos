@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import itertools
 import pathlib
 import pickle
@@ -8,7 +7,6 @@ from datetime import date, datetime, timedelta
 from types import ModuleType
 from typing import Any
 from unittest.mock import Mock, patch
-
 import matplotlib.colors as mcolors
 import numpy as np
 import pytest

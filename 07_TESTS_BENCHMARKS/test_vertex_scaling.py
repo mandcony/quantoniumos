@@ -9,8 +9,7 @@ def test_12_qubit_vertex_approach():
     print("=" * 65)
 
     import time
-
-    import numpy as np
+import numpy as np
 
     import importlib.util
 import os
@@ -87,8 +86,7 @@ def test_scaling_performance():
     print("=" * 65)
 
     import time
-
-    import importlib.util
+import importlib.util
 import os
 
 # Load the bulletproof_quantum_kernel module

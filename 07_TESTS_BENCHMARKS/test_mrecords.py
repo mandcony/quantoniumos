@@ -5,7 +5,6 @@
 
 """
 import pickle
-
 import numpy as np
 import numpy.ma as ma
 from numpy._core.records import fromarrays as recfromarrays

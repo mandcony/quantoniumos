@@ -2,7 +2,6 @@ import copy
 import platform
 import sys
 from pathlib import Path
-
 import numpy as np
 import pytest
 from numpy._core._type_aliases import c_names_dict as _c_names_dict

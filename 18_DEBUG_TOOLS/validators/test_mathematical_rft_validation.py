@@ -19,10 +19,11 @@ Author: QuantoniumOS Mathematical Verification Team
 import time
 import warnings
 from typing import Any, Dict, List, Optional, Tuple
-
 import numpy as np
 
-from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
 
 class MathematicalRFTValidator:

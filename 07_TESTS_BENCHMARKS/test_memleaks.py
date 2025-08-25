@@ -18,7 +18,6 @@ because of how its JIT handles memory, so tests are skipped.
 import functools
 import os
 import platform
-
 import psutil
 import psutil._common
 from psutil import LINUX, MACOS, OPENBSD, POSIX, SUNOS, WINDOWS

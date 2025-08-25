@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
-
 import pytest
 from matplotlib.testing import subprocess_run_for_testing
 

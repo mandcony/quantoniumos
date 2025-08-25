@@ -2,7 +2,6 @@ import datetime
 import platform
 import re
 from unittest import mock
-
 import contourpy
 import matplotlib as mpl
 import matplotlib.patches as mpatches

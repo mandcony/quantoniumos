@@ -14,7 +14,6 @@ from io import BytesIO, StringIO
 from multiprocessing import Value, get_context
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-
 import numpy as np
 import numpy.ma as ma
 import pytest

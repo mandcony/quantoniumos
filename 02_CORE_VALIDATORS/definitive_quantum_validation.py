@@ -15,7 +15,6 @@ import json
 import time
 import tracemalloc
 from typing import Any, Dict, Tuple
-
 import networkx as nx
 import numpy as np
 

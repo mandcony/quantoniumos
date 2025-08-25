@@ -5,7 +5,6 @@ import shutil
 import textwrap
 from collections import defaultdict
 from typing import TYPE_CHECKING
-
 import pytest
 
 # Only trigger a full `mypy` run if this environment variable is set

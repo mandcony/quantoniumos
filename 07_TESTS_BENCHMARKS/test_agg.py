@@ -1,5 +1,4 @@
 import io
-
 import numpy as np
 import pytest
 from matplotlib import collections, patheffects

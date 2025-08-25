@@ -1,7 +1,6 @@
 import io
 import itertools
 from pathlib import Path
-
 import matplotlib as mpl
 import matplotlib.font_manager as fm
 import matplotlib.path as mpath

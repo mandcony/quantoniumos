@@ -16,7 +16,6 @@ forward_true_rft = canonical_true_rft.forward_true_rft
 inverse_true_rft = canonical_true_rft.inverse_true_rft
 
 from itertools import permutations
-
 import numpy as np
 from numpy.linalg import inv, norm
 
@@ -101,7 +100,7 @@ def sinkhorn_flatten_moduli(Psi, iters=2000, tol=1e-8):
 def test_rft_not_scaled_permuted_dft():
     # Use CANONICAL True RFT implementation
     import importlib.util
-    import os
+import os
     
     # Load the module
     spec = importlib.util.spec_from_file_location(

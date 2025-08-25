@@ -1,5 +1,4 @@
 from collections import UserDict
-
 import networkx as nx
 import pytest
 from networkx.utils import edges_equal

@@ -13,7 +13,6 @@ import os
 import sys
 import types
 from pathlib import Path
-
 import numpy as np
 
 print("Direct Fix for Energy Conservation in RFT Implementation")
@@ -43,7 +42,9 @@ except ImportError as e:
 
 # Import BulletproofQuantumKernel
 try:
-    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+    import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     print("✅ Successfully imported BulletproofQuantumKernel")
 except ImportError as e:

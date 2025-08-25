@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from typing import Any
-
 import matplotlib as mpl
 import pytest
 from matplotlib.backends import BackendFilter, backend_registry

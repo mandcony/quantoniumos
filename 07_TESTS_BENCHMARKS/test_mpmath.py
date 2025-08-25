@@ -3,7 +3,6 @@ Test SciPy functions versus mpmath, if available.
 
 """
 import itertools
-
 import numpy as np
 import pytest
 import scipy.special as sc

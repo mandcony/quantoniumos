@@ -12,7 +12,9 @@ import sys
 import os
 # Add parent directory to path so we can import modules from it
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from 04_RFT_ALGORITHMS.paper_compliant_rft_fixed import FixedRFTCryptoBindings
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+from paper_compliant_rft_fixed import FixedRFTCryptoBindings
 
 
 def final_paper_compliance_test():

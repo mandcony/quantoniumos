@@ -3,7 +3,6 @@
 #
 
 import math
-
 import numpy as np
 import numpy.random
 import pytest

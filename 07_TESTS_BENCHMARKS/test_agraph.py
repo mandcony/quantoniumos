@@ -1,7 +1,6 @@
 """Unit tests for PyGraphviz interface."""
 
 import warnings
-
 import networkx as nx
 import pytest
 from networkx.utils import edges_equal, graphs_equal, nodes_equal

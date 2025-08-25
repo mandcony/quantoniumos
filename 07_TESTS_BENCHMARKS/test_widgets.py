@@ -2,7 +2,6 @@ import functools
 import io
 import operator
 from unittest import mock
-
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import matplotlib.widgets as widgets

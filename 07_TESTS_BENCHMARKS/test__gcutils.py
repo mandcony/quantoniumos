@@ -2,7 +2,6 @@
 """
 import gc
 from threading import Lock
-
 import pytest
 from numpy.testing import assert_equal
 from scipy._lib._gcutils import (IS_PYPY, ReferenceError, assert_deallocated,

@@ -8,20 +8,18 @@ This guide will help you navigate the newly organized project structure.
 
 ### Numbered Directories
 - **01_START_HERE** - Start Here
-- **02_CORE_VALIDATORS** - Core Validators
+- **02_CORE_VALIDATORS** - Core Validators  
 - **03_RUNNING_SYSTEMS** - Running Systems
-- **04_RFT_ALGORITHMS** - Rft Algorithms
+- **04_RFT_ALGORITHMS** - RFT Algorithms
 - **05_QUANTUM_ENGINES** - Quantum Engines
 - **06_CRYPTOGRAPHY** - Cryptography
-- **07_TESTS_BENCHMARKS** - Tests Benchmarks
+- **07_TESTS_BENCHMARKS** - Tests & Benchmarks (Consolidated)
 - **08_RESEARCH_ANALYSIS** - Research Analysis
-- **09_LEGACY_BACKUPS** - Legacy Backups
-- **10_UTILITIES** - Utilities
-- **11_QUANTONIUMOS** - Quantoniumos
-- **12_TEST_RESULTS** - Test Results
+- **10_UTILITIES** - Utilities (Consolidated)
+- **11_QUANTONIUMOS** - QuantoniumOS Core
 - **13_DOCUMENTATION** - Documentation
 - **14_CONFIGURATION** - Configuration
-- **15_DEPLOYMENT** - Deployment
+- **15_DEPLOYMENT** - Deployment  
 - **16_EXPERIMENTAL** - Experimental
 - **17_BUILD_ARTIFACTS** - Build Artifacts
 - **18_DEBUG_TOOLS** - Debug Tools
@@ -34,9 +32,15 @@ This guide will help you navigate the newly organized project structure.
 
 ## Getting Started
 
-1. Run the main application:
-   ```
-   python launch_quantoniumos.py
+1. Run the main application (recommended):
+   ```bash
+   # Interactive launcher
+   python launch.py
+   
+   # Or direct modes:
+   python launch.py web      # Web interface
+   python launch.py gui      # Desktop GUI  
+   python launch.py test     # Run tests
    ```
 
 2. Explore the documentation:
@@ -46,7 +50,7 @@ This guide will help you navigate the newly organized project structure.
 
 3. Run tests and validators:
    ```
-   python 07_TESTS_BENCHMARKS/run_test_suite.py
+   python launch.py test
    python 02_CORE_VALIDATORS/validate_system.py
    ```
 

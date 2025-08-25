@@ -9,7 +9,6 @@ import secrets
 import statistics
 import time
 from typing import Any, Callable, List
-
 import pytest
 
 # Maximum allowed timing variance in nanoseconds for constant-time operations

@@ -9,7 +9,6 @@ from io import BytesIO
 from os.path import dirname
 from os.path import join as pjoin
 from tempfile import mkdtemp
-
 import numpy as np
 import pytest
 import scipy.io

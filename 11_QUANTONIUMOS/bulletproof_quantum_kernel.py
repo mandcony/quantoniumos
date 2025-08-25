@@ -7,7 +7,6 @@ for bulletproof quantum computations in QuantoniumOS.
 
 import warnings
 from typing import Any, Dict, List, Optional, Tuple, Union
-
 import numpy as np
 from energy_conserving_rft_adapter import EnergyConservingRFTEngine
 

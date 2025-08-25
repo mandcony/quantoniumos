@@ -9,6 +9,11 @@ import json
 import unittest
 
 from core.encryption.geometric_waveform_hash import generate_waveform_hash
+import sys
+import os
+
+# Add the running systems path to import create_app
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '03_RUNNING_SYSTEMS'))
 from core.main import create_app
 
 # Add parent directory to path to import core.app as appmodules

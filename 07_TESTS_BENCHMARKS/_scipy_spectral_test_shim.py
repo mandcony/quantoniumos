@@ -19,7 +19,6 @@ especially in the border handling.
 """
 import platform
 from typing import Literal, cast
-
 import numpy as np
 from numpy.testing import assert_allclose
 from scipy.signal import ShortTimeFFT, get_window, istft, stft

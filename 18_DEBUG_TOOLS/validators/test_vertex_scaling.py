@@ -16,10 +16,11 @@ def test_12_qubit_vertex_approach():
     print("=" * 65)
 
     import time
+import numpy as np
 
-    import numpy as np
-
-    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+    import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     # Test the problematic 12-qubit case (dimension 2^12 = 4096)
     n_qubits = 12
@@ -83,8 +84,8 @@ def test_scaling_performance():
     print("=" * 65)
 
     import time
-
-    from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+import sys, os
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
     results = []
 

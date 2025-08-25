@@ -16,7 +16,6 @@ Note that a release is determined by the version string, which in turn
 is controlled by the result of the ``git describe`` command.
 """
 import re
-
 import numpy as np
 from numpy.testing import assert_
 

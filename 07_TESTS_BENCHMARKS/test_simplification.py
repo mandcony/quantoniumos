@@ -1,7 +1,6 @@
 import base64
 import io
 import platform
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest

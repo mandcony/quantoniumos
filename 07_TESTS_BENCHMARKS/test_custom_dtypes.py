@@ -1,5 +1,4 @@
 from tempfile import NamedTemporaryFile
-
 import numpy as np
 import pytest
 from numpy._core._multiarray_umath import \

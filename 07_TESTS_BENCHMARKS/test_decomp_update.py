@@ -1,5 +1,4 @@
 import itertools
-
 import numpy as np
 import scipy.linalg._decomp_update as _decomp_update
 from numpy.testing import assert_, assert_allclose, assert_equal

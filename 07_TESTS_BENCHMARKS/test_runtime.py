@@ -2,7 +2,6 @@
 
 from typing import Union  # pyright: ignore[reportDeprecated]
 from typing import Any, NamedTuple, get_args, get_origin, get_type_hints
-
 import numpy as np
 import numpy._typing as _npt
 import numpy.typing as npt

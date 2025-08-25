@@ -1,5 +1,4 @@
 import re
-
 import scipy
 import scipy.version
 

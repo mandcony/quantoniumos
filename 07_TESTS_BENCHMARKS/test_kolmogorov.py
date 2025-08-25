@@ -1,5 +1,4 @@
 import itertools
-
 import numpy as np
 from numpy.testing import assert_
 from scipy.special import kolmogi, kolmogorov, smirnov, smirnovi

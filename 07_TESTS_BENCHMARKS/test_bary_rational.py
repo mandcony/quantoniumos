@@ -24,7 +24,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from math import factorial
-
 import numpy as np
 import pytest
 import scipy

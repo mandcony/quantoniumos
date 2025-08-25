@@ -6,12 +6,13 @@ Test whether gradual scaling is needed or if the current approach is optimal.
 import os
 import sys
 import time
-
 import numpy as np
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
 
 def analyze_scaling_strategy():

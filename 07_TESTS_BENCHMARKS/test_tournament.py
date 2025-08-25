@@ -1,7 +1,6 @@
 """Unit tests for the :mod:`networkx.algorithms.tournament` module."""
 
 from itertools import combinations
-
 import pytest
 from networkx import DiGraph
 from networkx.algorithms.tournament import (hamiltonian_path, index_satisfying,

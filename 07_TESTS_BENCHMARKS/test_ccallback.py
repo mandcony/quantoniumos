@@ -1,7 +1,6 @@
 import ctypes
 import threading
 import time
-
 import pytest
 from numpy.testing import assert_, assert_equal
 from pytest import raises as assert_raises

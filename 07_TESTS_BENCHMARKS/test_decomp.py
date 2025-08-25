@@ -1,7 +1,6 @@
 import itertools
 import platform
 import sys
-
 import numpy as np
 import pytest
 from numpy import (arange, argsort, array, asarray, complex64, diag, eye,

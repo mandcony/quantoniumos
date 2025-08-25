@@ -1,6 +1,5 @@
 import tempfile
 from io import StringIO
-
 import numpy as np
 from numpy.testing import assert_array_almost_equal_nulp, assert_equal
 from scipy.io import hb_read, hb_write

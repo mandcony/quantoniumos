@@ -5,7 +5,6 @@
 
 """
 import operator
-
 import numpy as np
 import numpy._core.umath as umath
 import numpy.testing

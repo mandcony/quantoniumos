@@ -1,5 +1,4 @@
 from itertools import combinations
-
 import networkx as nx
 import pytest
 from networkx.algorithms.flow import (boykov_kolmogorov, dinitz, edmonds_karp,

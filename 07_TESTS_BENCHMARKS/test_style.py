@@ -2,7 +2,6 @@ import sys
 from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
-
 import matplotlib as mpl
 import numpy as np
 import pytest

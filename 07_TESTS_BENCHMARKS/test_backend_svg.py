@@ -3,7 +3,6 @@ import xml.etree.ElementTree
 import xml.parsers.expat
 from io import BytesIO
 from pathlib import Path
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np

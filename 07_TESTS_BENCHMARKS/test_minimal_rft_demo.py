@@ -13,7 +13,8 @@ import Path
 # Add project root to path for imports project_root = Path(__file__).parent sys.path.insert(0, str(project_root))
 
 # Import the minimal demo functions directly from minimal_rft_encrypt_demo
-import encrypt, decrypt, derive_key, rft_keystream import importlib.util
+import encrypt, decrypt, derive_key, rft_keystream
+import importlib.util
 import os
 
 # Load the canonical_true_rft module

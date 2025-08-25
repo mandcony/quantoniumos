@@ -15,7 +15,6 @@ import sys
 import time
 import traceback
 from typing import Any, Dict
-
 import numpy as np
 
 
@@ -67,7 +66,7 @@ def test_rft_algorithm():
     # Test canonical true RFT
     try:
         import importlib.util
-        import os
+import os
 
         # Load the canonical_true_rft module
         spec = importlib.util.spec_from_file_location(

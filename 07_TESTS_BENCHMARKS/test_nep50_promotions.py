@@ -5,7 +5,6 @@ is adopted in the main test suite.  A few may be moved elsewhere.
 """
 
 import operator
-
 import hypothesis
 import numpy as np
 import pytest

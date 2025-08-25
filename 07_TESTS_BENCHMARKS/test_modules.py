@@ -1,5 +1,4 @@
 import textwrap
-
 import pytest
 from numpy.testing import IS_PYPY
 

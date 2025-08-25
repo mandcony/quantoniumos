@@ -1,6 +1,5 @@
 from functools import reduce
 from operator import mul
-
 import numpy as np
 from numpy.lib import Arrayterator
 from numpy.random import randint

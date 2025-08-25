@@ -1,5 +1,4 @@
 from functools import partial
-
 import numpy as np
 import pytest
 import scipy.fft

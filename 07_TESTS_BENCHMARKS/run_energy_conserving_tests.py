@@ -10,7 +10,7 @@ import numpy as np
 # First, monkey-patch the true_rft_engine_bindings to ensure energy conservation
 try:
     # Try to import the true_rft_engine_bindings module
-    import true_rft_engine_bindings
+import true_rft_engine_bindings
 
     # Store original methods
     original_forward = true_rft_engine_bindings.TrueRFTEngine.forward_true_rft

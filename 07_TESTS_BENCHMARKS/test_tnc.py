@@ -2,7 +2,6 @@
 Unit tests for TNC optimization routine from tnc.py
 """
 from math import pow
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_equal

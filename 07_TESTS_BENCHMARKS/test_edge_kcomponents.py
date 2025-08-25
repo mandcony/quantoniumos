@@ -1,5 +1,4 @@
 import itertools as it
-
 import networkx as nx
 import pytest
 from networkx.algorithms.connectivity import (EdgeComponentAuxGraph,

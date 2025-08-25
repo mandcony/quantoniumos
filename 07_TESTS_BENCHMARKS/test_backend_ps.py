@@ -3,7 +3,6 @@ import re
 import tempfile
 from collections import Counter
 from pathlib import Path
-
 import matplotlib as mpl
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors

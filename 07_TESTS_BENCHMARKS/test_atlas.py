@@ -1,5 +1,4 @@
 from itertools import groupby
-
 import networkx as nx
 import pytest
 from networkx import graph_atlas, graph_atlas_g

@@ -5,7 +5,6 @@ import textwrap
 import threading
 import time
 import traceback
-
 import numpy as np
 import pytest
 from numpy.testing import IS_PYPY

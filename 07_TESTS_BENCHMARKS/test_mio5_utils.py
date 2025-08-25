@@ -3,7 +3,6 @@
 """
 import sys
 from io import BytesIO
-
 import numpy as np
 import scipy.io.matlab._byteordercodes as boc
 import scipy.io.matlab._mio5_params as mio5p

@@ -2,8 +2,9 @@ import os
 import sys
 
 import pytest
-
-import 05_QUANTUM_ENGINES.bulletproof_quantum_kernel as bulletproof_quantum_kernel
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+import bulletproof_quantum_kernel as bulletproof_quantum_kernel
 # Python
 
 """

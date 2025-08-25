@@ -6,7 +6,6 @@ import warnings
 from datetime import datetime
 from threading import Timer
 from types import SimpleNamespace
-
 import matplotlib as mpl
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt

@@ -7,13 +7,12 @@ This wrapper ensures energy conservation in all RFT operations.
 import importlib.util
 import sys
 from pathlib import Path
-
 import numpy as np
 
 # First, monkey-patch the true_rft_engine_bindings to ensure energy conservation
 try:
     # Try to import the true_rft_engine_bindings module
-    import true_rft_engine_bindings
+import true_rft_engine_bindings
 
     # Store original methods
     original_forward = true_rft_engine_bindings.TrueRFTEngine.forward_true_rft
@@ -21,7 +20,9 @@ try:
 
     # Import canonical Python implementation for basis
     try:
-        from 04_RFT_ALGORITHMS.canonical_true_rft import get_rft_basis
+        import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+from canonical_true_rft import get_rft_basis
 
         # Cache for bases
         basis_cache = {}

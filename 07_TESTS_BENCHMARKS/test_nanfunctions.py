@@ -1,7 +1,6 @@
 import inspect
 import warnings
 from functools import partial
-
 import numpy as np
 import pytest
 from numpy._core.numeric import normalize_axis_tuple

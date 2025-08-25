@@ -5,7 +5,6 @@ this is private API, but when added, public API may be added here.
 
 import types
 from typing import Any
-
 import numpy as np
 import pytest
 from numpy._core._multiarray_umath import _get_castingimpl as get_castingimpl

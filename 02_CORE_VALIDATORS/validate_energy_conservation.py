@@ -8,7 +8,6 @@ import importlib.util
 import sys
 import warnings
 from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -26,7 +25,9 @@ def run_validation():
 # Import original implementation
 sys.path.append(str(Path(__file__).parent))
 try:
-    from 04_RFT_ALGORITHMS.canonical_true_rft import forward_true_rft as py_forward_rft
+    import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+from canonical_true_rft import forward_true_rft as py_forward_rft
     from 04_RFT_ALGORITHMS.canonical_true_rft import inverse_true_rft as py_inverse_rft
 except ImportError:
     print("Warning: canonical_true_rft module not found")

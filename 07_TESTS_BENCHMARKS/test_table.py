@@ -1,6 +1,5 @@
 import datetime
 from unittest.mock import Mock
-
 import matplotlib.pyplot as plt
 import matplotlib.units as munits
 import numpy as np

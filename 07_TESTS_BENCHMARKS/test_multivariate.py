@@ -5,7 +5,6 @@ Test functions for multivariate normal distributions.
 import pickle
 from dataclasses import dataclass
 from unittest.mock import patch
-
 import numpy as np
 import pytest
 import scipy.linalg

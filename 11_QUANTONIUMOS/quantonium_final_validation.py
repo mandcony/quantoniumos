@@ -103,7 +103,7 @@ def create_final_quantonium_crypto():
         print("=" * 50)
 
         import minimal_feistel_bindings as feistel
-        import numpy as np
+import numpy as np
         import true_rft_engine_bindings
 
         class QuantoniumCryptoFinal:

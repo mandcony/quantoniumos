@@ -1,7 +1,6 @@
 import bz2
 import importlib.resources
 import pickle
-
 import networkx as nx
 import pytest
 

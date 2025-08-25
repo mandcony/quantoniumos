@@ -5,7 +5,6 @@ import fractions
 import platform
 import types
 from typing import Any
-
 import numpy as np
 import pytest
 from numpy._core import sctypes

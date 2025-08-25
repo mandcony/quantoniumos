@@ -5,7 +5,6 @@ import signal
 import sys
 from datetime import date, datetime
 from unittest import mock
-
 import matplotlib
 import pytest
 from matplotlib import _c_internal_utils

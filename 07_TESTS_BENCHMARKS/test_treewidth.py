@@ -1,5 +1,4 @@
 import itertools
-
 import networkx as nx
 from networkx.algorithms.approximation import (treewidth_min_degree,
                                                treewidth_min_fill_in)

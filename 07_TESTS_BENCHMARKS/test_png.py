@@ -1,6 +1,5 @@
 from io import BytesIO
 from pathlib import Path
-
 import pytest
 from matplotlib import cm
 from matplotlib import pyplot as plt

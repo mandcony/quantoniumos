@@ -37,7 +37,6 @@ import sys
 import warnings
 import weakref
 from functools import partial, wraps
-
 import numpy as np
 import pytest
 import scipy.spatial.distance

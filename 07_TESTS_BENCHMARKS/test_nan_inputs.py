@@ -2,7 +2,6 @@
 
 """
 from collections.abc import Callable
-
 import numpy as np
 import pytest
 import scipy.special as sc

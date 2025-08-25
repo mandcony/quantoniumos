@@ -9,10 +9,11 @@ import secrets
 import sys
 import time
 from typing import Any, Dict
-
 import numpy as np
 
-import 04_RFT_ALGORITHMS.canonical_true_rft as canonical_true_rftimport importlib.util
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '04_RFT_ALGORITHMS'))
+import canonical_true_rft as canonical_true_rftimport importlib.util
 import os
 
 # Load the paper_compliant_rft_fixed module

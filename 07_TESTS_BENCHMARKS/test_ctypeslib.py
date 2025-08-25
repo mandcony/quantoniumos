@@ -1,7 +1,6 @@
 import sys
 import sysconfig
 from pathlib import Path
-
 import numpy as np
 import pytest
 from numpy.ctypeslib import as_array, load_library, ndpointer

@@ -587,7 +587,7 @@ def create_app():
         """API endpoint to launch the desktop resonance analyzer application."""
         try:
             import os
-            import subprocess
+import subprocess
             import sys
 
             # Get the path to the launcher script
@@ -620,7 +620,7 @@ def create_app():
         """API endpoint to launch any app from the attached_assets folder."""
         try:
             import os
-            import subprocess
+import subprocess
             import sys
 
             # Get app name from request
@@ -723,8 +723,7 @@ def create_app():
     @app.route("/api/metrics")
     def metrics():
         import os
-
-        import psutil
+import psutil
 
         # Get process information
         process = psutil.Process(os.getpid())

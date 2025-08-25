@@ -3,7 +3,6 @@ import operator
 import sys
 import warnings
 from itertools import product
-
 import numpy as np
 import pytest
 from numpy._core._multiarray_tests import array_indexing

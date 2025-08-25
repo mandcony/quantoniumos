@@ -1,5 +1,4 @@
 import random
-
 import networkx as nx
 import pytest
 from networkx.utils import arbitrary_element, graphs_equal

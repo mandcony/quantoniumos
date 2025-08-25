@@ -5,7 +5,6 @@ import pickle
 from copy import deepcopy
 from fractions import Fraction
 from functools import reduce
-
 import numpy as np
 import numpy.polynomial.polynomial as poly
 import numpy.polynomial.polyutils as pu

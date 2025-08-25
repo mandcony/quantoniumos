@@ -68,7 +68,7 @@ def main():
                 os_system.launch_desktop_gui()
             elif mode == "demo":
                 import json
-                import time
+import time
 
                 # Quick demo
                 for gate in ["H", "X", "Y", "Z"]:

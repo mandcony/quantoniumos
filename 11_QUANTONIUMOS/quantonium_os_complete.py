@@ -66,7 +66,7 @@ except ImportError as e:
 # Web components (optional dependencies)
 try:
     import flask
-    import flask_socketio
+import flask_socketio
 
     web_deps_available = True
     print("✅ Web dependencies available")

@@ -9,7 +9,6 @@ are correctly implemented in the codebase.
 import cmath
 import os
 import sys
-
 import numpy as np
 import pytest
 

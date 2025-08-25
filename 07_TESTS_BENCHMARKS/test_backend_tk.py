@@ -80,7 +80,7 @@ def _isolated_tk_test(success_count, func=None):
 @_isolated_tk_test(success_count=6)  # len(bad_boxes)
 def test_blit():
     import matplotlib.backends.backend_tkagg  # noqa
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
     import numpy as np
     from matplotlib.backends import _backend_tk, _tkagg
 
@@ -117,8 +117,7 @@ def test_blit():
 @_isolated_tk_test(success_count=1)
 def test_figuremanager_preserves_host_mainloop():
     import tkinter
-
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
     success = []
 
@@ -149,10 +148,9 @@ def test_figuremanager_preserves_host_mainloop():
 @_isolated_tk_test(success_count=1)
 def test_figuremanager_cleans_own_mainloop():
     import threading
-    import time
+import time
     import tkinter
-
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
     from matplotlib.cbook import _get_running_interactive_framework
 
     tkinter.Tk()
@@ -219,8 +217,7 @@ def test_missing_back_button():
 @_isolated_tk_test(success_count=2)
 def test_save_figure_return():
     from unittest import mock
-
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
     fig = plt.figure()
     prop = "tkinter.filedialog.asksaveasfilename"
@@ -238,8 +235,7 @@ def test_save_figure_return():
 @_isolated_tk_test(success_count=1)
 def test_canvas_focus():
     import tkinter as tk
-
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
     success = []
 

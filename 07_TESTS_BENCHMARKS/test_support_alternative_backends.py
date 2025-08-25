@@ -1,6 +1,5 @@
 import pickle
 from functools import partial
-
 import hypothesis.extra.numpy as npst
 import pytest
 from hypothesis import given, strategies

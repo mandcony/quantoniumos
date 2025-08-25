@@ -3,7 +3,6 @@
 """
 
 import threading
-
 import numpy as np
 from numpy import allclose, array, zeros
 from numpy.testing import (assert_, assert_allclose, assert_equal,

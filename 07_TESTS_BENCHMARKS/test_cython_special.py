@@ -1,6 +1,5 @@
 from collections.abc import Callable
 from itertools import product
-
 import pytest
 from numpy.testing import assert_allclose, suppress_warnings
 from scipy import special

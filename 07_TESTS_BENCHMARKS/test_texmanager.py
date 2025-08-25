@@ -2,7 +2,6 @@ import os
 import re
 import sys
 from pathlib import Path
-
 import matplotlib.pyplot as plt
 import pytest
 from matplotlib.testing import subprocess_run_for_testing

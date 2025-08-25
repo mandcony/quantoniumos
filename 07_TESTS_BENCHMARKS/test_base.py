@@ -17,7 +17,6 @@ import platform
 import random
 import sys
 from types import GenericAlias
-
 import numpy as np
 import pytest
 import scipy.linalg

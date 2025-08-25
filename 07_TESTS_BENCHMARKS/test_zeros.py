@@ -1,5 +1,4 @@
 from functools import lru_cache
-
 import numpy as np
 import pytest
 from numpy import cos, exp, finfo, isclose, nan, power, sin, sqrt

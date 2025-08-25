@@ -1,5 +1,4 @@
 import platform
-
 import numpy as np
 import pytest
 from numpy import float16, float32, float64, uint16

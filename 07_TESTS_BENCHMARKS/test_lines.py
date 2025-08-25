@@ -6,7 +6,6 @@ import itertools
 import platform
 import timeit
 from types import SimpleNamespace
-
 import matplotlib
 import matplotlib as mpl
 import matplotlib.lines as mlines

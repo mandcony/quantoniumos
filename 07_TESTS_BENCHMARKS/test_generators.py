@@ -1,5 +1,4 @@
 import numbers
-
 import networkx as nx
 import pytest
 

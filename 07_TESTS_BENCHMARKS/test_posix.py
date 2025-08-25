@@ -14,7 +14,6 @@ import shutil
 import subprocess
 import time
 from unittest import mock
-
 import psutil
 from psutil import AIX, BSD, LINUX, MACOS, OPENBSD, POSIX, SUNOS
 from psutil.tests import (AARCH64, HAS_NET_IO_COUNTERS, PYTHON_EXE,
@@ -23,7 +22,7 @@ from psutil.tests import (AARCH64, HAS_NET_IO_COUNTERS, PYTHON_EXE,
 
 if POSIX:
     import mmap
-    import resource
+import resource
 
     from psutil._psutil_posix import getpagesize
 

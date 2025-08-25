@@ -3,7 +3,6 @@ from collections import namedtuple
 from dataclasses import dataclass
 from itertools import combinations
 from math import comb
-
 import numpy as np
 import scipy.stats
 from scipy.fft import ifft
@@ -125,8 +124,8 @@ def epps_singleton_2samp(x, y, t=(0.4, 0.8)):
         raise ValueError("t must contain positive elements only.")
 
     # rescale t with semi-iqr as proposed in [1]; import iqr here to avoid
-    # circular import
-    from scipy.stats import iqr
+    # circular import from scipy.stats
+import iqr
 
     sigma = iqr(np.hstack((x, y))) / 2
     ts = np.reshape(t, (-1, 1)) / sigma

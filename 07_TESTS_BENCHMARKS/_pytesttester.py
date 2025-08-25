@@ -67,8 +67,7 @@ class PytestTester:
 
         """
         import warnings
-
-        import pytest
+import pytest
 
         module = sys.modules[self.module_name]
         module_path = os.path.abspath(module.__path__[0])

@@ -2,7 +2,6 @@ import math
 import sys
 from copy import deepcopy
 from threading import Lock
-
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal, suppress_warnings

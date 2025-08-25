@@ -10,7 +10,6 @@ Based on established quantum computing benchmarks
 import json
 import time
 from typing import Any, Dict
-
 import numpy as np
 from test_qubit_vertices import QubitVertexNetwork
 

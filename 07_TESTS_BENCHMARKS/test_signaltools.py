@@ -4,7 +4,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from decimal import Decimal
 from itertools import product
 from math import gcd
-
 import numpy as np
 import pytest
 from numpy.exceptions import ComplexWarning

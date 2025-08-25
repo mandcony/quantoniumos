@@ -1,5 +1,4 @@
 import random
-
 import networkx as nx
 import pytest
 from networkx.utils import edges_equal, nodes_equal

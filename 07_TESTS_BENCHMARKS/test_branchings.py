@@ -1,6 +1,5 @@
 import math
 from operator import itemgetter
-
 import networkx as nx
 import pytest
 from networkx.algorithms.tree import branchings, recognition

@@ -1,5 +1,4 @@
 import math
-
 import networkx as nx
 import pytest
 from networkx.algorithms.planar_drawing import triangulate_embedding

@@ -33,7 +33,6 @@
 
 
 from itertools import product
-
 import numpy as np
 import pytest
 from pytest import raises as assert_raises

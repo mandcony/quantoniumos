@@ -3,7 +3,6 @@ import itertools
 import pickle
 import sys
 import warnings
-
 import numpy as np
 import numpy._core._operand_flag_tests as opflag_tests
 import numpy._core._rational_tests as _rational_tests

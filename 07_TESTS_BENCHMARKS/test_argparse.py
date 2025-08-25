@@ -12,7 +12,6 @@ match exactly, and could be adjusted):
 """
 
 import threading
-
 import numpy as np
 import pytest
 from numpy._core._multiarray_tests import argparse_example_function as func

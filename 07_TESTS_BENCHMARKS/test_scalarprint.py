@@ -2,7 +2,6 @@
 
 """
 import platform
-
 import numpy as np
 import pytest
 from numpy.testing import IS_MUSL, assert_, assert_equal, assert_raises

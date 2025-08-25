@@ -3,7 +3,6 @@
 import bz2
 import importlib.resources
 import pickle
-
 import networkx as nx
 import pytest
 from networkx.algorithms.flow import (boykov_kolmogorov, build_flow_dict,

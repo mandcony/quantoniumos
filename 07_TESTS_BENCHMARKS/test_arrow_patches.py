@@ -1,5 +1,4 @@
 import platform
-
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import pytest

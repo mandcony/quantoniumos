@@ -7,7 +7,6 @@ import urllib.request
 from contextlib import ExitStack
 from copy import copy
 from pathlib import Path
-
 import matplotlib as mpl
 import matplotlib.ticker as mticker
 import numpy as np

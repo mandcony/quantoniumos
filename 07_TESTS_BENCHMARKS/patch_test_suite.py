@@ -27,7 +27,8 @@ def patch_test_suite():
 
     # Add import for symbiotic engine
     import_line = "import numpy as np"
-    patched_import = "import numpy as np\nfrom symbiotic_rft_engine_adapter import SymbioticRFTEngine, forward_true_rft, inverse_true_rft"
+    patched_import = "import numpy as np\nfrom symbiotic_rft_engine_adapter
+import SymbioticRFTEngine, forward_true_rft, inverse_true_rft"
     content = content.replace(import_line, patched_import)
 
     # Replace the RFT initialization in test setup

@@ -1,5 +1,4 @@
 import itertools as it
-
 import networkx as nx
 import pytest
 from networkx import vf2pp_is_isomorphic, vf2pp_isomorphism

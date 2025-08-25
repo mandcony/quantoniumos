@@ -22,7 +22,6 @@ import sys
 import textwrap
 import time
 from unittest import mock
-
 import psutil
 from psutil import AIX, BSD, LINUX, MACOS, NETBSD, OPENBSD, OSX, POSIX, WINDOWS
 from psutil._common import open_text

@@ -24,7 +24,6 @@ import time
 import warnings
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
-
 import numpy as np
 
 # Add paths for C++ engine access
@@ -76,8 +75,9 @@ sys.path.append("/workspaces/quantoniumos/core")
 sys.path.append("/workspaces/quantoniumos")
 
 from test_mathematical_rft_validation import MathematicalRFTValidator
-
-from 05_QUANTUM_ENGINES.bulletproof_quantum_kernel import BulletproofQuantumKernel
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), '05_QUANTUM_ENGINES'))
+from bulletproof_quantum_kernel import BulletproofQuantumKernel
 
 # Check for C++ engine availability
 RFT_ENGINES_AVAILABLE = len(cpp_engines_available) > 0
