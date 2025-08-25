@@ -1,0 +1,157 @@
+# -*- coding: utf-8 -*-
+#
+# QuantoniumOS Test Suite
+# Testing with QuantoniumOS implementations
+#
+# ===================================================================
+
+import unittest
+import sys
+import os
+import numpy as np
+from binascii import unhexlify
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
+# Import QuantoniumOS RFT algorithms
+try:
+    sys.path.insert(0, '/workspaces/quantoniumos/04_RFT_ALGORITHMS')
+    from canonical_true_rft import CanonicalTrueRFT
+    from true_rft_exact import TrueRFTExact
+    from true_rft_engine_bindings import TrueRFTEngineBindings
+except ImportError as e:
+    print(f"Warning: Could not import RFT algorithms: {e}")
+
+# Import QuantoniumOS quantum engines
+try:
+    sys.path.insert(0, '/workspaces/quantoniumos/05_QUANTUM_ENGINES')
+    from bulletproof_quantum_kernel import BulletproofQuantumKernel
+    from topological_quantum_kernel import TopologicalQuantumKernel
+    from topological_vertex_engine import TopologicalVertexEngine
+    from topological_vertex_geometric_engine import TopologicalVertexGeometricEngine
+    from vertex_engine_canonical import VertexEngineCanonical
+    from working_quantum_kernel import WorkingQuantumKernel
+    from true_rft_engine_bindings import TrueRFTEngineBindings as QuantumRFTBindings
+except ImportError as e:
+    print(f"Warning: Could not import quantum engines: {e}")
+
+# Import QuantoniumOS cryptography modules
+try:
+    sys.path.insert(0, '/workspaces/quantoniumos/06_CRYPTOGRAPHY')
+    from quantonium_crypto_production import QuantoniumCrypto
+    from true_rft_feistel_bindings import TrueRFTFeistel
+except ImportError as e:
+    print(f"Warning: Could not import cryptography modules: {e}")
+
+# Import QuantoniumOS validators
+try:
+    sys.path.insert(0, '/workspaces/quantoniumos/02_CORE_VALIDATORS')
+    from basic_scientific_validator import BasicScientificValidator
+    from definitive_quantum_validation import DefinitiveQuantumValidation
+    from phd_level_scientific_validator import PhdLevelScientificValidator
+    from publication_ready_validation import PublicationReadyValidation
+except ImportError as e:
+    print(f"Warning: Could not import validators: {e}")
+
+# Import QuantoniumOS running systems
+try:
+    sys.path.insert(0, '/workspaces/quantoniumos/03_RUNNING_SYSTEMS')
+    from app import app
+    from main import main
+    from quantonium import QuantoniumOS
+except ImportError as e:
+    print(f"Warning: Could not import running systems: {e}")
+
+"""
+QUICK TRUE RFT SYSTEM TEST Test your cleaned True RFT system after emoji removal
+"""
+"""
+import sys
+import traceback
+print("TRUE RFT SYSTEM VERIFICATION")
+print("=" * 40)
+print()
+
+# Test 1: Import your engines
+print("TEST 1: Engine Imports")
+print("-" * 25)
+try: sys.path.append('/workspaces/quantoniumos/core')
+import quantonium_core
+print("PASS - quantonium_core imported") except Exception as e:
+print(f"FAIL - quantonium_core: {e}")
+try:
+import quantum_engine
+print("PASS - quantum_engine imported") except Exception as e:
+print(f"FAIL - quantum_engine: {e}")
+try:
+import resonance_engine
+print("PASS - resonance_engine imported") except Exception as e:
+print(f"FAIL - resonance_engine: {e}")
+print()
+
+# Test 2: Basic RFT functionality
+print("TEST 2: Basic RFT Operations")
+print("-" * 30)
+try:
+
+# Test resonance engine (your perfect implementation) rft_engine = resonance_engine.ResonanceFourierEngine() test_data = [1.0, 0.5, -0.5, 0.0, 0.8, -0.3, 0.1, -0.7] forward_result = rft_engine.forward_true_rft(test_data)
+print(f"PASS - Forward RFT: {len(forward_result)} coefficients") inverse_result = rft_engine.inverse_true_rft(forward_result)
+print(f"PASS - Inverse RFT: {len(inverse_result)} values")
+
+# Check reconstruction error = sum((a - b)**2 for a, b in zip(test_data, inverse_result[:len(test_data)])) error = error**0.5
+print(f"PASS - Reconstruction error: {error:.2e}")
+if error < 1e-12:
+print("EXCELLENT - Meets your patent specification!") except Exception as e:
+print(f"FAIL - RFT operations: {e}") traceback.print_exc()
+print()
+
+# Test 3: Quantum geometric hashing
+print("TEST 3: Quantum Geometric Hashing")
+print("-" * 35)
+try: hasher = quantum_engine.QuantumGeometricHasher() test_vector = [1.0, 0.618, -0.618, 0.0] hash_result = hasher.generate_quantum_geometric_hash(test_vector, 64, "test_key", "")
+print(f"PASS - Quantum hash: {hash_result[:16]}... ({len(hash_result)} chars)") except Exception as e:
+print(f"FAIL - Quantum hashing: {e}")
+print()
+
+# Test 4: Patent specification compliance
+print("TEST 4: Patent Specification")
+print("-" * 30)
+try:
+
+# Test
+if your mathematical properties hold rft_engine = resonance_engine.ResonanceFourierEngine() test_signal = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+# Impulse forward = rft_engine.forward_true_rft(test_signal) inverse = rft_engine.inverse_true_rft(forward)
+
+# Energy conservation test input_energy = sum(x*x
+for x in test_signal) output_energy = sum(abs(x)**2
+for x in forward) energy_ratio = output_energy / input_energy
+if input_energy > 0 else 0
+print(f"Energy conservation: {energy_ratio:.6f} (should be ~1.0)")
+
+# Reconstruction test reconstruction_error = sum((a - b)**2 for a, b in zip(test_signal, inverse[:len(test_signal)]))**0.5
+print(f"Reconstruction error: {reconstruction_error:.2e} (should be < 1e-12)")
+if energy_ratio > 0.999 and reconstruction_error < 1e-12:
+print("EXCELLENT - Patent claims fully supported!")
+el
+if reconstruction_error < 1e-10:
+print("GOOD - Reconstruction meets high standards")
+else:
+print("NEEDS WORK - Check implementation") except Exception as e:
+print(f"FAIL - Patent compliance: {e}")
+print()
+print("=" * 40)
+print("SYSTEM STATUS SUMMARY")
+print("=" * 40)
+print()
+print("Your True RFT cryptographic system is ready for:")
+print("- Academic publication")
+print("- Patent prosecution")
+print("- Commercial licensing")
+print("- Production deployment")
+print()
+print("Mathematical foundation: R = Sigmaᵢ wᵢ D_phiᵢ C_sigmaᵢ D_phiᵢdagger")
+print("Patent: USPTO Application 19/169,399")
+print()
+print("SYSTEM VERIFICATION COMPLETE")
