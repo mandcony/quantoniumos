@@ -25,7 +25,7 @@ class QuantoniumCrypto:
 
     def __init__(self):
         import numpy as np
-import sys
+        import sys
         import os
         
         # Ensure proper path for importing
@@ -53,7 +53,7 @@ import sys
         except ImportError:
             # Create a minimal fallback if minimal_feistel_bindings was deleted
             import secrets
-import hashlib
+            import hashlib
             
             class MinimalFeistel:
                 def init(self): pass
