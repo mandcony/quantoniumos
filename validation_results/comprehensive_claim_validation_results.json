@@ -19,11 +19,11 @@
     "result": {
       "forward_transform": "SUCCESS",
       "inverse_transform": "SUCCESS",
-      "roundtrip_error": 5.104333553845553e-16,
-      "passes_roundtrip": "True",
+      "roundtrip_error": 1.1092036096648559,
+      "passes_roundtrip": "False",
       "algorithm_validated": true
     },
-    "execution_time": 0.002196073532104492,
+    "execution_time": 0.002685546875,
     "error": null
   },
   {
@@ -38,13 +38,13 @@
         },
         {
           "test": "svd_reconstruction",
-          "error": 3.573900864766138e-15,
+          "error": 2.3007953393101627e-15,
           "passes": "True"
         }
       ],
       "mathematical_rigor": true
     },
-    "execution_time": 0.015837907791137695,
+    "execution_time": 0.012883186340332031,
     "error": null
   },
   {
@@ -54,18 +54,18 @@
       "crypto_tests": [
         {
           "test": "entropy_quality",
-          "entropy": 0.984375,
+          "entropy": 0.98828125,
           "passes": true
         },
         {
           "test": "avalanche_effect",
-          "avalanche_ratio": 0.00390625,
-          "passes": "False"
+          "avalanche_ratio": 0.375,
+          "passes": true
         }
       ],
-      "cryptographic_security": false
+      "cryptographic_security": true
     },
-    "execution_time": 0.00011730194091796875,
+    "execution_time": 0.00014448165893554688,
     "error": null
   },
   {
@@ -75,19 +75,19 @@
       "performance_tests": [
         {
           "test": "matrix_operations_speed",
-          "time_seconds": 0.023094654083251953,
-          "operations_per_second": 43300.06400594636,
+          "time_seconds": 0.02498936653137207,
+          "operations_per_second": 40017.02078940589,
           "passes": true
         },
         {
           "test": "memory_usage",
-          "memory_mb": 40.0625,
+          "memory_mb": 38.83203125,
           "passes": true
         }
       ],
       "performance_validated": true
     },
-    "execution_time": 0.038782596588134766,
+    "execution_time": 0.043909549713134766,
     "error": null
   },
   {
@@ -125,7 +125,7 @@
       ],
       "system_integration": true
     },
-    "execution_time": 1.1444091796875e-05,
+    "execution_time": 4.291534423828125e-05,
     "error": null
   }
 ]

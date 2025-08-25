@@ -73,14 +73,23 @@ paper_compliant_rft_fixed.py – RFT version aligned with manuscript
 
 launch_gui.py – optional desktop launcher (if GUI deps installed)
 
-Usage Notes
-No .env required. Default config lives under 14_CONFIGURATION/.
+## Usage Notes
 
-Runners save machine-verifiable artifacts (JSON reports) to the repo so others can reproduce your results.
+**Configuration:** QuantoniumOS uses code-based configuration rather than `.env` files:
+- **Class initialization** - Parameters set during object creation
+- **JSON files** - Stored in `14_CONFIGURATION/` directory  
+- **Command-line args** - For runtime options
 
-**Note:** This is research-grade crypto, not production-ready. For production systems, follow the guidance in your Security/README notes and use peer-reviewed libraries alongside this research code.
+```python
+# Example configuration
+os_instance = QuantoniumOS(quantum_dimension=8, rft_size=64, enable_crypto=True)
+```
 
-Citation
+**Artifacts:** Runners save machine-verifiable artifacts (JSON reports) to the repo so others can reproduce your results.
+
+**Security Note:** This is research-grade crypto, not production-ready. For production systems, follow the guidance in your Security/README notes and use peer-reviewed libraries alongside this research code.
+
+## Citation
 If this work helps your research, please cite the QuantoniumOS project and the associated preprints/DOIs.
 
 bibtex

@@ -1,51 +1,42 @@
 """
 Canonical True RFT Implementation
 ================================
-This module provides the canonical implementation of the True Resonance Fourier Transform.
+This module provides the canonical implementation of the True Resonance Fourier Transform
+by importing from true_rft_exact.py.
 """
 
 import numpy as np
+from pathlib import Path
+import sys
 
+# Add the proper path for importing
+current_dir = Path(__file__).parent
+if str(current_dir) not in sys.path:
+    sys.path.append(str(current_dir))
 
-def forward_true_rft(signal, alpha=1.0, beta=0.3, theta=None, symbols=None):
-    """
-    Apply the True Resonance Fourier Transform to a signal.
+# Import the true unitary transform implementation
+try:
+    from true_rft_exact import (
+        TrueResonanceFourierTransform,
+        forward_true_rft,
+        inverse_true_rft,
+        get_rft_basis,
+        PHI
+    )
+    print("Successfully imported TrueResonanceFourierTransform from true_rft_exact.py")
+except ImportError as e:
+    print(f"Error importing from true_rft_exact.py: {e}")
+    raise
 
-    Parameters:
-    -----------
-    signal : array-like
-        The input signal
-    alpha : float
-        Bandwidth parameter
-    beta : float
-        Gamma coefficient
-    theta : float or None
-        Phase angle, uses defaults if None
-    symbols : array-like or None
-        Symbol sequence, uses defaults if None
+# For backward compatibility
+def generate_phi_sequence(N):
+    """Generate the phi sequence for N points using the golden ratio"""
+    return np.array([PHI**k % 1 for k in range(N)])
 
-    Returns:
-    --------
-    array-like
-        The transformed signal
-    """
-    # Convert to numpy array
-    signal = np.array(signal, dtype=np.complex128)
-
-    # Default theta if not provided
-    if theta is None:
-        theta = np.pi / 4
-
-    # Default symbols if not provided
-    if symbols is None:
-        symbols = np.array([1, 1j, -1, -1j])  # QPSK symbols
-
-    # Apply FFT
-    fft_result = np.fft.fft(signal)
-
-    # Apply resonance modulation
-    n = len(signal)
-    phi = (1 + np.sqrt(5)) / 2  # Golden ratio
+def generate_resonance_kernel(N):
+    """Generate the resonance kernel of size N"""
+    transformer = TrueResonanceFourierTransform(N=N)
+    return transformer.R
 
     # Modulate with resonance factor
     for k in range(n):

@@ -60,54 +60,71 @@ class QuantumVertex:
                 else:
                     data_array = data_array[:required_size]
                     
-                # Reshape to matrix
+                # Reshape to square matrix
                 vertex = data_array.reshape((self.dimension, self.dimension))
                 
-                # Make it complex
-                vertex = vertex + 0.5j * np.roll(vertex, 1)
-                
                 # Make it unitary
-                q, r = np.linalg.qr(vertex)
+                q, r = np.linalg.qr(vertex + 1j * vertex)
                 vertex = q
             else:
-                # Assume it's already a numpy array
+                # Assume it's already a matrix
                 vertex = np.array(data, dtype=np.complex128)
-                
-                # Ensure it's the right shape
                 if vertex.shape != (self.dimension, self.dimension):
-                    raise ValueError(f"Expected shape {(self.dimension, self.dimension)}, got {vertex.shape}")
-                
+                    vertex = np.resize(vertex, (self.dimension, self.dimension))
                 # Make it unitary
                 q, r = np.linalg.qr(vertex)
                 vertex = q
                 
         return {"status": "SUCCESS", "vertex": vertex}
         
-    def apply_transform(self, vertex, transform_type="hadamard"):
-        """Apply a quantum transform to the vertex"""
+    def apply_operator(self, vertex, operator):
+        """Apply an operator to a vertex"""
         if not self.initialized:
             self.init()
             
-        # Define some basic transforms
-        if transform_type == "hadamard":
-            # Hadamard transform
-            h = np.ones((self.dimension, self.dimension), dtype=np.complex128) / np.sqrt(self.dimension)
-            for i in range(self.dimension):
-                for j in range(self.dimension):
-                    if (i & j).bit_count() % 2:
-                        h[i, j] = -h[i, j]
-            transform = h
-        elif transform_type == "fourier":
-            # Quantum Fourier Transform
-            transform = np.zeros((self.dimension, self.dimension), dtype=np.complex128)
-            for i in range(self.dimension):
-                for j in range(self.dimension):
-                    transform[i, j] = np.exp(2j * np.pi * i * j / self.dimension) / np.sqrt(self.dimension)
-        else:
-            # Default to identity
-            transform = np.eye(self.dimension, dtype=np.complex128)
-            
-        # Apply transform
-        result = transform @ vertex
-        
+        # Simple matrix multiplication
+        result = np.matmul(operator, vertex)
         return {"status": "SUCCESS", "result": result}
+        
+    def measure_state(self, vertex, basis=None):
+        """Measure a quantum state in the given basis"""
+        if not self.initialized:
+            self.init()
+            
+        if basis is None:
+            # Use computational basis
+            basis = np.eye(self.dimension, dtype=np.complex128)
+            
+        # Calculate probabilities
+        probs = np.abs(np.diagonal(np.matmul(np.conjugate(basis.T), vertex)))**2
+        
+        # Normalize
+        probs = probs / np.sum(probs)
+        
+        # Sample from distribution
+        result = np.random.choice(self.dimension, p=probs)
+        
+        return {"status": "SUCCESS", "result": int(result), "probabilities": probs}
+        
+    def entangle_vertices(self, vertex1, vertex2):
+        """Entangle two quantum vertices"""
+        if not self.initialized:
+            self.init()
+            
+        # Simple tensor product
+        tensor = np.kron(vertex1, vertex2)
+        
+        # Normalize
+        tensor = tensor / np.linalg.norm(tensor)
+        
+        return {"status": "SUCCESS", "entangled_state": tensor}
+        
+    def compute_fidelity(self, state1, state2):
+        """Compute the fidelity between two quantum states"""
+        if not self.initialized:
+            self.init()
+            
+        # Calculate fidelity as |⟨ψ1|ψ2⟩|^2
+        inner_product = np.abs(np.vdot(state1, state2))**2
+        
+        return {"status": "SUCCESS", "fidelity": inner_product}
