@@ -1,5 +1,0 @@
-Welcome to QuantoniumOS!
-
-This is the world's first vertex-based quantum operating system.
-
-Your home directory is ready for quantum computing!

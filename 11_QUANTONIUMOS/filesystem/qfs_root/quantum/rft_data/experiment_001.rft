@@ -1,9 +1,0 @@
-{
-  "transform_matrix": "32x32_production_rft",
-  "frequency_response": [
-    1.618,
-    2.618,
-    4.236
-  ],
-  "distinctness": 0.803
-}

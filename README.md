@@ -1,144 +1,68 @@
 # QuantoniumOS
 
-**Quantum Operating System • True RFT Algorithms • Quantum Cryptography • Complete Research Framework**
+QuantoniumOS is a quantum computing operating system designed to provide a unified interface for quantum algorithms, simulations, and applications.
 
-QuantoniumOS is a comprehensive quantum operating system featuring True Resonance Fourier Transform (RFT) algorithms, quantum-enhanced cryptography, and a complete development framework for quantum computing research.
+## Core Components
 
----
+### 1. ASSEMBLY (REAL RFT Assembly)
 
-## 🚀 Quick Start
+The low-level implementation of Resonance Field Theory (RFT), providing direct hardware integration for quantum operations.
 
-### Prerequisites
-- Python 3.9+ (3.12 recommended)
-- Virtual environment recommended
+- **kernel/** - C/ASM implementation of the RFT kernel
+- **compiled/** - Compiled libraries and executables
+- **python_bindings/** - Python interface to the RFT kernel
+- **build_scripts/** - Scripts to build the RFT kernel
 
-### Installation & Launch
-```bash
-# 1) Clone and setup environment
-git clone https://github.com/mandcony/quantoniumos.git
-cd quantoniumos
-python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
+### 2. Quantum Kernels
 
-# 2) Install dependencies
-pip install numpy scipy networkx flask cryptography PyQt5
+Three specialized quantum kernels for different use cases:
 
-# 3) Launch QuantoniumOS (choose one):
+- **bulletproof_quantum_kernel.py** - Production-ready quantum kernel
+- **working_quantum_kernel.py** - Tested quantum kernel implementation
+- **topological_quantum_kernel.py** - Advanced topological quantum algorithms
 
-# Option A: Unified GUI Launcher
-python 11_QUANTONIUMOS/launch.py
+### 3. RFT Implementations
 
-# Option B: Web Interface  
-python 03_RUNNING_SYSTEMS/app.py
+Multiple implementations of Resonance Field Theory for different purposes:
 
-# Option C: Individual Apps
-python 11_QUANTONIUMOS/apps/launch_quantum_simulator.py
-```
+- **rft_core.py** - Core RFT implementation
+- **canonical_true_rft.py** - Canonical True RFT implementation
+- **paper_compliant_rft_fixed.py** - Paper-compliant RFT implementation
 
-### Quick Validation
-```bash
-# Verify core functionality
-python 02_CORE_VALIDATORS/run_all_validators.py
+### 4. User Interface (Cream OS)
 
-# Test True RFT algorithms
-python 04_RFT_ALGORITHMS/canonical_true_rft.py
-```
+- **16_EXPERIMENTAL/prototypes/quantonium_os_unified_cream.py** - Cream OS with circular app dock
 
----
+### 5. Applications
 
-## 📁 Project Structure
+- **apps/** - Collection of quantum applications and tools
 
-| Directory | Purpose | Key Files |
-|-----------|---------|-----------|
-| **01_START_HERE** | Entry point & navigation | README.md, NAVIGATION_GUIDE.md |
-| **02_CORE_VALIDATORS** | Scientific validation | run_all_validators.py, validation_results/ |
-| **03_RUNNING_SYSTEMS** | Production systems | app.py (Flask web server), main.py |
-| **04_RFT_ALGORITHMS** | True RFT implementations | canonical_true_rft.py, true_rft_engine_bindings.py |
-| **05_QUANTUM_ENGINES** | Quantum kernels | bulletproof_quantum_kernel.py, topological_quantum_kernel.py |
-| **06_CRYPTOGRAPHY** | Quantum cryptography | true_rft_feistel_bindings.py, quantum_cipher.py |
-| **07_TESTS_BENCHMARKS** | Test infrastructure | Comprehensive test suite (1000+ tests) |
-| **08_RESEARCH_ANALYSIS** | Research tools | Analysis and visualization tools |
-| **10_UTILITIES** | Utility functions | third_party/, logging_config.py |
-| **11_QUANTONIUMOS** | Main OS & GUI | quantonium_os_unified.py, apps/, core/, frontend/ |
-| **13_DOCUMENTATION** | Documentation | This file, guides/, reports/ |
-| **14_CONFIGURATION** | Configuration files | Environment configs, build settings |
-| **15_DEPLOYMENT** | Deployment scripts | Production deployment tools |
-| **16_EXPERIMENTAL** | Experimental features | Research prototypes |
-| **17_BUILD_ARTIFACTS** | Build outputs | Compiled artifacts |
-| **18_DEBUG_TOOLS** | Debug utilities | Development and debugging tools |
-| **src/quantoniumos/** | **Installable package** | **Official Python package for distribution** |
+## Getting Started
 
----
+1. Build the system:
+   ```
+   build.bat
+   ```
 
-## 🎯 Main Entry Points
+2. Launch QuantoniumOS:
+   ```
+   python os_boot_transition.py
+   ```
 
-### For End Users:
-- **🖥️ Desktop GUI**: `python 11_QUANTONIUMOS/quantonium_os_unified.py`
-- **🌐 Web Interface**: `python 03_RUNNING_SYSTEMS/app.py`
-- **🚀 Unified Launcher**: `python 11_QUANTONIUMOS/launch.py`
+3. Run the sanity check:
+   ```
+   python verify_sanity.py
+   ```
 
-### For Developers:
-- **✅ Run Validators**: `python 02_CORE_VALIDATORS/run_all_validators.py`  
-- **🧪 Test RFT**: `python 04_RFT_ALGORITHMS/canonical_true_rft.py`
-- **📊 Benchmarks**: Files in `07_TESTS_BENCHMARKS/`
+## Architecture
 
-### For Package Users:
-```python
-# Install as package
-pip install -e ./src
+QuantoniumOS follows a layered architecture:
 
-# Use in Python
-import quantoniumos
-kernel = quantoniumos.QuantumKernel()
-result = kernel.run_quantum_algorithm(data)
-```
+1. **ASSEMBLY Layer** - Low-level quantum operations (C/ASM)
+2. **C++ Layer** - Bindings and interfaces
+3. **Python Layer** - Kernels and algorithms
+4. **UI Layer** - Cream OS and application interfaces
 
----
+## License
 
-## 🔬 Core Technologies
-
-- **True RFT Algorithms**: Novel Fourier transform implementations
-- **Quantum Kernels**: Bulletproof and topological quantum processing  
-- **Quantum Cryptography**: RFT-based encryption and security
-- **Web Interface**: Flask-based control panel
-- **Desktop GUI**: PyQt5-based user interface
-- **Package Distribution**: Standard Python package in `src/`
-
----
-
-## 📊 Validation & Testing
-
-All core algorithms are scientifically validated:
-- **Perfect Reconstruction**: Error < 1e-15
-- **Energy Conservation**: Verified to machine precision  
-- **Non-DFT Equivalence**: Mathematically proven distinct
-- **Quantum Properties**: Full unitarity validation
-- **Cryptographic Security**: Statistical randomness verified
-
-Run `python 02_CORE_VALIDATORS/run_all_validators.py` for full verification.
-
----
-
-## 🏗️ Development
-
-### Configuration
-- **No .env files needed** - Configuration via Python classes
-- **Settings**: Located in `14_CONFIGURATION/`
-- **Runtime options**: Command-line arguments supported
-
-### Security Note
-This is research-grade cryptography. For production use, combine with established cryptographic libraries and follow security best practices.
-
----
-
-## 📄 Citation
-
-```bibtex
-@software{QuantoniumOS_2025,
-  title   = {QuantoniumOS: Quantum Operating System with True RFT Algorithms},
-  author  = {Minier, Luis},
-  year    = {2025},
-  url     = {https://github.com/mandcony/quantoniumos}
-}
-```
+This project is licensed under the MIT License - see the LICENSE.md file for details.
