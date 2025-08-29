@@ -13,10 +13,9 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QGraphicsView, QGraphicsScene, 
                             QGraphicsEllipseItem, QGraphicsTextItem, QGraphicsProxyWidget,
                             QPushButton, QLabel, QDesktopWidget, QGraphicsRectItem)
-from PyQt5.QtCore import Qt, QTimer, QRectF, QPointF, QPropertyAnimation, QEasingCurve, QSize
+from PyQt5.QtCore import Qt, QTimer, QRectF, QPointF, QPropertyAnimation, QEasingCurve
 from PyQt5.QtGui import (QPalette, QColor, QFont, QPainter, QPen, QBrush, QCursor, 
-                        QLinearGradient, QRadialGradient, QPixmap)
-import qtawesome as qta
+                        QLinearGradient, QRadialGradient)
 
 class QuantoniumDesktop(QMainWindow):
     def __init__(self):
@@ -290,8 +289,8 @@ class QuantoniumDesktop(QMainWindow):
         
         # Dimensions to match the provided image
         arch_radius = 280  # Adjusted radius to match image
-        button_size = 80   # Slightly smaller square app buttons for better balance
-        font_size = 9      # Slightly smaller font size to match
+        button_size = 80   # Square app buttons
+        font_size = 10     # Better readable font size
         
         # Create outer circle background
         arch_bg = QGraphicsEllipseItem(center_x - arch_radius, center_y - arch_radius, 
@@ -319,56 +318,28 @@ class QuantoniumDesktop(QMainWindow):
         angle_step = math.pi * 1.5 / (num_apps - 1) if num_apps > 1 else 0
         start_angle = math.pi * 1.75  # Start from top-left (315 degrees)
         
-        # App configurations with icons and colors
+        # App configurations with minimal styling
         app_configs = {
             "RFT Validation": {
-                "display_name": "RFT Validator",
-                "bg_color": "#a8e6a8",  # Light green background
-                "border_color": "#2c9f53",  # Darker green border
-                "icon": "fa5s.check-circle",  # Validation icon
-                "icon_color": "#2c9f53"  # Icon color
+                "display_name": "RFT Validator"
             },
             "RFT Visual": {
-                "display_name": "RFT Visualizer",
-                "bg_color": "#a8e6c0",  # Light mint green
-                "border_color": "#2c9f7e",  # Darker mint green
-                "icon": "fa5s.chart-line",  # Chart/visualization icon
-                "icon_color": "#2c9f7e"  # Icon color
+                "display_name": "RFT Visualizer"
             },
             "Quantum Simulator": {
-                "display_name": "Quantum Simulator",
-                "bg_color": "#c8b5e8",  # Light lavender
-                "border_color": "#6a4ea2",  # Darker purple
-                "icon": "fa5s.atom",  # Atom/quantum icon
-                "icon_color": "#6a4ea2"  # Icon color
+                "display_name": "Quantum Simulator"
             },
             "Quantum Crypto": {
-                "display_name": "Quantum Crypto",
-                "bg_color": "#b5daf0",  # Light blue
-                "border_color": "#2b85a3",  # Darker blue
-                "icon": "fa5s.lock",  # Lock/security icon
-                "icon_color": "#2b85a3"  # Icon color
+                "display_name": "Quantum Crypto"
             },
             "System Monitor": {
-                "display_name": "System Monitor",
-                "bg_color": "#d0d0d0",  # Light gray
-                "border_color": "#707070",  # Darker gray
-                "icon": "fa5s.desktop",  # Monitor icon
-                "icon_color": "#707070"  # Icon color
+                "display_name": "System Monitor"
             },
             "Q-Notes": {
-                "display_name": "Q-Notes",
-                "bg_color": "#f0b5b5",  # Light red
-                "border_color": "#a3342b",  # Darker red
-                "icon": "fa5s.sticky-note",  # Note icon
-                "icon_color": "#a3342b"  # Icon color
+                "display_name": "Q-Notes"
             },
             "Q-Vault": {
-                "display_name": "Q-Vault",
-                "bg_color": "#f0e8c0",  # Light cream
-                "border_color": "#8c7629",  # Darker gold
-                "icon": "fa5s.shield-alt",  # Shield/vault icon
-                "icon_color": "#8c7629"  # Icon color
+                "display_name": "Q-Vault"
             }
         }
         
@@ -404,54 +375,23 @@ class QuantoniumDesktop(QMainWindow):
             config = app_configs[config_key]
             display_name = config["display_name"]
             
-            # Create modern styled app button with icon
+            # Create modern styled app button
             app_btn = QPushButton()
             app_btn.setFixedSize(button_size, button_size)
             
-            # Get background, border colors and icon
-            bg_color = config["bg_color"]
-            border_color = config["border_color"]
-            icon_name = config["icon"]
-            icon_color = config["icon_color"]
-            
-            # Create styled button with icon
+            # Create minimal, clean button style without colored backgrounds
             app_btn.setStyleSheet(f"""
                 QPushButton {{
-                    background-color: {bg_color};
-                    border: 2px solid {border_color};
-                    border-radius: 6px;
+                    background-color: rgba(255, 255, 255, 0.5);
+                    border: 1px solid rgba(52, 152, 219, 0.2);
+                    border-radius: 8px;
                 }}
                 QPushButton:hover {{
-                    background-color: white;
                     border: 2px solid #3498db;
-                    border-radius: 6px;
+                    background-color: rgba(255, 255, 255, 0.8);
                 }}
                 QPushButton:pressed {{
-                    background-color: #b5d3e7;
-                }}
-            """)
-            
-            # Add icon to button using QtAwesome - adjusted scale factor for better visibility at smaller size
-            icon = qta.icon(icon_name, color=icon_color, scale_factor=1.75)
-            app_btn.setIcon(icon)
-            # Make icon appropriately sized for the smaller button
-            app_btn.setIconSize(QSize(int(button_size * 0.7), int(button_size * 0.7)))
-            # Center the icon within the button
-            app_btn.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {bg_color};
-                    border: 2px solid {border_color};
-                    border-radius: 6px;
-                    text-align: center;
-                    padding: 0px;
-                }}
-                QPushButton:hover {{
-                    background-color: white;
-                    border: 2px solid #3498db;
-                    border-radius: 6px;
-                }}
-                QPushButton:pressed {{
-                    background-color: #b5d3e7;
+                    background-color: rgba(52, 152, 219, 0.1);
                 }}
             """)
             
@@ -463,9 +403,6 @@ class QuantoniumDesktop(QMainWindow):
             proxy = self.scene.addWidget(app_btn)
             proxy.setPos(x - button_size/2, y - button_size/2)
             self.app_items.append(proxy)
-            
-            # Debug info
-            print(f"Added {display_name} at position: ({x}, {y}) with color: {bg_color}")
             
             # Add text label below icon
             label = QGraphicsTextItem(display_name)
@@ -481,13 +418,13 @@ class QuantoniumDesktop(QMainWindow):
             label_x = x - (label_bounds.width() / 2)
             
             # Position labels consistently below icons for clarity
-            label_y = y + (button_size / 2) + 3
+            label_y = y + (button_size / 2) + 5
             label.setPos(label_x, label_y)
             
             self.scene.addItem(label)
             self.app_items.append(label)
         
-        print(f"Expanded arch with {len(self.apps)} applications - minimalist version")
+        print(f"Expanded arch with {len(self.apps)} applications - minimal version")
         
     def collapse_arch(self):
         """Collapse arch formation"""

@@ -1,413 +1,472 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Quantum Crypto - Scientific Interface
-====================================
-Quantum cryptography protocols and key distribution
+Quantum Crypto — Futura Minimal
+- BB84/B92/SARG04-style QKD simulator (education-grade)
+- Proper basis sifting, QBER estimation, eavesdropper toggle, noise slider
+- Key export/copy, OTP-like XOR demo with SHA-256 stream expansion
+- Light/Dark theme, frosted cards, clean plots
 """
 
-import sys
+import sys, os, math, hashlib, secrets
 import numpy as np
-import hashlib
-import secrets
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, 
-                            QWidget, QLabel, QPushButton, QTextEdit, QTabWidget,
-                            QLineEdit, QComboBox, QProgressBar)
-from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
-from PyQt5.QtGui import QFont, QColor
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 
+from PyQt5.QtCore import Qt, QTimer, QRectF, QPointF
+from PyQt5.QtGui import QFont, QPainter, QPen, QBrush, QColor, QGuiApplication
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+    QLabel, QPushButton, QLineEdit, QComboBox, QTextEdit, QTabWidget, QSlider,
+    QFileDialog, QCheckBox, QStatusBar, QFrame, QMessageBox
+)
+
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
+
+# ---------- Reusable UI primitives ----------
+class Card(QFrame):
+    def __init__(self, title: str = ""):
+        super().__init__()
+        self.setObjectName("Card")
+        lay = QVBoxLayout(self); lay.setContentsMargins(16,16,16,16); lay.setSpacing(8)
+        t = QLabel(title); t.setObjectName("CardTitle"); lay.addWidget(t)
+        self.body = QWidget(); lay.addWidget(self.body)
+
+
+# ---------- Main Window ----------
 class QuantumCrypto(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Quantum Crypto")
-        self.setGeometry(100, 100, 1400, 900)
-        self.setup_scientific_ui()
-        
-    def setup_scientific_ui(self):
-        """Setup minimal scientific interface"""
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: #fafafa;
-                color: #2c3e50;
-                font-family: "SF Pro Display", "Segoe UI";
-            }
-            QTabWidget::pane {
-                border: 1px solid #e0e0e0;
-                background-color: #ffffff;
-            }
-            QTabBar::tab {
-                background-color: #f8f9fa;
-                color: #2c3e50;
-                padding: 12px 20px;
-                border: none;
-                margin-right: 2px;
-                font-weight: 500;
-            }
-            QTabBar::tab:selected {
-                background-color: #e74c3c;
-                color: white;
-            }
-            QPushButton {
-                background-color: #e74c3c;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 4px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #c0392b;
-            }
-            QLineEdit {
-                background-color: #ffffff;
-                border: 1px solid #e0e0e0;
-                padding: 8px 12px;
-                color: #2c3e50;
-                border-radius: 4px;
-            }
-            QTextEdit {
-                background-color: #ffffff;
-                border: 1px solid #e0e0e0;
-                color: #2c3e50;
-                font-family: "SF Mono", "Consolas";
-                font-size: 12px;
-            }
-        """)
-        
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
-        
+        self.setWindowTitle("QuantoniumOS • Quantum Crypto")
+        self.resize(1280, 820)
+        self._light = True
+        self.current_key_bits = None
+        self.encrypted_data = None
+
+        self._build_ui()
+        self._apply_style(light=True)
+        self.statusBar().showMessage("Ready • Educational simulation (not production QKD)")
+
+    # ---------- UI ----------
+    def _build_ui(self):
+        central = QWidget(); self.setCentralWidget(central)
+        root = QVBoxLayout(central); root.setContentsMargins(0,0,0,0); root.setSpacing(0)
+
         # Header
-        header = QLabel("QUANTUM CRYPTO")
-        header.setStyleSheet("font-size: 20px; font-weight: 600; color: #2c3e50; padding: 20px;")
-        layout.addWidget(header)
-        
+        header = QWidget(); header.setFixedHeight(64)
+        hl = QVBoxLayout(header); hl.setContentsMargins(20,10,20,8)
+        title = QLabel("Quantum Crypto"); title.setObjectName("Title")
+        subtitle = QLabel("QKD simulator • minimal visuals • Quantonium aesthetic"); subtitle.setObjectName("SubTitle")
+        hl.addWidget(title); hl.addWidget(subtitle)
+        root.addWidget(header)
+
+        # Controls row
+        ctrl = QWidget(); cl = QHBoxLayout(ctrl); cl.setContentsMargins(16, 0, 16, 8)
+        self.theme_btn = QPushButton("Dark/Light"); self.theme_btn.clicked.connect(self._toggle_theme)
+        self.copy_key_btn = QPushButton("Copy Key"); self.copy_key_btn.clicked.connect(self._copy_key)
+        self.save_key_btn = QPushButton("Export Key"); self.save_key_btn.clicked.connect(self._save_key)
+        cl.addWidget(self.theme_btn); cl.addStretch(1); cl.addWidget(self.copy_key_btn); cl.addWidget(self.save_key_btn)
+        root.addWidget(ctrl)
+
         # Tabs
-        tabs = QTabWidget()
-        layout.addWidget(tabs)
-        
-        # QKD Tab
-        qkd_tab = self.create_qkd_tab()
-        tabs.addTab(qkd_tab, "Quantum Key Distribution")
-        
-        # Encryption Tab
-        encrypt_tab = self.create_encryption_tab()
-        tabs.addTab(encrypt_tab, "Quantum Encryption")
-        
-        # Security Analysis Tab
-        security_tab = self.create_security_tab()
-        tabs.addTab(security_tab, "Security Analysis")
-        
-    def create_qkd_tab(self):
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        
-        # Controls
-        controls = QHBoxLayout()
-        
-        # Protocol selector
-        protocol_label = QLabel("Protocol:")
+        tabs = QTabWidget(); root.addWidget(tabs, 1)
+
+        # --- QKD TAB ---
+        self.qkd_tab = QWidget(); tabs.addTab(self.qkd_tab, "Quantum Key Distribution")
+        qkd = QGridLayout(self.qkd_tab); qkd.setContentsMargins(16,16,16,16); qkd.setHorizontalSpacing(16); qkd.setVerticalSpacing(16)
+
+        # Left column: Controls + Key/Stats
+        self.card_controls = Card("Protocol & Parameters")
+        cbl = QVBoxLayout(self.card_controls.body); cbl.setSpacing(10)
+
+        row1 = QHBoxLayout()
+        row1.addWidget(QLabel("Protocol:"))
         self.protocol_combo = QComboBox()
         self.protocol_combo.addItems(["BB84", "B92", "SARG04"])
-        
-        # Key length
-        length_label = QLabel("Key Length:")
-        self.length_input = QLineEdit("256")
-        self.length_input.setMaximumWidth(100)
-        
-        # Generate button
-        generate_btn = QPushButton("Generate Quantum Key")
-        generate_btn.clicked.connect(self.generate_quantum_key)
-        
-        controls.addWidget(protocol_label)
-        controls.addWidget(self.protocol_combo)
-        controls.addWidget(length_label)
-        controls.addWidget(self.length_input)
-        controls.addWidget(generate_btn)
-        controls.addStretch()
-        
-        layout.addLayout(controls)
-        
-        # Key display
-        self.key_display = QTextEdit()
-        self.key_display.setMaximumHeight(200)
-        layout.addWidget(self.key_display)
-        
-        # Protocol visualization
-        self.qkd_figure = Figure(figsize=(12, 6))
-        self.qkd_canvas = FigureCanvas(self.qkd_figure)
-        layout.addWidget(self.qkd_canvas)
-        
-        return widget
-        
-    def create_encryption_tab(self):
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        
-        # Controls
-        controls = QHBoxLayout()
-        
-        # Message input
-        msg_label = QLabel("Message:")
-        self.message_input = QLineEdit("Hello Quantum World!")
-        
-        # Encrypt button
-        encrypt_btn = QPushButton("Quantum Encrypt")
-        encrypt_btn.clicked.connect(self.quantum_encrypt)
-        
-        # Decrypt button
-        decrypt_btn = QPushButton("Quantum Decrypt")
-        decrypt_btn.clicked.connect(self.quantum_decrypt)
-        
-        controls.addWidget(msg_label)
-        controls.addWidget(self.message_input)
-        controls.addWidget(encrypt_btn)
-        controls.addWidget(decrypt_btn)
-        
-        layout.addLayout(controls)
-        
-        # Results display
-        self.crypto_results = QTextEdit()
-        layout.addWidget(self.crypto_results)
-        
-        return widget
-        
-    def create_security_tab(self):
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        
-        # Controls
-        controls = QHBoxLayout()
-        
-        analyze_btn = QPushButton("Analyze Security")
-        analyze_btn.clicked.connect(self.analyze_security)
-        
-        test_btn = QPushButton("Run Security Tests")
-        test_btn.clicked.connect(self.run_security_tests)
-        
-        controls.addWidget(analyze_btn)
-        controls.addWidget(test_btn)
-        controls.addStretch()
-        
-        layout.addLayout(controls)
-        
-        # Security display
-        self.security_display = QTextEdit()
-        self.security_display.setMaximumHeight(200)
-        layout.addWidget(self.security_display)
-        
-        # Security visualization
-        self.security_figure = Figure(figsize=(12, 6))
-        self.security_canvas = FigureCanvas(self.security_figure)
-        layout.addWidget(self.security_canvas)
-        
-        return widget
-        
-    def generate_quantum_key(self):
-        """Generate quantum cryptographic key using BB84 protocol"""
-        protocol = self.protocol_combo.currentText()
-        key_length = int(self.length_input.text())
-        
-        # Simulate BB84 protocol
-        alice_bits = np.random.randint(0, 2, key_length * 2)  # Extra bits for error correction
-        alice_bases = np.random.randint(0, 2, key_length * 2)  # 0: rectilinear, 1: diagonal
-        bob_bases = np.random.randint(0, 2, key_length * 2)
-        
-        # Bob's measurements (with some noise)
-        noise_rate = 0.02
-        bob_bits = alice_bits.copy()
-        noise_indices = np.random.choice(len(bob_bits), int(len(bob_bits) * noise_rate), replace=False)
-        bob_bits[noise_indices] = 1 - bob_bits[noise_indices]
-        
-        # Sifting: keep only bits where bases match
-        matching_bases = alice_bases == bob_bases
-        sifted_key = alice_bits[matching_bases][:key_length]
-        
-        # Convert to hex for display
-        key_bytes = np.packbits(sifted_key)
-        quantum_key = key_bytes.tobytes().hex()
-        
-        # Store for encryption
-        self.current_key = sifted_key
-        
-        # Display results
-        result_text = f"Quantum Key Distribution ({protocol})\n"
-        result_text += "=" * 50 + "\n\n"
-        result_text += f"Protocol: {protocol}\n"
-        result_text += f"Raw bits sent: {len(alice_bits)}\n"
-        result_text += f"Matching bases: {np.sum(matching_bases)}\n"
-        result_text += f"Final key length: {len(sifted_key)} bits\n"
-        result_text += f"Error rate: {noise_rate:.1%}\n\n"
-        result_text += f"Quantum Key (hex): {quantum_key}\n\n"
-        result_text += f"Binary Key: {''.join(map(str, sifted_key))}"
-        
-        self.key_display.setPlainText(result_text)
-        self.plot_qkd_protocol(alice_bits, alice_bases, bob_bases, matching_bases)
-        
-    def plot_qkd_protocol(self, alice_bits, alice_bases, bob_bases, matching_bases):
-        """Visualize QKD protocol execution"""
-        self.qkd_figure.clear()
-        
-        # Show first 50 bits for visualization
-        n_show = min(50, len(alice_bits))
-        x = np.arange(n_show)
-        
-        ax1 = self.qkd_figure.add_subplot(3, 1, 1)
-        ax1.bar(x, alice_bits[:n_show], color='blue', alpha=0.7, label='Alice Bits')
-        ax1.set_ylabel('Bit Value')
-        ax1.set_title('Alice\'s Random Bits')
-        ax1.legend()
-        
-        ax2 = self.qkd_figure.add_subplot(3, 1, 2)
-        colors = ['red' if alice_bases[i] == bob_bases[i] else 'gray' for i in range(n_show)]
-        ax2.bar(x, alice_bases[:n_show], alpha=0.7, color=colors, label='Bases (0=+, 1=×)')
-        ax2.set_ylabel('Basis')
-        ax2.set_title('Measurement Bases (Red = Matching)')
-        ax2.legend()
-        
-        ax3 = self.qkd_figure.add_subplot(3, 1, 3)
-        sifted_positions = x[matching_bases[:n_show]]
-        if len(sifted_positions) > 0:
-            ax3.bar(sifted_positions, alice_bits[:n_show][matching_bases[:n_show]], 
-                   color='green', alpha=0.7, label='Sifted Key')
-        ax3.set_xlabel('Bit Position')
-        ax3.set_ylabel('Sifted Bits')
-        ax3.set_title('Final Sifted Key')
-        ax3.legend()
-        
-        self.qkd_canvas.draw()
-        
-    def quantum_encrypt(self):
-        """Encrypt message using quantum-generated key"""
-        if not hasattr(self, 'current_key'):
-            self.generate_quantum_key()
-            
-        message = self.message_input.text()
-        message_bytes = message.encode('utf-8')
-        
-        # Expand key to message length using hash function
-        key_material = hashlib.sha256(self.current_key.tobytes()).digest()
-        while len(key_material) < len(message_bytes):
-            key_material += hashlib.sha256(key_material).digest()
-        
-        # XOR encryption
-        encrypted_bytes = bytes(a ^ b for a, b in zip(message_bytes, key_material))
-        encrypted_hex = encrypted_bytes.hex()
-        
-        # Store for decryption
-        self.encrypted_data = encrypted_bytes
-        
-        result_text = f"Quantum Encryption\n"
-        result_text += "=" * 30 + "\n\n"
-        result_text += f"Original Message: {message}\n"
-        result_text += f"Message Length: {len(message_bytes)} bytes\n"
-        result_text += f"Key Length: {len(self.current_key)} bits\n\n"
-        result_text += f"Encrypted (hex): {encrypted_hex}\n\n"
-        result_text += "Encryption completed using quantum-generated key."
-        
-        self.crypto_results.setPlainText(result_text)
-        
-    def quantum_decrypt(self):
-        """Decrypt message using quantum key"""
-        if not hasattr(self, 'encrypted_data') or not hasattr(self, 'current_key'):
-            self.crypto_results.setPlainText("Please encrypt a message first.")
-            return
-            
-        # Expand key to message length using same hash function
-        key_material = hashlib.sha256(self.current_key.tobytes()).digest()
-        while len(key_material) < len(self.encrypted_data):
-            key_material += hashlib.sha256(key_material).digest()
-        
-        # XOR decryption
-        decrypted_bytes = bytes(a ^ b for a, b in zip(self.encrypted_data, key_material))
-        decrypted_message = decrypted_bytes.decode('utf-8')
-        
-        result_text = f"Quantum Decryption\n"
-        result_text += "=" * 30 + "\n\n"
-        result_text += f"Encrypted Data: {self.encrypted_data.hex()}\n"
-        result_text += f"Key Used: {len(self.current_key)} bits\n\n"
-        result_text += f"Decrypted Message: {decrypted_message}\n\n"
-        result_text += "Decryption successful using quantum key."
-        
-        self.crypto_results.setPlainText(result_text)
-        
-    def analyze_security(self):
-        """Analyze quantum cryptographic security"""
-        security_text = f"Quantum Cryptographic Security Analysis\n"
-        security_text += "=" * 50 + "\n\n"
-        
-        security_text += "THEORETICAL GUARANTEES:\n"
-        security_text += "• Information-theoretic security\n"
-        security_text += "• Eavesdropping detection via quantum mechanics\n"
-        security_text += "• No-cloning theorem protection\n"
-        security_text += "• Forward secrecy\n\n"
-        
-        security_text += "SECURITY PARAMETERS:\n"
-        security_text += "• Key generation rate: 1 Mbps\n"
-        security_text += "• Quantum error rate: < 2%\n"
-        security_text += "• Privacy amplification ratio: 2:1\n"
-        security_text += "• Security parameter: 2^-128\n\n"
-        
-        security_text += "THREAT MODEL:\n"
-        security_text += "• Quantum-safe against future attacks\n"
-        security_text += "• Resistant to computational advances\n"
-        security_text += "• Detection of man-in-the-middle attacks\n"
-        security_text += "• Channel authentication required\n\n"
-        
-        security_text += "STATUS: QUANTUM-SECURE ✓"
-        
-        self.security_display.setPlainText(security_text)
-        
-    def run_security_tests(self):
-        """Run comprehensive security tests"""
-        # Simulate security metrics
-        x = np.linspace(0, 100, 100)
-        
-        # Error rates
-        qber = 0.02 + 0.001 * np.random.randn(100)  # Quantum bit error rate
-        
-        # Key rates
-        key_rate = 1000 * np.exp(-2 * qber) + 50 * np.random.randn(100)
-        
-        # Security parameter
-        security_param = -np.log2(qber + 1e-10) * 10
-        
-        self.security_figure.clear()
-        
-        ax1 = self.security_figure.add_subplot(3, 1, 1)
-        ax1.plot(x, qber * 100, 'r-', linewidth=2, label='QBER (%)')
-        ax1.axhline(y=11, color='red', linestyle='--', alpha=0.7, label='Security Threshold')
-        ax1.set_ylabel('Error Rate (%)')
-        ax1.set_title('Quantum Bit Error Rate')
-        ax1.legend()
-        ax1.grid(True, alpha=0.3)
-        
-        ax2 = self.security_figure.add_subplot(3, 1, 2)
-        ax2.plot(x, key_rate, 'g-', linewidth=2, label='Key Rate (bps)')
-        ax2.set_ylabel('Key Rate')
-        ax2.set_title('Secure Key Generation Rate')
-        ax2.legend()
-        ax2.grid(True, alpha=0.3)
-        
-        ax3 = self.security_figure.add_subplot(3, 1, 3)
-        ax3.plot(x, security_param, 'b-', linewidth=2, label='Security Parameter')
-        ax3.axhline(y=128, color='blue', linestyle='--', alpha=0.7, label='Target Security')
-        ax3.set_xlabel('Time')
-        ax3.set_ylabel('Security Bits')
-        ax3.set_title('Security Parameter Analysis')
-        ax3.legend()
-        ax3.grid(True, alpha=0.3)
-        
-        self.security_canvas.draw()
+        row1.addWidget(self.protocol_combo)
+        row1.addStretch(1)
+        cbl.addLayout(row1)
 
+        row2 = QHBoxLayout()
+        row2.addWidget(QLabel("Key length (bits):"))
+        self.length_input = QLineEdit("256"); self.length_input.setMaximumWidth(120)
+        row2.addWidget(self.length_input)
+        row2.addStretch(1)
+        cbl.addLayout(row2)
+
+        row3 = QHBoxLayout()
+        self.eavesdrop_chk = QCheckBox("Simulate eavesdropper (intercept-resend)")
+        row3.addWidget(self.eavesdrop_chk); row3.addStretch(1)
+        cbl.addLayout(row3)
+
+        row4 = QHBoxLayout()
+        row4.addWidget(QLabel("Channel noise (QBER baseline):"))
+        self.noise = QSlider(Qt.Horizontal); self.noise.setMinimum(0); self.noise.setMaximum(10); self.noise.setValue(2)
+        row4.addWidget(self.noise)
+        self.noise_lbl = QLabel("2%"); row4.addWidget(self.noise_lbl)
+        cbl.addLayout(row4)
+        self.noise.valueChanged.connect(lambda v: self.noise_lbl.setText(f"{v}%"))
+
+        self.gen_btn = QPushButton("Generate Quantum Key")
+        self.gen_btn.clicked.connect(self._generate_key)
+        cbl.addWidget(self.gen_btn)
+
+        self.card_key = Card("Key & Stats")
+        kbl = QVBoxLayout(self.card_key.body)
+        self.key_text = QTextEdit(); self.key_text.setReadOnly(True); self.key_text.setMaximumHeight(180)
+        kbl.addWidget(self.key_text)
+
+        self.card_controls.setMinimumWidth(380)
+        qkd.addWidget(self.card_controls, 0, 0, 1, 1)
+        qkd.addWidget(self.card_key, 1, 0, 1, 1)
+
+        # Right column: Visualization
+        self.card_viz = Card("Protocol Visualization")
+        vbl = QVBoxLayout(self.card_viz.body)
+        self.qkd_fig = Figure(figsize=(8,5))
+        self.qkd_canvas = FigureCanvas(self.qkd_fig)
+        vbl.addWidget(self.qkd_canvas)
+        qkd.addWidget(self.card_viz, 0, 1, 2, 1)
+
+        # --- ENCRYPTION TAB ---
+        self.enc_tab = QWidget(); tabs.addTab(self.enc_tab, "Quantum Encryption")
+        enc = QGridLayout(self.enc_tab); enc.setContentsMargins(16,16,16,16); enc.setHorizontalSpacing(16); enc.setVerticalSpacing(16)
+
+        self.card_msg = Card("Message")
+        mbl = QVBoxLayout(self.card_msg.body)
+        self.message_input = QLineEdit("Hello Quantum World!")
+        mbl.addWidget(self.message_input)
+        rowm = QHBoxLayout()
+        self.encrypt_btn = QPushButton("Encrypt"); self.encrypt_btn.clicked.connect(self._encrypt)
+        self.decrypt_btn = QPushButton("Decrypt"); self.decrypt_btn.clicked.connect(self._decrypt)
+        rowm.addWidget(self.encrypt_btn); rowm.addWidget(self.decrypt_btn); rowm.addStretch(1)
+        mbl.addLayout(rowm)
+
+        self.card_results = Card("Results")
+        rbl = QVBoxLayout(self.card_results.body)
+        self.results_text = QTextEdit(); self.results_text.setReadOnly(True)
+        rbl.addWidget(self.results_text)
+
+        enc.addWidget(self.card_msg, 0, 0, 1, 1)
+        enc.addWidget(self.card_results, 0, 1, 1, 1)
+
+        # --- SECURITY TAB ---
+        self.sec_tab = QWidget(); tabs.addTab(self.sec_tab, "Security Analysis")
+        sec = QGridLayout(self.sec_tab); sec.setContentsMargins(16,16,16,16)
+
+        self.card_security = Card("Analysis")
+        sbl = QVBoxLayout(self.card_security.body)
+        self.analyze_btn = QPushButton("Analyze Security"); self.analyze_btn.clicked.connect(self._analyze_security)
+        sbl.addWidget(self.analyze_btn)
+        self.security_text = QTextEdit(); self.security_text.setReadOnly(True); self.security_text.setMaximumHeight(200)
+        sbl.addWidget(self.security_text)
+
+        self.card_sec_plot = Card("Metrics")
+        spbl = QVBoxLayout(self.card_sec_plot.body)
+        self.sec_fig = Figure(figsize=(8,5)); self.sec_canvas = FigureCanvas(self.sec_fig)
+        spbl.addWidget(self.sec_canvas)
+
+        sec.addWidget(self.card_security, 0, 0, 1, 1)
+        sec.addWidget(self.card_sec_plot, 0, 1, 1, 1)
+
+        self.setStatusBar(QStatusBar())
+
+    def _apply_style(self, light=True):
+        self._light = light
+        if light:
+            qss = """
+            QMainWindow, QWidget { background:#fafafa; color:#243342; font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif; }
+            #Title { font-size:20px; font-weight:300; color:#2c3e50; }
+            #SubTitle { font-size:11px; color:#8aa0b3; }
+            QFrame#Card { border:1px solid #e9ecef; border-radius:14px; background:#ffffff; }
+            QLabel#CardTitle { color:#6c7f90; font-size:12px; letter-spacing:.4px; }
+            QLineEdit, QTextEdit { background:#ffffff; border:1px solid #e9ecef; border-radius:8px; padding:10px 12px; }
+            QPushButton { background:#f8f9fa; border:1px solid #dee2e6; border-radius:8px; padding:10px 16px; color:#495057; }
+            QPushButton:hover { background:#eef2f6; }
+            QComboBox { background:#ffffff; border:1px solid #e9ecef; border-radius:8px; padding:8px 10px; }
+            QSlider::groove:horizontal { height:6px; background:#e9ecef; border-radius:3px; }
+            QSlider::handle:horizontal { width:16px; background:#c7d2de; margin:-6px 0; border-radius:8px; }
+            """
+        else:
+            qss = """
+            QMainWindow, QWidget { background:#0f1216; color:#dfe7ef; font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif; }
+            #Title { font-size:20px; font-weight:300; color:#dfe7ef; }
+            #SubTitle { font-size:11px; color:#8aa0b3; }
+            QFrame#Card { border:1px solid #1f2a36; border-radius:14px; background:#12161b; }
+            QLabel#CardTitle { color:#8aa0b3; font-size:12px; letter-spacing:.4px; }
+            QLineEdit, QTextEdit { background:#12161b; color:#e8eff7; border:1px solid #1f2a36; border-radius:8px; padding:10px 12px; }
+            QPushButton { background:#12161b; border:1px solid #2a3847; border-radius:8px; padding:10px 16px; color:#c8d3de; }
+            QPushButton:hover { background:#17202a; }
+            QComboBox { background:#12161b; border:1px solid #1f2a36; border-radius:8px; padding:8px 10px; color:#e8eff7; }
+            QSlider::groove:horizontal { height:6px; background:#1f2a36; border-radius:3px; }
+            QSlider::handle:horizontal { width:16px; background:#2c3f51; margin:-6px 0; border-radius:8px; }
+            """
+        self.setStyleSheet(qss)
+        # Refresh plot backgrounds to match theme
+        bg = "#ffffff" if light else "#12161b"
+        fg = "#243342" if light else "#dfe7ef"
+        for fig in (self.qkd_fig, self.sec_fig):
+            fig.patch.set_facecolor(bg)
+            for ax in fig.axes:
+                ax.set_facecolor(bg)
+                ax.tick_params(colors=fg)
+                for spine in ax.spines.values():
+                    spine.set_color(fg)
+        if hasattr(self, "qkd_canvas"): self.qkd_canvas.draw_idle()
+        if hasattr(self, "sec_canvas"): self.sec_canvas.draw_idle()
+
+    def _toggle_theme(self):
+        self._apply_style(not self._light)
+
+    # ---------- QKD Core ----------
+    def _generate_key(self):
+        try:
+            L = max(64, int(self.length_input.text()))
+        except ValueError:
+            QMessageBox.warning(self, "Invalid length", "Enter an integer ≥ 64.")
+            return
+
+        protocol = self.protocol_combo.currentText()
+        baseline_noise = self.noise.value() / 100.0
+        eve = self.eavesdrop_chk.isChecked()
+
+        # Prepare 2L raw bits so that sifted ≈ L after basis sifting
+        N = 2 * L
+        rng = np.random.default_rng()
+        alice_bits = rng.integers(0, 2, N, dtype=np.uint8)
+        alice_bases = rng.integers(0, 2, N, dtype=np.uint8)  # 0 rect (+), 1 diag (×)
+        bob_bases   = rng.integers(0, 2, N, dtype=np.uint8)
+
+        # Intercept-resend (Eve): she measures in random bases, resends; mismatch introduces extra errors
+        effective_noise = baseline_noise
+        if eve:
+            # Eve’s random basis introduces ~25% extra errors on sifted portion in ideal BB84
+            effective_noise = min(0.5, baseline_noise + 0.25)
+
+        # Bob’s measurement:
+        # If bases match: Bob gets Alice's bit with prob (1 - noise), else flips with prob noise
+        # If bases mismatch: Bob's outcome random
+        bob_bits = np.empty(N, dtype=np.uint8)
+        match = (alice_bases == bob_bases)
+
+        # matched positions
+        idx_m = np.where(match)[0]
+        flips = rng.random(idx_m.size) < effective_noise
+        mbits = alice_bits[idx_m].copy()
+        mbits[flips] ^= 1
+        bob_bits[idx_m] = mbits
+
+        # mismatched positions → random
+        idx_u = np.where(~match)[0]
+        bob_bits[idx_u] = rng.integers(0, 2, idx_u.size, dtype=np.uint8)
+
+        # Sifting: keep only where bases match
+        sifted_alice = alice_bits[idx_m]
+        sifted_bob   = bob_bits[idx_m]
+
+        # Truncate to requested L
+        if sifted_alice.size < L:
+            # if unlucky, extend by generating more (for simplicity, pad and warn)
+            L_eff = sifted_alice.size
+        else:
+            L_eff = L
+            sifted_alice = sifted_alice[:L]
+            sifted_bob   = sifted_bob[:L]
+
+        # Estimate QBER on a public test subset (simulate by sampling 1/4 of bits)
+        test_n = max(16, L_eff // 4)
+        test_idx = rng.choice(L_eff, test_n, replace=False)
+        qber = float(np.mean(sifted_alice[test_idx] != sifted_bob[test_idx])) if L_eff else 0.0
+
+        # Final key (privacy amplification placeholder): drop tested bits, keep the rest
+        keep_mask = np.ones(L_eff, dtype=bool)
+        keep_mask[test_idx] = False
+        final_key_bits = sifted_alice[keep_mask]
+        self.current_key_bits = final_key_bits  # store for encryption
+
+        # Pretty print
+        key_hex = np.packbits(final_key_bits).tobytes().hex()
+        report = []
+        report.append(f"Quantum Key Distribution ({protocol})")
+        report.append("="*56)
+        report.append(f"Raw bits sent:           {N}")
+        report.append(f"Bases matched:           {idx_m.size}")
+        report.append(f"Sifted length (pre-test):{L_eff}")
+        report.append(f"Test sample size:        {test_n}")
+        report.append(f"Estimated QBER:          {qber*100:.2f}% {'(Eve ON)' if eve else ''}")
+        report.append(f"Channel noise set:       {baseline_noise*100:.1f}%")
+        report.append("")
+        report.append(f"Final key length:        {final_key_bits.size} bits")
+        report.append(f"Key (hex):               {key_hex[:128]}{'…' if len(key_hex)>128 else ''}")
+        report.append("")
+        report.append("Note: Educational simulator. Real QKD requires authentication & PA proofs.")
+        self.key_text.setPlainText("\n".join(report))
+
+        # Visualization (first 64 raw positions)
+        self._plot_qkd(alice_bits, alice_bases, bob_bases, match, idx_m, sifted_alice, sifted_bob, L_eff, qber)
+
+        self.statusBar().showMessage(f"Key ready • {final_key_bits.size} bits • QBER ≈ {qber*100:.2f}%")
+
+    def _plot_qkd(self, alice_bits, alice_bases, bob_bases, match_mask, idx_m, sifted_a, sifted_b, L_eff, qber):
+        self.qkd_fig.clear()
+        n_show = min(64, alice_bits.size)
+        x = np.arange(n_show)
+
+        ax1 = self.qkd_fig.add_subplot(3, 1, 1)
+        ax1.bar(x, alice_bits[:n_show], color=("#1976d2" if self._light else "#7dc4ff"), alpha=0.85)
+        ax1.set_title("Alice’s Random Bits"); ax1.set_ylim(-0.1, 1.1); ax1.set_yticks([0,1]); ax1.grid(True, alpha=0.15)
+
+        ax2 = self.qkd_fig.add_subplot(3, 1, 2)
+        colors = [("#e53935" if match_mask[i] else "#9e9e9e") for i in range(n_show)]
+        ax2.bar(x, alice_bases[:n_show], color=colors, alpha=0.8)
+        ax2.set_title("Bases (+=0, ×=1) — red = matched"); ax2.set_ylim(-0.1, 1.1); ax2.set_yticks([0,1]); ax2.grid(True, alpha=0.15)
+
+        ax3 = self.qkd_fig.add_subplot(3, 1, 3)
+        if L_eff > 0:
+            show = min(L_eff, 64)
+            sx = np.arange(show)
+            ax3.bar(sx, sifted_a[:show], color=("#43a047" if self._light else "#27c27a"), alpha=0.85)
+            ax3.set_title(f"Sifted Key (first {show}) • QBER≈{qber*100:.2f}%")
+            ax3.set_ylim(-0.1, 1.1); ax3.set_yticks([0,1]); ax3.grid(True, alpha=0.15)
+        self._sync_axes_style([ax1, ax2, ax3])
+        self.qkd_canvas.draw_idle()
+
+    def _sync_axes_style(self, axes):
+        bg = "#ffffff" if self._light else "#12161b"
+        fg = "#243342" if self._light else "#dfe7ef"
+        for ax in axes:
+            ax.set_facecolor(bg)
+            ax.tick_params(colors=fg)
+            ax.title.set_color(fg)
+            for spine in ax.spines.values():
+                spine.set_color(fg)
+
+    # ---------- Key export/copy ----------
+    def _copy_key(self):
+        if self.current_key_bits is None or self.current_key_bits.size == 0:
+            self.statusBar().showMessage("No key to copy")
+            return
+        key_hex = np.packbits(self.current_key_bits).tobytes().hex()
+        QGuiApplication.clipboard().setText(key_hex)
+        self.statusBar().showMessage("Key copied to clipboard")
+
+    def _save_key(self):
+        if self.current_key_bits is None or self.current_key_bits.size == 0:
+            self.statusBar().showMessage("No key to export")
+            return
+        key_hex = np.packbits(self.current_key_bits).tobytes().hex()
+        path, _ = QFileDialog.getSaveFileName(self, "Export Key", "quantum_key.hex", "Hex Files (*.hex);;All Files (*)")
+        if path:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(key_hex+"\n")
+            self.statusBar().showMessage(f"Key exported: {path}")
+
+    # ---------- Encryption demo ----------
+    @staticmethod
+    def _expand_key_stream(key_bits: np.ndarray, length: int) -> bytes:
+        """Deterministic stream expansion using SHA-256 (educational)."""
+        seed = hashlib.sha256(np.packbits(key_bits).tobytes()).digest()
+        out = bytearray()
+        block = seed
+        while len(out) < length:
+            block = hashlib.sha256(block).digest()
+            out.extend(block)
+        return bytes(out[:length])
+
+    def _encrypt(self):
+        if self.current_key_bits is None or self.current_key_bits.size == 0:
+            self._generate_key()  # auto-generate if missing
+            if self.current_key_bits is None or self.current_key_bits.size == 0:
+                return
+        msg = self.message_input.text().encode("utf-8")
+        keystream = self._expand_key_stream(self.current_key_bits, len(msg))
+        ct = bytes(a ^ b for a, b in zip(msg, keystream))
+        self.encrypted_data = ct
+        out = []
+        out.append("Quantum-style OTP (educational)")
+        out.append("="*32)
+        out.append(f"Plaintext:  {msg.decode('utf-8')}")
+        out.append(f"Length:     {len(msg)} bytes")
+        out.append(f"Key bits:   {self.current_key_bits.size}")
+        out.append(f"Ciphertext: {ct.hex()}")
+        self.results_text.setPlainText("\n".join(out))
+        self.statusBar().showMessage("Encrypted with expanded stream from QKD key")
+
+    def _decrypt(self):
+        if self.encrypted_data is None:
+            self.results_text.setPlainText("Encrypt a message first.")
+            return
+        if self.current_key_bits is None or self.current_key_bits.size == 0:
+            self.results_text.setPlainText("No key available.")
+            return
+        keystream = self._expand_key_stream(self.current_key_bits, len(self.encrypted_data))
+        pt = bytes(a ^ b for a, b in zip(self.encrypted_data, keystream))
+        try:
+            txt = pt.decode("utf-8")
+        except UnicodeDecodeError:
+            txt = repr(pt)
+        out = []
+        out.append("Decryption")
+        out.append("="*32)
+        out.append(f"Ciphertext: {self.encrypted_data.hex()}")
+        out.append(f"Key bits:   {self.current_key_bits.size}")
+        out.append(f"Plaintext:  {txt}")
+        self.results_text.setPlainText("\n".join(out))
+        self.statusBar().showMessage("Decryption complete")
+
+    # ---------- Security Analysis ----------
+    def _analyze_security(self):
+        # Illustrative static analysis text + synthetic plots
+        txt = []
+        txt.append("Quantum Cryptographic Security Analysis")
+        txt.append("="*56)
+        txt.append("Theoretical Guarantees:")
+        txt.append("• Information-theoretic confidentiality (ideal one-time pad with fresh key)")
+        txt.append("• Eavesdropping detectability via basis disturbance")
+        txt.append("• No-cloning theorem and measurement disturbance apply")
+        txt.append("")
+        txt.append("Caveats in this demo:")
+        txt.append("• Educational simulator (no authenticated classical channel)")
+        txt.append("• Privacy amplification modeled as dropping test bits")
+        txt.append("• Real deployments need formal finite-key proofs & authentication")
+        self.security_text.setPlainText("\n".join(txt))
+
+        # Synthetic metrics
+        self.sec_fig.clear()
+        ax1 = self.sec_fig.add_subplot(3, 1, 1)
+        x = np.linspace(0, 100, 120)
+        baseline = (self.noise.value()/100.0)
+        eve = self.eavesdrop_chk.isChecked()
+        qber = baseline + (0.25 if eve else 0.0)
+        qber_series = np.clip(qber + 0.01*np.sin(0.2*x), 0, 0.5)
+        ax1.plot(x, qber_series*100, '-', lw=2, color=("#e53935" if self._light else "#ff8080"))
+        ax1.axhline(11, ls='--', color='#e53935', alpha=0.6)
+        ax1.set_ylabel('QBER (%)'); ax1.set_title('Quantum Bit Error Rate'); ax1.grid(True, alpha=0.2)
+
+        ax2 = self.sec_fig.add_subplot(3, 1, 2)
+        key_rate = 1000*np.exp(-3*qber_series) + 30*np.sin(0.1*x)
+        ax2.plot(x, key_rate, '-', lw=2, color=("#43a047" if self._light else "#27c27a"))
+        ax2.set_ylabel('Key Rate (bps)'); ax2.set_title('Secure Key Generation Rate'); ax2.grid(True, alpha=0.2)
+
+        ax3 = self.sec_fig.add_subplot(3, 1, 3)
+        sec_param = np.maximum(0, 160 - 600*qber_series)  # illustrative “security bits”
+        ax3.plot(x, sec_param, '-', lw=2, color=("#1976d2" if self._light else "#7dc4ff"))
+        ax3.axhline(128, ls='--', color=("#1976d2" if self._light else "#7dc4ff"), alpha=0.6)
+        ax3.set_xlabel('Time'); ax3.set_ylabel('Security Bits'); ax3.set_title('Security Parameter'); ax3.grid(True, alpha=0.2)
+
+        self._sync_axes_style([ax1, ax2, ax3])
+        self.sec_canvas.draw_idle()
+
+
+# ---------- Entrypoint ----------
 def main():
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     app = QApplication(sys.argv)
-    window = QuantumCrypto()
-    window.show()
-    return app.exec_()
+    app.setApplicationName("QuantoniumOS • Quantum Crypto")
+    app.setFont(QFont("Segoe UI", 10))
+    w = QuantumCrypto()
+    w.show()
+    return app.exec()
 
 if __name__ == "__main__":
     sys.exit(main())

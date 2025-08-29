@@ -1,0 +1,27 @@
+Luis Minier — 2025
+
+---
+
+## `examples/01_unitarity_check.py`
+
+```python
+from ASSEMBLY.python_bindings.unitary_rft import UnitaryRFT
+import numpy as np
+
+# Initialize engine
+rft = UnitaryRFT()
+rft.init_quantum_basis(8)
+
+# Random complex signal
+x = np.random.randn(8) + 1j*np.random.randn(8)
+
+# Forward + Inverse
+y = rft.forward(x)
+x_rec = rft.inverse(y)
+
+# Check reconstruction & norm preservation
+error = np.linalg.norm(x - x_rec)
+norm_ratio = np.linalg.norm(y) / np.linalg.norm(x)
+
+print("Reconstruction error:", error)
+print("Norm ratio:", norm_ratio)
