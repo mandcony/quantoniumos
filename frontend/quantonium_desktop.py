@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QGraphicsView, QGraphics
 from PyQt5.QtCore import Qt, QTimer, QRectF, QPointF, QPropertyAnimation, QEasingCurve
 from PyQt5.QtGui import (QPalette, QColor, QFont, QPainter, QPen, QBrush, QCursor, 
                         QLinearGradient, QRadialGradient)
+from PyQt5.QtSvg import QSvgWidget, QGraphicsSvgItem
 
 class QuantoniumDesktop(QMainWindow):
     def __init__(self):
@@ -31,6 +32,9 @@ class QuantoniumDesktop(QMainWindow):
         screen = QDesktopWidget().screenGeometry()
         self.base_unit = min(screen.width(), screen.height()) / (self.phi ** 6)  # Mathematical base
         
+        # Theme state
+        self.is_dark_theme = True  # Start with dark theme by default
+        
         # Scientific minimal color scheme
         self.bg_color = "#fafafa"  # Ultra light background
         self.primary_color = "#2c3e50"  # Deep blue-gray
@@ -43,6 +47,9 @@ class QuantoniumDesktop(QMainWindow):
         # Remove window frame and make it fullscreen
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.showMaximized()
+        
+        # Load the appropriate stylesheet
+        self.load_styles()
         
         # Create graphics view and scene
         self.view = QGraphicsView(self)
@@ -68,6 +75,7 @@ class QuantoniumDesktop(QMainWindow):
         self.quantum_logo = self.create_quantum_logo()
         self.system_time = self.create_system_time()
         self.system_status = self.create_system_status()
+        self.theme_toggle = self.create_theme_toggle()
         
         # Initialize timer
         self.timer = QTimer(self)
@@ -166,6 +174,43 @@ class QuantoniumDesktop(QMainWindow):
         self.scene.addItem(time_text)
         return time_text
         
+    def create_theme_toggle(self):
+        """Create theme toggle button"""
+        screen = QDesktopWidget().screenGeometry()
+        
+        # Create a button for theme toggle
+        theme_btn = QPushButton()
+        theme_btn.setFixedSize(40, 40)
+        theme_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        
+        # Set icon and tooltip based on current theme
+        icon_text = "🌙" if self.is_dark_theme else "☀️"
+        theme_btn.setText(icon_text)
+        theme_btn.setToolTip("Switch to Light Mode" if self.is_dark_theme else "Switch to Dark Mode")
+        
+        # Style the button
+        theme_btn.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 20px;
+                color: white;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+            }
+        """)
+        
+        # Connect the button to the theme toggle function
+        theme_btn.clicked.connect(self.toggle_theme)
+        
+        # Add to scene
+        theme_proxy = self.scene.addWidget(theme_btn)
+        theme_proxy.setPos(screen.width() - 60, 20)  # Top-right corner
+        
+        return theme_proxy
+        
     def create_system_status(self):
         """Create mathematically precise system status using Golden Ratio"""
         screen = QDesktopWidget().screenGeometry()
@@ -214,6 +259,34 @@ class QuantoniumDesktop(QMainWindow):
     def update_time(self):
         current_time = datetime.now().strftime("%H:%M")
         self.system_time.setPlainText(current_time)
+    
+    def load_styles(self):
+        """Load the appropriate stylesheet based on theme"""
+        base_path = os.path.dirname(os.path.dirname(__file__))
+        
+        if self.is_dark_theme:
+            qss_path = os.path.join(base_path, "ui", "styles_dark.qss")
+        else:
+            qss_path = os.path.join(base_path, "ui", "styles_light.qss")
+        
+        if os.path.exists(qss_path):
+            with open(qss_path, 'r') as f:
+                self.setStyleSheet(f.read())
+        else:
+            print(f"Warning: Theme file not found at {qss_path}")
+    
+    def toggle_theme(self):
+        """Toggle between light and dark themes"""
+        self.is_dark_theme = not self.is_dark_theme
+        self.load_styles()
+        
+        # Update status with theme change
+        theme_name = "DARK" if self.is_dark_theme else "LIGHT"
+        self.system_status.setPlainText(f"THEME: {theme_name}")
+        
+        # Reset status after delay using golden ratio timing
+        reset_delay = int(self.phi * 1000)  # φ seconds in milliseconds
+        QTimer.singleShot(reset_delay, lambda: self.system_status.setPlainText("QUANTONIUMOS"))
     
     def load_scientific_apps(self):
         """Load applications with scientific metadata"""
@@ -394,6 +467,42 @@ class QuantoniumDesktop(QMainWindow):
                     background-color: rgba(52, 152, 219, 0.1);
                 }}
             """)
+            
+            # Add SVG icon to button
+            icon_name = ""
+            if "RFT Validation" in config_key:
+                icon_name = "rft_validator.svg"
+            elif "RFT Visual" in config_key:
+                icon_name = "rft_visualizer.svg"
+            elif "Quantum Simulator" in config_key:
+                icon_name = "quantum_simulator.svg"
+            elif "Quantum Crypto" in config_key:
+                icon_name = "quantum_crypto.svg"
+            elif "System Monitor" in config_key:
+                icon_name = "system_monitor.svg"
+            elif "Q-Notes" in config_key:
+                icon_name = "q_notes.svg"
+            elif "Q-Vault" in config_key:
+                icon_name = "q_vault.svg"
+            
+            # Create SVG widget and add to button layout
+            if icon_name:
+                icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui", "icons", icon_name)
+                if os.path.exists(icon_path):
+                    svg_widget = QSvgWidget(icon_path)
+                    svg_widget.setFixedSize(button_size - 20, button_size - 20)  # Smaller than button for padding
+                    
+                    # Create a layout for the button to center the SVG
+                    layout = app_btn.layout()
+                    if not layout:
+                        from PyQt5.QtWidgets import QVBoxLayout
+                        layout = QVBoxLayout(app_btn)
+                        layout.setContentsMargins(10, 10, 10, 10)
+                        layout.setAlignment(Qt.AlignCenter)
+                    
+                    layout.addWidget(svg_widget)
+                else:
+                    print(f"Icon not found: {icon_path}")
             
             app_btn.setText("")  # No text on button itself
             app_btn.clicked.connect(lambda checked, path=app["path"], name=app["name"]: 

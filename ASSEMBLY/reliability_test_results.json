@@ -1,0 +1,42 @@
+{
+  "memory_stability": {
+    "initial_memory_mb": 30.08984375,
+    "final_memory_mb": 33.4765625,
+    "memory_growth_mb": 3.38671875,
+    "memory_stable": true,
+    "iterations": 107,
+    "test_duration_minutes": 0.9
+  },
+  "performance_consistency": {
+    "baseline_time_ms": 0.03548999666236341,
+    "max_degradation_percent": 91.32151412097652,
+    "mean_degradation_percent": 11.712222823293844,
+    "performance_stable": "False",
+    "iterations": 27,
+    "test_duration_minutes": 0.9
+  },
+  "concurrent_operations": {
+    "thread_count": 4,
+    "total_operations": 13909,
+    "total_errors": 0,
+    "error_rate": 0.0,
+    "throughput_ops_per_second": 386.2362068363043,
+    "concurrent_stable": true,
+    "test_duration_minutes": 0.6001940329869588
+  },
+  "system_stability": {
+    "initial_cpu_percent": 3.5,
+    "initial_memory_percent": 89.7,
+    "cpu_stable": true,
+    "memory_stable": true,
+    "system_stable": true,
+    "samples_collected": 8,
+    "test_duration_minutes": 0.6
+  },
+  "test_summary": {
+    "start_time": "2025-09-01T18:51:18.785763",
+    "end_time": "2025-09-01T18:54:23.842752",
+    "actual_duration_hours": 0.05140471916666666,
+    "planned_duration_hours": 0.05
+  }
+}

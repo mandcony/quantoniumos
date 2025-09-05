@@ -1,0 +1,1 @@
+SyntaxError: Non-UTF-8 code starting with '\x86' in file C:\quantoniumos-1\ASSEMBLY\formal_mathematical_validation.py on line 59, but no encoding declared; see https://peps.python.org/pep-0263/ for details

@@ -349,7 +349,14 @@ class RFTVisualizer(AppWindow):
             X, Y = np.meshgrid(x, y)
             Z = np.zeros_like(X)
             
-            self.field_contour = self.field_ax.contourf(X, Y, Z, cmap='viridis')
+            # Initialize the contour plot
+            try:
+                self.field_contour = self.field_ax.contourf(X, Y, Z, cmap='viridis')
+            except Exception as e:
+                print(f"Warning: Could not create initial contour plot: {e}")
+                # Create a fallback plot
+                self.field_contour = None
+            
             self.field_ax.set_xlabel('X', color='white')
             self.field_ax.set_ylabel('Y', color='white')
             self.field_ax.set_title('Field Visualization', color='white')
@@ -442,8 +449,24 @@ class RFTVisualizer(AppWindow):
                 Z = strength * np.exp(-(X**2 + Y**2) / 4) * (np.cos(X**2 - Y**2) + np.sin(X*Y))
         
         # Update the plot
-        for coll in self.field_contour.collections:
-            coll.remove()
+        try:
+            # Try to remove old contour collections if they exist
+            if hasattr(self.field_contour, 'collections'):
+                for coll in self.field_contour.collections:
+                    coll.remove()
+            else:
+                # Clear the axes and redraw from scratch
+                self.field_ax.clear()
+                self.field_ax.set_title(f"{field_type.capitalize()} Field")
+                self.field_ax.set_xlabel("X")
+                self.field_ax.set_ylabel("Y")
+        except Exception as e:
+            print(f"Warning: Could not clear previous contour: {e}")
+            self.field_ax.clear()
+            self.field_ax.set_title(f"{field_type.capitalize()} Field")
+            self.field_ax.set_xlabel("X")
+            self.field_ax.set_ylabel("Y")
+            
         self.field_contour = self.field_ax.contourf(X, Y, Z, cmap='viridis')
         self.field_canvas.draw()
 

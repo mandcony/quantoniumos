@@ -1,0 +1,1 @@
+SyntaxError: Non-UTF-8 code starting with '\xb0' in file C:\quantoniumos-1\ASSEMBLY\hardware_validation_tests.py on line 375, but no encoding declared; see https://peps.python.org/pep-0263/ for details

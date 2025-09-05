@@ -133,7 +133,7 @@ class AppWindow(QMainWindow):
         # Set the window icon
         if HAS_QTAWESOME:
             icon = qta.icon(app_icon, color='white')
-            self.setIcon(icon)
+            self.setWindowIcon(icon)
         
         # Set the window style
         self.setStyleSheet("""

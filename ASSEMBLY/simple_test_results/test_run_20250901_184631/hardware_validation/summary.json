@@ -1,0 +1,11 @@
+{
+  "description": "Hardware compatibility tests",
+  "script": "../simple_hardware_validation.py",
+  "duration_seconds": 0.5540754795074463,
+  "return_code": 0,
+  "stdout": "============================================================\nQUANTONIUMOS HARDWARE VALIDATION\n============================================================\n\nSYSTEM COMPATIBILITY:\n  Operating System: Windows\n  Architecture: AMD64\n  Python Version: 3.12.9\n  x86-64 Compatible: True\n\nCPU VALIDATION:\n  Physical Cores: 6\n  Logical Cores: 12\n  Max Frequency: 2301 MHz\n\nMEMORY VALIDATION:\n  Total RAM: 7.35 GB\n  Available RAM: 0.58 GB\n  Memory Usage: 92.0%\n  Sufficient Memory: True\n\nPERFORMANCE VALIDATION:\n  Running performance tests...\n  Memory Bandwidth: 3656.4 MB/s\n  SIMD Speedup: 7.3x\n  Performance Adequate: True\n\n============================================================\nVALIDATION SUMMARY\n============================================================\nQuantoniumOS Compatibility: COMPATIBLE\n\nDETAILS:\n- Architecture: OK\n- Memory: OK\n- Performance: OK\n\nDetailed results saved to: hardware_validation_results.json\n\n============================================================\nHARDWARE VALIDATION COMPLETE\n============================================================\n",
+  "stderr": "",
+  "success": true,
+  "start_time": "2025-09-01T18:46:31.704271",
+  "end_time": "2025-09-01T18:46:32.258347"
+}

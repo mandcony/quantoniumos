@@ -13,7 +13,7 @@ from typing import List, Dict, Tuple, Optional, Union, Any
 class TopologicalQuantumKernel:
     """
     Advanced quantum kernel that implements topological quantum operations
-    for fault-tolerant quantum computing.
+    for fault-tolerant quantum computing with enhanced topological data structures.
     """
     
     def __init__(self, code_distance: int = 3, logical_qubits: int = 2):
@@ -27,13 +27,100 @@ class TopologicalQuantumKernel:
         # Initialize the quantum state
         self.state = self._initialize_state()
         
+        # Initialize enhanced topological qubits
+        self.topological_qubits = {}
+        self._initialize_enhanced_topology()
+        
         # Load RFT integration if available
         self.rft_enabled = False
         self._load_rft()
         
-        print(f"Topological Quantum Kernel initialized with {logical_qubits} logical qubits")
+        print(f"Enhanced Topological Quantum Kernel initialized with {logical_qubits} logical qubits")
         print(f"Code distance: {code_distance}, Physical qubits: {self.physical_qubits}")
+        print(f"Enhanced topological qubits: {len(self.topological_qubits)}")
     
+    def _initialize_enhanced_topology(self):
+        """Initialize enhanced topological qubit structures."""
+        try:
+            # Import the enhanced topological qubit class
+            from enhanced_topological_qubit import EnhancedTopologicalQubit
+            
+            # Create enhanced topological qubits for each logical qubit
+            for i in range(self.logical_qubits):
+                vertices_per_qubit = max(100, self.physical_qubits // self.logical_qubits)
+                enhanced_qubit = EnhancedTopologicalQubit(
+                    qubit_id=i, 
+                    num_vertices=vertices_per_qubit
+                )
+                self.topological_qubits[i] = enhanced_qubit
+            
+            print(f"✅ Enhanced topology initialized with {len(self.topological_qubits)} qubits")
+            
+        except ImportError as e:
+            print(f"⚠️  Enhanced topological qubits not available: {e}")
+            self.topological_qubits = {}
+
+    def apply_topological_braiding(self, qubit_id: int, vertex_a: int, vertex_b: int, clockwise: bool = True) -> np.ndarray:
+        """Apply topological braiding operation to a specific qubit."""
+        if qubit_id not in self.topological_qubits:
+            raise ValueError(f"Topological qubit {qubit_id} not available")
+        
+        enhanced_qubit = self.topological_qubits[qubit_id]
+        return enhanced_qubit.apply_braiding_operation(vertex_a, vertex_b, clockwise)
+
+    def encode_on_topological_edge(self, qubit_id: int, edge_id: str, data: np.ndarray) -> str:
+        """Encode data on a topological edge of a specific qubit."""
+        if qubit_id not in self.topological_qubits:
+            raise ValueError(f"Topological qubit {qubit_id} not available")
+        
+        enhanced_qubit = self.topological_qubits[qubit_id]
+        return enhanced_qubit.encode_data_on_edge(edge_id, data)
+
+    def apply_surface_code_correction(self, qubit_id: Optional[int] = None) -> Dict[str, Any]:
+        """Apply surface code error correction to one or all qubits."""
+        if qubit_id is not None:
+            if qubit_id not in self.topological_qubits:
+                raise ValueError(f"Topological qubit {qubit_id} not available")
+            return self.topological_qubits[qubit_id].apply_error_correction()
+        else:
+            # Apply to all qubits
+            results = {}
+            for qid, qubit in self.topological_qubits.items():
+                results[qid] = qubit.apply_error_correction()
+            return results
+
+    def measure_topological_invariants(self, qubit_id: int) -> Dict[str, float]:
+        """Measure topological invariants for a specific qubit."""
+        if qubit_id not in self.topological_qubits:
+            raise ValueError(f"Topological qubit {qubit_id} not available")
+        
+        enhanced_qubit = self.topological_qubits[qubit_id]
+        return {
+            'total_winding': enhanced_qubit.measure_topological_invariant('total_winding'),
+            'euler_characteristic': enhanced_qubit.measure_topological_invariant('euler_characteristic'),
+            'total_berry_phase': enhanced_qubit.measure_topological_invariant('total_berry_phase'),
+            'chern_number': enhanced_qubit.measure_topological_invariant('chern_number')
+        }
+
+    def get_topological_kernel_status(self) -> Dict[str, Any]:
+        """Get comprehensive status of the topological kernel."""
+        status = {
+            'kernel_type': 'Enhanced Topological Quantum Kernel',
+            'logical_qubits': self.logical_qubits,
+            'physical_qubits': self.physical_qubits,
+            'code_distance': self.code_distance,
+            'rft_enabled': self.rft_enabled,
+            'enhanced_qubits_count': len(self.topological_qubits),
+            'global_state_norm': float(np.linalg.norm(self.state)),
+            'enhanced_qubit_details': {}
+        }
+        
+        # Get status from each enhanced qubit
+        for qid, qubit in self.topological_qubits.items():
+            status['enhanced_qubit_details'][qid] = qubit.get_topological_status()
+        
+        return status
+
     def _calculate_physical_qubits(self) -> int:
         """Calculate the number of physical qubits needed for the surface code"""
         # In a surface code, for code distance d and l logical qubits

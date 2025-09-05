@@ -1,0 +1,1 @@
+SyntaxError: Non-UTF-8 code starting with '\xb1' in file C:\quantoniumos-1\ASSEMBLY\long_term_reliability_tests.py on line 191, but no encoding declared; see https://peps.python.org/pep-0263/ for details

@@ -1,5 +1,6 @@
 /* QuantoniumOS - Original Sleek Design */
-/* Minimal, cream-colored, professional styling */
+/* This is a reference file that points to either the light or dark theme */
+/* For real styling, see styles_light.qss and styles_dark.qss */
 
 QMainWindow {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,

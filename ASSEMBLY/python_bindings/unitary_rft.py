@@ -58,6 +58,8 @@ class UnitaryRFT:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         lib_paths = [
             # First check the compiled directory (actual location)
+            os.path.join(script_dir, "..", "compiled", "rftkernel.dll"),
+            os.path.join(script_dir, "..", "compiled", "rftkernel.so"),
             os.path.join(script_dir, "..", "compiled", "librftkernel.dll"),
             os.path.join(script_dir, "..", "compiled", "librftkernel.so"),
             # Then fallback to other possible locations
@@ -101,6 +103,24 @@ class UnitaryRFT:
                                                                 POINTER(c_double),
                                                                 c_size_t]
                         lib.rft_entanglement_measure.restype = c_int
+                        
+                        # New mathematical validation functions
+                        lib.rft_von_neumann_entropy.argtypes = [POINTER(RFTEngine), 
+                                                              POINTER(RFTComplex),
+                                                              POINTER(c_double),
+                                                              c_size_t]
+                        lib.rft_von_neumann_entropy.restype = c_int
+                        
+                        lib.rft_validate_bell_state.argtypes = [POINTER(RFTEngine),
+                                                              POINTER(RFTComplex),
+                                                              POINTER(c_double),
+                                                              c_double]
+                        lib.rft_validate_bell_state.restype = c_int
+                        
+                        lib.rft_validate_golden_ratio_properties.argtypes = [POINTER(RFTEngine),
+                                                                           POINTER(c_double),
+                                                                           c_double]
+                        lib.rft_validate_golden_ratio_properties.restype = c_int
                     except AttributeError as func_error:
                         print(f"Warning: Some RFT functions not available in {lib_path}: {func_error}")
                         # Still return the library for basic functionality
@@ -237,6 +257,92 @@ class UnitaryRFT:
             raise RuntimeError(f"Entanglement measurement failed: error code {result}")
         
         return measure.value
+
+    def von_neumann_entropy(self, state: np.ndarray) -> float:
+        """Compute von Neumann entropy of a quantum state.
+        
+        Args:
+            state: Quantum state vector
+        
+        Returns:
+            Von Neumann entropy S = -Tr(ρ log₂ ρ)
+        
+        Raises:
+            RuntimeError: If calculation fails
+        """
+        if len(state) != self.size:
+            raise ValueError(f"State size must be {self.size}")
+        
+        # Convert numpy array to C array
+        state_c = (RFTComplex * self.size)()
+        for i in range(self.size):
+            state_c[i].real = state[i].real
+            state_c[i].imag = state[i].imag
+        
+        # Prepare output variable
+        entropy = c_double()
+        
+        # Call C function
+        result = self.lib.rft_von_neumann_entropy(self.engine, state_c, 
+                                                 entropy, self.size)
+        if result != 0:
+            raise RuntimeError(f"Entropy calculation failed: error code {result}")
+        
+        return entropy.value
+
+    def validate_bell_state(self, bell_state: np.ndarray, tolerance: float = 0.1) -> tuple[float, bool]:
+        """Validate Bell state entanglement properties.
+        
+        Args:
+            bell_state: Bell state to validate
+            tolerance: Tolerance for validation
+        
+        Returns:
+            Tuple of (measured_entanglement, is_valid)
+        
+        Raises:
+            RuntimeError: If validation fails
+        """
+        if len(bell_state) != self.size:
+            raise ValueError(f"State size must be {self.size}")
+        
+        # Convert numpy array to C array
+        state_c = (RFTComplex * self.size)()
+        for i in range(self.size):
+            state_c[i].real = bell_state[i].real
+            state_c[i].imag = bell_state[i].imag
+        
+        # Prepare output variable
+        measured_entanglement = c_double()
+        
+        # Call C function
+        result = self.lib.rft_validate_bell_state(self.engine, state_c, 
+                                                 measured_entanglement, tolerance)
+        
+        is_valid = (result == 0)
+        return measured_entanglement.value, is_valid
+
+    def validate_golden_ratio_properties(self, tolerance: float = 0.1) -> tuple[float, bool]:
+        """Validate golden ratio properties in the transform matrix.
+        
+        Args:
+            tolerance: Tolerance for validation
+        
+        Returns:
+            Tuple of (phi_presence, has_golden_ratio_properties)
+        
+        Raises:
+            RuntimeError: If validation fails
+        """
+        # Prepare output variable
+        phi_presence = c_double()
+        
+        # Call C function
+        result = self.lib.rft_validate_golden_ratio_properties(self.engine, 
+                                                              phi_presence, tolerance)
+        
+        has_properties = (result == 0)
+        return phi_presence.value, has_properties
 
 
 # Example usage
