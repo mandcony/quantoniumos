@@ -1,0 +1,10 @@
+{
+  "build": {
+    "kernel_source_dir": "ASSEMBLY/kernel",
+    "kernel_build_dir": "ASSEMBLY/build", 
+    "python_bindings_dir": "ASSEMBLY/python_bindings",
+    "target_name": "librftkernel",
+    "compiler": "gcc",
+    "compiler_flags": ["-O3", "-fPIC", "-shared"]
+  }
+}
