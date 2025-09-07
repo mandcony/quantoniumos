@@ -168,3 +168,19 @@ output.log
 
 # Ignore Personal AI directory
 personalAi/
+
+# AI and Machine Learning Files - Keep Private
+weights/
+*_ai_*.py
+*_ai_*.json
+quantonium_ai_intelligence_analysis.py
+quantonium_complete_ai_safety_analysis.py
+complete_ai_safety_report.json
+gpt_oss_120b_*
+*llama*
+*_quantum_states.json
+*streaming*integrator*
+*weight*merger*
+*organized/*
+*inference_patterns*
+*conversational_intelligence*
