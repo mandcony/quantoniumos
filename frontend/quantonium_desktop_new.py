@@ -424,12 +424,26 @@ class QuantoniumDesktop(QMainWindow):
             
             # Launch with proper environment
             base_dir = os.path.dirname(os.path.dirname(__file__))
-            process = subprocess.Popen(
-                [sys.executable, app_path], 
-                cwd=base_dir,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
+            
+            # For RFT Visualizer, use special handling to prevent conflicts
+            if "rft_visualizer" in app_path.lower():
+                # Use detached process for GUI apps to prevent blocking
+                import subprocess
+                process = subprocess.Popen(
+                    [sys.executable, app_path], 
+                    cwd=base_dir,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == 'win32' else 0
+                )
+            else:
+                # Standard launch for other apps
+                process = subprocess.Popen(
+                    [sys.executable, app_path], 
+                    cwd=base_dir,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
             
             print(f"Successfully launched {app_name} (PID: {process.pid})")
             
@@ -439,6 +453,8 @@ class QuantoniumDesktop(QMainWindow):
             
         except Exception as e:
             print(f"Error launching {app_name}: {e}")
+            import traceback
+            traceback.print_exc()
             self.system_status.setPlainText("LAUNCH ERROR")
             QTimer.singleShot(int(self.phi_sq * 1000), lambda: self.system_status.setPlainText("QUANTONIUMOS"))
     

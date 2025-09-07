@@ -18,7 +18,7 @@ from PyQt5.QtGui import QFont, QPainter, QPen, QBrush, QColor
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLabel, QPushButton, QComboBox, QLineEdit, QTableWidget, QTableWidgetItem,
-    QSplitter, QFrame, QMessageBox, QStatusBar
+    QSplitter, QFrame, QMessageBox, QStatusBar, QDialog, QSlider, QTextEdit
 )
 
 # --- Optional RFT probe ---
@@ -29,6 +29,17 @@ try:
     RFT_AVAILABLE = True
 except Exception:
     RFT_AVAILABLE = False
+
+# --- Optional Matplotlib backend (GUI-safe) -----------------------------------
+try:
+    import matplotlib
+    matplotlib.use("Qt5Agg")
+    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+    from matplotlib.figure import Figure
+    import numpy as np
+    HAS_MPL = True
+except Exception:
+    HAS_MPL = False
 
 
 # ---------- Small helpers ----------
@@ -228,6 +239,12 @@ class SystemMonitor(QMainWindow):
         rbl.addWidget(self.rft_status)
         self.rft_note = QLabel("unitary_rft bindings detected" if RFT_AVAILABLE else "Python bindings not found")
         rbl.addWidget(self.rft_note)
+        
+        # Add RFT Visualizer button
+        self.rft_viz_btn = QPushButton("🌊 RFT Visualizer")
+        self.rft_viz_btn.clicked.connect(self.show_rft_visualizer)
+        rbl.addWidget(self.rft_viz_btn)
+        
         lg.addWidget(self.rft_card, 3, 0, 1, 2)
 
         split.addWidget(left)
@@ -423,6 +440,295 @@ class SystemMonitor(QMainWindow):
     def _filter_processes(self):
         # handled in update; just trigger immediate refresh
         self._update_processes()
+    
+    def show_rft_visualizer(self):
+        """Show the RFT visualizer as a popup dialog"""
+        dialog = RFTVisualizerDialog(self)
+        dialog.exec_()
+
+
+# ---------- RFT Visualizer Dialog ----------
+class RFTVisualizerDialog(QDialog):
+    """3D RFT Visualizer popup window integrated into System Monitor"""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("RFT Visualizer - 3D Recursive Wave Engine")
+        self.setGeometry(200, 200, 1200, 700)
+        self.setModal(False)  # Allow interaction with parent window
+        
+        # State
+        self.dark_mode = False
+        self.time_step = 0.0
+        self.recursive_depth = 5
+        self.frequency = 1.0
+        self.amplitude = 1.0
+        self.wave_speed = 0.5
+        self.quantum_coupling = 0.618
+
+        # Timer (do NOT start yet—avoid race before canvas exists)
+        self.timer = QTimer(self)
+        self.timer.setInterval(50)
+        self.timer.timeout.connect(self.update_visualization)
+
+        # UI
+        self.figure = None
+        self.ax = None
+        self.canvas = None
+
+        self.init_ui()
+        self.apply_theme()
+
+        # Start timer only after UI is fully ready and canvas exists
+        if HAS_MPL and self.canvas is not None and self.ax is not None:
+            self.timer.start()
+
+    # --------------------------- UI ------------------------------------------
+    def init_ui(self):
+        root = QHBoxLayout(self)
+        root.setSpacing(0)
+        root.setContentsMargins(0, 0, 0, 0)
+
+        # Left panel
+        left = QWidget()
+        left.setFixedWidth(280)
+        left.setObjectName("LeftPanel")
+        lyt = QVBoxLayout(left)
+        lyt.setContentsMargins(20, 20, 20, 20)
+        lyt.setSpacing(15)
+
+        title = QLabel("RFT Visualizer")
+        title.setObjectName("Title")
+        lyt.addWidget(title)
+
+        subtitle = QLabel("3D Recursive Wave Engine")
+        subtitle.setObjectName("SubTitle")
+        lyt.addWidget(subtitle)
+
+        # Depth
+        lyt.addWidget(QLabel("Recursive Depth:"))
+        self.depth_slider = QSlider(Qt.Horizontal)
+        self.depth_slider.setRange(1, 10)
+        self.depth_slider.setValue(self.recursive_depth)
+        self.depth_slider.valueChanged.connect(self.update_depth)
+        lyt.addWidget(self.depth_slider)
+        self.depth_label = QLabel(f"Depth: {self.recursive_depth}")
+        lyt.addWidget(self.depth_label)
+
+        # Frequency
+        lyt.addWidget(QLabel("Frequency:"))
+        self.freq_slider = QSlider(Qt.Horizontal)
+        self.freq_slider.setRange(1, 50)  # 0.1 .. 5.0 Hz
+        self.freq_slider.setValue(int(self.frequency * 10))
+        self.freq_slider.valueChanged.connect(self.update_frequency)
+        lyt.addWidget(self.freq_slider)
+        self.freq_label = QLabel(f"Freq: {self.frequency:.1f} Hz")
+        lyt.addWidget(self.freq_label)
+
+        # Buttons
+        self.pause_btn = QPushButton("⏸ Pause")
+        self.pause_btn.clicked.connect(self.toggle_animation)
+        lyt.addWidget(self.pause_btn)
+
+        self.theme_btn = QPushButton("🌙 Dark Mode")
+        self.theme_btn.clicked.connect(self.toggle_theme)
+        lyt.addWidget(self.theme_btn)
+
+        # Metrics
+        metrics_label = QLabel("Wave Metrics")
+        metrics_label.setStyleSheet("font-weight: bold; margin-top: 20px; font-size: 14px;")
+        lyt.addWidget(metrics_label)
+
+        self.metrics_text = QTextEdit()
+        self.metrics_text.setMaximumHeight(250)
+        self.metrics_text.setReadOnly(True)
+        self.metrics_text.setStyleSheet("""
+            QTextEdit {
+                font-family: 'Consolas', 'Monaco', monospace;
+                font-size: 10px;
+                line-height: 1.2;
+                padding: 8px;
+                border-radius: 6px;
+            }
+        """)
+        lyt.addWidget(self.metrics_text)
+
+        lyt.addStretch()
+        root.addWidget(left)
+
+        # Right panel (3D)
+        if HAS_MPL:
+            self.canvas = self.create_3d_canvas()
+            root.addWidget(self.canvas, 1)
+        else:
+            fallback = QLabel("Matplotlib not available — 3D view disabled.")
+            fallback.setAlignment(Qt.AlignCenter)
+            root.addWidget(fallback, 1)
+
+    def create_3d_canvas(self):
+        self.figure = Figure(figsize=(10, 8))
+        self.ax = self.figure.add_subplot(111, projection="3d")
+        self.ax.set_xlabel("X - Spatial")
+        self.ax.set_ylabel("Y - Frequency")
+        self.ax.set_zlabel("Z - Amplitude")
+        self.ax.set_title("RFT Engine - Recursive Quantum Field")
+        canvas = FigureCanvas(self.figure)
+        return canvas
+
+    # --------------------------- Theming --------------------------------------
+    def apply_theme(self):
+        if self.dark_mode:
+            qss = """
+            QDialog, QWidget { background:#0f1216; color:#dfe7ef; font-family:'Segoe UI'; }
+            #Title { font-size:20px; font-weight:300; color:#dfe7ef; }
+            #SubTitle { font-size:11px; color:#8aa0b3; }
+            #LeftPanel { background:#12161b; border-right:1px solid #1f2a36; }
+            QSlider::groove:horizontal { border:1px solid #1f2a36; height:8px; background:#12161b; border-radius:4px; }
+            QSlider::handle:horizontal { background:#7dc4ff; width:18px; border-radius:9px; margin:-2px 0; }
+            QPushButton { background:#12161b; border:1px solid #2a3847; border-radius:6px; padding:8px 14px; color:#c8d3de; }
+            QPushButton:hover { background:#1d2b3a; }
+            QTextEdit { background:#0a0a0a; border:1px solid #1f2a36; color:#dfe7ef; }
+            """
+            self.theme_btn.setText("☀ Light Mode")
+        else:
+            qss = """
+            QDialog, QWidget { background:#fafafa; color:#243342; font-family:'Segoe UI'; }
+            #Title { font-size:20px; font-weight:300; color:#2c3e50; }
+            #SubTitle { font-size:11px; color:#8aa0b3; }
+            #LeftPanel { background:#f8f9fa; border-right:1px solid #dee2e6; }
+            QSlider::groove:horizontal { border:1px solid #dee2e6; height:8px; background:#e9ecef; border-radius:4px; }
+            QSlider::handle:horizontal { background:#1976d2; width:18px; border-radius:9px; margin:-2px 0; }
+            QPushButton { background:#f8f9fa; border:1px solid #dee2e6; border-radius:6px; padding:8px 14px; color:#495057; }
+            QPushButton:hover { background:#e9ecef; }
+            QTextEdit { background:#ffffff; border:1px solid #dee2e6; color:#243342; }
+            """
+            self.theme_btn.setText("🌙 Dark Mode")
+
+        self.setStyleSheet(qss)
+
+        if HAS_MPL and self.figure is not None:
+            self.figure.patch.set_facecolor("#12161b" if self.dark_mode else "#fafafa")
+            if self.ax is not None:
+                self.ax.set_facecolor("#0a0a0a" if self.dark_mode else "#ffffff")
+            if self.canvas is not None:
+                self.canvas.draw_idle()
+
+    # --------------------------- Controls -------------------------------------
+    def toggle_theme(self):
+        self.dark_mode = not self.dark_mode
+        self.apply_theme()
+
+    def update_depth(self, value):
+        self.recursive_depth = int(value)
+        self.depth_label.setText(f"Depth: {self.recursive_depth}")
+
+    def update_frequency(self, value):
+        self.frequency = value / 10.0  # slider 1..50 => 0.1..5.0 Hz
+        self.freq_label.setText(f"Freq: {self.frequency:.1f} Hz")
+
+    def toggle_animation(self):
+        if not self.timer.isActive():
+            if HAS_MPL and self.canvas is not None and self.ax is not None:
+                self.timer.start()
+                self.pause_btn.setText("⏸ Pause")
+        else:
+            self.timer.stop()
+            self.pause_btn.setText("▶ Resume")
+
+    # --------------------------- Engine ---------------------------------------
+    def generate_recursive_wave(self, x, y, t):
+        z = np.zeros_like(x)
+        for depth in range(self.recursive_depth):
+            freq_scale = self.frequency * (1 + depth * self.quantum_coupling)
+            wave1 = np.sin(freq_scale * x - self.wave_speed * t + depth * np.pi / 4)
+            wave2 = np.cos(freq_scale * y - self.wave_speed * t + depth * np.pi / 3)
+            interference = wave1 * wave2
+            amp_scale = self.amplitude / (1 + depth * 0.3)
+            z += amp_scale * interference * np.exp(-0.1 * depth)
+            # φ-coupling modulation
+            quantum_mod = np.sin(self.quantum_coupling * (x + y) + t) * 0.2
+            z += quantum_mod * amp_scale
+        return z
+
+    def update_visualization(self):
+        # Guard against race conditions or missing backends
+        if not HAS_MPL or self.ax is None or self.canvas is None:
+            self.timer.stop()
+            return
+
+        self.time_step += 0.1
+        self.ax.clear()
+
+        x = np.linspace(-3, 3, 30)
+        y = np.linspace(-3, 3, 30)
+        X, Y = np.meshgrid(x, y)
+        Z = self.generate_recursive_wave(X, Y, self.time_step)
+
+        self.ax.plot_surface(X, Y, Z, cmap="plasma", alpha=0.8, linewidth=0, antialiased=True)
+        self.ax.plot_wireframe(X, Y, Z, color="white", alpha=0.3, linewidth=0.5)
+
+        self.ax.set_xlim([-3, 3]); self.ax.set_ylim([-3, 3]); self.ax.set_zlim([-2, 2])
+        color = "white" if self.dark_mode else "black"
+        self.ax.set_xlabel("X - Spatial", color=color)
+        self.ax.set_ylabel("Y - Frequency", color=color)
+        self.ax.set_zlabel("Z - Amplitude", color=color)
+        self.ax.set_title("RFT Engine - Recursive Quantum Field", color=color)
+        self.ax.tick_params(colors=color)
+        self.ax.grid(True, alpha=0.3)
+        self.ax.set_facecolor("#0a0a0a" if self.dark_mode else "#ffffff")
+
+        self.canvas.draw_idle()
+        self.update_metrics(Z)
+
+    # --------------------------- Metrics --------------------------------------
+    def update_metrics(self, wave):
+        amax = float(np.max(wave))
+        amin = float(np.min(wave))
+        arange = amax - amin
+        mean = float(np.mean(wave))
+        std = float(np.std(wave))
+
+        complexity = max(0, min(100, int(std * 100)))
+        coherence = max(0, min(100, int(100 - (std * 50))))
+        interference = max(0, min(100, int(abs(mean) * 200)))
+        coupling_effect = max(0, min(100, int(self.quantum_coupling * 100)))
+        phase_sync = max(0, min(100, int(75 + 25 * np.cos(self.time_step))))
+
+        metrics_text = f"""
+🌊 QUANTUM FIELD ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 WAVE PROPERTIES:
+   • Amplitude Range: {arange:.3f}
+   • Peak Intensity: {amax:.3f}
+   • Field Average: {mean:.3f}
+   • Complexity: {complexity}%
+
+🔄 FIELD DYNAMICS:
+   • Coherence Level: {coherence}%
+   • Interference: {interference}%
+   • Phase Sync: {phase_sync}%
+   • Coupling Effect: {coupling_effect}%
+
+⚛️ QUANTUM PARAMETERS:
+   • Recursive Depth: {self.recursive_depth} layers
+   • Base Frequency: {self.frequency:.1f} Hz
+   • Quantum Coupling: {self.quantum_coupling:.3f}
+   • Time Evolution: {self.time_step:.1f}s
+
+📈 FIELD EXPLANATION:
+   • Higher complexity = more intricate patterns
+   • Coherence shows wave synchronization
+   • Interference reveals wave interactions
+   • Phase sync indicates temporal stability
+
+🔬 OBSERVED EFFECTS:
+   • Recursive layers create depth
+   • Quantum coupling adds nonlinearity
+   • Interference generates complexity
+   • Time evolution shows dynamics
+"""
+        self.metrics_text.setText(metrics_text)
 
 
 # ---------- Entrypoint ----------

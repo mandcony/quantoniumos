@@ -299,12 +299,6 @@ class QuantoniumDesktop(QMainWindow):
                 "description": "Mathematical validation framework"
             },
             {
-                "name": "RFT Visualizer", 
-                "path": os.path.join(base_path, "apps", "rft_visualizer.py"), 
-                "category": "VISUALIZATION", 
-                "description": "Real-time signal processing"
-            },
-            {
                 "name": "Quantum Simulator", 
                 "path": os.path.join(base_path, "apps", "quantum_simulator.py"), 
                 "category": "SIMULATION",
@@ -560,12 +554,96 @@ class QuantoniumDesktop(QMainWindow):
             
             # Launch with proper environment
             base_dir = os.path.dirname(os.path.dirname(__file__))
-            process = subprocess.Popen(
-                [sys.executable, app_path], 
-                cwd=base_dir,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
+            
+            # For GUI applications, detach process properly
+            if "visualizer" in app_name.lower():
+                # Simple direct launch - same as other apps, no special handling
+                if os.name == 'nt':  # Windows
+                    try:
+                        # Method 1: Use start command for complete process isolation
+                        command = f'start "QuantoniumOS - {app_name}" /D "{base_dir}" python "{app_path}"'
+                        process = subprocess.Popen(
+                            command,
+                            shell=True,
+                            cwd=base_dir,
+                            stdin=subprocess.DEVNULL,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS
+                        )
+                        print(f"✅ {app_name} launched directly with PID: {process.pid}")
+                        self.system_status.setPlainText(f"{app_name.upper()} ACTIVE")
+                        return
+                    except Exception as e:
+                        print(f"❌ Direct launch failed: {e}")
+                        # Let it fall through to other app handling
+                if os.name == 'nt':  # Windows - use multiple approaches for best compatibility
+                    try:
+                        # Method 1: Use start command with CREATE_NEW_CONSOLE
+                        command = f'start "QuantoniumOS - {app_name}" /D "{base_dir}" python "{app_path}"'
+                        process = subprocess.Popen(
+                            command,
+                            shell=True,
+                            cwd=base_dir,
+                            stdin=subprocess.DEVNULL,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS
+                        )
+                        print(f"✅ {app_name} launched directly with PID: {process.pid}")
+                        self.system_status.setPlainText(f"{app_name.upper()} ACTIVE")
+                        return
+                    except Exception as e:
+                        print(f"❌ Direct launch failed: {e}")
+                        
+            elif "vault" in app_name.lower() or "notes" in app_name.lower():
+                if os.name == 'nt':  # Windows - use multiple approaches for best compatibility
+                    try:
+                        # Method 1: Use start command with CREATE_NEW_CONSOLE
+                        command = f'start "QuantoniumOS - {app_name}" /D "{base_dir}" python "{app_path}"'
+                        process = subprocess.Popen(
+                            command,
+                            shell=True,
+                            cwd=base_dir,
+                            stdin=subprocess.DEVNULL,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS
+                        )
+                    except Exception as e1:
+                        try:
+                            # Method 2: Direct subprocess with full detachment
+                            process = subprocess.Popen(
+                                [sys.executable, app_path],
+                                cwd=base_dir,
+                                stdin=subprocess.DEVNULL,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL,
+                                creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS
+                            )
+                        except Exception as e2:
+                            # Method 3: Fallback using os.startfile with python launcher
+                            temp_bat = os.path.join(base_dir, f"temp_launch_{app_name.replace(' ', '_')}.bat")
+                            with open(temp_bat, 'w') as f:
+                                f.write(f'@echo off\ncd /d "{base_dir}"\npython "{app_path}"\ndel "%~f0"')
+                            os.startfile(temp_bat)
+                            process = type('Process', (), {'pid': 0})()  # Dummy process object
+                else:  # Unix-like systems
+                    process = subprocess.Popen(
+                        [sys.executable, app_path], 
+                        cwd=base_dir,
+                        stdin=subprocess.DEVNULL,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
+                    )
+            else:
+                # For console applications, capture output
+                process = subprocess.Popen(
+                    [sys.executable, app_path], 
+                    cwd=base_dir,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
             
             print(f"Successfully launched {app_name} (PID: {process.pid})")
             
