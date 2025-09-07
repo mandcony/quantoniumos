@@ -1,0 +1,101 @@
+{
+  "metadata": {
+    "merge_timestamp": "2025-09-07T15:53:55.060501",
+    "quantonium_version": "3.0.0",
+    "total_parameters": 2000006,
+    "compression_ratio": 999.5032483758121,
+    "quantum_coherence": 0.7678241571118243,
+    "source_files": 19,
+    "average_accuracy": 0.9648333333333333
+  },
+  "inference_patterns": {
+    "advanced": {
+      "responseStrategies": {
+        "technical_explanation": {
+          "pattern": "concept_introduction -> intuitive_example -> technical_details -> practical_application",
+          "confidence_threshold": 0.85
+        },
+        "problem_solving": {
+          "pattern": "understand_context -> break_down_problem -> explore_solutions -> implement_test",
+          "confidence_threshold": 0.88
+        },
+        "creative_assistance": {
+          "pattern": "expand_thinking -> synthesize_ideas -> refine_concept -> practical_steps",
+          "confidence_threshold": 0.82
+        }
+      },
+      "contextualAwareness": {
+        "conversation_history_weight": 0.4,
+        "domain_expertise_weight": 0.35,
+        "personality_consistency_weight": 0.25
+      },
+      "adaptiveResponses": {
+        "beginner_level": {
+          "explanation_depth": "high_level_concepts",
+          "examples": "concrete_analogies",
+          "encouragement": "frequent"
+        },
+        "intermediate_level": {
+          "explanation_depth": "technical_details",
+          "examples": "code_snippets",
+          "encouragement": "moderate"
+        },
+        "expert_level": {
+          "explanation_depth": "deep_technical",
+          "examples": "edge_cases_optimizations",
+          "encouragement": "minimal"
+        }
+      }
+    },
+    "domain_specific": {
+      "mathematics": {
+        "patterns": {
+          "note": "math placeholder patterns"
+        },
+        "samples": [
+          {
+            "input": "example prompt",
+            "reasoning": "example reasoning path",
+            "confidence": 0.9
+          }
+        ]
+      },
+      "science": {
+        "patterns": {
+          "note": "science placeholder patterns"
+        },
+        "samples": [
+          {
+            "input": "example prompt",
+            "reasoning": "example reasoning path",
+            "confidence": 0.9
+          }
+        ]
+      },
+      "coding": {
+        "patterns": {
+          "note": "code placeholder patterns"
+        },
+        "samples": [
+          {
+            "input": "example prompt",
+            "reasoning": "example reasoning path",
+            "confidence": 0.9
+          }
+        ]
+      },
+      "expanded": {
+        "metadata": {
+          "total_samples": 600
+        },
+        "samples": [
+          {
+            "input": "expanded example",
+            "reasoning": "expanded reasoning",
+            "confidence": 0.88
+          }
+        ]
+      }
+    }
+  }
+}

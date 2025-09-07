@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "merge_timestamp": "2025-09-07T15:53:55.060501",
+    "quantonium_version": "3.0.0",
+    "total_parameters": 2000006,
+    "compression_ratio": 999.5032483758121,
+    "quantum_coherence": 0.7678241571118243,
+    "source_files": 19,
+    "average_accuracy": 0.9648333333333333
+  },
+  "tokenization": {
+    "main": {
+      "type": "tokenizer_configuration",
+      "model_type": "BPE",
+      "vocab_size": 0,
+      "normalizer": null,
+      "pre_tokenizer": {
+        "type": "ByteLevel",
+        "add_prefix_space": false,
+        "trim_offsets": true,
+        "use_regex": true
+      },
+      "post_processor": {
+        "type": "ByteLevel",
+        "add_prefix_space": true,
+        "trim_offsets": false,
+        "use_regex": true
+      },
+      "decoder": {
+        "type": "ByteLevel",
+        "add_prefix_space": true,
+        "trim_offsets": true,
+        "use_regex": true
+      }
+    },
+    "config": {
+      "add_bos_token": false,
+      "add_prefix_space": false,
+      "added_tokens_decoder": {
+        "50256": {
+          "content": "<|endoftext|>",
+          "lstrip": false,
+          "normalized": true,
+          "rstrip": false,
+          "single_word": false,
+          "special": true
+        }
+      },
+      "bos_token": "<|endoftext|>",
+      "chat_template": "{% for message in messages %}{{ message.content }}{{ eos_token }}{% endfor %}",
+      "clean_up_tokenization_spaces": true,
+      "eos_token": "<|endoftext|>",
+      "errors": "replace",
+      "model_max_length": 1024,
+      "pad_token": "<|endoftext|>",
+      "tokenizer_class": "GPT2Tokenizer",
+      "unk_token": "<|endoftext|>"
+    },
+    "vocab": {
+      "type": "vocabulary_mapping",
+      "total_tokens": 50257,
+      "sample_mappings": {
+        "!": 0,
+        "\"": 1,
+        "#": 2,
+        "$": 3,
+        "%": 4,
+        "&": 5,
+        "'": 6,
+        "(": 7,
+        ")": 8,
+        "*": 9,
+        "+": 10,
+        ",": 11,
+        "-": 12,
+        ".": 13,
+        "/": 14,
+        "0": 15,
+        "1": 16,
+        "2": 17,
+        "3": 18,
+        "4": 19
+      }
+    },
+    "special_tokens": {
+      "bos_token": {
+        "content": "<|endoftext|>",
+        "lstrip": false,
+        "normalized": true,
+        "rstrip": false,
+        "single_word": false
+      },
+      "eos_token": {
+        "content": "<|endoftext|>",
+        "lstrip": false,
+        "normalized": true,
+        "rstrip": false,
+        "single_word": false
+      },
+      "pad_token": "<|endoftext|>",
+      "unk_token": {
+        "content": "<|endoftext|>",
+        "lstrip": false,
+        "normalized": true,
+        "rstrip": false,
+        "single_word": false
+      }
+    }
+  }
+}
