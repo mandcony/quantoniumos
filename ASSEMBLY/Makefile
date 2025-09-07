@@ -15,9 +15,9 @@ BUILDDIR = build
 COMPILEDDIR = compiled
 
 # Source files
-C_SOURCES = $(SRCDIR)/rft_kernel.c $(SRCDIR)/rft_kernel_ui.c
+C_SOURCES = $(SRCDIR)/rft_kernel.c $(SRCDIR)/rft_kernel_ui.c $(SRCDIR)/quantum_symbolic_compression.c
 ASM_SOURCES = $(SRCDIR)/rft_kernel_asm.asm
-HEADERS = $(INCDIR)/rft_kernel.h $(INCDIR)/rft_kernel_ui.h
+HEADERS = $(INCDIR)/rft_kernel.h $(INCDIR)/rft_kernel_ui.h $(SRCDIR)/quantum_symbolic_compression.h
 
 # Object files
 C_OBJECTS = $(C_SOURCES:$(SRCDIR)/%.c=$(BUILDDIR)/%.o)
@@ -25,14 +25,14 @@ ASM_OBJECTS = $(ASM_SOURCES:$(SRCDIR)/%.asm=$(BUILDDIR)/%.o)
 OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
 
 # Target library
-TARGET = $(COMPILEDDIR)/librftkernel.so
-TARGET_STATIC = $(COMPILEDDIR)/librftkernel.a
+TARGET = $(COMPILEDDIR)/libquantum_symbolic.so
+TARGET_STATIC = $(COMPILEDDIR)/libquantum_symbolic.a
 
 # Windows targets
 ifeq ($(OS),Windows_NT)
-    TARGET = $(COMPILEDDIR)/librftkernel.dll
+    TARGET = $(COMPILEDDIR)/libquantum_symbolic.dll
     ASMFLAGS = -f win64
-    LDFLAGS = -shared -lm -Wl,--out-implib,$(COMPILEDDIR)/librftkernel.lib
+    LDFLAGS = -shared -lm -Wl,--out-implib,$(COMPILEDDIR)/libquantum_symbolic.lib
 endif
 
 .PHONY: all clean install test
@@ -64,7 +64,7 @@ $(TARGET_STATIC): $(OBJECTS) | $(COMPILEDDIR)
 
 # Test the library
 test: $(TARGET)
-	cd python_bindings && python3 unitary_rft.py
+	cd python_bindings && python3 quantum_symbolic_engine.py
 
 # Install headers and libraries
 install: $(TARGET) $(TARGET_STATIC)

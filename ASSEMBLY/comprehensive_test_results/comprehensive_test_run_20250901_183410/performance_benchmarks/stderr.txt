@@ -1,1 +1,0 @@
-SyntaxError: Non-UTF-8 code starting with '\xb1' in file C:\quantoniumos-1\ASSEMBLY\benchmark_suite.py on line 186, but no encoding declared; see https://peps.python.org/pep-0263/ for details

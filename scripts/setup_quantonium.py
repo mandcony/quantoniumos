@@ -468,7 +468,7 @@ def run_full_validation():
     
     if github_ready:
         print(f"\n🚀 QuantoniumOS is ready for GitHub deployment!")
-        print(f"  • Run: python quantonium.py")
+        print(f"  • Run: python engine/launch_quantonium_os.py")
         print(f"  • Install: pip install -e .")
         print(f"  • Deploy: git add . && git commit && git push")
     else:

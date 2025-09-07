@@ -1,34 +1,31 @@
 # QuantoniumOS Project Structure
 
-## Core Components
+## Updated Architecture (September 2025)
 
-### 1. RFT Assembly Implementation (Foundation Layer)
-- `ASSEMBLY/` - Contains the proven RFT implementation
-  - `compiled/` - Compiled binaries including librftkernel.dll
-  - `python_bindings/` - Python bindings for the RFT kernel
-  - `build_integrated_os.bat` - Assembly build script
+### 1. Frontend Layer (User Interface & Launchers)
+- `frontend/` - Unified user interface and system launchers
+  - `quantonium_desktop.py` - Main desktop manager with quantum-inspired UI
+  - `launch_quantonium_os.py` - Primary system launcher
+  - `quantonium_os_main.py` - Console interface and system management
 
-### 2. Quantum Engine Layer
-- `engines/` - Quantum computing engines
-  - `canonical_true_rft.py` - Canonical RFT implementation
-  - `rft_core.py` - Core RFT algorithms
-  - `paper_compliant_rft_fixed.py` - Paper-compliant RFT
-- `core/` - Quantum kernel implementations
-  - `bulletproof_quantum_kernel.py` - Production-ready quantum kernel
-  - `working_quantum_kernel.py` - Tested quantum kernel implementation
+### 2. Assembly Layer (Core Engine System)
+- `ASSEMBLY/` - Streamlined assembly-optimized engines
+  - `quantonium_os.py` - 3-engine system launcher (OS + Crypto + Quantum)
+  - `engines/` - C/Assembly quantum compression engines
+  - `kernel/` - UnitaryRFT kernel implementation
+  - `compiled/` - Optimized libraries (libquantum_symbolic.so)
+  - `python_bindings/` - C/Python interface bindings
+  - `build/` - Build artifacts and compilation outputs
+
+### 3. Core Algorithm Layer
+- `core/` - Core quantum computing algorithms
+  - `canonical_true_rft.py` - Symbolic Resonance Fourier Transform Engine
+  - `enhanced_rft_crypto_v2.py` - Resonance-Based Cryptographic Subsystem
+  - `geometric_waveform_hash.py` - Geometric Structures for RFT-Based Cryptographic Waveform Hashing
   - `topological_quantum_kernel.py` - Topological quantum algorithms
+  - `working_quantum_kernel.py` - Hybrid Mode Integration
 
-### 3. Frontend Integration Layer (NEW)
-- `frontend/` - Main OS interface
-  - `quantonium_desktop.py` - Primary desktop manager with RFT integration
-- `apps/` - Quantum-enhanced applications
-  - `q_notes.py` - Quantum text editor
-  - `q_vault.py` - RFT-encrypted secure storage
-  - `qshll_system_monitor.py` - System monitor with RFT status
-- `ui/` - User interface components
-  - `styles.qss` - Unified QuantoniumOS stylesheet
-
-### 4. Cryptography Layer
+### 4. Application Layer
 - `crypto/` - Cryptographic algorithms (reserved for future expansion)
 
 ### 5. System Integration

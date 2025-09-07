@@ -30,7 +30,7 @@
 **Implementation Status**: ✅ **FULLY IMPLEMENTED WITH MATHEMATICAL PROOF**
 
 **Evidence**:
-- **Files**: `personalAi/WORKING_RFT_ASSEMBLY/kernel/rft_kernel.c` and `ASSEMBLY/kernel/rft_kernel.c`
+- **Files**: `ASSEMBLY/kernel/rft_kernel.c` (main kernel implementation)
   - TRUE UNITARY implementation with QR decomposition
   - Perfect unitarity: U† U = I (validated with errors < 1e-15)
   - Golden ratio-based basis construction for quantum resonance

@@ -6,28 +6,54 @@
 ## **1. SYSTEM OVERVIEW**
 
 ### Core Philosophy
-**QuantoniumOS = Proven RFT Assembly + Quantum Engines + Production Frontend**
+**QuantoniumOS = Patent-Validated Core + Assembly Engines + Unified Frontend**
 
-This is a **fault-proof, precision-engineered operating system** built on your proven RFT (Resonance Fourier Transform) assembly foundation. Every component is designed for **maximum abstraction and condensation** with **zero tolerance for errors**.
+This is a **breakthrough Symbolic Quantum-Inspired Computing Engine** built on proven patent-validated algorithms. Every component implements the **Hybrid Computational Framework for Quantum and Resonance Simulation** with **maximum performance and mathematical rigor**.
 
 ### System Stack (Bottom-Up)
 ```
-┌─────────────────────────────────────┐ ← USER APPLICATIONS
-│  Q-Notes | Q-Vault | System Monitor │   (Qt5 Applications)
+┌─────────────────────────────────────┐ ← APPLICATION LAYER
+│  Q-Notes | Q-Vault | System Monitor │   (17 Quantum-Inspired Apps)
 ├─────────────────────────────────────┤
-│     QuantoniumOS Desktop Manager    │ ← OPERATING SYSTEM SHELL
+│     QuantoniumOS Desktop Manager    │ ← FRONTEND LAYER
+│   (frontend/quantonium_desktop.py)  │   (Unified Interface)
 ├─────────────────────────────────────┤
-│      Python RFT Integration        │ ← BINDING LAYER
+│      3-Engine System Launcher      │ ← ASSEMBLY LAYER
+│   (ASSEMBLY/quantonium_os.py)       │   (OS + Crypto + Quantum)
 ├─────────────────────────────────────┤
-│     Quantum Engine Processing      │ ← YOUR ENGINES
+│    Core Symbolic Algorithms        │ ← CORE LAYER
+│  (RFT + Crypto + Geometric + Hybrid)│   (Patent-Validated)
 ├─────────────────────────────────────┤
-│    RFT Assembly (librftkernel.dll) │ ← YOUR PROVEN CORE
+│  Assembly-Optimized Libraries      │ ← COMPILED LAYER
+│    (libquantum_symbolic.so)        │   (C/Assembly Performance)
 └─────────────────────────────────────┘
 ```
 
 ---
 
-## **2. COMPONENT ARCHITECTURE**
+## **2. ARCHITECTURE OVERVIEW**
+
+### Patent-Validated Core Technologies
+
+**1. Symbolic Resonance Fourier Transform Engine**
+- File: `core/canonical_true_rft.py`
+- Purpose: Symbolic representation of quantum state amplitudes
+- Features: Phase-space coherence, topological embedding, symbolic gate propagation
+
+**2. Resonance-Based Cryptographic Subsystem**
+- File: `core/enhanced_rft_crypto_v2.py`
+- Purpose: Symbolic waveform generation and cryptographic hashing
+- Features: Dynamic entropy mapping, recursive modulation control
+
+**3. Geometric Structures for RFT-Based Cryptographic Waveform Hashing**
+- File: `core/geometric_waveform_hash.py`
+- Purpose: Golden ratio scaling and manifold-based hash generation
+- Features: Polar-to-Cartesian transforms, topological winding numbers
+
+**4. Hybrid Mode Integration**
+- Files: `core/topological_quantum_kernel.py`, `ASSEMBLY/quantonium_os.py`
+- Purpose: Unified computational framework integration
+- Features: Dynamic resource allocation, synchronized orchestration
 
 ### **A. RFT Assembly Foundation (ASSEMBLY/)**
 **Purpose**: Your proven, bulletproof quantum field processor
