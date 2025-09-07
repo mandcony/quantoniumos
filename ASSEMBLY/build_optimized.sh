@@ -63,8 +63,8 @@ fi
 
 echo "  ? SIMD assembly core compiled"
 
-# Create C wrapper object
-cat > "$BUILD_DIR/rft_wrapper.c" << 'EOF'
+# Use existing rft_wrapper.c
+# cat > "$BUILD_DIR/rft_wrapper.c" << 'EOF'
 /*
  * Optimized RFT C Wrapper Implementation
  */
@@ -75,6 +75,19 @@ cat > "$BUILD_DIR/rft_wrapper.c" << 'EOF'
 #include <math.h>
 #include <pthread.h>
 #include <unistd.h>
+
+// Helper function to get CPU cycle counter
+#ifdef _MSC_VER
+#include <intrin.h>
+#define __rdtsc __rdtsc
+#else
+static inline uint64_t __rdtsc(void) {
+    uint32_t low, high;
+    __asm__ volatile ("rdtsc" : "=a" (low), "=d" (high));
+    return ((uint64_t)high << 32) | low;
+}
+#endif
+}
 
 // Implementation of optimized functions
 int rft_optimized_init(rft_optimized_engine_t* engine, size_t size, uint32_t opt_flags) {
@@ -244,13 +257,8 @@ void rft_get_performance_stats(const rft_optimized_engine_t* engine,
     stats->cache_miss_rate = (double)engine->cache_misses / engine->transform_count;
 }
 
-// Helper function to get CPU cycle counter
-static inline uint64_t __rdtsc(void) {
-    uint32_t low, high;
-    __asm__ volatile ("rdtsc" : "=a" (low), "=d" (high));
-    return ((uint64_t)high << 32) | low;
-}
-EOF
+// This function is defined at the top of the file
+# EOF
 
 # Compile C wrapper
 gcc -c -fPIC -O3 -march=native $CPU_FLAGS \

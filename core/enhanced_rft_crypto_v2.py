@@ -132,6 +132,14 @@ class EnhancedRFTCryptoV2:
     
     def _mix_columns(self, data: bytes) -> bytes:
         """Apply MixColumns-like diffusion."""
+        # Ensure data is exactly 16 bytes
+        if len(data) != 16:
+            # Pad or truncate to 16 bytes
+            if len(data) < 16:
+                data = data + b'\x00' * (16 - len(data))
+            else:
+                data = data[:16]
+        
         result = bytearray(16)
         
         for col in range(4):
@@ -173,12 +181,30 @@ class EnhancedRFTCryptoV2:
         
         F(R, K) = ARX(MixColumns(S-box(R ⊕ K ⊕ RC)))
         """
+        # Ensure right half is exactly 8 bytes (Feistel requirement)
+        if len(right) != 8:
+            if len(right) < 8:
+                right = right + b'\x00' * (8 - len(right))
+            else:
+                right = right[:8]
+        
+        # Ensure round key is exactly 16 bytes 
+        if len(round_key) != 16:
+            if len(round_key) < 16:
+                round_key = round_key + b'\x00' * (16 - len(round_key))
+            else:
+                round_key = round_key[:16]
+        
         # Round constant (prevents slide attacks)
         round_constant = (round_num * int(self.phi * 1000)) & 0xFF
-        rc_bytes = bytes([round_constant] * 16)
+        rc_bytes = bytes([round_constant] * 8)  # Match right half size
+        
+        # Expand right half for processing (8 -> 16 bytes)
+        expanded_right = right + right  # Simple duplication for 16-byte processing
+        expanded_rc = bytes([round_constant] * 16)
         
         # Initial key and constant mixing
-        data = bytes(a ^ b ^ c for a, b, c in zip(right, round_key, rc_bytes))
+        data = bytes(a ^ b ^ c for a, b, c in zip(expanded_right, round_key, expanded_rc))
         
         # Layer 1: AES S-box substitution
         data = self._sbox_layer(data)
@@ -191,10 +217,8 @@ class EnhancedRFTCryptoV2:
         right_half = data[8:]
         mixed = self._arx_operations(left_half, right_half)
         
-        # Combine with remaining data
-        result = mixed + bytes(a ^ b for a, b in zip(data[8:], mixed[:8]))
-        
-        return result[:16]  # Ensure 16-byte output
+        # Return only 8 bytes for Feistel (compress back to right half size)
+        return mixed[:8]
     
     def _feistel_encrypt(self, plaintext: bytes) -> bytes:
         """48-round Feistel network encryption."""
