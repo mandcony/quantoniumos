@@ -4,9 +4,8 @@ This repository includes implementations of the Resonance Fourier Transform (RFT
 and associated system components as described in:
 
 - **USPTO Non-Provisional Application**: 19/169,399  
-- **Filed**: January 26, 2025  
-- **Claims Filed**: August 13, 2025 (Document Code CLM)  
-- **Title**: Symbolic Resonance Encryption and Hybrid RFT Framework  
+- **Filed**: april, 2025   
+- **Title**: Hybrid computational framework for quantum and resonance simulation  
 
 ## Scope of Rights
 
