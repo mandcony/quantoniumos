@@ -1,0 +1,18 @@
+# QuantoniumOS Requirements
+numpy>=1.21.0
+scipy>=1.7.0
+matplotlib>=3.4.0
+pandas>=1.3.0
+
+# Optional dependencies for extended functionality
+sympy>=1.8
+jupyter>=1.0.0
+
+# Development dependencies
+pytest>=6.0.0
+black>=21.0.0
+flake8>=3.9.0
+
+# Assembly interface (platform specific)
+# Windows: Microsoft Visual C++ Build Tools
+# Linux: GCC compiler toolchain

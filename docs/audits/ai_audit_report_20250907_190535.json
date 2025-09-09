@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-09-07T19:05:35.043767",
+  "total_interactions": 1,
+  "violation_count": 0,
+  "avg_input_length": 19.0,
+  "avg_response_length": 35.0,
+  "monitored_files": 10,
+  "monitoring_active": true,
+  "recent_interactions": [
+    {
+      "timestamp": "2025-09-07T19:05:35.043767",
+      "input_length": 19,
+      "response_length": 35,
+      "input_hash": "04cdee65fb336534",
+      "response_hash": "0f42b5f5fcec1306"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{"type": "system", "event": "open", "ts": "2025-09-07T19:25:32"}
+{"type": "user", "ts": "2025-09-07T19:25:40", "text": "hey"}
+{"type": "assistant", "ts": "2025-09-07T19:25:41", "text": "Hello! I'm QuantoVision, your AI assistant. I'm excited to help you explore ideas, solve problems, or dive into technical topics. What's on your mind today?", "confidence": 0.98}
+{"type": "user", "ts": "2025-09-07T19:26:03", "text": "what is space?"}
+{"type": "assistant", "ts": "2025-09-07T19:26:04", "text": "That's an interesting topic! I'd love to help you explore 'what is space?' further. Could you tell me more about what specifically interests you? I can provide explanations, help with problem-solving, or discuss the technical aspects.", "confidence": 0.8}

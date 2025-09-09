@@ -1,0 +1,5 @@
+{"type": "system", "event": "open", "ts": "2025-09-07T22:14:09"}
+{"type": "user", "ts": "2025-09-07T22:14:16", "text": "test"}
+{"type": "assistant", "ts": "2025-09-07T22:14:17", "text": "That's an interesting question! I'm analyzing the best way to help you with this. Could you provide a bit more context about what you're looking for?", "confidence": 0.7}
+{"type": "user", "ts": "2025-09-07T22:14:36", "text": "test online"}
+{"type": "assistant", "ts": "2025-09-07T22:14:37", "text": "That's an interesting question! I'm analyzing the best way to help you with this. Could you provide a bit more context about what you're looking for?", "confidence": 0.7}

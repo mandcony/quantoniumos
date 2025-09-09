@@ -1,0 +1,11 @@
+{"type": "system", "event": "open", "ts": "2025-09-07T20:10:27"}
+{"type": "user", "ts": "2025-09-07T20:10:40", "text": "quantum physics?"}
+{"type": "assistant", "ts": "2025-09-07T20:10:41", "text": "That's a fascinating question! I'd love to explain how it works. What specifically are you curious about?", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-07T20:10:50", "text": "an quation?"}
+{"type": "assistant", "ts": "2025-09-07T20:10:50", "text": "That's an interesting topic! I'd love to help you explore 'an quation?' further. Could you tell me more about what specifically interests you? I can provide explanations, help with problem-solving, or discuss the technical aspects.", "confidence": 0.8}
+{"type": "user", "ts": "2025-09-07T20:11:02", "text": "give me a quantum physics equation"}
+{"type": "assistant", "ts": "2025-09-07T20:11:03", "text": "2 + 2 = 4. Need help with any other calculations?", "confidence": 0.99}
+{"type": "user", "ts": "2025-09-07T20:11:22", "text": "thats basic math? i asked for quantum physics"}
+{"type": "assistant", "ts": "2025-09-07T20:11:23", "text": "2 + 2 = 4. Need help with any other calculations?", "confidence": 0.99}
+{"type": "user", "ts": "2025-09-07T20:11:39", "text": "what domains are you trained on>"}
+{"type": "assistant", "ts": "2025-09-07T20:11:40", "text": "That's an interesting topic! I'd love to help you explore 'what domains are you trained on>' further. Could you tell me more about what specifically interests you? I can provide explanations, help with problem-solving, or discuss the technical aspects.", "confidence": 0.8}
