@@ -179,7 +179,7 @@ QuantoniumOS represents a breakthrough in Symbolic Quantum-Inspired Computing, e
 
 ## 📧 Contact
 
-- **Author**: [Author Name](Author)
+- **Author**: Luis M Minier
 - **Repository**: [https://github.com/mandcony/quantoniumos](https://github.com/mandcony/quantoniumos)
 - **Issues**: [GitHub Issues](https://github.com/mandcony/quantoniumos/issues)
 
