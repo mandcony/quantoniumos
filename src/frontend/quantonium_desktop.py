@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-QuantoniumOS Desktop Manager - Scientific Minimal Design
+QuantoniumOS Desktop Manager - Scientific Minimal Design with SVG Icons
 ======================================================
 PhD-level UI/UX for quantum computing research platform
 """
@@ -9,51 +9,51 @@ import sys
 import os
 import math
 import subprocess
+import importlib.util
 from datetime import datetime
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QGraphicsView, QGraphicsScene, 
                             QGraphicsEllipseItem, QGraphicsTextItem, QGraphicsProxyWidget,
-                            QPushButton, QLabel, QDesktopWidget, QGraphicsRectItem)
+                            QPushButton, QLabel, QDesktopWidget, QGraphicsRectItem, QVBoxLayout,
+                            QGraphicsLineItem)
 from PyQt5.QtCore import Qt, QTimer, QRectF, QPointF, QPropertyAnimation, QEasingCurve
 from PyQt5.QtGui import (QPalette, QColor, QFont, QPainter, QPen, QBrush, QCursor, 
                         QLinearGradient, QRadialGradient)
 from PyQt5.QtSvg import QSvgWidget, QGraphicsSvgItem
 
 class QuantoniumDesktop(QMainWindow):
-    def __init__(self):
+    """
+    Scientific Desktop Manager for Quantum Computation Environment
+    with mathematically precise Golden Ratio proportions
+    """
+    
+    def __init__(self, show_immediately=True):
         super().__init__()
-        self.setWindowTitle("QuantoniumOS - Quantum Computing Research Platform")
         
-        # Golden Ratio mathematical constants
-        self.phi = 1.618033988749894  # Golden Ratio φ
-        self.phi_inv = 0.618033988749894  # 1/φ
-        self.phi_sq = 2.618033988749894  # φ²
+        # Mathematical constants for design precision (Golden Ratio)
+        self.phi = 1.618033988749895  # φ (Golden Ratio)
+        self.phi_sq = self.phi * self.phi  # φ²
+        self.phi_inv = 1 / self.phi  # 1/φ
+        self.base_unit = 16  # Base unit for scaling (multiply by φ powers for harmony)
         
-        # Base unit derived from screen dimensions and golden ratio
-        screen = QDesktopWidget().screenGeometry()
-        self.base_unit = min(screen.width(), screen.height()) / (self.phi ** 6)  # Mathematical base
-        
-        # Theme state
-        self.is_dark_theme = True  # Start with dark theme by default
-        
-        # Scientific minimal color scheme
-        self.bg_color = "#fafafa"  # Ultra light background
-        self.primary_color = "#2c3e50"  # Deep blue-gray
-        self.accent_color = "#3498db"  # Scientific blue
-        self.text_color = "#34495e"  # Dark gray
-        self.surface_color = "#ffffff"  # Pure white
-        
-        self.setStyleSheet(f"background-color: {self.bg_color};")
-        
-        # Remove window frame and make it fullscreen
+        # Setup UI
+        self.setWindowTitle("QuantoniumOS")
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.showMaximized()
         
-        # Load the appropriate stylesheet
-        self.load_styles()
+        # Start transparent for cross-fade
+        self.setWindowOpacity(0.0)
         
-        # Create graphics view and scene
-        self.view = QGraphicsView(self)
+        # Only show immediately if requested
+        if show_immediately:
+            self.showFullScreen()
+            self.setWindowOpacity(1.0)  # If showing immediately, make it visible
+        
+        # Graphics View setup with absolute precision
         self.scene = QGraphicsScene(self)
+        self.view = QGraphicsView(self.scene, self)
+        self.view.setRenderHint(QPainter.Antialiasing)
+        self.view.setRenderHint(QPainter.SmoothPixmapTransform)
+        self.view.setRenderHint(QPainter.TextAntialiasing)
+        
         self.view.setScene(self.scene)
         self.setCentralWidget(self.view)
         
@@ -75,7 +75,6 @@ class QuantoniumDesktop(QMainWindow):
         self.quantum_logo = self.create_quantum_logo()
         self.system_time = self.create_system_time()
         self.system_status = self.create_system_status()
-        self.theme_toggle = self.create_theme_toggle()
         
         # Initialize timer
         self.timer = QTimer(self)
@@ -106,53 +105,72 @@ class QuantoniumDesktop(QMainWindow):
         """Create mathematically precise Q logo using Golden Ratio proportions"""
         screen = QDesktopWidget().screenGeometry()
         
-        # Golden ratio positioning - center point
+        # Center coordinates
         center_x = screen.width() / 2
         center_y = screen.height() / 2
         
-        # Logo size based on golden ratio
-        logo_size = self.base_unit * self.phi_sq  # φ² scaling
+        # Q Logo dimensions scaled by Golden Ratio
+        outer_radius = self.base_unit * self.phi_sq  # φ² scaling for outer circle
+        inner_radius = outer_radius * self.phi_inv   # 1/φ scaling for inner circle
+        stroke_width = self.base_unit * 0.15         # Precise stroke scaling
         
-        # Create clickable Q text as the main trigger
-        q_text = QGraphicsTextItem("Q")
-        q_text.setDefaultTextColor(QColor("#2c3e50"))
-        
-        # Font size based on golden ratio
-        font_size = int(self.base_unit * self.phi)
-        font = QFont("SF Pro Display", font_size, QFont.Light)
-        if not font.exactMatch():
-            font = QFont("Segoe UI", font_size, QFont.Light)
-        font.setLetterSpacing(QFont.AbsoluteSpacing, self.base_unit * 0.1)
-        
-        q_text.setFont(font)
-        
-        # Position Q with mathematical precision
-        q_bounds = q_text.boundingRect()
-        q_x = center_x - (q_bounds.width() / 2)
-        q_y = center_y - (q_bounds.height() / 2)
-        q_text.setPos(q_x, q_y)
-        
-        # Make Q text visible but not clickable (panel trigger handles clicks)
-        q_text.setFlag(QGraphicsTextItem.ItemIsSelectable, False)
-        
-        # Add subtle hover effect indicator with golden ratio proportions
-        hover_radius = logo_size * self.phi_inv * 0.8
-        hover_circle = QGraphicsEllipseItem(
-            center_x - hover_radius, 
-            center_y - hover_radius, 
-            hover_radius * 2, 
-            hover_radius * 2
+        # Create outer circle
+        outer_circle = QGraphicsEllipseItem(
+            center_x - outer_radius, 
+            center_y - outer_radius,
+            outer_radius * 2, 
+            outer_radius * 2
         )
-        hover_circle.setBrush(QBrush(QColor(0, 0, 0, 0)))  # Transparent
-        hover_circle.setPen(QPen(QColor(52, 152, 219, 30), int(self.base_unit * 0.05)))  # Golden ratio border
         
-        self.scene.addItem(hover_circle)
-        self.scene.addItem(q_text)
+        # Create inner circle (precise proportion of outer)
+        inner_circle = QGraphicsEllipseItem(
+            center_x - inner_radius, 
+            center_y - inner_radius,
+            inner_radius * 2, 
+            inner_radius * 2
+        )
         
-        return q_text
+        # Create diagonal line (mathematically placed)
+        line_length = outer_radius * self.phi_inv  # 1/φ scaling
+        line_angle = math.radians(45)  # 45 degrees in radians
+        
+        # Calculate line endpoints with precise geometric harmony
+        line_dx = math.cos(line_angle) * line_length
+        line_dy = math.sin(line_angle) * line_length
+        
+        # Apply Golden Ratio offset for the line
+        offset = inner_radius * self.phi_inv * 0.5
+        
+        # Q dash line - positioned to create "Q" from "O"
+        dash_start_x = center_x + offset
+        dash_start_y = center_y + offset
+        dash_end_x = dash_start_x + line_dx
+        dash_end_y = dash_start_y + line_dy
+        
+        # Styling with minimal, precise aesthetics
+        pen = QPen(QColor("#3498db"), stroke_width)
+        pen.setCapStyle(Qt.RoundCap)
+        
+        outer_circle.setPen(pen)
+        outer_circle.setBrush(QBrush(QColor(0, 0, 0, 0)))  # Transparent fill
+        
+        inner_circle.setPen(pen)
+        inner_circle.setBrush(QBrush(QColor(0, 0, 0, 0)))  # Transparent fill
+        
+        # Create Q dash line
+        q_dash = QGraphicsLineItem(dash_start_x, dash_start_y, dash_end_x, dash_end_y)
+        q_dash.setPen(pen)
+        
+        # Add to scene with perfect layering
+        self.scene.addItem(outer_circle)
+        self.scene.addItem(inner_circle)
+        self.scene.addItem(q_dash)
+        
+        # Return for reference
+        return outer_circle
     
     def create_system_time(self):
-        """Create mathematically precise system time display using Golden Ratio"""
+        """Create mathematically precise time display using Golden Ratio"""
         screen = QDesktopWidget().screenGeometry()
         
         time_text = QGraphicsTextItem()
@@ -173,43 +191,6 @@ class QuantoniumDesktop(QMainWindow):
         
         self.scene.addItem(time_text)
         return time_text
-        
-    def create_theme_toggle(self):
-        """Create theme toggle button"""
-        screen = QDesktopWidget().screenGeometry()
-        
-        # Create a button for theme toggle
-        theme_btn = QPushButton()
-        theme_btn.setFixedSize(40, 40)
-        theme_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        
-        # Set icon and tooltip based on current theme
-        icon_text = "🌙" if self.is_dark_theme else "☀️"
-        theme_btn.setText(icon_text)
-        theme_btn.setToolTip("Switch to Light Mode" if self.is_dark_theme else "Switch to Dark Mode")
-        
-        # Style the button
-        theme_btn.setStyleSheet("""
-            QPushButton {
-                background-color: rgba(255, 255, 255, 0.2);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                border-radius: 20px;
-                color: white;
-                font-size: 16px;
-            }
-            QPushButton:hover {
-                background-color: rgba(255, 255, 255, 0.3);
-            }
-        """)
-        
-        # Connect the button to the theme toggle function
-        theme_btn.clicked.connect(self.toggle_theme)
-        
-        # Add to scene
-        theme_proxy = self.scene.addWidget(theme_btn)
-        theme_proxy.setPos(screen.width() - 60, 20)  # Top-right corner
-        
-        return theme_proxy
         
     def create_system_status(self):
         """Create mathematically precise system status using Golden Ratio"""
@@ -260,74 +241,59 @@ class QuantoniumDesktop(QMainWindow):
         current_time = datetime.now().strftime("%H:%M")
         self.system_time.setPlainText(current_time)
     
-    def load_styles(self):
-        """Load the appropriate stylesheet based on theme"""
-        # Go up to project root (src/frontend -> src -> root)
-        base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        
-        if self.is_dark_theme:
-            qss_path = os.path.join(base_path, "ui", "styles_dark.qss")
-        else:
-            qss_path = os.path.join(base_path, "ui", "styles_light.qss")
-        
-        if os.path.exists(qss_path):
-            with open(qss_path, 'r') as f:
-                self.setStyleSheet(f.read())
-        else:
-            print(f"Warning: Theme file not found at {qss_path}")
-    
-    def toggle_theme(self):
-        """Toggle between light and dark themes"""
-        self.is_dark_theme = not self.is_dark_theme
-        self.load_styles()
-        
-        # Update status with theme change
-        theme_name = "DARK" if self.is_dark_theme else "LIGHT"
-        self.system_status.setPlainText(f"THEME: {theme_name}")
-        
-        # Reset status after delay using golden ratio timing
-        reset_delay = int(self.phi * 1000)  # φ seconds in milliseconds
-        QTimer.singleShot(reset_delay, lambda: self.system_status.setPlainText("QUANTONIUMOS"))
-    
     def load_scientific_apps(self):
         """Load applications with scientific metadata"""
-        base_path = os.path.dirname(os.path.dirname(__file__))
+        # Get the project root directory (quantoniumos/)
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
         self.apps = [
             {
                 "name": "RFT Validation Suite", 
-                "path": os.path.join(base_path, "apps", "rft_validation_suite.py"), 
+                "path": os.path.join(project_root, "src", "apps", "rft_validation_suite.py"), 
                 "category": "ANALYSIS",
-                "description": "Mathematical validation framework"
+                "description": "Mathematical validation framework",
+                "icon": "rft_validator.svg"
+            },
+            {
+                "name": "AI Chat", 
+                "path": os.path.join(project_root, "src", "apps", "qshll_chatbox.py"), 
+                "category": "AI", 
+                "description": "Quantum-enhanced AI assistant",
+                "icon": "ai_chat.svg"
             },
             {
                 "name": "Quantum Simulator", 
-                "path": os.path.join(base_path, "apps", "quantum_simulator.py"), 
+                "path": os.path.join(project_root, "src", "apps", "quantum_simulator.py"), 
                 "category": "SIMULATION",
-                "description": "Quantum circuit modeling"
+                "description": "Quantum circuit modeling",
+                "icon": "quantum_simulator.svg"
             },
             {
                 "name": "Quantum Cryptography", 
-                "path": os.path.join(base_path, "apps", "quantum_crypto.py"), 
+                "path": os.path.join(project_root, "src", "apps", "quantum_crypto.py"), 
                 "category": "SECURITY",
-                "description": "Cryptographic protocols"
+                "description": "Cryptographic protocols",
+                "icon": "quantum_crypto.svg"
             },
             {
                 "name": "System Monitor", 
-                "path": os.path.join(base_path, "apps", "qshll_system_monitor.py"), 
+                "path": os.path.join(project_root, "src", "apps", "qshll_system_monitor.py"), 
                 "category": "SYSTEM",
-                "description": "Resource monitoring"
+                "description": "Resource monitoring",
+                "icon": "system_monitor.svg"
             },
             {
                 "name": "Q-Notes", 
-                "path": os.path.join(base_path, "apps", "q_notes.py"), 
+                "path": os.path.join(project_root, "src", "apps", "q_notes.py"), 
                 "category": "RESEARCH",
-                "description": "Research documentation"
+                "description": "Research documentation",
+                "icon": "q_notes.svg"
             },
             {
                 "name": "Q-Vault", 
-                "path": os.path.join(base_path, "apps", "q_vault.py"), 
+                "path": os.path.join(project_root, "src", "apps", "q_vault.py"), 
                 "category": "DATA",
-                "description": "Secure data storage"
+                "description": "Secure data storage",
+                "icon": "q_vault.svg"
             }
         ]
     
@@ -342,7 +308,7 @@ class QuantoniumDesktop(QMainWindow):
             self.collapse_arch()
     
     def expand_arch(self):
-        """Expand applications in arch formation with colored square icons and SVG graphics"""
+        """Expand applications in arch formation with SVG icons"""
         print("DEBUG: expand_arch function called")
         self.is_arch_expanded = True
         
@@ -379,37 +345,12 @@ class QuantoniumDesktop(QMainWindow):
         self.app_items.append(inner_circle)
         self.arch_background = arch_bg
         
-        # Position apps in circular layout around Q, matching the image provided
+        # Position apps in circular layout around Q
         num_apps = len(self.apps)
         
         # Using a partial circle for apps (top half plus sides)
         angle_step = math.pi * 1.5 / (num_apps - 1) if num_apps > 1 else 0
         start_angle = math.pi * 1.75  # Start from top-left (315 degrees)
-        
-        # App configurations with minimal styling
-        app_configs = {
-            "RFT Validation": {
-                "display_name": "RFT Validator"
-            },
-            "RFT Visual": {
-                "display_name": "RFT Visualizer"
-            },
-            "Quantum Simulator": {
-                "display_name": "Quantum Simulator"
-            },
-            "Quantum Crypto": {
-                "display_name": "Quantum Crypto"
-            },
-            "System Monitor": {
-                "display_name": "System Monitor"
-            },
-            "Q-Notes": {
-                "display_name": "Q-Notes"
-            },
-            "Q-Vault": {
-                "display_name": "Q-Vault"
-            }
-        }
         
         for i, app in enumerate(self.apps):
             # Calculate position on the circle
@@ -417,97 +358,45 @@ class QuantoniumDesktop(QMainWindow):
             x = center_x + arch_radius * math.cos(angle)
             y = center_y + arch_radius * math.sin(angle)
             
-            # Get app name and determine configuration
+            # Get app name and information
             app_name = app["name"]
+            app_path = app["path"]
+            app_icon = app.get("icon", None)
+            display_name = app_name.split()[-1] if len(app_name.split()) > 1 else app_name
             
-            # Determine the app config key to use
-            config_key = None
-            if "RFT" in app_name and "Validation" in app_name:
-                config_key = "RFT Validation"
-            elif "RFT" in app_name and "Visual" in app_name:
-                config_key = "RFT Visual"
-            elif "Quantum" in app_name and "Simulator" in app_name:
-                config_key = "Quantum Simulator"
-            elif "Quantum" in app_name and "Crypto" in app_name:
-                config_key = "Quantum Crypto"
-            elif "System" in app_name:
-                config_key = "System Monitor"
-            elif "Notes" in app_name:
-                config_key = "Q-Notes"
-            elif "Vault" in app_name:
-                config_key = "Q-Vault"
-            else:
-                config_key = "Q-Vault"  # Default
-                
-            # Get the configuration for this app
-            config = app_configs[config_key]
-            display_name = config["display_name"]
+            # Create app button with background
+            app_rect = QGraphicsRectItem(x - button_size/2, y - button_size/2, button_size, button_size)
+            app_rect.setBrush(QBrush(QColor(255, 255, 255, 128)))
+            app_rect.setPen(QPen(QColor(52, 152, 219, 51), 1))
+            app_rect.setAcceptedMouseButtons(Qt.LeftButton)
+            app_rect.setCursor(QCursor(Qt.PointingHandCursor))
+            app_rect.mousePressEvent = lambda event, path=app_path, name=app_name: self.launch_app({"path": path, "name": name})
             
-            # Create modern styled app button
-            app_btn = QPushButton()
-            app_btn.setFixedSize(button_size, button_size)
+            self.scene.addItem(app_rect)
+            self.app_items.append(app_rect)
             
-            # Create minimal, clean button style without colored backgrounds
-            app_btn.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: rgba(255, 255, 255, 0.5);
-                    border: 1px solid rgba(52, 152, 219, 0.2);
-                    border-radius: 8px;
-                }}
-                QPushButton:hover {{
-                    border: 2px solid #3498db;
-                    background-color: rgba(255, 255, 255, 0.8);
-                }}
-                QPushButton:pressed {{
-                    background-color: rgba(52, 152, 219, 0.1);
-                }}
-            """)
-            
-            # Add SVG icon to button
-            icon_name = ""
-            if "RFT Validation" in config_key:
-                icon_name = "rft_validator.svg"
-            elif "Chat" in config_key or "AI Chat" in config_key:
-                icon_name = "ai_chat.svg"
-            elif "Quantum Simulator" in config_key:
-                icon_name = "quantum_simulator.svg"
-            elif "Quantum Crypto" in config_key:
-                icon_name = "quantum_crypto.svg"
-            elif "System Monitor" in config_key:
-                icon_name = "system_monitor.svg"
-            elif "Q-Notes" in config_key:
-                icon_name = "q_notes.svg"
-            elif "Q-Vault" in config_key:
-                icon_name = "q_vault.svg"
-            
-            # Create SVG widget and add to button layout
-            if icon_name:
-                # Create icon path - go up to project root
-                icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "ui", "icons", icon_name)
+            # Add SVG icon if available
+            if app_icon:
+                icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "ui", "icons", app_icon)
                 if os.path.exists(icon_path):
-                    svg_widget = QSvgWidget(icon_path)
-                    svg_widget.setFixedSize(button_size - 20, button_size - 20)  # Smaller than button for padding
+                    # Create SVG item
+                    svg_item = QGraphicsSvgItem(icon_path)
+                    icon_size = button_size * 0.7  # Slightly smaller than button
                     
-                    # Create a layout for the button to center the SVG
-                    layout = app_btn.layout()
-                    if not layout:
-                        from PyQt5.QtWidgets import QVBoxLayout
-                        layout = QVBoxLayout(app_btn)
-                        layout.setContentsMargins(10, 10, 10, 10)
-                        layout.setAlignment(Qt.AlignCenter)
+                    # Calculate scale factor to fit icon within the desired size
+                    svg_bounds = svg_item.boundingRect()
+                    scale_factor = min(icon_size / svg_bounds.width(), icon_size / svg_bounds.height())
+                    svg_item.setScale(scale_factor)
                     
-                    layout.addWidget(svg_widget)
+                    # Center the icon on the button
+                    svg_x = x - (svg_bounds.width() * scale_factor / 2)
+                    svg_y = y - (svg_bounds.height() * scale_factor / 2)
+                    svg_item.setPos(svg_x, svg_y)
+                    
+                    self.scene.addItem(svg_item)
+                    self.app_items.append(svg_item)
                 else:
                     print(f"Icon not found: {icon_path}")
-            
-            app_btn.setText("")  # No text on button itself
-            app_btn.clicked.connect(lambda checked, path=app["path"], name=app["name"]: 
-                                   self.launch_app({"path": path, "name": name}))
-            
-            # Add button to scene
-            proxy = self.scene.addWidget(app_btn)
-            proxy.setPos(x - button_size/2, y - button_size/2)
-            self.app_items.append(proxy)
             
             # Add text label below icon
             label = QGraphicsTextItem(display_name)
@@ -529,7 +418,7 @@ class QuantoniumDesktop(QMainWindow):
             self.scene.addItem(label)
             self.app_items.append(label)
         
-        print(f"Expanded arch with {len(self.apps)} applications - minimal version")
+        print(f"Expanded arch with {len(self.apps)} applications - SVG version")
         
     def collapse_arch(self):
         """Collapse arch formation"""
@@ -543,7 +432,7 @@ class QuantoniumDesktop(QMainWindow):
         print("Collapsed application arch")
     
     def launch_app(self, app_data):
-        """Launch application with improved error handling using Golden Ratio feedback"""
+        """Launch application within QuantoniumOS environment"""
         app_name = app_data["name"]
         app_path = app_data["path"]
         
@@ -554,100 +443,35 @@ class QuantoniumDesktop(QMainWindow):
             # Update status with mathematical precision
             self.system_status.setPlainText(f"LAUNCHING {app_name.upper()}")
             
-            # Launch with proper environment
-            base_dir = os.path.dirname(os.path.dirname(__file__))
+            # Get the project root directory for imports
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
             
-            # For GUI applications, detach process properly
-            if "visualizer" in app_name.lower():
-                # Simple direct launch - same as other apps, no special handling
-                if os.name == 'nt':  # Windows
-                    try:
-                        # Method 1: Use start command for complete process isolation
-                        command = f'start "QuantoniumOS - {app_name}" /D "{base_dir}" python "{app_path}"'
-                        process = subprocess.Popen(
-                            command,
-                            shell=True,
-                            cwd=base_dir,
-                            stdin=subprocess.DEVNULL,
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                            creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS
-                        )
-                        print(f"✅ {app_name} launched directly with PID: {process.pid}")
-                        self.system_status.setPlainText(f"{app_name.upper()} ACTIVE")
-                        return
-                    except Exception as e:
-                        print(f"❌ Direct launch failed: {e}")
-                        # Let it fall through to other app handling
-                if os.name == 'nt':  # Windows - use multiple approaches for best compatibility
-                    try:
-                        # Method 1: Use start command with CREATE_NEW_CONSOLE
-                        command = f'start "QuantoniumOS - {app_name}" /D "{base_dir}" python "{app_path}"'
-                        process = subprocess.Popen(
-                            command,
-                            shell=True,
-                            cwd=base_dir,
-                            stdin=subprocess.DEVNULL,
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                            creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS
-                        )
-                        print(f"✅ {app_name} launched directly with PID: {process.pid}")
-                        self.system_status.setPlainText(f"{app_name.upper()} ACTIVE")
-                        return
-                    except Exception as e:
-                        print(f"❌ Direct launch failed: {e}")
-                        
-            elif "vault" in app_name.lower() or "notes" in app_name.lower():
-                if os.name == 'nt':  # Windows - use multiple approaches for best compatibility
-                    try:
-                        # Method 1: Use start command with CREATE_NEW_CONSOLE
-                        command = f'start "QuantoniumOS - {app_name}" /D "{base_dir}" python "{app_path}"'
-                        process = subprocess.Popen(
-                            command,
-                            shell=True,
-                            cwd=base_dir,
-                            stdin=subprocess.DEVNULL,
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                            creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS
-                        )
-                    except Exception as e1:
-                        try:
-                            # Method 2: Direct subprocess with full detachment
-                            process = subprocess.Popen(
-                                [sys.executable, app_path],
-                                cwd=base_dir,
-                                stdin=subprocess.DEVNULL,
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL,
-                                creationflags=subprocess.CREATE_NEW_CONSOLE | subprocess.DETACHED_PROCESS
-                            )
-                        except Exception as e2:
-                            # Method 3: Fallback using os.startfile with python launcher
-                            temp_bat = os.path.join(base_dir, f"temp_launch_{app_name.replace(' ', '_')}.bat")
-                            with open(temp_bat, 'w') as f:
-                                f.write(f'@echo off\ncd /d "{base_dir}"\npython "{app_path}"\ndel "%~f0"')
-                            os.startfile(temp_bat)
-                            process = type('Process', (), {'pid': 0})()  # Dummy process object
-                else:  # Unix-like systems
-                    process = subprocess.Popen(
-                        [sys.executable, app_path], 
-                        cwd=base_dir,
-                        stdin=subprocess.DEVNULL,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL
-                    )
+            # Add the apps directory to Python path for imports
+            apps_dir = os.path.join(project_root, "src", "apps")
+            if apps_dir not in sys.path:
+                sys.path.insert(0, apps_dir)
+            
+            # Launch app based on type
+            if "q_notes" in app_path.lower():
+                self.launch_q_notes()
+            elif "q_vault" in app_path.lower():
+                self.launch_q_vault()
+            elif "quantum_simulator" in app_path.lower():
+                self.launch_quantum_simulator()
+            elif "quantum_crypto" in app_path.lower():
+                self.launch_quantum_crypto()
+            elif "qshll_system_monitor" in app_path.lower():
+                self.launch_system_monitor()
+            elif "qshll_chatbox" in app_path.lower():
+                self.launch_ai_chat()
+            elif "rft_validation" in app_path.lower():
+                self.launch_rft_validator()
             else:
-                # For console applications, capture output
-                process = subprocess.Popen(
-                    [sys.executable, app_path], 
-                    cwd=base_dir,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
+                # Fallback to subprocess for unknown apps
+                self.launch_app_subprocess(app_data)
+                return
             
-            print(f"Successfully launched {app_name} (PID: {process.pid})")
+            print(f"Successfully launched {app_name} within QuantoniumOS")
             
             # Reset status after delay using golden ratio timing (φ seconds)
             reset_delay = int(self.phi * 1000)  # φ seconds in milliseconds
@@ -655,14 +479,206 @@ class QuantoniumDesktop(QMainWindow):
             
         except Exception as e:
             print(f"Error launching {app_name}: {e}")
+            import traceback
+            traceback.print_exc()
             self.system_status.setPlainText("LAUNCH ERROR")
             QTimer.singleShot(int(self.phi_sq * 1000), lambda: self.system_status.setPlainText("QUANTONIUMOS"))
+    
+    def launch_app_subprocess(self, app_data):
+        """Fallback subprocess launcher for apps that can't be integrated"""
+        import subprocess
+        app_name = app_data["name"]
+        app_path = app_data["path"]
+        
+        try:
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            process = subprocess.Popen(
+                [sys.executable, app_path], 
+                cwd=project_root,
+                stdout=subprocess.DEVNULL if "qshll_chatbox" in app_path.lower() else subprocess.PIPE,
+                stderr=subprocess.DEVNULL if "qshll_chatbox" in app_path.lower() else subprocess.PIPE,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == 'win32' and "qshll_chatbox" in app_path.lower() else 0
+            )
+            print(f"Successfully launched {app_name} (PID: {process.pid})")
+        except Exception as e:
+            print(f"Error in subprocess launch for {app_name}: {e}")
+    
+    def launch_q_notes(self):
+        """Launch Q-Notes within the OS environment"""
+        try:
+            # Import the Q-Notes module
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            q_notes_path = os.path.join(project_root, "src", "apps", "q_notes.py")
+            
+            spec = importlib.util.spec_from_file_location("q_notes", q_notes_path)
+            q_notes_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(q_notes_module)
+            
+            # Create the Q-Notes window without creating a new QApplication
+            self.q_notes_window = q_notes_module.QNotes()
+            self.q_notes_window.show()
+            
+        except Exception as e:
+            print(f"Error launching Q-Notes: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def launch_q_vault(self):
+        """Launch Q-Vault within the OS environment"""
+        try:
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            q_vault_path = os.path.join(project_root, "src", "apps", "q_vault.py")
+            
+            spec = importlib.util.spec_from_file_location("q_vault", q_vault_path)
+            q_vault_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(q_vault_module)
+            
+            self.q_vault_window = q_vault_module.QVault()
+            self.q_vault_window.show()
+            
+        except Exception as e:
+            print(f"Error launching Q-Vault: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def launch_quantum_simulator(self):
+        """Launch Quantum Simulator within the OS environment"""
+        try:
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            simulator_path = os.path.join(project_root, "src", "apps", "quantum_simulator.py")
+            
+            spec = importlib.util.spec_from_file_location("quantum_simulator", simulator_path)
+            simulator_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(simulator_module)
+            
+            self.quantum_simulator_window = simulator_module.RFTQuantumSimulator()
+            self.quantum_simulator_window.show()
+            
+        except Exception as e:
+            print(f"Error launching Quantum Simulator: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def launch_quantum_crypto(self):
+        """Launch Quantum Cryptography within the OS environment"""
+        try:
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            crypto_path = os.path.join(project_root, "src", "apps", "quantum_crypto.py")
+            
+            spec = importlib.util.spec_from_file_location("quantum_crypto", crypto_path)
+            crypto_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(crypto_module)
+            
+            # Find the main class (it's called QuantumCrypto)
+            if hasattr(crypto_module, 'QuantumCrypto'):
+                self.quantum_crypto_window = crypto_module.QuantumCrypto()
+                self.quantum_crypto_window.show()
+            else:
+                print("Unknown quantum crypto class structure")
+                return
+                
+            self.quantum_crypto_window.show()
+            
+        except Exception as e:
+            print(f"Error launching Quantum Cryptography: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def launch_system_monitor(self):
+        """Launch System Monitor within the OS environment"""
+        try:
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            monitor_path = os.path.join(project_root, "src", "apps", "qshll_system_monitor.py")
+            
+            spec = importlib.util.spec_from_file_location("qshll_system_monitor", monitor_path)
+            monitor_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(monitor_module)
+            
+            # Find the main class
+            if hasattr(monitor_module, 'SystemMonitor'):
+                self.system_monitor_window = monitor_module.SystemMonitor()
+                self.system_monitor_window.show()
+            else:
+                print("Unknown system monitor class structure")
+                return
+            
+        except Exception as e:
+            print(f"Error launching System Monitor: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def launch_ai_chat(self):
+        """Launch AI Chat within the OS environment"""
+        try:
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            chat_path = os.path.join(project_root, "src", "apps", "qshll_chatbox.py")
+            
+            spec = importlib.util.spec_from_file_location("qshll_chatbox", chat_path)
+            chat_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(chat_module)
+            
+            # The class is called 'Chatbox'
+            if hasattr(chat_module, 'Chatbox'):
+                self.ai_chat_window = chat_module.Chatbox()
+                self.ai_chat_window.show()
+            else:
+                print("Unknown AI chat class structure")
+                return
+            
+        except Exception as e:
+            print(f"Error launching AI Chat: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def launch_rft_validator(self):
+        """Launch RFT Validator within the OS environment"""
+        try:
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            rft_path = os.path.join(project_root, "src", "apps", "rft_validation_suite.py")
+            
+            spec = importlib.util.spec_from_file_location("rft_validation_suite", rft_path)
+            rft_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(rft_module)
+            
+            # Find the main class (it's called RFTValidationSuite)
+            if hasattr(rft_module, 'RFTValidationSuite'):
+                self.rft_validator_window = rft_module.RFTValidationSuite()
+                self.rft_validator_window.show()
+            else:
+                print("Unknown RFT validator class structure")
+                return
+                
+            self.rft_validator_window.show()
+            
+        except Exception as e:
+            print(f"Error launching RFT Validator: {e}")
+            import traceback
+            traceback.print_exc()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.setWindowFlags(Qt.Window)
             self.showNormal()
         super().keyPressEvent(event)
+    
+    def start_fadein(self):
+        """Begin cross-fade transition - fade in the desktop"""
+        self.showFullScreen()  # Show the window
+        
+        self.fadein_timer = QTimer()
+        self.fadein_timer.timeout.connect(self.fadein_step)
+        self.fadein_opacity = 0.0
+        self.fadein_timer.start(16)  # ~60fps
+    
+    def fadein_step(self):
+        """Gradually fade in the desktop"""
+        self.fadein_opacity += 0.02  # Fade in over ~1.25 seconds
+        
+        if self.fadein_opacity >= 1.0:
+            self.fadein_opacity = 1.0
+            self.fadein_timer.stop()
+        
+        self.setWindowOpacity(self.fadein_opacity)
 
 def main():
     app = QApplication(sys.argv)

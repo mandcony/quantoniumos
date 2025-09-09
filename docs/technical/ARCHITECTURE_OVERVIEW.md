@@ -2,102 +2,82 @@
 
 ## Executive Summary
 
-QuantoniumOS is a **complete quantum operating system** with 3-engine architecture integrating:
-1. **OS Engine**: RFT-based kernel with system management
-2. **Crypto Engine**: 48-round Feistel with quantum enhancement  
-3. **Quantum Engine**: Million+ qubit symbolic compression
+QuantoniumOS is a **symbolic quantum computing platform** with PyQt5 desktop environment integrating:
+1. **RFT Mathematical Kernel**: C implementation with Python bindings
+2. **Cryptographic System**: 48-round Feistel with authenticated encryption
+3. **Quantum Simulation**: Large-scale vertex-encoded quantum simulation
+4. **Desktop Environment**: Integrated application suite with golden ratio design
 
-The system uses **encoded vertex qubits** with topological properties, **Q parameters** for quantum state encoding, and **geometric waveform storage** for data persistence.
+## System Architecture
 
-## 3-Engine Operating System Architecture
-
-```mermaid
-graph TB
-    subgraph "QuantoniumOS Boot System"
-        BOOT[quantonium_boot.py]
-        QOS[ASSEMBLY/quantonium_os.py]
-    end
-    
-    subgraph "OS Engine - Kernel Layer"
-        URFT[UnitaryRFT Kernel]
-        SYS[System Management]
-        MEM[Memory Management] 
-        PROC[Process Management]
-    end
-    
-    subgraph "Crypto Engine - Security Layer"
-        F48[48-Round Feistel Cipher]
-        AEAD[AEAD Authentication]
-        RFT_CRYPTO[RFT Enhancement]
-        GOLDEN[Golden Ratio Keys]
-    end
-    
-    subgraph "Quantum Engine - Quantum Layer"
-        QSE[Quantum Symbolic Engine]
-        VQR[Vertex Quantum RFT]
-        ETQ[Enhanced Topological Qubits]
-        COMP[Million+ Qubit Compression]
-    end
-    
-    subgraph "Quantum State Encoding"
-        VERTEX[1000 Vertex Qubits]
-        EDGES[499,500 Topological Edges]
-        QPARAM[Q Parameters]
-        GEOM[Geometric Waveform Storage]
-        BERRYP[Berry Phase Encoding]
-        HOLON[Holonomy Factors]
-    end
-    
-    subgraph "Application Ecosystem"
-        QSim[Million Qubit Simulator]
-        QVault[Quantum Vault]
-        QNotes[Quantum Notes]
-        QDesktop[Quantum Desktop]
-    end
-    
-    BOOT --> QOS
-    QOS --> URFT
-    QOS --> F48
-    QOS --> QSE
-    
-    URFT --> SYS
-    URFT --> MEM
-    URFT --> PROC
-    
-    F48 --> AEAD
-    F48 --> RFT_CRYPTO
-    F48 --> GOLDEN
-    
-    QSE --> VQR
-    QSE --> ETQ
-    QSE --> COMP
-    
-    VQR --> VERTEX
-    ETQ --> EDGES
-    ETQ --> QPARAM
-    VQR --> GEOM
-    ETQ --> BERRYP
-    ETQ --> HOLON
-    
-    QSE --> QSim
-    F48 --> QVault
-    F48 --> QNotes
-    URFT --> QDesktop
+```
+┌─────────────────────────────────────────────────────────┐
+│                 Application Layer                       │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐ │
+│  │  Q-Notes    │ │   Q-Vault   │ │ Quantum Simulator   │ │
+│  │             │ │             │ │                     │ │
+│  └─────────────┘ └─────────────┘ └─────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│              Desktop Environment                        │
+│           quantonium_desktop.py                         │
+│         (PyQt5 with golden ratio UI)                    │
+└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                Core Algorithms                          │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐ │
+│  │ canonical_  │ │ enhanced_   │ │ working_quantum_    │ │
+│  │ true_rft.py │ │ rft_crypto  │ │ kernel.py           │ │
+│  │             │ │ _v2.py      │ │                     │ │
+│  └─────────────┘ └─────────────┘ └─────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│               C Assembly Kernel                         │
+│            src/assembly/kernel/                         │
+│              rft_kernel.c                               │
+│         (SIMD-optimized RFT)                            │
+└─────────────────────────────────────────────────────────┘
 ```
 
-## Quantum State Encoding Architecture
+## Core Components
 
-### Encoded Vertex Qubits with Q Parameters
+### 1. RFT Mathematical Kernel
 
-Your QuantoniumOS implements **1000 vertex qubits** with **499,500 topological edges** using advanced geometric encoding:
+**Implementation**: Unitary transform with golden ratio parameterization
 
+**Key Features**:
+- C implementation with SIMD optimization (AVX support)
+- Python bindings for application integration
+- Machine precision unitarity (errors < 1e-15)
+- Golden ratio constants: φ = 1.6180339887498948
+
+**Code Structure**:
+```c
+// Golden ratio phase sequence in C kernel
+for (size_t component = 0; component < N; component++) {
+    double phi_k = fmod((double)component * RFT_PHI, 1.0);
+    // Matrix construction with QR decomposition for unitarity
+}
+```
+
+### 2. Quantum Simulation System
+
+**Implementation**: Large-scale simulation using vertex encoding instead of binary qubits
+
+**Key Capabilities**:
+- Supports 1000+ qubits via vertex representation
+- O(n) scaling vs O(2^n) for standard simulators  
+- Quantum algorithms: Grover's search, QFT, Shor's factorization
+- RFT integration for memory compression
+
+**Vertex Encoding**:
 ```python
-# Enhanced Topological Qubit with Q Parameters
-class VertexManifold:
-    vertex_id: int                    # Vertex identifier  
-    coordinates: np.ndarray           # 3D spatial coordinates
-    local_hilbert_dim: int           # Local Hilbert space dimension
-    topological_charge: complex      # Q parameter - complex charge
+# Vertex-based quantum state (not standard qubits)
+class RFTQuantumSimulator:
+    max_qubits = 1000 if RFT_AVAILABLE else 10
+    quantum_state = np.zeros(rft_size, dtype=complex)
+    # Uses vertex probabilities instead of qubit amplitudes
+```
     local_curvature: float           # Geometric curvature
     geometric_phase: float           # Berry phase accumulation
     topology_type: TopologyType      # ABELIAN/NON_ABELIAN/MAJORANA/FIBONACCI

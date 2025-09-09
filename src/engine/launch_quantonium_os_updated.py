@@ -14,7 +14,7 @@ FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend")
 sys.path.insert(0, FRONTEND_DIR)
 
 def launch_quantonium_os():
-    """Launch QuantoniumOS with the latest UI"""
+    """Launch QuantoniumOS with intro animation followed by desktop"""
     
     print("🚀 LAUNCHING QUANTONIUMOS")
     print("=" * 50)
@@ -23,8 +23,9 @@ def launch_quantonium_os():
     print("=" * 50)
     
     try:
-        # Import the latest desktop UI
-        from quantonium_desktop_new import QuantoniumDesktop
+        # Import the main desktop UI and intro
+        from quantonium_desktop import QuantoniumDesktop
+        from quantonium_intro import QuantoniumIntro
         from PyQt5.QtWidgets import QApplication
         
         # Create application
@@ -33,17 +34,42 @@ def launch_quantonium_os():
         app.setApplicationVersion("1.0.0")
         
         print("✅ UI System initialized")
-        print("✅ Quantum desktop loading...")
+        print("✅ Starting intro animation...")
         
-        # Create and show main window
-        main_window = QuantoniumDesktop()
-        main_window.show()
+        # Create intro window
+        intro = QuantoniumIntro()
         
-        print("✅ QuantoniumOS launched successfully!")
-        print("   • Centered quantum logo display")
-        print("   • Expandable app dock")
-        print("   • Scientific minimal design")
-        print("   • Golden ratio proportions")
+        # Create desktop window (hidden initially)
+        main_window = QuantoniumDesktop(show_immediately=False)
+        
+        def show_desktop():
+            """Complete the transition"""
+            # Just close intro - desktop is already visible and faded in
+            intro.close()
+        
+        def start_crossfade():
+            """Begin seamless cross-fade transition"""
+            print("🌊 Starting seamless cross-fade transition...")
+            print("✅ QuantoniumOS launched successfully!")
+            print("   • Animated intro complete")
+            print("   • Centered quantum logo display")
+            print("   • Expandable app dock")
+            print("   • Scientific minimal design")
+            print("   • Golden ratio proportions")
+            
+            # Start desktop fade-in
+            main_window.start_fadein()
+            
+            # Start intro fade-out
+            intro.start_fadeout()
+        
+        # Connect signals for seamless transition
+        intro.start_crossfade.connect(start_crossfade)
+        intro.animation_finished.connect(show_desktop)
+        
+        # Show intro and start animation
+        intro.show()
+        intro.start_animation()
         
         # Run application
         sys.exit(app.exec_())

@@ -227,7 +227,7 @@ class QuantoniumDesktop(QMainWindow):
         self.apps = [
             {
                 "name": "RFT Validation Suite", 
-                "path": os.path.join(base_path, "apps", "rft_validation_suite.py"), 
+                "path": os.path.join(base_path, "src", "apps", "rft_validation_suite.py"), 
                 "category": "ANALYSIS",
                 "description": "Mathematical validation framework",
                 "icon": "rft_validator.svg"
@@ -241,35 +241,35 @@ class QuantoniumDesktop(QMainWindow):
             },
             {
                 "name": "Quantum Simulator", 
-                "path": os.path.join(base_path, "apps", "quantum_simulator.py"), 
+                "path": os.path.join(base_path, "src", "apps", "quantum_simulator.py"), 
                 "category": "SIMULATION",
                 "description": "Quantum circuit modeling",
                 "icon": "quantum_simulator.svg"
             },
             {
                 "name": "Quantum Cryptography", 
-                "path": os.path.join(base_path, "apps", "quantum_crypto.py"), 
+                "path": os.path.join(base_path, "src", "apps", "quantum_crypto.py"), 
                 "category": "SECURITY",
                 "description": "Cryptographic protocols",
                 "icon": "quantum_crypto.svg"
             },
             {
                 "name": "System Monitor", 
-                "path": os.path.join(base_path, "apps", "qshll_system_monitor.py"), 
+                "path": os.path.join(base_path, "src", "apps", "qshll_system_monitor.py"), 
                 "category": "SYSTEM",
                 "description": "Resource monitoring",
                 "icon": "system_monitor.svg"
             },
             {
                 "name": "Q-Notes", 
-                "path": os.path.join(base_path, "apps", "q_notes.py"), 
+                "path": os.path.join(base_path, "src", "apps", "q_notes.py"), 
                 "category": "RESEARCH",
                 "description": "Research documentation",
                 "icon": "q_notes.svg"
             },
             {
                 "name": "Q-Vault", 
-                "path": os.path.join(base_path, "apps", "q_vault.py"), 
+                "path": os.path.join(base_path, "src", "apps", "q_vault.py"), 
                 "category": "DATA",
                 "description": "Secure data storage",
                 "icon": "q_vault.svg"

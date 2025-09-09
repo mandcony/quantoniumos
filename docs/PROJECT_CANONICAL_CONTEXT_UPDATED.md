@@ -1,103 +1,131 @@
-# QuantoniumOS - Canonical Project Context
+# QuantoniumOS - Project Context
 
-> **🎯 ALWAYS-UP-TO-DATE CANONICAL REFERENCE**  
-> This file serves as the single source of truth for project structure, architecture, routes, and development workflows.  
-> **ALL AGENTS AND DEVELOPERS MUST REFERENCE THIS FILE FIRST** to understand the project context.
+## Project Overview
 
-## 📋 Table of Contents
+QuantoniumOS implements symbolic quantum state simulation using vertex-based encoding and a custom mathematical transform called the Resonance Fourier Transform (RFT). The system achieves linear O(n) scaling versus exponential O(2^n) growth of standard quantum simulation.
 
-1. [Project Overview](#project-overview)
-2. [Architecture & Technology Stack](#architecture--technology-stack)
-3. [Directory Structure & Routes](#directory-structure--routes)
-4. [Core Components](#core-components)
-5. [Development Workflow](#development-workflow)
-6. [Validation & Testing](#validation--testing)
-7. [Build & Deployment](#build--deployment)
-8. [Agent & Developer Guidelines](#agent--developer-guidelines)
+### Core Components
 
----
+1. **RFT Engine** (`src/assembly/kernel/rft_kernel.c`)
+   - Unitary transform implementation with golden ratio parameterization
+   - C kernel with SIMD optimization and Python bindings
+   - Machine precision unitarity (errors ~1e-15)
 
-## 🚀 Project Overview
+2. **Quantum Simulator** (`src/apps/quantum_simulator.py`)
+   - Vertex-based encoding supporting 1000+ qubits
+   - Quantum algorithms: Grover's search, QFT, Shor's factorization
+   - Classical fallback with RFT compression for large states
 
-**QuantoniumOS** is a breakthrough **Symbolic Quantum-Inspired Computing Engine** implementing a **Hybrid Computational Framework for Quantum and Resonance Simulation** with patent-validated core technologies.
+3. **Cryptographic System** (`src/core/enhanced_rft_crypto_v2.py`)
+   - 48-round Feistel network with AES-based components
+   - RFT-derived key schedules and domain-separated keys
+   - Authenticated encryption with phase/amplitude modulation
 
-### 🎯 Core Objectives
-- **Symbolic Quantum Computing**: O(n) scaling vs O(2^n) exponential quantum simulation
-- **Patent-Validated Framework**: 4 core subsystems with proven mathematical foundations
-- **Hybrid Integration**: Unified computational architecture for quantum and classical systems
-- **Production-Ready Performance**: 1M+ symbolic qubits with machine-level precision
-- **Cross-Platform Deployment**: Streamlined assembly engines with unified frontend
+4. **Desktop Environment** (`src/frontend/quantonium_desktop.py`)
+   - PyQt5 interface with golden ratio proportions
+   - Integrated application launcher
+   - Apps run within single environment process
 
-### 🏆 Validation Status
-- ✅ **Patent Claims Verified**: All 4 core subsystems fully implemented and proven
-- ✅ **Mathematical Validation**: Machine-level unitary operation accuracy (‖Q†Q–I‖ ≈ 1.86e-15)
-- ✅ **Performance Confirmed**: O(n) linear complexity scaling validated
-- ✅ **Cryptographic Resistance**: Classical and quantum decryption resistance through symbolic phase-space operation
-- ✅ **Production Ready**: Complete validation package with honest assessment
+## Directory Structure
 
----
-
-## 🏗️ Architecture & Technology Stack
-
-### 🔧 Patent-Validated Core Framework
-
-```
-┌─────────────────────────────────────────┐
-│              FRONTEND LAYER             │
-│  Unified Interface + Launchers (PyQt5) │
-├─────────────────────────────────────────┤
-│           APPLICATION LAYER             │
-│ Q-Notes, Q-Vault, Quantum Simulator    │
-│ RFT Validator, Visualizer, Monitor     │
-│           (13 Applications)             │
-├─────────────────────────────────────────┤
-│         CORE ALGORITHM LAYER            │
-│    4 Patent-Validated Subsystems       │
-│  RFT + Crypto + Geometric + Hybrid     │
-├─────────────────────────────────────────┤
-│            ASSEMBLY LAYER               │
-│   3-Engine System (OS+Crypto+Quantum)  │
-│  C/Assembly Optimized + libquantum.so  │
-└─────────────────────────────────────────┘
-```
-
-### 🧬 Technology Stack
-- **Python 3.8+**: Frontend, applications, core algorithms, validation framework
-- **C/Assembly**: Performance-critical assembly engines and quantum compression
-- **PyQt5**: Desktop interface and unified frontend management
-- **NumPy/SciPy**: Mathematical operations and scientific computing
-- **Matplotlib**: Visualization and analysis tools
-- **Shell Scripts**: Build automation and system orchestration
-
-### 🚀 Unified Boot System
-- **`quantonium_boot.py`** - Single-command system launcher with comprehensive initialization
-
----
-
-## 📁 Directory Structure & Routes
-
-### 🚀 Current QuantoniumOS Architecture (September 2025)
-
-#### Root Level - Unified Boot System
 ```
 quantoniumos/
-├── quantonium_boot.py             # 🚀 UNIFIED BOOT SCRIPT - Main system launcher
-├── README.md                      # 📖 Project overview and quick start
-├── QUICK_START.md                 # ⚡ Essential launch commands
-├── PROJECT_STATUS.json            # 📊 Current project status
-├── PROJECT_SUMMARY.json           # 📋 High-level project summary
-├── PATENT-NOTICE.md               # 🛡️ Patent claims and legal notice
-├── LICENSE.md                     # ⚖️ Open source licensing
-└── Author                         # 👤 Author identification
+├── quantonium_boot.py              # System launcher
+├── src/
+│   ├── frontend/                   # Desktop interface
+│   ├── apps/                       # Applications (13 total)
+│   ├── core/                       # Core algorithms
+│   ├── assembly/                   # C kernels and optimization
+│   └── engine/                     # Main computational engine
+├── tests/                          # Validation and benchmarks
+├── docs/                           # Documentation
+└── ui/                             # Interface resources
 ```
 
-### 📂 Core System Directories
+## Applications
 
-#### `/frontend/` - Unified Interface & Launchers
-```
-frontend/
-├── quantonium_desktop.py          # 🖥️ Main desktop manager (unified interface)
-├── launch_quantonium_os.py        # 🚀 Primary system launcher
+### Working Applications
+- **Quantum Simulator**: 1000+ qubit vertex encoding simulation
+- **Q-Notes**: Markdown editor with autosave and search
+- **Q-Vault**: AES-256 encrypted storage with master password
+- **Q-Chat**: AI assistant interface
+- **System Monitor**: Resource monitoring and performance analysis
+- **Quantum Crypto**: QKD and encryption tools
+- **RFT Validator**: Mathematical validation suite
+
+### Key Features
+- Vertex-based quantum state representation
+- Linear scaling vs exponential quantum simulation
+- Integration of quantum algorithms with classical hardware
+- Practical demonstration of 1000+ qubit simulation
+- Cryptographically secure storage and communication
+
+## Technical Implementation
+
+### RFT Transform
+- Golden ratio (φ) parameterized unitary matrices
+- Eigendecomposition-based construction
+- SIMD optimization with AVX support
+- Python bindings for application integration
+
+### Quantum Simulation Approach
+- Graph vertex states instead of binary qubits
+- Amplitude-based probability calculations
+- Classical tensor operations with RFT compression
+- Measurement via vertex probability distributions
+
+### Cryptographic Integration
+- Feistel network with RFT-derived round functions
+- Domain-separated key derivation
+- Authenticated encryption modes
+- Avalanche testing for cryptographic strength
+
+## Validation Status
+
+### Mathematical Validation
+- **Unitarity**: ‖Q†Q–I‖ ≈ 1.86e-15 (machine precision)
+- **Scaling**: Linear O(n) complexity verified
+- **Transform Properties**: Distinct from DFT (δF ≈ 0.85)
+- **Energy Conservation**: Plancherel theorem satisfied
+
+### Performance Metrics
+- **Scale**: 1000+ vertices vs 50 qubit classical limit
+- **Memory**: Linear vs exponential requirements
+- **Computation**: O(n) vs O(2^n) complexity
+- **Precision**: Machine-level accuracy maintained
+
+### Cryptographic Validation
+- **Avalanche Effect**: >50% bit change for single input bit flip
+- **Key Sensitivity**: Full diffusion across 48 rounds
+- **Performance**: Competitive with standard block ciphers
+- **Security**: Classical and quantum resistance analysis
+
+## Development Workflow
+
+### Build Process
+1. `python quantonium_boot.py` - Main system launcher
+2. Automatic dependency checking and installation
+3. C kernel compilation with fallback to Python
+4. Desktop environment initialization
+5. Application integration and testing
+
+### Testing Framework
+- Unit tests for core algorithms
+- Integration tests for application functionality
+- Performance benchmarks and scaling analysis
+- Mathematical validation of transform properties
+- Cryptographic security assessment
+
+## Current Status
+
+This is a working prototype that demonstrates:
+- Feasibility of vertex-based quantum simulation
+- Mathematical validity of RFT approach
+- Practical scaling beyond classical limits
+- Integration of quantum concepts in desktop environment
+- Performance optimization through C kernels
+
+The system provides a foundation for symbolic quantum computing research and development while maintaining practical usability on standard hardware.
 └── quantonium_os_main.py          # 💻 Console interface and system management
 ```
 **Status**: Production-ready unified frontend with proper launcher organization

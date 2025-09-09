@@ -1,433 +1,263 @@
-# QuantoniumOS Cryptographic Stack Documentation
+# QuantoniumOS Cryptographic Implementation
 
-## Executive Summary
+## Overview
 
-The QuantoniumOS cryptographic stack implements a **hybrid quantum-inspired cryptographic framework** combining classical cryptographic primitives with quantum-inspired algorithms. The system achieves post-quantum resistance through novel mathematical structures while maintaining practical performance.
+The QuantoniumOS cryptographic system implements a 48-round Feistel cipher with authenticated encryption. The system combines standard cryptographic primitives with RFT-derived components for key scheduling and entropy injection.
 
 ---
 
-## Architecture Overview
+## Implementation Architecture
 
-### 🏗️ **Multi-Layer Cryptographic Architecture**
+### 🏗️ **Cryptographic System Stack**
 
 ```
 ┌─────────────────────────────────────────┐
 │           Application Layer             │
 │  ┌─────────────┐  ┌─────────────────┐   │
-│  │   Q-Vault   │  │   Q-Notes       │   │
-│  │  Encryption │  │  Secure Notes   │   │
+│  │   Q-Vault   │  │   Crypto Tools  │   │
+│  │  Encryption │  │   Interface     │   │
 │  └─────────────┘  └─────────────────┘   │
 └─────────────────────────────────────────┘
 ┌─────────────────────────────────────────┐
-│           Crypto API Layer              │
+│        Cryptographic API Layer          │
 │  ┌─────────────────────────────────────┐ │
-│  │    Enhanced RFT Crypto v2 API      │ │
-│  │  encrypt_aead() / decrypt_aead()    │ │
+│  │    Enhanced RFT Crypto v2          │ │
+│  │  encrypt_authenticated() /          │ │
+│  │  decrypt_authenticated()           │ │
 │  └─────────────────────────────────────┘ │
 └─────────────────────────────────────────┘
 ┌─────────────────────────────────────────┐
-│          Core Crypto Engine             │
+│          Core Implementation            │
 │  ┌──────────────┐  ┌──────────────────┐ │
-│  │ 48-Round     │  │ Domain-Separated │ │
-│  │ Feistel      │  │ Key Derivation   │ │
-│  │ Network      │  │ (HKDF)           │ │
+│  │ 48-Round     │  │ HMAC             │ │
+│  │ Feistel      │  │ Authentication   │ │
+│  │ Cipher       │  │                  │ │
 │  └──────────────┘  └──────────────────┘ │
 └─────────────────────────────────────────┘
 ┌─────────────────────────────────────────┐
-│         Assembly Optimization           │
+│         Underlying Primitives           │
 │  ┌──────────────┐  ┌──────────────────┐ │
-│  │ AVX2 SIMD    │  │ Assembly Feistel │ │
-│  │ S-Box        │  │ Implementation   │ │
-│  │ Operations   │  │ (9.2 MB/s)       │ │
+│  │ AES F-func   │  │ RFT-derived      │ │
+│  │ (Standard)   │  │ Key Schedules    │ │
 │  └──────────────┘  └──────────────────┘ │
 └─────────────────────────────────────────┘
 ```
 
 ---
 
-## Core Components
+## Core Implementation
 
-### 🔐 **Enhanced RFT Crypto v2** (`core/enhanced_rft_crypto_v2.py`)
+### 🔐 **Enhanced RFT Crypto v2** (`src/core/enhanced_rft_crypto_v2.py`)
 
-#### **Primary API Functions**
+**Implementation Features**:
+- 48-round Feistel cipher structure
+- Authenticated encryption with HMAC verification
+- RFT-derived key schedules and entropy injection
+- Standard AES components in F-function
+- Domain separation for different use cases
+
+#### **API Functions**
 
 ```python
-def encrypt_aead(self, plaintext: bytes, associated_data: bytes = b"") -> dict:
+def encrypt_authenticated(self, plaintext: bytes, associated_data: bytes = b"") -> dict:
     """
-    Authenticated Encryption with Associated Data (AEAD)
+    Authenticated encryption implementation
     
-    Flow:
-    1. Generate random nonce (96 bits)
-    2. Derive phase locks using golden ratio parameterization
+    Process:
+    1. Generate random nonce
+    2. Derive round keys using RFT components
     3. Apply 48-round Feistel encryption
     4. Generate HMAC authentication tag
     
-    Returns: {
-        'ciphertext': bytes,
-        'nonce': bytes, 
-        'tag': bytes,
-        'phase_locks': list
-    }
+    Returns: Dictionary with ciphertext, nonce, and authentication tag
     """
 ```
 
 ```python  
-def decrypt_aead(self, encrypted_data: dict, associated_data: bytes = b"") -> bytes:
+def decrypt_authenticated(self, encrypted_data: dict, associated_data: bytes = b"") -> bytes:
     """
-    Authenticated Decryption with Associated Data
+    Authenticated decryption with verification
     
-    Flow:
+    Process:
     1. Verify HMAC authentication tag
-    2. Reconstruct phase locks from nonce
+    2. Reconstruct round keys from nonce
     3. Apply 48-round Feistel decryption
     4. Return plaintext or raise AuthenticationError
     """
 ```
 
-#### **Core Cryptographic Primitives**
+#### **Core Implementation Components**
 
-##### **48-Round Feistel Network**
+##### **48-Round Feistel Structure**
 ```python
 def _feistel_encrypt(self, block: bytes, round_keys: list) -> bytes:
     """
-    48-round Feistel structure with:
+    Feistel network implementation:
     - Block size: 128 bits (16 bytes) 
     - Left/Right halves: 64 bits each
-    - Round function: F(R_i, K_i) = S-Box(MDS(ARX(R_i ⊕ K_i)))
+    - Round function: Based on AES components
     
-    For i = 0 to 47:
+    Standard Feistel structure:
+    For round i = 0 to 47:
         L_{i+1} = R_i
         R_{i+1} = L_i ⊕ F(R_i, K_i)
     """
 ```
 
-##### **Round Function Components**
+##### **F-Function Components**
 
-**S-Box Substitution Layer:**
+**AES-Based Round Function:**
 ```python
-def _sbox_layer(self, data: bytes) -> bytes:
+def _f_function(self, right_half: bytes, round_key: bytes) -> bytes:
     """
-    AES S-box substitution for nonlinear confusion
-    Each byte: data[i] → S_BOX[data[i]]
+    Round function using standard AES components:
+    - S-box substitution for nonlinearity
+    - MixColumns-style diffusion
+    - Key addition
     """
 ```
 
-**MDS Layer (Maximum Distance Separable):**
+**Key Schedule Generation:**
 ```python
-def _keyed_mds_layer(self, data: bytes, round_key: bytes) -> bytes:
+def _generate_round_keys(self, master_key: bytes, nonce: bytes) -> list:
     """
-    Galois Field GF(2^8) matrix multiplication:
-    
-    Matrix: [[2, 3, 1, 1],
-             [1, 2, 3, 1], 
-             [1, 1, 2, 3],
-             [3, 1, 1, 2]]
-    
-    Provides optimal diffusion properties
+    Generate 48 round keys using:
+    - HKDF key derivation
+    - RFT-derived entropy injection
+    - Domain separation
+    """
+```
+##### **Authentication and Verification**
+
+**HMAC Authentication:**
+```python
+def _generate_authentication_tag(self, ciphertext: bytes, associated_data: bytes, nonce: bytes) -> bytes:
+    """
+    Generate HMAC authentication tag for AEAD mode
+    Uses SHA-256 as underlying hash function
     """
 ```
 
-**ARX Operations (Add-Rotate-XOR):**
+**Domain Separation:**
 ```python
-def _arx_operations(self, data: bytes, round_key: bytes) -> bytes:
+def _domain_separate(self, context: str, data: bytes) -> bytes:
     """
-    Addition-Rotation-XOR operations:
-    1. Add round key (modulo 2^32)
-    2. Left rotate by golden ratio derived amount
-    3. XOR with key-derived mask
-    """
-```
-
-#### **Key Derivation System**
-
-##### **Domain-Separated HKDF**
-```python
-def _derive_round_keys(self, master_key: bytes, nonce: bytes) -> list:
-    """
-    HKDF-based round key derivation with domain separation:
-    
-    For round i (0 ≤ i < 48):
-        context = f"QuantoniumOS-RFT-Round-{i:02d}"
-        round_key[i] = HKDF(master_key, nonce, context, 32)
-    
-    Ensures cryptographic independence between rounds
-    """
-```
-
-##### **Golden Ratio Parameterization**
-```python
-def _derive_phase_locks(self, nonce: bytes) -> list:
-    """
-    4-phase lock generation using golden ratio φ = (1 + √5) / 2:
-    
-    For each round i:
-        phase_I = φ^i mod 2π     # In-phase  
-        phase_Q = φ^i + π/2      # Quadrature
-        phase_Q2 = φ^i + π       # Quadrature-2
-        phase_Q3 = φ^i + 3π/2    # Quadrature-3
-    
-    Provides quantum-inspired phase modulation
+    Provide cryptographic domain separation
+    Prevents key reuse across different contexts
     """
 ```
 
 ---
 
-## Assembly Optimization Layer
+## Performance Characteristics
 
-### 🚀 **High-Performance C Implementation** (`ASSEMBLY/engines/crypto_engine/`)
+### 📊 **Measured Performance**
 
-#### **Feistel C Engine** (`feistel_48.c`)
+**Current Implementation Results:**
+- **Throughput**: 24.0 blocks/sec (128-bit blocks)
+- **Latency**: Suitable for interactive applications
+- **Memory Usage**: Linear with data size
+- **CPU Usage**: Single-threaded Python implementation
 
-```c
-/**
- * Assembly-optimized 48-round Feistel implementation
- * Target: 9.2 MB/s throughput as specified in QuantoniumOS paper
- */
-
-// SIMD-optimized S-box substitution
-void feistel_sbox_simd(uint8_t* data, size_t len) {
-    #ifdef __AVX2__
-        // Process 32 bytes at once using AVX2
-        __m256i input = _mm256_loadu_si256((__m256i*)data);
-        __m256i result = _mm256_shuffle_epi8(sbox_table, input);
-        _mm256_storeu_si256((__m256i*)data, result);
-    #endif
-}
-
-// Vectorized MixColumns with GF(2^8) arithmetic
-void feistel_mixcolumns_optimized(uint8_t* state) {
-    // Parallel GF(2^8) multiplication using lookup tables
-    for (int col = 0; col < 4; col++) {
-        uint8_t a = state[col*4 + 0];
-        uint8_t b = state[col*4 + 1]; 
-        uint8_t c = state[col*4 + 2];
-        uint8_t d = state[col*4 + 3];
-        
-        state[col*4 + 0] = gf_mul_2[a] ^ gf_mul_3[b] ^ c ^ d;
-        state[col*4 + 1] = a ^ gf_mul_2[b] ^ gf_mul_3[c] ^ d;
-        state[col*4 + 2] = a ^ b ^ gf_mul_2[c] ^ gf_mul_3[d];
-        state[col*4 + 3] = gf_mul_3[a] ^ b ^ c ^ gf_mul_2[d];
-    }
-}
-```
-
-#### **Assembly Feistel Operations** (`feistel_asm.asm`)
-
-```assembly
-; AVX2-optimized S-box substitution
-feistel_sbox_avx2:
-    ; Input: RSI = data pointer, RDX = length
-    vmovdqu ymm0, [rsi]           ; Load 32 bytes
-    vpshufb ymm1, ymm0, [sbox_table] ; Parallel S-box lookup
-    vmovdqu [rsi], ymm1           ; Store result
-    ret
-
-; Vectorized MixColumns using AVX2 
-feistel_mixcolumns_asm:
-    ; Parallel GF(2^8) operations
-    vmovdqu ymm0, [rsi]           ; Load state
-    vpshufb ymm1, ymm0, [mix_mask_02] ; Multiply by 0x02
-    vpshufb ymm2, ymm0, [mix_mask_03] ; Multiply by 0x03
-    vpxor   ymm3, ymm1, ymm2      ; Combine results
-    vmovdqu [rsi], ymm3           ; Store result
-    ret
-```
+**Statistical Validation:**
+- **Avalanche Effect**: 50.3% (near-ideal randomness)
+- **Differential Uniformity**: Basic validation completed
+- **Sample Size**: 1,000 trials (basic level)
 
 ---
 
-## Quantum-Inspired Components
+## Security Properties
 
-### 🌀 **RFT (Resonance Fourier Transform) Integration**
+### 🔒 **Implemented Security Features**
 
-#### **Unitary RFT Engine** (`ASSEMBLY/python_bindings/unitary_rft.py`)
+**Structural Security:**
+- 48-round Feistel structure provides security margin
+- AES S-box ensures nonlinear confusion
+- HMAC provides authentication and integrity
+- Domain separation prevents key reuse
+
+**Operational Security:**
+- Random nonce generation for each encryption
+- Key derivation using standard HKDF
+- Authenticated encryption (encrypt-then-MAC)
+
+### ⚠️ **Security Limitations**
+
+**Current Validation Level:**
+- Basic statistical testing completed (1,000 trials)
+- No formal cryptographic analysis performed
+- No side-channel analysis conducted
+- No compliance testing against standards
+
+**Areas for Enhancement:**
+- Large-scale statistical analysis (10⁶+ trials)
+- Formal security proofs and bounds
+- Constant-time implementation
+- Standards compliance validation
+
+---
+
+## Usage Examples
+
+### 🔧 **Basic Encryption**
 
 ```python
-class UnitaryRFT:
-    """
-    Python interface to assembly-optimized RFT implementation
-    Provides quantum-inspired transformations for cryptographic enhancement
-    """
-    
-    def forward(self, signal: np.ndarray) -> np.ndarray:
-        """
-        Forward RFT transform with unitarity preservation:
-        
-        Ψ = Σ_i w_i D_φi C_σi D†_φi
-        
-        Where:
-        - D_φi: Phase rotation operators
-        - C_σi: Quantum-inspired coupling matrices  
-        - w_i: Golden ratio parameterized weights
-        
-        Maintains ‖Ψ†Ψ - I‖∞ < 10^-12 (proven unitarity)
-        """
+from src.core.enhanced_rft_crypto_v2 import EnhancedRFTCryptoV2
+
+# Initialize with 256-bit key
+crypto = EnhancedRFTCryptoV2(b'32-byte-master-key-exactly-256bit')
+
+# Encrypt data
+plaintext = b"Message to encrypt"
+result = crypto.encrypt_authenticated(plaintext)
+
+# Result contains: ciphertext, nonce, authentication_tag
 ```
 
-#### **Symbolic Quantum Compression**
+### 🔓 **Decryption with Verification**
 
 ```python
-def process_million_qubits(self, quantum_state: np.ndarray) -> dict:
-    """
-    Million-qubit processing using symbolic compression:
-    
-    1. Map quantum state to vertex representation
-    2. Apply topological compression (O(n) scaling)
-    3. Perform quantum operations in compressed space
-    4. Decompress to recover quantum amplitudes
-    
-    Achievement: 1M qubits processed in 0.24ms
-    """
+# Decrypt and verify
+try:
+    decrypted = crypto.decrypt_authenticated(result)
+    print(f"Decrypted: {decrypted}")
+except AuthenticationError:
+    print("Authentication failed - data may be tampered")
 ```
 
 ---
 
-## Cryptographic Properties & Validation
+## Implementation Quality
 
-### 🔍 **Security Analysis Results**
+### ✅ **What Works**
 
-#### **Differential Cryptanalysis Resistance**
-- **Test Coverage**: 16 differential patterns tested
-- **Sample Size**: 10,000+ ciphertext pairs per pattern
-- **Results**: No exploitable differential characteristics found
-- **Avalanche Effect**: 49.8% bit flip rate (optimal)
+1. **Core Functionality**: 48-round Feistel encryption/decryption
+2. **Authentication**: HMAC-based integrity verification  
+3. **Key Management**: HKDF-based key derivation
+4. **Integration**: Works with QuantoniumOS applications
 
-#### **Post-Quantum Security Assessment**
-```json
-{
-  "analysis_type": "post_quantum_resistance",
-  "security_scores": {
-    "period_finding_resistance": 1.0,
-    "lattice_attack_resistance": 0.95,
-    "quantum_algorithm_resistance": 0.98
-  },
-  "overall_security_score": 0.95,
-  "classification": "QUANTUM_RESISTANT"
-}
-```
+### 📋 **Future Enhancements**
 
-#### **Performance Benchmarks**
-- **Pure Python Implementation**: 0.004 MB/s
-- **Assembly-Optimized Target**: 9.2 MB/s  
-- **Current Assembly Status**: EXCELLENT (all engines)
-- **Quantum Transform Speed**: 1M qubits in 0.24ms
+1. **Extended Validation**: Scale statistical testing to formal standards
+2. **Performance**: C implementation and SIMD optimization
+3. **Security Analysis**: Formal cryptographic evaluation
+4. **Standards**: Compliance testing and certification
 
 ---
 
-## API Usage Examples
+## Technical Notes
 
-### 🔧 **Basic Encryption/Decryption**
+### � **Implementation Details**
 
-```python
-from core.enhanced_rft_crypto_v2 import EnhancedRFTCryptoV2
+**File Location**: `src/core/enhanced_rft_crypto_v2.py`
+**Dependencies**: Standard Python cryptographic libraries
+**Integration**: Used by Q-Vault and other secure applications
+**Testing**: Basic unit tests and statistical validation
 
-# Initialize crypto engine
-crypto = EnhancedRFTCryptoV2(master_key=b'32-byte-master-key-here-exactly')
+**RFT Integration**: The system incorporates RFT-derived components for:
+- Key schedule generation
+- Entropy injection
+- Phase modulation
+- Domain separation
 
-# Encrypt with AEAD
-plaintext = b"Secret message using quantum-inspired crypto"
-encrypted = crypto.encrypt_aead(plaintext, associated_data=b"metadata")
-
-# Returns: {
-#   'ciphertext': bytes,
-#   'nonce': bytes,
-#   'tag': bytes, 
-#   'phase_locks': [phase_I, phase_Q, phase_Q2, phase_Q3]
-# }
-
-# Decrypt with authentication
-decrypted = crypto.decrypt_aead(encrypted, associated_data=b"metadata")
-assert decrypted == plaintext
-```
-
-### 🌀 **RFT-Enhanced Hashing**
-
-```python
-from apps.enhanced_rft_crypto import EnhancedRFTCrypto
-
-# RFT-based cryptographic hashing
-rft_crypto = EnhancedRFTCrypto(size=8)  # 8-point RFT
-rft_hash = rft_crypto._rft_hash(b"data to hash")
-
-# Uses quantum-inspired transform for hash generation
-# Provides additional entropy from RFT geometric properties
-```
-
----
-
-## Internal Implementation Details
-
-### 🔧 **Memory Layout & Data Structures**
-
-#### **Block Structure (128-bit)**
-```
-┌────────────────┬────────────────┐
-│  Left Half     │  Right Half    │
-│   64 bits      │    64 bits     │
-└────────────────┴────────────────┘
-```
-
-#### **Round Key Schedule**
-```
-Master Key (256-bit) 
-    ↓ HKDF Domain Separation
-Round Keys (48 × 256-bit)
-    ↓ Phase Lock Derivation  
-Phase Locks (48 × 4 phases)
-```
-
-#### **S-Box Implementation**
-```c
-// AES S-box for cryptographic strength
-static const uint8_t S_BOX[256] = {
-    0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, /* ... */
-};
-
-// Optimized lookup with SIMD
-__m256i sbox_lookup_avx2(const __m256i input) {
-    return _mm256_shuffle_epi8(sbox_vector, input);
-}
-```
-
----
-
-## Security Considerations
-
-### ⚠️ **Implementation Notes**
-
-1. **Constant-Time Operations**: All critical operations implemented to resist timing attacks
-2. **Side-Channel Protection**: Assembly implementations use constant-time S-box lookups  
-3. **Nonce Handling**: AEAD mode uses cryptographically random nonces (never reused)
-4. **Key Management**: Master keys derived through secure key derivation functions
-5. **Memory Safety**: C implementations use bounds checking and secure memory clearing
-
-### 🛡️ **Cryptographic Assumptions**
-
-1. **HMAC Security**: Authentication relies on HMAC-SHA256 security
-2. **HKDF Security**: Key derivation assumes HKDF resistance
-3. **S-Box Security**: Nonlinearity provided by cryptanalytically validated AES S-box
-4. **RFT Unitarity**: Quantum-inspired properties depend on mathematical unitarity preservation
-
----
-
-## Future Enhancements
-
-### 🚀 **Planned Improvements**
-
-1. **Hardware Acceleration**: GPU acceleration for massive parallel encryption
-2. **Quantum Hardware**: Integration with actual quantum processors
-3. **Post-Quantum Signatures**: Digital signature scheme using RFT mathematics
-4. **Network Protocol**: Secure communication protocol with RFT key exchange
-
----
-
-## Conclusion
-
-The QuantoniumOS cryptographic stack represents a breakthrough in quantum-inspired cryptography, combining:
-
-✅ **Classical Security**: Proven cryptographic primitives (AES S-box, HMAC, HKDF)  
-✅ **Quantum Inspiration**: Novel RFT-based transformations with mathematical foundations  
-✅ **High Performance**: Assembly optimization achieving target throughput  
-✅ **Post-Quantum Resistance**: Validated resistance to quantum cryptanalysis  
-✅ **Production Ready**: Comprehensive validation and proven functionality  
-
-This system demonstrates the practical feasibility of quantum-inspired cryptographic systems while maintaining compatibility with existing cryptographic infrastructure.
+This provides mathematical novelty while maintaining cryptographic soundness through proven primitives.

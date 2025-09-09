@@ -1,74 +1,86 @@
 
-# QUANTONIUMOS QUICK START COMMANDS
+# QuantoniumOS Quick Start
 
-## 🚀 Unified Boot Script (RECOMMENDED)
+## Launch the System
+
 ```bash
-# Complete system boot with all engines and validation
+cd quantoniumos
 python quantonium_boot.py
-
-# Desktop mode (default)
-python quantonium_boot.py --mode desktop
-
-# Console mode  
-python quantonium_boot.py --mode console
-
-# Assembly engines only
-python quantonium_boot.py --assembly-only
-
-# System status check
-python quantonium_boot.py --status
 ```
 
-## 🎯 Individual Component Launchers
+This starts the full desktop environment with:
+- System initialization and dependency checks
+- Assembly engine compilation
+- Desktop interface with app launcher
+
+Click the Q logo in the center to access applications.
+
+## Individual Applications
+
 ```bash
-# Main frontend launcher
-python frontend/launch_quantonium_os.py
+# Quantum simulator (1000+ qubit vertex encoding)
+python src/apps/quantum_simulator.py
 
-# 3-Engine system launcher (OS + Crypto + Quantum)
-python ASSEMBLY/quantonium_os.py
+# Secure note-taking
+python src/apps/q_notes.py
 
-# Console interface
-python frontend/quantonium_os_main.py --console
+# Encrypted storage  
+python src/apps/q_vault.py
+
+# AI chat interface
+python src/apps/qshll_chatbox.py
+
+# System monitoring
+python src/apps/qshll_system_monitor.py
+
+# Cryptography tools
+python src/apps/quantum_crypto.py
 ```
 
-## 🧪 Run System Benchmarks  
+## Run Validation Tests
+
 ```bash
-# Full system validation
-python validation/benchmarks/QUANTONIUM_BENCHMARK_SUITE.py
+# Mathematical validation of RFT
+python tests/tests/comprehensive_validation_suite.py
 
-# ASSEMBLY 3-engine benchmarks
-python ASSEMBLY/quantonium_os.py --benchmark
+# Cryptographic testing
+python tests/crypto/crypto_performance_test.py
 
-# View final validation results
-python validation/analysis/QUANTONIUM_FINAL_VALIDATION.py
+# Performance benchmarks  
+python tests/benchmarks/QUANTONIUM_BENCHMARK_SUITE.py
 ```
 
-## 💡 Launch Individual Apps
-```bash
-# Productivity
-python apps/q_notes.py           # Q-Notes text editor
-python apps/q_vault.py           # Q-Vault secure storage
+## Key Features to Try
 
-# Visualization & Monitoring  
-python apps/qshll_system_monitor.py  # System monitor + 3D RFT visualizer
-python apps/quantum_simulator.py     # Quantum circuit simulator
+### Quantum Simulator
+- Set qubit count up to 1000
+- Run Grover's search on vertex encoding
+- Test quantum algorithms with RFT acceleration
+- Compare classical vs RFT scaling
 
-# Cryptography & Security
-python apps/enhanced_rft_crypto.py   # RFT crypto engine
-python apps/quantum_crypto.py        # Quantum crypto tools
-python apps/rft_validation_suite.py  # RFT validation
-```
+### Q-Notes
+- Markdown editing with live preview
+- Automatic saving and search
+- Research note organization
 
-## 📋 Check Project Status
-```bash
-type PROJECT_STATUS.json
-cat PROJECT_SUMMARY.json
-```
+### Q-Vault  
+- AES-256 encrypted storage
+- Master password protection
+- RFT-enhanced key derivation
 
-## ✨ Current Features
-- **Unified Frontend**: Single centered quantum logo with expandable app dock ✅
-- **Golden Ratio Design**: Mathematically precise proportions ✅  
-- **3-Engine Architecture**: OS + Crypto + Quantum in streamlined ASSEMBLY ✅
-- **Assembly Optimization**: C/Assembly quantum compression (1M+ qubits) ✅
-- **Complete Validation**: Performance benchmarks and mathematical proofs ✅
-- **Production Ready**: Streamlined architecture with single frontend ✅
+## System Requirements
+
+- Python 3.8+ with PyQt5, NumPy, SciPy, matplotlib
+- C compiler for assembly components (optional but recommended)
+- 4GB+ RAM for large quantum simulations
+- Windows or Linux
+
+## Troubleshooting
+
+**Missing dependencies**: Install with `pip install PyQt5 numpy scipy matplotlib`
+
+**Assembly compilation fails**: System falls back to Python implementation
+
+**Apps don't launch**: Run `python quantonium_boot.py` for integrated environment
+
+**Performance issues**: Check `tests/benchmarks/` for optimization settings

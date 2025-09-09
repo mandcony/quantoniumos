@@ -1,39 +1,48 @@
 # QuantoniumOS Directory Structure
 
-## Core Components
-- `core/` - Core quantum computing algorithms
-- `engine/` - Main QuantoniumOS engine components
-- `apps/` - Application layer
-- `ASSEMBLY/` - Assembly optimized components
-  - `unified/` - Unified assembly components
-  - `engines/` - Specialized engines
-  - `python_bindings/` - Python interfaces
+## Core Implementation
+- `src/` - Main source code
+  - `core/` - Mathematical algorithms (RFT, cryptography)
+  - `assembly/kernel/` - C implementation of RFT kernel with SIMD optimization
+  - `apps/` - PyQt5 applications (Q-Notes, Q-Vault, Quantum Simulator, etc.)
+  - `frontend/` - Desktop environment (quantonium_desktop.py)
+  - `engine/` - System engines and components
 
-## Development & Validation
-- `validation/` - Complete testing and validation suite
-  - `crypto/` - Cryptographic validation (moved from crypto_validation/)
-  - `tests/` - Unit tests
-  - `benchmarks/` - Performance benchmarks
-  - `analysis/` - Technical analysis
-  - `results/` - Test results
-  - `reports/` - Validation reports
+## Development & Testing
+- `tests/` - Testing framework
+  - `crypto/` - Cryptographic validation and analysis
+  - `benchmarks/` - Performance testing
+  - `results/` - Test results and reports
+- `dev/` - Development tools and utilities
+  - `scripts/` - Development and analysis scripts
+  - `tools/` - Development utilities
+  - `examples/` - Example code and usage
 
-## Documentation & Support
-- `docs/` - Documentation
-  - `audits/` - Audit reports
+## Documentation
+- `docs/` - Technical documentation
+  - `reports/` - Technical analysis and validation reports
   - `safety/` - AI safety documentation
-  - `reports/` - Technical reports
-- `scripts/` - Utility scripts
-  - `analysis/` - Analysis tools
-  - `security/` - Security tools
-- `tools/` - Development tools
-- `examples/` - Example code
+  - `technical/` - Technical specifications
+  - `audits/` - Audit reports
 
 ## Configuration & Assets
-- `config/` - Configuration files
-- `frontend/` - User interfaces
-- `ui/` - UI components
-- `weights/` - Model weights and data
+- `data/` - Configuration and data files
+  - `config/` - System configuration files
+  - `logs/` - System logs and chat records
+  - `weights/` - Model weights and parameters
+- `ui/` - User interface assets
+  - `icons/` - Application icons
+  - `styles_dark.qss`, `styles_light.qss` - UI themes
 
-## Archive
-- `archive/` - Backups and historical data
+## Application Data
+- `QNotes/` - Q-Notes application data
+- `QVault/` - Q-Vault secure storage data
+
+## Archive & Backup
+- `archive/` - Historical data and backups
+
+## Root Files
+- `quantonium_boot.py` - Main system launcher
+- `requirements.txt` - Python dependencies
+- `README.md` - Project overview and usage
+- `QUICK_START.md` - Quick start guide
