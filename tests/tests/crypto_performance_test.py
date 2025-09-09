@@ -27,11 +27,21 @@ sys.path.append(os.path.join(ASSEMBLY_PATH, "python_bindings"))
 
 try:
     import numpy as np
-    from core.enhanced_rft_crypto_v2 import EnhancedRFTCryptoV2
-    from unitary_rft import UnitaryRFT  # Correct class name
-    from vertex_quantum_rft import EnhancedVertexQuantumRFT  # Already correct
-    from quantum_symbolic_engine import QuantumSymbolicEngine  # Already correct
-    print("✓ Successfully imported assembly-optimized implementations")
+    from src.core.enhanced_rft_crypto_v2 import EnhancedRFTCryptoV2
+    
+    # Try assembly imports, fallback to Python if not available
+    try:
+        from unitary_rft import UnitaryRFT
+        from vertex_quantum_rft import EnhancedVertexQuantumRFT
+        from quantum_symbolic_engine import QuantumSymbolicEngine
+        print("✓ Successfully imported assembly-optimized implementations")
+        ASSEMBLY_AVAILABLE = True
+    except ImportError:
+        print("⚠ Assembly imports not available, using Python fallback")
+        UnitaryRFT = None
+        EnhancedVertexQuantumRFT = None
+        QuantumSymbolicEngine = None
+        ASSEMBLY_AVAILABLE = False
     
     # Initialize assembly-optimized engines
     UNITARY_RFT = UnitaryRFT(size=1024, flags=0x00000008)  # RFT_FLAG_UNITARY

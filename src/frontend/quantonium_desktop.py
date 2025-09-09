@@ -262,7 +262,8 @@ class QuantoniumDesktop(QMainWindow):
     
     def load_styles(self):
         """Load the appropriate stylesheet based on theme"""
-        base_path = os.path.dirname(os.path.dirname(__file__))
+        # Go up to project root (src/frontend -> src -> root)
+        base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
         
         if self.is_dark_theme:
             qss_path = os.path.join(base_path, "ui", "styles_dark.qss")
@@ -466,8 +467,8 @@ class QuantoniumDesktop(QMainWindow):
             icon_name = ""
             if "RFT Validation" in config_key:
                 icon_name = "rft_validator.svg"
-            elif "RFT Visual" in config_key:
-                icon_name = "rft_visualizer.svg"
+            elif "Chat" in config_key or "AI Chat" in config_key:
+                icon_name = "ai_chat.svg"
             elif "Quantum Simulator" in config_key:
                 icon_name = "quantum_simulator.svg"
             elif "Quantum Crypto" in config_key:
@@ -481,7 +482,8 @@ class QuantoniumDesktop(QMainWindow):
             
             # Create SVG widget and add to button layout
             if icon_name:
-                icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui", "icons", icon_name)
+                # Create icon path - go up to project root
+                icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "ui", "icons", icon_name)
                 if os.path.exists(icon_path):
                     svg_widget = QSvgWidget(icon_path)
                     svg_widget.setFixedSize(button_size - 20, button_size - 20)  # Smaller than button for padding

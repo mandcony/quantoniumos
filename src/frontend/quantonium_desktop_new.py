@@ -233,11 +233,11 @@ class QuantoniumDesktop(QMainWindow):
                 "icon": "rft_validator.svg"
             },
             {
-                "name": "RFT Visualizer", 
-                "path": os.path.join(base_path, "apps", "rft_visualizer.py"), 
-                "category": "VISUALIZATION", 
-                "description": "Real-time signal processing",
-                "icon": "rft_visualizer.svg"
+                "name": "AI Chat", 
+                "path": os.path.join(base_path, "src", "apps", "qshll_chatbox.py"), 
+                "category": "AI", 
+                "description": "Quantum-enhanced AI assistant",
+                "icon": "ai_chat.svg"
             },
             {
                 "name": "Quantum Simulator", 
@@ -356,7 +356,7 @@ class QuantoniumDesktop(QMainWindow):
             
             # Add SVG icon if available
             if app_icon:
-                icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui", "icons", app_icon)
+                icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "ui", "icons", app_icon)
                 if os.path.exists(icon_path):
                     # Create SVG item
                     svg_item = QGraphicsSvgItem(icon_path)
@@ -412,6 +412,7 @@ class QuantoniumDesktop(QMainWindow):
     
     def launch_app(self, app_data):
         """Launch application with improved error handling using Golden Ratio feedback"""
+        import subprocess  # Import here to ensure it's available
         app_name = app_data["name"]
         app_path = app_data["path"]
         
@@ -425,25 +426,14 @@ class QuantoniumDesktop(QMainWindow):
             # Launch with proper environment
             base_dir = os.path.dirname(os.path.dirname(__file__))
             
-            # For RFT Visualizer, use special handling to prevent conflicts
-            if "rft_visualizer" in app_path.lower():
-                # Use detached process for GUI apps to prevent blocking
-                import subprocess
-                process = subprocess.Popen(
-                    [sys.executable, app_path], 
-                    cwd=base_dir,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == 'win32' else 0
-                )
-            else:
-                # Standard launch for other apps
-                process = subprocess.Popen(
-                    [sys.executable, app_path], 
-                    cwd=base_dir,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
+            # Launch process with proper handling
+            process = subprocess.Popen(
+                [sys.executable, app_path], 
+                cwd=base_dir,
+                stdout=subprocess.DEVNULL if "qshll_chatbox" in app_path.lower() else subprocess.PIPE,
+                stderr=subprocess.DEVNULL if "qshll_chatbox" in app_path.lower() else subprocess.PIPE,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if sys.platform == 'win32' and "qshll_chatbox" in app_path.lower() else 0
+            )
             
             print(f"Successfully launched {app_name} (PID: {process.pid})")
             
