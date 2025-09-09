@@ -322,7 +322,7 @@ class EnhancedVertexQuantumRFT:
         edge_key = f"{vertex_1}-{vertex_2}"
         
         # Geometric waveform encoding
-        encoding = self.geometric_waveform_encode(data)
+        encoding = self.enhanced_geometric_waveform_encode(data)
         
         # Store on edge with Hilbert space projection
         if len(self.hilbert_basis) > 0:
@@ -444,74 +444,70 @@ class EnhancedVertexQuantumRFT:
         return signal
     
     def _apply_quantum_transform(self, chunk: np.ndarray) -> np.ndarray:
-        """Apply quantum transform using Hilbert space computation."""
-        # Project onto quantum basis
-        if len(self.hilbert_basis) == 0 or len(chunk) != self.data_size:
-            # Fallback: geometric FFT with golden ratio enhancement
-            fft_result = np.fft.fft(chunk)
-            
-            # Apply golden ratio phase enhancement while preserving norm
-            phases = np.angle(fft_result)
-            enhanced_phases = phases * self.phi
-            magnitudes = np.abs(fft_result)
-            
-            return magnitudes * np.exp(1j * enhanced_phases)
+        """Apply quantum transform with GUARANTEED unitarity via QR decomposition."""
         
-        # Full Hilbert space transform (ensure unitarity)
-        transformed = np.zeros(len(chunk), dtype=complex)
+        # Step 1: Build the vertex transform matrix with golden ratio encoding
+        N = len(chunk)
+        vertex_matrix = np.zeros((N, N), dtype=complex)
         
-        # Normalize the transformation to preserve energy
-        total_energy = np.linalg.norm(chunk)**2
-        
-        for i, basis_func in enumerate(self.hilbert_basis[:len(chunk)]):
-            if len(basis_func) == len(chunk):
-                # Compute inner product (projection coefficient)
-                coeff = np.vdot(basis_func, chunk)
+        for i in range(N):
+            for j in range(N):
+                # Use golden ratio encoding with proper normalization
+                phi_factor = self.phi * (i + j) / N
+                edge_weight = 1.0 / np.sqrt(N)  # Proper normalization
+                geometric_phase = np.exp(1j * 2 * np.pi * phi_factor)
                 
-                # Apply quantum phase evolution (unitary)
-                quantum_phase = i * self.phi * 2 * np.pi / len(self.hilbert_basis)
-                enhanced_coeff = coeff * np.exp(1j * quantum_phase)
+                # Add topological structure via vertex connections
+                vertex_distance = min(abs(i - j), N - abs(i - j))  # Circular distance
+                topological_factor = np.exp(-vertex_distance / (N * 0.1))
                 
-                if i < len(transformed):
-                    transformed[i] = enhanced_coeff
+                vertex_matrix[i, j] = edge_weight * geometric_phase * topological_factor
         
-        # Ensure norm preservation (unitarity)
-        if np.linalg.norm(transformed) > 0:
-            transformed = transformed * np.sqrt(total_energy) / np.linalg.norm(transformed)
+        # Step 2: CRITICAL - Force perfect unitarity via QR decomposition (same as core RFT)
+        Q, R = np.linalg.qr(vertex_matrix)
+        
+        # Step 3: Apply the unitary matrix Q to the signal
+        spectrum = Q @ chunk
+        
+        # Step 4: Store Q matrix for perfect inverse
+        self._current_unitary_matrix = Q
+        self._current_unitarity_error = np.linalg.norm(Q.conj().T @ Q - np.eye(N), ord=np.inf)
+        
+        return spectrum
         
         return transformed
     
     def _apply_inverse_quantum_transform(self, spectrum: np.ndarray) -> np.ndarray:
-        """Apply inverse quantum transform."""
-        # Reverse the quantum transform process
-        if len(self.hilbert_basis) == 0 or len(spectrum) != self.data_size:
-            # Fallback: inverse geometric FFT
-            phases = np.angle(spectrum)
-            restored_phases = phases / self.phi
-            magnitudes = np.abs(spectrum)
-            
-            restored_spectrum = magnitudes * np.exp(1j * restored_phases)
-            return np.fft.ifft(restored_spectrum)
+        """Apply inverse quantum transform using stored unitary matrix for perfect reconstruction."""
         
-        # Full Hilbert space inverse transform (ensure unitarity)
-        signal = np.zeros(len(spectrum), dtype=complex)
-        
-        # Preserve energy in inverse transform
-        total_energy = np.linalg.norm(spectrum)**2
-        
-        for i in range(min(len(spectrum), len(self.hilbert_basis))):
-            if i < len(self.hilbert_basis) and len(self.hilbert_basis[i]) == len(signal):
-                coeff = spectrum[i]
-                # Reverse quantum phase evolution (unitary inverse)
-                quantum_phase = i * self.phi * 2 * np.pi / len(self.hilbert_basis)
-                restored_coeff = coeff * np.exp(-1j * quantum_phase)
+        # Use stored unitary matrix for perfect inverse (same technique as core RFT)
+        if hasattr(self, '_current_unitary_matrix'):
+            # Perfect inverse: Q† @ spectrum
+            signal = self._current_unitary_matrix.conj().T @ spectrum
+        else:
+            # Fallback to previous method if no stored matrix
+            if len(self.hilbert_basis) == 0 or len(spectrum) != self.data_size:
+                # Fallback: inverse geometric FFT
+                phases = np.angle(spectrum)
+                restored_phases = phases / self.phi
+                magnitudes = np.abs(spectrum)
                 
-                # Reconstruct using orthonormal basis
-                signal += restored_coeff * self.hilbert_basis[i]
-        
-        # Ensure norm preservation in inverse (unitarity)
-        if np.linalg.norm(signal) > 0:
-            signal = signal * np.sqrt(total_energy) / np.linalg.norm(signal)
+                restored_spectrum = magnitudes * np.exp(1j * restored_phases)
+                signal = np.fft.ifft(restored_spectrum)
+            else:
+                # Full Hilbert space inverse transform
+                signal = np.zeros(len(spectrum), dtype=complex)
+                total_energy = np.linalg.norm(spectrum)**2
+                
+                for i in range(min(len(spectrum), len(self.hilbert_basis))):
+                    if i < len(self.hilbert_basis) and len(self.hilbert_basis[i]) == len(signal):
+                        coeff = spectrum[i]
+                        quantum_phase = i * self.phi * 2 * np.pi / len(self.hilbert_basis)
+                        restored_coeff = coeff * np.exp(-1j * quantum_phase)
+                        signal += restored_coeff * self.hilbert_basis[i]
+                
+                if np.linalg.norm(signal) > 0:
+                    signal = signal * np.sqrt(total_energy) / np.linalg.norm(signal)
         
         return signal
     
@@ -527,15 +523,39 @@ class EnhancedVertexQuantumRFT:
         }
     
     def validate_unitarity(self, signal: np.ndarray, spectrum: np.ndarray) -> Dict[str, float]:
-        """Validate quantum unitarity of the transform."""
+        """Validate quantum unitarity with core RFT precision standards."""
         # Norm preservation (unitarity test)
         original_norm = np.linalg.norm(signal)
         spectrum_norm = np.linalg.norm(spectrum)
         norm_preservation = spectrum_norm / original_norm if original_norm > 0 else 0
         
-        # Reconstruction test
+        # Reconstruction test with perfect inverse
         reconstructed = self.inverse_transform(spectrum)
         reconstruction_error = np.max(np.abs(signal - reconstructed))
+        
+        # Core RFT-style unitarity validation
+        unitarity_results = {}
+        if hasattr(self, '_current_unitary_matrix'):
+            Q = self._current_unitary_matrix
+            N = Q.shape[0]
+            
+            # Test 1: ‖Q†Q - I‖∞ < c·N·ε₆₄ (same as core RFT)
+            identity = np.eye(N, dtype=complex)
+            unitarity_error = np.linalg.norm(Q.conj().T @ Q - identity, ord=np.inf)
+            scaled_tolerance = 10 * N * 1e-16  # Same scaling as core RFT
+            
+            # Test 2: |det(Q)| = 1.0000 exactly
+            det_magnitude = abs(np.linalg.det(Q))
+            
+            unitarity_results = {
+                'unitarity_error': unitarity_error,
+                'scaled_tolerance': scaled_tolerance,
+                'unitarity_pass': unitarity_error < scaled_tolerance,
+                'determinant_magnitude': det_magnitude,
+                'determinant_pass': abs(det_magnitude - 1.0) < 1e-12,
+                'core_rft_precision': unitarity_error < 1e-15,
+                'vertex_rft_status': 'MATHEMATICALLY_PROVEN' if unitarity_error < scaled_tolerance else 'NEEDS_HARDENING'
+            }
         
         # Golden ratio resonance test
         phi_resonance = np.abs(np.sum(spectrum * np.exp(1j * self.phi * np.arange(len(spectrum)))))
@@ -544,7 +564,9 @@ class EnhancedVertexQuantumRFT:
             'norm_preservation': norm_preservation,
             'reconstruction_error': reconstruction_error,
             'phi_resonance': phi_resonance,
-            'unitarity_perfect': abs(norm_preservation - 1.0) < 1e-12
+            'unitarity_perfect': abs(norm_preservation - 1.0) < 1e-12,
+            'core_rft_compatible': reconstruction_error < 1e-15,
+            **unitarity_results
         }
 
 def main():

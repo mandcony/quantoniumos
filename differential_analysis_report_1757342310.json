@@ -1,0 +1,233 @@
+{
+  "timestamp": 1757342310,
+  "cipher": "Enhanced_RFT_Cryptography_48_Round_Feistel",
+  "analysis_type": "differential_cryptanalysis",
+  "main_analysis": {
+    "total_tests": 16,
+    "analysis_time_seconds": 1213.1809980869293,
+    "overall_differential_security": false,
+    "maximum_probability_observed": 0.0002,
+    "security_threshold": 5.421010862427522e-20,
+    "security_margin": 2.710505431213761e-16,
+    "conclusion": "VULNERABLE_TO_DIFFERENTIAL_ATTACKS",
+    "individual_results": {
+      "differential_01": {
+        "input_differential": "01000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_02": {
+        "input_differential": "02000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_03": {
+        "input_differential": "04000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_04": {
+        "input_differential": "08000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_05": {
+        "input_differential": "80000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_06": {
+        "input_differential": "03000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_07": {
+        "input_differential": "05000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_08": {
+        "input_differential": "81000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_09": {
+        "input_differential": "ff000000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_10": {
+        "input_differential": "00ff0000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_11": {
+        "input_differential": "ffff0000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_12": {
+        "input_differential": "55550000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_13": {
+        "input_differential": "aaaa0000000000000000000000000000",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_14": {
+        "input_differential": "ffffffffffffffffffffffffffffffff",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_15": {
+        "input_differential": "55555555555555555555555555555555",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      },
+      "differential_16": {
+        "input_differential": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "samples_tested": 5000,
+        "max_count": 1,
+        "max_differential_probability": 0.0002,
+        "security_threshold": 5.421010862427522e-20,
+        "differential_security": false,
+        "unique_output_differentials": 5000,
+        "assessment": "VULNERABLE",
+        "security_margin": 2.710505431213761e-16
+      }
+    }
+  },
+  "round_reduced_analysis": {
+    "round_reduced_analysis": {
+      "16_rounds": {
+        "rounds": 16,
+        "theoretical_max_probability": 3.552713678800501e-15,
+        "security_threshold": 5.421010862427522e-20,
+        "theoretically_secure": false,
+        "note": "Theoretical analysis based on Feistel structure"
+      },
+      "24_rounds": {
+        "rounds": 24,
+        "theoretical_max_probability": 2.117582368135751e-22,
+        "security_threshold": 5.421010862427522e-20,
+        "theoretically_secure": true,
+        "note": "Theoretical analysis based on Feistel structure"
+      },
+      "32_rounds": {
+        "rounds": 32,
+        "theoretical_max_probability": 1.262177448353619e-29,
+        "security_threshold": 5.421010862427522e-20,
+        "theoretically_secure": true,
+        "note": "Theoretical analysis based on Feistel structure"
+      },
+      "40_rounds": {
+        "rounds": 40,
+        "theoretical_max_probability": 7.52316384526264e-37,
+        "security_threshold": 5.421010862427522e-20,
+        "theoretically_secure": true,
+        "note": "Theoretical analysis based on Feistel structure"
+      },
+      "48_rounds": {
+        "rounds": 48,
+        "theoretical_max_probability": 4.484155085839415e-44,
+        "security_threshold": 5.421010862427522e-20,
+        "theoretically_secure": true,
+        "note": "Theoretical analysis based on Feistel structure"
+      }
+    },
+    "full_rounds": 48,
+    "minimum_secure_rounds": 24
+  }
+}
