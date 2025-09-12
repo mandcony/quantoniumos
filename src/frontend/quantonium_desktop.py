@@ -544,18 +544,59 @@ class QuantoniumDesktop(QMainWindow):
     def launch_quantum_simulator(self):
         """Launch Quantum Simulator within the OS environment"""
         try:
+            print("🚀 Launching Quantum Simulator...")
+            
+            # Use direct import method since subprocess fails on Windows
             project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
             simulator_path = os.path.join(project_root, "src", "apps", "quantum_simulator.py")
             
+            print(f"📁 Loading simulator from: {simulator_path}")
+            
+            # Add apps directory to path
+            apps_dir = os.path.join(project_root, "src", "apps")
+            if apps_dir not in sys.path:
+                sys.path.insert(0, apps_dir)
+            
+            # Check if file exists
+            if not os.path.exists(simulator_path):
+                print(f"❌ Simulator file not found: {simulator_path}")
+                return
+            
+            import importlib.util
             spec = importlib.util.spec_from_file_location("quantum_simulator", simulator_path)
             simulator_module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(simulator_module)
             
+            print("✅ Simulator module loaded successfully")
+            
+            # Create and show the simulator window
             self.quantum_simulator_window = simulator_module.RFTQuantumSimulator()
+            
+            # Force window to be visible and on top
             self.quantum_simulator_window.show()
+            self.quantum_simulator_window.raise_()
+            self.quantum_simulator_window.activateWindow()
+            
+            # Make it stay on top temporarily
+            from PyQt5.QtCore import Qt
+            self.quantum_simulator_window.setWindowFlags(
+                self.quantum_simulator_window.windowFlags() | Qt.WindowStaysOnTopHint
+            )
+            self.quantum_simulator_window.show()  # Show again after flag change
+            
+            # Move to center of screen to make sure it's visible
+            screen = self.quantum_simulator_window.screen().geometry()
+            window = self.quantum_simulator_window.geometry()
+            x = (screen.width() - window.width()) // 2
+            y = (screen.height() - window.height()) // 2
+            self.quantum_simulator_window.move(x, y)
+            
+            print("✅ Quantum Simulator launched successfully!")
+            print(f"🖥️ Window position: {x}, {y}")
+            print("🔍 Window should be visible on top of all other windows!")
             
         except Exception as e:
-            print(f"Error launching Quantum Simulator: {e}")
+            print(f"❌ Error launching Quantum Simulator: {e}")
             import traceback
             traceback.print_exc()
     

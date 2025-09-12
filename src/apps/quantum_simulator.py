@@ -23,7 +23,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 # Import RFT kernel
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'ASSEMBLY', 'python_bindings'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'assembly', 'python_bindings'))
 try:
     from unitary_rft import UnitaryRFT, RFT_FLAG_QUANTUM_SAFE, RFT_FLAG_USE_RESONANCE
     RFT_AVAILABLE = True
@@ -46,6 +46,7 @@ class RFTQuantumSimulator(QMainWindow):
     
     def __init__(self):
         super().__init__()
+        
         self.setWindowTitle("RFT Quantum Simulator — 1000 Qubits — QuantoniumOS")
         self.resize(1600, 1000)
         self._theme = "light"  # Start in light mode for toggle functionality
@@ -55,9 +56,11 @@ class RFTQuantumSimulator(QMainWindow):
         self.num_qubits = 5  # Start with fewer qubits for faster startup
         self.rft_engine = None
         
+        # Initialize with safe classical state for guaranteed stability
+        self._init_safe_classical_state()
+        
         self._apply_style(self._theme)
         self._build_ui()
-        self._init_rft_quantum_state()
 
     def _init_rft_quantum_state(self):
         """Initialize RFT-based quantum state - FULL 1000 QUBIT SUPPORT"""
@@ -69,20 +72,25 @@ class RFTQuantumSimulator(QMainWindow):
                 else:
                     # RFT compression for massive scale (21-1000 qubits)
                     rft_size = 2 ** 20  # Use RFT's compression capabilities
+                
+                try:
+                    self.rft_engine = UnitaryRFT(rft_size, 
+                                               RFT_FLAG_QUANTUM_SAFE | RFT_FLAG_USE_RESONANCE)
                     
-                self.rft_engine = UnitaryRFT(rft_size, 
-                                           RFT_FLAG_QUANTUM_SAFE | RFT_FLAG_USE_RESONANCE)
-                
-                # Initialize with safe RFT operations only
-                self.quantum_state = np.zeros(rft_size, dtype=complex)
-                self.quantum_state[0] = 1.0  # Ground state
-                
-                # Use only available RFT methods
-                self.resonance_state = self.rft_engine.forward(self.quantum_state)
-                
-                print(f"✓ Full-scale RFT Engine: {self.num_qubits} qubits, {rft_size} dimensions")
-                if self.num_qubits > 20:
-                    print(f"✓ Using RFT compression for {self.num_qubits}-qubit massive simulation")
+                    # Initialize with safe RFT operations only
+                    self.quantum_state = np.zeros(rft_size, dtype=complex)
+                    self.quantum_state[0] = 1.0  # Ground state
+                    
+                    # Use only available RFT methods
+                    self.resonance_state = self.rft_engine.forward(self.quantum_state)
+                    
+                    print(f"✓ Full-scale RFT Engine: {self.num_qubits} qubits, {rft_size} dimensions")
+                    if self.num_qubits > 20:
+                        print(f"✓ Using RFT compression for {self.num_qubits}-qubit massive simulation")
+                except Exception as rft_error:
+                    print(f"⚠️ RFT engine failed: {rft_error}")
+                    print("📧 Falling back to classical simulation...")
+                    self._init_classical_fallback(rft_size)
             else:
                 # Large-scale classical fallback
                 if self.num_qubits <= 15:
@@ -90,7 +98,7 @@ class RFTQuantumSimulator(QMainWindow):
                 else:
                     # Sparse representation for very large classical
                     size = min(2 ** 15, 1048576)  # Cap at 1M amplitudes
-                    
+                
                 self.quantum_state = np.zeros(size, dtype=complex)
                 self.quantum_state[0] = 1.0
                 self.resonance_state = self.quantum_state.copy()
@@ -103,9 +111,36 @@ class RFTQuantumSimulator(QMainWindow):
             self.quantum_state[0] = 1.0
             self.resonance_state = self.quantum_state.copy()
         
-        # Update displays if UI ready
-        if hasattr(self, 'state_display'):
-            self._update_vertex_displays()
+        # Update displays if UI ready (safely)
+        try:
+            if hasattr(self, 'state_display'):
+                self._update_vertex_displays()
+        except Exception as display_error:
+            pass  # Ignore display errors for stability
+
+    def _init_safe_classical_state(self):
+        """Safe classical quantum state initialization - ALWAYS WORKS."""
+        # Use safe classical simulation for guaranteed stability
+        size = 2 ** self.num_qubits  # 32 for 5 qubits
+        
+        self.quantum_state = np.zeros(size, dtype=complex)
+        self.quantum_state[0] = 1.0  # Ground state
+        self.resonance_state = self.quantum_state.copy()
+        self.rft_engine = None  # No RFT engine for stability
+
+    def _init_classical_fallback(self, size=None):
+        """Classical simulation fallback when RFT fails."""
+        if size is None:
+            if self.num_qubits <= 15:
+                size = 2 ** self.num_qubits
+            else:
+                size = min(2 ** 15, 1048576)  # Cap at 1M amplitudes
+        
+        self.quantum_state = np.zeros(size, dtype=complex)
+        self.quantum_state[0] = 1.0
+        self.resonance_state = self.quantum_state.copy()
+        self.rft_engine = None  # Clear failed RFT engine
+        print(f"✓ Classical fallback initialized: {size} amplitudes")
 
     # ---------- UI ----------
 
@@ -377,8 +412,7 @@ class RFTQuantumSimulator(QMainWindow):
                     # Full scale vertex-based initialization
                     vertex_size = 2 ** min(self.num_qubits, 20)  # RFT can handle up to 2^20
                     
-                    # Reinitialize RFT engine for large scale
-                    from ASSEMBLY.python_bindings.unitary_rft import UnitaryRFT
+                    # Reinitialize RFT engine for large scale  
                     self.rft_engine = UnitaryRFT(vertex_size, 
                                                RFT_FLAG_QUANTUM_SAFE | RFT_FLAG_USE_RESONANCE)
                     

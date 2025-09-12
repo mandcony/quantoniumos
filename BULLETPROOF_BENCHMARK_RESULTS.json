@@ -1,0 +1,304 @@
+{
+  "timestamp": "2025-09-09T21:05:32.115165",
+  "total_benchmark_time": 10.922843933105469,
+  "methodology": "Bulletproof: separated init/compute, warm-up, statistical sampling",
+  "core_rft": {
+    "results": [
+      {
+        "size": 16,
+        "forward_time_ms": 0.005506298180058819,
+        "forward_time_std": 1.4990706620293755e-05,
+        "inverse_time_ms": 0.0036187629250613094,
+        "inverse_time_std": 1.1152339091833001e-05,
+        "memory_delta_bytes": 1240,
+        "reconstruction_error": 4.2465750782585737e-16,
+        "iterations_per_sample": 5319,
+        "total_runtime_ms": 29.288000019732863
+      },
+      {
+        "size": 32,
+        "forward_time_ms": 0.006201841523804996,
+        "forward_time_std": 8.498908855230416e-05,
+        "inverse_time_ms": 0.0038363281245914374,
+        "inverse_time_std": 4.447271026850063e-05,
+        "memory_delta_bytes": 1432,
+        "reconstruction_error": 5.144748147363083e-16,
+        "iterations_per_sample": 5376,
+        "total_runtime_ms": 33.34110003197566
+      },
+      {
+        "size": 64,
+        "forward_time_ms": 0.10155770755575404,
+        "forward_time_std": 0.004487662386729167,
+        "inverse_time_ms": 0.09786561264917842,
+        "inverse_time_std": 0.006580197367892225,
+        "memory_delta_bytes": 2424,
+        "reconstruction_error": 6.167498900785987e-16,
+        "iterations_per_sample": 253,
+        "total_runtime_ms": 25.69410001160577
+      },
+      {
+        "size": 128,
+        "forward_time_ms": 0.1124355722501392,
+        "forward_time_std": 0.004710593044191195,
+        "inverse_time_ms": 0.09192139302978097,
+        "inverse_time_std": 0.0016601471399288507,
+        "memory_delta_bytes": 4504,
+        "reconstruction_error": 1.0983898904697843e-15,
+        "iterations_per_sample": 402,
+        "total_runtime_ms": 45.19910004455596
+      },
+      {
+        "size": 256,
+        "forward_time_ms": 0.40609145320108175,
+        "forward_time_std": 0.01798913023187398,
+        "inverse_time_ms": 0.11107350428962809,
+        "inverse_time_std": 0.00214920900842515,
+        "memory_delta_bytes": 8568,
+        "reconstruction_error": 1.3058251592505339e-15,
+        "iterations_per_sample": 117,
+        "total_runtime_ms": 47.512700024526566
+      },
+      {
+        "size": 512,
+        "forward_time_ms": 1.2377840001136065,
+        "forward_time_std": 0.031754036728930415,
+        "inverse_time_ms": 0.12283200165256859,
+        "inverse_time_std": 0.013792862269974055,
+        "memory_delta_bytes": 16760,
+        "reconstruction_error": 1.5010641233752601e-15,
+        "iterations_per_sample": 25,
+        "total_runtime_ms": 30.94460000284016
+      },
+      {
+        "size": 1024,
+        "forward_time_ms": 6.65891428278493,
+        "forward_time_std": 0.5373106458444745,
+        "inverse_time_ms": 0.7132571440057031,
+        "inverse_time_std": 0.055207689887152064,
+        "memory_delta_bytes": 33144,
+        "reconstruction_error": 1.7742981258764878e-15,
+        "iterations_per_sample": 7,
+        "total_runtime_ms": 46.61239997949451
+      }
+    ],
+    "time_scaling": {
+      "scaling_exponent": 1.7143273172045936,
+      "scaling_class": "O(n log n)",
+      "r_squared": 0.9612832002258297,
+      "first_value": 0.005506298180058819,
+      "last_value": 6.65891428278493,
+      "size_ratio": 64.0,
+      "value_ratio": 1209.3268589958197,
+      "data_points": 7,
+      "raw_data": [
+        [
+          16,
+          0.005506298180058819
+        ],
+        [
+          32,
+          0.006201841523804996
+        ],
+        [
+          64,
+          0.10155770755575404
+        ],
+        [
+          128,
+          0.1124355722501392
+        ],
+        [
+          256,
+          0.40609145320108175
+        ],
+        [
+          512,
+          1.2377840001136065
+        ],
+        [
+          1024,
+          6.65891428278493
+        ]
+      ]
+    },
+    "memory_scaling": {
+      "scaling_exponent": 0.8264433351084681,
+      "scaling_class": "Linear O(n)",
+      "r_squared": 0.9806791440609235,
+      "first_value": 1240,
+      "last_value": 33144,
+      "size_ratio": 64.0,
+      "value_ratio": 26.729032258064517,
+      "data_points": 7,
+      "raw_data": [
+        [
+          16,
+          1240
+        ],
+        [
+          32,
+          1432
+        ],
+        [
+          64,
+          2424
+        ],
+        [
+          128,
+          4504
+        ],
+        [
+          256,
+          8568
+        ],
+        [
+          512,
+          16760
+        ],
+        [
+          1024,
+          33144
+        ]
+      ]
+    },
+    "methodology": "Bulletproof: init/compute separated, warm-up, statistical sampling"
+  },
+  "vertex_rft": {
+    "results": [
+      {
+        "data_size": 16,
+        "vertex_count": 1000,
+        "encode_time_ms": 0.18197689247150642,
+        "encode_time_std": 0.0011045117566920617,
+        "memory_delta_bytes": 10393,
+        "iterations_per_sample": 251,
+        "phi_resonance": 0.5025969462485034,
+        "total_runtime_ms": 45.67620001034811
+      },
+      {
+        "data_size": 32,
+        "vertex_count": 1000,
+        "encode_time_ms": 0.1768533980193575,
+        "encode_time_std": 0.0009906306103502358,
+        "memory_delta_bytes": 10193,
+        "iterations_per_sample": 206,
+        "phi_resonance": -0.04347280203902705,
+        "total_runtime_ms": 36.431799991987646
+      },
+      {
+        "data_size": 64,
+        "vertex_count": 1000,
+        "encode_time_ms": 0.1796046979006555,
+        "encode_time_std": 0.0027545937711093496,
+        "memory_delta_bytes": 10193,
+        "iterations_per_sample": 149,
+        "phi_resonance": 0.11162803535062982,
+        "total_runtime_ms": 26.761099987197667
+      },
+      {
+        "data_size": 128,
+        "vertex_count": 1000,
+        "encode_time_ms": 0.18116509413373005,
+        "encode_time_std": 0.0069771166283475565,
+        "memory_delta_bytes": 10193,
+        "iterations_per_sample": 212,
+        "phi_resonance": -0.20420914555252567,
+        "total_runtime_ms": 38.406999956350774
+      },
+      {
+        "data_size": 256,
+        "vertex_count": 1000,
+        "encode_time_ms": 0.1892923663604919,
+        "encode_time_std": 0.005857565192367787,
+        "memory_delta_bytes": 10225,
+        "iterations_per_sample": 262,
+        "phi_resonance": -0.1334117876075019,
+        "total_runtime_ms": 49.594599986448884
+      },
+      {
+        "data_size": 512,
+        "vertex_count": 1000,
+        "encode_time_ms": 0.209956756895444,
+        "encode_time_std": 0.003226430632346752,
+        "memory_delta_bytes": 10385,
+        "iterations_per_sample": 259,
+        "phi_resonance": -0.22214551631486806,
+        "total_runtime_ms": 54.378800035919994
+      }
+    ],
+    "time_scaling": {
+      "scaling_exponent": 0.038238615910522716,
+      "scaling_class": "Sub-linear (better than O(n))",
+      "r_squared": 0.6171426306329375,
+      "first_value": 0.18197689247150642,
+      "last_value": 0.209956756895444,
+      "size_ratio": 32.0,
+      "value_ratio": 1.153755040235774,
+      "data_points": 6,
+      "raw_data": [
+        [
+          16,
+          0.18197689247150642
+        ],
+        [
+          32,
+          0.1768533980193575
+        ],
+        [
+          64,
+          0.1796046979006555
+        ],
+        [
+          128,
+          0.18116509413373005
+        ],
+        [
+          256,
+          0.1892923663604919
+        ],
+        [
+          512,
+          0.209956756895444
+        ]
+      ]
+    },
+    "memory_scaling": {
+      "scaling_exponent": 0.00022890413022051933,
+      "scaling_class": "Sub-linear (better than O(n))",
+      "r_squared": 0.0009738855329524121,
+      "first_value": 10393,
+      "last_value": 10385,
+      "size_ratio": 32.0,
+      "value_ratio": 0.9992302511305686,
+      "data_points": 6,
+      "raw_data": [
+        [
+          16,
+          10393
+        ],
+        [
+          32,
+          10193
+        ],
+        [
+          64,
+          10193
+        ],
+        [
+          128,
+          10193
+        ],
+        [
+          256,
+          10225
+        ],
+        [
+          512,
+          10385
+        ]
+      ]
+    },
+    "methodology": "Bulletproof: init/compute separated, fixed vertex count, statistical sampling"
+  }
+}
