@@ -1,0 +1,245 @@
+{
+  "benchmark_type": "vertex_edge_quantum_scaling",
+  "timestamp": "2025-09-09 21:20:18",
+  "total_time_seconds": 1.4101805686950684,
+  "vertex_edge_operations": {
+    "test_type": "vertex_edge_quantum_scaling",
+    "results": [
+      {
+        "vertex_count": 50,
+        "edge_count": 1225,
+        "data_size": 64,
+        "encoding_time_ms": 0.14459999511018395,
+        "encoding_std_ms": 0.018638806281783857,
+        "vertex_transform_time_ms": 15.020799997728318,
+        "vertex_transform_std_ms": 1.993345741113236,
+        "edge_computation_time_ms": 1.118792533816304,
+        "edge_computation_std_ms": 0.07338720242632585,
+        "phi_resonance": 0.24914256026872722,
+        "samples": 7
+      },
+      {
+        "vertex_count": 100,
+        "edge_count": 4950,
+        "data_size": 64,
+        "encoding_time_ms": 0.1488000270910561,
+        "encoding_std_ms": 0.01243630774191588,
+        "vertex_transform_time_ms": 15.665300015825778,
+        "vertex_transform_std_ms": 0.4650311722867341,
+        "edge_computation_time_ms": 5.4202500701649114,
+        "edge_computation_std_ms": 0.6535220685012446,
+        "phi_resonance": 0.07091931917961279,
+        "samples": 7
+      },
+      {
+        "vertex_count": 200,
+        "edge_count": 19900,
+        "data_size": 64,
+        "encoding_time_ms": 0.159099989105016,
+        "encoding_std_ms": 0.0436859031497548,
+        "vertex_transform_time_ms": 15.246100025251508,
+        "vertex_transform_std_ms": 1.354828936060382,
+        "edge_computation_time_ms": 22.829280083533376,
+        "edge_computation_std_ms": 5.726905865216869,
+        "phi_resonance": -0.35917394452312446,
+        "samples": 7
+      },
+      {
+        "vertex_count": 400,
+        "edge_count": 79800,
+        "data_size": 64,
+        "encoding_time_ms": 0.13340002624318004,
+        "encoding_std_ms": 0.028535610119824025,
+        "vertex_transform_time_ms": 15.105900005437434,
+        "vertex_transform_std_ms": 0.31269781147464626,
+        "edge_computation_time_ms": 85.70519766071811,
+        "edge_computation_std_ms": 13.713497123937653,
+        "phi_resonance": 0.3878492114817984,
+        "samples": 7
+      },
+      {
+        "vertex_count": 600,
+        "edge_count": 179700,
+        "data_size": 64,
+        "encoding_time_ms": 0.15400000847876072,
+        "encoding_std_ms": 0.023453508119622223,
+        "vertex_transform_time_ms": 15.476500033400953,
+        "vertex_transform_std_ms": 0.5144157894424736,
+        "edge_computation_time_ms": 184.4620529562235,
+        "edge_computation_std_ms": 17.669524936546747,
+        "phi_resonance": -0.08930050061306305,
+        "samples": 7
+      },
+      {
+        "vertex_count": 800,
+        "edge_count": 319600,
+        "data_size": 64,
+        "encoding_time_ms": 0.1482000225223601,
+        "encoding_std_ms": 0.014939298860369012,
+        "vertex_transform_time_ms": 14.965199981816113,
+        "vertex_transform_std_ms": 0.312038841363912,
+        "edge_computation_time_ms": 296.8764309771359,
+        "edge_computation_std_ms": 19.91869153184091,
+        "phi_resonance": -0.2821296285426359,
+        "samples": 7
+      },
+      {
+        "vertex_count": 1000,
+        "edge_count": 499500,
+        "data_size": 64,
+        "encoding_time_ms": 0.14999997802078724,
+        "encoding_std_ms": 0.014364011321128167,
+        "vertex_transform_time_ms": 15.021200000774115,
+        "vertex_transform_std_ms": 0.20717674597552535,
+        "edge_computation_time_ms": 469.0804456186015,
+        "edge_computation_std_ms": 39.41722988965791,
+        "phi_resonance": 0.3090153367645313,
+        "samples": 7
+      }
+    ],
+    "encoding_scaling": {
+      "scaling_exponent": 0.002865221850662968,
+      "complexity_class": "O(1) - Constant time",
+      "verdict": "\u2705 EXCELLENT",
+      "r_squared": 0.0033807155001011058,
+      "confidence": "Low",
+      "size_range": "50 to 1000",
+      "time_range": "0.145 to 0.150 ms",
+      "size_ratio": 20.0,
+      "actual_time_ratio": 1.037344281419156,
+      "ideal_linear_ratio": 20.0,
+      "efficiency_vs_linear": 0.051867214070957804,
+      "data_points": 7,
+      "is_linear_or_better": "True",
+      "is_sublinear": "True",
+      "is_constant_time": "True",
+      "raw_data": [
+        [
+          50,
+          0.14459999511018395
+        ],
+        [
+          100,
+          0.1488000270910561
+        ],
+        [
+          200,
+          0.159099989105016
+        ],
+        [
+          400,
+          0.13340002624318004
+        ],
+        [
+          600,
+          0.15400000847876072
+        ],
+        [
+          800,
+          0.1482000225223601
+        ],
+        [
+          1000,
+          0.14999997802078724
+        ]
+      ]
+    },
+    "vertex_transform_scaling": {
+      "scaling_exponent": -0.004210243071782493,
+      "complexity_class": "O(1) - Constant time",
+      "verdict": "\u2705 EXCELLENT",
+      "r_squared": 0.0743826704302536,
+      "confidence": "Low",
+      "size_range": "50 to 1000",
+      "time_range": "15.021 to 15.021 ms",
+      "size_ratio": 20.0,
+      "actual_time_ratio": 1.0000266299428697,
+      "ideal_linear_ratio": 20.0,
+      "efficiency_vs_linear": 0.05000133149714349,
+      "data_points": 7,
+      "is_linear_or_better": "True",
+      "is_sublinear": "True",
+      "is_constant_time": "True",
+      "raw_data": [
+        [
+          50,
+          15.020799997728318
+        ],
+        [
+          100,
+          15.665300015825778
+        ],
+        [
+          200,
+          15.246100025251508
+        ],
+        [
+          400,
+          15.105900005437434
+        ],
+        [
+          600,
+          15.476500033400953
+        ],
+        [
+          800,
+          14.965199981816113
+        ],
+        [
+          1000,
+          15.021200000774115
+        ]
+      ]
+    },
+    "edge_computation_scaling": {
+      "scaling_exponent": 0.9934192257476808,
+      "complexity_class": "O(n) - Linear",
+      "verdict": "\u2705 GOOD",
+      "r_squared": 0.9984092759347736,
+      "confidence": "High",
+      "size_range": "1225 to 499500",
+      "time_range": "1.119 to 469.080 ms",
+      "size_ratio": 407.7551020408163,
+      "actual_time_ratio": 419.2738433984047,
+      "ideal_linear_ratio": 407.7551020408163,
+      "efficiency_vs_linear": 1.028249165491583,
+      "data_points": 7,
+      "is_linear_or_better": "True",
+      "is_sublinear": "True",
+      "is_constant_time": "False",
+      "raw_data": [
+        [
+          1225,
+          1.118792533816304
+        ],
+        [
+          4950,
+          5.4202500701649114
+        ],
+        [
+          19900,
+          22.829280083533376
+        ],
+        [
+          79800,
+          85.70519766071811
+        ],
+        [
+          179700,
+          184.4620529562235
+        ],
+        [
+          319600,
+          296.8764309771359
+        ],
+        [
+          499500,
+          469.0804456186015
+        ]
+      ]
+    }
+  },
+  "symbolic_compression": {
+    "error": "Cannot access symbolic compression implementation"
+  }
+}

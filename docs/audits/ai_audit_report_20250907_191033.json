@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-09-07T19:10:33.394278",
+  "total_interactions": 6,
+  "violation_count": 0,
+  "avg_input_length": 21.5,
+  "avg_response_length": 81.5,
+  "monitored_files": 10,
+  "monitoring_active": true,
+  "recent_interactions": [
+    {
+      "timestamp": "2025-09-07T19:10:33.262230",
+      "input_length": 12,
+      "response_length": 32,
+      "input_hash": "89b8b8e486421463",
+      "response_hash": "fda564ba3f7a0f02"
+    },
+    {
+      "timestamp": "2025-09-07T19:10:33.290751",
+      "input_length": 26,
+      "response_length": 67,
+      "input_hash": "fa2433138dcebce8",
+      "response_hash": "6e919c7ab57c1659"
+    },
+    {
+      "timestamp": "2025-09-07T19:10:33.319758",
+      "input_length": 30,
+      "response_length": 67,
+      "input_hash": "84e57723858bb882",
+      "response_hash": "6e919c7ab57c1659"
+    },
+    {
+      "timestamp": "2025-09-07T19:10:33.351751",
+      "input_length": 23,
+      "response_length": 105,
+      "input_hash": "dbabb14d06fd6ba5",
+      "response_hash": "383008bd37148c84"
+    },
+    {
+      "timestamp": "2025-09-07T19:10:33.373758",
+      "input_length": 16,
+      "response_length": 109,
+      "input_hash": "2e5519b5b4943706",
+      "response_hash": "5d0ddfd71b0dd09c"
+    },
+    {
+      "timestamp": "2025-09-07T19:10:33.394278",
+      "input_length": 22,
+      "response_length": 109,
+      "input_hash": "b466f39431f27bf4",
+      "response_hash": "5d0ddfd71b0dd09c"
+    }
+  ]
+}

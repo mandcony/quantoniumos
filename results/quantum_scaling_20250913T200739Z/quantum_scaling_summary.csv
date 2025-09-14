@@ -1,0 +1,10 @@
+section,metric,value
+meta,timestamp_utc,20250913T200736Z
+meta,total_time_seconds,2.4397222995758057
+core,size_8_ms_median,0.008199999999999999
+core,size_16_ms_median,0.00845
+core,size_32_ms_median,0.009399999999999999
+core,size_64_ms_median,0.18785000000000002
+core,size_128_ms_median,0.2046
+core,size_256_ms_median,0.5136499999999999
+core,size_512_ms_median,1.16425

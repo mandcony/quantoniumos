@@ -1,0 +1,178 @@
+{
+  "benchmark_type": "quantum_operations_scaling",
+  "timestamp": "2025-09-09 21:06:36",
+  "total_time_seconds": 2.403475761413574,
+  "core_quantum_operations": {
+    "test_type": "quantum_operations",
+    "results": [
+      {
+        "size": 8,
+        "qubits": 3,
+        "operation_time_ms": 0.008400005754083395,
+        "time_std_ms": 0.009148791238048334,
+        "memory_bytes": 472.0,
+        "unitarity_error": 4.3249964837975335e-16,
+        "samples": 10
+      },
+      {
+        "size": 16,
+        "qubits": 4,
+        "operation_time_ms": 0.008100003469735384,
+        "time_std_ms": 0.0059686414207559615,
+        "memory_bytes": 704.0,
+        "unitarity_error": 4.210806748957829e-16,
+        "samples": 10
+      },
+      {
+        "size": 32,
+        "qubits": 5,
+        "operation_time_ms": 0.008650007657706738,
+        "time_std_ms": 0.0071859211751896055,
+        "memory_bytes": 1216.0,
+        "unitarity_error": 6.100874506766893e-16,
+        "samples": 10
+      },
+      {
+        "size": 64,
+        "qubits": 6,
+        "operation_time_ms": 0.21905000903643668,
+        "time_std_ms": 0.03806581648166065,
+        "memory_bytes": 2240.0,
+        "unitarity_error": 7.524413459474473e-16,
+        "samples": 10
+      },
+      {
+        "size": 128,
+        "qubits": 7,
+        "operation_time_ms": 0.2033500059042126,
+        "time_std_ms": 0.023530787521073425,
+        "memory_bytes": 4288.0,
+        "unitarity_error": 1.0331519572631424e-15,
+        "samples": 10
+      },
+      {
+        "size": 256,
+        "qubits": 8,
+        "operation_time_ms": 0.4760500160045922,
+        "time_std_ms": 0.1033829455389354,
+        "memory_bytes": 8384.0,
+        "unitarity_error": 1.3248887345932976e-15,
+        "samples": 10
+      },
+      {
+        "size": 512,
+        "qubits": 9,
+        "operation_time_ms": 1.6164499975275248,
+        "time_std_ms": 0.490520446335575,
+        "memory_bytes": 16576.0,
+        "unitarity_error": 1.5780760652044387e-15,
+        "samples": 10
+      }
+    ],
+    "scaling_analysis": {
+      "scaling_exponent": 1.39549578580569,
+      "complexity_class": "O(n log n) - Linearithmic",
+      "size_range": "8 to 512",
+      "time_range": "0.008 to 1.616 ms",
+      "actual_time_ratio": 192.43439169571272,
+      "theoretical_linear_ratio": 64.0,
+      "theoretical_quadratic_ratio": 4096.0,
+      "efficiency_vs_linear": 3.0067873702455112,
+      "efficiency_vs_quadratic": 0.04698105266008611,
+      "data_points": 7,
+      "is_better_than_linear": "False",
+      "is_linear": "False",
+      "is_worse_than_quadratic": "False"
+    }
+  },
+  "vertex_quantum_operations": {
+    "test_type": "vertex_quantum_scaling",
+    "results": [
+      {
+        "vertex_count": 100,
+        "data_size": 64,
+        "encoding_time_ms": 0.2269999822601676,
+        "encoding_std_ms": 0.047579533039415554,
+        "transform_time_ms": 15.47230000142008,
+        "transform_std_ms": 0.4036606792664235,
+        "phi_resonance": -0.2669053347938839,
+        "total_edges": 4950,
+        "samples": 5
+      },
+      {
+        "vertex_count": 200,
+        "data_size": 64,
+        "encoding_time_ms": 0.16390002565458417,
+        "encoding_std_ms": 0.027461750676997344,
+        "transform_time_ms": 15.733500011265278,
+        "transform_std_ms": 1.7048252473975896,
+        "phi_resonance": -0.04729530659164442,
+        "total_edges": 19900,
+        "samples": 5
+      },
+      {
+        "vertex_count": 300,
+        "data_size": 64,
+        "encoding_time_ms": 0.21020002895966172,
+        "encoding_std_ms": 0.03490423899421167,
+        "transform_time_ms": 15.964000020176172,
+        "transform_std_ms": 0.4910772613506403,
+        "phi_resonance": 0.026936528910408198,
+        "total_edges": 44850,
+        "samples": 5
+      },
+      {
+        "vertex_count": 400,
+        "data_size": 64,
+        "encoding_time_ms": 0.15740003436803818,
+        "encoding_std_ms": 0.039187700780029124,
+        "transform_time_ms": 15.46339999185875,
+        "transform_std_ms": 0.3804505623049582,
+        "phi_resonance": 0.08281713859417279,
+        "total_edges": 79800,
+        "samples": 5
+      },
+      {
+        "vertex_count": 500,
+        "data_size": 64,
+        "encoding_time_ms": 0.16920000780373812,
+        "encoding_std_ms": 0.059845168377478775,
+        "transform_time_ms": 15.585299988742918,
+        "transform_std_ms": 0.4675125674669101,
+        "phi_resonance": -0.10438723639715249,
+        "total_edges": 124750,
+        "samples": 5
+      }
+    ],
+    "encoding_scaling": {
+      "scaling_exponent": -0.1692026679207387,
+      "complexity_class": "O(1) - Constant time",
+      "size_range": "100 to 500",
+      "time_range": "0.227 to 0.169 ms",
+      "actual_time_ratio": 0.745374541967214,
+      "theoretical_linear_ratio": 5.0,
+      "theoretical_quadratic_ratio": 25.0,
+      "efficiency_vs_linear": 0.14907490839344278,
+      "efficiency_vs_quadratic": 0.029814981678688558,
+      "data_points": 5,
+      "is_better_than_linear": "True",
+      "is_linear": "False",
+      "is_worse_than_quadratic": "False"
+    },
+    "transform_scaling": {
+      "scaling_exponent": 0.002777235257526357,
+      "complexity_class": "O(1) - Constant time",
+      "size_range": "100 to 500",
+      "time_range": "15.472 to 15.585 ms",
+      "actual_time_ratio": 1.0073033735974914,
+      "theoretical_linear_ratio": 5.0,
+      "theoretical_quadratic_ratio": 25.0,
+      "efficiency_vs_linear": 0.2014606747194983,
+      "efficiency_vs_quadratic": 0.04029213494389966,
+      "data_points": 5,
+      "is_better_than_linear": "True",
+      "is_linear": "False",
+      "is_worse_than_quadratic": "False"
+    }
+  }
+}

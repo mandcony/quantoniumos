@@ -1,0 +1,15 @@
+{"type": "system", "event": "open", "ts": "2025-09-07T20:25:06"}
+{"type": "user", "ts": "2025-09-07T20:26:10", "text": "testing"}
+{"type": "assistant", "ts": "2025-09-07T20:26:11", "text": "That's an interesting question! I'm analyzing the best way to help you with this. Could you provide a bit more context about what you're looking for?", "confidence": 0.7}
+{"type": "user", "ts": "2025-09-07T20:26:25", "text": "what domains do you know"}
+{"type": "assistant", "ts": "2025-09-07T20:26:26", "text": "🧠 AI and machine learning are like teaching computers to recognize patterns and make decisions. It's all about finding hidden structure in data. Are you interested in the algorithms, applications, or theory?", "confidence": 0.92}
+{"type": "user", "ts": "2025-09-07T20:26:48", "text": "theory can you explain?"}
+{"type": "assistant", "ts": "2025-09-07T20:26:49", "text": "I'd be happy to explain! This involves complex technical concepts that I can break down for you. What specific aspect interests you most?", "confidence": 0.85}
+{"type": "user", "ts": "2025-09-07T20:27:06", "text": "the algortihms and learning"}
+{"type": "assistant", "ts": "2025-09-07T20:27:07", "text": "Learning is an adventure! I'll make sure to explain things clearly and check that everything makes sense. What topic interests you?", "confidence": 0.88}
+{"type": "user", "ts": "2025-09-07T20:27:15", "text": "the ai learning"}
+{"type": "assistant", "ts": "2025-09-07T20:27:16", "text": "Learning is an adventure! I'll make sure to explain things clearly and check that everything makes sense. What topic interests you?", "confidence": 0.88}
+{"type": "user", "ts": "2025-09-07T20:27:38", "text": "explain ai and machine learning"}
+{"type": "assistant", "ts": "2025-09-07T20:27:38", "text": "I'd be happy to explain! This involves complex technical concepts that I can break down for you. What specific aspect interests you most?", "confidence": 0.85}
+{"type": "user", "ts": "2025-09-07T20:27:45", "text": "the algorithms"}
+{"type": "assistant", "ts": "2025-09-07T20:27:46", "text": "🧠 AI and machine learning are like teaching computers to recognize patterns and make decisions. It's all about finding hidden structure in data. Are you interested in the algorithms, applications, or theory?", "confidence": 0.92}

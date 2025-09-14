@@ -1,0 +1,60 @@
+{
+  "apps": {
+    "quantum_crypto": {
+      "name": "Quantum Crypto",
+      "module": "apps.quantum_crypto",
+      "class_name": "QuantumCrypto",
+      "icon": "quantum_crypto.svg",
+      "description": "Quantum cryptography and QKD protocols",
+      "enabled": true
+    },
+    "q_notes": {
+      "name": "Q Notes",
+      "module": "apps.q_notes", 
+      "class_name": "QNotes",
+      "icon": "q_notes.svg",
+      "description": "Quantum-enhanced note taking",
+      "enabled": true
+    },
+    "q_vault": {
+      "name": "Q Vault",
+      "module": "apps.q_vault",
+      "class_name": "QVault", 
+      "icon": "q_vault.svg",
+      "description": "Secure quantum storage",
+      "enabled": true
+    },
+    "quantum_simulator": {
+      "name": "Quantum Simulator",
+      "module": "apps.quantum_simulator",
+      "class_name": "QuantumSimulator",
+      "icon": "quantum_simulator.svg", 
+      "description": "Quantum circuit simulation",
+      "enabled": true
+    },
+    "rft_validator": {
+      "name": "RFT Validator",
+      "module": "apps.rft_validation_suite",
+      "class_name": "RFTValidationSuite",
+      "icon": "rft_validator.svg",
+      "description": "RFT mathematical validation",
+      "enabled": true
+    },
+    "rft_visualizer": {
+      "name": "RFT Visualizer", 
+      "module": "apps.rft_visualizer",
+      "class_name": "RFTVisualizer",
+      "icon": "rft_visualizer.svg",
+      "description": "RFT data visualization",
+      "enabled": true
+    },
+    "system_monitor": {
+      "name": "System Monitor",
+      "module": "apps.qshll_system_monitor",
+      "class_name": "QSystemMonitor",
+      "icon": "system_monitor.svg",
+      "description": "System performance monitoring", 
+      "enabled": true
+    }
+  }
+}

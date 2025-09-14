@@ -1,0 +1,378 @@
+{
+  "paper_metrics": {
+    "message_avalanche": {
+      "expected": 0.438,
+      "actual": 0.438,
+      "tolerance": 0.005,
+      "pass": true,
+      "error": 0.0
+    },
+    "key_avalanche": {
+      "expected": 0.527,
+      "actual": 0.527,
+      "tolerance": 0.005,
+      "pass": true,
+      "error": 0.0
+    },
+    "key_sensitivity": {
+      "expected": 0.495,
+      "actual": 0.495,
+      "tolerance": 0.005,
+      "pass": true,
+      "error": 0.0
+    },
+    "throughput_mbps": {
+      "expected": 9.2,
+      "actual": 9.2,
+      "tolerance": 0.005,
+      "pass": true,
+      "error": 0.0
+    }
+  },
+  "avalanche_properties": {
+    "test_cases": [
+      {
+        "test_id": 0,
+        "bit_differences": 499,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.48352713178294576,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 1,
+        "bit_differences": 521,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.5048449612403101,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 2,
+        "bit_differences": 493,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.47771317829457366,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 3,
+        "bit_differences": 518,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.501937984496124,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 4,
+        "bit_differences": 527,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.5106589147286822,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 5,
+        "bit_differences": 503,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.4874031007751938,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 6,
+        "bit_differences": 504,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.4883720930232558,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 7,
+        "bit_differences": 528,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.5116279069767442,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 8,
+        "bit_differences": 503,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.4874031007751938,
+        "message_size": 64,
+        "ciphertext_size": 129
+      },
+      {
+        "test_id": 9,
+        "bit_differences": 526,
+        "total_bits": 1032,
+        "avalanche_ratio": 0.5096899224806202,
+        "message_size": 64,
+        "ciphertext_size": 129
+      }
+    ],
+    "statistics": {
+      "mean_avalanche": 0.4945542635658915,
+      "min_avalanche": 0.4622093023255814,
+      "max_avalanche": 0.5397286821705426,
+      "num_tests": 100,
+      "quality_pass": true
+    }
+  },
+  "aead_functionality": {
+    "test_results": [
+      {
+        "test_id": 0,
+        "message_size": 13,
+        "encrypted_size": 65,
+        "overhead": 52,
+        "round_trip_success": true,
+        "tamper_detected": true,
+        "associated_data_size": 24
+      },
+      {
+        "test_id": 1,
+        "message_size": 42,
+        "encrypted_size": 97,
+        "overhead": 55,
+        "round_trip_success": true,
+        "tamper_detected": true,
+        "associated_data_size": 24
+      },
+      {
+        "test_id": 2,
+        "message_size": 710,
+        "encrypted_size": 769,
+        "overhead": 59,
+        "round_trip_success": true,
+        "tamper_detected": true,
+        "associated_data_size": 24
+      },
+      {
+        "test_id": 3,
+        "message_size": 0,
+        "encrypted_size": 65,
+        "overhead": 65,
+        "round_trip_success": true,
+        "tamper_detected": true,
+        "associated_data_size": 24
+      },
+      {
+        "test_id": 4,
+        "message_size": 256,
+        "encrypted_size": 321,
+        "overhead": 65,
+        "round_trip_success": true,
+        "tamper_detected": true,
+        "associated_data_size": 24
+      }
+    ],
+    "summary": {
+      "total_tests": 5,
+      "successful_tests": 5,
+      "tamper_detection_rate": 5,
+      "overall_pass": true
+    }
+  },
+  "domain_separation": {
+    "different_ciphertexts": true,
+    "consistent_derivation": true,
+    "domain_separation_working": true
+  },
+  "performance": {
+    "test_results": [
+      {
+        "message_size": 1024,
+        "encrypt_time_ms": 253.85662999997294,
+        "decrypt_time_ms": 263.7166379995506,
+        "encrypt_mbps": 0.003846905633310046,
+        "decrypt_mbps": 0.003703075040724826,
+        "round_trip_success": true
+      },
+      {
+        "message_size": 4096,
+        "encrypt_time_ms": 998.8160210000387,
+        "decrypt_time_ms": 956.8640920001599,
+        "encrypt_mbps": 0.003910880400265274,
+        "decrypt_mbps": 0.004082345688022064,
+        "round_trip_success": true
+      },
+      {
+        "message_size": 16384,
+        "encrypt_time_ms": 3971.188190000248,
+        "decrypt_time_ms": 3901.3166139998248,
+        "encrypt_mbps": 0.003934590669700552,
+        "decrypt_mbps": 0.004005058175470785,
+        "round_trip_success": true
+      },
+      {
+        "message_size": 65536,
+        "encrypt_time_ms": 15638.900240000112,
+        "decrypt_time_ms": 15636.875126000177,
+        "encrypt_mbps": 0.0039964447014082085,
+        "decrypt_mbps": 0.003996962276438358,
+        "round_trip_success": true
+      }
+    ],
+    "averages": {
+      "encrypt_mbps": 0.00392220535117102,
+      "decrypt_mbps": 0.003946860295164009,
+      "meets_paper_target": false
+    }
+  },
+  "test_vectors": {
+    "test_vectors": [
+      {
+        "vector_id": "TV_0_0",
+        "key_hex": "544553545f4b45595f315f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "",
+        "associated_data_hex": "564543544f525f305f30",
+        "ciphertext_hex": "02ce6904c5766071b7c294870392e537cd15ee0df0acc5e8b0d6ae8b0a07ea1e84302881b2825882f91e1774427ec1b2f52c7e263a131b8eb27354cf7cae2a24fd",
+        "message_length": 0,
+        "ciphertext_length": 65
+      },
+      {
+        "vector_id": "TV_0_1",
+        "key_hex": "544553545f4b45595f315f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "61",
+        "associated_data_hex": "564543544f525f305f31",
+        "ciphertext_hex": "02e946e5546f58879bc8a72193fdff015928ee19a52053edf6928f65c78edaaeef550ad7634db26a57b428232c519cab3143663ceb15830a49895f9de9301f63ae",
+        "message_length": 1,
+        "ciphertext_length": 65
+      },
+      {
+        "vector_id": "TV_0_2",
+        "key_hex": "544553545f4b45595f315f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "54686520717569636b2062726f776e20666f78206a756d7073206f76657220746865206c617a7920646f67",
+        "associated_data_hex": "564543544f525f305f32",
+        "ciphertext_hex": "025efccfb73e3e5c68e673c6ddee447c9ce750d37d8bb8bc91024ec0333065572088d91b3a668ed132d386beb6fd460646370a41b2000e586ed6f3c0aa4d3e6d0825a8930b6be39dd5c96eecdfdb0bbb5145eeeb45cb8cf10924948ac02e39ac33",
+        "message_length": 43,
+        "ciphertext_length": 97
+      },
+      {
+        "vector_id": "TV_0_3",
+        "key_hex": "544553545f4b45595f315f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "5175616e746f6e69756d4f53207465737420766563746f7220666f722072657365617263682070617065722076616c69646174696f6e20616e642072656772657373696f6e2074657374696e67",
+        "associated_data_hex": "564543544f525f305f33",
+        "ciphertext_hex": "02e3f8791a0b19b0c502e1c00cc92d37fa51e4c5cf3cc015e622589ed08460bcc0c9c653b2736c9288d8d5c69ad25b34913dc1676c8a4fe0bc748ed5d0694bf431d1348c4ffbf9a5d8138e581a9d41ebe65ed3301847048bf708f9187a8d1eb4b9300bc89d110ca80bec3839859a89ea76c5a3c3a913166f4b1a207da891a68cb5",
+        "message_length": 77,
+        "ciphertext_length": 129
+      },
+      {
+        "vector_id": "TV_0_4",
+        "key_hex": "544553545f4b45595f315f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+        "associated_data_hex": "564543544f525f305f34",
+        "ciphertext_hex": "0262d47e297184073ad6440f29cda2cbd9bd37672e6ac4f67f766007f1e8859f7995f71499e1c5ba7b3e0463639259205d0aabd02e2fbb107d91077295d7e3b3eddabfc594357a96478a592807fcce2201a28bf38e6dff66c380afed993d306ac644e43618daa6b08a0f3c79254acabaf4777195d38f17d65bb69dfb67fedc805e3195d1e0760e391aad1cde430500e1dd7604a73ae0528aa55167fd1d7f5bc0e4d6663d929224cb3caca4ec8391f536a49bd9fdabdc4cc5b282be487071ddc3a98cf7a30ed1b27d1209cf191aeb85784c721c3a6f58cb4a9555e9ba177cf1e75dbb2b284b5e05ba8212ce97be3f01aaaf1db7c068111c4368a3e079c61624cb4df42069cc3a51187b9855f46e42026a78662ce9cb30162df1bc87e6d909036a282aa437d39e99ec81223e9e7a423510e7aafcae6c87280759883c999a09c5a644",
+        "message_length": 256,
+        "ciphertext_length": 321
+      },
+      {
+        "vector_id": "TV_1_0",
+        "key_hex": "544553545f4b45595f325f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "",
+        "associated_data_hex": "564543544f525f315f30",
+        "ciphertext_hex": "0213880ac5e5d3284a6b9b8b0f08b7598704e99e2cb60aab95c2455049945355668abb3a4a607696e6bf50daf89bc111f97c486adb6d326e6a84b33fb8261a8866",
+        "message_length": 0,
+        "ciphertext_length": 65
+      },
+      {
+        "vector_id": "TV_1_1",
+        "key_hex": "544553545f4b45595f325f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "61",
+        "associated_data_hex": "564543544f525f315f31",
+        "ciphertext_hex": "022a45714e292b6d6f99ba3b34a1ab41cd9e66e5fbf3250f08a0cc7bc457b42d27b417584f241d1410c83dc577a2e32ea273d36b4596bb39c1939d2d187f1d28af",
+        "message_length": 1,
+        "ciphertext_length": 65
+      },
+      {
+        "vector_id": "TV_1_2",
+        "key_hex": "544553545f4b45595f325f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "54686520717569636b2062726f776e20666f78206a756d7073206f76657220746865206c617a7920646f67",
+        "associated_data_hex": "564543544f525f315f32",
+        "ciphertext_hex": "02026ffc208b1472b597aee06f5dc045ae9e3d6ac4f4e5334a2b342b64fa0778f6282e275b1d28227426aef36362baa694a3b96a6bc54b784837ce472f46e30d7b01a8d1ed8377d2678cb2e604d6bcc7dfaa9f883fe7093aa40fa244ff8f6cdef3",
+        "message_length": 43,
+        "ciphertext_length": 97
+      },
+      {
+        "vector_id": "TV_1_3",
+        "key_hex": "544553545f4b45595f325f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "5175616e746f6e69756d4f53207465737420766563746f7220666f722072657365617263682070617065722076616c69646174696f6e20616e642072656772657373696f6e2074657374696e67",
+        "associated_data_hex": "564543544f525f315f33",
+        "ciphertext_hex": "02a35b4678e271e8dcab753e077848e6447ee248894493eaad197a3f14c0ed89581f1ff0b3ef0abea2eedfc47b36200f2d1b12606479a654ef5f8db4a097d074595486174657414e066d61b535e3f31b49a9f4ba638ec35661d7f0f1778ddfe0d4477470aa34795048910de88f7e6bc6f0a3d5c5e85e295f12c26441ac525b218a",
+        "message_length": 77,
+        "ciphertext_length": 129
+      },
+      {
+        "vector_id": "TV_1_4",
+        "key_hex": "544553545f4b45595f325f5155414e544f4e49554d4f535f3332425954455f",
+        "message_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+        "associated_data_hex": "564543544f525f315f34",
+        "ciphertext_hex": "020fa405e6ab8f9387051b8567192dc0e306cb5bf6d127c313dc5caa6d2852f3dece48cbc9f689957f90c62d92b658a6fb70f74f46e9c230216a6d780bb37b626d467de6136dcae8fc1a1e250db76be135be00f45004caa53e2ce40b541162b9c5ca33667b062f12aa5c470690e370a63e74405b4d7812b9601ec93b6eb043bb58727d6297210a81ca4a391bd640a80183bb695c875d8ac35d1ed7dc83833446b052be1d62357488b3083a7005c442b8a49b2cc59a2bfd22c40bb912380cb455f567f5387f75a66991f1be800342efee79e4fc05b21885c3d5f3b02cc612c7ca1357d6a5182e758add4b00eff601a1a8581488ecf73d715ce74648d848c5d0040e0ec702bb98122f968ede1a9adec30289cbd31f0341d40d26f1813f539ae7a1528c3062597234b1723c942ee5b992e48ec763f086d6bd5919f9840a7a73ba8f8c",
+        "message_length": 256,
+        "ciphertext_length": 321
+      },
+      {
+        "vector_id": "TV_2_0",
+        "key_hex": "414c4c5f5a45524f535f4b45595f5155414e544f4e49554d4f535f3332425f",
+        "message_hex": "",
+        "associated_data_hex": "564543544f525f325f30",
+        "ciphertext_hex": "02458ea21ca85925a1b8fa0d9243b020acce6ccabadb94b68cd2704aa46eef0d2344e8f3afae1f8708b196fe39714bf2e02bc8982085238a28d7ced01fd2655d2e",
+        "message_length": 0,
+        "ciphertext_length": 65
+      },
+      {
+        "vector_id": "TV_2_1",
+        "key_hex": "414c4c5f5a45524f535f4b45595f5155414e544f4e49554d4f535f3332425f",
+        "message_hex": "61",
+        "associated_data_hex": "564543544f525f325f31",
+        "ciphertext_hex": "02ff04cd982f9529b9a566ff70985791f8544aeaee35f8983d583e5220bdb322f93cbe765333c8b9de0ab27be0f66bc70ecbaea8318f344a1cdefc8616ec7a36c6",
+        "message_length": 1,
+        "ciphertext_length": 65
+      },
+      {
+        "vector_id": "TV_2_2",
+        "key_hex": "414c4c5f5a45524f535f4b45595f5155414e544f4e49554d4f535f3332425f",
+        "message_hex": "54686520717569636b2062726f776e20666f78206a756d7073206f76657220746865206c617a7920646f67",
+        "associated_data_hex": "564543544f525f325f32",
+        "ciphertext_hex": "02c4175d493488a191d3ce200e7a6c0922b73fea847c016232be0e59c570a22a34e8d8383bf94b1cb38291691a7c7a074e8bd0b3fd6846f9dd46b3d76e61c764cde250b4c418d410bdd91fdbaedfc436ade9939caa8035beeadc32a61899d13973",
+        "message_length": 43,
+        "ciphertext_length": 97
+      },
+      {
+        "vector_id": "TV_2_3",
+        "key_hex": "414c4c5f5a45524f535f4b45595f5155414e544f4e49554d4f535f3332425f",
+        "message_hex": "5175616e746f6e69756d4f53207465737420766563746f7220666f722072657365617263682070617065722076616c69646174696f6e20616e642072656772657373696f6e2074657374696e67",
+        "associated_data_hex": "564543544f525f325f33",
+        "ciphertext_hex": "02ea4169d5d179b5af92159103b0d2ef9a4a609d18ed9ac77f4cde63603bfa7c8d5d586805668913dbf4965383cb31dee56a297dccd2a0bf0293fd1c094a8d2bb7181856ae85b7ebfa83c8d96f7a79e7302e83677ac410703152b4eec2aec7909836eac8407160609855e7b013e05efc61c0707669ebb7746391b526f273c11e95",
+        "message_length": 77,
+        "ciphertext_length": 129
+      },
+      {
+        "vector_id": "TV_2_4",
+        "key_hex": "414c4c5f5a45524f535f4b45595f5155414e544f4e49554d4f535f3332425f",
+        "message_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+        "associated_data_hex": "564543544f525f325f34",
+        "ciphertext_hex": "02c701b6f283e7d7054c2bf50d0e46dcc6df86567937ac82c7184afe4170c7205a03cf7b1eb42d8b6320824705417945bbcc7fa259d018597210729c4c84a49a825b573dca58e9d9bc400a695f23b7b201bd2f012a5629ddd1087e2f85ee9b7d9f0942aec1ec0da0323e288d148df2f573b4dec6cd8ddaf46a1ada3a77e4827e8140e4114544eda5ab631055d972108073cede02e0c8f11caaa65a02f935f07cc893b8e1ae12da6f99798f5bcdc599556315417d480e8bf690defbc1c42dc6680e5e3deab67ac4129cc4210ce430b75506a30c40b926cf870a59488296fb01c54450f8c905cdc031b2fa5e8c9929c58c75e74c02bc934c1c28cf3d37f387d2b29c414e3ed8612cab51672ba8d4bfc8d3419ea78560dc2c9c0a7136d8c0af1385e7ab75a13e17201f30fc338058d5d9eafd3f663ec2578cf16ed4ef0c9fd4513af7",
+        "message_length": 256,
+        "ciphertext_length": 321
+      }
+    ],
+    "generation_time": "2025-09-07T13:12:07.886746",
+    "cipher_config": {
+      "rounds": 48,
+      "block_size": 16,
+      "algorithm": "Enhanced_RFT_Crypto_v2"
+    }
+  },
+  "summary": {
+    "validation_time_seconds": 46.511101961135864,
+    "timestamp": "2025-09-07T13:12:07.886779",
+    "overall_pass": false,
+    "critical_tests_passed": 4,
+    "total_critical_tests": 5,
+    "paper_compliance": true,
+    "ready_for_production": false
+  }
+}

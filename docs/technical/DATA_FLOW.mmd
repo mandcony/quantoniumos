@@ -1,0 +1,135 @@
+graph TD
+    %% Data Flow for QuantoniumOS
+    
+    subgraph "Input Layer"
+        USER_INPUT[User Input]
+        KEY_INPUT[Cryptographic Key]
+        PLAINTEXT[Plaintext Data]
+        QUANTUM_STATE[Quantum State Input]
+    end
+
+    subgraph "Preprocessing Layer" 
+        INPUT_VALIDATION[Input Validation]
+        KEY_DERIVATION[Key Derivation - HKDF]
+        BLOCK_PADDING[Block Padding]
+        STATE_PREPARATION[Quantum State Preparation]
+    end
+
+    subgraph "Core Processing Layer"
+        subgraph "Crypto Pipeline"
+            ROUND_KEYS[Round Key Generation]
+            FEISTEL_ENC[48-Round Feistel Encryption]
+            SBOX[S-Box Substitution]
+            MDS[MDS Layer - GF(2^8)]
+            ARX[ARX Operations]
+        end
+        
+        subgraph "Quantum Pipeline"
+            RFT_FORWARD[RFT Forward Transform]
+            VERTEX_ENCODING[Vertex Quantum Encoding]
+            SYMBOLIC_COMPRESSION[Symbolic Compression]
+            QUANTUM_OPERATIONS[Quantum Gate Operations]
+        end
+        
+        subgraph "Assembly Optimization"
+            SIMD_OPERATIONS[SIMD Operations - AVX2]
+            ASSEMBLY_CRYPTO[Assembly Crypto Engine]
+            ASSEMBLY_RFT[Assembly RFT Engine]
+        end
+    end
+
+    subgraph "Validation & Analysis Layer"
+        DIFFERENTIAL_ANALYSIS[Differential Analysis]
+        AVALANCHE_TEST[Avalanche Testing]
+        PERFORMANCE_METRICS[Performance Metrics]
+        UNITARITY_CHECK[Unitarity Verification]
+    end
+
+    subgraph "Output Layer"
+        CIPHERTEXT[Encrypted Output]
+        QUANTUM_RESULT[Quantum Computation Result]
+        VALIDATION_REPORT[Validation Report]
+        PERFORMANCE_DATA[Performance Data]
+    end
+
+    subgraph "Storage & Persistence"
+        QVAULT_STORAGE[QVault Encrypted Storage]
+        RESULTS_DB[Results Database]
+        CONFIG_FILES[Configuration Files]
+    end
+
+    %% User Input Flow
+    USER_INPUT --> INPUT_VALIDATION
+    KEY_INPUT --> KEY_DERIVATION
+    PLAINTEXT --> BLOCK_PADDING
+    QUANTUM_STATE --> STATE_PREPARATION
+
+    %% Preprocessing to Core
+    INPUT_VALIDATION --> FEISTEL_ENC
+    KEY_DERIVATION --> ROUND_KEYS
+    BLOCK_PADDING --> FEISTEL_ENC
+    STATE_PREPARATION --> RFT_FORWARD
+
+    %% Crypto Data Flow
+    ROUND_KEYS --> FEISTEL_ENC
+    FEISTEL_ENC --> SBOX
+    SBOX --> MDS
+    MDS --> ARX
+    ARX --> FEISTEL_ENC
+    
+    %% Quantum Data Flow
+    RFT_FORWARD --> VERTEX_ENCODING
+    VERTEX_ENCODING --> SYMBOLIC_COMPRESSION
+    SYMBOLIC_COMPRESSION --> QUANTUM_OPERATIONS
+
+    %% Assembly Optimization Flow
+    FEISTEL_ENC --> ASSEMBLY_CRYPTO
+    RFT_FORWARD --> ASSEMBLY_RFT
+    ASSEMBLY_CRYPTO --> SIMD_OPERATIONS
+    ASSEMBLY_RFT --> SIMD_OPERATIONS
+
+    %% Validation Flow
+    FEISTEL_ENC --> DIFFERENTIAL_ANALYSIS
+    SBOX --> AVALANCHE_TEST
+    RFT_FORWARD --> UNITARITY_CHECK
+    SIMD_OPERATIONS --> PERFORMANCE_METRICS
+
+    %% Output Generation
+    ARX --> CIPHERTEXT
+    QUANTUM_OPERATIONS --> QUANTUM_RESULT
+    DIFFERENTIAL_ANALYSIS --> VALIDATION_REPORT
+    PERFORMANCE_METRICS --> PERFORMANCE_DATA
+
+    %% Storage Flow
+    CIPHERTEXT --> QVAULT_STORAGE
+    VALIDATION_REPORT --> RESULTS_DB
+    PERFORMANCE_DATA --> CONFIG_FILES
+
+    %% Cross-cutting Data Flows
+    ROUND_KEYS -.-> ASSEMBLY_CRYPTO
+    VERTEX_ENCODING -.-> ASSEMBLY_RFT
+    UNITARITY_CHECK -.-> VALIDATION_REPORT
+    AVALANCHE_TEST -.-> VALIDATION_REPORT
+
+    %% Feedback Loops
+    PERFORMANCE_METRICS --> KEY_DERIVATION
+    VALIDATION_REPORT --> INPUT_VALIDATION
+
+    %% Styling
+    classDef inputClass fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef processClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef cryptoClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef quantumClass fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef assemblyClass fill:#fce4ec,stroke:#ad1457,stroke-width:2px
+    classDef validationClass fill:#fff8e1,stroke:#f57f17,stroke-width:2px
+    classDef outputClass fill:#f1f8e9,stroke:#33691e,stroke-width:2px
+    classDef storageClass fill:#efebe9,stroke:#3e2723,stroke-width:2px
+
+    class USER_INPUT,KEY_INPUT,PLAINTEXT,QUANTUM_STATE inputClass
+    class INPUT_VALIDATION,KEY_DERIVATION,BLOCK_PADDING,STATE_PREPARATION processClass
+    class ROUND_KEYS,FEISTEL_ENC,SBOX,MDS,ARX cryptoClass
+    class RFT_FORWARD,VERTEX_ENCODING,SYMBOLIC_COMPRESSION,QUANTUM_OPERATIONS quantumClass
+    class SIMD_OPERATIONS,ASSEMBLY_CRYPTO,ASSEMBLY_RFT assemblyClass
+    class DIFFERENTIAL_ANALYSIS,AVALANCHE_TEST,PERFORMANCE_METRICS,UNITARITY_CHECK validationClass
+    class CIPHERTEXT,QUANTUM_RESULT,VALIDATION_REPORT,PERFORMANCE_DATA outputClass
+    class QVAULT_STORAGE,RESULTS_DB,CONFIG_FILES storageClass

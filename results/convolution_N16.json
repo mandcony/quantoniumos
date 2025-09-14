@@ -1,0 +1,10 @@
+{
+  "N": 16,
+  "note": "src.assembly.python_bindings.unitary_rft",
+  "stats": {
+    "frob_off": 15.473346275462607,
+    "frob_total": 15.596266127525476,
+    "diag_energy_fraction": 0.015700612314088893,
+    "frob_off_fraction": 0.9921186358928609
+  }
+}

@@ -1,0 +1,15 @@
+{"type": "system", "event": "open", "ts": "2025-09-13T20:01:45"}
+{"type": "user", "ts": "2025-09-13T20:01:55", "text": "hello"}
+{"type": "assistant", "ts": "2025-09-13T20:01:56", "text": "⚛️ I understand you said: 'hello'. I'm processing this with quantum-enhanced algorithms. Could you provide more context or clarify your question?", "confidence": 0.85}
+{"type": "user", "ts": "2025-09-13T20:02:09", "text": "you trained?"}
+{"type": "assistant", "ts": "2025-09-13T20:02:10", "text": "⚛️ I understand you said: 'you trained?'. I'm processing this with quantum-enhanced algorithms. Could you provide more context or clarify your question?", "confidence": 0.85}
+{"type": "user", "ts": "2025-09-13T20:02:27", "text": "what is quantum?"}
+{"type": "assistant", "ts": "2025-09-13T20:02:27", "text": "⚛️ [QUANTUM_CONTEXT] I understand you're asking about quantum computing. My quantum-enhanced architecture allows me to process information with superior efficiency. How can I help you with quantum concepts?", "confidence": 0.85}
+{"type": "user", "ts": "2025-09-13T20:02:39", "text": "what is it?"}
+{"type": "assistant", "ts": "2025-09-13T20:02:40", "text": "⚛️ I understand you said: 'what is it?'. I'm processing this with quantum-enhanced algorithms. Could you provide more context or clarify your question?", "confidence": 0.85}
+{"type": "user", "ts": "2025-09-13T20:02:49", "text": "how do they work"}
+{"type": "assistant", "ts": "2025-09-13T20:02:50", "text": "⚛️ I understand you said: 'how do they work'. I'm processing this with quantum-enhanced algorithms. Could you provide more context or clarify your question?", "confidence": 0.85}
+{"type": "user", "ts": "2025-09-13T20:02:57", "text": "what is theory"}
+{"type": "assistant", "ts": "2025-09-13T20:02:58", "text": "⚛️ I understand you said: 'what is theory'. I'm processing this with quantum-enhanced algorithms. Could you provide more context or clarify your question?", "confidence": 0.85}
+{"type": "user", "ts": "2025-09-13T20:03:12", "text": "1+1?"}
+{"type": "assistant", "ts": "2025-09-13T20:03:13", "text": "⚛️ I understand you said: '1+1?'. I'm processing this with quantum-enhanced algorithms. Could you provide more context or clarify your question?", "confidence": 0.85}

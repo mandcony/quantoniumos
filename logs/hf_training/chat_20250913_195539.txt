@@ -1,0 +1,8 @@
+You: are we loaded?
+AI: [confidence: 0.70] That's an interesting question! I'm analyzing the best way to help you with this. Could you provide a bit more context about what you're looking for?
+You: what are you trained on?
+AI: [confidence: 0.92] 🧠 AI and machine learning are like teaching computers to recognize patterns and make decisions. It's all about finding hidden structure in data. Are you interested in the algorithms, applications, or theory?
+You: list what domains we have weights in
+AI: [confidence: 0.92] 🧠 AI and machine learning are like teaching computers to recognize patterns and make decisions. It's all about finding hidden structure in data. Are you interested in the algorithms, applications, or theory?
+You: algorithms
+AI: [confidence: 0.92] 🧠 AI and machine learning are like teaching computers to recognize patterns and make decisions. It's all about finding hidden structure in data. Are you interested in the algorithms, applications, or theory?

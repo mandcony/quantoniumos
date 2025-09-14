@@ -1,0 +1,10 @@
+You: quantum physics?
+AI: [confidence: 0.96] That's a fascinating question! I'd love to explain how it works. What specifically are you curious about?
+You: an quation?
+AI: [confidence: 0.80] That's an interesting topic! I'd love to help you explore 'an quation?' further. Could you tell me more about what specifically interests you? I can provide explanations, help with problem-solving, or discuss the technical aspects.
+You: give me a quantum physics equation
+AI: [confidence: 0.99] 2 + 2 = 4. Need help with any other calculations?
+You: thats basic math? i asked for quantum physics
+AI: [confidence: 0.99] 2 + 2 = 4. Need help with any other calculations?
+You: what domains are you trained on>
+AI: [confidence: 0.80] That's an interesting topic! I'd love to help you explore 'what domains are you trained on>' further. Could you tell me more about what specifically interests you? I can provide explanations, help with problem-solving, or discuss the technical aspects.

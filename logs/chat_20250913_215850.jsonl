@@ -1,0 +1,5 @@
+{"type": "system", "event": "open", "ts": "2025-09-13T21:58:50"}
+{"type": "user", "ts": "2025-09-13T21:58:59", "text": "test"}
+{"type": "assistant", "ts": "2025-09-13T21:59:01", "text": "⚛️ ⚛️", "confidence": 0.88}
+{"type": "user", "ts": "2025-09-13T21:59:13", "text": "whats up"}
+{"type": "assistant", "ts": "2025-09-13T21:59:14", "text": "⚛️ ⚛️", "confidence": 0.88}

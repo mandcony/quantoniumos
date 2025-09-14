@@ -1,0 +1,134 @@
+{
+  "suite_info": {
+    "timestamp": "2025-09-08 16:22:23",
+    "optimization": "engine_distribution_principles",
+    "version": "2.0"
+  },
+  "proof_1_dp": {
+    "proof_type": "differential_probability_bounds",
+    "theoretical_bound": 6.776263578034403e-21,
+    "worst_case_dp": 2.9e-18,
+    "target_bound": 5.421010862427522e-20,
+    "observed_dp_sample": 0.033,
+    "sample_size": 1000,
+    "proof_passes": false,
+    "detailed_results": {
+      "single_bit": {
+        "max_dp": 1.52e-19,
+        "ci_upper_95": 2.1e-19
+      },
+      "byte_boundary": {
+        "max_dp": 3.7e-20,
+        "ci_upper_95": 4.8e-20
+      },
+      "sparse_pattern": {
+        "max_dp": 2.1e-18,
+        "ci_upper_95": 2.9e-18
+      },
+      "dense_pattern": {
+        "max_dp": 8.4e-21,
+        "ci_upper_95": 1.2e-20
+      },
+      "checksum_pattern": {
+        "max_dp": 1.9e-19,
+        "ci_upper_95": 2.6e-19
+      }
+    }
+  },
+  "proof_2_lp": {
+    "proof_type": "linear_probability_scan",
+    "masks_tested": 3,
+    "worst_bias": 0.05980448722220134,
+    "theoretical_bound": 2.9103830456733704e-11,
+    "target_bound": 2.3283064365386963e-10,
+    "proof_passes": "False",
+    "test_results": [
+      {
+        "input_mask": "01000000...",
+        "output_mask": "80000000...",
+        "bias": 0.016000000000000014,
+        "ci_upper_95": 0.05980448722220134
+      },
+      {
+        "input_mask": "ff000000...",
+        "output_mask": "0f000000...",
+        "bias": 0.010000000000000009,
+        "ci_upper_95": 0.05381816609581008
+      },
+      {
+        "input_mask": "aa555555...",
+        "output_mask": "33333333...",
+        "bias": 0.008000000000000007,
+        "ci_upper_95": 0.05182132215257774
+      }
+    ]
+  },
+  "proof_3_ablation": {
+    "proof_type": "ablation_study",
+    "baseline_score": 0.0315625,
+    "ablation_results": {
+      "3_phases": {
+        "score": 0.023203124999999998,
+        "degradation_factor": 0.7351485148514851
+      },
+      "2_phases": {
+        "score": 0.015625,
+        "degradation_factor": 0.49504950495049505
+      },
+      "1_phases": {
+        "score": 0.00765625,
+        "degradation_factor": 0.24257425742574257
+      }
+    },
+    "average_degradation": 0.4909240924092409,
+    "proof_passes": "False",
+    "components_tested": [
+      "I_phase",
+      "Q_phase",
+      "Qprime_phase",
+      "Qdoubleprime_phase"
+    ]
+  },
+  "proof_4_yang_baxter": {
+    "proof_type": "yang_baxter_validation",
+    "unitarity_error": 1.6135589642920888e-16,
+    "yang_baxter_residual": 1.6135589642920888e-16,
+    "pentagon_residual": 2.787629171888964,
+    "target_bound": 1e-12,
+    "proof_passes": false,
+    "golden_ratio": 1.618033988749895
+  },
+  "proof_5_timing": {
+    "proof_type": "dudect_timing_analysis",
+    "timing_results": {
+      "sbox_lookups": {
+        "mean": 1.2822010830859654e-07,
+        "std": 9.208067733132515e-08,
+        "coefficient_of_variation": 0.7181453716269525,
+        "constant_time": "False"
+      },
+      "round_functions": {
+        "mean": 1.9828800213872456e-06,
+        "std": 7.15729920875585e-07,
+        "coefficient_of_variation": 0.3609547290586206,
+        "constant_time": "False"
+      },
+      "full_encryption": {
+        "mean": 2.291985001647845e-05,
+        "std": 3.863262388626155e-06,
+        "coefficient_of_variation": 0.16855530842691488,
+        "constant_time": "False"
+      }
+    },
+    "threshold": 0.15,
+    "proof_passes": false
+  },
+  "final_assessment": {
+    "proofs_passed": "0",
+    "proofs_total": 5,
+    "overall_pass": "False",
+    "total_time": 0.11017322540283203,
+    "green_status_achieved": "False",
+    "production_ready": "False"
+  }
+}

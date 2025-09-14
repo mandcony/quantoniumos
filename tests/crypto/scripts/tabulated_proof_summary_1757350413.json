@@ -1,0 +1,31 @@
+{
+  "generation_info": {
+    "timestamp": "2025-09-08 16:53:33",
+    "total_time": 1354.4320797920227,
+    "samples_per_test": 3000
+  },
+  "differential_summary": {
+    "tests": 5,
+    "max_dp": 0.0005,
+    "tests_passing": 0,
+    "unique_outputs_avg": 2000.0
+  },
+  "linear_summary": {
+    "tests": 5,
+    "max_bias": 0.02300000000000002,
+    "tests_passing": 0,
+    "avg_correlation": 0.4957999999999999
+  },
+  "avalanche_summary": {
+    "positions_tested": 7,
+    "avg_avalanche": 0.5002700892857143,
+    "tests_passing": 7,
+    "best_avalanche": 0.499734375
+  },
+  "timing_summary": {
+    "operations_tested": 3,
+    "operations_constant_time": 2,
+    "best_cv": 0.007406256652352556,
+    "worst_cv": 0.769124393593727
+  }
+}
