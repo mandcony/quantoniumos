@@ -1,0 +1,3 @@
+{"type": "system", "event": "open", "ts": "2025-09-16T20:04:19"}
+{"type": "user", "ts": "2025-09-16T20:04:26", "text": "test"}
+{"type": "assistant", "ts": "2025-09-16T20:04:27", "text": "⚛️ Great question! Test is something I can definitely help you with.", "confidence": 0.96}

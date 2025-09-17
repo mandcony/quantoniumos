@@ -2,16 +2,25 @@
 """
 Quantum AI Inference Engine
 Provides advanced response generation using local models or API fallbacks
+Enhanced with multimodal capabilities including image generation
 """
 
 import os
 import torch
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple, List
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Try to import image generation capabilities
+try:
+    from .quantum_image_generator import QuantumImageGenerator
+    IMAGE_GENERATION_AVAILABLE = True
+except ImportError:
+    IMAGE_GENERATION_AVAILABLE = False
+    logger.info("Image generation not available - install diffusers for full capabilities")
 
 class QuantumInferenceEngine:
     """Advanced inference engine for quantum-enhanced responses
@@ -21,7 +30,7 @@ class QuantumInferenceEngine:
     use_encoded=True to the constructor.
     """
 
-    def __init__(self, model_name: str = None, device: str = "auto", use_encoded: bool = False):
+    def __init__(self, model_name: str = None, device: str = "auto", use_encoded: bool = False, enable_image_generation: bool = True):
         # Auto-select model based on available resources
         if model_name is None:
             model_name = self._auto_select_model()
@@ -31,6 +40,17 @@ class QuantumInferenceEngine:
         self.model = None
         self.tokenizer = None
         self.generator = None
+
+        # Image generation capabilities
+        self.image_generator = None
+        self.enable_image_generation = enable_image_generation and IMAGE_GENERATION_AVAILABLE
+        if self.enable_image_generation:
+            try:
+                self.image_generator = QuantumImageGenerator(device=self.device)
+                logger.info("✅ Image generation enabled")
+            except Exception as e:
+                logger.warning(f"Could not initialize image generator: {e}")
+                self.enable_image_generation = False
 
         # Encoded / compressed parameter backends
         self.use_encoded = use_encoded or (os.getenv("QUANTUM_USE_ENCODED") == "1")
@@ -377,3 +397,96 @@ What interests you most? I'd love to dive deep into any of these areas!"""
 
         size_mb = (param_size + buffer_size) / 1024 / 1024
         return round(size_mb, 2)
+
+    # Multimodal capabilities
+    def generate_multimodal_response(self, 
+                                   prompt: str, 
+                                   include_image: bool = None,
+                                   context: str = "",
+                                   image_params: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Generate both text and optionally image responses
+        
+        Args:
+            prompt: User's input prompt
+            include_image: Whether to generate an image (auto-detected if None)
+            context: Previous conversation context
+            image_params: Parameters for image generation
+            
+        Returns:
+            Dict containing 'text', 'confidence', and optionally 'images' and 'image_paths'
+        """
+        
+        # Generate text response
+        text_response, confidence = self.generate_response(prompt, context)
+        
+        result = {
+            "text": text_response,
+            "confidence": confidence,
+            "images": [],
+            "image_paths": []
+        }
+        
+        # Auto-detect if image generation is requested
+        if include_image is None:
+            image_keywords = [
+                "generate image", "create image", "draw", "visualize", "show me",
+                "nano banana", "picture of", "image of", "make an image"
+            ]
+            include_image = any(keyword in prompt.lower() for keyword in image_keywords)
+        
+        # Generate image if requested and available
+        if include_image and self.enable_image_generation:
+            try:
+                logger.info("🎨 Generating image for prompt...")
+                
+                # Default image parameters
+                default_params = {
+                    "num_images": 1,
+                    "width": 512,
+                    "height": 512,
+                    "enhancement_style": "enhance"
+                }
+                
+                if image_params:
+                    default_params.update(image_params)
+                
+                # Generate images
+                images = self.image_generator.generate_image(prompt, **default_params)
+                saved_paths = self.image_generator.save_images(images)
+                
+                result["images"] = images
+                result["image_paths"] = saved_paths
+                
+                # Add image info to text response
+                result["text"] += f"\n\n🎨 I've also generated {len(images)} image(s) based on your request! Check: {', '.join(saved_paths)}"
+                
+            except Exception as e:
+                logger.error(f"Image generation failed: {e}")
+                result["text"] += f"\n\n⚠️ I tried to generate an image but encountered an error: {str(e)}"
+        
+        elif include_image and not self.enable_image_generation:
+            result["text"] += "\n\n📝 Note: Image generation is not available. Install diffusers library for visual capabilities!"
+        
+        return result
+
+    def generate_image_only(self, prompt: str, **kwargs) -> List[str]:
+        """Generate only images from a text prompt"""
+        if not self.enable_image_generation:
+            raise RuntimeError("Image generation not available")
+        
+        images = self.image_generator.generate_image(prompt, **kwargs)
+        return self.image_generator.save_images(images)
+
+    def is_image_generation_available(self) -> bool:
+        """Check if image generation is available"""
+        return self.enable_image_generation
+
+    def get_capabilities(self) -> Dict[str, bool]:
+        """Get information about available capabilities"""
+        return {
+            "text_generation": self.model is not None or self.encoded_backend is not None,
+            "image_generation": self.enable_image_generation,
+            "multimodal": self.enable_image_generation,
+            "quantum_enhanced": self.use_encoded or self.enable_image_generation
+        }

@@ -1,0 +1,9 @@
+{"type": "system", "event": "open", "ts": "2025-09-16T20:09:22"}
+{"type": "user", "ts": "2025-09-16T20:09:27", "text": "test"}
+{"type": "assistant", "ts": "2025-09-16T20:09:28", "text": "⚛️ I see what you're getting at with test. Let me provide some insight on that.", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-16T20:09:46", "text": "wat domains do you know"}
+{"type": "assistant", "ts": "2025-09-16T20:09:47", "text": "⚛️ That's an interesting point about wat domains do you know. I'd like to explore that further with you.", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-16T20:10:01", "text": "what are you trained on?"}
+{"type": "assistant", "ts": "2025-09-16T20:10:02", "text": "⚛️ I understand you're asking about what are you trained on?. Let me think about the best way to help with that.", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-16T20:10:06", "text": "?"}
+{"type": "assistant", "ts": "2025-09-16T20:10:07", "text": "⚛️ Interesting! ? is a fascinating topic. What specifically would you like to know?", "confidence": 0.96}

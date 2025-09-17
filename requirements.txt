@@ -23,6 +23,12 @@ trl>=0.7.0
 bitsandbytes>=0.41.0  # For quantization
 wandb>=0.15.0  # Optional: for experiment tracking
 
+# Image Generation Dependencies
+diffusers>=0.21.0  # Stable Diffusion and other generative models
+pillow>=9.0.0  # PIL for image handling
+controlnet-aux>=0.0.6  # Optional: for ControlNet support
+xformers>=0.0.20  # Optional: memory efficient attention (NVIDIA only)
+
 # Assembly interface (platform specific)  
 # Windows: Microsoft Visual C++ Build Tools
 # Linux: GCC compiler toolchain

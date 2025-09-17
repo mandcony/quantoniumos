@@ -29,15 +29,51 @@ QuantoniumOS is a working implementation of symbolic quantum state simulation us
 ```
 quantoniumos/
 ├── quantonium_boot.py      # Main system launcher
-├── src/
-│   ├── frontend/           # PyQt5 desktop and interface
-│   ├── apps/              # Applications (Q-Notes, Q-Vault, Simulator, etc.)
-│   ├── core/              # Core algorithms (RFT, crypto, geometric hashing)
-│   ├── assembly/          # C kernels and optimized components
-│   └── engine/            # Main computational engine
-├── tests/                 # Validation and benchmarks
-├── docs/                  # Technical documentation
-└── ui/                    # Interface styles and icons
+├── src/                    # Core source code
+│   ├── apps/              # Applications (19 files)
+│   │   ├── qshll_chatbox.py        # AI chatbox with 25.02B parameters
+│   │   ├── quantum_simulator.py    # Quantum state simulator
+│   │   ├── qshll_system_monitor.py # System monitoring
+│   │   ├── quantum_crypto.py       # Cryptographic tools
+│   │   ├── q_notes.py             # Quantum note-taking
+│   │   ├── q_vault.py             # Secure file storage
+│   │   └── rft_*.py               # RFT visualization tools
+│   ├── core/              # Mathematical algorithms (9 files)
+│   │   ├── canonical_true_rft.py   # Core RFT implementation
+│   │   ├── quantum_gates.py        # Quantum gate operations
+│   │   ├── crypto_primitives.py    # Cryptographic primitives
+│   │   └── topological_*.py        # Topological quantum kernels
+│   ├── assembly/          # C kernels and Python bindings
+│   │   ├── kernel/               # C implementation
+│   │   ├── python_bindings/      # Python interfaces
+│   │   └── Makefile             # Build system
+│   ├── frontend/          # User interfaces (6 files)
+│   │   ├── quantonium_desktop.py # Main desktop environment
+│   │   └── quantonium_intro.py   # System introduction
+│   ├── data/             # Data management
+│   └── engine/           # Computational engine
+├── dev/                  # Development tools
+│   ├── tools/           # AI integration tools
+│   ├── phase1_testing/  # Enhanced AI validation
+│   └── scripts/         # Utility scripts
+├── docs/                 # Documentation (15 files)
+│   ├── TECHNICAL_SUMMARY.md      # Architecture overview
+│   ├── RFT_VALIDATION_GUIDE.md   # Scientific validation
+│   ├── DEVELOPMENT_MANUAL.md     # Developer guide
+│   ├── QUICK_START.md           # Getting started
+│   └── technical/              # Technical specifications
+├── tests/                # Test suites
+│   ├── proofs/          # Mathematical proofs
+│   ├── crypto/          # Cryptographic validation
+│   ├── analysis/        # Performance analysis
+│   └── benchmarks/      # Performance benchmarks
+├── data/                 # Data storage
+│   ├── weights/         # AI model weights (quantum-compressed)
+│   ├── config/          # Configuration files
+│   └── safety_validations/ # Safety test results
+├── results/             # Benchmark and test results
+├── ui/                  # Interface styles and icons
+└── ai/                  # AI training and integration tools
 ```
 
 ## Quick Start
