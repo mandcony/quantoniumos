@@ -168,7 +168,7 @@ class EssentialQuantumAI:
     
     def _load_encoded_parameters(self):
         """Load the actual encoded parameters from weights directory"""
-        weights_dir = os.path.join(BASE_DIR, "data", "weights")
+        weights_dir = os.path.join(BASE_DIR, "core", "models", "weights")
         
         # Load organized core parameters (76K)
         try:

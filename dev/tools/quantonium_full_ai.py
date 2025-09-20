@@ -49,8 +49,8 @@ class QuantoniumOSFullAI:
         # 2. Load Quantum-Encoded Models (GPT-OSS 120B + Llama2-7B representations)
         self._load_quantum_models()
         
-        # 3. Load Direct Models (cautiously)  
-        self._load_direct_models()
+        # 3. Load Real Models (only actual models)  
+        self._load_real_models()
         
         # 4. Calculate total representation
         self._calculate_total_capability()
@@ -59,12 +59,12 @@ class QuantoniumOSFullAI:
         """Load quantum-encoded model representations"""
         quantum_models = {
             'gpt_oss_120b': {
-                'path': 'data/weights/gpt_oss_120b_quantum_states.json',
+                'path': 'core/models/weights/gpt_oss_120b_quantum_states.json',
                 'represented_parameters': 120_000_000_000,
                 'quantum_states': 14221
             },
             'llama2_7b': {
-                'path': 'data/weights/quantonium_with_streaming_llama2.json', 
+                'path': 'core/models/weights/quantonium_with_streaming_llama2.json', 
                 'represented_parameters': 6_738_415_616,
                 'quantum_states': 23149
             }
@@ -85,33 +85,18 @@ class QuantoniumOSFullAI:
             except Exception as e:
                 self.error_log.append(f"{model_name}: {e}")
     
-    def _load_direct_models(self):
-        """Cautiously reference direct models without loading them into memory"""
-        direct_models = {
-            'stable_diffusion': {
-                'parameters': 1_071_460_000,
-                'capability': 'image_generation',
-                'components': ['unet', 'text_encoder', 'vae']
-            },
-            'gpt_neo_1_3b': {
-                'parameters': 1_300_000_000,
-                'capability': 'text_generation'
-            },
-            'phi_1_5': {
-                'parameters': 1_500_000_000,
-                'capability': 'code_generation'
-            },
-            'codegen_350m': {
-                'parameters': 350_000_000,
-                'capability': 'programming_assistance'
-            },
-            'minilm_l6_v2': {
-                'parameters': 22_700_000,
-                'capability': 'semantic_understanding'
+    def _load_real_models(self):
+        """Only reference REAL models that actually exist"""
+        real_models = {
+            'fine_tuned_checkpoint': {
+                'parameters': 117_000_000,
+                'capability': 'text_generation',
+                'path': 'ai/training/models/fixed_fine_tuned_model/',
+                'status': 'trained_checkpoint'
             }
         }
         
-        for model_name, info in direct_models.items():
+        for model_name, info in real_models.items():
             # Register capability without loading (to avoid crashes)
             self.models_loaded[model_name] = {
                 'parameters': info['parameters'],

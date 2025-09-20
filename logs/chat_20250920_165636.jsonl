@@ -1,0 +1,9 @@
+{"type": "system", "event": "open", "ts": "2025-09-20T16:56:36"}
+{"type": "user", "ts": "2025-09-20T16:56:44", "text": "test"}
+{"type": "assistant", "ts": "2025-09-20T16:56:44", "text": "⚛️ That's interesting! Can you tell me more about what you're thinking?", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-20T16:56:54", "text": "what are you trained on"}
+{"type": "assistant", "ts": "2025-09-20T16:56:55", "text": "⚛️ I find that topic fascinating! What got you interested in this, and what would you like to explore about it?", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-20T16:57:05", "text": "whats math?>"}
+{"type": "assistant", "ts": "2025-09-20T16:57:06", "text": "⚛️ That's a great question! Let me think about that... What specifically interests you most about this topic?", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-20T16:57:14", "text": "use your parameters?"}
+{"type": "assistant", "ts": "2025-09-20T16:57:14", "text": "⚛️ That's a great question! Let me think about that... What specifically interests you most about this topic?", "confidence": 0.96}

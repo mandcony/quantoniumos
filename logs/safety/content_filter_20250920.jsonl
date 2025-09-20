@@ -1,0 +1,5 @@
+{"timestamp": "2025-09-20T17:17:00.727880", "event_type": "IMAGE_PROMPT_ALLOWED", "content_hash": "f9435367499b61f0", "action": "ALLOWED", "filter_version": "1.0.0", "details": {"warnings": []}}
+{"timestamp": "2025-09-20T17:17:00.728890", "event_type": "IMAGE_PROMPT_BLOCKED", "content_hash": "598d2939e6502981", "action": "BLOCKED", "filter_version": "1.0.0", "details": {"category": "explicit", "keyword": "inappropriate", "severity": "HIGH"}}
+{"timestamp": "2025-09-20T17:17:00.728890", "event_type": "IMAGE_PROMPT_ALLOWED", "content_hash": "39ad01ff121e641c", "action": "ALLOWED", "filter_version": "1.0.0", "details": {"warnings": []}}
+{"timestamp": "2025-09-20T17:17:00.729882", "event_type": "IMAGE_PROMPT_BLOCKED", "content_hash": "32a3893daa0e6546", "action": "BLOCKED", "filter_version": "1.0.0", "details": {"category": "violence", "keyword": "violent", "severity": "HIGH"}}
+{"timestamp": "2025-09-20T17:17:00.729882", "event_type": "IMAGE_PROMPT_BLOCKED", "content_hash": "32a3893daa0e6546", "action": "BLOCKED", "filter_version": "1.0.0", "details": {"category": "violence", "keyword": "weapon", "severity": "HIGH"}}

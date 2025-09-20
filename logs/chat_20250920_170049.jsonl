@@ -1,0 +1,7 @@
+{"type": "system", "event": "open", "ts": "2025-09-20T17:00:49"}
+{"type": "user", "ts": "2025-09-20T17:00:53", "text": "test"}
+{"type": "assistant", "ts": "2025-09-20T17:00:54", "text": "⚛️ I'd love to help you with that! Can you give me a bit more detail about what you're looking for?", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-20T17:00:59", "text": "what is math"}
+{"type": "assistant", "ts": "2025-09-20T17:01:00", "text": "⚛️ Math is the universal language for describing patterns, relationships, and structures in our world! It ranges from basic arithmetic to advanced fields like calculus, algebra, geometry, and beyond. Are you working on a specific math problem, or curious about a particular area of mathematics?", "confidence": 0.96}
+{"type": "user", "ts": "2025-09-20T17:01:16", "text": "what is quantum computing"}
+{"type": "assistant", "ts": "2025-09-20T17:01:17", "text": "⚛️ Quantum computing uses quantum mechanical phenomena like superposition and entanglement to process information in fundamentally different ways than classical computers. Instead of just 0s and 1s, quantum bits (qubits) can exist in multiple states simultaneously, allowing for exponentially more computational possibilities. It's especially powerful for certain problems like cryptography, optimization, and simulation.", "confidence": 0.96}

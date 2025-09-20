@@ -1,0 +1,5 @@
+{"type": "system", "event": "open", "ts": "2025-09-20T15:18:45"}
+{"type": "user", "ts": "2025-09-20T15:18:54", "text": "testing our ai"}
+{"type": "assistant", "ts": "2025-09-20T15:18:54", "text": "⚛️ Hello! I'm your AI assistant. I'm here to help with questions, conversations, creative tasks, and more. What would you like to chat about?", "confidence": 0.1}
+{"type": "user", "ts": "2025-09-20T15:19:05", "text": "how many parameters?"}
+{"type": "assistant", "ts": "2025-09-20T15:19:06", "text": "⚛️ Hello! I'm your AI assistant. I'm here to help with questions, conversations, creative tasks, and more. What would you like to chat about?", "confidence": 0.1}
