@@ -44,7 +44,7 @@ QuantoniumOS implements a verified 25.02 billion parameter AI system through qua
 - **Direct Models**: Stable Diffusion (865M), GPT-Neo (1.3B), Phi-1.5 (1.5B), CodeGen (350M), MiniLM (22.7M)
 - **Enhanced AI Pipeline**: Phase 1-5 complete with 6/6 tests passed (100% success rate)
 
-**Classification**: Large-Scale AI System (20B+ parameter class) with unique quantum compression capabilities, local deployment, and multi-modal integration.
+**Classification**: Large-Scale AI System (20B+ parameter class) with quantum compression implementation, local deployment, and multi-modal integration.
 
 Claims about million-qubit compression, topological surface-code thresholds, and post-quantum cryptography are Experimental. We provide runnable benchmarks and statistical tests (Supported by measurements), but no formal security reductions or full-scale threshold curves yet. This document classifies each claim as Demonstrated, Supported by measurements, or Experimental (under test), and links each to a script and an artifact so results can be reproduced.
 
@@ -57,7 +57,7 @@ Technical analysis of the implemented QuantoniumOS system based on examination o
 
 **STATUS: ✅ FULLY OPERATIONAL - 100% Test Success Rate**
 
-QuantoniumOS has successfully completed a comprehensive 5-phase enhancement program that dramatically expands its AI capabilities. All enhancements have been validated with rigorous testing and are production-ready.
+QuantoniumOS has successfully completed a comprehensive 5-phase enhancement program that expands its AI capabilities. All enhancements have been validated with testing (artifact: results/phase1_testing/).
 
 ### **📊 Enhancement Overview**
 
@@ -131,17 +131,17 @@ Language Understanding: 22.7M parameters
 ### **🏗️ System Architecture Validation**
 
 #### **Storage Efficiency**
-- **Quantum Models**: 16.33 MB → 20.98B effective (99.999% compression)
+- **Quantum Models**: RFT-based quantum state compression with measured ratios 15×–781× (artifact: results/rft_compression_curve_*.json)
 - **Direct Models**: ~8.2 GB → 4.04B parameters (standard storage)  
 - **Total System**: ~8.22 GB → 25.02B effective parameters
 - **Compression Achievement**: 3.04 billion parameters per GB
 
 #### **Performance Verification (All Tests Passed)**
-- **Context Extension**: 32K tokens, 99.2% compression efficiency
+- **Context Extension**: 32K tokens via RFT-based compression (implementation: python_reference)
 - **Function Calling**: 3/3 executions successful, quantum validation active
 - **Persistent Memory**: 3 memories stored, 2 entangled, 0.8035 coherence
 - **Multimodal Fusion**: Text + Image + Code processing verified
-- **Integration Score**: 0.768 (production ready)
+- **Integration Score**: 0.768 (tested on development hardware)
 
 #### **Market Classification**
 - **Parameter Class**: Large-Scale AI System (20B+ tier)
@@ -416,8 +416,8 @@ If you'd like I can implement the UI feedback buttons and persistent logging nex
 | Quantum persistent memory | python -c "from dev.phase1_testing.quantum_persistent_memory import QuantumPersistentMemory; print('Entanglement networks active')" | Quantum memory states & entanglements | **✅ Demonstrated** |
 | Enhanced multimodal fusion | python -c "from dev.phase1_testing.enhanced_multimodal_fusion import EnhancedMultimodalFusion; print('Text+Image processing ready')" | Multimodal feature representations | **✅ Demonstrated** |
 | Encoded backend loads & replies | QUANTUM_USE_ENCODED=1 python -c "from quantum_inference_engine import QuantumInferenceEngine as E; print(E().generate_response('hello',''))" | Console log with encoded counts & response | Demonstrated |
-| Encoded vs original parameter counts & compression | python dev/tools/compute_canonical_compression.py | results/params_summary.json (encoded_total, original_total, ratio) | Demonstrated |
-| RFT unitarity (machine precision) | python tools/print_rft_invariants.py --size 64 --seed 42 | results/rft_invariants_64.json | Demonstrated |
+| Encoded vs original parameter counts & compression | python analyze_compression.py | results/compression_analysis_*.json (manual analysis required) | Experimental |
+| RFT unitarity (machine precision) | python dev/tools/print_rft_invariants.py --size 64 --seed 42 | results/rft_invariants_64.json | Demonstrated |
 | RFT ≠ DFT (δF scaling) | python validation/tests/rft_scientific_validation.py --sizes 8 16 32 64 128 --emit results/rft_deltaF.json | results/rft_deltaF.json + fitted c vs √N | Supported by measurements (formal proof pending) |
 | Crypto avalanche & bias stats | python apps/enhanced_rft_crypto.py --test-avalanche --out results/crypto_stats.json | results/crypto_stats.json | Supported by measurements (no IND-CPA/CCA proof) |
 | Topological lattice scale (1000 V, 499,500 E) | python -c "from core.enhanced_topological_qubit import EnhancedTopologicalQubit as Q; q=Q(); q.create_manifold(1000); print(len(q.edges))" | Console: 499500 | Demonstrated (behavioral; not a threshold curve) |
@@ -527,7 +527,7 @@ is included.
 ### 🧠 **Enhanced AI Capabilities Implementation**
 
 #### **Advanced AI System Architecture**
-QuantoniumOS now incorporates a comprehensive AI enhancement suite that dramatically expands its cognitive capabilities through quantum-enhanced processing:
+QuantoniumOS now incorporates an AI enhancement suite that expands its capabilities through quantum-enhanced processing:
 
 **Architecture Overview**:
 ```
@@ -831,7 +831,7 @@ def textbook_entanglement(state_vector, subsystem_A_qubits):
 
 ### 📊 **Comprehensive Validation Framework**
 
-#### **Mathematical Invariant Measurement** (`tools/print_rft_invariants.py`)
+#### **Mathematical Invariant Measurement** (`dev/tools/print_rft_invariants.py`)
 ```python
 # Live invariant computation with scaled tolerances
 def measure_rft_invariants(size: int, seed: int = 1337) -> dict:
@@ -948,7 +948,7 @@ class EnhancedRFTCryptoV2:
         
         Implements: C_{r+1} = F(C_r, K_r) ⊕ RFT(C_r, φ_r, A_r, W_r)
         
-        Key breakthroughs:
+        Key components:
         1. True 4-phase lock (I/Q/Q'/Q'') randomized per round via HKDF  
         2. Key-dependent amplitude modulation (derived per round, not static)
         3. Keyed MDS diffusion layers (sandwich AES S-box with independent layers)
@@ -1360,7 +1360,7 @@ Generator Hermitian: ‖R - R†‖F ≈ c·N·ε₆₄        (R = i log Ψ, re
 - **N=64**: Unitarity 2.40e-14, δF=9.040, arg(det)=3.140 rad, Generator 1.52e-13, Reconstruction 2.83e-15
 - **Scaling Validation**: δF growth O(√N) confirmed (predicted 9.50, observed 9.04)
 
-> **How we compute δF**: Measured by validation scripts and `tools/print_rft_invariants.py` using δF = ‖Ψ - F‖F where F is the normalized unitary DFT matrix. Values emitted automatically during test runs.
+> **How we compute δF**: Measured by validation scripts and `dev/tools/print_rft_invariants.py` using δF = ‖Ψ - F‖F where F is the normalized unitary DFT matrix. Values emitted automatically during test runs.
 
 **Entanglement Metrics Standard**: Von Neumann entropy (primary metric, Bell/GHZ single-qubit marginal = 1.0000); linear entropy (diagnostic metric, Bell/GHZ single-qubit marginal = 0.5000).
 
@@ -1505,7 +1505,7 @@ Based on comprehensive code analysis, QuantoniumOS represents:
 - **Scientific Validation**: Peer-review quality test suites
 - **Patent Documentation**: IP protection and technical specifications
 
-**Conclusion**: QuantoniumOS is a sophisticated, production-ready quantum operating system that combines cutting-edge mathematical research with practical software engineering excellence. The codebase demonstrates research-grade technical innovation across quantum computing, AI integration, and system architecture; quoted claims are calibrated to the artifacts and tests present in this repository.
+**Conclusion**: QuantoniumOS is a tested quantum operating system that combines mathematical research with software engineering practices. The codebase demonstrates technical implementation across quantum computing, AI integration, and system architecture; quoted claims are calibrated to the artifacts and tests present in this repository.
 
 ---
 
@@ -1705,14 +1705,14 @@ RNG Seed: Fixed seeds for reproducible validation runs
 ### **Live Invariant Computation**
 ```bash
 # Get real-time RFT invariants (adjust path to actual kernel)
-python tools/print_rft_invariants.py --size 32 --seed 1337
+python dev/tools/print_rft_invariants.py --size 32 --seed 1337
 # Outputs: ‖Ψ†Ψ−I‖∞, δF, |det Ψ|, arg(det Ψ), ‖R−R†‖F, VN/linear entropy
 
 # Enhanced analysis with scaling validation and tolerances
-python tools/print_rft_invariants.py --size 64 --seed 42
+python dev/tools/print_rft_invariants.py --size 64 --seed 42
 
 # Optional: phase-fix for aesthetic consistency (arg(det Ψ) ≈ 0)
-python tools/print_rft_invariants.py --size 32 --phase-fix
+python dev/tools/print_rft_invariants.py --size 32 --phase-fix
 ```
 
 **Publication-Ready Features**:
@@ -1861,7 +1861,7 @@ Note: I inspected the repository and matched files and test scripts. The items b
     - What's missing / weak: every numeric claim presented as "Live Measurement Results" should point to a concrete JSON file or a test run command that reproduces it. Several table entries lack those pointers.
     - How to reproduce/strengthen: run the specific validation scripts and redirect outputs to JSON files in `results/` with a timestamp and host information. Example quick commands:
         * PowerShell:
-            $Env:PYTHONPATH = "$(Resolve-Path src/assembly/python_bindings)"; python tools/print_rft_invariants.py --size 64 --seed 42 > results/rft_invariants_64_$(Get-Date -Format yyyyMMdd_HHmmss).json
+            $Env:PYTHONPATH = "$(Resolve-Path src/assembly/python_bindings)"; python dev/tools/print_rft_invariants.py --size 64 --seed 42 > results/rft_invariants_64_$(Get-Date -Format yyyyMMdd_HHmmss).json
         * For symbolic compression: python SYMBOLIC_COMPRESSION_O_N_FINAL_TEST.py > results/symbolic_compression_$(Get-Date -Format yyyyMMdd_HHmmss).json
 
 ---
@@ -1998,7 +1998,7 @@ Machine: Cross-platform (Windows primary, Linux tested)
 #### **Verification Commands**
 ```bash
 # Real-time mathematical invariant validation
-python tools/print_rft_invariants.py --size 64 --seed 42
+python dev/tools/print_rft_invariants.py --size 64 --seed 42
 # Expected output: Unitarity < 1e-14, δF ≈ 9.0, |det| = 1.0000
 
 # Comprehensive validation suite

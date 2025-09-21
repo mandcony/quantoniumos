@@ -1,0 +1,391 @@
+{
+  "metadata": {
+    "timestamp": "20250921_134908",
+    "implementation": "compiled_c_assembly",
+    "library_path": "/workspaces/quantoniumos/src/assembly/compiled/libquantum_symbolic.so",
+    "test_type": "real_assembly_rft_compression_fidelity_curve",
+    "description": "Compression ratios vs fidelity using actual compiled C library"
+  },
+  "curves": [
+    {
+      "size": 64,
+      "transform_time_ms": 0.27751922607421875,
+      "unitarity_error": 5.076314173703241e-13,
+      "curve_points": [
+        {
+          "retention_ratio": 1.0,
+          "coefficients_kept": 64,
+          "compression_ratio": 1.0,
+          "fidelity": 1.0000000000007199,
+          "reconstruction_error": 1.058473596417104e-12,
+          "compression_percentage": 0.0
+        },
+        {
+          "retention_ratio": 0.9,
+          "coefficients_kept": 57,
+          "compression_ratio": 1.1228070175438596,
+          "fidelity": 0.9990244233519857,
+          "reconstruction_error": 0.02208862492684223,
+          "compression_percentage": 10.937499999999995
+        }
+        {
+          "retention_ratio": 0.8,
+          "coefficients_kept": 51,
+          "compression_ratio": 1.2549019607843137,
+          "fidelity": 0.9966790901191093,
+          "reconstruction_error": 0.040765620195236864,
+          "compression_percentage": 20.3125
+        },
+        {
+          "retention_ratio": 0.7,
+          "coefficients_kept": 44,
+          "compression_ratio": 1.4545454545454546,
+          "fidelity": 0.9900426838788841,
+          "reconstruction_error": 0.07064781432386787,
+          "compression_percentage": 31.25
+        },
+        {
+          "retention_ratio": 0.6,
+          "coefficients_kept": 38,
+          "compression_ratio": 1.6842105263157894,
+          "fidelity": 0.9775211651081569,
+          "reconstruction_error": 0.10631697766006769,
+          "compression_percentage": 40.62499999999999
+        },
+        {
+          "retention_ratio": 0.5,
+          "coefficients_kept": 32,
+          "compression_ratio": 2.0,
+          "fidelity": 0.9611904421252522,
+          "reconstruction_error": 0.13998855720143122,
+          "compression_percentage": 50.0
+        },
+        {
+          "retention_ratio": 0.4,
+          "coefficients_kept": 25,
+          "compression_ratio": 2.56,
+          "fidelity": 0.9336226972563899,
+          "reconstruction_error": 0.1837347775158132,
+          "compression_percentage": 60.9375
+        },
+        {
+          "retention_ratio": 0.3,
+          "coefficients_kept": 19,
+          "compression_ratio": 3.3684210526315788,
+          "fidelity": 0.8797244043857061,
+          "reconstruction_error": 0.2491259771567841,
+          "compression_percentage": 70.3125
+        },
+        {
+          "retention_ratio": 0.2,
+          "coefficients_kept": 12,
+          "compression_ratio": 5.333333333333333,
+          "fidelity": 0.7794667820540147,
+          "reconstruction_error": 0.34223652667978816,
+          "compression_percentage": 81.25
+        },
+        {
+          "retention_ratio": 0.1,
+          "coefficients_kept": 6,
+          "compression_ratio": 10.666666666666666,
+          "fidelity": 0.5811456406554438,
+          "reconstruction_error": 0.48751503620720216,
+          "compression_percentage": 90.625
+        },
+        {
+          "retention_ratio": 0.05,
+          "coefficients_kept": 3,
+          "compression_ratio": 21.333333333333332,
+          "fidelity": 0.3656572820781513,
+          "reconstruction_error": 0.6287320378934788,
+          "compression_percentage": 95.3125
+        }
+      ]
+    },
+    {
+      "size": 128,
+      "transform_time_ms": 0.6270408630371094,
+      "unitarity_error": 2.0102425866910913e-12,
+      "curve_points": [
+        {
+          "retention_ratio": 1.0,
+          "coefficients_kept": 128,
+          "compression_ratio": 1.0,
+          "fidelity": 0.9999999999999751,
+          "reconstruction_error": 3.0735098503464863e-12,
+          "compression_percentage": 0.0
+        },
+        {
+          "retention_ratio": 0.9,
+          "coefficients_kept": 115,
+          "compression_ratio": 1.1130434782608696,
+          "fidelity": 0.9987156013507882,
+          "reconstruction_error": 0.025345722856454297,
+          "compression_percentage": 10.156250000000002
+        },
+        {
+          "retention_ratio": 0.8,
+          "coefficients_kept": 102,
+          "compression_ratio": 1.2549019607843137,
+          "fidelity": 0.9950995472161215,
+          "reconstruction_error": 0.04953014813546108,
+          "compression_percentage": 20.3125
+        },
+        {
+          "retention_ratio": 0.7,
+          "coefficients_kept": 89,
+          "compression_ratio": 1.4382022471910112,
+          "fidelity": 0.9888076094649388,
+          "reconstruction_error": 0.07491289752265254,
+          "compression_percentage": 30.46875
+        },
+        {
+          "retention_ratio": 0.6,
+          "coefficients_kept": 76,
+          "compression_ratio": 1.6842105263157894,
+          "fidelity": 0.9791752278688473,
+          "reconstruction_error": 0.10230917288585069,
+          "compression_percentage": 40.62499999999999
+        },
+        {
+          "retention_ratio": 0.5,
+          "coefficients_kept": 64,
+          "compression_ratio": 2.0,
+          "fidelity": 0.96592503222061,
+          "reconstruction_error": 0.13109213765565117,
+          "compression_percentage": 50.0
+        },
+        {
+          "retention_ratio": 0.4,
+          "coefficients_kept": 51,
+          "compression_ratio": 2.5098039215686274,
+          "fidelity": 0.9402163761069322,
+          "reconstruction_error": 0.17421953817103264,
+          "compression_percentage": 60.15625
+        },
+        {
+          "retention_ratio": 0.3,
+          "coefficients_kept": 38,
+          "compression_ratio": 3.3684210526315788,
+          "fidelity": 0.866353342561417,
+          "reconstruction_error": 0.26309496574483887,
+          "compression_percentage": 70.3125
+        },
+        {
+          "retention_ratio": 0.2,
+          "coefficients_kept": 25,
+          "compression_ratio": 5.12,
+          "fidelity": 0.731663057978899,
+          "reconstruction_error": 0.38029849863474974,
+          "compression_percentage": 80.46875
+        },
+        {
+          "retention_ratio": 0.1,
+          "coefficients_kept": 12,
+          "compression_ratio": 10.666666666666666,
+          "fidelity": 0.5341592688353519,
+          "reconstruction_error": 0.518785115474748,
+          "compression_percentage": 90.625
+        },
+        {
+          "retention_ratio": 0.05,
+          "coefficients_kept": 6,
+          "compression_ratio": 21.333333333333332,
+          "fidelity": 0.3976693832885021,
+          "reconstruction_error": 0.607774361071146,
+          "compression_percentage": 95.3125
+        }
+      ]
+    },
+    {
+      "size": 256,
+      "transform_time_ms": 2.0530223846435547,
+      "unitarity_error": 6.8499987076385785e-12,
+      "curve_points": [
+        {
+          "retention_ratio": 1.0,
+          "coefficients_kept": 256,
+          "compression_ratio": 1.0,
+          "fidelity": 1.0000000000005098,
+          "reconstruction_error": 1.3526514224598354e-11,
+          "compression_percentage": 0.0
+        },
+        {
+          "retention_ratio": 0.9,
+          "coefficients_kept": 230,
+          "compression_ratio": 1.1130434782608696,
+          "fidelity": 0.9987909099857992,
+          "reconstruction_error": 0.02459121500164811,
+          "compression_percentage": 10.156250000000002
+        },
+        {
+          "retention_ratio": 0.8,
+          "coefficients_kept": 204,
+          "compression_ratio": 1.2549019607843137,
+          "fidelity": 0.9951632718682221,
+          "reconstruction_error": 0.04920666013747867,
+          "compression_percentage": 20.3125
+        },
+        {
+          "retention_ratio": 0.7,
+          "coefficients_kept": 179,
+          "compression_ratio": 1.4301675977653632,
+          "fidelity": 0.9891961910678922,
+          "reconstruction_error": 0.07359737837598969,
+          "compression_percentage": 30.078125
+        },
+        {
+          "retention_ratio": 0.6,
+          "coefficients_kept": 153,
+          "compression_ratio": 1.673202614379085,
+          "fidelity": 0.9804424699401775,
+          "reconstruction_error": 0.09913148082620193,
+          "compression_percentage": 40.234375
+        },
+        {
+          "retention_ratio": 0.5,
+          "coefficients_kept": 128,
+          "compression_ratio": 2.0,
+          "fidelity": 0.9650975684953542,
+          "reconstruction_error": 0.13268837544935705,
+          "compression_percentage": 50.0
+        },
+        {
+          "retention_ratio": 0.4,
+          "coefficients_kept": 102,
+          "compression_ratio": 2.5098039215686274,
+          "fidelity": 0.9359687353115695,
+          "reconstruction_error": 0.18040296085836455,
+          "compression_percentage": 60.15625
+        },
+        {
+          "retention_ratio": 0.3,
+          "coefficients_kept": 76,
+          "compression_ratio": 3.3684210526315788,
+          "fidelity": 0.88596636901753,
+          "reconstruction_error": 0.2423677674217554,
+          "compression_percentage": 70.3125
+        },
+        {
+          "retention_ratio": 0.2,
+          "coefficients_kept": 51,
+          "compression_ratio": 5.019607843137255,
+          "fidelity": 0.792653782987872,
+          "reconstruction_error": 0.33119320693550097,
+          "compression_percentage": 80.078125
+        },
+        {
+          "retention_ratio": 0.1,
+          "coefficients_kept": 25,
+          "compression_ratio": 10.24,
+          "fidelity": 0.5977285913491475,
+          "reconstruction_error": 0.47630967762631976,
+          "compression_percentage": 90.234375
+        },
+        {
+          "retention_ratio": 0.05,
+          "coefficients_kept": 12,
+          "compression_ratio": 21.333333333333332,
+          "fidelity": 0.4468293305627724,
+          "reconstruction_error": 0.575801234645155,
+          "compression_percentage": 95.3125
+        }
+      ]
+    },
+    {
+      "size": 512,
+      "transform_time_ms": 7.493257522583008,
+      "unitarity_error": 3.962582547157677e-11,
+      "curve_points": [
+        {
+          "retention_ratio": 1.0,
+          "coefficients_kept": 512,
+          "compression_ratio": 1.0,
+          "fidelity": 1.00000000000425,
+          "reconstruction_error": 8.67673292735524e-11,
+          "compression_percentage": 0.0
+        },
+        {
+          "retention_ratio": 0.9,
+          "coefficients_kept": 460,
+          "compression_ratio": 1.1130434782608696,
+          "fidelity": 0.999036978225618,
+          "reconstruction_error": 0.021945998986160124,
+          "compression_percentage": 10.156250000000002
+        },
+        {
+          "retention_ratio": 0.8,
+          "coefficients_kept": 409,
+          "compression_ratio": 1.2518337408312958,
+          "fidelity": 0.9961498025656232,
+          "reconstruction_error": 0.04389709896539872,
+          "compression_percentage": 20.1171875
+        },
+        {
+          "retention_ratio": 0.7,
+          "coefficients_kept": 358,
+          "compression_ratio": 1.4301675977653632,
+          "fidelity": 0.9915183857221109,
+          "reconstruction_error": 0.06519077926558234,
+          "compression_percentage": 30.078125
+        },
+        {
+          "retention_ratio": 0.6,
+          "coefficients_kept": 307,
+          "compression_ratio": 1.6677524429967427,
+          "fidelity": 0.9840044848963532,
+          "reconstruction_error": 0.08961025604027237,
+          "compression_percentage": 40.0390625
+        },
+        {
+          "retention_ratio": 0.5,
+          "coefficients_kept": 256,
+          "compression_ratio": 2.0,
+          "fidelity": 0.9701138712136202,
+          "reconstruction_error": 0.1227045727287587,
+          "compression_percentage": 50.0
+        },
+        {
+          "retention_ratio": 0.4,
+          "coefficients_kept": 204,
+          "compression_ratio": 2.5098039215686274,
+          "fidelity": 0.9439824603351373,
+          "reconstruction_error": 0.16855978800423818,
+          "compression_percentage": 60.15625
+        },
+        {
+          "retention_ratio": 0.3,
+          "coefficients_kept": 153,
+          "compression_ratio": 3.34640522875817,
+          "fidelity": 0.8901618809637908,
+          "reconstruction_error": 0.2377311379677383,
+          "compression_percentage": 70.1171875
+        },
+        {
+          "retention_ratio": 0.2,
+          "coefficients_kept": 102,
+          "compression_ratio": 5.019607843137255,
+          "fidelity": 0.7910729963395867,
+          "reconstruction_error": 0.33253143534494223,
+          "compression_percentage": 80.078125
+        },
+        {
+          "retention_ratio": 0.1,
+          "coefficients_kept": 51,
+          "compression_ratio": 10.03921568627451,
+          "fidelity": 0.6108801131010579,
+          "reconstruction_error": 0.4673454833654297,
+          "compression_percentage": 90.0390625
+        },
+        {
+          "retention_ratio": 0.05,
+          "coefficients_kept": 25,
+          "compression_ratio": 20.48,
+          "fidelity": 0.4560642297419039,
+          "reconstruction_error": 0.569802354342825,
+          "compression_percentage": 95.1171875
+        }
+      ]
+    }
+  ]
+}

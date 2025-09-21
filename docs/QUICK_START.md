@@ -41,7 +41,7 @@ python src/apps/quantum_crypto.py
 
 ```bash
 # Mathematical validation of RFT
-python tests/tests/comprehensive_validation_suite.py
+python tests/comprehensive_validation_suite.py
 
 # Cryptographic testing
 python tests/crypto/crypto_performance_test.py

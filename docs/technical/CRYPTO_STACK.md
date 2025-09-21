@@ -2,7 +2,7 @@
 
 ## Overview
 
-The QuantoniumOS cryptographic system implements a 48-round Feistel cipher with authenticated encryption. The system combines standard cryptographic primitives with RFT-derived components for key scheduling and entropy injection.
+The QuantoniumOS cryptographic system implements a 64-round (previously 48) Feistel cipher with authenticated encryption. The system combines standard cryptographic primitives with RFT-derived components for key scheduling and entropy injection.
 
 ---
 

@@ -81,7 +81,7 @@ class RFTQuantumSimulator:
 
 ### 3. Cryptographic System
 
-**Implementation**: 48-round Feistel cipher with RFT-derived components
+**Implementation**: 64-round (previously 48) Feistel cipher with RFT-derived components
 
 **Key Features**:
 - 48-round structure with AES-based round functions

@@ -21,6 +21,15 @@ from PyQt5.QtWidgets import (
 )
 
 # Import our Essential Quantum AI system components
+# Import compressed model router for HuggingFace models
+try:
+    from compressed_model_router import CompressedModelRouter
+    COMPRESSED_MODELS_AVAILABLE = True
+    print("✅ Compressed Model Router available")
+except ImportError as e:
+    COMPRESSED_MODELS_AVAILABLE = False
+    print(f"⚠️ Compressed Model Router not available: {e}")
+
 try:
     # Add project root to path
     import sys
@@ -357,9 +366,33 @@ class Chatbox(QMainWindow):
                 self._quantum_ai_enabled = False
                 print("⚠️ Quantum AI System not available - using fallback")
 
+        # Initialize compressed model router for HuggingFace models
+        if COMPRESSED_MODELS_AVAILABLE:
+            try:
+                print("🚀 Initializing Compressed Model Router...")
+                self._compressed_router = CompressedModelRouter()
+                available_models = self._compressed_router.get_available_models()
+                self._compressed_enabled = len(available_models) > 0
+                
+                if self._compressed_enabled:
+                    print(f"✅ Compressed models ready: {len(available_models)} models")
+                    for model_id, model_info in available_models.items():
+                        print(f"   • {model_id}: {model_info['compression_ratio']} compression")
+                    
+                    # Set default compressed model for conversations
+                    self._default_compressed_model = self._compressed_router.get_model_for_task('conversation')
+                    print(f"🎯 Default model: {self._default_compressed_model}")
+                else:
+                    print("⚠️ No compressed models found")
+            except Exception as e:
+                print(f"❌ Compressed model router failed: {e}")
+                self._compressed_enabled = False
+        else:
+            self._compressed_enabled = False
+
         # Set legacy attributes for UI compatibility
-        self._learning_enabled = self._quantum_ai_enabled
-        self._quantum_enabled = self._quantum_ai_enabled
+        self._learning_enabled = self._quantum_ai_enabled or self._compressed_enabled
+        self._quantum_enabled = self._quantum_ai_enabled or self._compressed_enabled
 
         print("✓ Trainer initialized, building UI...")
         self._build_ui()
@@ -379,21 +412,34 @@ class Chatbox(QMainWindow):
     def _update_ai_status(self):
         """Update status bar with AI system status"""
         try:
+            status_parts = []
+            
+            # Check quantum AI status
             if self._quantum_ai_enabled and hasattr(self, '_essential_ai'):
                 status = self._essential_ai.get_status()
                 param_count = status.get('total_parameters', 0)
                 param_sets = status.get('parameter_sets', 0)
                 image_gen = status.get('image_generation_enabled', False)
                 
-                status_msg = f"🚀 QuantoniumOS AI Ready: {param_count:,} params, {param_sets} sets"
+                status_parts.append(f"🚀 Quantum AI: {param_count:,} params")
                 if image_gen:
-                    status_msg += f", 🎨 Image Gen: ✅"
-                else:
-                    status_msg += f", 🎨 Image Gen: ❌"
-                    
+                    status_parts.append("🎨 Images: ✅")
+            
+            # Check compressed models status
+            if hasattr(self, '_compressed_enabled') and self._compressed_enabled:
+                compressed_stats = self._compressed_router.get_system_stats()
+                model_count = compressed_stats['models']['total_available']
+                total_compressed = compressed_stats['parameters']['total_compressed']
+                compression_ratio = compressed_stats['parameters']['compression_ratio']
+                
+                status_parts.append(f"📦 Compressed: {model_count} models ({compression_ratio})")
+            
+            if status_parts:
+                status_msg = " | ".join(status_parts)
                 self.statusBar().showMessage(status_msg)
             else:
                 self.statusBar().showMessage("⚠️ AI System: Fallback mode - limited functionality")
+                
         except Exception as e:
             self.statusBar().showMessage(f"❌ AI Status Error: {str(e)}")
 
@@ -755,10 +801,23 @@ class Chatbox(QMainWindow):
 
     def _non_agentic_reply(self, prompt: str) -> tuple[str, float]:
         """
-        Essential Quantum AI response with text and image generation:
-        - Uses encoded parameter streaming (6.7B+ parameters)
+        Multi-system AI response with text and image generation:
+        - Compressed HuggingFace models (real trained weights)
+        - Essential Quantum AI response (6.7B+ parameters)
         - Supports both text responses and image generation
         """
+        # Try compressed models first (they have real trained weights)
+        if hasattr(self, '_compressed_enabled') and self._compressed_enabled and hasattr(self, '_default_compressed_model'):
+            try:
+                if self._default_compressed_model:
+                    response, confidence = self._compressed_router.generate_response(
+                        self._default_compressed_model, prompt
+                    )
+                    if confidence > 0.5:  # Use compressed model if confident
+                        return response, confidence
+            except Exception as e:
+                print(f"⚠️ Compressed model error: {e}")
+        
         # Use our Essential Quantum AI system if available
         if self._quantum_ai_enabled and hasattr(self, '_essential_ai'):
             try:

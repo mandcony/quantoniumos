@@ -26,7 +26,7 @@ QuantoniumOS is a symbolic quantum computing platform built on PyQt5 with integr
 - **UI Design**: Golden ratio proportions, dark/light themes
 
 ### 4. Cryptographic System
-- **Implementation**: `src/core/enhanced_rft_crypto_v2.py` - 48-round Feistel cipher
+- **Implementation**: `src/core/enhanced_rft_crypto_v2.py` - 64-round (previously 48) Feistel cipher
 - **Features**: Authenticated encryption, RFT-derived key schedules
 - **Performance**: 24.0 blocks/sec measured throughput
 
