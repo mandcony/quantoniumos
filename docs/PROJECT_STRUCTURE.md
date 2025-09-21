@@ -11,7 +11,7 @@
   - `rft_kernel.c` - Unitary RFT kernel with QR decomposition
   - `rft_kernel.h` - Header definitions and constants
 - `apps/` - PyQt5 desktop applications
-  - `quantum_simulator.py` - 1000+ qubit quantum simulator
+  - `quantum_simulator.py` - 1000+ qubit quantum simulator (artifact: results/QUANTUM_SCALING_BENCHMARK.json)
   - `q_notes.py` - Note-taking application
   - `q_vault.py` - Secure storage application
   - Additional utility and monitoring applications

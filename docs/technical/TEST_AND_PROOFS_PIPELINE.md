@@ -142,7 +142,7 @@ def benchmark_assembly_performance():
 
 ### 🌀 **Quantum Algorithm Validation**
 
-#### **RFT Unitarity Verification** (`tools/print_rft_invariants.py`)
+#### **RFT Unitarity Verification** (`dev/tools/print_rft_invariants.py`)
 
 ```python
 def verify_rft_unitarity(rft_engine, test_size=1024):
