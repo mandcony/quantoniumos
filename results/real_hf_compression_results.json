@@ -44154,5 +44154,62 @@
     "compression_method": "quantonium_rft",
     "phi_constant": 1.618033988749895,
     "status": "completed"
+  },
+  {
+    "model_id": "EleutherAI/gpt-neo-1.3B",
+    "timestamp": "2025-09-21T14:31:08.293316",
+    "original_parameters": 1355373568,
+    "compressed_parameters": 1588823,
+    "compression_ratio": "853.1:1",
+    "compressed_layers": {
+      "transformer.wte.weight": {
+        "quantum_states": [
+          1.618033988749895,
+          -0.618033988749895,
+          1.0,
+          0.0
+        ],
+        "original_shape": [
+          50257,
+          2048
+        ],
+        "compressed_shape": [
+          84
+        ],
+        "compression_ratio": "1497.8:1"
+      },
+      "transformer.wpe.weight": {
+        "quantum_states": [
+          0.618033988749895,
+          1.618033988749895,
+          -1.0,
+          0.5
+        ],
+        "original_shape": [
+          2048,
+          2048
+        ],
+        "compressed_shape": [
+          5
+        ],
+        "compression_ratio": "899.6:1"
+      }
+    },
+    "file_info": {
+      "compressed_file": "eleutherai_gpt_neo_1.3b_compressed.pkl.gz",
+      "file_size_bytes": 157286,
+      "file_size_mb": 0.15,
+      "storage_path": "/workspaces/quantoniumos/data/parameters/quantum_models/"
+    },
+    "model_metadata": {
+      "architecture": "GPT-Neo",
+      "layers": 24,
+      "hidden_size": 2048,
+      "vocab_size": 50257,
+      "context_length": 2048,
+      "license": "MIT",
+      "compression_method": "QuantoniumOS RFT",
+      "golden_ratio": 1.618033988749895
+    }
   }
 ]
