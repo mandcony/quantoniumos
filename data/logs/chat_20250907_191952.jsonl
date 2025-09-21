@@ -1,8 +1,0 @@
-{"type": "system", "event": "open", "ts": "2025-09-07T19:19:52"}
-{"type": "user", "ts": "2025-09-07T19:20:08", "text": "testing"}
-{"type": "assistant", "ts": "2025-09-07T19:20:09", "text": "Of course! Tell me what you're working on and I'll do my best to assist.", "confidence": 0.97}
-{"type": "user", "ts": "2025-09-07T19:20:24", "text": "math algoritm"}
-{"type": "assistant", "ts": "2025-09-07T19:20:25", "text": "Of course! Tell me what you're working on and I'll do my best to assist.", "confidence": 0.97}
-{"type": "user", "ts": "2025-09-07T19:20:39", "text": "1+1"}
-{"type": "assistant", "ts": "2025-09-07T19:20:40", "text": "You mentioned: \"1+1\". I can elaborate on topics like science, math, coding, or general questions. What specific aspect interests you?", "confidence": 0.75}
-{"type": "system", "event": "clear", "ts": "2025-09-07T19:21:00"}

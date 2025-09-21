@@ -1,9 +1,0 @@
-{"type": "system", "event": "open", "ts": "2025-09-07T19:43:39"}
-{"type": "user", "ts": "2025-09-07T19:43:46", "text": "1*1?"}
-{"type": "assistant", "ts": "2025-09-07T19:43:47", "text": "I'm here to help with questions, explanations, and discussions! What would you like to talk about? I'm particularly good with technical topics, learning, and creative problem-solving.", "confidence": 0.85}
-{"type": "user", "ts": "2025-09-07T19:43:51", "text": "math?"}
-{"type": "assistant", "ts": "2025-09-07T19:43:52", "text": "2 + 2 = 4. Need help with any other calculations?", "confidence": 0.99}
-{"type": "user", "ts": "2025-09-07T19:44:06", "text": "quantum ? wat is it"}
-{"type": "assistant", "ts": "2025-09-07T19:44:06", "text": "That's a fascinating question! I'd love to explain how it works. What specifically are you curious about?", "confidence": 0.96}
-{"type": "user", "ts": "2025-09-07T19:44:14", "text": "quantum ?"}
-{"type": "assistant", "ts": "2025-09-07T19:44:14", "text": "That's a fascinating question! I'd love to explain how it works. What specifically are you curious about?", "confidence": 0.96}

@@ -1,0 +1,736 @@
+{
+  "model_name": "Llama-2-180B-Chat",
+  "original_parameters": 180000000000,
+  "quantum_states": 2571,
+  "effective_parameters": 2571000,
+  "compression_ratio": "70,011,669:1",
+  "compression_method": "assembly_optimized_rft_golden_ratio",
+  "phi_constant": 1.618033988749895,
+  "rft_engine": "PYTHON",
+  "quantum_safe": true,
+  "streaming_compatible": true,
+  "encoding_timestamp": 1758166283.1084828,
+  "states": [
+    {
+      "id": 0,
+      "resonance": 1.0,
+      "phase": 0.0,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 1,
+      "resonance": 1.618033988749895,
+      "phase": 5.0832036923152595,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 2,
+      "resonance": 2.618033988749895,
+      "phase": 3.8832220774509327,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 3,
+      "resonance": 4.23606797749979,
+      "phase": 2.683240462586607,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 4,
+      "resonance": 6.854101966249686,
+      "phase": 1.4832588477222792,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 5,
+      "resonance": 11.090169943749476,
+      "phase": 0.28327723285795514,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 6,
+      "resonance": 17.944271909999163,
+      "phase": 5.366480925173214,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 7,
+      "resonance": 29.03444185374864,
+      "phase": 4.166499310308886,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 8,
+      "resonance": 1.0,
+      "phase": 2.9665176954445585,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 9,
+      "resonance": 1.618033988749895,
+      "phase": 1.766536080580238,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 10,
+      "resonance": 2.618033988749895,
+      "phase": 0.5665544657159103,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 11,
+      "resonance": 4.23606797749979,
+      "phase": 5.649758158031176,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 12,
+      "resonance": 6.854101966249686,
+      "phase": 4.449776543166841,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 13,
+      "resonance": 11.090169943749476,
+      "phase": 3.2497949283025065,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 14,
+      "resonance": 17.944271909999163,
+      "phase": 2.049813313438186,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 15,
+      "resonance": 29.03444185374864,
+      "phase": 0.8498316985738654,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 16,
+      "resonance": 1.0,
+      "phase": 5.933035390889117,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 17,
+      "resonance": 1.618033988749895,
+      "phase": 4.733053776024796,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 18,
+      "resonance": 2.618033988749895,
+      "phase": 3.533072161160476,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 19,
+      "resonance": 4.23606797749979,
+      "phase": 2.333090546296141,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 20,
+      "resonance": 6.854101966249686,
+      "phase": 1.1331089314318206,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 21,
+      "resonance": 11.090169943749476,
+      "phase": 6.216312623747072,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 22,
+      "resonance": 17.944271909999163,
+      "phase": 5.016331008882766,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 23,
+      "resonance": 29.03444185374864,
+      "phase": 3.816349394018431,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 24,
+      "resonance": 1.0,
+      "phase": 2.6163677791540962,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 25,
+      "resonance": 1.618033988749895,
+      "phase": 1.4163861642897615,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 26,
+      "resonance": 2.618033988749895,
+      "phase": 0.21640454942542675,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 27,
+      "resonance": 4.23606797749979,
+      "phase": 5.299608241740721,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 28,
+      "resonance": 6.854101966249686,
+      "phase": 4.099626626876372,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 29,
+      "resonance": 11.090169943749476,
+      "phase": 2.8996450120120514,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 30,
+      "resonance": 17.944271909999163,
+      "phase": 1.6996633971477308,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 31,
+      "resonance": 29.03444185374864,
+      "phase": 0.4996817822834103,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 32,
+      "resonance": 1.0,
+      "phase": 5.582885474598648,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 33,
+      "resonance": 1.618033988749895,
+      "phase": 4.382903859734327,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 34,
+      "resonance": 2.618033988749895,
+      "phase": 3.1829222448700065,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 35,
+      "resonance": 4.23606797749979,
+      "phase": 1.982940630005686,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 36,
+      "resonance": 6.854101966249686,
+      "phase": 0.7829590151413655,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 37,
+      "resonance": 11.090169943749476,
+      "phase": 5.866162707456603,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 38,
+      "resonance": 17.944271909999163,
+      "phase": 4.666181092592282,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 39,
+      "resonance": 29.03444185374864,
+      "phase": 3.4661994777279617,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 40,
+      "resonance": 1.0,
+      "phase": 2.266217862863641,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 41,
+      "resonance": 1.618033988749895,
+      "phase": 1.0662362479993206,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 42,
+      "resonance": 2.618033988749895,
+      "phase": 6.149439940314558,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 43,
+      "resonance": 4.23606797749979,
+      "phase": 4.949458325450237,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 44,
+      "resonance": 6.854101966249686,
+      "phase": 3.7494767105859452,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 45,
+      "resonance": 11.090169943749476,
+      "phase": 2.549495095721568,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 46,
+      "resonance": 17.944271909999163,
+      "phase": 1.3495134808572757,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 47,
+      "resonance": 29.03444185374864,
+      "phase": 0.14953186599292678,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 48,
+      "resonance": 1.0,
+      "phase": 5.2327355583081925,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 49,
+      "resonance": 1.618033988749895,
+      "phase": 4.032753943443872,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 50,
+      "resonance": 2.618033988749895,
+      "phase": 2.832772328579523,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 51,
+      "resonance": 4.23606797749979,
+      "phase": 1.6327907137152025,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 52,
+      "resonance": 6.854101966249686,
+      "phase": 0.4328090988508535,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 53,
+      "resonance": 11.090169943749476,
+      "phase": 5.516012791166148,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 54,
+      "resonance": 17.944271909999163,
+      "phase": 4.3160311763018555,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 55,
+      "resonance": 29.03444185374864,
+      "phase": 3.1160495614374497,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 56,
+      "resonance": 1.0,
+      "phase": 1.9160679465731576,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 57,
+      "resonance": 1.618033988749895,
+      "phase": 0.7160863317088655,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 58,
+      "resonance": 2.618033988749895,
+      "phase": 5.799290024024103,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 59,
+      "resonance": 4.23606797749979,
+      "phase": 4.599308409159754,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 60,
+      "resonance": 6.854101966249686,
+      "phase": 3.3993267942954617,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 61,
+      "resonance": 11.090169943749476,
+      "phase": 2.1993451794311127,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 62,
+      "resonance": 17.944271909999163,
+      "phase": 0.9993635645668206,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 63,
+      "resonance": 29.03444185374864,
+      "phase": 6.082567256882058,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 64,
+      "resonance": 1.0,
+      "phase": 4.882585642017709,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 65,
+      "resonance": 1.618033988749895,
+      "phase": 3.682604027153417,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 66,
+      "resonance": 2.618033988749895,
+      "phase": 2.482622412289068,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 67,
+      "resonance": 4.23606797749979,
+      "phase": 1.2826407974247758,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 68,
+      "resonance": 6.854101966249686,
+      "phase": 0.08265918256042681,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 69,
+      "resonance": 11.090169943749476,
+      "phase": 5.165862874875664,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 70,
+      "resonance": 17.944271909999163,
+      "phase": 3.965881260011372,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 71,
+      "resonance": 29.03444185374864,
+      "phase": 2.765899645147023,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 72,
+      "resonance": 1.0,
+      "phase": 1.565918030282731,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 73,
+      "resonance": 1.618033988749895,
+      "phase": 0.36593641541838196,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 74,
+      "resonance": 2.618033988749895,
+      "phase": 5.449140107733619,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 75,
+      "resonance": 4.23606797749979,
+      "phase": 4.249158492869327,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 76,
+      "resonance": 6.854101966249686,
+      "phase": 3.049176878004978,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 77,
+      "resonance": 11.090169943749476,
+      "phase": 1.8491952631406292,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 78,
+      "resonance": 17.944271909999163,
+      "phase": 0.6492136482763371,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 79,
+      "resonance": 29.03444185374864,
+      "phase": 5.732417340591574,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 80,
+      "resonance": 1.0,
+      "phase": 4.532435725727282,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 81,
+      "resonance": 1.618033988749895,
+      "phase": 3.3324541108629333,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 82,
+      "resonance": 2.618033988749895,
+      "phase": 2.132472495998641,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 83,
+      "resonance": 4.23606797749979,
+      "phase": 0.9324908811342922,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 84,
+      "resonance": 6.854101966249686,
+      "phase": 6.0156945734495295,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 85,
+      "resonance": 11.090169943749476,
+      "phase": 4.815712958585237,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 86,
+      "resonance": 17.944271909999163,
+      "phase": 3.6157313437208884,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 87,
+      "resonance": 29.03444185374864,
+      "phase": 2.4157497288565395,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 88,
+      "resonance": 1.0,
+      "phase": 1.2157681139923042,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 89,
+      "resonance": 1.618033988749895,
+      "phase": 0.015786499127955267,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 90,
+      "resonance": 2.618033988749895,
+      "phase": 5.098990191443136,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 91,
+      "resonance": 4.23606797749979,
+      "phase": 3.8990085765787867,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 92,
+      "resonance": 6.854101966249686,
+      "phase": 2.6990269617145515,
+      "amplitude": 6.854101966249686,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 93,
+      "resonance": 11.090169943749476,
+      "phase": 1.4990453468502025,
+      "amplitude": 11.090169943749476,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 94,
+      "resonance": 17.944271909999163,
+      "phase": 0.29906373198585356,
+      "amplitude": 17.944271909999163,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 95,
+      "resonance": 29.03444185374864,
+      "phase": 5.382267424301148,
+      "amplitude": 29.03444185374864,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 96,
+      "resonance": 1.0,
+      "phase": 4.182285809436799,
+      "amplitude": 1.0,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 97,
+      "resonance": 1.618033988749895,
+      "phase": 2.9823041945724498,
+      "amplitude": 1.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 98,
+      "resonance": 2.618033988749895,
+      "phase": 1.7823225797081577,
+      "amplitude": 2.618033988749895,
+      "encoding": "python_rft_golden_ratio"
+    },
+    {
+      "id": 99,
+      "resonance": 4.23606797749979,
+      "phase": 0.5823409648438087,
+      "amplitude": 4.23606797749979,
+      "encoding": "python_rft_golden_ratio"
+    }
+  ],
+  "metadata": {
+    "total_states": 2571,
+    "encoding_method": "golden_ratio_resonance",
+    "assembly_optimized": true,
+    "unitarity_preserved": true,
+    "error_tolerance": 1e-12
+  },
+  "model_info": {
+    "architecture": "Llama 2",
+    "parameter_count": "180B",
+    "context_length": "4K tokens",
+    "capabilities": [
+      "chat",
+      "instruction_following",
+      "reasoning"
+    ],
+    "status": "Meta flagship",
+    "competitive_advantage": "open source alternative",
+    "quantonium_integration": "assembly_rft_streaming_compatible",
+    "tier": "Tier 1 Frontier"
+  }
+}

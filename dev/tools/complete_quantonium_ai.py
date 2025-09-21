@@ -47,7 +47,7 @@ class CompleteQuantoniumAI:
         print("⚛️ Loading Quantum-Encoded Models...")
         
         # GPT-OSS 120B (120 billion parameters)
-        gpt_oss_path = "core/models/weights/gpt_oss_120b_quantum_states.json"
+        gpt_oss_path = "ai/models/quantum/quantonium_120b_quantum_states.json"
         if os.path.exists(gpt_oss_path):
             print(f"📂 Loading GPT-OSS 120B from {gpt_oss_path}")
             try:
@@ -71,7 +71,7 @@ class CompleteQuantoniumAI:
                 print(f"⚠️ GPT-OSS 120B load error: {e}")
         
         # Llama2-7B (6.7 billion parameters)  
-        llama_path = "core/models/weights/quantonium_with_streaming_llama2.json"
+        llama_path = "ai/models/quantum/quantonium_streaming_7b.json"
         if os.path.exists(llama_path):
             print(f"📂 Loading Llama2-7B from {llama_path}")
             try:

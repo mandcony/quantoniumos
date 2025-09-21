@@ -1185,7 +1185,7 @@ What would you like to learn about? I'll design a learning path that works for y
         quantum_states_total = 0
         
         # Read GPT-OSS quantum states
-        gpt_file = "core/models/weights/gpt_oss_120b_quantum_states.json"
+        gpt_file = "ai/models/quantum/quantonium_120b_quantum_states.json"
         if os.path.exists(gpt_file):
             try:
                 with open(gpt_file, 'r') as f:
@@ -1198,7 +1198,7 @@ What would you like to learn about? I'll design a learning path that works for y
                 gpt_oss_params = 120_000_000_000  # fallback
         
         # Read Llama2 quantum states  
-        llama_file = "core/models/weights/quantonium_with_streaming_llama2.json"
+        llama_file = "ai/models/quantum/quantonium_streaming_7b.json"
         if os.path.exists(llama_file):
             try:
                 with open(llama_file, 'r') as f:

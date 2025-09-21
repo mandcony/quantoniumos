@@ -1,0 +1,211 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Build directories
+build/
+compiled/
+optimized/
+
+# Log files
+*.log
+output.log
+
+# =================================================================
+# QuantoniumOS AI Model Configuration - UPDATED for Git Push
+# =================================================================
+# Strategy: Include ALL quantum compressed models and essential configs
+# Exclude only the largest raw model files to keep repo manageable
+
+# LARGE RAW MODEL FILES TO EXCLUDE (>100MB typically)
+# These are the huge uncompressed model files we don't want in git
+hf_models/*/snapshots/*/pytorch_model*.bin
+hf_models/*/snapshots/*/model*.safetensors
+hf_models/*/snapshots/*/*.h5
+ai/models/huggingface/*/*.bin
+ai/models/huggingface/*/*.safetensors
+
+# Large training checkpoints (exclude large binary checkpoints)
+ai/training/models/*/checkpoint-*/pytorch_model.bin
+ai/training/models/*/checkpoint-*/model.safetensors
+
+# Temporary and backup files
+*.tmp
+*.temp
+*_backup.*
+*.bak
+
+# =================================================================
+# INCLUDED: All QuantoniumOS Core AI Assets
+# =================================================================
+# These are explicitly ALLOWED and will be pushed to git:
+
+# ✅ ALL quantum compressed models (12.7 MB total - manageable)
+# ✅ Essential configuration files
+# ✅ Core QuantoniumOS system files
+# ✅ AI optimization configs
+# ✅ Model metadata and tokenizer configs
+
+# NOTE: The following are INCLUDED in git (not ignored):
+# - ai/models/quantum/*.json (ALL quantum compressed models)
+# - data/verified_open_models/*.json
+# - data/quantonium_*.json
+# - core/models/weights/*.json
+# - ai/models/huggingface/*/config.json
+# - ai/models/huggingface/*/tokenizer*.json
+# - All essential system configuration files

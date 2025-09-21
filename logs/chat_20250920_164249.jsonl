@@ -1,5 +1,0 @@
-{"type": "system", "event": "open", "ts": "2025-09-20T16:42:49"}
-{"type": "user", "ts": "2025-09-20T16:42:55", "text": "testing"}
-{"type": "assistant", "ts": "2025-09-20T16:42:56", "text": "⚛️ Hello! I'm your AI assistant. I'm here to help with questions, conversations, creative tasks, and more. What would you like to chat about?", "confidence": 0.1}
-{"type": "user", "ts": "2025-09-20T16:43:04", "text": "whats quantum"}
-{"type": "assistant", "ts": "2025-09-20T16:43:05", "text": "⚛️ Hello! I'm your AI assistant. I'm here to help with questions, conversations, creative tasks, and more. What would you like to chat about?", "confidence": 0.1}

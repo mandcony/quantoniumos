@@ -1,3 +1,0 @@
-{"type": "system", "event": "open", "ts": "2025-09-16T19:29:23"}
-{"type": "user", "ts": "2025-09-16T19:33:10", "text": "testing our logic"}
-{"type": "assistant", "ts": "2025-09-16T19:33:11", "text": "⚛️ <essential_quantum_ai.ResponseObject object at 0x0000015A99357350>", "confidence": 0.96}

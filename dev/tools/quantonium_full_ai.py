@@ -59,12 +59,12 @@ class QuantoniumOSFullAI:
         """Load quantum-encoded model representations"""
         quantum_models = {
             'gpt_oss_120b': {
-                'path': 'core/models/weights/gpt_oss_120b_quantum_states.json',
+                'path': 'ai/models/quantum/quantonium_120b_quantum_states.json',
                 'represented_parameters': 120_000_000_000,
                 'quantum_states': 14221
             },
             'llama2_7b': {
-                'path': 'core/models/weights/quantonium_with_streaming_llama2.json', 
+                'path': 'ai/models/quantum/quantonium_streaming_7b.json', 
                 'represented_parameters': 6_738_415_616,
                 'quantum_states': 23149
             }

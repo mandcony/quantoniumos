@@ -1,3 +1,36 @@
-# Large model files - too big for GitHub even with LFS
-# Models preserved locally in ai/training/models/
+# =================================================================
+# QuantoniumOS Git LFS Configuration
+# =================================================================
+# This file ensures large AI model files are handled properly by Git LFS
+
+# Large AI model files (>100MB) - use Git LFS
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.safetensors filter=lfs diff=lfs merge=lfs -text
+*.h5 filter=lfs diff=lfs merge=lfs -text
+
+# Large JSON model files (>50MB) - use Git LFS  
+ai/models/quantum/quantonium_streaming_7b.json filter=lfs diff=lfs merge=lfs -text
+ai/models/quantum/quantonium_120b_quantum_states.json filter=lfs diff=lfs merge=lfs -text
+
+# Large compressed models
+*.pkl.gz filter=lfs diff=lfs merge=lfs -text
+
+# Training models directory
 ai/training/models/ filter=lfs diff=lfs merge=lfs -text
+
+# Ensure text files are handled as text
+*.json text
+*.py text
+*.md text
+*.txt text
+*.yml text
+*.yaml text
+*.cfg text
+*.ini text
+
+# Ensure all QuantoniumOS code files are treated as text
+src/**/*.py text
+core/**/*.py text
+applications/**/*.py text
+development/**/*.py text
+ai/**/*.py text
