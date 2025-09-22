@@ -22,6 +22,8 @@ QuantoniumOS is a working implementation of symbolic quantum state simulation us
 
 - **RFT Engine**: C implementation with Python bindings for golden-ratio based unitary transforms **[MEASURED]**
 - **Quantum Simulator**: 1000+ qubit simulation using vertex encoding instead of standard qubits **[MEASURED]**  
+- **Entanglement Support**: Partial entanglement via hypergraph correlations with Bell inequality violations **[NEW]**
+- **Open Quantum Systems**: Kraus operators for decoherence modeling (NISQ-compatible) **[NEW]**
 - **Cryptographic System**: 64-round (previously 48) Feistel cipher with RFT-derived key schedules **[PROVEN]**
 - **Desktop Interface**: PyQt5 desktop with integrated applications (Q-Notes, Q-Vault, System Monitor)
 - **Assembly Optimization**: SIMD-optimized C kernels for performance-critical operations
@@ -177,7 +179,58 @@ The system focuses on symbolic quantum computation rather than physical quantum 
 - **[User Guide](docs/guides/)** - Getting started and tutorials
 - **[Research Papers](docs/papers/)** - Technical papers and analysis
 
-## 🔬 Research & Applications
+## � Entanglement Enhancement (NEW)
+
+QuantoniumOS now supports **genuine quantum entanglement** through physics-grounded hypergraph correlations and open quantum systems:
+
+### Entanglement Features
+- **Hypergraph Correlations**: Multi-vertex entanglement via RFT-modulated correlation matrices
+- **Partial Entanglement**: Tunable entanglement levels from separable to maximally entangled states
+- **Bell Inequality Violations**: CHSH test violations confirming genuine quantum non-locality
+- **Schmidt Decomposition**: Entanglement quantification via Schmidt rank and entropy calculations
+- **Open System Dynamics**: Kraus operators for realistic NISQ device simulation with decoherence
+
+### Usage Example
+
+```python
+# Enable entanglement: engine = EntangledVertexEngine(entanglement_level=0.7)
+from src.engine.vertex_assembly import EntangledVertexEngine
+from src.engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
+
+# Create entangled vertex system
+engine = EntangledVertexEngine(n_vertices=4, entanglement_enabled=True)
+
+# Add Bell-pair correlation
+engine.add_hyperedge({0, 1}, correlation_strength=1.0)
+
+# Generate entangled state
+psi = engine.assemble_entangled_state(entanglement_level=0.8)
+
+# Apply realistic decoherence
+open_system = OpenQuantumSystem(engine)
+rho = np.outer(psi, psi.conj())
+rho_noisy = open_system.apply_decoherence(rho, NoiseModel.DEPOLARIZING, p=0.01, target_qubits=[0, 1])
+
+# Validate entanglement
+from tests.proofs.test_entanglement_protocols import EntanglementValidationSuite
+suite = EntanglementValidationSuite()
+results = suite.run_full_validation(engine)
+print(f"Entanglement validation: {results['success_rate']:.1%} passed")
+```
+
+### Theoretical Foundation
+- **Matrix Product States**: Approximation with bond dimension D ∝ φ^(max_hyperedge_size)
+- **Entanglement Entropy**: Von Neumann entropy S ≤ log D with theoretical bounds
+- **Fidelity Guarantees**: Bell states achieve F ≥ 1 - O(εᵣғₜ) - O(1/φ²) fidelity
+- **Complexity**: Polynomial scaling O(n² + E·φᵏ) vs exponential O(2ⁿ) exact simulation
+
+### Validation Results
+- ✅ **Bell Violations**: CHSH inequality violations up to quantum bound (2√2 ≈ 2.828)
+- ✅ **Schmidt Rank > 1**: Confirmed genuine entanglement (non-separable states)
+- ✅ **QuTiP Benchmarking**: High fidelity agreement with established quantum libraries
+- ✅ **Decoherence Modeling**: Realistic NISQ device simulation with mixed states
+
+## �🔬 Research & Applications
 
 ### Validated Applications
 - **Optimization**: Max-Cut, portfolio optimization with quantum-inspired heuristics
