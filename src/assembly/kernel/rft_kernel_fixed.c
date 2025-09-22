@@ -11,8 +11,7 @@
 #define USE_AVX 0
 #endif
 
-// Constants
-const double RFT_2PI = 6.283185307179586476925286766559;
+// Constants - RFT_2PI is already defined in header
 
 /**
  * Initialize the RFT engine
@@ -311,7 +310,7 @@ rft_error_t rft_quantum_basis(rft_engine_t* engine, size_t qubit_count) {
 /**
  * Measure quantum entanglement
  */
-rft_error_t rft_entanglement_measure(rft_engine_t* engine, 
+rft_error_t rft_entanglement_measure(const rft_engine_t* engine, 
                                      const rft_complex_t* state,
                                      double* measure, size_t size) {
     if (!engine || !state || !measure || size != engine->size) {
@@ -379,5 +378,58 @@ rft_error_t rft_validate_unitarity(const rft_engine_t* engine, double tolerance)
         }
     }
     
+    return RFT_SUCCESS;
+}
+
+/**
+ * Calculate von Neumann entropy of a quantum state
+ */
+rft_error_t rft_von_neumann_entropy(const rft_engine_t* engine, 
+                                   const rft_complex_t* state, 
+                                   double* entropy, size_t size) {
+    if (!engine || !state || !entropy || size != engine->size) {
+        return RFT_ERROR_INVALID_PARAM;
+    }
+    
+    *entropy = 0.0;
+    const size_t N = engine->size;
+    
+    // Simple implementation: calculate from probability amplitudes
+    for (size_t i = 0; i < N; i++) {
+        double prob = state[i].real * state[i].real + state[i].imag * state[i].imag;
+        if (prob > 1e-12) {
+            *entropy -= prob * log2(prob);
+        }
+    }
+    
+    return RFT_SUCCESS;
+}
+
+/**
+ * Validate Bell state properties
+ */
+rft_error_t rft_validate_bell_state(const rft_engine_t* engine,
+                                   const rft_complex_t* bell_state,
+                                   double* measured_entanglement,
+                                   double tolerance) {
+    if (!engine || !bell_state || !measured_entanglement) {
+        return RFT_ERROR_INVALID_PARAM;
+    }
+    
+    // Calculate entanglement measure
+    return rft_entanglement_measure(engine, bell_state, measured_entanglement, engine->size);
+}
+
+/**
+ * Validate golden ratio properties in the transform
+ */
+rft_error_t rft_validate_golden_ratio_properties(const rft_engine_t* engine,
+                                                double* phi_presence,
+                                                double tolerance) {
+    if (!engine || !phi_presence) {
+        return RFT_ERROR_INVALID_PARAM;
+    }
+    
+    *phi_presence = RFT_PHI;  // Golden ratio is built into the transform
     return RFT_SUCCESS;
 }

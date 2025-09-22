@@ -348,10 +348,12 @@ rft_quantum_gate_asm:
 
     ; Compute c*amp_i
     movsd xmm12, xmm8  ; cr
-    movsd xmm0, [rdi + r13*16]     ; reload amp_i.real
+    mov rax, r13       ; load index
+    shl rax, 4         ; multiply by 16
+    movsd xmm0, [rdi + rax]     ; reload amp_i.real
     mulsd xmm12, xmm0  ; cr*br
     movsd xmm13, xmm9  ; ci
-    movsd xmm1, [rdi + r13*16 + 8] ; reload amp_i.imag
+    movsd xmm1, [rdi + rax + 8] ; reload amp_i.imag
     mulsd xmm13, xmm1  ; ci*bi
     subsd xmm12, xmm13 ; cr*br - ci*bi (real)
 
@@ -363,10 +365,12 @@ rft_quantum_gate_asm:
 
     ; Compute d*amp_j
     movsd xmm14, xmm10 ; dr
-    movsd xmm2, [rdi + r14*16]     ; reload amp_j.real
+    mov rbx, r14       ; load index
+    shl rbx, 4         ; multiply by 16
+    movsd xmm2, [rdi + rbx]     ; reload amp_j.real
     mulsd xmm14, xmm2  ; dr*cr
     movsd xmm15, xmm11 ; di
-    movsd xmm3, [rdi + r14*16 + 8] ; reload amp_j.imag
+    movsd xmm3, [rdi + rbx + 8] ; reload amp_j.imag
     mulsd xmm15, xmm3  ; di*ci
     subsd xmm14, xmm15 ; dr*cr - di*ci (real)
 

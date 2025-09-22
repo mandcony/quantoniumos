@@ -15,7 +15,7 @@ BUILDDIR = build
 COMPILEDDIR = compiled
 
 # Source files
-C_SOURCES = $(SRCDIR)/rft_kernel.c $(SRCDIR)/rft_kernel_ui.c $(SRCDIR)/quantum_symbolic_compression.c
+C_SOURCES = $(SRCDIR)/rft_kernel_fixed.c $(SRCDIR)/rft_kernel_ui.c $(SRCDIR)/quantum_symbolic_compression.c
 ASM_SOURCES = $(SRCDIR)/rft_kernel_asm.asm
 HEADERS = $(INCDIR)/rft_kernel.h $(INCDIR)/rft_kernel_ui.h $(SRCDIR)/quantum_symbolic_compression.h
 
