@@ -21,7 +21,8 @@ class CompressedModelRouter:
     
     def __init__(self):
         self.base_path = Path("/workspaces/quantoniumos")
-        self.compressed_models_path = self.base_path / "data/parameters/quantum_models"
+        self.quantum_models_path = self.base_path / "ai/models/quantum"
+        self.assembly_models_path = self.base_path / "ai/models/compressed"
         self.loaded_models = {}
         self.model_registry = {}
         
@@ -34,38 +35,71 @@ class CompressedModelRouter:
         
         print("🔍 Discovering compressed models...")
         
-        if not self.compressed_models_path.exists():
-            print("❌ Compressed models directory not found")
-            return
+        # Load quantum compressed models (.json files)
+        if self.quantum_models_path.exists():
+            quantum_files = list(self.quantum_models_path.glob("*.json"))
+            print(f"🔍 Found {len(quantum_files)} quantum compressed models")
+            
+            for model_file in quantum_files:
+                try:
+                    with open(model_file, 'r') as f:
+                        model_data = json.load(f)
+                    
+                    metadata = model_data.get('metadata', model_data)
+                    model_id = metadata.get('model_id', model_file.stem.replace('_real_quantum_compressed', ''))
+                    
+                    self.model_registry[model_id] = {
+                        'file_path': str(model_file),
+                        'file_size_mb': model_file.stat().st_size / 1024 / 1024,
+                        'original_parameters': metadata.get('original_parameters', 0),
+                        'compression_ratio': metadata.get('compression_ratio', 'Unknown'),
+                        'model_type': self._detect_model_type(model_id),
+                        'capabilities': self._detect_capabilities(model_id),
+                        'status': 'quantum_available',
+                        'compression_method': 'quantum_rft',
+                        'metadata': metadata
+                    }
+                    
+                    print(f"✅ Quantum: {model_id}")
+                    print(f"   📊 Size: {self.model_registry[model_id]['file_size_mb']:.2f} MB")
+                    print(f"   📊 Ratio: {self.model_registry[model_id]['compression_ratio']}")
+                    
+                except Exception as e:
+                    print(f"❌ Error loading quantum model {model_file}: {e}")
         
-        compressed_files = list(self.compressed_models_path.glob("*.pkl.gz"))
+        # Load assembly compressed models (.pkl.gz files)  
+        if self.assembly_models_path.exists():
+            assembly_files = list(self.assembly_models_path.glob("*.pkl.gz"))
+            print(f"🔍 Found {len(assembly_files)} assembly compressed models")
+            
+            for model_file in assembly_files:
+                try:
+                    with gzip.open(model_file, 'rb') as f:
+                        model_data = pickle.load(f)
+                    
+                    model_id = model_data.get('model_id', model_file.stem.replace('_compressed', ''))
+                    
+                    self.model_registry[model_id] = {
+                        'file_path': str(model_file),
+                        'file_size_mb': model_file.stat().st_size / 1024 / 1024,
+                        'original_parameters': model_data.get('original_parameters', 0),
+                        'compressed_parameters': model_data.get('compressed_parameters', 0),
+                        'compression_ratio': model_data.get('compression_ratio', 'Unknown'),
+                        'model_type': self._detect_model_type(model_id),
+                        'capabilities': self._detect_capabilities(model_id),
+                        'status': 'assembly_available',
+                        'compression_method': 'assembly_rft',
+                        'metadata': model_data
+                    }
+                    
+                    print(f"✅ Assembly: {model_id}")
+                    print(f"   📊 Size: {self.model_registry[model_id]['file_size_mb']:.2f} MB")
+                    print(f"   📊 Ratio: {self.model_registry[model_id]['compression_ratio']}")
+                    
+                except Exception as e:
+                    print(f"❌ Error loading assembly model {model_file}: {e}")
         
-        for model_file in compressed_files:
-            try:
-                # Load model metadata
-                with gzip.open(model_file, 'rb') as f:
-                    model_data = pickle.load(f)
-                
-                model_id = model_data.get('model_id', model_file.stem.replace('_compressed', ''))
-                
-                self.model_registry[model_id] = {
-                    'file_path': str(model_file),
-                    'file_size_mb': model_file.stat().st_size / 1024 / 1024,
-                    'original_parameters': model_data.get('original_parameters', 0),
-                    'compressed_parameters': model_data.get('compressed_parameters', 0),
-                    'compression_ratio': model_data.get('compression_ratio', 'Unknown'),
-                    'model_type': self._detect_model_type(model_id),
-                    'capabilities': self._detect_capabilities(model_id),
-                    'status': 'available',
-                    'metadata': model_data
-                }
-                
-                print(f"✅ Found: {model_id}")
-                print(f"   📊 Size: {self.model_registry[model_id]['file_size_mb']:.2f} MB")
-                print(f"   📊 Ratio: {self.model_registry[model_id]['compression_ratio']}")
-                
-            except Exception as e:
-                print(f"❌ Error loading {model_file}: {e}")
+        print(f"🎯 Total models discovered: {len(self.model_registry)}")
     
     def _detect_model_type(self, model_id: str) -> str:
         """Detect model type from ID"""
