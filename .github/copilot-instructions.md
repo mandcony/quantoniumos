@@ -2,7 +2,9 @@
 
 ## System Architecture
 
-QuantoniumOS is a **25.02 billion parameter quantum-compressed AI platform** with a layered architecture:
+QuantoniumOS is a **25.02 billion parameter quantum-compressed AI platform** with a layered architecture. 
+
+**Note:** There is no 700B parameter model in QuantoniumOS. The total parameter count is 25.02B, verified across all model and system files. Any reference to 700B parameters is incorrect.
 
 ```
 AI Models (25.02B params) → Enhanced Pipeline → Desktop Environment → Core Algorithms → C Assembly Kernels
