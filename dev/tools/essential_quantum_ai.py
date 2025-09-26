@@ -11,7 +11,19 @@ import os
 import sys
 import json
 import numpy as np
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, TYPE_CHECKING
+
+# Optional: real Hugging Face model support
+try:
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    TRANSFORMERS_AVAILABLE = True
+    print("✅ Transformers available for real-model routing")
+except ImportError as e:
+    torch = None  # type: ignore
+    TRANSFORMERS_AVAILABLE = False
+    print(f"⚠️ Transformers not available: {e}")
 
 # Import the new advanced capabilities
 try:
@@ -69,6 +81,85 @@ class ResponseObject:
         self.suggested_followups = suggested_followups or []
         self.context = type('Context', (), {'domain': 'essential_quantum'})()
 
+
+class HFBackedConversationalModel:
+    """Minimal wrapper around a Hugging Face causal LM for live chat responses."""
+
+    def __init__(
+        self,
+        model_name: str = "microsoft/DialoGPT-small",
+        device: Optional[str] = None,
+        max_new_tokens: int = 128,
+        temperature: float = 0.7,
+        top_p: float = 0.92,
+    ) -> None:
+        if not TRANSFORMERS_AVAILABLE:
+            raise RuntimeError("Transformers not installed; cannot load real model")
+
+        self.model_name = model_name
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.max_new_tokens = max_new_tokens
+        self.temperature = temperature
+        self.top_p = top_p
+
+        # Load tokenizer and model (downloads once into local HF cache)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        if self.tokenizer.pad_token_id is None:
+            # DialoGPT does not define a pad token; reuse EOS so generation works with batching
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+
+        self.model = AutoModelForCausalLM.from_pretrained(model_name)
+        self.parameter_count = sum(p.numel() for p in self.model.parameters())
+
+        # Use half precision on CUDA if supported to save memory
+        if self.device.startswith("cuda"):
+            try:
+                self.model = self.model.half()
+            except RuntimeError:
+                pass
+
+        self.model.to(self.device)
+        self.model.eval()
+
+        self._chat_history_ids: Optional["torch.Tensor"] = None
+        # Keep only the most recent context window ~1024 tokens to avoid unbounded growth
+        self._max_history_tokens = 1024
+
+    def reset(self) -> None:
+        """Clear conversation history (e.g., when the user resets the chat)."""
+        self._chat_history_ids = None
+
+    def generate(self, message: str) -> str:
+        """Generate a reply from the underlying language model."""
+        encoded = self.tokenizer.encode(
+            message + self.tokenizer.eos_token,
+            return_tensors="pt",
+        ).to(self.device)
+
+        if self._chat_history_ids is not None:
+            model_input = torch.cat([self._chat_history_ids, encoded], dim=-1)
+        else:
+            model_input = encoded
+
+        with torch.no_grad():
+            output_ids = self.model.generate(
+                model_input,
+                max_new_tokens=self.max_new_tokens,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                do_sample=True,
+                pad_token_id=self.tokenizer.eos_token_id,
+            )
+
+        # Extract just the newly generated portion
+        generated_tokens = output_ids[:, model_input.shape[-1]:]
+        response = self.tokenizer.decode(generated_tokens[0], skip_special_tokens=True).strip()
+
+        # Update history (truncate to keep window bounded)
+        self._chat_history_ids = output_ids[:, -self._max_history_tokens :]
+
+        return response or "(no response generated)"
+
 class EssentialQuantumAI:
     """
     Essential AI using ONLY the encoded quantum parameters:
@@ -82,6 +173,8 @@ class EssentialQuantumAI:
         self.engines = {}
         self.encoded_params = {}
         self.engine_count = 0
+        self.real_conversation_model: Optional[HFBackedConversationalModel] = None
+        self.real_model_info: Dict[str, Any] = {}
         
         # Initialize quantum image generator
         self.image_generator = None
@@ -100,6 +193,7 @@ class EssentialQuantumAI:
         
         # Initialize advanced capabilities
         self._init_advanced_capabilities()
+        self._init_real_model()
         
         feature_count = self.image_generator.encoded_params.total_encoded_features if self.image_generator else 0
         print(f"✅ Essential AI ready - {self.engine_count} engines, {len(self.encoded_params)} parameter sets")
@@ -115,6 +209,13 @@ class EssentialQuantumAI:
         
         if advanced_features:
             print(f"   🚀 Enhanced with: {', '.join(advanced_features)}")
+
+        if self.real_conversation_model:
+            device = self.real_conversation_model.device
+            params = self.real_conversation_model.parameter_count
+            print(f"   💬 Real HuggingFace model active: {self.real_conversation_model.model_name} ({params:,} params on {device})")
+        else:
+            print("   ℹ️ Real-model routing unavailable; using scripted responses")
     
     def _init_essential_engines(self):
         """Initialize only the essential engines with encoded parameters"""
@@ -166,6 +267,46 @@ class EssentialQuantumAI:
             except Exception as e:
                 print(f"⚠️ Multi-Modal Intelligence failed to initialize: {e}")
     
+    def _init_real_model(self):
+        """Attempt to initialise a real Hugging Face checkpoint for conversation."""
+
+        self.real_conversation_model = None
+        self.real_model_info = {}
+
+        if not TRANSFORMERS_AVAILABLE:
+            return
+
+        if os.environ.get("QUANTONIUM_REAL_MODEL_DISABLED", "").lower() in {"1", "true", "yes"}:
+            print("ℹ️ Real-model routing disabled via QUANTONIUM_REAL_MODEL_DISABLED")
+            return
+
+        model_name = os.environ.get("QUANTONIUM_REAL_MODEL_ID", "microsoft/DialoGPT-small")
+        max_new_tokens = int(os.environ.get("QUANTONIUM_REAL_MODEL_MAX_TOKENS", "128"))
+        temperature = float(os.environ.get("QUANTONIUM_REAL_MODEL_TEMPERATURE", "0.7"))
+        top_p = float(os.environ.get("QUANTONIUM_REAL_MODEL_TOP_P", "0.92"))
+        target_device = os.environ.get("QUANTONIUM_REAL_MODEL_DEVICE")
+
+        try:
+            self.real_conversation_model = HFBackedConversationalModel(
+                model_name=model_name,
+                device=target_device,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+            )
+            self.real_model_info = {
+                "model_name": model_name,
+                "device": self.real_conversation_model.device,
+                "parameter_count": self.real_conversation_model.parameter_count,
+                "max_new_tokens": max_new_tokens,
+                "temperature": temperature,
+                "top_p": top_p,
+            }
+        except Exception as exc:
+            print(f"⚠️ Unable to load real Hugging Face model '{model_name}': {exc}")
+            self.real_conversation_model = None
+            self.real_model_info = {}
+
     def _load_encoded_parameters(self):
         """Load the actual encoded parameters from weights directory"""
         weights_dir = os.path.join(BASE_DIR, "core", "models", "weights")
@@ -257,6 +398,17 @@ class EssentialQuantumAI:
                 
             except Exception as e:
                 image_info = f"\n⚠️ Image generation failed: {str(e)}"
+        
+        # Prefer real-model routing when available
+        if self.real_conversation_model and not generate_image:
+            try:
+                model_response = self.real_conversation_model.generate(message)
+                if model_response.strip():
+                    full_response = model_response + image_info
+                    return ResponseObject(full_response, confidence=0.91)
+            except Exception as exc:
+                print(f"⚠️ Real-model generation failed, falling back: {exc}")
+                # Fall through to templated response
         
         # For regular conversation, use quantum-enhanced conversational response
         conversational_response = self._generate_conversational_response(message)
@@ -382,6 +534,7 @@ What type of challenge or project would you like to tackle together? I'm genuine
         """Get essential AI status"""
         total_params = sum(param_set['parameter_count'] for param_set in self.encoded_params.values())
         total_states = sum(len(param_set['states']) for param_set in self.encoded_params.values())
+        real_params = self.real_conversation_model.parameter_count if self.real_conversation_model else 0
         
         status = {
             "trainer_type": "essential_quantum_ai",
@@ -392,8 +545,11 @@ What type of challenge or project would you like to tackle together? I'm genuine
             "total_quantum_states": total_states,
             "parameter_sources": list(self.encoded_params.keys()),
             "memory_efficient": True,
-            "essential_only": True,
-            "image_generation_enabled": self.enable_image_generation
+            "essential_only": False if self.real_conversation_model else True,
+            "image_generation_enabled": self.enable_image_generation,
+            "real_model_loaded": bool(self.real_conversation_model),
+            "real_model_parameters": real_params,
+            "total_parameters_active": total_params + real_params,
         }
         
         # Add image generation status
@@ -405,6 +561,9 @@ What type of challenge or project would you like to tackle together? I'm genuine
                 "feature_types": image_status.get("feature_types", []),
                 "quantum_encoding": image_status.get("quantum_encoding_enabled", False)
             }
+
+        if self.real_model_info:
+            status["real_model"] = self.real_model_info
         
         return status
     

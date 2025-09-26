@@ -35,13 +35,14 @@ class QuantoniumOSFullAI:
             from essential_quantum_ai import EssentialQuantumAI
             self.essential_ai = EssentialQuantumAI(enable_image_generation=True)
             status = self.essential_ai.get_status()
+            active_params = status.get('total_parameters_active', status.get('total_parameters', 0))
             self.models_loaded['essential_ai'] = {
-                'parameters': status.get('total_parameters', 0),
+                'parameters': active_params,
                 'status': 'loaded',
                 'capability': 'text_generation + image_generation'
             }
-            self.total_parameters += status.get('total_parameters', 0)
-            print(f"✅ Essential AI: {status.get('total_parameters', 0):,} parameters")
+            self.total_parameters += active_params
+            print(f"✅ Essential AI: {active_params:,} active parameters")
         except Exception as e:
             self.error_log.append(f"Essential AI: {e}")
             print(f"❌ Essential AI failed: {e}")
