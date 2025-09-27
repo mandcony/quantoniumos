@@ -28,6 +28,9 @@ ai/training/models/ filter=lfs diff=lfs merge=lfs -text
 *.cfg text
 *.ini text
 
+# RFT encoded model chunks (large JSON containers)
+encoded_models/**/*.json filter=lfs diff=lfs merge=lfs -text
+
 # Ensure all QuantoniumOS code files are treated as text
 src/**/*.py text
 core/**/*.py text

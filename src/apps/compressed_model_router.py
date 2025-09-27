@@ -11,10 +11,13 @@ import sys
 import json
 import pickle
 import gzip
-import numpy as np
+import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-import time
+
+import numpy as np
+import torch
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 class CompressedModelRouter:
     """Routes compressed models to chatbox interface"""
@@ -25,6 +28,12 @@ class CompressedModelRouter:
         self.assembly_models_path = self.base_path / "ai/models/compressed"
         self.loaded_models = {}
         self.model_registry = {}
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._generation_defaults = {
+            "max_new_tokens": 80,
+            "temperature": 0.8,
+            "top_p": 0.95,
+        }
         
         # Initialize the router
         self._discover_compressed_models()
@@ -99,6 +108,8 @@ class CompressedModelRouter:
                 except Exception as e:
                     print(f"❌ Error loading assembly model {model_file}: {e}")
         
+        self._discover_state_dict_models()
+
         print(f"🎯 Total models discovered: {len(self.model_registry)}")
     
     def _detect_model_type(self, model_id: str) -> str:
@@ -137,6 +148,78 @@ class CompressedModelRouter:
             capabilities.extend(['reasoning', 'problem_solving'])
         
         return capabilities or ['general_ai']
+
+    def _discover_state_dict_models(self) -> None:
+        """Discover locally decoded state_dict checkpoints produced by the RFT codec."""
+
+        decoded_root = self.base_path / "decoded_models"
+        if not decoded_root.exists():
+            return
+
+        encoded_root = self.base_path / "encoded_models"
+
+        for bin_path in decoded_root.glob("*/pytorch_model.bin"):
+            model_dir = bin_path.parent
+            manifest_path: Optional[Path] = None
+
+            if encoded_root.exists():
+                default_manifest = encoded_root / f"{model_dir.name}_lossless" / "manifest.json"
+                if default_manifest.exists():
+                    manifest_path = default_manifest
+                else:
+                    for candidate in encoded_root.glob(f"{model_dir.name}*/manifest.json"):
+                        manifest_path = candidate
+                        break
+
+            manifest_data: Dict[str, Any] = {}
+            hf_reference = model_dir.name
+            original_size_bytes: Optional[int] = None
+            encoded_size_bytes: Optional[int] = None
+            parameter_count = 0
+
+            if manifest_path and manifest_path.exists():
+                try:
+                    with manifest_path.open("r", encoding="utf-8") as fh:
+                        manifest_data = json.load(fh)
+                    hf_reference = manifest_data.get("model_name", hf_reference)
+                    bundle_metrics = manifest_data.get("metrics", {}) or {}
+                    original_size_bytes = bundle_metrics.get("original_size_bytes")
+                    encoded_size_bytes = bundle_metrics.get("encoded_size_bytes")
+
+                    manifests = manifest_data.get("manifests", [])
+                    for sub_manifest in manifests:
+                        for tensor_entry in sub_manifest.get("tensors", []):
+                            parameter_count += int(tensor_entry.get("numel", 0))
+                except Exception as exc:
+                    print(f"⚠️ Failed to parse manifest for {model_dir.name}: {exc}")
+
+            registry_key = f"{hf_reference}::rft"
+            if registry_key in self.model_registry:
+                # Already registered (prefer existing metadata)
+                continue
+
+            compression_ratio = "unknown"
+            if original_size_bytes and encoded_size_bytes and encoded_size_bytes > 0:
+                ratio = original_size_bytes / encoded_size_bytes
+                compression_ratio = f"{ratio:.2f}:1"
+
+            self.model_registry[registry_key] = {
+                "model_id": hf_reference,
+                "file_path": str(bin_path),
+                "file_size_mb": bin_path.stat().st_size / 1024 / 1024,
+                "original_parameters": parameter_count,
+                "compressed_parameters": parameter_count,
+                "compression_ratio": compression_ratio,
+                "model_type": "text_generation",
+                "capabilities": ["conversation", "text_generation"],
+                "status": "state_dict_available",
+                "compression_method": "rft_vertex_lossless",
+                "storage_type": "state_dict",
+                "hf_reference": hf_reference,
+                "manifest_path": str(manifest_path) if manifest_path else None,
+            }
+
+            print(f"✅ RFT state_dict: {hf_reference} (stored at {bin_path})")
     
     def _load_model_registry(self):
         """Load existing model registry if available"""
@@ -198,6 +281,11 @@ class CompressedModelRouter:
             return None
         
         model_info = self.model_registry[model_id]
+
+        storage_type = model_info.get('storage_type', 'compressed_pickle')
+        if storage_type == 'state_dict':
+            return self._load_state_dict_model(model_id, model_info)
+
         model_file = model_info['file_path']
         
         try:
@@ -254,6 +342,57 @@ class CompressedModelRouter:
             }
         
         return prepared_model
+
+    def _load_state_dict_model(self, registry_key: str, model_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Load a Hugging Face model from a local state_dict produced by the codec."""
+
+        state_path = model_info.get('file_path')
+        if not state_path:
+            print(f"❌ Missing state_dict path for {registry_key}")
+            return None
+
+        hf_reference = model_info.get('hf_reference') or model_info.get('model_id') or registry_key
+
+        try:
+            print(f"📂 Loading RFT state_dict model: {hf_reference}")
+            load_start = time.time()
+
+            tokenizer = AutoTokenizer.from_pretrained(hf_reference)
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+            config = AutoConfig.from_pretrained(hf_reference)
+            model = AutoModelForCausalLM.from_config(config)
+
+            state_dict = torch.load(state_path, map_location='cpu')
+            buffer_keys = [
+                key for key in list(state_dict.keys())
+                if key.endswith('.attn.bias') or key.endswith('.attn.masked_bias')
+            ]
+            for key in buffer_keys:
+                state_dict.pop(key)
+
+            model.load_state_dict(state_dict, strict=False)
+            model.to(self.device)
+            model.eval()
+
+            load_time = time.time() - load_start
+
+            self.loaded_models[registry_key] = {
+                'type': 'hf_transformer',
+                'model': model,
+                'tokenizer': tokenizer,
+                'hf_reference': hf_reference,
+                'state_dict_path': state_path,
+                'load_time': load_time,
+                'loaded_at': time.time(),
+            }
+
+            print(f"✅ Loaded {hf_reference} in {load_time:.3f}s (device: {self.device})")
+            return self.loaded_models[registry_key]
+
+        except Exception as exc:
+            print(f"❌ Error loading state_dict model {hf_reference}: {exc}")
+            return None
     
     def generate_response(self, model_id: str, prompt: str, **kwargs) -> Tuple[str, float]:
         """Generate response using compressed model"""
@@ -263,6 +402,9 @@ class CompressedModelRouter:
         if not loaded_model:
             return "Error: Could not load compressed model", 0.0
         
+        if loaded_model.get('type') == 'hf_transformer':
+            return self._generate_transformer_response(loaded_model, prompt, **kwargs)
+
         model_data = loaded_model['data']
         
         # Simulate response generation based on model type
@@ -271,6 +413,40 @@ class CompressedModelRouter:
         )
         
         return response, confidence
+
+    def _generate_transformer_response(self, loaded_model: Dict[str, Any], prompt: str, **kwargs) -> Tuple[str, float]:
+        """Generate a response using a real Hugging Face transformer."""
+
+        model = loaded_model['model']
+        tokenizer = loaded_model['tokenizer']
+
+        generation_kwargs = dict(self._generation_defaults)
+        generation_kwargs.update(kwargs.get('generation_kwargs', {}))
+
+        encoded = tokenizer(prompt, return_tensors='pt', truncation=True, max_length=tokenizer.model_max_length)
+        encoded = {k: v.to(self.device) for k, v in encoded.items()}
+
+        with torch.no_grad():
+            output = model.generate(
+                **encoded,
+                max_new_tokens=generation_kwargs['max_new_tokens'],
+                do_sample=True,
+                temperature=generation_kwargs['temperature'],
+                top_p=generation_kwargs['top_p'],
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+            )
+
+        generated_tokens = output[0]
+        prompt_length = encoded['input_ids'].shape[1]
+        continuation_tokens = generated_tokens[prompt_length:]
+        response_text = tokenizer.decode(continuation_tokens, skip_special_tokens=True).strip()
+
+        if not response_text:
+            response_text = tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
+
+        confidence = 0.78
+        return response_text, confidence
     
     def _simulate_compressed_inference(self, model_data: Dict, prompt: str, **kwargs) -> Tuple[str, float]:
         """Simulate inference with compressed model"""

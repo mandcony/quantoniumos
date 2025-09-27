@@ -180,7 +180,7 @@ def encode_state_dict_to_disk(
 
         entry = {
             "tensor_name": name,
-            "dtype": tensor.dtype.name,
+            "dtype": str(tensor.dtype),
             "numel": tensor.numel(),
             "original_size_bytes": orig_size,
             "source": source_file,
