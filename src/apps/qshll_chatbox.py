@@ -379,9 +379,17 @@ class Chatbox(QMainWindow):
                     for model_id, model_info in available_models.items():
                         print(f"   • {model_id}: {model_info['compression_ratio']} compression")
                     
-                    # Set default compressed model for conversations
-                    self._default_compressed_model = self._compressed_router.get_model_for_task('conversation')
-                    print(f"🎯 Default model: {self._default_compressed_model}")
+                    # Environment override for preferred model
+                    preferred = None
+                    if hasattr(self._compressed_router, 'get_preferred_model'):
+                        preferred = self._compressed_router.get_preferred_model()
+                    if preferred:
+                        self._default_compressed_model = preferred
+                        print(f"🎯 Preferred compressed model selected via env: {self._default_compressed_model}")
+                    else:
+                        # Set default compressed model for conversations
+                        self._default_compressed_model = self._compressed_router.get_model_for_task('conversation')
+                        print(f"🎯 Default model: {self._default_compressed_model}")
                 else:
                     print("⚠️ No compressed models found")
             except Exception as e:
