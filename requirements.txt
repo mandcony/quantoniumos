@@ -7,6 +7,7 @@ pandas>=1.3.0
 # Optional dependencies for extended functionality
 sympy>=1.8
 jupyter>=1.0.0
+qutip>=4.7.0  # Required for entanglement validation suites
 
 # Development dependencies
 pytest>=6.0.0
@@ -22,6 +23,7 @@ peft>=0.6.0
 trl>=0.7.0
 bitsandbytes>=0.41.0  # For quantization
 wandb>=0.15.0  # Optional: for experiment tracking
+safetensors>=0.4.2  # Streaming access to large Hugging Face checkpoints
 
 # Image Generation Dependencies
 diffusers>=0.21.0  # Stable Diffusion and other generative models

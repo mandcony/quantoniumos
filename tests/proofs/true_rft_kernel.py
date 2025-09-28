@@ -26,9 +26,10 @@ class TrueRFTKernel:
         self.size = size
         self.beta = beta
         self.phi = 1.618033988749894848204586834366  # Golden ratio from C code
-        
+
         # Build the RFT kernel matrix directly using the mathematical formula
-        self._rft_matrix = self._build_rft_kernel()
+        raw_kernel = self._build_rft_kernel()
+        self._rft_matrix = self._apply_unitarity_correction(raw_kernel)
     
     def _build_rft_kernel(self) -> np.ndarray:
         """
@@ -43,8 +44,8 @@ class TrueRFTKernel:
         
         # Build resonance kernel following the paper equation
         for component in range(N):
-            # Golden ratio phase sequence: φₖ = (k*φ) mod 1
-            phi_k = (component * self.phi) % 1.0
+            # Golden ratio phase sequence without modular discontinuities
+            phi_k = component * self.phi
             w_i = 1.0 / N  # Equal weights for components
             
             # Build component matrices: wᵢDφᵢCσᵢD†φᵢ
@@ -71,6 +72,28 @@ class TrueRFTKernel:
                     K[m, n] += complex(element_real, element_imag)
         
         return K
+
+    def _apply_unitarity_correction(self, kernel: np.ndarray) -> np.ndarray:
+        """Project kernel onto the nearest unitary matrix preserving structure."""
+        # Compute Hermitian Gram matrix and guard against numerical drift
+        gram = kernel.conj().T @ kernel
+        # Symmetrize to counter accumulation error
+        gram = 0.5 * (gram + gram.conj().T)
+
+        # Eigen decomposition for positive definite matrix
+        evals, evecs = np.linalg.eigh(gram)
+        eps = 1e-12
+        evals = np.clip(np.real(evals), eps, None)
+
+        inv_sqrt = evecs @ np.diag(1.0 / np.sqrt(evals)) @ evecs.conj().T
+        corrected = kernel @ inv_sqrt
+
+        # Final column normalization to keep ∥column∥₂ = 1
+        col_norms = np.linalg.norm(corrected, axis=0)
+        col_norms[col_norms < eps] = 1.0
+        corrected = corrected / col_norms
+
+        return corrected
     
     def forward_transform(self, x: np.ndarray) -> np.ndarray:
         """Apply forward RFT: y = K^H x"""

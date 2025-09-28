@@ -25,6 +25,7 @@ try:
     import qutip as qt
     QUTIP_AVAILABLE = True
 except ImportError:
+    qt = None  # type: ignore[assignment]
     QUTIP_AVAILABLE = False
     warnings.warn("QuTiP not available. Entanglement benchmarking will be limited.")
 
@@ -494,15 +495,21 @@ class EntangledVertexEngine(VertexAssemblyBase):
             raise RuntimeError("QuTiP required for exact entropy calculation")
         
         try:
+            try:
+                import qutip as qt_module  # Local import to avoid NameError when optional
+            except ImportError:
+                warnings.warn("QuTiP unavailable during entropy calculation.")
+                return 0.0
+
             # Convert to QuTiP Qobj
-            qt_state = qt.Qobj(state.reshape(-1, 1))
+            qt_state = qt_module.Qobj(state.reshape(-1, 1))
             qt_state.dims = [[2] * self.n_vertices, [1] * self.n_vertices]
             
             # Partial trace over environment (complement of subsystem)
             environment = [i for i in range(self.n_vertices) if i not in subsystem]
             if environment:
                 rho_subsystem = qt_state.ptrace(subsystem)
-                entropy = qt.entropy_vn(rho_subsystem, base=2)
+                entropy = qt_module.entropy_vn(rho_subsystem, base=2)
                 return float(entropy)
             else:
                 # Full system: entropy is zero for pure states

@@ -13,7 +13,7 @@ Run with: python -m pytest tests/proofs/test_entangled_assembly.py -v
 """
 
 import numpy as np
-import pytest
+import pytest  # type: ignore[import]
 import warnings
 from typing import List, Dict, Tuple
 
@@ -40,7 +40,7 @@ except ImportError as e:
 
 # Import QuTiP for reference if available
 try:
-    import qutip as qt
+    import qutip as qt  # type: ignore[import]
     QUTIP_AVAILABLE = True
 except ImportError:
     QUTIP_AVAILABLE = False
@@ -52,14 +52,14 @@ class TestEntangledVertexEngine:
     @pytest.fixture
     def basic_engine(self):
         """Create basic entangled vertex engine."""
-        if not COMPONENTS_AVAILABLE:
+        if not COMPONENTS_AVAILABLE or not ENGINE_AVAILABLE:
             pytest.skip("QuantoniumOS components not available")
         return EntangledVertexEngine(n_vertices=4, entanglement_enabled=True)
     
     @pytest.fixture
     def separable_engine(self):
         """Create separable (non-entangled) vertex engine."""
-        if not COMPONENTS_AVAILABLE:
+        if not COMPONENTS_AVAILABLE or not ENGINE_AVAILABLE:
             pytest.skip("QuantoniumOS components not available")
         return EntangledVertexEngine(n_vertices=4, entanglement_enabled=False)
     
@@ -162,7 +162,7 @@ class TestEntangledVertexEngine:
     
     def test_backward_compatibility(self):
         """Test that existing code still works."""
-        if not COMPONENTS_AVAILABLE:
+        if not COMPONENTS_AVAILABLE or not ENGINE_AVAILABLE:
             pytest.skip("QuantoniumOS components not available")
         
         # Old-style vertex assembly should still work
@@ -185,7 +185,7 @@ class TestOpenQuantumSystems:
     @pytest.fixture
     def basic_system(self):
         """Create basic open quantum system."""
-        if not COMPONENTS_AVAILABLE:
+        if not COMPONENTS_AVAILABLE or not ENGINE_AVAILABLE:
             pytest.skip("QuantoniumOS components not available")
         engine = EntangledVertexEngine(n_vertices=2, entanglement_enabled=True)
         return OpenQuantumSystem(engine)
@@ -279,7 +279,7 @@ class TestEntanglementValidation:
     @pytest.fixture
     def test_engine(self):
         """Create test engine for validation."""
-        if not COMPONENTS_AVAILABLE:
+        if not COMPONENTS_AVAILABLE or not ENGINE_AVAILABLE:
             pytest.skip("QuantoniumOS components not available")
         return create_test_engine(n_vertices=4, entanglement_enabled=True)
     
@@ -378,7 +378,7 @@ class TestEntanglementValidation:
 class TestIntegration:
     """Integration tests for all components working together."""
     
-    @pytest.mark.skipif(not COMPONENTS_AVAILABLE, reason="Components not available")
+    @pytest.mark.skipif(not (COMPONENTS_AVAILABLE and ENGINE_AVAILABLE), reason="Components not available")
     def test_end_to_end_entanglement(self):
         """Test complete entanglement workflow."""
         # Create entangled vertex engine
@@ -412,7 +412,7 @@ class TestIntegration:
         # Should have reasonable success rate
         assert validation_results['success_rate'] > 0.3  # At least some tests should pass
     
-    @pytest.mark.skipif(not COMPONENTS_AVAILABLE, reason="Components not available") 
+    @pytest.mark.skipif(not (COMPONENTS_AVAILABLE and ENGINE_AVAILABLE), reason="Components not available") 
     def test_performance_scaling(self):
         """Test performance scaling with system size."""
         import time

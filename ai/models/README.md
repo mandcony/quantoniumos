@@ -11,7 +11,7 @@ After comprehensive analysis and cleanup, here are the **actual functional model
 ```
 ai/models/
 ├── quantum/                    # REAL quantum-compressed models with actual quantum states
-│   ├── quantonium_120b_quantum_states.json          (4.9MB - 184,896 lines - 14,221 quantum states)
+│   ├── quantonium_120b_quantum_states.json          (2.3MB - 147,000+ lines - 4,096 quantum states)
 │   ├── quantonium_streaming_7b.json                 (7.9MB - 300,967 lines - 23,149 quantum states) 
 │   ├── llama_2_180b_chat_quantum_compressed.json    (19KB - 736 lines - 2,571 quantum states)
 │   └── llama_3.1_70b_instruct_quantum_compressed.json (19KB - 735 lines - 1,000 quantum states)
@@ -28,9 +28,9 @@ ai/models/
 ## Verified Model Implementation
 
 ### Real Quantum-Compressed Models (377B original → 24.5B effective)
-1. **GPT-OSS-120B**: 120B original → 14.24B effective (1,001,587:1 compression ratio)
-   - Contains 14,221 actual quantum states with resonance/phase/amplitude data
-   - File: 4.9MB JSON with full quantum state reconstruction data
+1. **GPT-OSS-120B**: 120B original → 14.24B effective (simulated 29,296,875:1 compression ratio)
+   - Contains 4,096 deterministic quantum states with resonance/phase/amplitude data
+   - File: 2.3MB JSON generated via `tools/generate_gpt_oss_quantum_sample.py`
 
 2. **Llama2-7B-Streaming**: 7B original → 6.74B effective (291,089:1 compression ratio) 
    - Contains 23,149 quantum states with vertex/entanglement keys

@@ -13,16 +13,17 @@ Goal: Achieve S > 2.7 for validation of genuine quantum entanglement
 import numpy as np
 import sys
 import os
+from typing import Any
 sys.path.insert(0, os.path.abspath('.'))
 
 try:
-    import qutip as qt
+    import qutip as qt  # type: ignore[import]
     QUTIP_AVAILABLE = True
     print("✓ QuTiP available for benchmarking")
 except ImportError:
     QUTIP_AVAILABLE = False
-    print("❌ QuTiP not available")
-    sys.exit(1)
+    qt = None
+    print("❌ QuTiP not available — skipping QuTiP-specific benchmarks")
 
 from src.engine.vertex_assembly import EntangledVertexEngine
 from src.engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
@@ -80,7 +81,7 @@ def test_qutip_bell_reference() -> float:
     bell_state = qt.bell_state('00')  # (|00⟩ + |11⟩)/√2
     
     # Measurement operators for CHSH test
-    def pauli_measurement(angle: float) -> qt.Qobj:
+    def pauli_measurement(angle: float) -> Any:
         """Create Pauli measurement operator at given angle."""
         cos_a = np.cos(angle)
         sin_a = np.sin(angle)

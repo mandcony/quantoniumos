@@ -25,6 +25,7 @@ try:
     import qutip as qt
     QUTIP_AVAILABLE = True
 except ImportError:
+    qt = None  # type: ignore[assignment]
     QUTIP_AVAILABLE = False
 
 # Import RFT and vertex assembly
@@ -594,16 +595,22 @@ class OpenQuantumSystem:
             return {}
         
         results = {}
+
+        try:
+            import qutip as qt_module
+        except ImportError:
+            warnings.warn("QuTiP unavailable during benchmarking runtime.")
+            return {}
         
         for state_name in test_states:
             results[state_name] = {}
             
             # Create reference state with QuTiP
             if state_name == "bell" and self.vertex_engine.n_vertices >= 2:
-                qt_state = qt.bell_state('00')
+                qt_state = qt_module.bell_state('00')
                 if self.vertex_engine.n_vertices > 2:
                     for _ in range(self.vertex_engine.n_vertices - 2):
-                        qt_state = qt.tensor(qt_state, qt.basis(2, 0))
+                        qt_state = qt_module.tensor(qt_state, qt_module.basis(2, 0))
             else:
                 continue  # Skip unsupported states
             
@@ -620,7 +627,7 @@ class OpenQuantumSystem:
                 # QuTiP reference
                 if QUTIP_AVAILABLE:
                     try:
-                        depol_map = qt.depolarizing_channel(p, N=1)  # Single qubit
+                        depol_map = qt_module.depolarizing_channel(p, N=1)  # Single qubit
                         qt_rho_noisy = depol_map(qt_rho)
                         
                         # Convert to numpy for comparison

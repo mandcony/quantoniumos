@@ -9,102 +9,44 @@ The mathematical proof is bulletproof and ready for peer review.
 
 def main():
     print("=" * 80)
-    print("QUANTONIUM RFT VALIDATION - FINAL SUMMARY")
+    print("QUANTONIUM VALIDATION SUMMARY (HONEST STATUS)")
     print("=" * 80)
-    print("Date: September 10, 2025")
-    print("Status: VALIDATION COMPLETE")
+    print("Date: 27 September 2025")
+    print("Status: PARTIAL COVERAGE ONLY")
     print("=" * 80)
-    
-    print("\n🎯 CORE MATHEMATICAL PROOFS (100% SUCCESS)")
+
+    print("\n✅ EXECUTED TODAY")
     print("-" * 50)
-    core_proofs = [
-        "✅ RFT vs DFT Separation: PROVEN DISTINCT",
-        "✅ Convolution Theorem Violation: CONFIRMED", 
-        "✅ Shift Diagonalization Failure: VERIFIED",
-        "✅ Property Invariant Breakdown: DEMONSTRATED",
-        "✅ Conditioning Number Analysis: COMPLETE"
-    ]
-    
-    for proof in core_proofs:
-        print(f"  {proof}")
-    
-    print("\n🔐 CRYPTOGRAPHIC COMPLIANCE (100% SUCCESS)")
+    print("  • pytest tests/tests/test_rft_vertex_codec.py → 8 passed (11 warnings)")
+    print("    - Confirms lossless and lossy round-trips for the vertex codec module.")
+    print("    - Warnings show ANS compression falls back to raw payloads; asserts still succeed.")
+
+    print("\n❌ UNVERIFIED CLAIMS FROM EARLIER SUMMARIES")
     print("-" * 50)
-    crypto_tests = [
-        "✅ AEAD Known Answer Tests: 4/4 PASS",
-        "✅ Tamper Detection: 15/15 (100%)",
-        "✅ Authentication Integrity: VERIFIED",
-        "✅ Nonce Sensitivity: CONFIRMED"
+    missing = [
+        "tests/proofs/test_rft_vs_dft_separation_proper.py",
+        "tests/proofs/test_rft_convolution_proper.py",
+        "tests/proofs/test_shift_diagonalization.py",
+        "tests/proofs/test_aead_simple.py",
+        "tests/crypto/scripts/complete_definitive_proof.py",
+        "tests/crypto/scripts/ind_cpa_proof.py",
     ]
-    
-    for test in crypto_tests:
-        print(f"  {test}")
-    
-    print("\n🚀 ASSEMBLY ENGINE VALIDATION (WORKING)")
+    for path in missing:
+        print(f"  • MISSING: {path}")
+    print("  • Dependent runners (e.g. run_comprehensive_validation.py) abort because the files above are absent.")
+
+    print("\n⚠️ NEXT ACTIONS REQUIRED FOR REAL COVERAGE")
     print("-" * 50)
-    assembly_results = [
-        "✅ Performance: < 0.1ms (HIGH-PERFORMANCE)",
-        "✅ Accuracy: ~1e-15 error (MACHINE PRECISION)",
-        "⚠️  Distinctness: 2/3 sizes pass (core works)",
-        "✅ Binding Integration: FUNCTIONAL"
-    ]
-    
-    for result in assembly_results:
-        print(f"  {result}")
-    
-    print("\n📊 PERFORMANCE ANALYSIS (COMPLETE)")
-    print("-" * 50)
-    perf_metrics = [
-        "✅ Timing Curves: Generated and analyzed",
-        "✅ Scaling Analysis: O(n log n) confirmed", 
-        "✅ Memory Usage: Linear scaling",
-        "✅ Throughput: > 10,000 KB/s"
-    ]
-    
-    for metric in perf_metrics:
-        print(f"  {metric}")
-    
-    print("\n📋 CI/INFRASTRUCTURE (CI-READY)")
-    print("-" * 50)
-    ci_status = [
-        "✅ Unicode Safety: All tests CI-compatible",
-        "✅ Deterministic Results: Fixed seeds used",
-        "✅ Artifact Proof: Complete environment lock",
-        "✅ Reproduction Guide: Step-by-step documented"
-    ]
-    
-    for status in ci_status:
-        print(f"  {status}")
-    
+    print("  1. Restore or re-implement the missing proof scripts and cipher backend.")
+    print("  2. Provide required third-party dependencies (assembly bindings, QuTiP, etc.).")
+    print("  3. Re-run the suites and capture artifacts before claiming mathematical or cryptographic proofs.")
+
     print("\n" + "=" * 80)
-    print("COMPREHENSIVE VALIDATION RESULTS")
+    print("CURRENT CONCLUSION")
     print("=" * 80)
-    print("Total Tests Run: 11")
-    print("Tests Passed: 10")
-    print("Success Rate: 90.9%")
-    print("Critical Failures: 0 (only minor assembly destructor issue)")
-    print("\n📈 VALIDATION STATUS: READY FOR PEER REVIEW")
-    print("\n🔍 KEY FINDINGS:")
-    print("  • RFT is mathematically distinct from DFT")
-    print("  • Convolution theorem fails for RFT (proves uniqueness)")  
-    print("  • Shift operator diagonalization fails (confirms non-Fourier)")
-    print("  • AEAD implementation works with 100% tamper detection")
-    print("  • Assembly engine performs at machine precision")
-    print("  • All tests are deterministic and CI-safe")
-    
-    print("\n🎉 CONCLUSION:")
-    print("The Resonance Fourier Transform (RFT) has been empirically proven")
-    print("to be mathematically distinct from the Discrete Fourier Transform.")
-    print("All core mathematical properties, cryptographic compliance, and")
-    print("assembly engine integration have been validated successfully.")
-    
-    print("\n📁 ARTIFACT PACKAGE READY:")
-    print("  • Complete test suite with 90.9% pass rate")
-    print("  • Environment lock file for exact reproduction") 
-    print("  • Binary SHA-256 verification")
-    print("  • Step-by-step validation guide")
-    
-    print("\n" + "=" * 80)
+    print("Only the RFT vertex codec tests are reproducibly passing right now.")
+    print("All other previously advertised proofs remain unverified until their files and dependencies return.")
+    print("Refer to tests/proofs/EMPIRICAL_PROOF_SUMMARY.md for the latest evidence log.")
     
     return 0
 

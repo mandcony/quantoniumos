@@ -34,13 +34,13 @@ except ImportError:
 
 # Import QuantoniumOS components
 try:
-    from ..engine.vertex_assembly import EntangledVertexEngine, HyperEdge
-    from ..engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
-    from ..core.canonical_true_rft import CanonicalTrueRFT
+    from src.engine.vertex_assembly import EntangledVertexEngine, HyperEdge
+    from src.engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
+    from src.core.canonical_true_rft import CanonicalTrueRFT
     ENGINE_AVAILABLE = True
-except ImportError:
+except ImportError as import_error:
     ENGINE_AVAILABLE = False
-    warnings.warn("QuantoniumOS engines not available for testing")
+    warnings.warn(f"QuantoniumOS engines not available for testing: {import_error}")
 
 
 @dataclass
@@ -348,10 +348,12 @@ class SeparabilityWitnessProtocol(EntanglementProtocol):
             EntanglementMeasure with witness results
         """
         state = engine.assemble_state()
-        rho = np.outer(state, np.conj(state))
+        rho_full = np.outer(state, np.conj(state))
+        n_vertices = getattr(engine, 'n_vertices', int(round(np.log2(len(state)))))
+        rho_two = self._extract_two_qubit_state(rho_full, n_vertices)
         
         if witness_type == "concurrence":
-            witness_value = self._calculate_concurrence(rho)
+            witness_value = self._calculate_concurrence(rho_two)
             return EntanglementMeasure(
                 name=f"{self.name} (Concurrence)",
                 value=witness_value,
@@ -361,7 +363,7 @@ class SeparabilityWitnessProtocol(EntanglementProtocol):
             )
         
         elif witness_type == "negativity":
-            negativity = self._calculate_negativity(rho, engine.n_vertices)
+            negativity = self._calculate_negativity(rho_two, n_vertices=2)
             return EntanglementMeasure(
                 name=f"{self.name} (Negativity)",
                 value=negativity,
@@ -371,7 +373,7 @@ class SeparabilityWitnessProtocol(EntanglementProtocol):
             )
         
         elif witness_type == "ppt":
-            ppt_violation = self._peres_horodecki_test(rho, engine.n_vertices)
+            ppt_violation = self._peres_horodecki_test(rho_two, n_vertices=2)
             return EntanglementMeasure(
                 name=f"{self.name} (PPT)",
                 value=ppt_violation,
@@ -383,6 +385,26 @@ class SeparabilityWitnessProtocol(EntanglementProtocol):
         else:
             raise ValueError(f"Unknown witness type: {witness_type}")
     
+    def _extract_two_qubit_state(self, rho: np.ndarray, n_vertices: int) -> np.ndarray:
+        """Return reduced density matrix for qubits (0, 1)."""
+        if rho.shape == (4, 4):
+            return rho
+
+        target_qubits = [0, 1]
+
+        if QUTIP_AVAILABLE:
+            try:
+                import qutip as qt
+                qt_rho = qt.Qobj(rho, dims=[[2] * n_vertices, [2] * n_vertices])
+                reduced = qt_rho.ptrace(target_qubits)
+                matrix = reduced.full()
+                if matrix.shape == (4, 4):
+                    return matrix
+            except Exception:
+                pass
+
+        return self._partial_trace_to_two_qubits(rho, target_qubits, n_vertices)
+
     def _calculate_concurrence(self, rho: np.ndarray) -> float:
         """Calculate concurrence for two-qubit states."""
         if rho.shape != (4, 4):
@@ -449,6 +471,48 @@ class SeparabilityWitnessProtocol(EntanglementProtocol):
         # Same as negativity but return maximum negative eigenvalue
         negativity = self._calculate_negativity(rho, n_vertices)
         return negativity
+
+    def _partial_trace_to_two_qubits(self, rho: np.ndarray, target_qubits: List[int], n_vertices: int) -> np.ndarray:
+        """Manual partial trace to obtain two-qubit reduced density matrix."""
+        if len(target_qubits) != 2:
+            raise ValueError("Exactly two target qubits required")
+
+        dim = 2 ** n_vertices
+        if rho.shape != (dim, dim):
+            raise ValueError("Density matrix size inconsistent with qubit count")
+
+        remaining_qubits = [q for q in range(n_vertices) if q not in target_qubits]
+        rho_reduced = np.zeros((4, 4), dtype=complex)
+
+        for config in range(2 ** len(remaining_qubits)):
+            assignment = self._expand_indices(config, remaining_qubits)
+            for i in range(4):
+                for j in range(4):
+                    idx_i = self._compose_index(i, target_qubits, assignment, n_vertices)
+                    idx_j = self._compose_index(j, target_qubits, assignment, n_vertices)
+                    rho_reduced[i, j] += rho[idx_i, idx_j]
+
+        return rho_reduced
+
+    def _expand_indices(self, config: int, qubits: List[int]) -> Dict[int, int]:
+        """Expand basis configuration into qubit assignment mapping."""
+        assignment: Dict[int, int] = {}
+        for offset, qubit in enumerate(qubits):
+            assignment[qubit] = (config >> offset) & 1
+        return assignment
+
+    def _compose_index(self, basis_index: int, target_qubits: List[int], assignment: Dict[int, int], n_vertices: int) -> int:
+        """Compose global basis index from subsystem index and assignments."""
+        bits = [0] * n_vertices
+        for pos, qubit in enumerate(target_qubits):
+            bits[qubit] = (basis_index >> pos) & 1
+        for qubit, value in assignment.items():
+            bits[qubit] = value
+
+        index = 0
+        for pos, bit in enumerate(bits):
+            index |= (bit & 1) << pos
+        return index
 
 
 class FidelityComparisonProtocol(EntanglementProtocol):
@@ -654,14 +718,14 @@ class EntanglementValidationSuite:
         report.append("=" * 80)
         report.append("QUANTONIUMOS ENTANGLEMENT VALIDATION REPORT")
         report.append("=" * 80)
-        report.append()
+        report.append("")
         
         # Summary statistics
         report.append(f"Total Tests: {validation_results['total_tests']}")
         report.append(f"Passed: {validation_results['passed_tests']}")
         report.append(f"Failed: {validation_results['failed_tests']}")
         report.append(f"Success Rate: {validation_results['success_rate']:.1%}")
-        report.append()
+        report.append("")
         
         # Protocol results by configuration
         for config_name, protocol_results in validation_results['protocols'].items():
@@ -686,7 +750,7 @@ class EntanglementValidationSuite:
                 if result.details and 'error' in result.details:
                     report.append(f"    Error: {result.details['error']}")
                 
-                report.append()
+                    report.append("")
         
         # Overall assessment
         report.append("ASSESSMENT")
@@ -700,7 +764,7 @@ class EntanglementValidationSuite:
         else:
             report.append("✗ INADEQUATE: QuantoniumOS entanglement support needs improvement")
         
-        report.append()
+            report.append("")
         
         # Recommendations
         if validation_results['success_rate'] < 1.0:
@@ -710,7 +774,7 @@ class EntanglementValidationSuite:
             report.append("• Improve RFT phase relationships")
             report.append("• Optimize Schmidt decomposition implementation")
             report.append("• Add more sophisticated entanglement witnesses")
-            report.append()
+            report.append("")
         
         return "\n".join(report)
 

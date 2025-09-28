@@ -4,8 +4,9 @@
 from __future__ import annotations
 
 from typing import Any, Dict, Mapping
+import os
 
-import pytest
+import pytest  # type: ignore[import]
 
 pytest.importorskip("torch")
 import torch
@@ -16,11 +17,19 @@ from transformers import AutoModelForCausalLM, AutoTokenizer  # noqa: E402
 from src.core.rft_vertex_codec import decode_state_dict, encode_state_dict  # noqa: E402
 
 
-MODEL_VARIANTS = (
+_BASELINE_MODELS = (
     "sshleifer/tiny-gpt2",
+)
+
+_HEAVY_MODELS = (
     "gpt2",
     "gpt2-medium",
 )
+
+if os.getenv("QUANTONIUM_RUN_FULL_MODEL_TESTS", "").lower() in {"1", "true", "yes"}:
+    MODEL_VARIANTS = _BASELINE_MODELS + _HEAVY_MODELS
+else:
+    MODEL_VARIANTS = _BASELINE_MODELS
 
 SAMPLE_PROMPTS = (
     "The quick brown fox jumps over the lazy dog.",

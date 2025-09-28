@@ -32,7 +32,8 @@ class QuantumImageGenerator:
                  model_name: str = "runwayml/stable-diffusion-v1-5",
                  device: str = "auto",
                  enable_memory_efficient: bool = True,
-                 use_quantum_enhancement: bool = True):
+                 use_quantum_enhancement: bool = True,
+                 local_files_only: bool = False):
         
         if not DIFFUSERS_AVAILABLE:
             raise ImportError("diffusers library not installed. Run: pip install diffusers")
@@ -41,6 +42,7 @@ class QuantumImageGenerator:
         self.device = device if device != "auto" else ("cuda" if torch.cuda.is_available() else "cpu")
         self.enable_memory_efficient = enable_memory_efficient
         self.use_quantum_enhancement = use_quantum_enhancement
+        self.local_files_only = local_files_only
         
         self.pipeline = None
         self.loaded_model = None
@@ -64,7 +66,8 @@ class QuantumImageGenerator:
                 self.pipeline = StableDiffusionPipeline.from_pretrained(
                     self.model_name,
                     torch_dtype=torch.float16,
-                    use_safetensors=True
+                    use_safetensors=True,
+                    local_files_only=self.local_files_only
                 )
                 # Enable memory efficient attention
                 self.pipeline.enable_attention_slicing()
@@ -77,7 +80,8 @@ class QuantumImageGenerator:
             else:
                 self.pipeline = StableDiffusionPipeline.from_pretrained(
                     self.model_name,
-                    use_safetensors=True
+                    use_safetensors=True,
+                    local_files_only=self.local_files_only
                 )
             
             self.pipeline = self.pipeline.to(self.device)

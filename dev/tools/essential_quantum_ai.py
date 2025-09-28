@@ -41,14 +41,24 @@ except ImportError as e:
 
 print("🎯 Essential QuantoniumOS AI - Loading ONLY encoded parameters...")
 
-# Import quantum-encoded image generator (no external dependencies)
+# Import real Stable Diffusion adapter first
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from real_image_generator_adapter import RealImageGeneratorAdapter
+    REAL_IMAGE_GENERATION_AVAILABLE = True
+    print("✅ Real Stable Diffusion image generator available")
+except ImportError as e:
+    REAL_IMAGE_GENERATION_AVAILABLE = False
+    print(f"⚠️ Real Stable Diffusion image generator not available: {e}")
+
+# Import quantum-encoded image generator (fallback with synthetic parameters)
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from quantum_encoded_image_generator import QuantumEncodedImageGenerator
-    IMAGE_GENERATION_AVAILABLE = True
+    ENCODED_IMAGE_GENERATION_AVAILABLE = True
     print("✅ Quantum-encoded image generation available")
 except ImportError as e:
-    IMAGE_GENERATION_AVAILABLE = False
+    ENCODED_IMAGE_GENERATION_AVAILABLE = False
     print(f"⚠️ Image generation not available: {e}")
 
 # Add paths for essential components only
@@ -176,15 +186,29 @@ class EssentialQuantumAI:
         self.real_conversation_model: Optional[HFBackedConversationalModel] = None
         self.real_model_info: Dict[str, Any] = {}
         
-        # Initialize quantum image generator
+        # Initialize real image generator (with encoded fallback)
         self.image_generator = None
-        self.enable_image_generation = enable_image_generation and IMAGE_GENERATION_AVAILABLE
+        self.enable_image_generation = enable_image_generation and (
+            REAL_IMAGE_GENERATION_AVAILABLE or ENCODED_IMAGE_GENERATION_AVAILABLE
+        )
+
         if self.enable_image_generation:
-            try:
-                self.image_generator = QuantumEncodedImageGenerator()
-                print("✅ Quantum-encoded image generation initialized")
-            except Exception as e:
-                print(f"⚠️ Image generation initialization failed: {e}")
+            if REAL_IMAGE_GENERATION_AVAILABLE:
+                try:
+                    self.image_generator = RealImageGeneratorAdapter()
+                    print("✅ Stable Diffusion image generation initialized")
+                except Exception as e:
+                    print(f"⚠️ Real image generation initialization failed: {e}")
+
+            if self.image_generator is None and ENCODED_IMAGE_GENERATION_AVAILABLE:
+                try:
+                    self.image_generator = QuantumEncodedImageGenerator()
+                    print("✅ Quantum-encoded image generation initialized (fallback)")
+                except Exception as e:
+                    print(f"⚠️ Quantum-encoded image generation initialization failed: {e}")
+                    self.enable_image_generation = False
+
+            if self.image_generator is None:
                 self.enable_image_generation = False
         
         # Load ONLY essential engines
@@ -195,10 +219,34 @@ class EssentialQuantumAI:
         self._init_advanced_capabilities()
         self._init_real_model()
         
-        feature_count = self.image_generator.encoded_params.total_encoded_features if self.image_generator else 0
+        image_status = {}
+        image_generation_details: Dict[str, Any] = {}
+        if self.image_generator and hasattr(self.image_generator, "get_status"):
+            try:
+                image_status = self.image_generator.get_status()
+                image_generation_details = {
+                    "generator_type": image_status.get("generator_type", "unknown"),
+                    "model_path": image_status.get("model_path"),
+                    "local_files_only": image_status.get("local_files_only"),
+                    "total_encoded_features": image_status.get("total_encoded_features", 0),
+                    "parameter_sets": image_status.get("parameter_sets"),
+                    "feature_types": image_status.get("feature_types", []),
+                    "quantum_encoding": image_status.get("quantum_encoding_enabled", False),
+                }
+            except Exception as exc:
+                print(f"⚠️ Unable to retrieve image generator status: {exc}")
+                image_generation_details = {}
+
+        feature_count = image_generation_details.get("total_encoded_features", 0)
+        image_mode = image_generation_details.get("generator_type", "image") if self.image_generator else "disabled"
         print(f"✅ Essential AI ready - {self.engine_count} engines, {len(self.encoded_params)} parameter sets")
-        if feature_count > 0:
-            print(f"   🎨 Image features: {feature_count:,} encoded visual parameters")
+        if self.image_generator:
+            if feature_count > 0:
+                print(f"   🎨 Image generator: {image_mode} ({feature_count:,} encoded visual parameters)")
+            else:
+                print(f"   🎨 Image generator: {image_mode}")
+        else:
+            print("   🎨 Image generator: unavailable")
         
         # Report advanced capabilities
         advanced_features = []
@@ -217,6 +265,16 @@ class EssentialQuantumAI:
         else:
             print("   ℹ️ Real-model routing unavailable; using scripted responses")
     
+    def _image_generator_label(self) -> str:
+        """Return a human-readable label for the active image generator."""
+        if not self.image_generator or not hasattr(self.image_generator, "get_status"):
+            return "image"
+        try:
+            status = self.image_generator.get_status()
+            return status.get("generator_type", "image")
+        except Exception:
+            return "image"
+
     def _init_essential_engines(self):
         """Initialize only the essential engines with encoded parameters"""
         
@@ -384,17 +442,20 @@ class EssentialQuantumAI:
         image_info = ""
         if generate_image and self.enable_image_generation:
             try:
-                print("🎨 Generating quantum-encoded image...")
+                image_label = self._image_generator_label()
+                print(f"🎨 Generating {image_label} image...")
                 image = self.image_generator.generate_image(
                     message,
                     width=256,
                     height=256,
-                    style="quantum"
+                    enhancement_style="quantum"
                 )
                 
                 if image:
-                    filepath = self.image_generator.save_image(image, prefix="essential_quantum")
-                    image_info = f"\n🖼️ Generated quantum-encoded image: {filepath}"
+                    prefix = "essential_sd" if image_label == "stable_diffusion" else "essential_quantum"
+                    filepath = self.image_generator.save_image(image, prefix=prefix)
+                    display_label = image_label.replace('_', ' ').replace('-', ' ')
+                    image_info = f"\n🖼️ Generated {display_label} image: {filepath}"
                 
             except Exception as e:
                 image_info = f"\n⚠️ Image generation failed: {str(e)}"
@@ -553,9 +614,12 @@ What type of challenge or project would you like to tackle together? I'm genuine
         }
         
         # Add image generation status
-        if self.image_generator:
+        if self.image_generator and hasattr(self.image_generator, "get_status"):
             image_status = self.image_generator.get_status()
             status["image_generation"] = {
+                "generator_type": image_status.get("generator_type", "unknown"),
+                "model_path": image_status.get("model_path"),
+                "local_files_only": image_status.get("local_files_only"),
                 "total_encoded_features": image_status.get("total_encoded_features", 0),
                 "parameter_sets": image_status.get("parameter_sets", 0),
                 "feature_types": image_status.get("feature_types", []),
@@ -579,7 +643,14 @@ What type of challenge or project would you like to tackle together? I'm genuine
         if not self.enable_image_generation:
             raise RuntimeError("Image generation not enabled")
         
-        # Use only quantum encoding - method parameter is ignored
+        if self.image_generator and hasattr(self.image_generator, "get_status"):
+            try:
+                image_status = self.image_generator.get_status()
+                if image_status.get("generator_type") == "stable_diffusion":
+                    kwargs.setdefault("enhancement_style", "enhance")
+            except Exception:
+                pass
+
         return self.image_generator.generate_image(prompt, **kwargs)
 
 # Compatibility aliases for existing code

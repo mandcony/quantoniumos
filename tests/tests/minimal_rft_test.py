@@ -4,12 +4,18 @@ MINIMAL SIMULATOR TEST - ISOLATE THE CRASH
 """
 
 import sys, os, numpy as np
-from PyQt5.QtWidgets import QApplication, QMainWindow
+import pytest  # type: ignore[import]
+from PyQt5.QtWidgets import QApplication, QMainWindow  # type: ignore[import]
 
 # Add assembly bindings path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src', 'assembly', 'python_bindings'))
 
-from unitary_rft import UnitaryRFT, RFT_FLAG_QUANTUM_SAFE, RFT_FLAG_USE_RESONANCE
+unitary_rft = pytest.importorskip(
+    "unitary_rft",
+    reason="UnitaryRFT assembly bindings are unavailable; skipping minimal simulator test.",
+)
+
+from unitary_rft import UnitaryRFT, RFT_FLAG_QUANTUM_SAFE, RFT_FLAG_USE_RESONANCE  # type: ignore[import]
 
 print("🔧 MINIMAL SIMULATOR TEST")
 print("=" * 30)

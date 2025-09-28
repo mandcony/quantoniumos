@@ -19,19 +19,47 @@ import hashlib
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(BASE_DIR, "dev", "tools"))
 
-from quantum_encoded_image_generator import QuantumEncodedImageGenerator
+from quantum_encoded_image_generator import QuantumEncodedImageGenerator, EncodedImageParameters
+
+try:
+    from real_image_generator_adapter import RealImageGeneratorAdapter
+    REAL_IMAGE_ADAPTER_AVAILABLE = True
+except ImportError as exc:
+    REAL_IMAGE_ADAPTER_AVAILABLE = False
+    print(f"⚠️ Real image adapter unavailable for HF-guided generator: {exc}")
 
 class HFGuidedQuantumGenerator(QuantumEncodedImageGenerator):
     """Quantum generator enhanced with HF model style guidance"""
     
     def __init__(self):
-        super().__init__()
+        super().__init__(use_quantum_encoding=False)
         self.hf_style_guides = self._load_builtin_style_guides()
         self.hf_encoded_dir = os.path.join(BASE_DIR, "data", "weights", "hf_encoded")
+        self.generator_mode = "stable_diffusion" if REAL_IMAGE_ADAPTER_AVAILABLE else "quantum_encoded"
+        self.real_generator: Optional[RealImageGeneratorAdapter] = None
         
         # Load any downloaded HF guidance
         self._load_hf_guidance()
         
+        if REAL_IMAGE_ADAPTER_AVAILABLE:
+            try:
+                self.real_generator = RealImageGeneratorAdapter()
+                print("✅ HF-guided generator using Stable Diffusion backend")
+            except Exception as exc:
+                print(f"⚠️ Failed to initialize Stable Diffusion backend: {exc}")
+                self.real_generator = None
+
+        if self.real_generator is None:
+            self.use_quantum_encoding = True
+            try:
+                self.encoded_params = EncodedImageParameters()
+                self.generator_mode = "quantum_encoded"
+                print("🎛️ Falling back to quantum-encoded image generation")
+            except Exception as exc:
+                print(f"❌ Could not initialize quantum-encoded fallback: {exc}")
+                self.generator_mode = "disabled"
+                self.encoded_params = None
+
         print("🎨 HF-Guided Quantum Generator initialized")
         print(f"   Style guides: {len(self.hf_style_guides)}")
     
@@ -145,13 +173,33 @@ class HFGuidedQuantumGenerator(QuantumEncodedImageGenerator):
         
         # Apply style-specific quantum parameters
         enhanced_kwargs = self._apply_style_parameters(kwargs, style_guide, style)
+        style_guidance = enhanced_kwargs.pop('style_guidance', {})
+        style_name = enhanced_kwargs.pop('style_name', style)
         
         print(f"🎨 Generating with {style} style guidance...")
         print(f"   Original: {prompt}")
         print(f"   Enhanced: {enhanced_prompt}")
         
-        # Generate with enhanced parameters
-        return self.generate_image_from_encoded_params(enhanced_prompt, **enhanced_kwargs)
+        # Generate with real Stable Diffusion backend when available
+        if self.real_generator:
+            real_kwargs = self._prepare_real_generation_kwargs(style, style_guidance, enhanced_kwargs)
+            image = self.real_generator.generate_image(
+                enhanced_prompt,
+                **real_kwargs
+            )
+            if image is None:
+                raise RuntimeError("Stable Diffusion generation returned no image")
+            return image
+
+        # Fallback to encoded parameters
+        for key in list(enhanced_kwargs.keys()):
+            if key in ['color_enhancement', 'color_temperature', 'color_saturation']:
+                enhanced_kwargs.pop(key)
+
+        image = super().generate_image_from_encoded_params(enhanced_prompt, **enhanced_kwargs)
+        if style_guidance:
+            image = self._apply_style_post_processing(image, style_guidance, style_name)
+        return image
     
     def _enhance_prompt_with_style(self, prompt: str, style_guide: Dict) -> str:
         """Enhance prompt with style-specific guidance"""
@@ -183,6 +231,41 @@ class HFGuidedQuantumGenerator(QuantumEncodedImageGenerator):
         enhanced_kwargs['style_name'] = style_name
         
         return enhanced_kwargs
+
+    def _prepare_real_generation_kwargs(self, style: str, style_guidance: Dict, kwargs: Dict) -> Dict:
+        """Prepare kwargs for the real Stable Diffusion adapter."""
+        real_kwargs = kwargs.copy()
+
+        # Remove keys not understood by the Stable Diffusion pipeline
+        for key in ['color_enhancement', 'color_temperature', 'color_saturation']:
+            real_kwargs.pop(key, None)
+
+        # Map style to enhancement preset
+        real_kwargs.setdefault('enhancement_style', self._map_style_to_enhancement(style))
+        real_kwargs.setdefault('num_images', 1)
+
+        # Adjust guidance scale based on style hints
+        if style_guidance:
+            detail_weight = style_guidance.get('detailed') or style_guidance.get('detail', 0.0)
+            realism_weight = style_guidance.get('realistic') or style_guidance.get('photorealistic', 0.0)
+
+            base_guidance = 7.5 + 0.5 * realism_weight + 0.4 * detail_weight
+            real_kwargs.setdefault('guidance_scale', round(base_guidance, 2))
+
+            if detail_weight and detail_weight > 0.8:
+                real_kwargs.setdefault('num_inference_steps', 32)
+
+        return real_kwargs
+
+    @staticmethod
+    def _map_style_to_enhancement(style: str) -> str:
+        mapping = {
+            'stable-diffusion-v1-5': 'enhance',
+            'stable-diffusion-2-1': 'enhance',
+            'dreamlike-diffusion': 'artistic',
+            'analog-diffusion': 'enhance',
+        }
+        return mapping.get(style, 'enhance')
     
     def generate_image_from_encoded_params(self, prompt: str, **kwargs) -> Image.Image:
         """Enhanced quantum generation with style guidance"""

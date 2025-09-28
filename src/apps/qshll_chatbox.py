@@ -10,6 +10,7 @@ QuantoniumOS • Chatbox (Futura Minimal)
 """
 
 import os, sys, json, glob, time, datetime, re
+from pathlib import Path
 from typing import Optional, Dict, Any, List
 
 from PyQt5.QtCore import Qt, QTimer, QSize, QPoint, QEvent
@@ -21,6 +22,14 @@ from PyQt5.QtWidgets import (
 )
 
 # Import our Essential Quantum AI system components
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+DEV_TOOLS_PATH = PROJECT_ROOT / "dev" / "tools"
+if str(DEV_TOOLS_PATH) not in sys.path:
+    sys.path.insert(0, str(DEV_TOOLS_PATH))
+
 # Import compressed model router for HuggingFace models
 try:
     from compressed_model_router import CompressedModelRouter
@@ -31,18 +40,6 @@ except ImportError as e:
     print(f"⚠️ Compressed Model Router not available: {e}")
 
 try:
-    # Add project root to path
-    import sys
-    import os
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
-    
-    # Add dev/tools to path for Essential Quantum AI
-    dev_tools_path = os.path.join(project_root, 'dev', 'tools')
-    if dev_tools_path not in sys.path:
-        sys.path.insert(0, dev_tools_path)
-
     # Try the new Full AI System first
     try:
         from quantonium_full_ai import QuantoniumOSFullAI
@@ -51,7 +48,7 @@ try:
     except ImportError:
         FULL_AI_AVAILABLE = False
         print("⚠️ Full AI System not available, using Essential AI")
-    
+
     from essential_quantum_ai import EssentialQuantumAI
     from hf_guided_quantum_generator import HFGuidedQuantumGenerator
     ESSENTIAL_AI_AVAILABLE = True
@@ -871,6 +868,23 @@ class Chatbox(QMainWindow):
         
         prompt_lower = prompt.lower()
         return any(keyword in prompt_lower for keyword in image_keywords)
+
+    def _active_image_backend_label(self) -> str:
+        """Determine which image backend is currently active for display."""
+        try:
+            if hasattr(self, '_hf_guided_generator') and getattr(self._hf_guided_generator, 'generator_mode', '') == 'stable_diffusion':
+                return "Stable Diffusion"
+            if hasattr(self, '_essential_ai'):
+                status = self._essential_ai.get_status()
+                image_info = status.get('image_generation', {})
+                generator_type = image_info.get('generator_type')
+                if generator_type == 'stable_diffusion':
+                    return "Stable Diffusion"
+                if image_info.get('quantum_encoding'):
+                    return "Quantum Encoded"
+        except Exception:
+            pass
+        return "Image"
     
     def _handle_image_generation_request(self, prompt: str) -> tuple[str, float]:
         """Handle general image generation requests using Essential AI"""
@@ -900,7 +914,8 @@ class Chatbox(QMainWindow):
                     response_text = str(text_response)
                 
                 # Combined response
-                response = f"🎨 {response_text}\n\n🖼️ Generated quantum image: {image_path}"
+                backend_label = self._active_image_backend_label()
+                response = f"🎨 {response_text}\n\n🖼️ Generated {backend_label} image: {image_path}"
                 
                 return response, 0.95
             else:
@@ -976,7 +991,8 @@ class Chatbox(QMainWindow):
                 response_text = str(text_response)
             
             # Combined response
-            response = f"🎨 {response_text}\n\n🖼️ Generated {style}-style image: {image_path}"
+            backend_label = self._active_image_backend_label()
+            response = f"🎨 {response_text}\n\n🖼️ Generated {backend_label} {style}-style image: {image_path}"
             
             return response, 0.95
             
@@ -1399,48 +1415,51 @@ Examples:
 
     def process_image_request(self, prompt: str):
         """Process the image generation request with content safety filtering"""
+        active_warnings: List[str] = []
+        request_prompt = prompt
+
         try:
-            # Content safety filtering
             if self._content_filter:
                 allowed, filtered_prompt, warnings = self._content_filter.filter_image_prompt(prompt)
-                
+
                 if not allowed:
                     self.add_bubble(f"🎨 Request: {prompt}", True)
-                    self.add_bubble(f"🛡️ Content Safety: Image generation blocked. {warnings[0] if warnings else 'Content not appropriate.'}", False)
+                    self.add_bubble(
+                        f"🛡️ Content Safety: Image generation blocked. {warnings[0] if warnings else 'Content not appropriate.'}",
+                        False,
+                    )
                     self.statusBar().showMessage("Image generation blocked by content filter", 3000)
                     return
-                
-                if warnings:
-                    self.add_bubble(f"🎨 Generate: {prompt}", True)
-                    self.add_bubble(f"🛡️ Content Advisory: {', '.join(warnings)}", False)
-                
-                # Use filtered prompt
-                prompt = filtered_prompt
-            
-            # Add user's image request to chat
-            self.add_bubble(f"🎨 Generate: {prompt}", True)
-            
-            # Generate image using existing methods
-            if self._is_hf_style_image_request(f"generate image: {prompt}"):
-                response, confidence = self._handle_hf_style_image_request(f"generate image: {prompt}")
-            else:
-                response, confidence = self._handle_image_generation_request(f"generate image: {prompt}")
-            
-            # Filter the response text as well
+
+                if filtered_prompt:
+                    request_prompt = filtered_prompt
+                active_warnings = warnings or []
+
+            # Try the high-fidelity HF-style request first, then fall back
+            try:
+                response, confidence = self._handle_hf_style_image_request(f"generate image: {request_prompt}")
+            except Exception:
+                response, confidence = self._handle_image_generation_request(f"generate image: {request_prompt}")
+
             if self._content_filter:
                 response_allowed, filtered_response, response_warnings = self._content_filter.filter_text_response(response)
                 if not response_allowed:
                     response = filtered_response
                 if response_warnings:
-                    response += f"\n\n🛡️ Content Advisory: {', '.join(response_warnings)}"
-            
-            # Add AI response to chat
+                    active_warnings = (active_warnings or []) + response_warnings
+
             self.add_bubble(response, False)
-            
-            # Update status
-            filter_status = " (content filtered)" if self._content_filter and warnings else ""
-            self.statusBar().showMessage(f"Image generated with {confidence:.1%} confidence{filter_status}", 3000)
-            
+
+            filter_status = ""
+            if active_warnings:
+                filter_status = " (content filtered)"
+                response += f"\n\n🛡️ Content Advisory: {', '.join(active_warnings)}"
+
+            self.statusBar().showMessage(
+                f"Image generated with {confidence:.1%} confidence{filter_status}",
+                3000,
+            )
+
         except Exception as e:
             error_msg = f"Image generation error: {str(e)}"
             self.add_bubble(f"❌ {error_msg}", False)
