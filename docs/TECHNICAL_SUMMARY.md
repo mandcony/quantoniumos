@@ -1,143 +1,83 @@
-# QuantoniumOS Technical Summary
+# QuantoniumOS Technical Summary (Validated September 2025)
 
-### Scope & Evidence
-- Unitarity/δF: tested to machine precision; see results/*.json.
-- Linear behavior refers to the symbolic compression routine, not the general RFT transform (O(N²)).
-- Million-qubit & vertex claims: restricted state class S.
-- Cryptography: empirical avalanche/DP/LP; no IND-CPA/CCA reductions.
-- Hardware: CPU=<model>, RAM=<GB>, OS=<version>, BLAS=<lib>, Compiler='gcc -O3 -march=native', Threads=1.
-- Commit: f91637d.
+This document captures the current, evidence-based status of QuantoniumOS. Claims from earlier revisions that are not backed by a fresh test run are removed or explicitly marked as *unverified*.
 
-## What This System Actually Is
+## Verified components
 
-QuantoniumOS is a working implementation that demonstrates symbolic quantum computing using vertex-based state representation. Instead of exponentially scaling quantum simulation (2^n), it uses graph vertices and a custom Resonance Fourier Transform (RFT) to demonstrate measured near-linear scaling (O(n)) under test conditions (artifact: results/SYMBOLIC_COMPRESSION_O_N_FINAL_TEST.json).
+| Area | Module(s) | Validation | Outcome |
+| --- | --- | --- | --- |
+| Tensor codec | `src/core/rft_vertex_codec.py` | `pytest tests/tests/test_rft_vertex_codec.py` | Lossless round-trips succeed for float/int/bool tensors; lossy mode respects the ≤0.2 max-error guardrail; checksum fallback works as designed. |
+| Compressed model routing | `src/apps/compressed_model_router.py`, `src/core/rft_hybrid_codec.py` | `pytest tests/apps/test_compressed_model_router.py` | Discovers decoded/encoded manifests, instantiates stub HuggingFace models, and rebuilds tensors produced by the hybrid codec. |
 
-## Core Implementation
+These tests ran on Python 3.12.1 inside the project’s dev container (Ubuntu 24.04). Warnings during the codecs run indicate automatic fallbacks to raw payloads when ANS quantization thresholds are too aggressive—this is expected behaviour and is covered by assertions.
 
-### 1. RFT Engine (`src/assembly/kernel/rft_kernel.c`)
+## Experimental subsystems (not revalidated)
 
-**What this is**: An RFT-based quantum state compression technique: a unitary transform (U†U=I) that enables sparse coefficient retention (top-k) with controllable fidelity.
+The repository contains broader research code that was **not** executed in this pass. Use it with caution and re-document your own findings:
 
-**What this isn't**: Not a general-purpose stream/file compressor. Effectiveness depends on state structure.
+- **Vertex/entanglement engine** (`src/engine/`), including Bell-test tooling under `tests/proofs/`, requires QuTiP and additional numerical checks. All claims of Bell inequality violations or Schmidt-rank guarantees remain unverified here.
+- **Large-scale benchmarks** stored in `results/` (e.g., “million-vertex” or “BULLETPROOF” datasets) reflect historical runs. Re-run the scripts in `tests/analysis/` or `tests/tests/` before citing them.
+- **Cryptographic suite** (`src/core/enhanced_rft_crypto_v2.py`, `tests/crypto/`) was not executed. Treat avalanche/DP/LP metrics as prior results until reproduced.
+- **Assembly kernels** under `src/assembly/` were not rebuilt; all tests used the pure-Python fallback logic.
 
-**Measured results (this repo)**: 15×–781× on synthetic benches with near-perfect reconstruction; ~30k× file-size reduction for the Phi-3 Mini stored artifact. See results/SYMBOLIC_COMPRESSION_O_N_FINAL_TEST.json and results/rft_compression_curve_*.json.
+## Architectural snapshot
 
-**Implementation note**: Artifacts indicate C/ASM vs Python path.
+```
+src/
+├── apps/                # PyQt5 apps, compression utilities, model router
+├── assembly/            # Optional AVX/SIMD kernels + bindings (off by default)
+├── core/                # RFT codecs, hybrid codec, math helpers, crypto
+├── engine/              # Experimental vertex/entanglement implementations
+└── frontend/            # Desktop shell and widgets
+```
 
-**Key features**:
-- C implementation with SIMD optimization (AVX support) (artifact: results/benchmark_results.json)
-- Python bindings for application integration  
-- Machine precision unitarity (errors ~1e-15)
-- Golden ratio (φ = 1.618...) based construction
+Supporting directories `ai/`, `encoded_models/`, and `decoded_models/` contain the example model assets documented in `FINAL_AI_MODEL_INVENTORY.md`. Historical mentions of additional GPT-Neo or Phi-3 archives do not correspond to files in this snapshot.
 
-**Validation**: Passes unitarity tests, energy conservation, and shows mathematical distinction from DFT.
+### Current model & codec snapshot
 
-### 2. Quantum Simulator (`src/apps/quantum_simulator.py`)
-**What it does**: Simulates quantum algorithms using vertex encoding instead of binary qubits.
+| Asset | Location | Verification | Note |
+| --- | --- | --- | --- |
+| GPT‑OSS quantum sample | `ai/models/quantum/quantonium_120b_quantum_states.json` | `python - <<'PY'` ... `json.load(...)` → 4 096 states, metadata claims 120 B original / 351.9 M effective parameters. | 2.3 MB symbolic JSON generated by `tools/generate_gpt_oss_quantum_sample.py`. |
+| Tiny GPT‑2 RFT bundle | `encoded_models/tiny_gpt2_lossless/` | Manifest metrics show ≈2.9 MB original → ≈29 MB encoded, lossless. | 33 tensors + manifest for `sshleifer/tiny-gpt2`. |
+| Tiny GPT‑2 decoded weights | `decoded_models/tiny_gpt2_lossless/state_dict.pt` | `torch.load(...); sum(t.numel())` → 2 300 382 parameters. | PyTorch checkpoint reconstructed from the encoded bundle. |
 
-**Applicability Scope**:
-- **Works best**: Coherent/structured quantum states (sparse in RFT basis)
-- **Not intended for**: Arbitrary noise / generic files
-- **Compression type**: RFT-based quantum state compression, not general-purpose codec
+The orphaned DistilGPT‑2 chunk that previously lived under `encoded_models/distilgpt2_lossless/` was deleted during this review to avoid shipping unverifiable data. Regenerate the bundle from the original weights if you require that checkpoint.
 
-**Key features**:
-- Supports 1000+ symbolic qubits vs ~50 qubit classical limit **[MEASURED]** (artifact: results/VERTEX_EDGE_SCALING_RESULTS.json)
-- Implements Grover's search, QFT, Shor's algorithm on vertex states
-- Uses graph vertices instead of binary qubit states
-- RFT compression for large state spaces
+## How to reproduce the verified results
 
-**How it works**: Quantum state |ψ⟩ = Σᵢ αᵢ|vᵢ⟩ where |vᵢ⟩ are vertex states on a graph rather than |0⟩,|1⟩ qubit states.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pytest tests/tests/test_rft_vertex_codec.py
+pytest tests/apps/test_compressed_model_router.py
+```
 
-### 3. Cryptographic System (`src/core/enhanced_rft_crypto_v2.py`)
-**What it does**: 64-round (previously 48) Feistel network using RFT-derived key schedules **[PROVEN]**.
+Expected runtime is under 15 seconds on a commodity CPU. Both modules should report 100% pass with runtime warnings noted above.
 
-**Key features**:
-- AES S-box and MixColumns-style operations
-- RFT-based key derivation with domain separation
-- Authenticated encryption with phase/amplitude modulation
-- Avalanche testing shows >50% output change for 1-bit input change
+## Guidance for further validation
 
-### 4. Desktop Environment (`src/frontend/quantonium_desktop.py`)
-**What it does**: PyQt5 desktop interface with integrated applications.
+- **Desktop shell**: Launch `python quantonium_boot.py` after installing PyQt5 to confirm UI wiring. Document any issues in `docs/`.
+- **Entanglement experiments**: Install QuTiP, then run `python tests/proofs/test_entanglement_protocols.py` or its helper functions. Update this file with the success rate and hardware specs if you reproduce Bell inequality violations.
+- **Benchmark scripts**: The analytics scripts in `tests/analysis/` and `tests/tests/` include CLI entry points. Run them selectively, capture logs in `results/`, and amend both this summary and the README with fresh measurements.
+- **Cryptography**: Execute `pytest tests/crypto` (may require additional dependencies) to check avalanche/key-schedule behaviour; cite metrics and sample sizes explicitly.
+- **Native diagnostics**: Build the kernels with `make asan` in `src/assembly/` when you need AddressSanitizer coverage before rerunning the hybrid/quantum pytest modules.
 
-**Key features**:
-- Golden ratio proportioned design
-- Single Q logo launcher for all applications
-- Apps run in same process rather than separate windows
-- 7 integrated applications (Q-Notes, Q-Vault, Simulator, etc.)
+## Known gaps and caveats
 
-## Applications
+- Only the modules documented under **Verified components** have recent pytest evidence. Any other subsystem should be treated as unverified until you capture fresh test output or analytical proofs.
+- Symbolic “qubit” counts are derived from graph vertex encodings—do not equate them with physical qubits.
+- Performance claims depend heavily on data sparsity; worst-case inputs revert to raw storage formats and lose compression benefits.
+- Optional assemblies are wrapper-dependent; without compilation, performance matches pure Python.
+- Documentation that still references “production”, “genuine entanglement”, or similar terminology should be read as aspirational until re-tested.
 
-### Working Apps
-1. **Quantum Simulator**: Vertex-based quantum algorithm simulation
-2. **Q-Notes**: Markdown editor with autosave and search  
-3. **Q-Vault**: AES-256 encrypted storage with master password
-4. **Q-Chat**: AI assistant interface
-5. **System Monitor**: Resource monitoring and performance tracking
-6. **Quantum Crypto**: QKD protocols and encryption tools
-7. **RFT Validator**: Mathematical validation of core algorithms
+## Next documentation checkpoint
 
-## Technical Approach
+When new validations are completed, include:
 
-### Vertex Encoding
-Standard quantum simulation requires 2^n complex amplitudes for n qubits. This system uses graph vertices as basis states, measured to scale near-linearly on test hardware (artifact: results/QUANTUM_SCALING_BENCHMARK.json):
-- Standard: |ψ⟩ = Σᵢ αᵢ|i⟩ where i ∈ {0,1}^n (exponential)
-- Vertex: |ψ⟩ = Σᵢ αᵢ|vᵢ⟩ where vᵢ are graph vertices (linear)
+1. Command(s) executed and commit hash.
+2. Hardware/environment summary.
+3. Raw metrics or artefact paths.
+4. Updates to both this summary and the top-level README.
 
-### RFT Transform
-Uses golden ratio parameterization to construct unitary matrices:
-- Phase sequence: φₖ = {k/φ} mod 1
-- Circulant matrix construction with eigendecomposition
-- Maintains unitarity at machine precision
-
-### Performance Results
-- **Scale**: 1000+ vertices vs 50 qubit classical limit **[MEASURED]** (artifact: results/VERTEX_EDGE_SCALING_RESULTS.json)
-- **Memory**: Measured near-linear O(n) vs exponential O(2^n) (artifact: results/complexity_sweep.json)
-- **Precision**: Machine-level accuracy (~1e-15 errors)
-- **Algorithms**: Quantum algorithms run on vertex encoding
-
-## Validation Status
-
-### Mathematical Validation
-- Unitarity: ‖Q†Q - I‖ ≈ 1.86e-15
-- Energy conservation via Plancherel theorem
-- Transform properties distinct from DFT
-- Linear scaling complexity verified
-
-### Cryptographic Validation  
-- Avalanche effect >50% for all test cases
-- Key sensitivity across 48 rounds
-- Performance competitive with standard ciphers
-- Security analysis for classical and quantum attacks
-
-### System Integration
-- All applications launch and function correctly
-- Desktop environment provides unified interface
-- C kernels integrate with Python applications
-- Fallback to Python implementation when C unavailable
-
-## Current Limitations
-
-1. **Theoretical**: Vertex encoding is a heuristic approximation, not exact quantum simulation
-2. **Performance**: C kernels optional; falls back to slower Python implementation  
-3. **Scale**: 1000+ vertices tested but not validated beyond current hardware limits
-4. **Applications**: Proof-of-concept level rather than production quantum applications
-
-## What Makes This Different
-
-1. **Near-Linear Scaling Measurements**: O(n) behavior observed vs O(2^n) exponential scaling of standard quantum simulation **[MEASURED]** (artifact: results/scaling_comparison.json)
-2. **Practical Scale**: Runs 1000+ qubits on standard hardware **[MEASURED]** (artifact: results/BULLETPROOF_BENCHMARK_RESULTS.json)
-3. **Integrated Environment**: Desktop OS with quantum applications
-4. **Vertex Approach**: Graph-based state representation vs binary qubits
-5. **Mathematical Foundation**: Custom RFT transform with proven properties
-
-## Use Cases
-
-This system demonstrates:
-- Feasibility of large-scale symbolic quantum simulation
-- Integration of quantum concepts in practical software
-- Mathematical foundations for alternative quantum computing approaches
-- Performance optimization techniques for quantum algorithms
-- Desktop environment design for scientific computing
-
-The system serves as a research platform for symbolic quantum computing rather than a replacement for physical quantum devices or exact quantum simulation.
+Keeping these records current ensures that statements about QuantoniumOS remain tied to reproducible evidence.

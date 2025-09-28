@@ -18,14 +18,24 @@ class RFTComplex(Structure):
                 ("imag", c_double)]
 
 class RFTEngine(Structure):
-    """RFT engine structure matching the C implementation."""
+    """RFT engine structure matching the C implementation.
+
+    IMPORTANT: Keep this layout exactly in sync with ``rft_engine_t`` in
+    ``src/assembly/include/rft_kernel.h``. Any field additions or reordering on
+    the native side must be reflected here immediately; otherwise ctypes will
+    misalign the struct, leading to heap corruption (we previously observed a
+    GC crash when the topological fields were omitted).
+    """
     _fields_ = [("size", c_size_t),
                 ("basis", POINTER(RFTComplex)),
                 ("eigenvalues", POINTER(c_double)),
                 ("initialized", c_bool),
                 ("flags", c_uint32),
                 ("qubit_count", c_size_t),
-                ("quantum_context", c_void_p)]
+                ("quantum_context", c_void_p),
+                ("topological_qubits", c_void_p),
+                ("num_topological_qubits", c_size_t),
+                ("topological_mode_enabled", c_bool)]
 
 # RFT flags
 RFT_FLAG_DEFAULT = 0x00000000
