@@ -83,6 +83,11 @@ debug: $(TARGET)
 profile: CFLAGS += -pg
 profile: $(TARGET)
 
+# AddressSanitizer build
+asan: CFLAGS += -O1 -g -fsanitize=address -fno-omit-frame-pointer
+asan: LDFLAGS += -fsanitize=address
+asan: $(TARGET) $(TARGET_STATIC)
+
 # Documentation
 docs:
 	doxygen Doxyfile

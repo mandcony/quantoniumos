@@ -1,4 +1,71 @@
 # QuantoniumOS Development Manual
+_Last updated: 28 September 2025_
+
+This handbook captures the reproducible development workflow for the current QuantoniumOS snapshot. Legacy research notes and speculative performance claims are preserved in a clearly labelled appendix further below. Always prioritise the steps in this section when extending the platform or reporting new results.
+
+## Current development workflow
+
+### Environment setup
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+- Optional desktop testing requires PyQt5: `pip install PyQt5`.
+- Keep the virtual environment active while running build or validation commands.
+
+### Native build options
+
+- Release build: `make -C src/assembly all`
+- AddressSanitizer build: `make -C src/assembly asan`
+
+Both targets were exercised on 28 Sep 2025 (GCC 13.2, Ubuntu 24.04) and currently report "Nothing to be done" when up to date. Re-run the appropriate target after any change to the C sources or headers to avoid ABI drift with the ctypes bridge defined in `src/assembly/python_bindings/unitary_rft.py`.
+
+### Validation checklist
+
+Execute the following commands after fresh installs, dependency upgrades, or native changes. The outcomes were last recorded on 28 Sep 2025 and are summarised in `docs/TECHNICAL_SUMMARY.md` under “Benchmark & proof run log”.
+
+| Command | Purpose | Expected outcome (latest) |
+| --- | --- | --- |
+| `pytest tests/tests/test_rft_vertex_codec.py` | Lossless/lossy tensor codec regression | 8 passed in ≈ 1.9 s with expected ANS fallback warnings. |
+| `pytest tests/apps/test_compressed_model_router.py` | Hybrid codec routing & manifest discovery | 3 passed in ≈ 4.4 s. |
+| `pytest tests/proofs/test_entangled_assembly.py` | Entangled vertex proofs using compiled kernels | 20 passed in ≈ 1.4 s, warning about low QuTiP fidelity (≈ 0.468). |
+| `python direct_bell_test.py` | CHSH > 2.7 demonstration via native kernels | CHSH = 2.828427, fidelity = 1.000000. |
+| `QT_QPA_PLATFORM=offscreen python quantonium_boot.py` | Desktop boot smoke test | Console fallback when PyQt5 missing; validation checklist completes. |
+
+If the AddressSanitizer build is desired, run the pytest modules above after invoking `make -C src/assembly asan`; expect additional runtime overhead but no segmentation faults.
+
+### Documenting new results
+
+1. Run the validation checklist and capture outputs (including warnings).
+2. Update:
+    - `docs/TECHNICAL_SUMMARY.md` benchmark table.
+    - `README.md` verified functionality section.
+    - `FINAL_AI_MODEL_INVENTORY.md` and `ai/models/README.md` if assets changed.
+    - This manual, noting the new run date.
+3. Commit logs, hardware details, and command transcripts to `docs/reports/` or the project wiki as appropriate.
+
+### Asset inventory quick reference
+
+- Primary source: `FINAL_AI_MODEL_INVENTORY.md` (lossless tiny GPT‑2 bundle, quantum state JSON, tokenizer files).
+- Detailed directory breakdown: `ai/models/README.md`.
+- Remove or regenerate assets that cannot be validated in place (e.g., orphaned chunks) before publishing new snapshots.
+
+### Troubleshooting highlights
+
+- **Missing PyQt5**: The launcher drops to console mode; install PyQt5 if GUI testing is required.
+- **ctypes alignment issues**: Ensure `RFTEngine` matches `rft_engine_t`. A mismatch previously triggered segmentation faults; the current structure is verified.
+- **ANS fallback warnings**: Lossy codec tests emit RuntimeWarnings when quantization falls back to raw payloads—assertions already accept this behaviour.
+- **QuTiP fidelity warning**: `test_entangled_assembly` reports a low-fidelity case (≈ 0.468). Track improvements if you adjust the engine.
+
+---
+
+## Historical appendix (legacy, unverified)
+
+> The material below is retained for archival purposes. It predates the September 2025 validation effort and contains theoretical claims that are not currently reproduced. Treat it as background reading only.
+
 ## Complete Technical Implementation Guide with Mathematical Proofs
 ### Updated September 2025
 

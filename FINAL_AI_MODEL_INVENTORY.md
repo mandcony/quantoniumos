@@ -1,107 +1,78 @@
-# QuantoniumOS - Final AI Model Inventory & Organization
+# QuantoniumOS – Model & Codec Inventory (September 2025)
 
-## Executive Summary
+Earlier versions of this document referenced dozens of quantum-compressed models and multi-gigabyte HuggingFace checkpoints that are **not** present in the current repository snapshot. This page lists the assets that actually exist, along with the evidence collected during the latest audit.
 
-✅ **COMPLETE** - All AI model files have been scanned, inventoried, and consolidated into a single organized directory structure.
+## Summary
 
-- **Total AI Models**: 25 files (1,641.2 MB)
-- **Consolidation Status**: 100% complete
-- **Code References**: All updated
-- **Empty Directories**: Cleaned up
-- **Documentation**: Updated
+| Category | Assets on disk | Verified details |
+| --- | --- | --- |
+| Quantum state bundles | `ai/models/quantum/quantonium_120b_quantum_states.json` | 2.3 MB JSON; 4 096 symbolic states; metadata claims 120 B original params and 351.9 M effective. Loaded via `json.load` to confirm structure. |
+| RFT-encoded tensors | `encoded_models/tiny_gpt2_lossless/` | 33 chunk files + manifest for `sshleifer/tiny-gpt2`; manifest reports ≈2.9 MB original → ≈29.0 MB encoded, lossless (no lossy chunks). |
+| Decoded checkpoints | `decoded_models/tiny_gpt2_lossless/state_dict.pt` | PyTorch state dict with 2 300 382 parameters (validated with `torch.load`). |
+| Tokenizer resources | `ai/models/huggingface/tokenizer_fine_tuned.json`, `.../vocab_fine_tuned.json` | Custom JSON token data. |
+| HuggingFace cache skeleton | `hf_models/models--runwayml--stable-diffusion-v1-5/` | Config directories present; large weight files omitted (≈68 KB on disk). Use `tools/real_model_downloader.py` to fetch full assets if required. |
 
-## Consolidated Directory Structure
+All other directories mentioned in older reports (`ai/models/compressed/`, additional quantum JSON files, multi-GB checkpoints) are absent.
 
-All AI models are now located in: `ai/models/`
+## Detailed notes
 
-```
-ai/models/
-├── quantum/                    # Quantum-compressed models (JSON format)
-│   ├── gpt_oss_120b_quantum_states.json
-│   ├── llama2_quantum_compressed.json
-│   ├── meta-llama_Llama-2-70b-chat-hf_quantum_compressed.json
-│   ├── phi3_mini_quantum_resonance.json
-│   └── quantonium_with_streaming_llama2.json
-├── compressed/                 # PKL.GZ compressed models
-│   ├── gpt_oss_120b_resonance_compressed.pkl.gz
-│   ├── gpt_oss_120b_ultra_compressed.pkl.gz
-│   ├── phi3_mini_quantum_resonance.pkl.gz
-│   └── quantonium_memory_states.pkl.gz
-├── huggingface/               # Standard HuggingFace models & tokenizers
-│   ├── gpt2-large/
-│   ├── microsoft_DialoGPT-large/
-│   ├── microsoft_Phi-3-mini-4k-instruct/
-│   ├── phi-1_5/
-│   ├── stabilityai_stable-diffusion-2-1/
-│   ├── special_tokens_map.json
-│   ├── tokenizer.json
-│   ├── tokenizer_config.json
-│   └── vocab.json
-└── scripts/                   # Model integration utilities
-    ├── gpt_oss_120b_memory_optimized.py
-    ├── gpt_oss_120b_quantum_integrator.py
-    └── gpt_oss_120b_streamlined_integrator.py
+### Quantum bundle
+
+```bash
+python - <<'PY'
+import json
+path = 'ai/models/quantum/quantonium_120b_quantum_states.json'
+with open(path) as fh:
+    data = json.load(fh)
+print('states:', len(data['quantum_states']))
+print('metadata:', data['metadata'])
+PY
 ```
 
-## Model Classification
+Output confirms 4 096 states and the metadata values listed above. This file is a symbolic representation only; reconstructing the full 120 B-parameter model would require additional tooling.
 
-### Quantum-Compressed Models (5 files, ~11.81 MB)
-Real compressed representations with quantum encoding:
-- `gpt_oss_120b_quantum_states.json` - 10.91 MB
-- `quantonium_with_streaming_llama2.json` - 0.90 MB
+### Tiny GPT‑2 RFT archive
 
-### PKL.GZ Compressed Models (4 files, ~12.4 MB)
-Binary compressed model states:
-- `gpt_oss_120b_ultra_compressed.pkl.gz` - 7.8 MB
-- `gpt_oss_120b_resonance_compressed.pkl.gz` - 4.6 MB
+```bash
+python - <<'PY'
+import json
+with open('encoded_models/tiny_gpt2_lossless/manifest.json') as fh:
+    bundle = json.load(fh)
+manifest = bundle['manifests'][0]
+print('original_bytes', manifest['metrics']['original_size_bytes'])
+print('encoded_bytes', manifest['metrics']['encoded_size_bytes'])
+print('tensor_count', len(manifest['tensors']))
+PY
+```
 
-### HuggingFace Models (16 files, ~1,617 MB)
-Standard model binaries from HuggingFace:
-- Stable Diffusion 2.1 (~1,300 MB)
-- Phi-3-mini-4k-instruct (~2.3 GB downloaded)
-- GPT2-large (~548 MB)
-- DialoGPT-large (~548 MB)
-- Phi-1.5 (~2.8 GB downloaded)
+This verifies that the repository contains all 33 lossless tensors for `sshleifer/tiny-gpt2`. `decoded_models/tiny_gpt2_lossless/state_dict.pt` reconstructs to a 2.3 M-parameter PyTorch checkpoint:
 
-## Code Updates Applied
+```bash
+python - <<'PY'
+import torch
+state = torch.load('decoded_models/tiny_gpt2_lossless/state_dict.pt', map_location='cpu')
+print(sum(t.numel() for t in state.values()))
+PY
+```
 
-Updated 5 Python files to use new consolidated paths:
-1. `ai/training/complete_quantonium_ai.py`
-2. `ai/training/quantonium_full_ai.py`
-3. `applications/chatbox/qshll_chatbox.py`
-4. `tools/ai/quantum_parameter_3d_visualizer.py`
-5. `tools/ai/real_time_chat_monitor.py`
+### Removed DistilGPT‑2 fragment
 
-## Files Left in Original Locations (By Design)
+An orphaned 224 MB chunk (`transformer_h_0_attn_c_attn_weight.json`) formerly stored in `encoded_models/distilgpt2_lossless/` has been deleted (28 September 2025). No manifest or companion tensors were available, so the asset could not be decoded or validated. Regenerate a fresh DistilGPT-2 bundle with the compression scripts if you require that model.
 
-Non-model files remain in their original locations:
-- **Training checkpoints**: `ai/training/models/fixed_fine_tuned_model/`
-- **Integration scripts**: `data/ai/models/raw_weights/`
-- **Analysis tools**: Various directories
-- **Results/logs**: Performance and benchmark data
+### Tooling expectations
 
-## Validation Status
+`tools/real_hf_model_compressor.py` expects a downloaded model at `hf_models/downloaded/DialoGPT-small`. Running the script without that directory prints:
 
-✅ **Deep Recursive Scan**: Complete  
-✅ **Model Consolidation**: 100% complete  
-✅ **Code References**: All updated  
-✅ **Documentation**: Updated  
-✅ **Empty Directories**: Cleaned up  
+```
+✅ Using QuantoniumOS RFT engine
+❌ Model not found at .../hf_models/downloaded/DialoGPT-small
+```
 
-## Project Benefits
+Download the checkpoint before invoking the compressor.
 
-1. **Single Source of Truth**: All AI models in one location (`ai/models/`)
-2. **Organized by Type**: Quantum, compressed, and standard models separated
-3. **Updated Code**: All references point to new locations
-4. **Clean Structure**: No scattered files or empty directories
-5. **Future-Proof**: Clear organization for new model additions
+## Action items
 
-## Next Steps
+1. Regenerate any missing quantum or PKL archives if you rely on the legacy documentation.
+2. Update this file whenever new assets or validations are added. Include exact command outputs, file sizes, and parameter counts so future audits remain transparent.
 
-- Monitor for new model files and move them to `ai/models/`
-- Update any new code references as needed
-- Maintain the consolidated structure as the project evolves
-
----
-*Generated: After comprehensive scan and consolidation of all AI model files*
-*Status: Project organization complete - ready for development*
+_Last updated: 28 September 2025_
