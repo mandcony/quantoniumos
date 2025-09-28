@@ -10,6 +10,7 @@ This document captures the current, evidence-based status of QuantoniumOS. Claim
 | Compressed model routing | `src/apps/compressed_model_router.py`, `src/core/rft_hybrid_codec.py` | `pytest tests/apps/test_compressed_model_router.py` | Discovers decoded/encoded manifests, instantiates stub HuggingFace models, and rebuilds tensors produced by the hybrid codec. |
 | Entangled assembly harness | `tests/proofs/test_entangled_assembly.py`, `src/assembly/` | `make -C src/assembly all` followed by `pytest tests/proofs/test_entangled_assembly.py` | Native kernels now load without segmentation faults; entangled vertex pairs maintain fidelity error < 1e-9 using the ctypes bridge. |
 | Bell CHSH check | `direct_bell_test.py` | `make -C src/assembly all` then `python direct_bell_test.py` | Reports CHSH ≈ 2.828 with the compiled kernel; fallback path matches within 1e-7. |
+| Crypto validation harness | `src/core/enhanced_rft_crypto_v2.py`, `tests/crypto/scripts/fast_validation.py` | `PYTHONPATH=src python tests/crypto/scripts/fast_validation.py` (quick) plus `PYTHONPATH=src python src/core/enhanced_rft_crypto_v2.py --quick` | Quick-scale suite reports “CRYPTOGRAPHICALLY EXCELLENT” (3 000 samples; avalanche 0.501 ± 0.045; phase uniformity 0.84). CLI metrics confirm avalanche/key sensitivity targets, while throughput remains ≈ 0 MB/s pending native acceleration. |
 
 These tests ran on Python 3.12.1 inside the project’s dev container (Ubuntu 24.04). Native targets were compiled with GCC 13.2 using the repository Makefile. Warnings during the codec suites indicate automatic fallbacks to raw payloads when ANS quantization thresholds are too aggressive—this is expected behaviour and is covered by assertions. The segmentation fault encountered in earlier revisions no longer reproduces after aligning the `RFTEngine` ctypes structure with `rft_engine_t`.
 
@@ -21,6 +22,8 @@ These tests ran on Python 3.12.1 inside the project’s dev container (Ubuntu�
 | 2025‑09‑28 | Hybrid router validation | `pytest tests/apps/test_compressed_model_router.py` | ✅ 3 passed | Runtime ≈ 4.4 s; exercises manifest detection and tensor reconstruction. |
 | 2025‑09‑28 | Entangled assembly proofs | `pytest tests/proofs/test_entangled_assembly.py` | ✅ 20 passed, 1 warning | Runtime ≈ 1.4 s; warning reports low Bell fidelity ≈ 0.468 for the QuTiP comparison case. |
 | 2025‑09‑28 | Bell CHSH demonstration | `python direct_bell_test.py` | ✅ CHSH = 2.828427, fidelity = 1.000000 | Uses compiled kernel; fallback path agrees within 1e‑7; prints component amplitudes. |
+| 2025‑09‑28 | Crypto fast validation | `PYTHONPATH=src python tests/crypto/scripts/fast_validation.py` | ✅ “CRYPTOGRAPHICALLY EXCELLENT” summary | Quick scale (3 000 samples); differential/linear/avalanche rated EXCELLENT; phase uniformity 0.84 (GOOD); output stored at `fast_validation_quick_1759078231.json`; aggregate rate ≈ 17.7 samples/s. |
+| 2025‑09‑28 | Crypto CLI spot-check | `PYTHONPATH=src python src/core/enhanced_rft_crypto_v2.py --quick` | ⚠️ Pass with throughput shortfall | Avalanche 0.501 / key avalanche 0.486 / key sensitivity 0.531; throughput ≈ 0 MB/s triggers target failure; message avalanche target misses tightened bound. |
 | 2025‑09‑28 | Native build (release flags) | `make -C src/assembly all` | ✅ No rebuild required (already up to date) | Confirms compiled kernels available for ctypes bridge. |
 | 2025‑09‑28 | Native build (ASAN) | `make -C src/assembly asan` | ✅ No rebuild required (already up to date) | Reusable target for AddressSanitizer instrumentation. |
 | 2025‑09‑28 | Console launcher smoke test | `QT_QPA_PLATFORM=offscreen python quantonium_boot.py` | ⚠️ Console fallback (PyQt5 missing), validation suite completed | Dependency check lists Python libs, reports quick assembly test pass, and exposes console app list. |
@@ -31,7 +34,7 @@ The repository contains broader research code that was **not** executed in this 
 
 - **Extended entanglement protocols** (`src/engine/`, `tests/proofs/`) beyond the CHSH harness above depend on QuTiP and additional numerical checks. Claims of multi-party Bell violations or Schmidt-rank guarantees remain unverified.
 - **Large-scale benchmarks** stored in `results/` (e.g., “million-vertex” or “BULLETPROOF” datasets) reflect historical runs. Re-run the scripts in `tests/analysis/` or `tests/tests/` before citing them.
-- **Cryptographic suite** (`src/core/enhanced_rft_crypto_v2.py`, `tests/crypto/`) was not executed. Treat avalanche/DP/LP metrics as prior results until reproduced.
+- **Cryptographic suite** (`src/core/enhanced_rft_crypto_v2.py`, `tests/crypto/`) now passes the quick-scale validation harness, but the pure-Python reference implementation still reports near-zero throughput and narrowly misses the tightened message-avalanche bound. Treat the throughput target as unmet until a native path or optimisation is supplied.
 - **Assembly kernels** under `src/assembly/` expose additional SIMD paths. Only the default build (`make -C src/assembly all`) and AddressSanitizer (`make -C src/assembly asan`) variants were exercised; other optimisation profiles remain untested.
 
 ## Architectural snapshot
@@ -68,9 +71,11 @@ pytest tests/tests/test_rft_vertex_codec.py
 pytest tests/apps/test_compressed_model_router.py
 pytest tests/proofs/test_entangled_assembly.py
 python direct_bell_test.py
+PYTHONPATH=src python tests/crypto/scripts/fast_validation.py
+PYTHONPATH=src python src/core/enhanced_rft_crypto_v2.py --quick
 ```
 
-Expected runtime for the Python-only suites is under 15 seconds on a commodity CPU; building the native library adds ≈20 seconds on first compile. The entanglement pytest and Bell script report the fidelity bounds and CHSH score shown above.
+Expected runtime for the Python-only suites is under 15 seconds on a commodity CPU; building the native library adds ≈20 seconds on first compile. The entanglement pytest and Bell script report the fidelity bounds and CHSH score shown above. The crypto harness quick run takes ≈3 minutes in pure Python and presently reports throughput near zero pending native acceleration.
 
 ## Guidance for further validation
 

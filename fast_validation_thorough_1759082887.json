@@ -1,0 +1,71 @@
+{
+  "scale": "thorough",
+  "timestamp": "2025-09-28 17:19:21",
+  "parameters": {
+    "diff": 20000,
+    "linear": 20000,
+    "avalanche": 5000,
+    "phase": 2000
+  },
+  "differential": {
+    "samples": 20000,
+    "max_dp": 5e-05,
+    "max_count": 1,
+    "unique_outputs": 20000,
+    "uniformity_ratio": 1.7014118346046924e+34,
+    "elapsed": 1668.4933848381042,
+    "rate": 11.9868620287881,
+    "assessment": "EXCELLENT"
+  },
+  "linear": {
+    "samples": 20000,
+    "mean_correlation": 0.5075,
+    "bias": 0.007499999999999951,
+    "max_bias": 0.5,
+    "target_bias": 2.3283064365386963e-10,
+    "elapsed": 840.3185179233551,
+    "rate": 23.800498945834473,
+    "assessment": "EXCELLENT"
+  },
+  "avalanche": {
+    "samples": 5000,
+    "average_avalanche": 0.5007359375,
+    "std_avalanche": 0.04419757551215161,
+    "target_range": [
+      0.45,
+      0.55
+    ],
+    "in_target_range": "True",
+    "elapsed": 416.35489869117737,
+    "rate": 12.008985641138443,
+    "assessment": "EXCELLENT"
+  },
+  "phase_lock": {
+    "samples": 2000,
+    "phase_distribution": [
+      0.2475,
+      0.2565,
+      0.24,
+      0.256
+    ],
+    "uniformity_score": 0.96,
+    "max_deviation": 0.04,
+    "target_uniformity": 0.95,
+    "passes_uniformity": true,
+    "elapsed": 0.002020120620727539,
+    "assessment": "GOOD"
+  },
+  "summary": {
+    "total_elapsed": 2925.1693077087402,
+    "total_samples": 47000,
+    "overall_rate": 16.067446036761098,
+    "assessments": [
+      "EXCELLENT",
+      "EXCELLENT",
+      "EXCELLENT",
+      "GOOD"
+    ],
+    "overall_assessment": "CRYPTOGRAPHICALLY EXCELLENT",
+    "ready_for_production": true
+  }
+}

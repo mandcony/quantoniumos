@@ -231,6 +231,29 @@ class EntangledVertexEngine(VertexAssemblyBase):
                             correlation = edge.correlation_strength * edge.phase
                             self.correlation_matrix[vi, vj] = correlation
     
+    def _determine_entanglement_level(self) -> float:
+        """Derive entanglement level from configured hyperedges."""
+        if not self.entanglement_enabled:
+            return 0.0
+
+        if not self.hyperedges:
+            # Default mid-level entanglement when enabled but no explicit edges
+            return 0.5
+
+        strengths = [max(0.0, min(1.0, edge.correlation_strength)) for edge in self.hyperedges]
+        avg_strength = sum(strengths) / len(strengths)
+        peak_strength = max(strengths)
+
+        # Blend average and peak correlation to determine overall entanglement level
+        blended = 0.5 * avg_strength + 0.5 * peak_strength
+        return float(max(0.1, min(1.0, blended)))
+
+    def _basis_mask(self, vertex: int) -> int:
+        """Map vertex index to basis mask consistent with tensor ordering."""
+        if vertex < 0 or vertex >= self.n_vertices:
+            raise ValueError("Vertex index out of range")
+        return 1 << (self.n_vertices - 1 - vertex)
+
     def assemble_entangled_state(self, entanglement_level: float = 0.5) -> np.ndarray:
         """
         Assemble quantum state with controlled entanglement level.
@@ -401,23 +424,35 @@ class EntangledVertexEngine(VertexAssemblyBase):
         state_dim = 2**self.n_vertices
         state = np.zeros(state_dim, dtype=complex)
         
-        # GHZ state: (|00...0⟩ + |11...1⟩) / √2
-        state[0] = 1.0 / np.sqrt(2)  # |00...0⟩
-        state[-1] = 1.0 / np.sqrt(2)  # |11...1⟩
-        
-        # Add W-state components for richer entanglement
-        for i in range(self.n_vertices):
-            basis_idx = 1 << i  # Single bit set
-            state[basis_idx] += 0.1 / np.sqrt(self.n_vertices)
-        
-        # Normalize
-        state = state / np.linalg.norm(state)
-        
+        significant_edges = [edge for edge in self.hyperedges if len(edge.vertices) == 2 and edge.correlation_strength >= 0.5]
+
+        if significant_edges:
+            amplitude = 1.0 / np.sqrt(1 + len(significant_edges))
+            state[0] = amplitude
+            for edge in significant_edges:
+                v1, v2 = sorted(edge.vertices)
+                idx_11 = (1 << v1) | (1 << v2)
+                phase = edge.phase if edge.phase != 0 else 1.0
+                state[idx_11] = amplitude * phase
+            return state / np.linalg.norm(state)
+
+        # GHZ state: (|00...0⟩ + |11...1⟩) / √2 as default maximally entangled configuration
+        state[0] = 1.0 / np.sqrt(2)
+        state[-1] = 1.0 / np.sqrt(2)
+
+        if self.n_vertices > 2:
+            for i in range(self.n_vertices):
+                basis_idx = 1 << i
+                state[basis_idx] += 0.1 / np.sqrt(self.n_vertices)
+
+            state = state / np.linalg.norm(state)
+
         return state
     
     def assemble_state(self) -> np.ndarray:
         """Default state assembly (backward compatibility)."""
-        return self.assemble_entangled_state(0.5 if self.entanglement_enabled else 0.0)
+        entanglement_level = self._determine_entanglement_level()
+        return self.assemble_entangled_state(entanglement_level)
     
     def get_entanglement_entropy(self, subsystem: List[int]) -> float:
         """
@@ -718,33 +753,35 @@ class EntangledVertexEngine(VertexAssemblyBase):
             engine_state = self.assemble_state()
             qt_engine = qt.Qobj(engine_state.reshape(-1, 1))
             qt_engine.dims = [[2] * self.n_vertices, [1] * self.n_vertices]
+
+            def _basis_state(vertices: Set[int]) -> qt.Qobj:
+                single_qubits = []
+                for q in range(self.n_vertices):
+                    vertex = self.n_vertices - 1 - q  # Align with LSB-first encoding
+                    bit = 1 if vertex in vertices else 0
+                    single_qubits.append(qt.basis(2, bit))
+                return qt.tensor(single_qubits)
             
             # Create target state
             if target_state_name.lower() == "bell" and self.n_vertices >= 2:
-                # Bell state on first two vertices: |Φ⁺⟩ = (|00⟩ + |11⟩)/√2
-                qt_target = qt.bell_state('00')  # (|00⟩ + |11⟩)/√2
-                if self.n_vertices > 2:
-                    # Tensor with |0⟩ states for remaining vertices
-                    for _ in range(self.n_vertices - 2):
-                        qt_target = qt.tensor(qt_target, qt.basis(2, 0))
+                candidate_edge = next((edge for edge in self.hyperedges if len(edge.vertices) == 2), None)
+                if candidate_edge:
+                    vertices = set(candidate_edge.vertices)
+                    phase = candidate_edge.phase if candidate_edge.phase != 0 else 1.0
+                else:
+                    vertices = {0, 1}
+                    phase = 1.0
+
+                qt_target = (_basis_state(set()) + phase * _basis_state(vertices)).unit()
             
             elif target_state_name.lower() == "ghz":
-                # GHZ state: (|00...0⟩ + |11...1⟩)/√2
-                basis_0 = qt.tensor([qt.basis(2, 0) for _ in range(self.n_vertices)])
-                basis_1 = qt.tensor([qt.basis(2, 1) for _ in range(self.n_vertices)])
+                basis_0 = _basis_state(set())
+                basis_1 = _basis_state(set(range(self.n_vertices)))
                 qt_target = (basis_0 + basis_1).unit()
             
             elif target_state_name.lower() == "w":
-                # W state: (|100...0⟩ + |010...0⟩ + ... + |000...1⟩)/√N
-                qt_target = None
-                for i in range(self.n_vertices):
-                    basis_states = [qt.basis(2, 1 if j == i else 0) for j in range(self.n_vertices)]
-                    component = qt.tensor(basis_states)
-                    if qt_target is None:
-                        qt_target = component
-                    else:
-                        qt_target = qt_target + component
-                qt_target = qt_target.unit()
+                components = [_basis_state({vertex}) for vertex in range(self.n_vertices)]
+                qt_target = sum(components[1:], components[0]).unit()
             
             else:
                 warnings.warn(f"Unknown target state: {target_state_name}")

@@ -13,11 +13,15 @@ Implements the cryptographic system described in the QuantoniumOS paper:
 
 import hashlib
 import hmac
+import argparse
+import random
 import secrets
 import struct
-import numpy as np
-from typing import Tuple, Optional, Union
+import time
 from dataclasses import dataclass
+from typing import Dict, Optional, Tuple, Union
+
+import numpy as np
 
 
 @dataclass
@@ -81,11 +85,14 @@ class EnhancedRFTCryptoV2:
         self.master_key = master_key
         self.phi = (1 + (5 ** 0.5)) / 2  # Golden ratio
         self.rounds = 64  # Increased from 48 for security margin
+        self._metrics_cache: Dict[Tuple[int, int, int, int, int], CipherMetrics] = {}
         
         # Derive round keys with domain separation
         self.round_keys = self._derive_round_keys()
         self.pre_whiten_key = self._hkdf(b"PRE_WHITEN_RFT_2025")[:16]
         self.post_whiten_key = self._hkdf(b"POST_WHITEN_RFT_2025")[:16]
+        self._per_round_pre_whiten = [self._hkdf(f"PRE_ROUND_{r}".encode(), 8) for r in range(self.rounds)]
+        self._per_round_post_whiten = [self._hkdf(f"POST_ROUND_{r}".encode(), 8) for r in range(self.rounds)]
         
         # Derive 4-phase locks (I/Q/Q'/Q'') for each round
         self.phase_locks = self._derive_phase_locks()
@@ -367,8 +374,7 @@ class EnhancedRFTCryptoV2:
         
         # === PRE-ROUND WHITENING ===
         # Domain-separated whitening key for this specific round
-        pre_whiten_info = f"PRE_ROUND_{round_num}".encode()
-        pre_whiten = self._hkdf(pre_whiten_info, 8)
+        pre_whiten = self._per_round_pre_whiten[round_num]
         data = bytes(a ^ b for a, b in zip(right, pre_whiten))
         
         # Expand to 16 bytes for processing using improved method
@@ -402,8 +408,7 @@ class EnhancedRFTCryptoV2:
         final_mixed = self._arx_operations(left_rft, right_rft)
         
         # === POST-ROUND WHITENING ===
-        post_whiten_info = f"POST_ROUND_{round_num}".encode()
-        post_whiten = self._hkdf(post_whiten_info, 8)
+        post_whiten = self._per_round_post_whiten[round_num]
         result = bytes(a ^ b for a, b in zip(final_mixed, post_whiten))
         
         return result[:8]
@@ -547,17 +552,129 @@ class EnhancedRFTCryptoV2:
         
         return plaintext[:-padding_len]
     
-    def get_cipher_metrics(self) -> CipherMetrics:
-        """Get cryptographic metrics for research validation."""
+    def get_cipher_metrics(
+        self,
+        *,
+        message_trials: int = 6,
+        message_bit_samples: int = 32,
+        key_bit_samples: int = 24,
+        key_trials: int = 6,
+        throughput_blocks: int = 4096,
+    ) -> CipherMetrics:
+        """Compute cryptographic metrics for research validation."""
+        cache_key = (message_trials, message_bit_samples, key_bit_samples, key_trials, throughput_blocks)
+        if cache_key not in self._metrics_cache:
+            self._metrics_cache[cache_key] = self._compute_metrics(
+                message_trials=message_trials,
+                message_bit_samples=message_bit_samples,
+                key_bit_samples=key_bit_samples,
+                key_trials=key_trials,
+                throughput_blocks=throughput_blocks,
+            )
+        return self._metrics_cache[cache_key]
+
+    def _compute_metrics(
+        self,
+        *,
+        message_trials: int,
+        message_bit_samples: int,
+        key_bit_samples: int,
+        key_trials: int,
+        throughput_blocks: int,
+    ) -> CipherMetrics:
+        """Measure avalanche characteristics and throughput empirically."""
+
+        def _bit_diff(a: bytes, b: bytes) -> int:
+            return sum((x ^ y).bit_count() for x, y in zip(a, b))
+
+        def _flip_bit(data: bytes, bit_index: int) -> bytes:
+            if bit_index < 0 or bit_index >= len(data) * 8:
+                raise ValueError("Bit index out of range")
+            mutable = bytearray(data)
+            byte_index, bit_pos = divmod(bit_index, 8)
+            mutable[byte_index] ^= 1 << bit_pos
+            return bytes(mutable)
+
+        def _choose_positions(total_bits: int, desired: int) -> list[int]:
+            desired = max(1, min(desired, total_bits))
+            if desired >= total_bits:
+                return list(range(total_bits))
+            return random.sample(range(total_bits), desired)
+
+        # Message avalanche measurement
+        ciphertext_bits = 128  # _feistel_encrypt operates on 16-byte blocks
+        message_avalanche_samples = 0.0
+        message_observations = 0
+
+        for _ in range(message_trials):
+            message = secrets.token_bytes(16)
+            baseline_ciphertext = self._feistel_encrypt(message)
+            bit_positions = _choose_positions(len(message) * 8, message_bit_samples)
+            for bit in bit_positions:
+                mutated_message = _flip_bit(message, bit)
+                mutated_ciphertext = self._feistel_encrypt(mutated_message)
+                message_avalanche_samples += _bit_diff(baseline_ciphertext, mutated_ciphertext) / ciphertext_bits
+            message_observations += len(bit_positions)
+
+        message_avalanche = message_avalanche_samples / message_observations if message_observations else 0.0
+
+        # Key avalanche measurement (single-bit flips)
+        key_bits = len(self.master_key) * 8
+        reference_message = secrets.token_bytes(16)
+        baseline_cipher = self
+        baseline_ciphertext = baseline_cipher._feistel_encrypt(reference_message)
+
+        key_positions = _choose_positions(key_bits, key_bit_samples)
+        key_avalanche_total = 0.0
+
+        for bit in key_positions:
+            mutated_key = _flip_bit(self.master_key, bit)
+            state = np.random.get_state()
+            mutated_cipher = EnhancedRFTCryptoV2(mutated_key)
+            np.random.set_state(state)
+            mutated_ciphertext = mutated_cipher._feistel_encrypt(reference_message)
+            key_avalanche_total += _bit_diff(baseline_ciphertext, mutated_ciphertext) / ciphertext_bits
+
+        key_avalanche = key_avalanche_total / len(key_positions) if key_positions else 0.0
+
+        # Key sensitivity (random key perturbations)
+        key_sensitivity_total = 0.0
+        successful_trials = 0
+
+        for _ in range(max(1, key_trials)):
+            perturbation = bytearray(secrets.token_bytes(len(self.master_key)))
+            # Ensure perturbation is not all zeros
+            if all(b == 0 for b in perturbation):
+                perturbation[0] = 1
+            mutated_key = bytes(a ^ b for a, b in zip(self.master_key, perturbation))
+            state = np.random.get_state()
+            mutated_cipher = EnhancedRFTCryptoV2(mutated_key)
+            np.random.set_state(state)
+            mutated_ciphertext = mutated_cipher._feistel_encrypt(reference_message)
+            key_sensitivity_total += _bit_diff(baseline_ciphertext, mutated_ciphertext) / ciphertext_bits
+            successful_trials += 1
+
+        key_sensitivity = key_sensitivity_total / successful_trials if successful_trials else 0.0
+
+        # Throughput measurement (MB/s)
+        self._feistel_encrypt(secrets.token_bytes(16))  # Warm-up
+        block_count = max(throughput_blocks, 1)
+        blocks = [secrets.token_bytes(16) for _ in range(block_count)]
+        start = time.perf_counter()
+        for block in blocks:
+            self._feistel_encrypt(block)
+        elapsed = time.perf_counter() - start
+        throughput_mbps = 0.0 if elapsed <= 0 else ((block_count * 16) / 1_000_000) / elapsed
+
         return CipherMetrics(
-            message_avalanche=0.438,  # From paper validation
-            key_avalanche=0.527,      # From paper validation  
-            key_sensitivity=0.495,    # From paper validation
-            throughput_mbps=9.2       # From paper benchmarks
+            message_avalanche=float(message_avalanche),
+            key_avalanche=float(key_avalanche),
+            key_sensitivity=float(key_sensitivity),
+            throughput_mbps=float(throughput_mbps)
         )
 
 
-def validate_enhanced_crypto() -> dict:
+def validate_enhanced_crypto(metrics_kwargs: Optional[dict] = None) -> dict:
     """
     Comprehensive validation of Enhanced RFT Crypto v2
     as described in the research paper.
@@ -578,8 +695,15 @@ def validate_enhanced_crypto() -> dict:
     roundtrip_success = (decrypted == test_message)
     
     # Get metrics
-    metrics = cipher.get_cipher_metrics()
+    metrics = cipher.get_cipher_metrics(**(metrics_kwargs or {}))
     
+    avalanche_targets = {
+        'message': 0.438,
+        'key': 0.527,
+        'sensitivity': 0.495,
+        'throughput': 9.2,
+    }
+
     results = {
         'roundtrip_success': roundtrip_success,
         'encrypted_size': len(encrypted),
@@ -592,24 +716,53 @@ def validate_enhanced_crypto() -> dict:
             'throughput_mbps': metrics.throughput_mbps
         },
         'paper_compliance': {
-            'rounds': cipher.rounds == 48,
+            'rounds': cipher.rounds == 64,
             'golden_ratio_param': abs(cipher.phi - 1.618033988749) < 1e-10,
             'domain_separation': True,
-            'aead_mode': True
+            'aead_mode': True,
+            'message_avalanche_target': abs(metrics.message_avalanche - avalanche_targets['message']) < 0.05,
+            'key_avalanche_target': abs(metrics.key_avalanche - avalanche_targets['key']) < 0.05,
+            'key_sensitivity_target': abs(metrics.key_sensitivity - avalanche_targets['sensitivity']) < 0.05,
+            'throughput_target': metrics.throughput_mbps >= avalanche_targets['throughput'] * 0.8
         }
     }
     
     print(f"✓ Round-trip test: {'PASS' if roundtrip_success else 'FAIL'}")
     print(f"✓ Message avalanche: {metrics.message_avalanche:.3f}")
     print(f"✓ Key avalanche: {metrics.key_avalanche:.3f}")
-    print(f"✓ Throughput: {metrics.throughput_mbps:.1f} MB/s")
+    print(f"✓ Key sensitivity: {metrics.key_sensitivity:.3f}")
+    print(f"✓ Throughput: {metrics.throughput_mbps:.3f} MB/s")
     
     return results
 
 
 if __name__ == "__main__":
-    # Run validation for research paper
-    validation_results = validate_enhanced_crypto()
+    parser = argparse.ArgumentParser(description="Validate Enhanced RFT Crypto v2 implementation")
+    parser.add_argument("--quick", action="store_true", help="Use reduced sample counts for faster execution")
+    parser.add_argument("--message-trials", type=int, default=None, help="Number of random messages for avalanche analysis")
+    parser.add_argument("--message-bit-samples", type=int, default=None, help="Bits flipped per message during avalanche analysis")
+    parser.add_argument("--key-bit-samples", type=int, default=None, help="Number of bit positions to flip when evaluating key avalanche")
+    parser.add_argument("--key-trials", type=int, default=None, help="Number of random key perturbations for key sensitivity")
+    parser.add_argument("--throughput-blocks", type=int, default=None, help="Blocks encrypted when measuring throughput")
+
+    cli_args = parser.parse_args()
+
+    metrics_overrides = {}
+    if cli_args.quick:
+        metrics_overrides.update({
+            'message_trials': 3,
+            'message_bit_samples': 16,
+            'key_bit_samples': 12,
+            'key_trials': 3,
+            'throughput_blocks': 1024,
+        })
+
+    for field in ('message_trials', 'message_bit_samples', 'key_bit_samples', 'key_trials', 'throughput_blocks'):
+        value = getattr(cli_args, field)
+        if value is not None:
+            metrics_overrides[field] = value
+
+    validation_results = validate_enhanced_crypto(metrics_overrides or None)
     
     print("\n" + "="*50)
     print("PAPER IMPLEMENTATION VALIDATION")
