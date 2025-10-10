@@ -1,4 +1,0 @@
-operation,measurements,mean_time_us,std_time_us,coefficient_variation,constant_time_threshold,passes_constant_time,timing_risk
-sbox_lookup,200,0.1080600395653164,0.08311161240238812,0.769124393593727,0.2,False,HIGH
-full_encrypt,200,41945.96323505721,310.6625692489782,0.007406256652352556,0.2,True,LOW
-round_function,200,653.0751400441659,9.32624777896131,0.014280512619620767,0.2,True,LOW

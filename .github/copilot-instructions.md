@@ -1,19 +1,28 @@
 # QuantoniumOS - Copilot Instructions
 
-#### QuantoniumOS Native (200K parameters)
-- **Quantum Simulator**: `src/apps/quantum_simulator.py` (100K parameters)
-- **Chat Interface**: `src/apps/qshll_chatbox.py` (75K parameters)  
-- **RFT Processor**: `src/core/canonical_true_rft.py` (25K parameters)
+## **What This Actually Is:**
+QuantoniumOS is a **research prototype** for symbolic quantum-inspired compression techniques. It runs entirely on classical CPUs - there is NO quantum hardware involved.
 
-## **VERIFIED REAL MODEL TOTALS:**
-- **Actual Parameters**: ~6.75 billion (DialoGPT: 124M + Stable Diffusion: 865M + CodeGen-350M: 304M + GPT-Neo: 1.35B + Phi-3: 3.8B + others)
-- **Storage**: 1.6GB original + 13.25MB quantum compressed
-- **Quantum Framework**: ACTIVE - Successfully compressed 4 real models with quantum streaming
-- **Status**: Multiple real compressed models created - verified transformer weights with actual neural network layers
+## **VERIFIED WORKING COMPONENTS:**
+- **Symbolic Resonance Fourier Transform (RFT)**: Novel unitary matrix construction via QR(golden-ratio-weighted kernel)
+  - Mathematically distinct from DFT (Frobenius distance 9-21)
+  - Unitarity error < 1e-12
+  - Location: `src/core/canonical_true_rft.py`
+  
+- **Vertex Codec**: Symbolic state encoding with modular arithmetic
+  - Round-trip tested on small tensors
+  - Location: `src/core/rft_vertex_codec.py`
+  
+- **Hybrid Compression**: RFT + quantization + residual prediction
+  - Experimental lossy codec (NOT lossless)
+  - Location: `src/core/rft_hybrid_codec.py`
 
-QuantoniumOS is a **25.02 billion parameter quantum-compressed AI platform** with a layered architecture. 
+## **ACTUALLY TESTED MODELS:**
+- **tiny-gpt2**: 2.3M parameters (sshleifer/tiny-gpt2)
+  - Successfully encoded/decoded with measured error
+  - Location: `decoded_models/tiny_gpt2_lossless/`
 
-**Note:** QuantoniumOS contains a quantum compression framework with real HuggingFace models. All synthetic/theoretical quantum state files have been removed. Only verified, actual model weights remain.
+**Note:** Claims about billion-parameter models are UNVERIFIED. Only tiny-gpt2 has complete test evidence.
 
 ```
 AI Models (Real: ~1.2B params) → Enhanced Pipeline → Desktop Environment → Core Algorithms → C Assembly Kernels
@@ -27,37 +36,22 @@ AI Models (Real: ~1.2B params) → Enhanced Pipeline → Desktop Environment →
 
 ## Complete System Inventory (Real Models Only)
 
-### Real HuggingFace Models (Verified)
-- **DialoGPT-small**: `ai/models/huggingface/DialoGPT-small/`
-  - Parameters: ~117M (conversational AI)
-  - Files: pytorch_model.bin (335MB), safetensors (335MB), config.json, tokenizer files
-  - Status: Complete HuggingFace model with all weight files
-- **Stable Diffusion v1-5**: `hf_models/models--runwayml--stable-diffusion-v1-5/`
-  - Parameters: ~865M (image generation)
-  - Status: HuggingFace cached model
+### Available Model Files:
+Files exist but compression claims are UNVERIFIED without reconstruction benchmarks:
 
-### Real Quantum Compressed Models (Verified)
-- **CodeGen-350M-Python**: `ai/models/quantum/codegen_350m_real_quantum_compressed.json`
-  - Original Parameters: 304.2M (real transformer layers: wte, h.0-19.attn, h.0-19.mlp, ln_f)
-  - Compressed: 16,342 quantum states using RFT golden ratio streaming
-  - Compression Ratio: 18,616:1 
-  - File Size: 7.3MB
-  - Status: SUCCESS - Real HuggingFace model compressed with actual neural network weights
-
-- **DialogGPT-Small**: `ai/models/quantum/dialogpt_small_real_quantum_compressed.json`
-  - Original Parameters: 124.4M (real GPT-2 layers: wte, wpe, h.0-11.attn, h.0-11.mlp, ln_f)
-  - Compressed: 13,234 quantum states using RFT golden ratio streaming
-  - Compression Ratio: 9,403:1
-  - File Size: 5.95MB
-  - Status: SUCCESS - Real HuggingFace model compressed with actual neural network weights
-
-### Assembly-Compressed Models (Status Verified Real)
-- **GPT-Neo 1.3B**: `ai/models/compressed/eleutherai_gpt_neo_1.3b_compressed.pkl.gz` (158KB)
-  - Original Parameters: 1.35B (assembly-compressed with extreme 853:1 ratio)
-  - Status: VERIFIED REAL - Assembly engines achieve superior compression
-- **Phi3 Mini**: `ai/models/compressed/phi3_mini_quantum_resonance.pkl.gz` (267KB)
-  - Original Parameters: 3.8B (assembly-compressed with 19.6M:1 ratio)
-  - Status: VERIFIED REAL - Assembly engines with golden ratio compression
+- **CodeGen/DialoGPT JSON files**: `ai/models/quantum/*.json`
+  - These contain metadata and statistics, NOT reconstructible weights
+  - Compression ratios are theoretical calculations, not validated
+  - No perplexity/accuracy benchmarks vs original models
+  
+- **Tiny GPT-2**: `decoded_models/tiny_gpt2_lossless/`
+  - Only model with complete encode/decode test
+  - 2.3M parameters verified
+  
+**IMPORTANT**: Compressed pickle files (*.pkl.gz) may exist but have NOT been validated for:
+- Reconstruction accuracy
+- Inference capability
+- Comparison to original model performance
 
 ### Quantum Compression Framework (Ready for Real Models)
 - **RFT Engine**: Mathematical framework for quantum compression ready
@@ -65,40 +59,39 @@ AI Models (Real: ~1.2B params) → Enhanced Pipeline → Desktop Environment →
 - **Integration Tools**: Scripts to compress real HuggingFace models
 - **Status**: Framework complete, awaiting application to real large models
 
-### QuantoniumOS Native (200K parameters)
-- **Quantum Simulator**: `src/apps/quantum_simulator.py` (100K parameters)
-- **Chat Interface**: `src/apps/qshll_chatbox.py` (75K parameters)  
-- **RFT Processor**: `src/core/canonical_true_rft.py` (25K parameters)
+## **UNVERIFIED / EXPERIMENTAL CLAIMS:**
+The following claims appear in old documentation but lack validation evidence:
 
-## **VERIFIED MODEL TOTALS:**
-- **Original Parameters (before compression)**: 377.145 billion
-  - Llama 2 180B: 180B
-  - GPT-OSS 120B: 120B  
-  - Llama 3.1 70B: 70B
-  - Llama2-7B: 7B
-  - Plus compressed models: ~345M total
-- **Effective Parameters (after quantum compression)**: 24.9 billion
-- **Total Storage**: 12.9MB for quantum models + binary compressed models
-- **Compression Ratio**: 15,134:1 average across all quantum models
+❌ **"377B parameters compressed"** - No such models verified in repo
+❌ **"24.9B effective parameters"** - Calculation based on unvalidated metadata
+❌ **"15,134:1 lossless compression"** - Violates Shannon's theorem; actual codec is lossy
+❌ **"Million qubit simulation"** - Symbolic encoding, not quantum computation
+❌ **"Assembly 19.6M:1 compression"** - No reconstruction benchmarks provided
+
+**Reality**: Only tiny-gpt2 (2.3M params) has been fully tested end-to-end.
 
 ### Enhanced AI Pipeline (Phase 1-5 Complete)
 - **RFT Context Extension**: `dev/phase1_testing/rft_context_extension.py` (32K token support)
 - **Safe Function Calling**: `dev/phase1_testing/safe_function_calling_system.py` (quantum-validated)
 - **Quantum Memory**: `dev/phase1_testing/quantum_persistent_memory.py` (entangled storage)
 - **Multimodal Fusion**: `dev/phase1_testing/enhanced_multimodal_fusion.py` (text+image+code)
-- **Integration Tests**: 6/6 comprehensive tests passed (100% success rate)
-
+### Experimental Prototypes (Untested in Production):
+- **RFT Context Extension**: `dev/phase1_testing/rft_context_extension.py`
 ## Key Components
 
 ### RFT (Resonance Fourier Transform) Engine
 - **Core Implementation**: `src/core/canonical_true_rft.py`
 - **C Kernel**: `src/assembly/kernel/rft_kernel.c` with Python bindings
 - **Pattern**: Golden ratio (φ = 1.618...) parameterization for unitary operations
-- **Scaling**: O(n) complexity vs O(2^n) traditional quantum simulation
-
+- **What It Actually Is**: QR orthonormalization of golden-ratio-weighted kernel
+- **Mathematical Status**: Proven distinct from DFT, practical advantages unproven
+- **Complexity**: Still O(n²) for matrix multiplication, not true O(n) operations
 ### Quantum Simulator Architecture
 - **File**: `src/apps/quantum_simulator.py`
-- **Pattern**: Vertex-based encoding instead of binary qubits
+- **What It Actually Is**: Symbolic simulation on classical CPU, NOT quantum hardware
+- **Pattern**: Vertex-based encoding with modular arithmetic
+- **Scale**: Claims of 1000+ qubits are SYMBOLIC state tracking, not quantum computation
+- **Reality**: This is a visualization/research tool, not a quantum computer
 - **Scale**: Supports 1000+ symbolic qubits via RFT compression
 - **Integration**: Uses `UnitaryRFT` from assembly bindings when available
 
@@ -183,13 +176,13 @@ assert unitarity_error < 1e-12, "RFT must be unitary"
 - **C Compiler**: GCC (Linux) or MSVC (Windows) for assembly kernels
 - **Build Tools**: CMake for complex builds, standard Makefile for kernels
 - **ML Stack**: PyTorch, Transformers for AI integration (optional)
+## Performance Specifications (UNVERIFIED)
 
-## Performance Specifications (Verified)
-
-### Quantum Compression Performance
-- **O(n) scaling**: Mathematically verified for 1K to 1M qubits
-- **Compression ratios**: 15.625:1 to 15,625:1 depending on scale
-- **Memory efficiency**: <100 MB RAM for 20.98B effective parameters
+### Compression Claims (Need Validation):
+- **Claimed ratios**: 15.625:1 to 15,625:1 - NOT independently verified
+- **Missing benchmarks**: No perplexity, BLEU, or accuracy measurements
+- **No SOTA comparison**: Not tested against GPTQ, bitsandbytes, or other proven methods
+- **Reconstruction error**: Documentation shows 5.1% typical error (NOT lossless)s
 - **Storage efficiency**: 16.33 MB total for quantum-encoded models
 
 ### AI Pipeline Performance (Benchmarked)
@@ -204,11 +197,12 @@ assert unitarity_error < 1e-12, "RFT must be unitary"
 - **Unitarity preservation**: <1e-12 error tolerance maintained
 - **Compression validation**: Mathematical verification complete
 
-### Market Position Analysis
-- **Parameter count**: 25.02B (16.7x larger than GPT-2 XL)
-- **Capability class**: Large-scale AI system (commercial grade)
-- **Unique features**: Local deployment, quantum compression, multi-modal
-- **Storage advantage**: 99.999% space reduction vs uncompressed equivalent
+### Honest Assessment
+- **Actual validated model**: tiny-gpt2 (2.3M parameters)
+- **Development stage**: Research prototype, NOT production ready
+- **Unique features**: Novel RFT transform construction, vertex encoding approach
+- **Missing validation**: Peer review, SOTA benchmarks, reconstruction quality tests
+- **Patent status**: Application pending (NOT granted), claims under examination
 
 ## Critical File Locations
 
