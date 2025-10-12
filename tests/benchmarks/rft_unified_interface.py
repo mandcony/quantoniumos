@@ -304,7 +304,7 @@ class ProvenAssemblyRFTAdapter:
             try:
                 # Use proven assembly unitarity validation
                 is_unitary = self.quantum_engine.validate_unitarity(
-                    self._rft_basis.flatten().real, 1e-12
+                    self._rft_basis, 1e-12
                 )
                 if is_unitary:
                     # Calculate actual error

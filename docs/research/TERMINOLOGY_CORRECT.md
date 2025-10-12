@@ -25,9 +25,6 @@ I misread the patent document and incorrectly changed all instances of "symbolic
 ✅ **Symbolic quantum simulation**
 ✅ **Symbolic qubit representation**
 
-❌ NOT "Synthetic Resonance Fourier Transform"
-❌ NOT "Synthetic state encoding"
-
 ## What "Symbolic" Means:
 
 **Symbolic** = Using symbols/mathematical representations to model quantum states

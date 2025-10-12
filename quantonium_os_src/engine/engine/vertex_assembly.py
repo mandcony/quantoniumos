@@ -34,7 +34,7 @@ try:
     # C/ASM implementation segfault is now FIXED! 
     print("🚀 C/ASM segfault fixed - testing C/ASM RFT kernels...")
     import sys
-    sys.path.append('/workspaces/quantoniumos/src/assembly/python_bindings')
+    sys.path.append('/workspaces/quantoniumos/algorithms/rft/kernels/python_bindings')
     from unitary_rft import UnitaryRFT, RFT_FLAG_UNITARY, RFT_FLAG_QUANTUM_SAFE, RFT_FLAG_USE_RESONANCE
     
     # Test that it works

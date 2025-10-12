@@ -55,6 +55,7 @@ if(BUILD_CRYPTO_ENGINE)
     # Crypto engine sources
     set(CRYPTO_SOURCES
         ../engines/crypto_engine/feistel_48.c
+        ../engines/crypto_engine/sha256.c
         ../engines/crypto_engine/feistel_asm.asm
     )
     
@@ -202,12 +203,13 @@ endif()
 
 # Install Python modules
 if(BUILD_PYTHON_BINDINGS)
-    install(TARGETS 
-        $<$<BOOL:${BUILD_CRYPTO_ENGINE}>:feistel_crypto>
-        $<$<BOOL:${BUILD_QUANTUM_ENGINE}>:quantum_rft>
-        quantonium_engines
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python3/site-packages
-    )
+    if(BUILD_CRYPTO_ENGINE)
+        install(TARGETS feistel_crypto DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python3/site-packages)
+    endif()
+    if(BUILD_QUANTUM_ENGINE)
+        install(TARGETS quantum_rft DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python3/site-packages)
+    endif()
+    install(TARGETS quantonium_engines DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python3/site-packages)
 endif()
 
 # =============================================================================

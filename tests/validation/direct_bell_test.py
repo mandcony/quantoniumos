@@ -9,7 +9,7 @@ Simple direct test to verify perfect Bell state generation and CHSH violation.
 import numpy as np
 import sys
 import os
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 try:
     import qutip as qt
@@ -17,7 +17,7 @@ try:
 except ImportError:
     QUTIP_AVAILABLE = False
 
-from src.engine.vertex_assembly import EntangledVertexEngine
+from quantonium_os_src.engine.engine.vertex_assembly import EntangledVertexEngine
 
 
 def test_perfect_bell_state():
@@ -27,7 +27,9 @@ def test_perfect_bell_state():
     print("=" * 60)
     
     # Create engine and Bell state
+    print("Initializing EntangledVertexEngine for 2 qubits...")
     engine = EntangledVertexEngine(n_vertices=2, entanglement_enabled=True)
+    print("Creating optimal Bell state for maximum CHSH violation...")
     bell_state = engine.create_optimal_bell_state(vertices=(0, 1))
     
     print(f"Bell state norm: {np.linalg.norm(bell_state):.10f}")

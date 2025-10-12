@@ -94,6 +94,3 @@ Each predictor JSON includes a SHA256 over architectural + weight payload. Tenso
 * Entropy coding for index and code streams (rANS / Huffman).
 * Streaming inverse with layer-by-layer decode.
 * Direct spectral inference (operate in RFT domain without full inverse).
-
-## License
-MIT – Inherits project license.

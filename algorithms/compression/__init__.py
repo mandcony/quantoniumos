@@ -11,7 +11,7 @@ Modules:
 
 from .vertex.rft_vertex_codec import RFTVertexCodec
 from .hybrid.rft_hybrid_codec import RFTHybridCodec
-from .hybrid.hybrid_residual_predictor import ResidualPredictor
+from .hybrid.hybrid_residual_predictor import TinyResidualPredictor as ResidualPredictor
 
 __all__ = [
     'RFTVertexCodec',

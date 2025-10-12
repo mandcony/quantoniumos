@@ -887,8 +887,23 @@ def decode_state_dict(encoded: Dict[str, Any]) -> Dict[str, np.ndarray]:
     return out
 
 
+class RFTVertexCodec:
+    """
+    A wrapper class to provide a consistent interface for the vertex codec functions.
+    This helps with modularity and makes it easier to manage different codec implementations.
+    """
+    def __init__(self, **kwargs):
+        self.encode_kwargs = kwargs
+
+    def encode(self, tensor: np.ndarray) -> Dict[str, Any]:
+        return encode_tensor(tensor, **self.encode_kwargs)
+
+    def decode(self, container: Dict[str, Any]) -> np.ndarray:
+        return decode_tensor(container)
+
+
 __all__ = [
     'encode_tensor', 'decode_tensor', 'roundtrip_tensor',
     'encode_state_dict', 'decode_state_dict', 'RFTVertex',
-    'enable_assembly_rft', 'is_assembly_enabled'
+    'enable_assembly_rft', 'is_assembly_enabled', 'RFTVertexCodec'
 ]

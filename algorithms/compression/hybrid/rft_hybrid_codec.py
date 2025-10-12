@@ -62,10 +62,10 @@ from typing import Dict, List, Optional, Tuple, Iterable
 
 import numpy as np
 
-from .rft_vertex_codec import (
+from ..vertex.rft_vertex_codec import (
     _deterministic_golden_unitary as deterministic_unitary,  # internal reuse
 )
-from .rft_vertex_codec import _generate_seed  # deterministic seed for size
+from ..vertex.rft_vertex_codec import _generate_seed  # deterministic seed for size
 from .hybrid_residual_predictor import TinyResidualPredictor
 
 # ---------------------------------------------------------------------------
@@ -302,8 +302,23 @@ def decode_tensor_hybrid(container: Dict, predictor: Optional[TinyResidualPredic
     return flat_rec.reshape(shape).astype(np.float32)
 
 
+class RFTHybridCodec:
+    """
+    A wrapper class for the hybrid codec functions to provide a consistent interface.
+    """
+    def __init__(self, **kwargs):
+        self.encode_kwargs = kwargs
+
+    def encode(self, tensor: np.ndarray) -> Dict:
+        return encode_tensor_hybrid(tensor, **self.encode_kwargs).container
+
+    def decode(self, container: Dict, predictor: Optional[TinyResidualPredictor] = None) -> np.ndarray:
+        return decode_tensor_hybrid(container, predictor)
+
+
 __all__ = [
     "encode_tensor_hybrid",
     "decode_tensor_hybrid",
     "partition_bands",
+    "RFTHybridCodec",
 ]

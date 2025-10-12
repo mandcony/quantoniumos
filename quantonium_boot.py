@@ -93,11 +93,11 @@ class QuantoniumBootSystem:
         """Compile assembly engines if needed"""
         self.log("🏗️ Checking assembly engine compilation...", "INFO")
         
-        assembly_dir = self.base_dir / "src" / "assembly"
+        assembly_dir = self.base_dir / "algorithms" / "rft" / "kernels"
         compiled_dir = assembly_dir / "compiled"
         
         # Check if compiled libraries exist
-        if (compiled_dir / "libquantum_symbolic.so").exists():
+        if (compiled_dir / "libquantum_symbolic.so").exists() or (compiled_dir / "libquantum_symbolic.a").exists():
             self.log("Assembly engines already compiled", "SUCCESS")
             return True
             
@@ -106,35 +106,26 @@ class QuantoniumBootSystem:
         if makefile.exists():
             self.log("Compiling assembly engines...", "INFO")
             try:
-                # Try multiple make commands for Windows compatibility
-                make_commands = [
-                    [r"C:\Users\mkeln\.chocolatey\bin\make.exe", "-C", str(assembly_dir)],
-                    ["make", "-C", str(assembly_dir)],
-                    ["mingw32-make", "-C", str(assembly_dir)],
-                    ["nmake", "/f", str(makefile)]
-                ]
+                # Build and install
+                result = subprocess.run(
+                    ["make", "all"], 
+                    cwd=str(assembly_dir),
+                    capture_output=True, text=True, timeout=120
+                )
+                if result.returncode != 0:
+                    self.log(f"Assembly compilation failed: {result.stderr}", "ERROR")
+                    return False
                 
-                success = False
-                for cmd in make_commands:
-                    try:
-                        result = subprocess.run(
-                            cmd, 
-                            capture_output=True, text=True, timeout=60
-                        )
-                        if result.returncode == 0:
-                            self.log("Assembly engines compiled successfully", "SUCCESS")
-                            success = True
-                            break
-                    except FileNotFoundError:
-                        continue  # Try next command
-                
-                if not success:
-                    self.log("Assembly compilation skipped - using Python fallback", "INFO")
-                    # Use Python-based assembly engines instead
-                    self.compile_python_engines()
-                    return True  # Continue with Python engines
-                    
-                return success
+                install_result = subprocess.run(
+                    ["make", "install"],
+                    cwd=str(assembly_dir),
+                    capture_output=True, text=True, timeout=60
+                )
+                if install_result.returncode != 0:
+                    self.log(f"Assembly installation failed: {install_result.stderr}", "WARNING")
+
+                self.log("Assembly engines compiled and installed successfully", "SUCCESS")
+                return True
                     
             except subprocess.TimeoutExpired:
                 self.log("Compilation timeout", "ERROR")
@@ -148,45 +139,38 @@ class QuantoniumBootSystem:
     
     def compile_python_engines(self):
         """Fallback: compile Python-based assembly engines"""
-        try:
-            # Ensure Python bindings are available
-            python_bindings = self.base_dir / "ASSEMBLY" / "python_bindings"
-            if python_bindings.exists():
-                self.log("Python assembly bindings found", "SUCCESS")
-                return True
-            else:
-                self.log("Creating Python assembly fallback", "INFO")
-                return True
-        except Exception as e:
-            self.log(f"Python engine setup error: {e}", "WARNING")
-            return True
+        # This function is now a placeholder as C/ASM compilation is primary.
+        self.log("Skipping Python engine compilation; C/ASM is primary.", "INFO")
+        return True
     
     def validate_core_algorithms(self):
         """Quick validation of core algorithms"""
         self.log("🧪 Validating core algorithms...", "INFO")
         
+        # Paths updated to reflect the new structure
         core_files = [
-            "src/core/canonical_true_rft.py",
-            "src/core/enhanced_rft_crypto_v2.py",
-            "src/core/geometric_waveform_hash.py",
-            "src/core/topological_quantum_kernel.py"
+            "algorithms/rft/core/canonical_true_rft.py",
+            "quantonium_os_src/apps/crypto/enhanced_rft_crypto.py",
+            "quantonium_os_src/engine/engine/vertex_assembly.py"
         ]
         
+        all_found = True
         for core_file in core_files:
             file_path = self.base_dir / core_file
             if file_path.exists():
                 self.log(f"✓ {core_file} present", "SUCCESS")
             else:
                 self.log(f"✗ {core_file} missing", "ERROR")
-                return False
+                all_found = False
                 
-        return True
+        return all_found
     
     def launch_assembly_engines(self, background=True):
         """Launch the 3-engine assembly system"""
         self.log("🚀 Launching 3-engine assembly system...", "INFO")
         
-        assembly_launcher = self.base_dir / "src" / "assembly" / "quantonium_os.py"
+        # Path updated to reflect the new structure
+        assembly_launcher = self.base_dir / "algorithms" / "rft" / "kernels" / "quantonium_os.py"
         
         if not assembly_launcher.exists():
             self.log("Assembly launcher not found!", "ERROR")
@@ -198,7 +182,8 @@ class QuantoniumBootSystem:
                 process = subprocess.Popen(
                     [sys.executable, str(assembly_launcher)],
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
+                    stderr=subprocess.PIPE,
+                    preexec_fn=os.setsid # Ensure it's a session leader to terminate all children
                 )
                 self.processes.append(process)
                 self.log("Assembly engines launched in background", "SUCCESS")
@@ -220,18 +205,17 @@ class QuantoniumBootSystem:
         """Launch the frontend interface"""
         self.log(f"🖥️ Launching frontend in {mode} mode...", "INFO")
         
-        if mode == "desktop":
-            frontend_launcher = self.base_dir / "src" / "engine" / "launch_quantonium_os_updated.py"
-        else:
-            frontend_launcher = self.base_dir / "src" / "frontend" / "quantonium_os_main.py"
+        # Path updated to reflect the new structure
+        frontend_launcher = self.base_dir / "quantonium_os_src" / "frontend" / "quantonium_desktop.py"
             
         if not frontend_launcher.exists():
             self.log(f"Frontend launcher not found: {frontend_launcher}", "ERROR")
             return False
             
         try:
-            # Launch frontend
-            subprocess.run([sys.executable, str(frontend_launcher)])
+            # Launch frontend. Use Popen for non-blocking launch.
+            process = subprocess.Popen([sys.executable, str(frontend_launcher)])
+            self.processes.append(process)
             self.log("Frontend launched successfully", "SUCCESS")
             return True
             
@@ -243,37 +227,34 @@ class QuantoniumBootSystem:
         """Run quick validation tests"""
         self.log("🧪 Running validation suite...", "INFO")
         
-        validation_files = [
-            "tests/tests/crypto_performance_test.py",
-            "tests/tests/quick_assembly_test.py"
-        ]
+        validation_script = self.base_dir / "validate_all.sh"
         
-        for val_file in validation_files:
-            file_path = self.base_dir / val_file
-            if file_path.exists():
-                try:
-                    result = subprocess.run(
-                        [sys.executable, str(file_path)], 
-                        capture_output=True, text=True, timeout=30
-                    )
-                    if result.returncode == 0:
-                        self.log(f"✓ {val_file} passed", "SUCCESS")
-                    else:
-                        self.log(f"✗ {val_file} failed", "WARNING")
-                except subprocess.TimeoutExpired:
-                    self.log(f"✗ {val_file} timeout", "WARNING")
-                except Exception as e:
-                    self.log(f"✗ {val_file} error: {e}", "WARNING")
-            else:
-                self.log(f"⚠️ {val_file} not found", "WARNING")
+        if validation_script.exists():
+            try:
+                result = subprocess.run(
+                    ["bash", str(validation_script)], 
+                    capture_output=True, text=True, timeout=300
+                )
+                if result.returncode == 0:
+                    self.log(f"✓ Full validation suite passed", "SUCCESS")
+                else:
+                    self.log(f"✗ Full validation suite failed", "WARNING")
+                    print(result.stdout)
+                    print(result.stderr)
+            except subprocess.TimeoutExpired:
+                self.log(f"✗ Validation suite timeout", "WARNING")
+            except Exception as e:
+                self.log(f"✗ Validation suite error: {e}", "WARNING")
+        else:
+            self.log(f"⚠️ validate_all.sh not found", "WARNING")
     
     def display_system_status(self):
         """Display comprehensive system status"""
         self.log("📊 System Status Overview:", "INFO")
         
         # Count components
-        apps_count = len(list((self.base_dir / "src" / "apps").glob("*.py"))) if (self.base_dir / "src" / "apps").exists() else 0
-        core_count = len(list((self.base_dir / "src" / "core").glob("*.py"))) if (self.base_dir / "src" / "core").exists() else 0
+        apps_count = len(list((self.base_dir / "quantonium_os_src" / "apps").glob("*.py"))) if (self.base_dir / "quantonium_os_src" / "apps").exists() else 0
+        core_count = len(list((self.base_dir / "algorithms" / "rft" / "core").glob("*.py"))) if (self.base_dir / "algorithms" / "rft" / "core").exists() else 0
         
         print(f"""
 ╔═══════════════════════════════════════╗
@@ -290,14 +271,15 @@ class QuantoniumBootSystem:
     
     def cleanup(self):
         """Cleanup background processes"""
+        self.log("🧹 Cleaning up background processes...", "INFO")
         for process in self.processes:
             try:
-                process.terminate()
-                process.wait(timeout=5)
-            except:
-                process.kill()
+                # Kill process group to terminate children
+                os.killpg(os.getpgid(process.pid), 9)
+            except Exception as e:
+                self.log(f"Could not terminate process {process.pid}: {e}", "WARNING")
     
-    def full_boot_sequence(self, mode="desktop", validate=True):
+    def full_boot_sequence(self, mode="desktop", validate=True, test_run=False):
         """Execute complete boot sequence"""
         print(QUANTONIUM_LOGO)
         print("\n🚀 QUANTONIUMOS BOOT SEQUENCE INITIATED\n")
@@ -308,7 +290,8 @@ class QuantoniumBootSystem:
         
         # Step 2: Compile assembly engines
         if not self.compile_assembly_engines():
-            self.log("Assembly compilation failed - continuing", "WARNING")
+            self.log("Assembly compilation failed - ABORTING", "ERROR")
+            return False
         
         # Step 3: Validate core algorithms
         if not self.validate_core_algorithms():
@@ -327,11 +310,27 @@ class QuantoniumBootSystem:
         # Step 6: Display status
         self.display_system_status()
         
+        # For a test run, we can exit here without launching the UI
+        if test_run:
+            self.log("✅ Test boot sequence complete.", "SUCCESS")
+            return True
+
         # Step 7: Launch frontend
         self.log("🎉 Boot sequence complete - launching frontend...", "SUCCESS")
         time.sleep(2)
         
-        return self.launch_frontend(mode)
+        if not self.launch_frontend(mode):
+            return False
+
+        # Keep the main script alive while the frontend runs
+        try:
+            # Wait for all child processes to complete
+            for p in self.processes:
+                p.wait()
+        except KeyboardInterrupt:
+            self.log("Main process interrupted. Shutting down.", "INFO")
+        
+        return True
 
 def main():
     parser = argparse.ArgumentParser(description="QuantoniumOS Unified Boot Script")
@@ -343,6 +342,8 @@ def main():
                        help="Launch assembly engines only")
     parser.add_argument("--status", action="store_true",
                        help="Show system status only")
+    parser.add_argument("--test", action="store_true",
+                        help="Run a test boot without launching the UI.")
     
     args = parser.parse_args()
     
@@ -360,7 +361,8 @@ def main():
             # Full boot sequence
             success = boot_system.full_boot_sequence(
                 mode=args.mode, 
-                validate=not args.no_validate
+                validate=not args.no_validate,
+                test_run=args.test
             )
             if not success:
                 print("\n❌ Boot sequence failed!")

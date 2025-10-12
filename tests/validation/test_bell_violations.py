@@ -25,8 +25,8 @@ except ImportError:
     qt = None
     print("❌ QuTiP not available — skipping QuTiP-specific benchmarks")
 
-from src.engine.vertex_assembly import EntangledVertexEngine
-from src.engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
+from quantonium_os_src.engine.vertex_assembly import EntangledVertexEngine
+from quantonium_os_src.engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
 from tests.proofs.test_entanglement_protocols import BellTestProtocol, EntanglementValidationSuite
 
 

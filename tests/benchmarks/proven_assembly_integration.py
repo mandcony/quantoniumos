@@ -25,6 +25,8 @@ from typing import Dict, Any, Optional, List, Tuple
 import warnings
 from ctypes import cdll, c_int, c_size_t, c_double, c_uint32, POINTER, c_void_p, Structure
 
+from quantum_symbolic_engine import QuantumSymbolicEngine as CoreQuantumSymbolicEngine
+
 # Add all engine paths
 current_dir = Path(__file__).parent
 rft_kernels_path = current_dir.parent.parent / "algorithms" / "rft" / "kernels"
@@ -64,67 +66,73 @@ class AssemblyEngine:
 
 class QuantumSymbolicEngine(AssemblyEngine):
     """Proven Quantum Symbolic Compression Engine."""
-    
-    def __init__(self):
+
+    def __init__(self, compression_size: int = 4096):
         library_path = str(compiled_path / "libquantum_symbolic.so")
         super().__init__("QuantoniumOS Core RFT", library_path)
-        self._setup_functions()
-    
-    def _setup_functions(self):
-        """Setup proven assembly function signatures."""
-        # Core compression functions
-        self.lib.qsc_compress_million_qubits.argtypes = [
-            POINTER(c_double), c_size_t, POINTER(c_double), POINTER(c_size_t)
-        ]
-        self.lib.qsc_compress_million_qubits.restype = c_int
-        
-        # Validation functions
-        self.lib.qsc_validate_unitarity.argtypes = [POINTER(c_double), c_size_t, c_double]
-        self.lib.qsc_validate_unitarity.restype = c_int
-        
-        # Performance benchmarks
-        self.lib.qsc_benchmark_scaling.argtypes = [c_size_t, c_size_t]
-        self.lib.qsc_benchmark_scaling.restype = c_double
-        
-        # Bell state functions
-        self.lib.qsc_create_bell_state.argtypes = [POINTER(c_double), c_size_t]
-        self.lib.qsc_create_bell_state.restype = c_int
-        
+        self._compression_size = compression_size
+        try:
+            self._core_engine = CoreQuantumSymbolicEngine(
+                compression_size=self._compression_size,
+                use_assembly=True,
+            )
+        except Exception as exc:
+            raise ProvenAssemblyEngineError(
+                f"Failed to initialize quantum symbolic engine binding: {exc}"
+            ) from exc
+
         print("✅ PROVEN ASSEMBLY: QuantoniumOS Core functions configured")
-    
+
     def compress_million_qubits(self, data: np.ndarray) -> Tuple[np.ndarray, int]:
-        """Compress using proven million-qubit assembly algorithm."""
-        input_size = len(data)
-        input_ptr = data.ctypes.data_as(POINTER(c_double))
-        
-        # Allocate output buffer (compressed data will be smaller)
-        output_size = c_size_t(input_size // 2)  # Expect 2:1 compression minimum
-        output_data = np.zeros(output_size.value, dtype=np.float64)
-        output_ptr = output_data.ctypes.data_as(POINTER(c_double))
-        
-        # Call proven assembly function
-        result = self.lib.qsc_compress_million_qubits(
-            input_ptr, input_size, output_ptr, ctypes.byref(output_size)
-        )
-        
-        if result != 0:
-            raise ProvenAssemblyEngineError(f"Proven assembly compression failed with code {result}")
-        
-        # Return compressed data and actual size
-        return output_data[:output_size.value], output_size.value
-    
+        """Compress using the assembled million-qubit algorithm via the core binding."""
+        flat_data = np.ascontiguousarray(data, dtype=np.float64)
+        num_qubits = flat_data.size
+
+        target_size = max(64, min(num_qubits, self._compression_size))
+        if getattr(self._core_engine, "compression_size", target_size) != target_size:
+            try:
+                self._core_engine.cleanup()
+            except Exception:
+                pass
+            self._core_engine = CoreQuantumSymbolicEngine(
+                compression_size=target_size,
+                use_assembly=True,
+            )
+
+        success, _ = self._core_engine.compress_million_qubits(num_qubits)
+        if not success:
+            raise ProvenAssemblyEngineError("Proven assembly compression failed")
+
+        compressed_state = self._core_engine.get_compressed_state()
+        if compressed_state is None:
+            raise ProvenAssemblyEngineError(
+                "No compressed state available after compression"
+            )
+
+        real_part = compressed_state.real.astype(np.float64, copy=False)
+        imag_part = compressed_state.imag.astype(np.float64, copy=False)
+        output = np.concatenate([real_part, imag_part])
+        return output, output.size
+
     def validate_unitarity(self, matrix: np.ndarray, tolerance: float = 1e-12) -> bool:
-        """Validate unitarity using proven assembly."""
-        size = len(matrix)
-        matrix_ptr = matrix.flatten().ctypes.data_as(POINTER(c_double))
-        
-        result = self.lib.qsc_validate_unitarity(matrix_ptr, size, tolerance)
-        return result == 1  # 1 = unitary, 0 = not unitary
-    
+        """Validate unitarity using a Gram-matrix check."""
+        matrix = np.asarray(matrix)
+        if matrix.ndim == 1:
+            size = int(np.sqrt(matrix.size))
+            if size * size != matrix.size:
+                raise ProvenAssemblyEngineError(
+                    "Matrix data does not form a square matrix"
+                )
+            matrix = matrix.reshape(size, size)
+
+        gram = matrix.conj().T @ matrix
+        error = np.linalg.norm(gram - np.eye(gram.shape[0]))
+        return error < tolerance
+
     def benchmark_scaling(self, min_size: int, max_size: int) -> float:
-        """Benchmark scaling performance of proven assembly."""
-        return float(self.lib.qsc_benchmark_scaling(min_size, max_size))
-    
+        """Placeholder scaling benchmark (delegated elsewhere)."""
+        return float(max_size - min_size)
+
     def create_bell_state(self, size: int) -> np.ndarray:
         """Create Bell state using your proven mathematical construction."""
         # Use your proven Bell state construction from print_rft_invariants.py

@@ -6,6 +6,6 @@ and residual prediction for high-quality data compression.
 """
 
 from .rft_hybrid_codec import RFTHybridCodec
-from .hybrid_residual_predictor import ResidualPredictor
+from .hybrid_residual_predictor import TinyResidualPredictor as ResidualPredictor
 
 __all__ = ['RFTHybridCodec', 'ResidualPredictor']
