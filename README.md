@@ -55,32 +55,74 @@ QuantoniumOS/
 - **Validation Suites** (`validation/`): Comprehensive validation
 - **Benchmarks** (`benchmarks/`): Performance measurements
 
-## Quick Start
+## Developer Quick Start
 
-### Installation
+This project is defined as an installable Python package using `pyproject.toml`.
+
+### 1. Environment Setup
+
+It is highly recommended to use a virtual environment.
+
 ```bash
-git clone https://github.com/mandcony/quantoniumos
-cd quantoniumos
-pip install -r requirements.txt
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows, use: .\.venv\Scripts\Activate.ps1
 ```
 
-### Build Kernels (Optional)
+### 2. Installation
+
+Install the project in editable mode with all optional dependencies (development, AI, and image generation).
+
 ```bash
-cd algorithms/rft/kernels
-make all && make install
+# Install the project and all dependencies
+pip install -e .[dev,ai,image]
 ```
 
-### Launch System
+### 3. Building the Native Kernel (Optional but Recommended)
+
+The high-performance RFT kernel is written in C. While the Python implementation provides a fallback, using the native kernel is significantly faster.
+
+You can either use the pre-compiled artifacts from the latest CI run or build them locally.
+
+**To build locally:**
+
 ```bash
-python quantonium_boot.py           # Full OS environment
-python os/apps/quantum_simulator.py # Individual app
+# This will automatically detect your OS and run the correct build process.
+python build.py
 ```
 
-### Run Tests & Validation
+### 4. Running Tests
+
+The test suite is designed to validate both the pure Python and native kernel implementations.
+
+**Running the full test suite (excluding slow tests):**
+
 ```bash
-python tests/validation/run_all_validations.py     # Full test suite
-python tests/validation/direct_bell_test.py        # Bell inequality tests  
-python tests/validation/test_bell_violations.py    # CHSH violation proofs
+pytest -m "not slow"
+```
+
+**Running tests with the native kernel:**
+
+The test suite will automatically discover the native kernel if it's built and in the expected location. To test against a specific library file, set the `RFT_KERNEL_LIB` environment variable.
+
+```bash
+# Example for Linux
+export RFT_KERNEL_LIB=system/assembly/assembly/libquantum_symbolic.so
+pytest -m "not slow"
+
+# Example for Windows (PowerShell)
+$env:RFT_KERNEL_LIB = "system\assembly\assembly\compiled\libquantum_symbolic.dll"
+pytest -m "not slow"
+```
+
+### 5. Launching the System
+
+```bash
+# Launch the full QuantoniumOS desktop environment
+python quantonium_boot.py
+
+# Launch an individual application, like the quantum simulator
+python quantonium_os_src/apps/quantum_simulator/quantum_simulator.py
 ```
 
 ## Patent-Protected Innovations ✅

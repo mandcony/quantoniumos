@@ -1,34 +1,81 @@
-name: CI Tests
+name: QuantoniumOS CI
 
 on:
   push:
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
+  test:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.9", "3.11"]
+
+    runs-on: ${{ matrix.os }}
+    
+    defaults:
+      run:
+        shell: bash
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt safetensors pytest transformers huggingface_hub
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .[dev,ai,image]
 
-      - name: Run tests
-        env:
-          HF_HUB_DISABLE_TELEMETRY: "1"
-          TRANSFORMERS_OFFLINE: "0"
-        run: |
-          python -m pytest -q
+    - name: Build native kernel (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        echo "Attempting to build native kernel on Linux..."
+        if [ -f "system/assembly/assembly/Makefile" ]; then
+            cd system/assembly/assembly
+            make all
+            echo "RFT_KERNEL_LIB=$(find . -name 'libquantum_symbolic.so' | head -n 1)" >> $GITHUB_ENV
+        else
+            echo "::warning::Could not find Makefile in system/assembly/assembly. Native tests may be skipped."
+        fi
+
+    - name: Locate native kernel (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        echo "Attempting to locate native kernel on Windows..."
+        LIB_PATH=$(find ./system/assembly/assembly/compiled -name 'libquantum_symbolic.dll' -print -quit)
+        if [ -n "$LIB_PATH" ]; then
+          echo "Found library at $LIB_PATH"
+          echo "RFT_KERNEL_LIB=$LIB_PATH" >> $GITHUB_ENV
+        else
+          echo "::warning::Could not find libquantum_symbolic.dll. Native tests may be skipped."
+        fi
+        
+    - name: Run tests (excluding slow)
+      env:
+        # RFT_KERNEL_LIB is correctly accessed from GITHUB_ENV
+        RFT_KERNEL_LIB: ${{ env.RFT_KERNEL_LIB }}
+      run: |
+        echo "RFT_KERNEL_LIB is set to: $RFT_KERNEL_LIB"
+        python -m pytest -m "not slow"
+
+    - name: Upload Native Artifact (Linux)
+      if: runner.os == 'Linux' && env.RFT_KERNEL_LIB
+      uses: actions/upload-artifact@v4
+      with:
+        name: native-kernel-linux
+        path: ${{ env.RFT_KERNEL_LIB }}
+
+    - name: Upload Native Artifact (Windows)
+      if: runner.os == 'Windows' && env.RFT_KERNEL_LIB
+      uses: actions/upload-artifact@v4
+      with:
+        name: native-kernel-windows
+        path: ${{ env.RFT_KERNEL_LIB }}

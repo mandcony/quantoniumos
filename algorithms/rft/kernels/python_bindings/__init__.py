@@ -22,6 +22,11 @@ def _find_library_paths() -> List[str]:
     script_dir = os.path.dirname(os.path.abspath(__file__))
     system = platform.system().lower()
 
+    # Highest priority: explicit override via environment variable
+    env_lib = os.environ.get('RFT_KERNEL_LIB')
+    if env_lib and os.path.exists(env_lib):
+        return [env_lib]
+
     # Base library names with comprehensive variants
     lib_names = []
     if system == 'windows':
@@ -73,11 +78,15 @@ def _find_library_paths() -> List[str]:
         os.path.join(script_dir, '..', '..', '..', 'bin'),
         os.path.join(script_dir, '..', '..', '..', 'lib'),
 
-        # Repository root builds
+    # Repository root builds
         os.path.join(script_dir, '..', '..', '..', '..', 'build'),
         os.path.join(script_dir, '..', '..', '..', '..', 'compiled'),
         os.path.join(script_dir, '..', '..', '..', '..', 'Release'),
         os.path.join(script_dir, '..', '..', '..', '..', 'Debug'),
+
+    # QuantoniumOS common Windows build output locations
+    os.path.join(script_dir, '..', '..', '..', '..', 'src', 'assembly', 'compiled'),
+    os.path.join(script_dir, '..', '..', '..', '..', 'system', 'assembly', 'assembly', 'compiled'),
 
         # System paths
         '/usr/local/lib',
@@ -137,7 +146,7 @@ def _load_assembly_library() -> Optional[ctypes.CDLL]:
     library_paths = _find_library_paths()
 
     if not library_paths:
-        print("WARNING: No assembly libraries found in search paths")
+        # Keep quiet here; higher-level loaders may use env overrides
         return None
 
     print(f"INFO: Found {len(library_paths)} potential library paths")

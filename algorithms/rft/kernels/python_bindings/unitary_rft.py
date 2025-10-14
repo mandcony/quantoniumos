@@ -74,24 +74,35 @@ class UnitaryRFT:
         """Load the RFT library."""
         # Find the library path
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        lib_paths = [
-            # First check the compiled directory (actual location)
+        # Allow explicit override via environment variable
+        env_lib = os.getenv("RFT_KERNEL_LIB")
+        lib_paths = []
+        if env_lib:
+            lib_paths.append(env_lib)
+
+        # Common compiled locations within this repo (Windows/Linux)
+        lib_paths.extend([
+            # algorithms/rft/kernels/compiled (if present)
             os.path.join(script_dir, "..", "compiled", "libquantum_symbolic.dll"),
             os.path.join(script_dir, "..", "compiled", "libquantum_symbolic.so"),
             os.path.join(script_dir, "..", "compiled", "rftkernel.dll"),
             os.path.join(script_dir, "..", "compiled", "rftkernel.so"),
             os.path.join(script_dir, "..", "compiled", "librftkernel.dll"),
             os.path.join(script_dir, "..", "compiled", "librftkernel.so"),
-            # Then fallback to other possible locations
+            # src/assembly/compiled — current Windows builds land here
+            os.path.join(script_dir, "..", "..", "..", "..", "src", "assembly", "compiled", "libquantum_symbolic.dll"),
+            os.path.join(script_dir, "..", "..", "..", "..", "src", "assembly", "compiled", "rftkernel.dll"),
+            os.path.join(script_dir, "..", "..", "..", "..", "src", "assembly", "compiled", "librftkernel.dll"),
+            # system/assembly/assembly/compiled — legacy path used by docs
+            os.path.join(script_dir, "..", "..", "..", "..", "system", "assembly", "assembly", "compiled", "libquantum_symbolic.dll"),
+            os.path.join(script_dir, "..", "..", "..", "..", "system", "assembly", "assembly", "compiled", "rftkernel.dll"),
+            os.path.join(script_dir, "..", "..", "..", "..", "system", "assembly", "assembly", "compiled", "librftkernel.dll"),
+            # Local folder fallbacks
             os.path.join(script_dir, "librftkernel.dll"),
             os.path.join(script_dir, "librftkernel.so"),
             os.path.join(script_dir, "..", "build", "librftkernel.so"),
             os.path.join(script_dir, "..", "build", "librftkernel.dll"),
-            os.path.join(script_dir, "..", "..", "ASSEMBLY", "build", "librftkernel.so"),
-            os.path.join(script_dir, "..", "..", "ASSEMBLY", "build", "librftkernel.dll"),
-            os.path.join(script_dir, "..", "..", "ASSEMBLY", "kernel", "build", "librftkernel.dll"),
-            os.path.join(script_dir, "..", "..", "ASSEMBLY", "kernel", "build", "librftkernel.so")
-        ]
+        ])
         
         for lib_path in lib_paths:
             if os.path.exists(lib_path):
@@ -151,86 +162,9 @@ class UnitaryRFT:
         
         raise RuntimeError("Could not find or load the RFT kernel library")
     
-    def _load_library(self):
-        """Load the RFT library."""
-        # Find the library path
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        lib_paths = [
-            # First check the compiled directory (actual location)
-            os.path.join(script_dir, "..", "compiled", "libquantum_symbolic.dll"),
-            os.path.join(script_dir, "..", "compiled", "libquantum_symbolic.so"),
-            os.path.join(script_dir, "..", "compiled", "rftkernel.dll"),
-            os.path.join(script_dir, "..", "compiled", "rftkernel.so"),
-            os.path.join(script_dir, "..", "compiled", "librftkernel.dll"),
-            os.path.join(script_dir, "..", "compiled", "librftkernel.so"),
-            # Then fallback to other possible locations
-            os.path.join(script_dir, "librftkernel.dll"),
-            os.path.join(script_dir, "librftkernel.so"),
-            os.path.join(script_dir, "..", "build", "librftkernel.so"),
-            os.path.join(script_dir, "..", "build", "librftkernel.dll"),
-            os.path.join(script_dir, "..", "..", "ASSEMBLY", "build", "librftkernel.so"),
-            os.path.join(script_dir, "..", "..", "ASSEMBLY", "build", "librftkernel.dll"),
-            os.path.join(script_dir, "..", "..", "ASSEMBLY", "kernel", "build", "librftkernel.dll"),
-            os.path.join(script_dir, "..", "..", "ASSEMBLY", "kernel", "build", "librftkernel.so")
-        ]
-        
-        for lib_path in lib_paths:
-            if os.path.exists(lib_path):
-                try:
-                    lib = cdll.LoadLibrary(lib_path)
-                    
-                    # Try to set function argument and return types
-                    # If any function is missing, we'll catch the AttributeError
-                    try:
-                        lib.rft_init.argtypes = [POINTER(RFTEngine), c_size_t, c_uint32]
-                        lib.rft_init.restype = c_int
-                        
-                        lib.rft_cleanup.argtypes = [POINTER(RFTEngine)]
-                        lib.rft_cleanup.restype = c_int
-                        
-                        lib.rft_forward.argtypes = [POINTER(RFTEngine), POINTER(RFTComplex), 
-                                                   POINTER(RFTComplex), c_size_t]
-                        lib.rft_forward.restype = c_int
-                        
-                        lib.rft_inverse.argtypes = [POINTER(RFTEngine), POINTER(RFTComplex), 
-                                                   POINTER(RFTComplex), c_size_t]
-                        lib.rft_inverse.restype = c_int
-                        
-                        lib.rft_quantum_basis.argtypes = [POINTER(RFTEngine), c_size_t]
-                        lib.rft_quantum_basis.restype = c_int
-                        
-                        lib.rft_entanglement_measure.argtypes = [POINTER(RFTEngine), 
-                                                                POINTER(RFTComplex),
-                                                                POINTER(c_double),
-                                                                c_size_t]
-                        lib.rft_entanglement_measure.restype = c_int
-                        
-                        # New mathematical validation functions
-                        lib.rft_von_neumann_entropy.argtypes = [POINTER(RFTEngine), 
-                                                              POINTER(RFTComplex),
-                                                              POINTER(c_double),
-                                                              c_size_t]
-                        lib.rft_von_neumann_entropy.restype = c_int
-                        
-                        lib.rft_validate_bell_state.argtypes = [POINTER(RFTEngine),
-                                                              POINTER(RFTComplex),
-                                                              POINTER(c_double),
-                                                              c_double]
-                        lib.rft_validate_bell_state.restype = c_int
-                        
-                        lib.rft_validate_golden_ratio_properties.argtypes = [POINTER(RFTEngine),
-                                                                           POINTER(c_double),
-                                                                           c_double]
-                        lib.rft_validate_golden_ratio_properties.restype = c_int
-                    except AttributeError as func_error:
-                        print(f"Warning: Some RFT functions not available in {lib_path}: {func_error}")
-                        # Still return the library for basic functionality
-                    
-                    return lib
-                except (OSError, AttributeError) as e:
-                    print(f"Failed to load library {lib_path}: {e}")
-        
-        raise RuntimeError("Could not find or load the RFT kernel library")
+    # NOTE: Duplicate _load_library definition removed. The enhanced version above
+    # with environment override and extended Windows search paths is the single
+    # authoritative implementation.
     
     def _init_engine(self, size: int, flags: int) -> RFTEngine:
         """Initialize the RFT engine."""
