@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
-"""MILP model approximating active S-box lower bounds for EnhancedRFTCryptoV2.
+"""MILP model to lower-bound active S-boxes across rounds (approximate but structured).
 
-We model 8 rounds of a Feistel with 2 half-block bytes (8 bytes total),
-imposing AES S-box activation variables and MDS constraints. The model is still
-an approximation but encodes round-to-round activation propagation using an
-MDS-like matrix (each active input byte implies at least two active outputs).
+State per round (16 bytes through S-box layer):
+  state0 -> MDS1 -> state1 -> SBOX -> state2 -> MDS2 -> state3 -> next round state0
+
+Constraints:
+  - SBOX is bijective at byte granularity: activity in == activity out
+  - MDS1/MDS2 use branch-number B=5 (AES-like 4x4 MDS):
+      For each 4-byte column: sum_in + sum_out >= 5 if any input active
+  - Feistel bridging: if any byte active after MDS2, at least one byte is active entering next round
+
+Objective:
+  - Minimize total number of active S-boxes across all rounds (sum of state1)
+  - The minimum provides a lower bound; CI enforces this bound ≥ threshold
 """
 from __future__ import annotations
 
@@ -17,44 +25,78 @@ except Exception as e:  # pragma: no cover
     raise SystemExit(f"pulp not installed: {e}")
 
 
-def build_model(rounds: int, sboxes_per_round: int, min_active: int):
-    # Binary variables: x[r,i] = 1 if S-box i in round r is active
-    model = pulp.LpProblem("Active_Sboxes_Bound", pulp.LpMaximize)
-    x = [[pulp.LpVariable(f"x_{r}_{i}", cat=pulp.LpBinary) for i in range(sboxes_per_round)] for r in range(rounds)]
+def build_model(rounds: int) -> tuple[pulp.LpProblem, List[List[pulp.LpVariable]]]:
+    # Binary byte-activity variables for each stage
+    model = pulp.LpProblem("Active_Sboxes_LowerBound", pulp.LpMinimize)
+    # 16 bytes per round through S-box stage
+    state0 = [[pulp.LpVariable(f"s0_{r}_{i}", cat=pulp.LpBinary) for i in range(16)] for r in range(rounds)]
+    state1 = [[pulp.LpVariable(f"s1_{r}_{i}", cat=pulp.LpBinary) for i in range(16)] for r in range(rounds)]
+    state2 = [[pulp.LpVariable(f"s2_{r}_{i}", cat=pulp.LpBinary) for i in range(16)] for r in range(rounds)]
+    state3 = [[pulp.LpVariable(f"s3_{r}_{i}", cat=pulp.LpBinary) for i in range(16)] for r in range(rounds)]
 
-    # Objective: maximize active S-boxes (used to test worst-case)
-    model += pulp.lpSum(x[r][i] for r in range(rounds) for i in range(sboxes_per_round))
+    # Objective: minimize total active S-boxes (equals active state1 bytes)
+    model += pulp.lpSum(state1[r][i] for r in range(rounds) for i in range(16))
 
-    # MDS-like diffusion constraints: each round's active count must expand.
-    # For a 4x4 MDS, 1 active input implies at least 2 active outputs.
-    # We encode: sum_out >= ceil(2/4 * sum_in) and sum_out >= 1 when sum_in >= 1.
-    for r in range(rounds - 1):
-        sum_in = pulp.lpSum(x[r][i] for i in range(sboxes_per_round))
-        sum_out = pulp.lpSum(x[r + 1][j] for j in range(sboxes_per_round))
-        model += sum_out >= 0.5 * sum_in
-        model += sum_out >= 1 * (sum_in >= 1)
+    # Column indices for 4x4 MDS (AES-style layout: columns of 4 bytes)
+    cols = [
+        [0, 1, 2, 3],
+        [4, 5, 6, 7],
+        [8, 9, 10, 11],
+        [12, 13, 14, 15],
+    ]
 
-    # Force at least one active S-box in the first round (avoid all-zero)
-    model += pulp.lpSum(x[0][i] for i in range(sboxes_per_round)) >= 1
+    for r in range(rounds):
+        # MDS1: state0 -> state1 with branch number 5
+        for c, col in enumerate(cols):
+            t = pulp.LpVariable(f"t1_{r}_{c}", cat=pulp.LpBinary)
+            sum_in = pulp.lpSum(state0[r][i] for i in col)
+            sum_out = pulp.lpSum(state1[r][i] for i in col)
+            model += sum_in - 4 * t <= 0
+            model += sum_in - t >= 0
+            model += sum_in + sum_out >= 5 * t
 
-    return model, x
+        # S-box bijection: activity preserved bytewise
+        for i in range(16):
+            model += state2[r][i] - state1[r][i] == 0
+
+        # MDS2: state2 -> state3 with branch number 5
+        for c, col in enumerate(cols):
+            t = pulp.LpVariable(f"t2_{r}_{c}", cat=pulp.LpBinary)
+            sum_in = pulp.lpSum(state2[r][i] for i in col)
+            sum_out = pulp.lpSum(state3[r][i] for i in col)
+            model += sum_in - 4 * t <= 0
+            model += sum_in - t >= 0
+            model += sum_in + sum_out >= 5 * t
+
+        # Bridge to next round: if any active after MDS2, at least one active next input
+        if r < rounds - 1:
+            u = pulp.LpVariable(f"u_{r}", cat=pulp.LpBinary)
+            sum_out = pulp.lpSum(state3[r][i] for i in range(16))
+            model += sum_out - 16 * u <= 0
+            model += sum_out - u >= 0
+            model += pulp.lpSum(state0[r + 1][i] for i in range(16)) >= u
+
+    # Initial condition: at least one active byte to avoid trivial zero
+    model += pulp.lpSum(state0[0][i] for i in range(16)) >= 1
+
+    # Return model and the S-box activity variables for reporting (state1)
+    return model, state1
 
 
-def solve_and_check(rounds: int, sboxes_per_round: int, min_active: int) -> int:
-    model, x = build_model(rounds, sboxes_per_round, min_active)
+def solve_and_check(rounds: int, min_active: int) -> int:
+    model, state1 = build_model(rounds)
     model.solve(pulp.PULP_CBC_CMD(msg=False))
-    total_active = int(sum(var.value() or 0 for row in x for var in row))
+    total_active = int(sum((v.value() or 0) for r in state1 for v in r))
     return total_active
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--rounds", type=int, default=8)
-    p.add_argument("--sboxes-per-round", type=int, default=4)
-    p.add_argument("--min-active", type=int, default=20)
+    p.add_argument("--min-active", type=int, default=32)
     args = p.parse_args()
 
-    total = solve_and_check(args.rounds, args.sboxes_per_round, args.min_active)
+    total = solve_and_check(args.rounds, args.min_active)
     print({"rounds": args.rounds, "sboxes_per_round": args.sboxes_per_round, "total_active": total})
     if total < args.min_active:
         raise SystemExit(1)

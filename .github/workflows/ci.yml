@@ -161,4 +161,4 @@ jobs:
           pip install pulp
       - name: Run MILP trail bound search
         run: |
-          python tests/crypto/diff_linear/milp_search.py --rounds 8 --min-active 20
+          python tests/crypto/diff_linear/milp_search.py --rounds 8 --min-active 32
