@@ -68,6 +68,7 @@ from __future__ import annotations
 import hashlib
 import math
 import base64
+import json
 import warnings
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
@@ -828,6 +829,11 @@ def encode_state_dict(
     quant_bits_amplitude: Optional[int] = None,
     quant_bits_phase: Optional[int] = None,
     ans_precision: Optional[int] = None,
+    *,
+    expose_metadata: bool = False,
+    metadata_encryption_key: Optional[bytes] = None,
+    metadata_associated_data: bytes = b"RFT_VERTEX_METADATA",
+    metadata_cipher_domain_salt: Optional[bytes] = None,
 ) -> Dict[str, Any]:
     encoded = {}
     selected_items = list(state.items())[: (max_tensors or len(state))]
@@ -870,7 +876,18 @@ def encode_state_dict(
         'tensors': encoded,
     }
     if codec_summary:
-        result['codec'] = codec_summary
+        if metadata_encryption_key is not None:
+            from algorithms.rft.core.enhanced_rft_crypto_v2 import EnhancedRFTCryptoV2
+
+            cipher = EnhancedRFTCryptoV2(metadata_encryption_key, domain_salt=metadata_cipher_domain_salt)
+            payload = json.dumps(codec_summary, sort_keys=True).encode('utf-8')
+            sealed = cipher.encrypt_aead(payload, metadata_associated_data)
+            result['codec_metadata'] = {
+                'aead': 'enhanced_rft_crypto_v2',
+                'sealed': base64.b64encode(sealed).decode('ascii'),
+            }
+        elif expose_metadata:
+            result['codec'] = codec_summary
     return result
 
 
