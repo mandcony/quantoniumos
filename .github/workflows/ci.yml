@@ -29,10 +29,16 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
+    - name: Install dependencies (dev-only)
       run: |
         python -m pip install --upgrade pip
-        pip install .[dev,ai,image]
+        pip install -e .[dev]
+    
+    - name: Install native build prerequisites (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nasm build-essential
 
     - name: Build native kernel (Linux)
       if: runner.os == 'Linux'
@@ -67,9 +73,11 @@ jobs:
       env:
         # RFT_KERNEL_LIB is correctly accessed from GITHUB_ENV
         RFT_KERNEL_LIB: ${{ env.RFT_KERNEL_LIB }}
+        QT_QPA_PLATFORM: offscreen
       run: |
         echo "RFT_KERNEL_LIB is set to: $RFT_KERNEL_LIB"
-        python -m pytest -m "not slow"
+        python -m pip install coverage pytest-cov
+        python -m pytest -m "not slow" --cov=algorithms --cov=core --cov=quantonium_os_src --cov-report=xml
 
     - name: Upload Native Artifact (Linux)
       if: runner.os == 'Linux' && env.RFT_KERNEL_LIB
@@ -84,3 +92,10 @@ jobs:
       with:
         name: native-kernel-windows
         path: ${{ env.RFT_KERNEL_LIB }}
+
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-xml
+        path: coverage.xml
