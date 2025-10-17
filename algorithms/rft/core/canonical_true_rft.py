@@ -9,9 +9,13 @@ Implements the unitary Resonance Fourier Transform (RFT) operator:
 With golden-ratio parameterization and proven unitarity < 10^-12
 """
 
-import numpy as np
+import hashlib
+import os
+import secrets
 import cmath
-from typing import Tuple, Optional
+from typing import Optional
+
+import numpy as np
 from numpy.linalg import qr, norm
 
 
@@ -21,7 +25,7 @@ class CanonicalTrueRFT:
     with golden-ratio parameterization and formal unitarity guarantees.
     """
     
-    def __init__(self, size: int, beta: float = 1.0):
+    def __init__(self, size: int, beta: float = 1.0, *, basis_secret: Optional[bytes] = None):
         """
         Initialize RFT operator for given size.
         
@@ -32,6 +36,11 @@ class CanonicalTrueRFT:
         self.size = size
         self.beta = beta
         self.phi = (1 + np.sqrt(5)) / 2  # Golden ratio
+
+        # Resolve deployment-specific basis secret so Ψ is not globally reproducible
+        self._basis_secret = self._resolve_basis_secret(basis_secret)
+        seed_material = hashlib.sha256(self._basis_secret + b"RFT_BASIS_SEED").digest()
+        self._basis_seed = int.from_bytes(seed_material[:16], "big")
         
         # Precompute RFT basis matrix
         self._rft_matrix = self._construct_rft_basis()
@@ -46,22 +55,28 @@ class CanonicalTrueRFT:
         """
         N = self.size
         
-        # Golden-ratio phase sequence: φ_k = {k/φ} mod 1
-        phi_sequence = np.array([(k / self.phi) % 1 for k in range(N)])
-        
+        rng = np.random.default_rng(self._basis_seed)
+
+        # Golden-ratio phase sequence with secret-dependent jitter: φ_k = {k/φ + δ_k} mod 1
+        base_sequence = np.array([(k / self.phi) % 1 for k in range(N)])
+        jitter = rng.random(N)
+        phi_sequence = (base_sequence + jitter) % 1
+
         # Construct kernel matrix K with Gaussian weights and golden-ratio phases
         K = np.zeros((N, N), dtype=complex)
-        
+
+        # Secret-dependent Gaussian width and per-entry perturbation keep Ψ unitary yet deployment-unique
+        sigma = 0.35 + 0.25 * rng.random()
+        perturbation = rng.standard_normal((N, N)) * 0.05
+
         for i in range(N):
             for j in range(N):
-                # Gaussian kernel weight
-                sigma = 0.5  # Kernel width parameter
                 g_weight = np.exp(-0.5 * ((i - j) / (sigma * N)) ** 2)
-                
-                # Golden-ratio phase term
+                g_weight *= (1.0 + perturbation[i, j])
+
+                # Golden-ratio phase term with secret jitter
                 phase = 2 * np.pi * phi_sequence[i] * phi_sequence[j] * self.beta
-                
-                # Combined kernel element
+
                 K[i, j] = g_weight * cmath.exp(1j * phase)
         
         # QR decomposition to ensure unitarity
@@ -72,6 +87,28 @@ class CanonicalTrueRFT:
             Q[:, i] = Q[:, i] / norm(Q[:, i])
         
         return Q
+
+    def _resolve_basis_secret(self, provided: Optional[bytes]) -> bytes:
+        """Resolve a deployment-specific secret used to randomize the RFT basis."""
+
+        if provided is None:
+            env_secret = os.getenv("QUANTONIUM_RFT_BASIS_SECRET")
+            if env_secret:
+                provided = env_secret.encode("utf-8")
+
+        if provided is None:
+            provided = secrets.token_bytes(32)
+
+        if isinstance(provided, str):  # type: ignore[unreachable]
+            provided = provided.encode("utf-8")
+
+        if not isinstance(provided, (bytes, bytearray)):
+            raise TypeError("basis_secret must be bytes-like if provided")
+
+        if len(provided) == 0:
+            raise ValueError("basis_secret must not be empty")
+
+        return hashlib.sha256(bytes(provided)).digest()
     
     def _validate_unitarity(self) -> None:
         """Validate that the RFT matrix is unitary within tolerance."""
