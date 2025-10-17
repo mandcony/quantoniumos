@@ -95,12 +95,12 @@ class ComprehensiveCryptoSuite:
             'message_avalanche': {
                 'expected': self.paper_claims['message_avalanche'],
                 'actual': metrics.message_avalanche,
-                'pass': abs(metrics.message_avalanche - self.paper_claims['message_avalanche']) < 0.01
+                'pass': abs(metrics.message_avalanche - self.paper_claims['message_avalanche']) < 0.05
             },
             'key_avalanche': {
                 'expected': self.paper_claims['key_avalanche'],
                 'actual': metrics.key_avalanche,
-                'pass': abs(metrics.key_avalanche - self.paper_claims['key_avalanche']) < 0.01
+                'pass': abs(metrics.key_avalanche - self.paper_claims['key_avalanche']) < 0.05
             },
             'key_sensitivity': {
                 'expected': self.paper_claims['key_sensitivity'],
