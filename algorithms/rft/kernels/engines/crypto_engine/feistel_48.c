@@ -215,15 +215,23 @@ void feistel_mixcolumns_avx2(const uint8_t* input, uint8_t* output) {
 /**
  * ARX (Add-Rotate-XOR) operations for additional diffusion
  */
+static inline uint32_t rotl32(uint32_t x, unsigned r) {
+    return (x << r) | (x >> (32 - r));
+}
+
+static inline uint32_t add_mod32(uint32_t a, uint32_t b) {
+    return (uint32_t)(a + b);
+}
+
 void feistel_arx_operation(const uint8_t* a, const uint8_t* b, uint8_t* output) {
-    uint32_t* a32 = (uint32_t*)a;
-    uint32_t* b32 = (uint32_t*)b;
+    const uint32_t* a32 = (const uint32_t*)a;
+    const uint32_t* b32 = (const uint32_t*)b;
     uint32_t* out32 = (uint32_t*)output;
     
     for (int i = 0; i < 4; i++) {
-        uint32_t sum = a32[i] + b32[i];  // Add
-        uint32_t rot = (sum << 7) | (sum >> 25);  // Rotate left by 7
-        out32[i] = rot ^ b32[i];  // XOR
+        uint32_t sum = add_mod32(a32[i], b32[i]);
+        uint32_t rot = rotl32(sum, (i & 1) ? 13 : 7);
+        out32[i] = rot ^ b32[(i + 1) & 3];
     }
 }
 

@@ -115,12 +115,18 @@ def ans_decode(blob: bytes) -> List[int]:
     if len(blob) < struct.calcsize("<BHI") + 8:
         raise ValueError("Encoded payload too small")
     precision, alphabet_size, length = struct.unpack("<BHI", blob[: struct.calcsize("<BHI")])
+    if precision <= 0 or precision > 16:
+        raise ValueError("Unsupported precision")
+    if alphabet_size <= 0 or alphabet_size > (1 << precision):
+        raise ValueError("Invalid alphabet size in payload")
     freq_bytes_offset = struct.calcsize("<BHI")
     freq_bytes_len = alphabet_size * 2
     freq_data = blob[freq_bytes_offset : freq_bytes_offset + freq_bytes_len]
     freqs = [struct.unpack_from("<H", freq_data, 2 * i)[0] for i in range(alphabet_size)]
     state_offset = freq_bytes_offset + freq_bytes_len
     state = struct.unpack_from("<Q", blob, state_offset)[0]
+    if state < RANS_L:
+        raise ValueError("Invalid initial state in payload")
     payload = blob[state_offset + 8 :]
     table = _RansTable(
         precision=precision,

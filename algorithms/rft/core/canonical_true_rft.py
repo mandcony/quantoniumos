@@ -13,6 +13,11 @@ import numpy as np
 import cmath
 from typing import Tuple, Optional
 from numpy.linalg import qr, norm
+try:
+    from mpmath import mp
+    _MP_AVAILABLE = True
+except Exception:
+    _MP_AVAILABLE = False
 
 
 class CanonicalTrueRFT:
@@ -46,8 +51,14 @@ class CanonicalTrueRFT:
         """
         N = self.size
         
-        # Golden-ratio phase sequence: φ_k = {k/φ} mod 1
-        phi_sequence = np.array([(k / self.phi) % 1 for k in range(N)])
+        # Golden-ratio phase sequence: φ_k = frac(k/φ)
+        # Use higher precision for phase sequence to reduce cancellation
+        if _MP_AVAILABLE:
+            mp.dps = max(50, int(10 * np.log2(max(2, N))))
+            phi_mp = mp.mpf(1 + mp.sqrt(5)) / 2
+            phi_sequence = np.array([float(mp.frac(mp.mpf(k) / phi_mp)) for k in range(N)])
+        else:
+            phi_sequence = np.array([(k / self.phi) % 1 for k in range(N)], dtype=np.float64)
         
         # Construct kernel matrix K with Gaussian weights and golden-ratio phases
         K = np.zeros((N, N), dtype=complex)
@@ -64,13 +75,14 @@ class CanonicalTrueRFT:
                 # Combined kernel element
                 K[i, j] = g_weight * cmath.exp(1j * phase)
         
-        # QR decomposition to ensure unitarity
-        Q, R = qr(K)
-        
-        # Normalize to ensure exact unitarity
+        # Orthonormalize to enforce unitarity (modified Gram–Schmidt)
+        # Start from QR for numerical stability, then re-orthonormalize columns
+        Q, _ = qr(K)
         for i in range(N):
+            for j in range(i):
+                proj = np.vdot(Q[:, j], Q[:, i])
+                Q[:, i] = Q[:, i] - proj * Q[:, j]
             Q[:, i] = Q[:, i] / norm(Q[:, i])
-        
         return Q
     
     def _validate_unitarity(self) -> None:
