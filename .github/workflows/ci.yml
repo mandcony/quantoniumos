@@ -162,3 +162,17 @@ jobs:
       - name: Run MILP trail bound search
         run: |
           python tests/crypto/diff_linear/milp_search.py --rounds 8 --min-active 32
+
+  license-scan:
+    name: License Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Run SPDX license scanner
+        run: |
+          python tools/licenses/check_repo_licenses.py --root .
