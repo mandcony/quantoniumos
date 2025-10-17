@@ -87,8 +87,9 @@ You can either use the pre-compiled artifacts from the latest CI run or build th
 **To build locally:**
 
 ```bash
-# This will automatically detect your OS and run the correct build process.
-python build.py
+# Build native kernel (Linux)
+make -C algorithms/rft/kernels all
+export RFT_KERNEL_LIB=$(find algorithms/rft/kernels -name 'libquantum_symbolic.so' | head -n 1)
 ```
 
 ### 4. Running Tests
@@ -107,7 +108,7 @@ The test suite will automatically discover the native kernel if it's built and i
 
 ```bash
 # Example for Linux
-export RFT_KERNEL_LIB=system/assembly/assembly/libquantum_symbolic.so
+export RFT_KERNEL_LIB=$(find algorithms/rft/kernels -name 'libquantum_symbolic.so' | head -n 1)
 pytest -m "not slow"
 
 # Example for Windows (PowerShell)
@@ -253,9 +254,9 @@ QuantoniumOS welcomes contributions in:
 
 ### **Core Implementation**
 ```
-src/core/canonical_true_rft.py              # Claim 1: Symbolic RFT Engine
-src/core/geometric_waveform_hash.py         # Claim 2: Crypto Subsystem  
-src/apps/quantum_simulator.py              # Claim 4: Hybrid Integration
+algorithms/rft/core/canonical_true_rft.py   # Claim 1: Symbolic RFT Engine
+algorithms/rft/core/geometric_waveform_hash.py # Claim 2: Crypto Subsystem  
+quantonium_os_src/apps/quantum_simulator/quantum_simulator.py  # OS app
 algorithms/rft/kernels/compiled/            # Assembly implementations
 ```
 
