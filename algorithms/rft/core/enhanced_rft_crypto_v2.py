@@ -84,7 +84,8 @@ class EnhancedRFTCryptoV2:
         
         self.master_key = master_key
         self.phi = (1 + (5 ** 0.5)) / 2  # Golden ratio
-        self.rounds = 64  # Increased from 48 for security margin
+        # Align with paper and validation suite
+        self.rounds = 48
         self._metrics_cache: Dict[Tuple[int, int, int, int, int], CipherMetrics] = {}
         
         # Derive round keys with domain separation
@@ -169,37 +170,46 @@ class EnhancedRFTCryptoV2:
         return amplitude_masks
     
     def _derive_round_mds_matrices(self) -> list:
-        """Derive keyed MDS matrices for each round."""
+        """Derive keyed MDS matrices for each round.
+        Construction preserves MDS property via row/column permutations and
+        non-zero diagonal scaling in GF(2^8), which are MDS-preserving operations.
+        """
         mds_matrices = []
-        
+
         for r in range(self.rounds):
             info = f"MDS_MATRIX_ROUND_{r}".encode()
             matrix_seed = self._hkdf(info, 16)
-            
-            # Generate keyed permutation of base MixColumns matrix
+
+            # Base AES MixColumns (known MDS)
             base_matrix = np.array(self.MIX_COLUMNS_MATRIX, dtype=np.uint8)
-            
-            # Apply key-dependent permutation
+
+            # Deterministic, key-dependent PRNG without mutating global numpy RNG
             seed_val = int.from_bytes(matrix_seed[:4], 'big')
-            np.random.seed(seed_val % (2**31))  # Deterministic but key-dependent
-            
-            # Permute rows and columns
-            row_perm = np.random.permutation(4)
-            col_perm = np.random.permutation(4)
-            
-            keyed_matrix = base_matrix[row_perm][:, col_perm]
-            
-            # Ensure it's still MDS by adding key-dependent constants
+            prng = random.Random(seed_val)
+
+            row_perm = list(range(4))
+            col_perm = list(range(4))
+            prng.shuffle(row_perm)
+            prng.shuffle(col_perm)
+
+            # Non-zero row/column scaling factors (GF(2^8))
+            row_scales = [b or 1 for b in matrix_seed[4:8]]
+            col_scales = [b or 1 for b in matrix_seed[8:12]]
+
+            keyed_matrix = np.zeros((4, 4), dtype=np.uint8)
             for i in range(4):
                 for j in range(4):
-                    key_byte = matrix_seed[i*4 + j] % 256
-                    new_val = (int(keyed_matrix[i, j]) + key_byte) % 256
-                    if new_val == 0:  # Avoid zero entries
-                        new_val = 1
-                    keyed_matrix[i, j] = new_val
-            
+                    # Permute rows/cols then scale: S_row * M * S_col
+                    base_val = int(base_matrix[row_perm[i], col_perm[j]])
+                    scaled = self._gf_multiply(row_scales[i] & 0xFF, base_val & 0xFF)
+                    scaled = self._gf_multiply(scaled & 0xFF, col_scales[j] & 0xFF)
+                    if scaled == 0:
+                        # Avoid degenerate zeros to maintain invertibility
+                        scaled = 1
+                    keyed_matrix[i, j] = scaled & 0xFF
+
             mds_matrices.append(keyed_matrix)
-        
+
         return mds_matrices
     
     def _sbox_layer(self, data: bytes) -> bytes:
@@ -245,27 +255,26 @@ class EnhancedRFTCryptoV2:
         
         return bytes(result)
     
-    def _arx_operations(self, left: bytes, right: bytes) -> bytes:
-        """Addition-Rotation-XOR operations."""
-        # Convert to 32-bit words
-        l_words = [int.from_bytes(left[i:i+4], 'big') for i in range(0, 8, 4)]
-        r_words = [int.from_bytes(right[i:i+4], 'big') for i in range(0, 8, 4)]
-        
-        # ARX mixing
-        for i in range(2):
-            # Addition
-            l_words[i] = (l_words[i] + r_words[i]) & 0xFFFFFFFF
-            # Rotation
-            l_words[i] = ((l_words[i] << 7) | (l_words[i] >> 25)) & 0xFFFFFFFF
-            # XOR with next word
-            l_words[i] ^= r_words[(i + 1) % 2]
-        
-        # Convert back to bytes
-        result = b""
-        for word in l_words:
-            result += word.to_bytes(4, 'big')
-        
-        return result
+    def _arx_operations(self, left: bytes, right: bytes, round_key: bytes) -> bytes:
+        """Strengthened Addition-Rotation-XOR mixing with key injection."""
+        w0 = int.from_bytes(left[0:4], 'big')
+        w1 = int.from_bytes(left[4:8], 'big')
+        r0 = int.from_bytes(right[0:4], 'big')
+        r1 = int.from_bytes(right[4:8], 'big')
+        k0 = int.from_bytes(round_key[0:4], 'big')
+        k1 = int.from_bytes(round_key[4:8], 'big')
+        k2 = int.from_bytes(round_key[8:12], 'big')
+        k3 = int.from_bytes(round_key[12:16], 'big')
+
+        # Inject key material and perform ARX with two distinct rotations
+        w0 = (w0 + r0 + k0) & 0xFFFFFFFF
+        w1 = (w1 + r1 + k1) & 0xFFFFFFFF
+        w0 = ((w0 << 7) | (w0 >> 25)) & 0xFFFFFFFF
+        w1 = ((w1 << 13) | (w1 >> 19)) & 0xFFFFFFFF
+        w0 ^= (w1 + k2) & 0xFFFFFFFF
+        w1 ^= (w0 + k3) & 0xFFFFFFFF
+
+        return (w0.to_bytes(4, 'big') + w1.to_bytes(4, 'big'))
     
     def _keyed_mds_layer(self, data: bytes, round_num: int) -> bytes:
         """Apply keyed MDS diffusion layer."""
@@ -331,18 +340,33 @@ class EnhancedRFTCryptoV2:
                 freq_factor = np.exp(-2j * np.pi * k * n * self.phi / 8)
                 mixed[k] += data_complex[n] * freq_factor
         
-        # Convert back to bytes with entropy preservation
+        # Convert back to bytes with entropy preservation plus keyed hashing mask
         result = bytearray(8)
+        real = np.real(mixed).astype(np.float32)
+        imag = np.imag(mixed).astype(np.float32)
+        # Initial mapping to bytes (bounded)
         for i in range(8):
-            # Extract both real and imaginary parts for maximum entropy
-            real_part = np.real(mixed[i])
-            imag_part = np.imag(mixed[i])
-            
-            # Combine and normalize to byte range
-            combined = (real_part + imag_part) / 2.0
-            byte_val = int((combined + 1.0) * 127.5) % 256  # Map [-1,1] to [0,255]
+            combined = (float(real[i]) + float(imag[i])) / 2.0
+            byte_val = int((combined + 1.0) * 127.5) & 0xFF  # Map [-1,1] -> [0,255]
             result[i] = byte_val
-        
+
+        # Keyed, per-round mask derived from RFT content to amplify diffusion
+        hasher = hashlib.sha256()
+        hasher.update(self.round_keys[round_num])
+        hasher.update(real.tobytes())
+        hasher.update(imag.tobytes())
+        hasher.update(round_num.to_bytes(2, 'big'))
+        digest = hasher.digest()
+
+        # Blend digest into result (encrypt-then-mask style XOR)
+        for i in range(8):
+            result[i] ^= digest[i] ^ digest[8 + i]
+
+        # Additional per-round HKDF mask for domain separation
+        hkdf_mask = self._hkdf(f"RFT_INJECT_MASK_{round_num}".encode(), 8)
+        for i in range(8):
+            result[i] ^= hkdf_mask[i]
+
         return bytes(result)
 
     def _round_function(self, right: bytes, round_key: bytes, round_num: int) -> bytes:
@@ -405,7 +429,7 @@ class EnhancedRFTCryptoV2:
         right_rft = self._rft_entropy_injection(right_half, round_num)
         
         # === LAYER 5: ARX FINAL MIXING ===
-        final_mixed = self._arx_operations(left_rft, right_rft)
+        final_mixed = self._arx_operations(left_rft, right_rft, round_key)
         
         # === POST-ROUND WHITENING ===
         post_whiten = self._per_round_post_whiten[round_num]
@@ -414,7 +438,7 @@ class EnhancedRFTCryptoV2:
         return result[:8]
 
     def _feistel_encrypt(self, plaintext: bytes) -> bytes:
-        """64-round Feistel network encryption with enhanced security."""
+        """48-round Feistel network encryption with enhanced security."""
         if len(plaintext) != 16:
             raise ValueError("Block size must be 16 bytes")
         
@@ -425,7 +449,7 @@ class EnhancedRFTCryptoV2:
         left = data[:8]
         right = data[8:]
         
-        # 64 Feistel rounds for enhanced security margin
+        # 48 Feistel rounds for security margin per paper
         for round_num in range(self.rounds):
             # L_{i+1} = R_i, R_{i+1} = L_i ⊕ F(R_i, K_i)
             f_output = self._round_function(right, self.round_keys[round_num], round_num)
@@ -440,7 +464,7 @@ class EnhancedRFTCryptoV2:
         return ciphertext
     
     def _feistel_decrypt(self, ciphertext: bytes) -> bytes:
-        """64-round Feistel network decryption with enhanced security."""
+        """48-round Feistel network decryption with enhanced security."""
         if len(ciphertext) != 16:
             raise ValueError("Block size must be 16 bytes")
         
@@ -451,7 +475,7 @@ class EnhancedRFTCryptoV2:
         left = data[:8]
         right = data[8:]
         
-        # 48 Feistel rounds (reverse order)
+        # Reverse rounds
         for round_num in range(self.rounds - 1, -1, -1):
             # Reverse: L_i = R_{i+1} ⊕ F(L_{i+1}, K_i), R_i = L_{i+1}
             f_output = self._round_function(left, self.round_keys[round_num], round_num)
@@ -698,8 +722,8 @@ def validate_enhanced_crypto(metrics_kwargs: Optional[dict] = None) -> dict:
     metrics = cipher.get_cipher_metrics(**(metrics_kwargs or {}))
     
     avalanche_targets = {
-        'message': 0.438,
-        'key': 0.527,
+        'message': 0.500,
+        'key': 0.520,
         'sensitivity': 0.495,
         'throughput': 9.2,
     }
@@ -716,7 +740,7 @@ def validate_enhanced_crypto(metrics_kwargs: Optional[dict] = None) -> dict:
             'throughput_mbps': metrics.throughput_mbps
         },
         'paper_compliance': {
-            'rounds': cipher.rounds == 64,
+            'rounds': cipher.rounds == 48,
             'golden_ratio_param': abs(cipher.phi - 1.618033988749) < 1e-10,
             'domain_separation': True,
             'aead_mode': True,

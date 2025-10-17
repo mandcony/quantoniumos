@@ -60,8 +60,22 @@ image = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["algorithms*", "applications*", "core*", "quantonium_os_src*", "src*", "system*", "tests*", "tools*"]
-exclude = ["docs", "dev", "logs", "ai/inference"]
+# Install only runtime packages; exclude tests and dev-only trees
+include = [
+  "algorithms*",
+  "core*",
+  "quantonium_os_src*",
+  "tools/crypto*"
+]
+exclude = [
+  "docs",
+  "dev",
+  "logs",
+  "ai/inference",
+  "tests*",
+  "tools/development*",
+  "tools/benchmarking*"
+]
 
 [tool.setuptools]
 py-modules = ["quantonium_boot", "unitary_rft"]
