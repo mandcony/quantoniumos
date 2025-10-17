@@ -123,3 +123,41 @@ jobs:
         with:
           name: coverage-xml-docker
           path: coverage.xml
+
+  sidechannel:
+    name: Side-channel Timing/Cache Audit (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install deps and build native
+        run: |
+          sudo apt-get update && sudo apt-get install -y nasm build-essential valgrind
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+          make -C algorithms/rft/kernels all
+      - name: Run cache timing check
+        run: |
+          python tools/leak_check/cache_timing_check.py --runs 2 --threshold 0.02
+
+  milp:
+    name: Diff/Linear MILP Bounds (≥8 rounds)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install MILP deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pulp
+      - name: Run MILP trail bound search
+        run: |
+          python tests/crypto/diff_linear/milp_search.py --rounds 8 --min-active 32

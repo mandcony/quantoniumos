@@ -1,0 +1,33 @@
+name: Nightly Slow Validations
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # daily at 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  nist-sts:
+    name: Full NIST STS (10GB)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+      - name: Run STS battery (placeholder)
+        env:
+          RUN_STS_PLACEHOLDER: '1'
+        run: |
+          pytest -m slow --maxfail=1 -q
+      - name: Upload STS reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nist-sts-reports
+          path: results/**
