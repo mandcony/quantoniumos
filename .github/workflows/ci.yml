@@ -99,3 +99,27 @@ jobs:
       with:
         name: coverage-xml
         path: coverage.xml
+
+  docker:
+    name: Docker Quick Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t qos-ci .
+      - name: Run quick tests in container
+        env:
+          QOS_TEST_SEED: deadbeef
+        run: |
+          docker run --rm \
+            -e QOS_TEST_SEED=${{ env.QOS_TEST_SEED }} \
+            -v "${{ github.workspace }}:/qos" \
+            qos-ci \
+            pytest -m "not slow" --cov=algorithms --cov=core --cov=quantonium_os_src --cov-report=xml
+      - name: Upload coverage report (docker)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml-docker
+          path: coverage.xml
