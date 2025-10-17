@@ -23,6 +23,7 @@ jobs:
       - name: Run STS battery (placeholder)
         env:
           RUN_STS_PLACEHOLDER: '1'
+          STS_BYTES: '10737418240'  # 10 GB
         run: |
           pytest -m slow --maxfail=1 -q
       - name: Upload STS reports
