@@ -38,19 +38,24 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         echo "Attempting to build native kernel on Linux..."
-        if [ -f "system/assembly/assembly/Makefile" ]; then
-            cd system/assembly/assembly
-            make all
-            echo "RFT_KERNEL_LIB=$(find . -name 'libquantum_symbolic.so' | head -n 1)" >> $GITHUB_ENV
+        set -e
+        if [ -f "algorithms/rft/kernels/Makefile" ]; then
+          make -C algorithms/rft/kernels all
+          LIB_PATH=$(find algorithms/rft/kernels -name 'libquantum_symbolic.so' -print -quit)
+          if [ -n "$LIB_PATH" ]; then
+            echo "RFT_KERNEL_LIB=$LIB_PATH" >> $GITHUB_ENV
+          else
+            echo "::warning::libquantum_symbolic.so not found after build"
+          fi
         else
-            echo "::warning::Could not find Makefile in system/assembly/assembly. Native tests may be skipped."
+          echo "::warning::Makefile not found in algorithms/rft/kernels. Native tests may be skipped."
         fi
 
     - name: Locate native kernel (Windows)
       if: runner.os == 'Windows'
       run: |
         echo "Attempting to locate native kernel on Windows..."
-        LIB_PATH=$(find ./system/assembly/assembly/compiled -name 'libquantum_symbolic.dll' -print -quit)
+        LIB_PATH=$(find ./algorithms/rft/kernels/compiled -name 'libquantum_symbolic.dll' -print -quit)
         if [ -n "$LIB_PATH" ]; then
           echo "Found library at $LIB_PATH"
           echo "RFT_KERNEL_LIB=$LIB_PATH" >> $GITHUB_ENV

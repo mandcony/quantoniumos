@@ -29,32 +29,36 @@ except ImportError:
     QUTIP_AVAILABLE = False
     warnings.warn("QuTiP not available. Entanglement benchmarking will be limited.")
 
-# Import RFT components - PREFER COMPILED C ASSEMBLY FIRST
+from pathlib import Path
+
+# Import RFT components - prefer compiled C/ASM first using repo-relative paths
 try:
-    # C/ASM implementation segfault is now FIXED! 
-    print("🚀 C/ASM segfault fixed - testing C/ASM RFT kernels...")
-    import sys
-    sys.path.append('/workspaces/quantoniumos/algorithms/rft/kernels/python_bindings')
+    print("🚀 Trying C/ASM RFT kernels via repo-relative path...")
+    import sys, os
+    REPO_ROOT = Path(__file__).resolve().parents[3]
+    py_bindings = REPO_ROOT / 'algorithms' / 'rft' / 'kernels' / 'python_bindings'
+    if str(py_bindings) not in sys.path:
+        sys.path.insert(0, str(py_bindings))
     from unitary_rft import UnitaryRFT, RFT_FLAG_UNITARY, RFT_FLAG_QUANTUM_SAFE, RFT_FLAG_USE_RESONANCE
     
     # Test that it works
     test_rft = UnitaryRFT(4, RFT_FLAG_QUANTUM_SAFE)
-    if not test_rft._is_mock:
+    if not getattr(test_rft, '_is_mock', True):
         print("✅ Using compiled C/ASM RFT kernels for maximum performance")
         RFT_AVAILABLE = True
         ASSEMBLY_RFT_AVAILABLE = True
         del test_rft
     else:
-        print("❌ C/ASM kernels falling back to mock - using Python RFT")
+        print("❌ C/ASM kernels reported mock - using Python RFT fallback")
         del test_rft
         raise ImportError("C/ASM kernels not working")
     
 except ImportError:
     try:
         print("⚠️ C/ASM kernels not available - using Python RFT fallback")
-        import sys
-        import os
-        sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'core'))
+        core_dir = Path(__file__).resolve().parent.parent / 'core'
+        if str(core_dir) not in sys.path:
+            sys.path.append(str(core_dir))
         from canonical_true_rft import CanonicalTrueRFT
         RFT_AVAILABLE = True
         ASSEMBLY_RFT_AVAILABLE = False
