@@ -3,8 +3,8 @@ title: QuantoniumOS
 message: >
   If you use this software, please cite it as below.
 authors:
-  - family-names: Mandcony
-    name: Mandcony
+  - family-names: Luis M. Minier
+    name: Luis M. Minier
 version: 0.4.0-48rft
 date-released: 2025-10-17
 repository-code: https://github.com/mandcony/quantoniumos
@@ -12,5 +12,5 @@ preferred-citation:
   type: software
   title: QuantoniumOS (48-round RFT crypto)
   authors:
-    - name: Mandcony
+    - name: Luis M. Minier
   url: https://github.com/mandcony/quantoniumos
