@@ -32,7 +32,7 @@ The precise terms and conditions for copying, distribution and modification foll
 
 "The Program" refers to any copyrightable work licensed under this License. Each licensee is addressed as "you". "Licensees" and "recipients" may be individuals or organizations.
 
-To "modify" a work means to copy from or adapt all or part of the work in a fashion requiring copyright permission, other than the making of an exact copy. The resulting work is called a "modified version" of the earlier work or a work "based on" the earlier work.
+To "modify" a work means to copy from or adapt all or part of the work in a fashion requiring copyright permission, other than the making of an exact copy. The resulting work is called a "modified version" of the earlier work or a work "based on" the Program.
 
 A "covered work" means either the unmodified Program or a work based on the Program.
 
@@ -68,7 +68,7 @@ Conveying under any other circumstances is permitted solely under the conditions
 
 No covered work shall be deemed part of an effective technological measure under any applicable law fulfilling obligations under article 11 of the WIPO copyright treaty adopted on 20 December 1996, or similar laws prohibiting or restricting circumvention of such measures.
 
-When you convey a covered work, you waive any legal power to forbid circumvention of technological measures to the extent such circumvention is effected by exercising rights under this License with respect to the covered work, and you disclaim any intention to limit operation or modification of the work as a means of enforcing, against the work's users, your or third parties' legal rights to forbid circumvention of technological measures.
+When you convey a covered work, you waive any legal power to forbid circumvention of technological measures to the extent such circumvention is effected by exercising rights under this License with respect to the covered work, and you disclaim any intention to limit operation or modification of the work as a means of enforcing, against the work's users, your or third parties' legal rights to forbid circumvention of such measures.
 
 ### 4. Conveying Verbatim Copies.
 
@@ -222,9 +222,8 @@ If the disclaimer of warranty and limitation of liability provided above cannot 
 
 ## Copyright Notice
 
-```
-Quantonium OS — Hybrid Computational Framework for Quantum & Resonance Simulation
-Copyright (C) 2025 Luis Minier
+QuantoniumOS — Hybrid Computational Framework for Quantum & Resonance Simulation  
+Copyright (C) 2025 **Luis M. Minier**
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -238,4 +237,30 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-```
+
+---
+
+## QuantoniumOS Additional Terms (AGPLv3 §7)
+
+The following additional terms apply to this repository and all derivative works, insofar as permitted by AGPLv3 §7:
+
+1) **Attribution Requirement (AGPL §7(b))**  
+   You must preserve the following notice in a user-visible “About”, “Legal”, or splash screen, and in README and CLI `--version` output:  
+   **“Includes QuantoniumOS components © 2025 Luis M. Minier. https://github.com/mandcony/quantoniumos”**  
+   Reasonable placement in a standard credits/legal page satisfies this requirement.
+
+2) **Patent Notice (informational)**  
+   Some components implement methods subject to **U.S. Patent Application No. 19/169,399** (“Hybrid Computational Framework for Quantum and Resonance Simulation”).  
+   - By licensing code under AGPLv3, the author grants the **standard AGPLv3 patent license** only to the extent required by AGPLv3 for the code you receive (and its permitted modifications).  
+   - No license is granted here for **separate proprietary components** (see §3 below). Use of those components may require a separate commercial license from **Luis M. Minier**.
+
+3) **RFT Core Linking Exception (additional permission)**  
+   As an additional permission under AGPLv3 §7, mere **linking to, dynamically loading, or communicating with** the proprietary **QuantoniumOS RFT Core** (distributed separately under a non-AGPL license) **does not by itself** cause the RFT Core to be covered by AGPLv3, and **does not** require the RFT Core’s source code to be provided, **provided that**:  
+   - The AGPL-covered portions remain under AGPLv3 and their complete Corresponding Source is provided as required; and  
+   - The boundary between AGPL code and the RFT Core is maintained via a stable API/ABI or network protocol, and the proprietary RFT Core is not itself a derivative of the AGPL-covered code.
+
+4) **Trademarks**  
+   “QuantoniumOS”, “RFT”, and associated logos are trademarks of **Luis M. Minier**. This license does not grant trademark rights. You may make nominative use to describe compatibility.
+
+5) **No Additional Warranties**  
+   These additional terms do not create any warranty or support obligation beyond AGPLv3.
