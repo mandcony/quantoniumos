@@ -36,7 +36,7 @@ Copy code
 ### 🧮 RFT Engine (`algorithms/rft/core/`)
 - **What it is.** A unitary transform basis derived from a **golden-ratio resonance kernel**; we obtain an orthonormal basis **Ψ** using **QR** (modified Gram–Schmidt stability).
 - **Properties (empirical):**
-  - **Unitarity:** `||Ψ†Ψ − I||_F ≲ 1e−14` for typical `N≤512`.
+  - **Unitarity:** `||Ψ†Ψ − I||_F ≲ 1e−14` for typical `N ≤ 512`.
   - **Energy-preserving:** `||Ψx||₂ = ||x||₂`.
   - **Round-trip:** `x = Ψ†(Ψx)` to machine precision.
   - **Complexity:** current implementation **O(N²)**; a fast **O(N log N)** is conjectured, **not** proven.
@@ -51,12 +51,12 @@ Copy code
 - **RFT–SIS Hash v3.1** (post-quantum flavored *experiment*):
   - **Avalanche:** ~50% ±3% bit flips for tiny input deltas (empirical).
   - **Collisions:** 0 / 10,000 in current suite (empirical).
-  - **Security:** structured around SIS parameters; **no formal reduction** yet. Treat as research only.
+  - **Security:** structured around SIS parameters; **no formal reduction** yet. Treat as research-only.
 
-> ⚠️ Crypto note: results are **experimental**. Do **not** deploy for security-critical use without a formal review and proofs.
+> ⚠️ **Crypto note:** results are **experimental**. Do **not** deploy for security-critical use without a formal review and proofs.
 
 ### 🖥️ Apps & Visualizers (`os/`)
-- Small desktop tools (PyQt5) to visualize transforms, test codecs, run classical “quantum-style” demos.
+Small desktop tools (PyQt5) to visualize transforms, test codecs, run classical “quantum-style” demos.
 
 ---
 
@@ -82,7 +82,7 @@ export RFT_KERNEL_LIB=$(find algorithms/rft/kernels -name 'libquantum_symbolic.s
 bash
 Copy code
 pytest -m "not slow"
-# With native kernel selected via $RFT_KERNEL_LIB (if built)
+# If you built the native kernel, ensure $RFT_KERNEL_LIB is exported
 5) Launch Tools
 bash
 Copy code
@@ -92,7 +92,7 @@ python quantonium_boot.py
 # Example visualizer / demo app
 python quantonium_os_src/apps/quantum_simulator/quantum_simulator.py
 What’s Been Verified (at a glance)
-RFT unitarity: machine-epsilon level (≈1e−14 Frobenius deviation).
+RFT unitarity: machine-epsilon level (≈ 1e−14 Frobenius deviation).
 
 Round-trip accuracy: near machine precision across sizes & signals.
 
@@ -145,3 +145,7 @@ Please respect the licensing split (AGPL vs Research-Only RFT).
 Contact
 Luis M. Minier · luisminier79@gmail.com
 Commercial licensing, academic collaborations, and security reviews welcome.
+
+makefile
+Copy code
+::contentReference[oaicite:0]{index=0}
