@@ -21,3 +21,9 @@ We will acknowledge receipt within 72 hours and provide a remediation timeline.
 ## Timing and Side-Channel Concerns
 
 We aim to minimize timing/cache side-channel leakage. If you identify leaks, please report them with steps to reproduce. We will prioritize fixes and publish advisories as appropriate.
+
+### Experimental Cryptography Disclaimer
+
+The Resonance Fourier Transform (RFT) and the RFT–SIS hash are research prototypes.  
+They have not been formally proven secure and should not be used for production or security-critical systems without an independent cryptographic audit.  
+Use these components only for academic or experimental purposes unless otherwise licensed and reviewed.
