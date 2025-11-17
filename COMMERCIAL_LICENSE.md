@@ -23,4 +23,4 @@ Compatibility with OSS
 - The AGPLv3 “RFT Core Linking Exception” in LICENSE clarifies that using the RFT Core does not, by itself, make it subject to AGPLv3.
 
 Contact
-- <set-your-contact-email-here> for quotes, redlines, and enterprise terms.
+- <luisminier79@gmail.come> for quotes, redlines, and enterprise terms.
