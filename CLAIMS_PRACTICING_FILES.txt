@@ -3,3 +3,20 @@
 # Update this list whenever you add/remove claims-practicing code.
 
 algorithms/rft/core/canonical_true_rft.py
+algorithms/rft/kernels/engines/crypto_engine/feistel_48.c
+algorithms/rft/kernels/engines/crypto_engine/feistel_48.h
+algorithms/rft/kernels/engines/crypto_engine/feistel_asm.asm
+algorithms/rft/kernels/engines/crypto_engine/python_bindings.cpp
+algorithms/rft/kernels/engines/crypto_engine/sha256.c
+algorithms/rft/kernels/engines/crypto_engine/sha256.h
+algorithms/rft/kernels/engines/orchestrator_engine/rft_kernel_asm.asm
+algorithms/rft/kernels/include/rft_kernel.h
+algorithms/rft/kernels/include/rft_kernel_ui.h
+algorithms/rft/kernels/kernel/quantum_symbolic_compression.asm
+algorithms/rft/kernels/kernel/quantum_symbolic_compression.c
+algorithms/rft/kernels/kernel/quantum_symbolic_compression.h
+algorithms/rft/kernels/kernel/rft_kernel.c
+algorithms/rft/kernels/kernel/rft_kernel_asm.asm
+algorithms/rft/kernels/kernel/rft_kernel_fixed.c
+algorithms/rft/kernels/kernel/rft_kernel_ui.c
+algorithms/rft/kernels/unified/kernel/unified_orchestrator.c
