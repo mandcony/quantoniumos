@@ -223,7 +223,7 @@ If the disclaimer of warranty and limitation of liability provided above cannot 
 
 END OF TERMS AND CONDITIONS
 
-======================================================================
+
 Copyright Notice
 ======================================================================
 
@@ -243,7 +243,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-======================================================================
+
 QuantoniumOS Additional Terms (AGPLv3 §7)
 ======================================================================
 
@@ -278,7 +278,7 @@ You must preserve this notice in a user-visible “About”/“Legal” screen a
 7) No Additional Warranties
 These terms do not add any warranty, support, or service obligations beyond AGPLv3.
 
-======================================================================
+
 NOTICE (Informational)
 ======================================================================
 
