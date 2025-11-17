@@ -1,0 +1,59 @@
+name: SPDX Header Rollout
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Target branch to base the PR on'
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  spdx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Add SPDX headers (AGPL vs Claims-NC)
+        run: |
+          python -V
+          python spdx_inject.py --dry-run || true
+          python spdx_inject.py
+      - name: Commit changes
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # create branch
+          BRANCH="spdx-rollout-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            echo "no_changes=true" >> $GITHUB_ENV
+          else
+            git commit -m "Add SPDX headers across repo (AGPL vs Claims-NC split)"
+            echo "branch_name=$BRANCH" >> $GITHUB_ENV
+          fi
+      - name: Create Pull Request
+        if: env.no_changes != 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "SPDX headers rollout (AGPL vs Claims-NC)"
+          body: |
+            This PR adds SPDX headers to source files based on CLAIMS_PRACTICING_FILES.txt:
+            - Claims-practicing: `LicenseRef-CLAIMS-NC`
+            - Others: `AGPL-3.0-or-later`
+            JSON files get sidecar `.license` files per REUSE spec.
+          branch: ${{ env.branch_name }}
+          base: ${{ github.event.inputs.branch }}
