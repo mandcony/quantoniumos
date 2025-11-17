@@ -13,3 +13,14 @@ under a separate commercial license. Practicing those components may require a
 commercial patent license from **Luis M. Minier**.
 
 Contact: <luisminier79@gmail.com>
+
+## Additional Patent Notice (Claims-Practicing Files)
+
+Certain files in this repository implement methods that practice
+U.S. Patent Application No. 19/169,399. Those files are listed in
+`CLAIMS_PRACTICING_FILES.txt` and are licensed under
+`LICENSE-CLAIMS-NC.md` (Research-Only, Non-Commercial).
+
+**No commercial patent license is granted** for the listed files. Any commercial
+practice of the claimed methods requires a separate, written license from
+**Luis M. Minier**. Contact: **luisminier79@gmail.com**.
