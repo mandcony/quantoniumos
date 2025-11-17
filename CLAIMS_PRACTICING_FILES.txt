@@ -1,0 +1,5 @@
+# Files that implement the patented Resonance Fourier Transform (RFT)
+# and are therefore licensed under LICENSE-CLAIMS-NC.md (Non-Commercial).
+# Update this list whenever you add/remove claims-practicing code.
+
+algorithms/rft/core/canonical_true_rft.py
