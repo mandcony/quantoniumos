@@ -1,11 +1,9 @@
-# QuantoniumOS — RFT–SIS Hybrid Geometric Hash (v3.1)
-# Copyright (C) 2025 Luis M. Minier
-# License: AGPL-3.0-or-later
-# Patent Notice: Practices claims of U.S. Patent Application No. 19/169,399.
-# Commercial use of RFT requires a paid license. See PATENT_NOTICE.md / COMMERCIAL_LICENSE.md.
-# Security Status: Research code. No formal security proof. No warranty.
-
 #!/usr/bin/env python3
+# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+# Copyright (C) 2025 Luis M. Minier
+# This file is listed in CLAIMS_PRACTICING_FILES.txt and is licensed
+# under LICENSE-CLAIMS-NC.md (research/education only). Commercial
+# rights require a separate patent license from the author.
 """
 RFT-SIS Hash v3.1 - Cryptographic Coordinate Expansion
 Fixes avalanche sensitivity by expanding coordinates BEFORE normalization

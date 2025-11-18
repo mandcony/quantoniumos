@@ -1,3 +1,9 @@
+/* SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+ * Copyright (C) 2025 Luis M. Minier
+ * Listed in CLAIMS_PRACTICING_FILES.txt — licensed under LICENSE-CLAIMS-NC.md
+ * (research/education only). Commercial rights require a separate license.
+ */
+
 #include "rft_kernel.h"
 #include <stdlib.h>
 #include <string.h>

@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+# Copyright (C) 2025 Luis M. Minier
+# This file is listed in CLAIMS_PRACTICING_FILES.txt and is licensed
+# under LICENSE-CLAIMS-NC.md (research/education only). Commercial
+# rights require a separate patent license from the author.
 """
 Python interface to the Bare Metal Unitary RFT implementation.
 

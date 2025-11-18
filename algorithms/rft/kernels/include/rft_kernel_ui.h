@@ -8,6 +8,12 @@
  * License: See LICENSE.md
  */
 
+/* SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+ * Copyright (C) 2025 Luis M. Minier
+ * Listed in CLAIMS_PRACTICING_FILES.txt — licensed under LICENSE-CLAIMS-NC.md
+ * (research/education only). Commercial rights require a separate license.
+ */
+
 #ifndef RFT_KERNEL_UI_H
 #define RFT_KERNEL_UI_H
 

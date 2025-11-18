@@ -162,6 +162,17 @@ docs/USPTO_*                                   # USPTO packages & analysis
 
 ---
 
+## License
+
+**License split:** Most of this repository is **AGPL-3.0-or-later** (see `LICENSE.md`).
+Files listed in **`CLAIMS_PRACTICING_FILES.txt`** are licensed under **`LICENSE-CLAIMS-NC.md`**
+(research/education only) because they practice methods in U.S. Patent Application
+No. 19/169,399. Commercial rights require a separate patent license from the author.
+
+See `PATENT_NOTICE.md` for details on the patent-pending technologies.
+
+---
+
 ## Contributing
 
 PRs welcome for:

@@ -1,3 +1,9 @@
+/* SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+ * Copyright (C) 2025 Luis M. Minier
+ * Listed in CLAIMS_PRACTICING_FILES.txt — licensed under LICENSE-CLAIMS-NC.md
+ * (research/education only). Commercial rights require a separate license.
+ */
+
 /**
  * Python bindings for Enhanced RFT Crypto v2
  * Using pybind11 for high-performance integration

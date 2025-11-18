@@ -1,3 +1,9 @@
+/* SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+ * Copyright (C) 2025 Luis M. Minier
+ * Listed in CLAIMS_PRACTICING_FILES.txt — licensed under LICENSE-CLAIMS-NC.md
+ * (research/education only). Commercial rights require a separate license.
+ */
+
 /**
  * Enhanced RFT Crypto v2 - 48-Round Feistel Cipher
  * High-Performance C/Assembly Implementation

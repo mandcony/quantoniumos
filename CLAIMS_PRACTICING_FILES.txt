@@ -4,6 +4,7 @@
 
 # --- Core closed-form RFT & kernels ---
 algorithms/rft/core/canonical_true_rft.py
+algorithms/rft/core/closed_form_rft.py
 algorithms/rft/core/crypto_primitives.py
 algorithms/rft/core/enhanced_rft_crypto_v2.py
 algorithms/rft/core/quantum_kernel_implementation.py
@@ -45,4 +46,4 @@ algorithms/rft/kernels/unified/kernel/unified_orchestrator.c
 algorithms/rft/kernels/unified/python_bindings/unified_orchestrator.py
 
 # --- Crypto validation suites that *practice* RFT+SIS pipeline (not generic) ---
-tests/rft_sis/**
+algorithms/crypto/crypto_benchmarks/rft_sis/**

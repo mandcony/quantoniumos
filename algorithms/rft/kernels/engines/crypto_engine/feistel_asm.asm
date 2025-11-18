@@ -1,3 +1,7 @@
+; SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+; Copyright (C) 2025 Luis M. Minier
+; Listed in CLAIMS_PRACTICING_FILES.txt — LICENSE-CLAIMS-NC.md applies.
+
 ; feistel_asm.asm
 ; Assembly optimized routines for 48-round Feistel cipher
 ; Target: 9.2 MB/s throughput as specified in QuantoniumOS paper

@@ -6,6 +6,12 @@
  * that enables O(n) scaling for quantum state simulation beyond classical limits.
  */
 
+/* SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+ * Copyright (C) 2025 Luis M. Minier
+ * Listed in CLAIMS_PRACTICING_FILES.txt — licensed under LICENSE-CLAIMS-NC.md
+ * (research/education only). Commercial rights require a separate license.
+ */
+
 #ifndef QUANTUM_SYMBOLIC_COMPRESSION_H
 #define QUANTUM_SYMBOLIC_COMPRESSION_H
 
