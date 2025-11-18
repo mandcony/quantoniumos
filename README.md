@@ -1,4 +1,3 @@
-
 # QuantoniumOS: Quantum-Inspired Research Operating System
 
 > **PATENT-PENDING RESEARCH PLATFORM.** QuantoniumOS bundles:
@@ -31,7 +30,6 @@ For proofs and tests, see **`docs/RFT_THEOREMS.md`** and **`tests/rft/`**.
 ## Repository Layout
 
 ```
-
 QuantoniumOS/
 ├─ algorithms/
 │  ├─ rft/core/                 # Φ-RFT core + tests
@@ -42,8 +40,7 @@ QuantoniumOS/
 ├─ tests/                       # Unit, integration, validation
 ├─ docs/                        # Tech docs, USPTO packages
 └─ data/                        # Configs, fixtures
-
-````
+```
 
 ---
 
@@ -68,7 +65,7 @@ pytest -m "not slow"
 
 # 5) Launch desktop tools
 python quantonium_boot.py
-````
+```
 
 ---
 
@@ -97,7 +94,7 @@ def rft_inverse(y, *, beta=0.83, sigma=1.25):
     k  = np.arange(n, dtype=np.float64)
     D  = np.exp(2j*np.pi*beta*_frac(k/PHI))
     C  = np.exp(1j*np.pi*sigma*(k*k)/n)
-    return ifft(np.conj(C) * np.conj(D) * y, norm="ortho"))
+    return ifft(np.conj(C) * np.conj(D) * y, norm="ortho")
 
 def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
     A = rft_forward(a, beta=beta, sigma=sigma)
@@ -106,40 +103,38 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
 ```
 
 **Validated (N=128–512):**
-
-* Round-trip error ≈ **3e-16** relative.
-* Twisted-conv commutator ≈ **1e-15** (machine precision).
-* LCT non-equivalence: quadratic residual ≈ **0.3–0.5 rad RMS**; DFT correlation max < **0.25**; (|\Psi^\dagger F|) column entropy > **96%** of uniform.
+- Round-trip error ≈ **3e-16** relative.  
+- Twisted-conv commutator ≈ **1e-15** (machine precision).  
+- LCT non-equivalence: quadratic residual ≈ **0.3–0.5 rad RMS**; DFT correlation max < **0.25**; \(|\Psi^\dagger F|\) column entropy > **96%** of uniform.
 
 ---
 
 ## Compression
 
-* **Lossless Vertex Codec:** exact spectral storage of tensors in Φ-RFT domain with SHA-256 integrity.
-* **Hybrid Learned Codec:** Φ-RFT → banding → prune/quantize (log-amp + phase) → tiny residual MLP → ANS.
-* Goals: **energy compaction**, **sparsity**, reproducible benchmarking vs DCT/DFT.
+- **Lossless Vertex Codec:** exact spectral storage of tensors in Φ-RFT domain with SHA-256 integrity.  
+- **Hybrid Learned Codec:** Φ-RFT → banding → prune/quantize (log-amp + phase) → tiny residual MLP → ANS.  
+- Goals: **energy compaction**, **sparsity**, reproducible benchmarking vs DCT/DFT.
 
 ---
 
 ## Cryptography (Research-Only)
 
-**RFT–SIS Hash v3.1** *(experimental)*
-
-* **Avalanche:** ~**50% ±3%** bit flips for 1-ulp input deltas.
-* **Collisions:** 0 / 10k in current suite.
-* **Security:** SIS-flavored parameters; **no formal reduction**.
-  **Do not** use for production security without independent review.
+**RFT–SIS Hash v3.1** *(experimental)*  
+- **Avalanche:** ~**50% ±3%** bit flips for 1-ulp input deltas.  
+- **Collisions:** 0 / 10k in current suite.  
+- **Security:** SIS-flavored parameters; **no formal reduction**.  
+**Do not** use for production security without independent review.
 
 ---
 
 ## What’s Verified (at a glance)
 
-* ✅ **Φ-RFT unitarity:** exact by factorization; numerically at machine-epsilon.
-* ✅ **Round-trip:** ~1e-16 relative error.
-* ✅ **Twisted-algebra diagonalization:** commutative/associative via (\Psi)-diagonalization.
-* ✅ **Non-equivalence to LCT/FrFT/DFT:** multiple independent tests.
-* ✅ **RFT–SIS avalanche:** ~50% ±3%.
-* 🔬 **Compression benchmarks:** larger-scale runs in progress.
+- ✅ **Φ-RFT unitarity:** exact by factorization; numerically at machine-epsilon.  
+- ✅ **Round-trip:** ~1e-16 relative error.  
+- ✅ **Twisted-algebra diagonalization:** commutative/associative via \(\Psi\)-diagonalization.  
+- ✅ **Non-equivalence to LCT/FrFT/DFT:** multiple independent tests.  
+- ✅ **RFT–SIS avalanche:** ~50% ±3%.  
+- 🔬 **Compression benchmarks:** larger-scale runs in progress.
 
 See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 
@@ -147,10 +142,10 @@ See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 
 ## Patent & Licensing
 
-> **License split.** Most of this repository is licensed under **AGPL-3.0-or-later** (see `LICENSE.md`).
-> Files explicitly listed in **`CLAIMS_PRACTICING_FILES.txt`** are licensed under **`LICENSE-CLAIMS-NC.md`** (research/education only) because they practice methods disclosed in **U.S. Patent Application No. 19/169,399**.
-> **No non-commercial restriction applies to any files outside that list.**
-> Commercial use of the claim-practicing implementations requires a separate patent license from **Luis M. Minier** (contact: **[luisminier79@gmail.com](mailto:luisminier79@gmail.com)**).
+> **License split.** Most of this repository is licensed under **AGPL-3.0-or-later** (see `LICENSE.md`).  
+> Files explicitly listed in **`CLAIMS_PRACTICING_FILES.txt`** are licensed under **`LICENSE-CLAIMS-NC.md`** (research/education only) because they practice methods disclosed in **U.S. Patent Application No. 19/169,399**.  
+> **No non-commercial restriction applies to any files outside that list.**  
+> Commercial use of the claim-practicing implementations requires a separate patent license from **Luis M. Minier** (contact: **luisminier79@gmail.com**).  
 > See `PATENT_NOTICE.md` for details. Trademarks (“QuantoniumOS”, “RFT”) are not licensed.
 
 ---
@@ -170,11 +165,10 @@ docs/USPTO_*                                   # USPTO packages & analysis
 ## Contributing
 
 PRs welcome for:
-
-* fast kernels / numerical analysis,
-* compression benchmarks on real models,
-* formal crypto reductions and audits,
-* docs, tests, and tooling.
+- fast kernels / numerical analysis,
+- compression benchmarks on real models,
+- formal crypto reductions and audits,
+- docs, tests, and tooling.
 
 Please respect the license split (AGPL vs research-only claim-practicing files).
 
@@ -182,9 +176,5 @@ Please respect the license split (AGPL vs research-only claim-practicing files).
 
 ## Contact
 
-**Luis M. Minier** · **[luisminier79@gmail.com](mailto:luisminier79@gmail.com)**
+**Luis M. Minier** · **luisminier79@gmail.com**  
 Commercial licensing, academic collaborations, and security reviews welcome.
-
-```
-::contentReference[oaicite:0]{index=0}
-```
