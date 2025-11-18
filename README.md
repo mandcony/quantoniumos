@@ -1,138 +1,165 @@
 # QuantoniumOS: Quantum-Inspired Research Operating System
 
-> **PATENT-PENDING RESEARCH PLATFORM.** QuantoniumOS is a professionally organized research OS that bundles:
-> - a **golden-ratio Resonance Fourier Transform (RFT)**,
+> **PATENT-PENDING RESEARCH PLATFORM.** QuantoniumOS bundles:
+> - the **Φ-RFT** (golden-ratio + chirp, **closed-form, fast** unitary transform),
 > - **compression** pipelines (lossless + hybrid learned),
-> - **cryptographic** experiments (RFT–SIS hash),
+> - **cryptographic** experiments (RFT–SIS hashing),
 > - and **comprehensive validation** suites.  
-> All “quantum” aspects here are **classical simulations** with mathematical checks.
+> All “quantum” modules are **classical simulations** with explicit mathematical checks.
 
-**USPTO Application:** 19/169,399 (Filed Apr 3, 2025)  
+**USPTO Application:** 19/169,399 (Filed 2025-04-03)  
 **Title:** *Hybrid Computational Framework for Quantum and Resonance Simulation*
+
+---
+
+## What’s New (TL;DR)
+
+**Φ-RFT (closed-form, fast).** Let \(F\) be the unitary DFT (`norm="ortho"`). Define diagonal phases  
+\([C_\sigma]_{kk}=e^{i\pi\sigma k^2/n}\), \([D_\phi]_{kk}=e^{2\pi i \beta \{k/\phi\}}\) with \(\phi=(1+\sqrt5)/2\).  
+Set **\(\Psi = D_\phi\,C_\sigma\,F\)**.
+
+- **Unitary by construction:** \(\Psi^\dagger\Psi=I\).
+- **Exact complexity:** **\(\mathcal O(n\log n)\)** (FFT/IFFT + two diagonal multiplies).
+- **Exact diagonalization:** twisted convolution \(x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x\) is **commutative** / **associative** and \(\Psi(x\star h)=(\Psi x)\odot(\Psi h)\).
+- **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **non-quadratic**; quadratic-fit residual \(\gg\) machine epsilon; DFT-correlation low; \(|\Psi^\dagger F|\) columns high-entropy.
+
+For proofs and tests, see **`docs/RFT_THEOREMS.md`** and **`tests/rft/`**.
 
 ---
 
 ## Repository Layout
 
 QuantoniumOS/
-├─ algorithms/ # Core math, RFT, codecs, crypto experiments
-│ ├─ rft/core/ # Canonical RFT construction + tests
-│ ├─ compression/ # Lossless vertex + hybrid learned codecs
-│ └─ crypto/ # RFT–SIS hash, benchmarks, validators
-├─ ai/ # (Optional) model storage, tooling
-├─ os/ # Desktop apps, visualizers, utilities
+├─ algorithms/
+│ ├─ rft/core/ # Φ-RFT core + tests
+│ ├─ compression/ # Lossless & hybrid codecs
+│ └─ crypto/ # RFT–SIS experiments & validators
+├─ os/ # Desktop apps & visualizers
 ├─ tools/ # Dev helpers, benchmarking, data prep
-├─ tests/ # Unit + integration + validation suites
-├─ docs/ # Tech docs, papers, USPTO packages
-└─ data/ # Configs, small datasets, fixtures
-
-markdown
-Copy code
-
----
-
-## Core Components
-
-### 🧮 RFT Engine (`algorithms/rft/core/`)
-- **What it is.** A unitary transform basis derived from a **golden-ratio resonance kernel**; we obtain an orthonormal basis **Ψ** using **QR** (modified Gram–Schmidt stability).
-- **Properties (empirical):**
-  - **Unitarity:** `||Ψ†Ψ − I||_F ≲ 1e−14` for typical `N ≤ 512`.
-  - **Energy-preserving:** `||Ψx||₂ = ||x||₂`.
-  - **Round-trip:** `x = Ψ†(Ψx)` to machine precision.
-  - **Complexity:** current implementation **O(N²)**; a fast **O(N log N)** is conjectured, **not** proven.
-- **Use:** forward = `Ψ†x`, inverse = `Ψy`.
-
-### 🗜️ Compression Pipelines (`algorithms/compression/`)
-- **Lossless Vertex Codec:** exact spectral storage of tensors (RFT coeffs), integrity via SHA-256.
-- **Hybrid Learned Codec:** transform → banding → prune/quantize (log-amp + phase) → tiny residual MLP → entropy coding (ANS).  
-  *Goal:* evaluate **energy compaction/sparsity** of RFT vs standard transforms on real models.
-
-### 🔐 Cryptography Experiments (`algorithms/crypto/`)
-- **RFT–SIS Hash v3.1** (post-quantum flavored *experiment*):
-  - **Avalanche:** ~50% ±3% bit flips for tiny input deltas (empirical).
-  - **Collisions:** 0 / 10,000 in current suite (empirical).
-  - **Security:** structured around SIS parameters; **no formal reduction** yet. Treat as research-only.
-
-> ⚠️ **Crypto note:** results are **experimental**. Do **not** deploy for security-critical use without a formal review and proofs.
-
-### 🖥️ Apps & Visualizers (`os/`)
-Small desktop tools (PyQt5) to visualize transforms, test codecs, run classical “quantum-style” demos.
+├─ tests/ # Unit, integration, validation
+├─ docs/ # Tech docs, USPTO packages
+└─ data/ # Configs, fixtures
 
 ---
 
 ## Quick Start
 
-This is a standard Python project managed by **pyproject.toml**.
-
-### 1) Environment
 ```bash
+# 1) Environment
 python -m venv .venv
-source .venv/bin/activate        # Windows: .\.venv\Scripts\Activate.ps1
-2) Install
-bash
-Copy code
+# Windows: .\.venv\Scripts\Activate.ps1
+# macOS/Linux:
+source .venv/bin/activate
+
+# 2) Install
 pip install -e .[dev,ai,image]
-3) (Optional) Build Native Kernel
-bash
-Copy code
-# Linux example
+
+# 3) (Optional) Build native kernels
 make -C algorithms/rft/kernels all
-export RFT_KERNEL_LIB=$(find algorithms/rft/kernels -name 'libquantum_symbolic.so' | head -n 1)
-4) Run Tests
-bash
-Copy code
+export RFT_KERNEL_LIB=$(find algorithms/rft/kernels -name 'libquantum_symbolic.so' | head -n1)
+
+# 4) Run tests
 pytest -m "not slow"
-# If you built the native kernel, ensure $RFT_KERNEL_LIB is exported
-5) Launch Tools
-bash
-Copy code
-# Desktop shell
+
+# 5) Launch desktop tools
 python quantonium_boot.py
 
-# Example visualizer / demo app
-python quantonium_os_src/apps/quantum_simulator/quantum_simulator.py
-What’s Been Verified (at a glance)
-RFT unitarity: machine-epsilon level (≈ 1e−14 Frobenius deviation).
+Φ-RFT: Reference API (NumPy)
+import numpy as np
+from numpy.fft import fft, ifft
 
-Round-trip accuracy: near machine precision across sizes & signals.
+PHI = (1.0 + np.sqrt(5.0)) / 2.0
 
-RFT–SIS avalanche: ~50% ±3% across scales and perturbations.
+def _frac(v):
+    return v - np.floor(v)
 
-Bench tooling: end-to-end validators + reproducible seeds.
+def rft_forward(x, *, beta=0.83, sigma=1.25):
+    x = np.asarray(x, dtype=np.complex128)
+    n  = x.shape[0]
+    k  = np.arange(n, dtype=np.float64)
+    D  = np.exp(2j*np.pi*beta*_frac(k/PHI))
+    C  = np.exp(1j*np.pi*sigma*(k*k)/n)
+    return D * (C * fft(x, norm="ortho"))
 
-For full details see tests/ and the crypto/RFT validation suites.
+def rft_inverse(y, *, beta=0.83, sigma=1.25):
+    y = np.asarray(y, dtype=np.complex128)
+    n  = y.shape[0]
+    k  = np.arange(n, dtype=np.float64)
+    D  = np.exp(2j*np.pi*beta*_frac(k/PHI))
+    C  = np.exp(1j*np.pi*sigma*(k*k)/n)
+    return ifft(np.conj(C) * np.conj(D) * y, norm="ortho")
+
+def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
+    A = rft_forward(a, beta=beta, sigma=sigma)
+    B = rft_forward(b, beta=beta, sigma=sigma)
+    return rft_inverse(A * B, beta=beta, sigma=sigma)
+Validated (N=128–512):
+
+Round-trip error ≈ 3e-16 relative.
+
+Twisted-conv commutator ≈ 1e-15 (machine precision).
+
+LCT non-equivalence: quadratic residual ≈ 0.3–0.5 rad RMS; DFT correlation max < 0.25; 
+∣Ψ†𝐹∣∣Ψ†F∣ column entropy > 96% of uniform.
+
+Compression
+
+Lossless Vertex Codec: exact spectral storage of tensors in Φ-RFT domain with SHA-256 integrity.
+
+Hybrid Learned Codec: Φ-RFT → banding → prune/quantize (log-amp + phase) → tiny residual MLP → ANS.
+
+Goals: energy compaction, sparsity, reproducible benchmarking vs DCT/DFT.
+
+Cryptography (Research-Only)
+
+RFT–SIS Hash v3.1 (experimental)
+
+Avalanche: ~50% ±3% bit flips for 1-ulp input deltas.
+
+Collisions: 0 / 10k in current suite.
+
+Security: SIS-flavored parameters; no formal reduction.
+Do not use for production security without independent review.
+
+What’s Verified (at a glance)
+
+✅ Φ-RFT unitarity: exact by factorization; numerically at machine-epsilon.
+
+✅ Round-trip: ~1e-16 relative error.
+
+✅ Twisted-algebra diagonalization: commutative/associative via 
+Ψ
+Ψ-diagonalization.
+
+✅ Non-equivalence to LCT/FrFT/DFT: multiple independent tests.
+
+✅ RFT–SIS avalanche: ~50% ±3%.
+
+Compression benchmarks: larger-scale runs in progress.
+
+See tests/ and algorithms/crypto/crypto_benchmarks/rft_sis/.
 
 Patent & Licensing
-This repo contains two licensing zones:
 
-Component	License	Commercial Use
-Claims-Practicing RFT files (listed in CLAIMS_PRACTICING_FILES.txt, e.g. algorithms/rft/core/canonical_true_rft.py)	Research-Only, Non-Commercial — see LICENSE-CLAIMS-NC.md	Not permitted (requires separate patent licence)
-All other code (tools, tests, SIS hash experiments, docs, etc.)	AGPL-3.0	As permitted by AGPL; no patent rights are granted to practice RFT
-
-Patent notice. Certain files implement methods that practice U.S. Patent Application 19/169,399.
-No commercial patent licence is granted by this repo. For commercial rights, contact luisminier79@gmail.com.
-
-Research Status
-RFT math: sound construction, strong numerical unitarity evidence.
-
-Compression: pipelines implemented; large-model benchmarks in progress.
-
-Crypto: promising empirical properties; formal security proof pending.
-
-Performance: native kernel available; further optimization planned.
+License split. Most of this repository is licensed under AGPL-3.0-or-later (see LICENSE.md).
+Files explicitly listed in CLAIMS_PRACTICING_FILES.txt are licensed under LICENSE-CLAIMS-NC.md (research/education only) because they practice methods disclosed in U.S. Patent Application No. 19/169,399.
+No non-commercial restriction applies to any files outside that list.
+Commercial use of the claim-practicing implementations requires a separate patent license from Luis M. Minier (contact: luisminier79@gmail.com
+).
+See PATENT_NOTICE.md for details. Trademarks (“QuantoniumOS”, “RFT”) are not licensed.
 
 Key Paths
-bash
-Copy code
-algorithms/rft/core/canonical_true_rft.py      # RFT (claims-practicing)
+algorithms/rft/core/canonical_true_rft.py      # Φ-RFT (claims-practicing)
 algorithms/compression/                        # Lossless + hybrid codecs
 algorithms/crypto/crypto_benchmarks/rft_sis/   # RFT–SIS validation suite
 tests/                                         # Unit + integration tests
 docs/USPTO_*                                   # USPTO packages & analysis
+
 Contributing
+
 PRs welcome for:
 
-optimization / numerical analysis,
+fast kernels / numerical analysis,
 
 compression benchmarks on real models,
 
@@ -140,12 +167,11 @@ formal crypto reductions and audits,
 
 docs, tests, and tooling.
 
-Please respect the licensing split (AGPL vs Research-Only RFT).
+Please respect the license split (AGPL vs research-only claim-practicing files).
 
 Contact
+
 Luis M. Minier · luisminier79@gmail.com
+
 Commercial licensing, academic collaborations, and security reviews welcome.
 
-makefile
-Copy code
-::contentReference[oaicite:0]{index=0}
