@@ -44,3 +44,10 @@ def rft_unitary_error(n: int, *, beta: float = 1.0, sigma: float = 1.0, phi: flo
                                          beta=beta, sigma=sigma, phi=phi) - x) / max(1e-16, np.linalg.norm(x))
         errs.append(rel)
     return float(np.mean(errs))
+
+def rft_matrix(n: int, *, beta: float = 1.0, sigma: float = 1.0, phi: float = PHI) -> np.ndarray:
+    """Generate the nxn unitary matrix Ψ"""
+    I = np.eye(n, dtype=np.complex128)
+    # Apply to each column (basis vector)
+    cols = [rft_forward(I[:, i], beta=beta, sigma=sigma, phi=phi) for i in range(n)]
+    return np.column_stack(cols)
