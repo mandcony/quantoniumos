@@ -1,4 +1,4 @@
-```markdown
+
 # QuantoniumOS: Quantum-Inspired Research Operating System
 
 > **PATENT-PENDING RESEARCH PLATFORM.** QuantoniumOS bundles:
