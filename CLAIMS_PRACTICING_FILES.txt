@@ -47,3 +47,7 @@ algorithms/rft/kernels/unified/python_bindings/unified_orchestrator.py
 
 # --- Crypto validation suites that *practice* RFT+SIS pipeline (not generic) ---
 algorithms/crypto/crypto_benchmarks/rft_sis/**
+
+# --- Hardware implementations practicing claims ---
+hardware/fpga_top.sv
+hardware/makerchip_rft_closed_form.tlv

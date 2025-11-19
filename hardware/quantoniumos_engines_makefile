@@ -1,0 +1,121 @@
+# ===============================================
+# QuantoniumOS Unified Engines - Makefile
+# Build and Test Automation
+# ===============================================
+
+# Tool paths
+IVERILOG = iverilog
+VVP = vvp
+GTKWAVE = gtkwave
+YOSYS = yosys
+VERILATOR = verilator
+
+# Design files (unified stack)
+TOP_MODULE = quantoniumos_unified_core
+TESTBENCH = tb_quantoniumos_unified
+TB_FILE = tb_quantoniumos_unified.sv
+RTL_FILE = quantoniumos_unified_engines.sv
+VCD_FILE = quantoniumos_unified.vcd
+
+# Design files (standalone 8x8 RFT)
+RFT_RTL = rft_middleware_engine.sv
+RFT_TB  = tb_rft_middleware.sv
+RFT_TOP = testbench
+RFT_VCD = quantoniumos_full.vcd
+RFT_SIM = sim_rft
+
+# Simulation output
+SIM_EXE = sim_quantoniumos
+SYNTH_DIR = build/synthesis
+VERILATOR_DIR = obj_dir
+
+# Colors for output
+GREEN = \033[0;32m
+YELLOW = \033[1;33m
+RED = \033[0;31m
+NC = \033[0m # No Color
+
+.PHONY: all sim sim_unified sim_rft view view_rft synth verilate clean help
+
+all: sim_unified
+
+help:
+	@echo "==============================================="
+	@echo "QuantoniumOS Unified Engines Build System"
+	@echo "==============================================="
+	@echo "Targets:"
+	@echo "  sim       - Run Icarus Verilog simulation"
+	@echo "  view      - Open GTKWave waveform viewer"
+	@echo "  synth     - Synthesize with Yosys"
+	@echo "  verilate  - Lint and verify with Verilator"
+	@echo "  test      - Run all tests"
+	@echo "  clean     - Remove build artifacts"
+	@echo "  help      - Show this help"
+	@echo "==============================================="
+
+# Compile and simulate unified stack with Icarus Verilog
+sim: sim_unified
+
+sim_unified: $(RTL_FILE) $(TB_FILE)
+	@echo "$(GREEN)Compiling with Icarus Verilog...$(NC)"
+	$(IVERILOG) -g2012 -o $(SIM_EXE) -s $(TESTBENCH) $(TB_FILE) $(RTL_FILE)
+	@echo "$(GREEN)Running simulation...$(NC)"
+	$(VVP) $(SIM_EXE)
+	@echo "$(GREEN)Simulation complete! Waveform saved to $(VCD_FILE)$(NC)"
+
+# Compile and simulate standalone 8x8 RFT
+sim_rft: $(RFT_RTL) $(RFT_TB)
+	@echo "$(GREEN)Compiling 8x8 RFT with Icarus Verilog...$(NC)"
+	$(IVERILOG) -g2012 -o $(RFT_SIM) -s $(RFT_TOP) $(RFT_TB) $(RFT_RTL)
+	@echo "$(GREEN)Running 8x8 RFT simulation...$(NC)"
+	$(VVP) $(RFT_SIM)
+	@echo "$(GREEN)RFT Simulation complete! Waveform saved to $(RFT_VCD)$(NC)"
+
+# View waveforms
+view: $(VCD_FILE)
+	@echo "$(GREEN)Opening GTKWave...$(NC)"
+	$(GTKWAVE) $(VCD_FILE) &
+
+view_rft: $(RFT_VCD)
+	@echo "$(GREEN)Opening GTKWave (RFT)...$(NC)"
+	$(GTKWAVE) $(RFT_VCD) &
+
+# Synthesize with Yosys
+synth: $(RTL_FILE)
+	@echo "$(YELLOW)Synthesizing with Yosys...$(NC)"
+	mkdir -p $(SYNTH_DIR)
+	$(YOSYS) -p "read_verilog $(RTL_FILE); \
+	             hierarchy -check -top $(TOP_MODULE); \
+	             synth -top $(TOP_MODULE); \
+	             stat; \
+	             write_json $(SYNTH_DIR)/$(TOP_MODULE).json"
+	@echo "$(GREEN)Synthesis complete! JSON saved to $(SYNTH_DIR)/$(TOP_MODULE).json$(NC)"
+
+# Lint with Verilator
+verilate: $(RTL_FILE)
+	@echo "$(YELLOW)Linting with Verilator...$(NC)"
+	$(VERILATOR) --lint-only --top-module $(TOP_MODULE) $(RTL_FILE)
+	@echo "$(GREEN)Verilator lint passed!$(NC)"
+
+# Run comprehensive tests
+test: sim
+	@echo "$(GREEN)Running test suite...$(NC)"
+	@grep -q "Test.*PASS" $(VCD_FILE) && echo "$(GREEN)All tests passed!$(NC)" || echo "$(RED)Some tests failed$(NC)"
+
+# Clean build artifacts
+clean:
+	@echo "$(YELLOW)Cleaning build artifacts...$(NC)"
+	rm -f $(SIM_EXE) $(VCD_FILE)
+	rm -rf $(SYNTH_DIR) $(VERILATOR_DIR)
+	rm -f *.vcd *.vvp *.out
+	@echo "$(GREEN)Clean complete!$(NC)"
+
+# Estimate resource usage
+estimate: synth
+	@echo "$(YELLOW)Estimating resource usage...$(NC)"
+	@grep -A 20 "Printing statistics" $(SYNTH_DIR)/$(TOP_MODULE).json || echo "See $(SYNTH_DIR)/$(TOP_MODULE).json"
+
+# Generate documentation
+docs:
+	@echo "$(GREEN)Generating documentation...$(NC)"
+	@echo "See quantoniumos_engines_README.md for details"

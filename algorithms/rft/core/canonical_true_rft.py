@@ -5,142 +5,89 @@
 # under LICENSE-CLAIMS-NC.md (research/education only). Commercial
 # rights require a separate patent license from the author.
 """
-Canonical True RFT Implementation
-As described in QuantoniumOS Research Paper
+Canonical True RFT API (backed by Closed-Form Φ-RFT)
 
-Implements the unitary Resonance Fourier Transform (RFT) operator:
-Ψ = Σ_i w_i D_φi C_σi D†_φi
-
-With golden-ratio parameterization and proven unitarity < 10^-12
+This module preserves the CanonicalTrueRFT class API, but routes
+the implementation to the optimized closed-form Φ-RFT. This keeps
+the rest of the stack unchanged while upgrading performance and
+maintaining unitarity.
 """
 
+from __future__ import annotations
+from typing import Optional
 import numpy as np
-import cmath
-from typing import Tuple, Optional
-from numpy.linalg import qr, norm
-try:
-    from mpmath import mp
-    _MP_AVAILABLE = True
-except Exception:
-    _MP_AVAILABLE = False
+
+# Closed-form implementation
+from .closed_form_rft import (
+    rft_forward,
+    rft_inverse,
+    rft_unitary_error,
+    rft_matrix,
+    PHI,
+)
 
 
 class CanonicalTrueRFT:
     """
-    Canonical implementation of the unitary Resonance Fourier Transform
-    with golden-ratio parameterization and formal unitarity guarantees.
+    Compatibility wrapper retaining the CanonicalTrueRFT API while
+    delegating to the closed-form Φ-RFT implementation.
     """
-    
-    def __init__(self, size: int, beta: float = 1.0):
+
+    def __init__(self, size: int, beta: float = 1.0, *, sigma: float = 1.0, phi: float = PHI,
+                 validate_unitarity: bool = False, validation_trials: int = 2):
         """
         Initialize RFT operator for given size.
-        
+
         Args:
-            size: Transform size (power of 2 recommended)
+            size: Transform size
             beta: Frequency scaling parameter
+            sigma: Chirp width parameter for C_sigma
+            phi: Golden ratio parameter
+            validate_unitarity: If True, runs a quick stochastic unitarity check
+            validation_trials: Number of trials for the unitary check
         """
-        self.size = size
-        self.beta = beta
-        self.phi = (1 + np.sqrt(5)) / 2  # Golden ratio
-        
-        # Precompute RFT basis matrix
-        self._rft_matrix = self._construct_rft_basis()
-        self._validate_unitarity()
-    
-    def _construct_rft_basis(self) -> np.ndarray:
-        """
-        Construct the unitary RFT basis matrix using golden-ratio parameterization.
-        
-        Returns:
-            Unitary matrix Ψ of shape (size, size)
-        """
-        N = self.size
-        
-        # Golden-ratio phase sequence: φ_k = frac(k/φ)
-        # Use higher precision for phase sequence to reduce cancellation
-        if _MP_AVAILABLE:
-            mp.dps = max(50, int(10 * np.log2(max(2, N))))
-            phi_mp = mp.mpf(1 + mp.sqrt(5)) / 2
-            phi_sequence = np.array([float(mp.frac(mp.mpf(k) / phi_mp)) for k in range(N)])
-        else:
-            phi_sequence = np.array([(k / self.phi) % 1 for k in range(N)], dtype=np.float64)
-        
-        # Construct kernel matrix K with Gaussian weights and golden-ratio phases
-        K = np.zeros((N, N), dtype=complex)
-        
-        for i in range(N):
-            for j in range(N):
-                # Gaussian kernel weight
-                sigma = 0.5  # Kernel width parameter
-                g_weight = np.exp(-0.5 * ((i - j) / (sigma * N)) ** 2)
-                
-                # Golden-ratio phase term
-                phase = 2 * np.pi * phi_sequence[i] * phi_sequence[j] * self.beta
-                
-                # Combined kernel element
-                K[i, j] = g_weight * cmath.exp(1j * phase)
-        
-        # Orthonormalize to enforce unitarity (modified Gram–Schmidt)
-        # Start from QR for numerical stability, then re-orthonormalize columns
-        Q, _ = qr(K)
-        for i in range(N):
-            for j in range(i):
-                proj = np.vdot(Q[:, j], Q[:, i])
-                Q[:, i] = Q[:, i] - proj * Q[:, j]
-            Q[:, i] = Q[:, i] / norm(Q[:, i])
-        return Q
-    
-    def _validate_unitarity(self) -> None:
-        """Validate that the RFT matrix is unitary within tolerance."""
-        Psi = self._rft_matrix
-        identity = np.eye(self.size, dtype=complex)
-        unitarity_error = norm(Psi.conj().T @ Psi - identity, ord=2)
-        
-        tolerance = 1e-12
-        if unitarity_error > tolerance:
-            raise ValueError(f"Unitarity error {unitarity_error:.2e} exceeds tolerance {tolerance:.2e}")
-        
-        print(f"✓ RFT Unitarity validated: error = {unitarity_error:.2e}")
-    
+        self.size = int(size)
+        self.beta = float(beta)
+        self.sigma = float(sigma)
+        self.phi = float(phi)
+
+        if validate_unitarity:
+            err = rft_unitary_error(self.size, beta=self.beta, sigma=self.sigma, phi=self.phi,
+                                    trials=int(validation_trials))
+            # Keep same tolerance philosophy
+            tol = 1e-12
+            if err > tol:
+                raise ValueError(f"Φ-RFT unitarity error {err:.2e} exceeds tolerance {tol:.2e}")
+
     def forward_transform(self, x: np.ndarray) -> np.ndarray:
-        """
-        Apply forward RFT: y = Ψ^H x
-        
-        Args:
-            x: Input signal vector
-            
-        Returns:
-            RFT coefficients
-        """
-        if len(x) != self.size:
-            raise ValueError(f"Input size {len(x)} != RFT size {self.size}")
-        
-        return self._rft_matrix.conj().T @ x
-    
+        """Apply forward Φ-RFT using closed-form implementation."""
+        x = np.asarray(x, dtype=np.complex128)
+        if x.shape[0] != self.size:
+            raise ValueError(f"Input size {x.shape[0]} != RFT size {self.size}")
+        return rft_forward(x, beta=self.beta, sigma=self.sigma, phi=self.phi)
+
     def inverse_transform(self, y: np.ndarray) -> np.ndarray:
         """
         Apply inverse RFT: x = Ψ y
         
         Args:
-            y: RFT coefficients
+            y: RFT coefficients (complex vector)
             
         Returns:
             Reconstructed signal
         """
-        if len(y) != self.size:
-            raise ValueError(f"Input size {len(y)} != RFT size {self.size}")
-        
-        return self._rft_matrix @ y
+        y = np.asarray(y, dtype=np.complex128)
+        if y.shape[0] != self.size:
+            raise ValueError(f"Input size {y.shape[0]} != RFT size {self.size}")
+        return rft_inverse(y, beta=self.beta, sigma=self.sigma, phi=self.phi)
     
     def get_unitarity_error(self) -> float:
-        """Get current unitarity error of the RFT matrix."""
-        Psi = self._rft_matrix
-        identity = np.eye(self.size, dtype=complex)
-        return float(norm(Psi.conj().T @ Psi - identity, ord=2))
+        """Return stochastic unitarity error estimate for current parameters."""
+        return float(rft_unitary_error(self.size, beta=self.beta, sigma=self.sigma, phi=self.phi, trials=4))
     
     def get_rft_matrix(self) -> np.ndarray:
-        """Get the RFT basis matrix."""
-        return self._rft_matrix.copy()
+        """Construct and return the Φ-RFT basis matrix Ψ (nxn)."""
+        return rft_matrix(self.size, beta=self.beta, sigma=self.sigma, phi=self.phi)
 
 
 def validate_rft_properties(size: int = 64) -> dict:
@@ -167,10 +114,10 @@ def validate_rft_properties(size: int = 64) -> dict:
     
     max_roundtrip_error = 0.0
     for i, x in enumerate(test_signals):
-        x = x / norm(x)  # Normalize
+        x = x / np.linalg.norm(x)  # Normalize
         y = rft.forward_transform(x)
         x_reconstructed = rft.inverse_transform(y)
-        error = norm(x - x_reconstructed)
+        error = np.linalg.norm(x - x_reconstructed)
         max_roundtrip_error = max(max_roundtrip_error, error)
         print(f"  Test signal {i+1}: roundtrip error = {error:.2e}")
     
@@ -179,8 +126,8 @@ def validate_rft_properties(size: int = 64) -> dict:
     
     # DFT distinction (for paper validation)
     dft_matrix = np.fft.fft(np.eye(size)) / np.sqrt(size)  # Unitary DFT
-    rft_matrix = rft.get_rft_matrix()
-    dft_distance = norm(rft_matrix - dft_matrix, 'fro')
+    _psi = rft.get_rft_matrix()
+    dft_distance = np.linalg.norm(_psi - dft_matrix, 'fro')
     
     results = {
         'size': size,
