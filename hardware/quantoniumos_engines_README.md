@@ -1,5 +1,21 @@
 # QuantoniumOS Unified Engines - Hardware Implementation
 
+## 📊 Visualization & Results
+
+**Complete hardware test visualizations are available in [`figures/README.md`](figures/README.md)**
+
+Key figures include:
+- 🎯 **Frequency Domain Analysis** - 10 test patterns with full spectral analysis
+- ⚡ **Energy Comparison** - Performance across diverse input patterns
+- 🔄 **Phase Analysis** - Complex frequency domain representation
+- 📈 **Test Suite Overview** - Comprehensive dashboard (100% pass rate)
+- 🏗️ **Architecture Diagram** - Complete hardware block diagram
+- 🔬 **Synthesis Metrics** - FPGA resource utilization and timing
+
+See [`HW_TEST_RESULTS.md`](HW_TEST_RESULTS.md) and [`HW_VISUALIZATION_REPORT.md`](HW_VISUALIZATION_REPORT.md) for detailed analysis.
+
+---
+
 ## Overview
 
 This Verilog design integrates the complete QuantoniumOS cryptographic stack into a unified hardware architecture:
@@ -262,6 +278,38 @@ quartus_sh --flow compile quantoniumos_unified_core
 ```bash
 diamondc quantoniumos_unified_core.tcl
 ```
+
+## 📊 Visualization & Analysis
+
+### Generate Hardware Figures
+
+To create comprehensive visualizations of test results:
+
+```bash
+cd hardware
+python visualize_hardware_results.py
+```
+
+**Generated Outputs:**
+- `figures/hw_rft_frequency_spectra.png/pdf` - Frequency domain analysis for all tests
+- `figures/hw_rft_energy_comparison.png/pdf` - Energy distribution across patterns
+- `figures/hw_rft_phase_analysis.png/pdf` - Complex phase representation
+- `figures/hw_rft_test_overview.png/pdf` - Comprehensive test dashboard
+- `figures/hw_architecture_diagram.png/pdf` - Hardware block diagram
+- `figures/hw_synthesis_metrics.png/pdf` - FPGA metrics and timing
+- `HW_VISUALIZATION_REPORT.md` - Detailed analysis report
+
+**Features:**
+- ✅ Parses simulation logs automatically
+- ✅ Generates publication-quality figures (PNG + PDF)
+- ✅ Comprehensive statistical analysis
+- ✅ Hardware architecture diagrams
+- ✅ Synthesis and timing metrics
+- ✅ Test coverage visualization
+
+See [`figures/README.md`](figures/README.md) for detailed documentation of each figure.
+
+---
 
 ## Security Considerations
 
