@@ -12,8 +12,8 @@
 | 3 | **Phase Analysis** | Complex frequency domain representation | [PNG](hw_rft_phase_analysis.png) \| [PDF](hw_rft_phase_analysis.pdf) |
 | 4 | **Test Overview** | Comprehensive dashboard (100% pass rate) | [PNG](hw_rft_test_overview.png) \| [PDF](hw_rft_test_overview.pdf) |
 | 5 | **Architecture** | Hardware block diagram with data flow | [PNG](hw_architecture_diagram.png) \| [PDF](hw_architecture_diagram.pdf) |
-| 6 | **Synthesis Metrics** | FPGA resources, timing, power, coverage | [PNG](hw_synthesis_metrics.png) \| [PDF](hw_synthesis_metrics.pdf) |
-| 7 | **SW vs HW** | Performance, accuracy, resources comparison | [PNG](sw_hw_comparison.png) \| [PDF](sw_hw_comparison.pdf) |
+| 6 | **Test Verification** | Actual test results and verified features | [PNG](hw_test_verification.png) \| [PDF](hw_test_verification.pdf) |
+| 7 | **SW vs HW** | Test results and implementation comparison | [PNG](sw_hw_comparison.png) \| [PDF](sw_hw_comparison.pdf) |
 | 8 | **Timeline** | Implementation progression milestones | [PNG](implementation_timeline.png) \| [PDF](implementation_timeline.pdf) |
 
 ## 🎯 Use Cases

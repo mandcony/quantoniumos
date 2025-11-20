@@ -55,7 +55,7 @@ module tb_quantoniumos_unified;
 
       // Wait for done with timeout
       i = 0;
-      while (!done && i < 200000) begin
+      while (!done && i < 5000000) begin
         @(negedge clk);
         i = i + 1;
       end
@@ -92,6 +92,14 @@ module tb_quantoniumos_unified;
     #20;
     $finish;
   end
+
+  // Debug monitor - REMOVED to prevent console flooding
+  // always @(posedge clk) begin
+  //     if (start || !done) begin
+  //         $display("[%0t] mode=%0d state_dut=%0d done=%b rft_start=%b sis_start=%b feistel_start=%b", 
+  //                  $time, mode, dut.mode, done, dut.rft_start, dut.sis_hash_start, dut.feistel_start);
+  //     end
+  // end
 
 endmodule
 

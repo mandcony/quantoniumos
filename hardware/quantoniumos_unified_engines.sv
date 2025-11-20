@@ -33,13 +33,14 @@ module canonical_rft_core #(
     
     // Transform states
     localparam IDLE = 3'd0;
-    localparam COMPUTE_PHASE = 3'd1;
-    localparam APPLY_KERNEL = 3'd2;
-    localparam ORTHONORMALIZE = 3'd3;
-    localparam OUTPUT = 3'd4;
+    localparam SETUP_CORDIC = 3'd1;
+    localparam WAIT_CORDIC = 3'd2;
+    localparam APPLY_KERNEL = 3'd3;
+    localparam ORTHONORMALIZE = 3'd4;
+    localparam OUTPUT = 3'd5;
     
     reg [2:0] state;
-    reg [7:0] row_idx, col_idx;
+    integer row_idx, col_idx;
     
     // Precomputed golden-ratio phase sequence: φ_k = frac(k/φ)
     reg [PRECISION-1:0] phi_sequence [0:N-1];
@@ -71,6 +72,9 @@ module canonical_rft_core #(
             // Simplified: use (k * 0x9E37) >> 16 & 0xFFFF for fractional part
             phi_sequence[i] = (i * PHI) & 32'h0000_FFFF;
         end
+        // Debug
+        $display("Phi Sequence[0]: %h", phi_sequence[0]);
+        $display("Phi Sequence[1]: %h", phi_sequence[1]);
     end
     
     // Compute Gaussian kernel weight: exp(-0.5 * ((i-j)/(σ*N))^2)
@@ -79,10 +83,10 @@ module canonical_rft_core #(
         input [7:0] i, j;
         reg signed [15:0] diff;
         begin
-            diff = i - j;
+            diff = {8'b0, i} - {8'b0, j};
             // Approximation: w ≈ 1 - |diff|/N for small kernels
             if (diff < 0) diff = -diff;
-            gaussian_weight = (32'h0001_0000) - ((diff << 16) / N);
+            gaussian_weight = (32'h0001_0000) - (({16'b0, diff} << 16) / N);
         end
     endfunction
     
@@ -103,6 +107,8 @@ module canonical_rft_core #(
     end
     
     // Main RFT computation FSM
+    integer rst_i;
+    integer debug_cnt = 0;
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             state <= IDLE;
@@ -111,11 +117,20 @@ module canonical_rft_core #(
             valid <= 0;
             done <= 0;
             cordic_start <= 0;
+            accumulator_real <= 0;
+            accumulator_imag <= 0;
+            for (rst_i = 0; rst_i < N; rst_i = rst_i + 1) begin
+                signal_out_unpacked[rst_i] <= 0;
+            end
         end else begin
+            debug_cnt <= debug_cnt + 1;
+            // Debug print
+            if (debug_cnt < 20 || state != IDLE) $display("RFT State: %d, Start: %b, Row: %d, Col: %d", state, start, row_idx, col_idx);
+            
             case (state)
                 IDLE: begin
                     if (start) begin
-                        state <= COMPUTE_PHASE;
+                        state <= SETUP_CORDIC;
                         row_idx <= 0;
                         col_idx <= 0;
                         valid <= 0;
@@ -123,16 +138,20 @@ module canonical_rft_core #(
                     end
                 end
                 
-                COMPUTE_PHASE: begin
-                    // FIX F: Use CORDIC for proper exp(jθ) = cos(θ) + j*sin(θ)
+                SETUP_CORDIC: begin
                     // Construct RFT basis matrix element K[i,j]
                     // K[i,j] = gaussian_weight * exp(j*2π*φ[i]*φ[j]*β)
-                    kernel_weight <= gaussian_weight(row_idx, col_idx);
+                    kernel_weight <= gaussian_weight(8'(row_idx), 8'(col_idx));
                     
                     // Phase: θ = 2π * φ[i] * φ[j] * β
                     // Convert to CORDIC input format (scaled by 2π)
-                    cordic_angle <= ((phi_sequence[row_idx] * phi_sequence[col_idx]) >> 16) & 32'h0000_FFFF;
+                    cordic_angle <= 32'(((64'(phi_sequence[row_idx]) * phi_sequence[col_idx]) >> 16)) & 32'h0000_FFFF;
                     cordic_start <= 1;
+                    state <= WAIT_CORDIC;
+                end
+
+                WAIT_CORDIC: begin
+                    cordic_start <= 0;
                     
                     // Wait for CORDIC
                     if (cordic_valid) begin
@@ -140,7 +159,6 @@ module canonical_rft_core #(
                         // K[i,j] = w * (cos(θ) + j*sin(θ))
                         rft_matrix_real[row_idx][col_idx] <= (kernel_weight * cordic_cos) >>> 16;
                         rft_matrix_imag[row_idx][col_idx] <= (kernel_weight * cordic_sin) >>> 16;
-                        cordic_start <= 0;
                     
                         // Advance matrix construction
                         if (col_idx == N-1) begin
@@ -150,9 +168,11 @@ module canonical_rft_core #(
                                 row_idx <= 0;
                             end else begin
                                 row_idx <= row_idx + 1;
+                                state <= SETUP_CORDIC;
                             end
                         end else begin
                             col_idx <= col_idx + 1;
+                            state <= SETUP_CORDIC;
                         end
                     end
                 end
@@ -196,6 +216,7 @@ module canonical_rft_core #(
                     done <= 1;
                     state <= IDLE;
                 end
+                default: state <= IDLE;
             endcase
         end
     end
@@ -315,7 +336,7 @@ module rft_sis_hash_v31 #(
     localparam HASH_FINAL = 3'd5;
     
     reg [2:0] state;
-    reg [15:0] idx;
+    integer loop_idx;
     
     // Expanded coordinate vector (cryptographic expansion)
     reg [63:0] expanded [0:SIS_N-1];
@@ -368,23 +389,17 @@ module rft_sis_hash_v31 #(
         reg [63:0] hash_state;
         begin
             // Stage 1: Direct coordinate embedding
-            expanded[0] <= x;
-            expanded[1] <= y;
-            expanded[2] <= z;
+            expanded[0] = x;
+            expanded[1] = y;
+            expanded[2] = z;
             
             // Stage 2: Cryptographic expansion (SIMPLIFIED - NOT SECURE)
-            // Production MUST use:
-            // - SHAKE-128 or SHAKE-256 for XOF-based sampling
-            // - Centered binomial distribution for lattice vector s
-            // - Rejection sampling for uniform mod q
-            //
-            // Current: Placeholder hash chain (NOT cryptographically secure)
             hash_state = x ^ y ^ z;
             for (i = 3; i < SIS_N; i = i + 1) begin
-                // Davies-Meyer-like construction (still not secure without real hash)
+                // Davies-Meyer-like construction
                 hash_state = hash_state ^ (expanded[i-1] + 64'h9E3779B97F4A7C15);
                 hash_state = {hash_state[31:0], hash_state[63:32]} + hash_state; // Mix
-                expanded[i] <= hash_state;
+                expanded[i] = hash_state;
             end
         end
     endtask
@@ -401,20 +416,13 @@ module rft_sis_hash_v31 #(
                 for (j = 0; j < SIS_N; j = j + 1) begin
                     // CRITICAL: Production needs SHAKE-128 generated matrix A
                     // Current: Deterministic placeholder (NOT secure)
-                    // 
-                    // Proper implementation:
-                    // 1. Sample A[i,j] uniformly from [0, q-1] using SHAKE-128
-                    // 2. Use seed = domain_separator || i || j
-                    // 3. Rejection sampling if needed
-                    //
-                    // Temporary deterministic matrix (Toeplitz-like structure):
-                    a_element = ((i * 1103 + j * 3329 + 42) % SIS_Q);
+                    a_element = 16'((i * 1103 + j * 3329 + 42) % SIS_Q);
                     acc = acc + (a_element * sis_vector[j]);
                 end
                 // Reduce mod q with proper signed handling
-                lattice_point[i] <= (acc % SIS_Q);
+                lattice_point[i] = 32'(acc % SIS_Q);
                 if (lattice_point[i] > (SIS_Q/2))
-                    lattice_point[i] <= lattice_point[i] - SIS_Q;
+                    lattice_point[i] = lattice_point[i] - SIS_Q;
             end
         end
     endtask
@@ -423,15 +431,22 @@ module rft_sis_hash_v31 #(
         if (reset) begin
             state <= IDLE;
             valid <= 0;
-            idx <= 0;
             rft_start <= 0;
+            hash_digest <= 0;
+            for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
+                expanded[loop_idx] <= 0;
+                rft_output[loop_idx] <= 0;
+                sis_vector[loop_idx] <= 0;
+            end
+            for (loop_idx = 0; loop_idx < SIS_M; loop_idx = loop_idx + 1) begin
+                lattice_point[loop_idx] <= 0;
+            end
         end else begin
             case (state)
                 IDLE: begin
                     if (start) begin
                         state <= EXPAND_COORDS;
                         valid <= 0;
-                        idx <= 0;
                     end
                 end
                 
@@ -441,8 +456,8 @@ module rft_sis_hash_v31 #(
                     expand_coordinates(coordinate_x, coordinate_y, coordinate_z);
                     
                     // Prepare RFT input
-                    for (idx = 0; idx < SIS_N; idx = idx + 1) begin
-                        rft_signal_in_array[idx] <= expanded[idx][31:0];
+                    for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
+                        rft_signal_in_array[loop_idx] = expanded[loop_idx][31:0];
                     end
                     
                     rft_start <= 1;
@@ -453,8 +468,8 @@ module rft_sis_hash_v31 #(
                     rft_start <= 0;
                     if (rft_done) begin
                         // Capture RFT output
-                        for (idx = 0; idx < SIS_N; idx = idx + 1) begin
-                            rft_output[idx] <= rft_signal_out_array[idx];
+                        for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
+                            rft_output[loop_idx] = rft_signal_out_array[loop_idx];
                         end
                         state <= SIS_QUANTIZE;
                     end
@@ -462,9 +477,9 @@ module rft_sis_hash_v31 #(
                 
                 SIS_QUANTIZE: begin
                     // Quantize RFT output to SIS vector: s ∈ [-β, β]
-                    for (idx = 0; idx < SIS_N; idx = idx + 1) begin
+                    for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
                         // Scale and clip to [-SIS_BETA, SIS_BETA]
-                        sis_vector[idx] <= (rft_output[idx][30:16]) % SIS_BETA;
+                        sis_vector[loop_idx] = 16'(rft_output[loop_idx][30:16]) % SIS_BETA;
                     end
                     state <= SIS_LATTICE;
                 end
@@ -499,6 +514,7 @@ module rft_sis_hash_v31 #(
                     valid <= 1;
                     state <= IDLE;
                 end
+                default: state <= IDLE;
             endcase
         end
     end
@@ -511,7 +527,6 @@ endmodule
 // Based on feistel_48.c with AES S-box and MixColumns
 // ===============================================
 module feistel_round_function (
-    input wire clk,
     input wire [63:0] right_in,         // 64-bit right half
     input wire [127:0] round_key,       // 128-bit round key
     output reg [63:0] f_output          // F-function output
@@ -531,36 +546,39 @@ module feistel_round_function (
     // Golden ratio constant φ for key mixing
     localparam [63:0] PHI_64 = 64'h9E3779B97F4A7C15;
     
-    // F-function pipeline stages
+    // F-function pipeline stages (now combinatorial)
     reg [63:0] stage1_xor;
     reg [63:0] stage2_sbox;
     reg [63:0] stage3_mix;
     reg [63:0] stage4_arx;
     
-    always @(posedge clk) begin
+    always @(*) begin
         // Stage 1: XOR with round key
-        stage1_xor <= right_in ^ round_key[63:0];
+        stage1_xor = right_in ^ round_key[63:0];
         
         // Stage 2: Byte substitution (AES S-box)
-        stage2_sbox[7:0]   <= SBOX[stage1_xor[7:0]];
-        stage2_sbox[15:8]  <= SBOX[stage1_xor[15:8]];
-        stage2_sbox[23:16] <= SBOX[stage1_xor[23:16]];
-        stage2_sbox[31:24] <= SBOX[stage1_xor[31:24]];
-        stage2_sbox[39:32] <= SBOX[stage1_xor[39:32]];
-        stage2_sbox[47:40] <= SBOX[stage1_xor[47:40]];
-        stage2_sbox[55:48] <= SBOX[stage1_xor[55:48]];
-        stage2_sbox[63:56] <= SBOX[stage1_xor[63:56]];
+        stage2_sbox[7:0]   = SBOX[stage1_xor[7:0]];
+        stage2_sbox[15:8]  = SBOX[stage1_xor[15:8]];
+        stage2_sbox[23:16] = SBOX[stage1_xor[23:16]];
+        stage2_sbox[31:24] = SBOX[stage1_xor[31:24]];
+        stage2_sbox[39:32] = SBOX[stage1_xor[39:32]];
+        stage2_sbox[47:40] = SBOX[stage1_xor[47:40]];
+        stage2_sbox[55:48] = SBOX[stage1_xor[55:48]];
+        stage2_sbox[63:56] = SBOX[stage1_xor[63:56]];
         
         // Stage 3: MixColumns-style diffusion
         // Simplified: XOR with rotated copies
-        stage3_mix <= stage2_sbox ^ {stage2_sbox[6:0], stage2_sbox[63:7]} 
+        stage3_mix = stage2_sbox ^ {stage2_sbox[6:0], stage2_sbox[63:7]} 
                                   ^ {stage2_sbox[10:0], stage2_sbox[63:11]};
         
         // Stage 4: ARX (Add-Rotate-XOR) with golden ratio
-        stage4_arx <= ((stage3_mix + PHI_64) ^ (stage3_mix <<< 13) ^ (stage3_mix >>> 29));
+        stage4_arx = ((stage3_mix + PHI_64) ^ (stage3_mix <<< 13) ^ (stage3_mix >>> 29));
         
         // Final output
-        f_output <= stage4_arx ^ round_key[127:64];
+        f_output = stage4_arx ^ round_key[127:64];
+        
+        // Debug
+        if (right_in != 0) $display("Feistel F: In=%h Key=%h Out=%h SBOX[0]=%h", right_in, round_key, f_output, SBOX[0]);
     end
 
 endmodule
@@ -610,7 +628,6 @@ module feistel_48_cipher (
     
     // Instantiate F-function
     feistel_round_function f_func (
-        .clk(clk),
         .right_in(right),
         .round_key(round_keys[round_counter]),
         .f_output(f_out)
@@ -644,14 +661,14 @@ module feistel_48_cipher (
                 temp = prk ^ (r * 256'h9E3779B97F4A7C159E3779B97F4A7C15);
                 temp = {temp[223:0], temp[255:224]} + temp;  // Mix
                 okm = temp[127:0] ^ temp[255:128];
-                round_keys[r] <= okm;
+                round_keys[r] = okm;
             end
             
             // Derive whitening keys with domain separation
             temp = prk ^ PRE_WHITEN_CONST;
-            pre_whiten <= temp[127:0];
+            pre_whiten = temp[127:0];
             temp = prk ^ POST_WHITEN_CONST;
-            post_whiten <= temp[255:128];
+            post_whiten = temp[255:128];
         end
     endtask
     
@@ -660,6 +677,14 @@ module feistel_48_cipher (
             state <= IDLE;
             round_counter <= 0;
             done <= 0;
+            ciphertext <= 0;
+            left <= 0;
+            right <= 0;
+            left_next <= 0;
+            right_next <= 0;
+            pre_whiten <= 0;
+            post_whiten <= 0;
+            for (integer k=0; k<ROUNDS; k++) round_keys[k] <= 0;
         end else begin
             case (state)
                 IDLE: begin
@@ -704,6 +729,7 @@ module feistel_48_cipher (
                     done <= 1;
                     state <= IDLE;
                 end
+                default: state <= IDLE;
             endcase
         end
     end
@@ -823,6 +849,7 @@ module quantoniumos_unified_core #(
     
     // Main control FSM
     reg [2:0] pipeline_stage;
+    integer loop_i;
     
     always @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -834,7 +861,11 @@ module quantoniumos_unified_core #(
             throughput_accumulator <= 0;
             pipeline_stage <= 0;
             data_out <= 256'h0;
+            for (loop_i = 0; loop_i < RFT_SIZE; loop_i = loop_i + 1) begin
+                rft_signal_in_array[loop_i] <= 0;
+            end
         end else begin
+            done <= 0;
             cycle_counter <= cycle_counter + 1;
             
             case (mode)
@@ -846,6 +877,9 @@ module quantoniumos_unified_core #(
                         rft_signal_in_array[1] <= data_in[63:32];
                         rft_signal_in_array[2] <= data_in[95:64];
                         rft_signal_in_array[3] <= data_in[127:96];
+                        for (loop_i = 4; loop_i < RFT_SIZE; loop_i = loop_i + 1) begin
+                            rft_signal_in_array[loop_i] <= 0;
+                        end
                         rft_start <= 1;
                     end else begin
                         rft_start <= 0;
@@ -931,6 +965,8 @@ module quantoniumos_unified_core #(
                                 pipeline_stage <= 3'd0;
                             end
                         end
+                        
+                        default: pipeline_stage <= 3'd0;
                     endcase
                 end
                 
