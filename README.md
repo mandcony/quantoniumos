@@ -5,7 +5,7 @@
 > - **compression** pipelines (lossless + hybrid learned),
 > - **cryptographic** experiments (RFT–SIS hashing),
 > - and **comprehensive validation** suites.  
-> All “quantum” modules are **classical simulations** with explicit mathematical checks.
+> All "quantum" modules are **classical simulations** or **quantum-inspired data structures** with explicit mathematical checks. They do not simulate physical quantum mechanics.
 
 **USPTO Application:** 19/169,399 (Filed 2025-04-03)  
 **Title:** *Hybrid Computational Framework for Quantum and Resonance Simulation*

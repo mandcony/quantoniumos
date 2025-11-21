@@ -97,3 +97,16 @@ def compress_quantum_model(model_data):
         'metadata': model_data.metadata
     }
 ```
+
+## Quantum Simulation Experiments
+
+### RFT Compressibility Probe (`rft_quantum_sim.py`)
+
+Implements a "Compressed Simulation" loop to test if Φ-RFT can overcome the "2^n wall" via sparsity.
+
+**Key Findings:**
+- **GHZ States**: Not compressible in Φ-RFT (k99 ~ 82% of dimension).
+- **Random States**: Not compressible (k99 ~ 86% of dimension).
+- **Simulation**: Fidelity degrades rapidly for general circuits when pruning to 25% coefficients.
+
+**Conclusion:** The Φ-RFT basis does not automatically sparsify standard quantum states. The exponential memory cost remains for general circuits.

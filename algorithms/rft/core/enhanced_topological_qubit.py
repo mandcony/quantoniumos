@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """
-Enhanced Topological Qubit Data Structures
-===========================================
-Fixed topological data structures with proper manifold representations,
-braiding operations, and surface code integration for fault-tolerant quantum computing.
+Enhanced Topological Qubit Data Structures (Quantum-Inspired)
+=============================================================
+Classical data structures simulating topological manifold representations,
+braiding operations, and surface code integration for quantum-inspired computing.
+
+NOTE: This module implements classical simulations of topological quantum concepts.
+It does not interface with physical quantum hardware or simulate quantum mechanics
+at the wavefunction level. "Qubits", "Anyons", and "Braiding" refer to
+simulated data structures and matrix operations, not physical quasiparticles.
 """
 
 import numpy as np
@@ -77,7 +82,13 @@ class TopologicalEdge:
     error_syndrome: int = 0
 
 class EnhancedTopologicalQubit:
-    """Enhanced qubit with full topological quantum computing capabilities."""
+    """
+    Enhanced qubit simulation with topological data structures.
+    
+    This class manages a classical graph-based representation of a topological
+    manifold to simulate properties like braiding and error correction codes.
+    It is a 'Quantum-Inspired' data structure, not a physical qubit simulation.
+    """
     
     def __init__(self, qubit_id: int, num_vertices: int = 1000):
         self.qubit_id = qubit_id

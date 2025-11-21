@@ -5,9 +5,12 @@
 # under LICENSE-CLAIMS-NC.md (research/education only). Commercial
 # rights require a separate patent license from the author.
 """
-Enhanced Vertex-Based Quantum RFT Engine
-Uses geometric waveform storage with proper topological quantum computing integration
-Integrates with enhanced topological qubits and fixed braiding operations
+Enhanced Vertex-Based Quantum-Inspired RFT Engine
+Uses geometric waveform storage with topological data structure integration
+Integrates with enhanced topological qubit simulations and fixed braiding operations
+
+NOTE: This engine performs classical signal processing using quantum-inspired
+mathematical structures. It is not a quantum computer simulator.
 """
 
 import numpy as np
@@ -17,7 +20,7 @@ import json
 import hashlib
 
 class EnhancedVertexQuantumRFT:
-    """Enhanced vertex-based quantum RFT engine with proper topological integration."""
+    """Enhanced vertex-based quantum-inspired RFT engine with topological integration."""
     
     def __init__(self, data_size: int, vertex_qubits: int = 1000):
         """Initialize enhanced vertex quantum RFT system.
