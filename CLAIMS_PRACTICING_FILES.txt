@@ -51,3 +51,6 @@ algorithms/crypto/crypto_benchmarks/rft_sis/**
 # --- Hardware implementations practicing claims ---
 hardware/fpga_top.sv
 hardware/makerchip_rft_closed_form.tlv
+hardware/quantoniumos_unified_engines.sv
+hardware/rft_middleware_engine.sv
+hardware/quantoniumos_unified_engines_synthesis.tcl

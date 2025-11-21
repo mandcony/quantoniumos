@@ -32,14 +32,28 @@ class CanonicalTrueRFT:
         self._rft_matrix = self._construct_rft_matrix()
     
     def _construct_rft_matrix(self) -> np.ndarray:
-        Psi = np.zeros((self.N, self.N), dtype=complex)
-        for k in range(self.N):
-            for n in range(self.N):
-                theta = 2 * np.pi * k * n / self.N
-                phi_factor = self.phi ** (k * n / (self.N * self.N))
-                Psi[k, n] = np.exp(1j * theta) * phi_factor / np.sqrt(self.N)
-        Q, _ = np.linalg.qr(Psi)
-        return Q
+        # Closed-Form Φ-RFT: Ψ = D_φ C_σ F
+        # 1. DFT Matrix F (normalized)
+        F = np.fft.fft(np.eye(self.N), norm="ortho")
+        
+        # 2. Diagonal Phase Matrices
+        k = np.arange(self.N)
+        
+        # D_φ: Golden ratio phase
+        # φ_k = {k/φ}
+        frac_k_phi = (k / self.phi) % 1.0
+        theta_phi = 2 * np.pi * 1.0 * frac_k_phi  # beta=1.0
+        D_phi = np.diag(np.exp(1j * theta_phi))
+        
+        # C_σ: Quadratic chirp
+        # θ_k = π σ k²/N
+        theta_sigma = np.pi * 1.0 * (k**2) / self.N  # sigma=1.0
+        C_sigma = np.diag(np.exp(1j * theta_sigma))
+        
+        # 3. Compose: Ψ = D C F
+        # Note: Since D and C are diagonal, this is equivalent to row-scaling F
+        Psi = D_phi @ C_sigma @ F
+        return Psi
     
     def transform(self, signal: np.ndarray) -> np.ndarray:
         return self._rft_matrix @ signal

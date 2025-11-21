@@ -139,13 +139,24 @@ module canonical_rft_core #(
                 end
                 
                 SETUP_CORDIC: begin
-                    // Construct RFT basis matrix element K[i,j]
-                    // K[i,j] = gaussian_weight * exp(j*2π*φ[i]*φ[j]*β)
-                    kernel_weight <= gaussian_weight(8'(row_idx), 8'(col_idx));
+                    // Closed-Form Φ-RFT: Ψ_jk = (1/√N) * exp(i * 2π * (β{j/φ} + 0.5σj²/N - jk/N))
+                    // j = row_idx, k = col_idx
                     
-                    // Phase: θ = 2π * φ[i] * φ[j] * β
-                    // Convert to CORDIC input format (scaled by 2π)
-                    cordic_angle <= 32'(((64'(phi_sequence[row_idx]) * phi_sequence[col_idx]) >> 16)) & 32'h0000_FFFF;
+                    // Amplitude: 1/√N (For N=64, 1/8 = 0.125 = 0x2000)
+                    kernel_weight <= 32'h0000_2000;
+                    
+                    // Phase Calculation: angle = 2π * ({j/φ} + 0.5j²/N - jk/N)
+                    // 2π in Q16.16 = 0x6487E
+                    // We compute terms directly in radians to avoid precision loss
+                    
+                    cordic_angle <= (
+                        (phi_sequence[row_idx] * 32'h6487E) >>> 16
+                    ) + (
+                        ((row_idx * row_idx * 32'h6487E) / (2 * N))
+                    ) - (
+                        ((row_idx * col_idx * 32'h6487E) / N)
+                    );
+                    
                     cordic_start <= 1;
                     state <= WAIT_CORDIC;
                 end

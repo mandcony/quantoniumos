@@ -9,6 +9,11 @@
 #include <string.h>
 #include <math.h>
 
+static inline double rft_frac(double x) {
+    double frac = x - floor(x);
+    return (frac < 0.0) ? frac + 1.0 : frac;
+}
+
 // Advanced SIMD intrinsics for AVX
 #ifdef __AVX__
 #include <immintrin.h>
@@ -89,122 +94,42 @@ rft_error_t rft_cleanup(rft_engine_t* engine) {
  * @return true if successful, false otherwise
  */
 bool rft_build_basis(rft_engine_t* engine) {
-    const size_t N = engine->size;
-    
-    // Allocate matrices for QR decomposition
-    rft_complex_t* K = (rft_complex_t*)malloc(sizeof(rft_complex_t) * N * N);  // Kernel matrix
-    rft_complex_t* Q = (rft_complex_t*)malloc(sizeof(rft_complex_t) * N * N);  // Orthogonal result
-    double* temp_eigenvalues = (double*)malloc(sizeof(double) * N);
-    
-    if (!K || !Q || !temp_eigenvalues) {
-        if (K) free(K);
-        if (Q) free(Q);
-        if (temp_eigenvalues) free(temp_eigenvalues);
+    if (!engine || !engine->basis || !engine->eigenvalues) {
         return false;
     }
-    
-    // Initialize matrices to zero
-    memset(K, 0, sizeof(rft_complex_t) * N * N);
-    memset(Q, 0, sizeof(rft_complex_t) * N * N);
-    
-    // === PAPER-COMPLIANT RFT: Ψ = Σᵢ wᵢDφᵢCσᵢD†φᵢ ===
-    const double phi = RFT_PHI;  // Golden ratio: 1.618...
-    
-    // Build resonance kernel following the paper equation
-    for (size_t component = 0; component < N; component++) {
-        // Golden ratio phase sequence: φₖ = (k*φ) mod 1
-        double phi_k = fmod((double)component * phi, 1.0);
-        double w_i = 1.0 / N;  // Equal weights for components
-        
-        // Build component matrices: wᵢDφᵢCσᵢD†φᵢ
-        for (size_t m = 0; m < N; m++) {
-            for (size_t n = 0; n < N; n++) {
-                // Phase operators Dφᵢ and D†φᵢ (diagonal)
-                double phase_m = RFT_2PI * phi_k * m / N;
-                double phase_n = RFT_2PI * phi_k * n / N;
-                
-                // Convolution kernel Cσᵢ with Gaussian profile  
-                double sigma_i = 1.0 + 0.1 * component;
-                size_t dist = (m > n) ? (m - n) : (n - m);
-                if (dist > N/2) dist = N - dist;  // Circular distance
-                double C_sigma = exp(-0.5 * (dist * dist) / (sigma_i * sigma_i));
-                
-                // Matrix element: wᵢ * exp(iφₖm) * C_σ * exp(-iφₖn)
-                // = wᵢ * C_σ * exp(iφₖ(m-n))
-                double phase_diff = phase_m - phase_n;
-                double element_real = w_i * C_sigma * cos(phase_diff);
-                double element_imag = w_i * C_sigma * sin(phase_diff);
-                
-                // Accumulate into kernel matrix
-                K[m * N + n].real += element_real;
-                K[m * N + n].imag += element_imag;
-            }
-        }
+
+    const size_t N = engine->size;
+    if (N == 0) {
+        return false;
     }
-    
-    // === CRITICAL: QR DECOMPOSITION FOR TRUE UNITARITY ===
-    // Copy K to Q for QR decomposition
-    memcpy(Q, K, sizeof(rft_complex_t) * N * N);
-    
-    // Modified Gram-Schmidt QR decomposition
-    for (size_t j = 0; j < N; j++) {
-        // Orthogonalize column j against all previous columns
-        for (size_t k = 0; k < j; k++) {
-            // Compute inner product: ⟨Q[:, k], Q[:, j]⟩
-            rft_complex_t dot_product = {0.0, 0.0};
-            
-            for (size_t i = 0; i < N; i++) {
-                // Conjugate of Q[i, k] times Q[i, j]
-                double qk_real = Q[i * N + k].real;
-                double qk_imag = -Q[i * N + k].imag;  // Conjugate
-                double qj_real = Q[i * N + j].real;
-                double qj_imag = Q[i * N + j].imag;
-                
-                dot_product.real += qk_real * qj_real - qk_imag * qj_imag;
-                dot_product.imag += qk_real * qj_imag + qk_imag * qj_real;
-            }
-            
-            // Subtract projection: Q[:, j] -= ⟨Q[:, k], Q[:, j]⟩ * Q[:, k]
-            for (size_t i = 0; i < N; i++) {
-                double qk_real = Q[i * N + k].real;
-                double qk_imag = Q[i * N + k].imag;
-                
-                Q[i * N + j].real -= dot_product.real * qk_real - dot_product.imag * qk_imag;
-                Q[i * N + j].imag -= dot_product.real * qk_imag + dot_product.imag * qk_real;
-            }
+
+    const double inv_sqrt_n = 1.0 / sqrt((double)N);
+    const double beta = 1.0;
+    const double sigma = 1.0;
+
+    for (size_t k = 0; k < N; ++k) {
+        double frac = rft_frac((double)k / RFT_PHI);
+        double theta = RFT_2PI * beta * frac;
+        double chirp = RFT_PI * sigma * ((double)k * (double)k) / (double)N;
+        double diag_angle = theta + chirp;
+        double diag_real = cos(diag_angle);
+        double diag_imag = sin(diag_angle);
+
+        for (size_t n = 0; n < N; ++n) {
+            double fft_angle = -RFT_2PI * ((double)k * (double)n) / (double)N;
+            double fft_real = cos(fft_angle) * inv_sqrt_n;
+            double fft_imag = sin(fft_angle) * inv_sqrt_n;
+
+            double real = diag_real * fft_real - diag_imag * fft_imag;
+            double imag = diag_real * fft_imag + diag_imag * fft_real;
+
+            engine->basis[k * N + n].real = real;
+            engine->basis[k * N + n].imag = imag;
         }
-        
-        // Normalize column j
-        double norm_squared = 0.0;
-        for (size_t i = 0; i < N; i++) {
-            double real = Q[i * N + j].real;
-            double imag = Q[i * N + j].imag;
-            norm_squared += real * real + imag * imag;
-        }
-        
-        double norm = sqrt(norm_squared);
-        if (norm > 1e-12) {  // Avoid division by zero
-            for (size_t i = 0; i < N; i++) {
-                Q[i * N + j].real /= norm;
-                Q[i * N + j].imag /= norm;
-            }
-        }
+
+        engine->eigenvalues[k] = 1.0;
     }
-    
-    // Set eigenvalues to 1.0 (unitary matrices have unit eigenvalue magnitudes)
-    for (size_t i = 0; i < N; i++) {
-        temp_eigenvalues[i] = 1.0;
-    }
-    
-    // Copy the unitary matrix Q to the engine basis
-    memcpy(engine->basis, Q, sizeof(rft_complex_t) * N * N);
-    memcpy(engine->eigenvalues, temp_eigenvalues, sizeof(double) * N);
-    
-    // Cleanup
-    free(K);
-    free(Q);
-    free(temp_eigenvalues);
-    
+
     return true;
 }
 

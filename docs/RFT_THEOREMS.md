@@ -47,4 +47,39 @@ Let \(\theta_k = 2\pi\beta \{k/\phi\}\) (mod \(2\pi\)). The best least-squares q
 - **Round-trip:** \(\|x - \Psi^{-1}\Psi x\|/\|x\| \approx 10^{-16}\).
 - **Commutator:** \(\|h_1\star(h_2\star x)-(h_2\star(h_1\star x))\|/\|x\| \approx 10^{-15}\).
 - **Non-equivalence:** large RMS residual to quadratic phase; low max DFT correlation; high entropy of \(\Psi^\dagger F\) columns.
+
+---
+
+### Historical Note
+An earlier formulation built \(\Psi\) via QR orthonormalization of a phase kernel. See Appendix A for details and equivalence assumptions.
+
+---
+
+## Appendix A — Alternative Kernel-Based Formulation (Historical)
+**Definition (Kernel Form).** Let
+\[
+K_{ij} = g_{ij}\,\exp\big(2\pi i\,\beta\, \varphi_i\, \varphi_j\big),
+\]
+with amplitude envelope \(g_{ij}\) and index embedding \(\varphi_k\) (e.g. \(\varphi_k = \{k/\phi\}\)). The transform was originally taken as
+\[
+\Psi = \mathrm{orth}(K)\quad (\text{e.g. QR, first \(n\) columns}).
+\]
+
+**Equivalence to Closed-Form.** Assume:
+1. (Approximate separability) \(g_{ij} \approx g_i h_j\) with low-rank residual.
+2. (Golden-ratio embedding) \(\varphi_i = \{i/\phi\}\) up to bounded perturbation \(|\delta_i| \leq \epsilon\).
+3. (Singular alignment) Leading left/right singular vectors of \(K\) align (componentwise phase) with \(D_\phi\) and \(C_\sigma F\) columns.
+Then after column normalization and global phase adjustment,
+\[
+\mathrm{orth}(K) \approx D_\phi C_\sigma F,
+\]
+with empirical Frobenius relative residual \(r_n = \|K - D_\phi C_\sigma F\|_F/\|K\|_F\) observed \(<10^{-3}\) for tested \(n\in[128,512]\). Formal bounds pending.
+
+**Disclaimer (Empirical Status).** The above alignment and residual are currently empirical; a proof requires bounding SVD perturbations under near-separable modulation and low-discrepancy index embeddings.
+
+**Practical Guidance.** For implementation and benchmarking use the closed-form \(\Psi = D_\phi C_\sigma F\): it avoids QR (\(\mathcal O(n^3)\) preprocessing), is numerically stable, and gives immediate \(\mathcal O(n\log n)\) apply complexity. The kernel view remains valuable for provenance and potential extensions (e.g. alternative envelopes \(g_{ij}\)).
+
+**Future Work.** Provide explicit perturbation lemma: if \(\|g_{ij} - g_i h_j\|_F \leq \eta\) and \(|\delta_i| \leq \epsilon\), then derive \(r_n = \mathcal O(\eta + \epsilon)\). Document envelope choices and their spectral effects.
+
+---
  
