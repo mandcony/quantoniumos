@@ -86,15 +86,23 @@ def create_transform_evolution_gif():
         X_rft_partial = X_rft.copy()
         X_rft_partial[progress:] = 0
         stem_rft.markerline.set_data(np.arange(n), np.abs(X_rft_partial))
-        for line, xi in zip(stem_rft.stemlines, np.abs(X_rft_partial)):
-            line.set_data([line.get_xdata()[0]]*2, [0, xi])
+        
+        # Update stemlines efficiently for LineCollection
+        segments_rft = []
+        for i, val in enumerate(np.abs(X_rft_partial)):
+            segments_rft.append([[i, 0], [i, val]])
+        stem_rft.stemlines.set_segments(segments_rft)
         
         # FFT spectrum - for comparison
         X_fft_partial = X_fft.copy()
         X_fft_partial[progress:] = 0
         stem_fft.markerline.set_data(np.arange(n), np.abs(X_fft_partial))
-        for line, xi in zip(stem_fft.stemlines, np.abs(X_fft_partial)):
-            line.set_data([line.get_xdata()[0]]*2, [0, xi])
+        
+        # Update stemlines efficiently for LineCollection
+        segments_fft = []
+        for i, val in enumerate(np.abs(X_fft_partial)):
+            segments_fft.append([[i, 0], [i, val]])
+        stem_fft.stemlines.set_segments(segments_fft)
         
         # Complex plane
         X_show = X_rft_partial[np.abs(X_rft_partial) > 0.01]
@@ -230,9 +238,9 @@ def create_signal_reconstruction_gif():
         
         # Update frequency domain (highlight used coefficients)
         colors = ['red' if i < n_coeffs else 'lightgray' for i in range(n)]
-        for line, color in zip(stem_freq.stemlines, colors):
-            line.set_color(color)
-        stem_freq.markerline.set_color(['red' if i < n_coeffs else 'lightgray' for i in range(n)])
+        stem_freq.stemlines.set_colors(colors)
+        # markerline is Line2D, cannot set individual colors easily.
+        stem_freq.markerline.set_color('blue')
         
         # Update reconstruction
         line_recon.set_data(t, np.real(x_recon))
@@ -421,8 +429,11 @@ def create_unitarity_demo_gif():
         
         # Update frequency domain
         stem_freq.markerline.set_data(np.arange(n), np.abs(X))
-        for line, xi in zip(stem_freq.stemlines, np.abs(X)):
-            line.set_data([line.get_xdata()[0]]*2, [0, xi])
+        
+        segments = []
+        for i, val in enumerate(np.abs(X)):
+            segments.append([[i, 0], [i, val]])
+        stem_freq.stemlines.set_segments(segments)
         
         # Update bars
         bar_energy[0].set_height(e_time)

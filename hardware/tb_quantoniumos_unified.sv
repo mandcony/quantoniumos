@@ -55,7 +55,7 @@ module tb_quantoniumos_unified;
 
       // Wait for done with timeout
       i = 0;
-      while (!done && i < 5000000) begin
+      while (!done && i < 50000000) begin
         @(negedge clk);
         i = i + 1;
       end

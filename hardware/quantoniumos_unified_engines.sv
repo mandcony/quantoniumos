@@ -106,6 +106,19 @@ module canonical_rft_core #(
         end
     end
     
+    // Instantiate CORDIC Core
+    cordic_sincos #(
+        .WIDTH(PRECISION)
+    ) cordic_inst (
+        .clk(clk),
+        .reset(reset),
+        .start(cordic_start),
+        .angle(cordic_angle),
+        .cos_out(cordic_cos),
+        .sin_out(cordic_sin),
+        .valid(cordic_valid)
+    );
+
     // Main RFT computation FSM
     integer rst_i;
     integer debug_cnt = 0;
@@ -124,8 +137,8 @@ module canonical_rft_core #(
             end
         end else begin
             debug_cnt <= debug_cnt + 1;
-            // Debug print
-            if (debug_cnt < 20 || state != IDLE) $display("RFT State: %d, Start: %b, Row: %d, Col: %d", state, start, row_idx, col_idx);
+            // Debug print - limited to first 50 cycles to avoid spam
+            if (debug_cnt < 50) $display("RFT State: %d, Start: %b, Row: %d, Col: %d", state, start, row_idx, col_idx);
             
             case (state)
                 IDLE: begin
@@ -445,12 +458,12 @@ module rft_sis_hash_v31 #(
             rft_start <= 0;
             hash_digest <= 0;
             for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
-                expanded[loop_idx] <= 0;
-                rft_output[loop_idx] <= 0;
-                sis_vector[loop_idx] <= 0;
+                expanded[loop_idx] = 0;
+                rft_output[loop_idx] = 0;
+                sis_vector[loop_idx] = 0;
             end
             for (loop_idx = 0; loop_idx < SIS_M; loop_idx = loop_idx + 1) begin
-                lattice_point[loop_idx] <= 0;
+                lattice_point[loop_idx] = 0;
             end
         end else begin
             case (state)
@@ -545,7 +558,14 @@ module feistel_round_function (
 
     // AES S-box (first 64 entries for demo - full 256 in production)
     reg [7:0] SBOX [0:255];
+    integer sbox_i;
     initial begin
+        // Initialize all to avoid X-propagation
+        for (sbox_i = 0; sbox_i < 256; sbox_i = sbox_i + 1) begin
+            SBOX[sbox_i] = sbox_i[7:0];
+        end
+        
+        // Specific AES values
         SBOX[  0] = 8'h63; SBOX[  1] = 8'h7C; SBOX[  2] = 8'h77; SBOX[  3] = 8'h7B;
         SBOX[  4] = 8'hF2; SBOX[  5] = 8'h6B; SBOX[  6] = 8'h6F; SBOX[  7] = 8'hC5;
         SBOX[  8] = 8'h30; SBOX[  9] = 8'h01; SBOX[ 10] = 8'h67; SBOX[ 11] = 8'h2B;
@@ -676,10 +696,10 @@ module feistel_48_cipher (
             end
             
             // Derive whitening keys with domain separation
-            temp = prk ^ PRE_WHITEN_CONST;
-            pre_whiten = temp[127:0];
-            temp = prk ^ POST_WHITEN_CONST;
-            post_whiten = temp[255:128];
+            // temp = prk ^ PRE_WHITEN_CONST;
+            // pre_whiten = temp[127:0]; // Moved to state machine to avoid BLKANDNBLK
+            // temp = prk ^ POST_WHITEN_CONST;
+            // post_whiten = temp[255:128]; // Moved to state machine
         end
     endtask
     
@@ -710,9 +730,15 @@ module feistel_48_cipher (
                     // Derive all round keys
                     derive_round_keys(master_key);
                     
-                    // Initial whitening
-                    left <= plaintext[127:64] ^ pre_whiten[127:64];
-                    right <= plaintext[63:0] ^ pre_whiten[63:0];
+                    // Calculate whitening keys (PRK = MK ^ SALT)
+                    // Pre-whiten = PRK ^ PRE_CONST
+                    pre_whiten <= (master_key ^ HKDF_SALT ^ PRE_WHITEN_CONST) & 256'hFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+                    // Post-whiten = PRK ^ POST_CONST
+                    post_whiten <= ((master_key ^ HKDF_SALT ^ POST_WHITEN_CONST) >> 128);
+                    
+                    // Initial whitening (using the calculated values directly)
+                    left <= plaintext[127:64] ^ ((master_key ^ HKDF_SALT ^ PRE_WHITEN_CONST) >> 64);
+                    right <= plaintext[63:0] ^ ((master_key ^ HKDF_SALT ^ PRE_WHITEN_CONST) & 64'hFFFFFFFFFFFFFFFF);
                     
                     round_counter <= 0;
                     state <= PROCESSING;
