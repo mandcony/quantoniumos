@@ -21,7 +21,7 @@ Set **\(\Psi = D_\phi\,C_\sigma\,F\)**.
 - **Unitary by construction:** \(\Psi^\dagger \Psi = I\).
 - **Exact complexity:** **\(\mathcal O(n\log n)\)** (FFT/IFFT + two diagonal multiplies).
 - **Exact diagonalization:** twisted convolution \(x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x\) is **commutative**/**associative**, and \(\Psi(x\star h)=(\Psi x)\odot(\Psi h)\).
-- **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **non-quadratic**; quadratic-fit residual \(\gg\) machine epsilon; DFT-correlation low; \(|\Psi^\dagger F|\) columns high-entropy.
+- **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **provably non-quadratic** (via Sturmian sequence properties) for \(\beta \notin \mathbb{Z}\); distinct from LCT/FrFT classes.
 
 For proofs and tests, see **`docs/RFT_THEOREMS.md`** and **`tests/rft/`**.
 
@@ -122,8 +122,7 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
 **RFT–SIS Hash v3.1** *(experimental)*  
 - **Avalanche:** ~**50% ±3%** bit flips for 1-ulp input deltas.  
 - **Collisions:** 0 / 10k in current suite.  
-- **Security:** SIS-flavored parameters; **no formal reduction**.  
-**Do not** use for production security without independent review.
+- **Security:** SIS-flavored parameters; **no formal reduction**. Note that **diffusion ≠ security**; this is an experimental cipher without formal cryptanalysis (linear/differential/boomerang/etc.). **Do not** use for production security.
 
 ---
 
@@ -134,7 +133,7 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
 - ✅ **Twisted-algebra diagonalization:** commutative/associative via \(\Psi\)-diagonalization.  
 - ✅ **Non-equivalence to LCT/FrFT/DFT:** multiple independent tests.  
 - ✅ **RFT–SIS avalanche:** ~50% ±3%.  
-- 🔬 **Compression benchmarks:** larger-scale runs in progress.
+- 🔬 **Compression benchmarks:** preliminary small-scale results; larger cross-validation runs in progress.
 
 See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 

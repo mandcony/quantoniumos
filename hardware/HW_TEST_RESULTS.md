@@ -1,5 +1,5 @@
 # QuantoniumOS Hardware Test Results
-**Date:** November 19, 2025
+**Date:** November 21, 2025
 **Environment:** Linux (Dev Container)
 
 ## 1. Standalone RFT Engine (`sim_rft`)
@@ -14,16 +14,20 @@ The standalone 8x8 RFT middleware engine was simulated with `iverilog`.
 - **Key Result:** "ALL TESTS COMPLETED!" verified in logs.
 
 ## 2. Unified Engine (`sim_unified`)
-**Status:** ⚠️ **PARTIAL / WIP**
+**Status:** ✅ **PASS**
 
 The unified stack (RFT + SIS + Feistel) was simulated.
-- **Observations:**
-  - Simulation completes and generates VCD.
-  - **Issue:** `[TB] TIMEOUT waiting for mode 0` observed.
-  - **Issue:** Data output contains `x` (undefined) states (`data_out=...xxxx`).
-- **Action Required:** Fix Mode 0 handshake and initialize registers to resolve X-propagation.
+- **Mode 0 (RFT):** ✅ PASS. Energy conserved.
+- **Mode 1 (SIS Hash):** ✅ PASS. N=512 transform completed (Timeout fixed).
+- **Mode 2 (Feistel):** ✅ PASS. 48 rounds completed, valid ciphertext (X-prop fixed).
+- **Mode 3 (Pipeline):** ✅ PASS. Full integration verified.
 
-## 3. Linting (`verilate`)
+## 3. Scope & Limitations
+- **Feasibility Study:** This implementation demonstrates functional feasibility of the Φ-RFT architecture.
+- **Transform Size:** Detailed visualization and standalone testing focused on the 8-point core. The SIS engine implements N=512, but detailed timing/throughput scaling analysis for $N \ge 256$ is not included in this report.
+- **Performance:** This is a functional verification paper, not a performance characterization. FPGA resource utilization and max frequency analysis for large $N$ are reserved for future work.
+
+## 4. Linting (`verilate`)
 **Status:** ❌ **FAIL (Lint Errors)**
 
 Verilator static analysis reported issues.
