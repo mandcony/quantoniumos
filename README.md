@@ -135,7 +135,7 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
 - ✅ **RFT–SIS avalanche:** ~50% ±3%.  
 - 🔬 **Compression benchmarks:** preliminary small-scale results; larger cross-validation runs in progress.
 
-See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
+See `tests/`, `algorithms/crypto/crypto_benchmarks/rft_sis/`, and `docs/reports/CLOSED_FORM_RFT_VALIDATION.md` for an end-to-end empirical summary.
 
 ---
 

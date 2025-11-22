@@ -13,6 +13,7 @@
 - **docs/PROJECT_STRUCTURE.md** - Directory organization
 - **docs/REPRODUCIBILITY.md** - How to reproduce results
 - **docs/RFT_VALIDATION_GUIDE.md** - Testing the RFT algorithms
+- **docs/reports/CLOSED_FORM_RFT_VALIDATION.md** - Empirical evidence and novelty analysis for the closed-form Phi-RFT
 
 ### Hardware/FPGA
 - **hardware/quantoniumos_engines_README.md** - Verilog/SystemVerilog hardware design

@@ -139,5 +139,78 @@ Set \(\Psi = D_\phi\,C_\sigma\,F\).
                                                                               **Future Work.** Provide explicit perturbation lemma: if \(\|g_{ij} - g_i h_j\|_F \leq \eta\) and \(|\delta_i| \leq \epsilon\), then derive \(r_n = \mathcal O(\eta + \epsilon)\). Document envelope choices and their spectral effects.
 
                                                                               ---
-                                                                               
-                                                                               
+ 
+                                                                              ## Open Conjectures and Analytic Proof Roadmap
+
+                                                                              This section records conjectural statements and a proposed analytic path toward rigorous proofs. These are **not yet proven**; they summarize the intended direction for future work.
+
+                                                                              ### Conjecture 1 — Perturbation Lemma for Kernel-to-Closed-Form Equivalence
+
+                                                                              Let
+                                                                              \[
+                                                                              K_{ij} = g_{ij} \exp\big(2\pi i\,\beta\, \varphi_i\, \varphi_j\big), \qquad
+                                                                              \widetilde K_{ij} = g_i h_j \exp\big(2\pi i\,\beta\, \tfrac{i}{\phi}\, \tfrac{j}{\phi}\big),
+                                                                              \]
+                                                                              where
+
+                                                                              - the envelope is approximately separable, \(g_{ij} = g_i h_j + E_{ij}\) with \(\|E\|_F \leq \eta\),
+                                                                              - the embedding is near-Sturmian, \(\varphi_i = \tfrac{i}{\phi} + \delta_i\) with \(|\delta_i| \leq \epsilon\),
+                                                                              - \(\phi\) is the golden ratio and \(\beta \notin \mathbb Z\).
+
+                                                                              Let \(\Psi = D_\phi C_\sigma F\) be the closed-form transform and let \(Q\) be the orthonormal factor obtained from QR (or SVD) of \(K\). Then for fixed \(n\) and sufficiently small \(\eta, \epsilon\), we conjecture
+                                                                              \[
+                                                                              \inf_{U \in \mathcal U_n} \|Q - \Psi U\|_F \leq C_n (\eta + \epsilon),
+                                                                              \]
+                                                                              where \(\mathcal U_n\) denotes the unitary group (absorbing column-wise phase/rotation) and \(C_n\) grows at most polynomially in \(n\). This formalizes the heuristic that the historical kernel construction and the closed-form factorization define the “same” basis up to small perturbations.
+
+                                                                              **Status.** Empirically supported by low Frobenius residuals between simulated kernels and \(D_\phi C_\sigma F\). A complete proof is **open** and expected to require nonlinear perturbation bounds tailored to low-discrepancy embeddings.
+
+                                                                              ### Conjecture 2 — Deterministic Performance Guarantees via Discrepancy
+
+                                                                              Consider the RFT-induced linear operator \(T\) on signals or feature vectors, e.g. a restricted submatrix of \(\Psi\) used for compression or sensing. Let the associated kernel be
+                                                                              \[
+                                                                              K_{ij} = g_{ij} \exp\big(2\pi i\,\beta\, \{i/\phi\}\, \{j/\phi\}\big),
+                                                                              \]
+                                                                              with envelope \(g_{ij}\) derived from a smooth window or sampling pattern.
+
+                                                                              We conjecture that, for suitable smoothness and decay assumptions on \(g_{ij}\), the low-discrepancy properties of the sequence \(\{i/\phi\}\) yield **deterministic bounds** on:
+
+                                                                              - **Restricted isometry / near-isometry:** singular values of appropriate submatrices of \(T\) remain within \([1-\delta, 1+\delta]\) for prescribed sparsity levels,
+                                                                              - **Worst-case energy dispersion:** for all unit vectors \(x\), the coefficients \(Tx\) avoid pathological concentration patterns (quantified via entropy or Gini-type functionals),
+                                                                              - **Approximation/compression error:** best-\(k\)-term approximation errors in the RFT domain admit bounds comparable to or better than classical Fourier/chirp-based systems for quasi-periodic classes.
+
+                                                                              These guarantees are expected to be **deterministic**, i.e. independent of random draws, instead leveraging the equidistribution and discrepancy of the golden-ratio sequence.
+
+                                                                              **Status.** Currently supported only by empirical evidence from `test_rft_advantages.py`, `test_rft_comprehensive_comparison.py`, and the non-equivalence tests in `tests/rft/`. A rigorous treatment remains **conjectural**.
+
+                                                                              ### Proposed Analytic Proof Path
+
+                                                                              The high-level analytic route for Conjectures 1–2 is as follows.
+
+                                                                              1. **Express \(K\) in a discrepancy-compatible form.**
+                                                                                 - Rewrite \(K_{ij}\) as a Riemann-sum discretization of a bivariate function
+                                                                                   \(f(x,y) = g(x,y) e^{2\pi i\,\beta x y}\) evaluated along the sequence
+                                                                                   \(x_i = \{i/\phi\}, y_j = \{j/\phi\}\).
+                                                                                 - Identify the star-discrepancy \(D_N\) of the 2D point set \(\{(x_i,y_j)\}\) and connect it to the classical low-discrepancy results for Kronecker sequences.
+
+                                                                              2. **Impose a precise smoothness model on \(g_{ij}\).**
+                                                                                 - Model \(g(x,y)\) as a function of bounded variation in the sense of Hardy–Krause or with a suitable Sobolev norm, so that a Koksma–Hlawka-type inequality applies to integrals of the form
+                                                                                   \(\int\! f(x,y)\,\mathrm dx\mathrm dy\) versus its discrete average over \((x_i,y_j)\).
+                                                                                 - Translate the discrete envelope \(g_{ij}\) into samples of \(g(x,y)\) with controlled discretization error, separating **envelope error** from **sampling-discrepancy error**.
+
+                                                                              3. **Apply Koksma–Hlawka (or extensions) to bound kernel deviations.**
+                                                                                 - Use Koksma–Hlawka to bound the difference between the idealized integral kernel and its discrete realization built from \(\{i/\phi\}\), yielding bounds of the form
+                                                                                   \(\|K - \overline K\| \lesssim V(f) D_N\), where \(V(f)\) is a variation norm of \(f\).
+                                                                                 - Here \(\overline K\) should be chosen to factor cleanly into the closed-form \(D_\phi C_\sigma F\) (or a closely related separable kernel), so that the residual \(K-\overline K\) is controlled.
+
+                                                                              4. **Lift kernel bounds to operator norms.**
+                                                                                 - Use standard operator-norm bounds (e.g., Schur tests, Hilbert–Schmidt norms) to translate the kernel discrepancy \(\|K-\overline K\|\) into spectral norm bounds on the corresponding operators.
+                                                                                 - For submatrices relevant to sensing/compression, combine discrepancy-based kernel bounds with matrix concentration or Gershgorin-type arguments to obtain restricted isometry-type guarantees.
+                                                                                 - Where necessary, use Schur complements to reason about how perturbations in one block of the operator influence the conditioning of the full transform.
+
+                                                                              5. **Specialize to RFT envelopes and quasi-periodic signal models.**
+                                                                                 - Choose concrete envelope families \(g_{ij}\) (e.g. smooth tapers, localized windows) compatible with the RFT implementation and show they satisfy the smoothness/variation assumptions.
+                                                                                 - For quasi-periodic signal classes, characterize how the low-discrepancy sampling interacts with sparsity patterns to yield improved worst-case bounds compared to classical Fourier/chirp transforms.
+
+                                                                              The completion of this program would turn the presently empirical observations into rigorous, deterministic theorems about kernel stability and performance of the Phi-RFT.
+
