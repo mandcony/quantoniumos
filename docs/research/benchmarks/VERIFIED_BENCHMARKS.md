@@ -485,7 +485,7 @@ max_qubits = 10  # Classical simulation
 - Entanglement verification: CHSH inequality tests
 - Measurement statistics: 10,000 shot validation
 
-**Status**: ✅ **VERIFIED** - Production-ready quantum simulator with proven 1000-qubit capability
+**Status**: ✅ **VERIFIED** - Research-grade quantum simulator with symbolic 1000-qubit capability (additional validation required for deployment)
 
 ---
 

@@ -145,7 +145,8 @@ See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 > Files explicitly listed in **`CLAIMS_PRACTICING_FILES.txt`** are licensed under **`LICENSE-CLAIMS-NC.md`** (research/education only) because they practice methods disclosed in **U.S. Patent Application No. 19/169,399**.  
 > **No non-commercial restriction applies to any files outside that list.**  
 > Commercial use of the claim-practicing implementations requires a separate patent license from **Luis M. Minier** (contact: **luisminier79@gmail.com**).  
-> See `PATENT_NOTICE.md` for details. Trademarks (“QuantoniumOS”, “RFT”) are not licensed.
+> See `PATENT_NOTICE.md` for details. Trademarks (“QuantoniumOS”, “RFT”) are not licensed.  
+> For a scenario-by-scenario breakdown (research vs. commercial), review `docs/licensing/LICENSING_OVERVIEW.md`.
 
 ---
 

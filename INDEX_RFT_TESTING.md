@@ -258,13 +258,15 @@ For questions or issues:
 
 ## ✨ Conclusion
 
-The RFT implementation has been **thoroughly tested and validated**. It provides:
-- ✅ Perfect mathematical properties (unitarity, orthogonality)
-- ✅ Novel golden-ratio-based spectral representation
-- ✅ Potential for cryptographic and specialized applications
-- ✅ Research value in unexplored transform space
+Within the automated tests described above the RFT implementation performs as expected:
+- ✅ Unitary and numerically stable across the covered cases
+- ✅ Implements the closed-form golden-ratio spectral basis
+- ✅ Shows promising behavior for cryptography-oriented experiments
+- ✅ Provides research value in an unexplored transform space
 
-**Status: PRODUCTION-READY** for research, cryptographic, and specialized signal processing applications.
+These checks exercise the Python reference and derived kernels under finite regression suites; they do **not** constitute production validation or security proofs.
+
+**Status: Research prototype only.** Use the code as a reproducible reference for experiments. Additional audits, formal cryptanalysis, and hardening would be required before any production or security-critical use.
 
 ---
 

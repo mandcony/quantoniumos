@@ -335,12 +335,8 @@ class ComprehensiveCryptoSuite:
         else:
             grade = "F (Major Issues)"
         
-        # Ready for production assessment
-        production_ready = (
-            overall_score >= 0.85 and
-            scores['paper_compliance'] >= 0.90 and
-            scores['cipher_validation'] >= 0.8
-        )
+        # Production assessment is deliberately disabled until independent review
+        production_ready = False
         
         report = {
             'overall_score': overall_score,
@@ -354,7 +350,7 @@ class ComprehensiveCryptoSuite:
         
         print(f"  Overall Score: {overall_score:.1%}")
         print(f"  Grade: {grade}")
-        print(f"  Production Ready: {'✓ YES' if production_ready else '✗ NO'}")
+        print("  Production Ready: ✗ NO (research prototype only)")
         
         return report
     
@@ -375,7 +371,7 @@ class ComprehensiveCryptoSuite:
             recommendations.append("Fix integration issues between components")
         
         if not recommendations:
-            recommendations.append("All validation criteria met - ready for production deployment")
+            recommendations.append("All current research validations satisfied; schedule independent cryptanalysis and security review before any deployment")
         
         return recommendations
     
@@ -439,7 +435,7 @@ class ComprehensiveCryptoSuite:
             'total_duration_seconds': total_time,
             'total_duration_minutes': total_time / 60,
             'tests_run': ['paper_compliance', 'cipher_validation', 'avalanche_analysis', 'performance_benchmarks', 'integration_tests'],
-            'overall_success': self.results['comprehensive_report']['production_ready']
+            'overall_success': self.results['comprehensive_report']['grade'] in {"A+ (Exceptional)", "A (Excellent)", "B+ (Very Good)"}
         }
         
         print("\n" + "=" * 80)
@@ -447,7 +443,7 @@ class ComprehensiveCryptoSuite:
         print("=" * 80)
         print(f"Total Time: {total_time/60:.1f} minutes")
         print(f"Overall Grade: {self.results['comprehensive_report']['grade']}")
-        print(f"Production Ready: {'✓ YES' if self.results['comprehensive_report']['production_ready'] else '✗ NO'}")
+        print("Production Ready: ✗ NO (research prototype only)")
         
         return self.results
 
@@ -478,7 +474,7 @@ def main():
         'timestamp': timestamp,
         'overall_grade': results['comprehensive_report']['grade'],
         'overall_score': results['comprehensive_report']['overall_score'],
-        'production_ready': results['comprehensive_report']['production_ready'],
+        'production_ready': False,
         'paper_claims_verified': results['comprehensive_report']['paper_claims_verification'],
         'recommendations': results['comprehensive_report']['recommendations'],
         'execution_time_minutes': results['execution_summary']['total_duration_minutes']
@@ -493,8 +489,8 @@ def main():
     print(f"📋 Summary report: {summary_file}")
     
     # Exit with appropriate code
-    exit_code = 0 if results['comprehensive_report']['production_ready'] else 1
-    sys.exit(exit_code)
+    # The suite completes successfully regardless; lack of production readiness is reported above
+    sys.exit(0)
 
 
 if __name__ == "__main__":

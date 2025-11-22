@@ -183,7 +183,7 @@ def load_and_compare_results():
     if avg_assembly_unitarity < avg_python_unitarity:
         print(f"   • {avg_python_unitarity/avg_assembly_unitarity:.1f}× better numerical accuracy") 
     print(f"   • Identical compression ratios and fidelity")
-    print(f"   • Production-ready performance with SIMD optimization")
+    print(f"   • Research-grade performance with SIMD optimization (additional hardening required)")
     
     comparison_results["summary"] = {
         "overall_speedup": overall_speedup,

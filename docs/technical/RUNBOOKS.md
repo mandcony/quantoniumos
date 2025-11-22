@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides **comprehensive operational procedures** for deploying, maintaining, and operating QuantoniumOS in production environments. These runbooks ensure consistent, reliable operations with proper incident response and maintenance procedures.
+This document outlines **hypothetical operational procedures** that would be required if QuantoniumOS were ever promoted to production use. As of the latest update the platform remains a research prototype; the runbooks serve as planning notes for future hardening and must not be interpreted as evidence of current production readiness.
 
 ---
 
@@ -320,7 +320,7 @@ try:
         print(f'{engine}: {status[engine][\"status\"]}')
     
     print(f'Overall: {status[\"summary\"][\"overall_status\"]}')
-    print(f'Ready for production: {status[\"summary\"][\"ready_for_production\"]}')
+    print(f'Research build production flag (expected False): {status[\"summary\"].get(\"ready_for_production\", False)}')
     
 except FileNotFoundError:
     print('❌ Engine validation file not found')
@@ -389,7 +389,7 @@ if [[ "${validation_results[*]}" =~ "❌" ]]; then
     echo "❌ VALIDATION FAILED - DO NOT DEPLOY"
     exit 1
 else
-    echo "✅ ALL VALIDATIONS PASSED - READY FOR PRODUCTION"
+    echo "✅ ALL VALIDATIONS PASSED - STILL RESEARCH-ONLY"
 fi
 ```
 
@@ -797,12 +797,11 @@ python3 -c "
 import os
 from pathlib import Path
 
-backup_dir = Path('/opt/quantoniumos/backups')
-if backup_dir.exists():
-    backups = list(backup_dir.glob('*'))
-    print(f'✅ Found {len(backups)} backup sets')
-    
-    # Keep only last 10 backups
+    for engine in ['crypto_engine', 'quantum_engine', 'neural_engine', 'orchestrator_engine']:
+        print(f'{engine}: {status[engine]["status"]}')
+
+    print(f'Overall: {status["summary"]["overall_status"]}')
+    print(f'Research build production flag (expected False): {status["summary"].get("ready_for_production", False)}')
     if len(backups) > 10:
         old_backups = sorted(backups)[:-10]
         for backup in old_backups:
@@ -1182,12 +1181,10 @@ echo "📧 Please send this file to technical support"
 
 ## 🎯 Conclusion
 
-These runbooks provide **comprehensive operational guidance** for maintaining QuantoniumOS in production environments. Regular execution of these procedures ensures:
+These runbooks capture forward-looking guidance that would be needed to operate QuantoniumOS if it ever graduates from research to production. Until independent audits and hardening are complete they should be treated as exploratory planning notes.
 
-✅ **System Reliability** - Consistent performance and availability  
-✅ **Security Posture** - Maintained security controls and monitoring  
-✅ **Performance Optimization** - Continuous performance improvement  
-✅ **Incident Readiness** - Rapid response and recovery capabilities  
-✅ **Operational Excellence** - Standardized procedures and best practices  
+🚧 **Current status:** Research prototype without production support guarantees 
+✅ **Use now for:** Reproducible experiments and design documentation 
+🔬 **Next steps before deployment:** Third-party security review, operational testing, and formal approval
 
-**Remember:** Always test procedures in non-production environments before applying to production systems.
+**Reminder:** Never apply these procedures to live systems until the outstanding validation work is complete.

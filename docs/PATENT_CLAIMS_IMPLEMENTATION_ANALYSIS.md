@@ -210,7 +210,7 @@ ACTION: Create detailed technical comparison document
 ### **Current Strengths**:
 - ✅ **Complete Implementation**: All 4 claims have working code
 - ✅ **Mathematical Rigor**: RFT proven distinct from existing transforms  
-- ✅ **Assembly Integration**: Production-ready with proven engines
+- ✅ **Assembly Integration**: Research-grade prototypes with working engines (additional certification pending)
 - ✅ **Comprehensive Testing**: Extensive validation suite exists
 
 ### **Areas Needing Strengthening**:

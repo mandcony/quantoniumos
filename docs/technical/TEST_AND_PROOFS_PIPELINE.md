@@ -626,11 +626,11 @@ def create_validation_dashboard():
 
 The QuantoniumOS validation framework provides **comprehensive coverage** of all system components with:
 
-✅ **Mathematical Rigor**: Formal verification of quantum algorithms  
-✅ **Cryptographic Security**: Industry-standard differential analysis  
-✅ **Performance Validation**: Assembly optimization verification  
-✅ **Statistical Confidence**: Robust statistical analysis  
-✅ **Automated Testing**: Continuous integration pipeline  
-✅ **Production Readiness**: All validation criteria met  
+✅ **Mathematical Rigor**: Symbolic checks for the documented algorithms  
+✅ **Cryptographic Evaluation**: Differential testing coverage only  
+✅ **Performance Profiling**: Assembly optimizations validated in lab settings  
+✅ **Statistical Confidence**: Finite-sample statistical analysis  
+✅ **Automated Testing**: Continuous integration regression runs  
+⚠️ **Research Status**: Further audits and proofs required before production  
 
-The system demonstrates **production-grade reliability** with validated performance metrics and comprehensive security analysis.
+The framework currently substantiates a **research-grade confidence level**. It does not supply production hardening, third-party audits, or formal security reductions; those steps remain future work before any deployment claim can be made.

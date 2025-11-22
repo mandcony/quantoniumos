@@ -184,7 +184,7 @@ Development progression from software to hardware:
 5. ✓ Testbench Validation
 6. ✓ FPGA Synthesis
 7. ✓ Hardware Verification
-8. ⚙ Production Ready (in progress)
+8. ⚙ Production Hardening (future work)
 
 **Phases:**
 - **Software Development:** Algorithm design and validation

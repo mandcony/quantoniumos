@@ -23,4 +23,6 @@ U.S. Patent Application No. 19/169,399. Those files are listed in
 
 **No commercial patent license is granted** for the listed files. Any commercial
 practice of the claimed methods requires a separate, written license from
-**Luis M. Minier**. Contact: **luisminier79@gmail.com**.
+**Luis M. Minier**. Contact: **luisminier79@gmail.com**. For a summary of permitted
+use cases and the commercial licensing workflow, see
+`docs/licensing/LICENSING_OVERVIEW.md`.

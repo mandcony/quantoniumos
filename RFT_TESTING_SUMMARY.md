@@ -226,28 +226,28 @@ ls -lh figures/*.png figures/*.pdf
 
 ## Conclusions
 
-The RFT implementation is **mathematically correct** and **numerically stable**. It provides a novel transform with:
+The current regression suites demonstrate that the RFT implementation is **mathematically consistent** with its specification and **numerically stable** across the sampled workloads. Observations include:
 
-1. **Perfect unitary properties** (verified)
-2. **Unique golden-ratio-based phase structure** (visualized)
-3. **Potential cryptographic advantages** (analyzed)
-4. **Competitive performance** for specialized use cases
+1. **Unitary properties** verified within floating-point tolerance
+2. **Closed-form golden-ratio phase structure** confirmed via visualizations
+3. **Cryptography-oriented behavior** that warrants further study, but no hardness proof
+4. **Competitive performance** for exploratory, non-real-time workloads
 
-The 5-7× performance overhead compared to FFT is reasonable given the additional mathematical operations and makes RFT suitable for non-real-time applications where its unique properties provide value.
+Benchmark overhead versus FFT remains 5-7× on the profiled machines; this is acceptable for research scenarios that need the transform's distinctive structure but does not qualify as optimized production performance.
 
 ### Bottom Line
 
-**RFT is production-ready for:**
-- Research applications
-- Cryptographic transforms
-- Novel feature extraction
-- Specialized signal processing
+**RFT is suitable today for:**
+- Reproducible research experiments
+- Exploratory cryptographic simulations
+- Novel feature extraction prototypes
+- Specialized signal processing studies where latency is secondary
 
-**RFT is NOT recommended for:**
-- Real-time audio/video
-- Standard compression
-- Performance-critical paths
-- General-purpose transforms (use FFT instead)
+**RFT is NOT ready for:**
+- Production-quality security deployments
+- Real-time audio/video workloads
+- Commodity compression pipelines
+- Any performance-critical production pathway (prefer FFT instead)
 
 ---
 
