@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 🔬 TRANSPARENT MATHEMATICAL PROOF - NO BLACK BOX
 Exact formulas showing how 1M qubits process in 0.24ms

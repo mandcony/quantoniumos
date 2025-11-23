@@ -1,6 +1,6 @@
 #!/bin/bash
-# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-# Copyright (C) 2025 Luis M. Minier
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 # Generate all hardware visualization figures
 
 set -e

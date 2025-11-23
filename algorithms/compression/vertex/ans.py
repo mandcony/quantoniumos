@@ -1,4 +1,6 @@
 # algorithms/compression/vertex/ans.py
+# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 Asymmetric Numeral Systems (ANS) Coder
 ======================================

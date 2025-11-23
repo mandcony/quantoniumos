@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-// Copyright (C) 2025 Luis M. Minier
+// Copyright (C) 2025 Luis M. Minier / quantoniumos
 // Patent Application: USPTO #19/169,399
 //
 // Φ-RFT Hardware Implementation for WebFPGA

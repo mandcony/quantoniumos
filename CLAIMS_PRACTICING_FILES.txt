@@ -10,6 +10,18 @@ algorithms/rft/core/enhanced_rft_crypto_v2.py
 algorithms/rft/core/quantum_kernel_implementation.py
 algorithms/rft/core/topological_quantum_kernel.py
 
+# --- Additional Core RFT & Compression Implementations ---
+algorithms/rft/core/enhanced_topological_qubit.py
+algorithms/rft/core/asymmetric_number_system.py
+algorithms/rft/core/quantum_gates.py
+algorithms/rft/core/geometric_waveform_hash.py
+algorithms/rft/core/geometric_hashing.py
+algorithms/compression/vertex/ans.py
+algorithms/compression/vertex/rft_vertex_codec.py
+algorithms/compression/hybrid/hybrid_residual_predictor.py
+algorithms/compression/hybrid/rft_hybrid_codec.py
+algorithms/compression/rft_quantum_sim.py
+
 # --- Low-level engines & crypto primitives tied to RFT claims ---
 algorithms/rft/kernels/engines/crypto_engine/feistel_48.c
 algorithms/rft/kernels/engines/crypto_engine/feistel_48.h

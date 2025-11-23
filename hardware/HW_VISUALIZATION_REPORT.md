@@ -102,4 +102,4 @@ Status: **✅ ALL PASSED**
 
 ---
 *QuantoniumOS Hardware Implementation*
-*Copyright (C) 2025 Luis M. Minier*
+*Copyright (C) 2025 Luis M. Minier / quantoniumos*

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """Deterministic validation of the Enhanced RFT Crypto and waveform hash."""
 
 from __future__ import annotations

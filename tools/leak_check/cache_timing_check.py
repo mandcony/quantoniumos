@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """Simple cache-timing harness for native kernel entrypoints.
 Exits non-zero if timing variance exceeds threshold.
 """

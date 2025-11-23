@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-# Copyright (C) 2025 Luis M. Minier
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 Hardware Test Results Visualization
 Generates comprehensive figures for QuantoniumOS hardware implementations
@@ -489,7 +489,7 @@ Status: **✅ ALL PASSED**
 
 ---
 *QuantoniumOS Hardware Implementation*
-*Copyright (C) 2025 Luis M. Minier*
+*Copyright (C) 2025 Luis M. Minier / quantoniumos*
 """
     
     report_file = output_dir / 'HW_VISUALIZATION_REPORT.md'

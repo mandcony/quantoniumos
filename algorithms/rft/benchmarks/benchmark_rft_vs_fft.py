@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """Compare RFT vs NumPy FFT accuracy and throughput on synthetic data."""
 import time
 import numpy as np

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-# Copyright (C) 2025 Luis M. Minier
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 verify_variant_claims.py
 ------------------------

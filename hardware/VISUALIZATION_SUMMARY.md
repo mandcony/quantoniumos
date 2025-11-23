@@ -332,8 +332,8 @@ hardware/
 ## 📄 License
 
 ```
-SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-Copyright (C) 2025 Luis M. Minier
+SPDX-License-Identifier: AGPL-3.0-or-later
+Copyright (C) 2025 Luis M. Minier / quantoniumos
 
 Licensed for research and educational use only.
 Commercial use requires separate patent license.

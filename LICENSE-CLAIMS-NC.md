@@ -1,9 +1,9 @@
 # QuantoniumOS Research License – Claims-Practicing Implementations (Non-Commercial)
 
-Copyright (C) 2025 Luis M. Minier
+Copyright (C) 2025 Luis M. Minier / quantoniumos
 
 This license applies **only** to the files listed in `CLAIMS_PRACTICING_FILES.txt`
-(the “Covered Files”). These files implement methods that practice one or more
+(the “Covered Files”) in the `quantoniumos` repository. These files implement methods that practice one or more
 claims of U.S. Patent Application No. 19/169,399 (the “Patent”).
 
 By obtaining, using, or modifying the Covered Files, you agree to these terms.

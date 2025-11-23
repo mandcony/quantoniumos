@@ -94,10 +94,7 @@ class EnhancedEssentialQuantumAI:
     
     def _load_encoded_parameters(self) -> Dict[str, Any]:
         """Load quantum-encoded parameters"""
-        encoded_files = [
-            "quantonium_with_streaming_gpt_oss_120b.json",
-            "gpt_oss_120b_quantum_states.json"
-        ]
+        encoded_files = []
         
         parameters = {}
         for filename in encoded_files:
@@ -233,25 +230,6 @@ class EnhancedEssentialQuantumAI:
     
     def _decode_response(self, vector: np.ndarray) -> str:
         """Decode response vector to text"""
-        # Use encoded parameters for decoding
-        if "gpt_oss_120b_quantum_states.json" in self.encoded_parameters:
-            quantum_states = self.encoded_parameters["gpt_oss_120b_quantum_states.json"]
-            
-            # Find best matching response pattern
-            max_resonance = 0
-            best_response = "I understand your request and am processing it with quantum algorithms."
-            
-            for state_key, state_data in quantum_states.items():
-                if isinstance(state_data, dict) and "response_pattern" in state_data:
-                    pattern_vector = np.array(state_data.get("vector", [1.0] * len(vector)))[:len(vector)]
-                    resonance = np.dot(vector, pattern_vector) / (np.linalg.norm(vector) * np.linalg.norm(pattern_vector))
-                    
-                    if resonance > max_resonance:
-                        max_resonance = resonance
-                        best_response = state_data["response_pattern"]
-            
-            return best_response
-        
         # Fallback decoding
         magnitude = np.linalg.norm(vector)
         if magnitude > 0.5:

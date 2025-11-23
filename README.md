@@ -29,6 +29,7 @@ We have mathematically proven and numerically validated the core claims of the �
 *   **Exact Diagonalization:** The Φ-RFT exactly diagonalizes systems governed by Golden Ratio resonances (Error $10^{-14}$).
 *   **Massive Sparsity:** For golden quasi-periodic signals, the transform achieves **>98% sparsity** at $N=512$.
 *   **Quantum Chaos:** Spectral analysis proves the Φ-RFT exhibits **Wigner-Dyson level statistics** (Chaotic), unlike the DFT's Integrable statistics. This confirms its utility for cryptographic mixing.
+*   **Crypto-Agility:** We have identified **Fibonacci Tilt** as the optimal variant for Lattice-based hashing (RFT-SIS), achieving **57.8% avalanche**, outperforming standard DFT and Chaotic variants in modular lattice constructions.
 *   **Adaptive Selection:** We have proven that the variants occupy distinct representational niches (Golden vs. Cubic vs. Lattice), enabling an adaptive meta-layer to automatically select the optimal basis.
 
 👉 **[Read the Full Proofs & Validation Report](docs/RFT_THEOREMS.md)**

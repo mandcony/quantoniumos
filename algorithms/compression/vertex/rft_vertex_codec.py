@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 RFT Vertex Codec
 =================

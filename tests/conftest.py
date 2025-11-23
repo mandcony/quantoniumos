@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 # Ensure repository root is importable so tests can import `core.*` shims
 import os
 import sys

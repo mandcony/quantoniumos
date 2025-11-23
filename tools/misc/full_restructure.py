@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 QuantoniumOS Full Repository Restructure Script
 Reorganizes the entire repository according to professional standards

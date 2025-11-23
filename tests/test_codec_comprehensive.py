@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 Comprehensive codec test suite for updated RFT transforms.
 Tests lossless, lossy, and ANS integration paths.

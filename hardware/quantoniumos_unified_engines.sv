@@ -4,7 +4,7 @@
 // Based on canonical_true_rft.py, rft_sis_hash_v31.py, and feistel_48.c
 // ===============================================
 // SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-// Copyright (C) 2025 Luis M. Minier
+// Copyright (C) 2025 Luis M. Minier / quantoniumos
 // Listed in CLAIMS_PRACTICING_FILES.txt — licensed under LICENSE-CLAIMS-NC.md
 // (research/education only). Commercial rights require a separate license.
 // NOTE: Use .sv extension for SystemVerilog synthesis

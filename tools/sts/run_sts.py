@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """Run NIST STS on a bitstream generated from EnhancedRFTCryptoV2.
 
 Generates a binary file of pseudo-random data using the block cipher in

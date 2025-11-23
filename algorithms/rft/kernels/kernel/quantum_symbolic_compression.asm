@@ -1,5 +1,5 @@
 ; SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-; Copyright (C) 2025 Luis M. Minier
+; Copyright (C) 2025 Luis M. Minier / quantoniumos
 ; Listed in CLAIMS_PRACTICING_FILES.txt — LICENSE-CLAIMS-NC.md applies.
 
 ; quantum_symbolic_compression.asm

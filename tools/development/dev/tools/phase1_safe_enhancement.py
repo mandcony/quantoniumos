@@ -56,9 +56,7 @@ class SafeGPT5Enhancement:
             "dev/tools/essential_quantum_ai.py",
             "dev/tools/minimal_encoded_ai_trainer.py",
             "ai/inference/quantum_inference_engine.py",
-            "src/assembly/kernel/rft_kernel.c",
-            "data/weights/gpt_oss_120b_quantum_states.json",
-            "data/weights/quantonium_with_streaming_gpt_oss_120b.json"
+            "src/assembly/kernel/rft_kernel.c"
         ]
         
         print("💾 Backing up critical files...")

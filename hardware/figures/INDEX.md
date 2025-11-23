@@ -118,8 +118,8 @@ python visualize_sw_hw_comparison.py      # Figures 7-8
 ## 📜 License
 
 ```
-SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-Copyright (C) 2025 Luis M. Minier
+SPDX-License-Identifier: AGPL-3.0-or-later
+Copyright (C) 2025 Luis M. Minier / quantoniumos
 ```
 
 All figures are part of the QuantoniumOS project and licensed under LICENSE-CLAIMS-NC.md for research and educational use only.

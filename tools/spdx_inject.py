@@ -50,7 +50,7 @@ def choose_id(path: Path, claims_set: set):
     # Paths in claims list are repo-relative with forward slashes
     rel = path.as_posix()
     if rel in claims_set:
-        return "LicenseRef-CLAIMS-NC"
+        return "LicenseRef-QuantoniumOS-Claims-NC"
     return "AGPL-3.0-or-later"
 
 def get_style_for(path: Path):
@@ -109,6 +109,8 @@ def main():
         rel = path.relative_to(repo)
         # skip obvious non-source (git dir, images, archives, etc.)
         rel_s = rel.as_posix()
+        if any(x in rel_s.split("/") for x in [".git", ".venv", "node_modules", "__pycache__", "build", "dist", "quantoniumos.egg-info", ".pytest_cache", ".mypy_cache"]):
+            continue
         if rel_s.startswith(".git/") or "/.git/" in rel_s:
             continue
         if any(rel_s.lower().endswith(ext) for ext in (".png",".jpg",".jpeg",".gif",".mp4",".zip",".tar",".gz",".bz2",".xz",".7z",".pdf",".pkl",".bin",".pt",".onnx",".so",".dylib",".dll")):

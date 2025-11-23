@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2025 Luis M. Minier
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 Chirp Signal Benchmark: RFT vs DCT vs FFT
 ==========================================
