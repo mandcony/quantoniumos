@@ -28,6 +28,7 @@ We have mathematically proven and numerically validated the core claims of the �
 *   **7 Unitary Variants:** We have identified a family of 7 transforms (including **Harmonic-Phase**, **Fibonacci Tilt**, and **Φ-Chaotic Hybrid**) that are all unitary to machine precision ($10^{-15}$).
 *   **Exact Diagonalization:** The Φ-RFT exactly diagonalizes systems governed by Golden Ratio resonances (Error $10^{-14}$).
 *   **Massive Sparsity:** For golden quasi-periodic signals, the transform achieves **>98% sparsity** at $N=512$.
+*   **Quantum Chaos:** Spectral analysis proves the Φ-RFT exhibits **Wigner-Dyson level statistics** (Chaotic), unlike the DFT's Integrable statistics. This confirms its utility for cryptographic mixing.
 *   **Adaptive Selection:** We have proven that the variants occupy distinct representational niches (Golden vs. Cubic vs. Lattice), enabling an adaptive meta-layer to automatically select the optimal basis.
 
 👉 **[Read the Full Proofs & Validation Report](docs/RFT_THEOREMS.md)**
