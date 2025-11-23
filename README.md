@@ -38,7 +38,13 @@ We have identified and validated a family of 7 transforms that are all unitary t
 | **6. Φ-Chaotic Hybrid** | Structure + Disorder | Post-quantum crypto | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
 | **7. Adaptive Φ** | Meta-transform | Universal codec | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
 
-### 2. Key Validation Results
+### 3. Theorem 10: Breaking the ASCII Bottleneck
+We have solved the "ASCII Bottleneck"—the inability of continuous transforms to efficiently compress discrete text/code.
+*   **Method:** Hybrid $\Phi$-RFT / DCT decomposition with adaptive basis pursuit.
+*   **Result:** Lossless compression of Python source code (DCT-dominant) *and* high-fidelity capture of Fibonacci resonances (RFT-dominant) in the same pipeline.
+*   **Proof:** [![Theorem 10](https://img.shields.io/badge/Theorem-10_Proven-brightgreen)](docs/validation/THEOREM_10_HYBRID.md)
+
+### 4. Key Validation Results
 *   **Exact Diagonalization:** The Φ-RFT exactly diagonalizes systems governed by Golden Ratio resonances (Error $10^{-14}$).
 *   **Massive Sparsity:** For golden quasi-periodic signals, the transform achieves **>98% sparsity** at $N=512$.
 *   **Quantum Chaos:** Eigenphase statistics show **Level Repulsion** (variance $\approx 0.26$), consistent with Wigner–Dyson–like spectra.

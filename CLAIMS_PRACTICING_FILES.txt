@@ -70,3 +70,6 @@ hardware/quantoniumos_unified_engines_synthesis.tcl
 # --- Verification Scripts (Irrevocable Truths) ---
 scripts/irrevocable_truths.py
 scripts/verify_scaling_laws.py
+
+# --- New Hybrid Basis (Theorem 10) ---
+algorithms/rft/hybrid_basis.py
