@@ -62,9 +62,7 @@ from typing import Dict, List, Optional, Tuple, Iterable
 
 import numpy as np
 
-from ..vertex.rft_vertex_codec import (
-    _deterministic_golden_unitary as deterministic_unitary,  # internal reuse
-)
+from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
 from ..vertex.rft_vertex_codec import _generate_seed  # deterministic seed for size
 from .hybrid_residual_predictor import TinyResidualPredictor
 
@@ -129,16 +127,13 @@ def dequantize_uniform(codes: np.ndarray, meta: Dict[str, float]) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 def rft_forward_real(vec: np.ndarray) -> np.ndarray:
-    n = len(vec)
-    U = deterministic_unitary(n)
-    out = U.conj().T @ vec.astype(np.complex128)
-    return out
+    # Use verified closed-form Φ-RFT
+    return rft_forward(vec)
 
 
 def rft_inverse_real(coeffs: np.ndarray) -> np.ndarray:
-    n = len(coeffs)
-    U = deterministic_unitary(n)
-    rec = U @ coeffs
+    # Use verified closed-form Φ-RFT
+    rec = rft_inverse(coeffs)
     return rec.real
 
 

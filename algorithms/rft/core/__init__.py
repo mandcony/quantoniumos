@@ -1,6 +1,6 @@
-"""Core algorithms and codecs (RFT vertex codec, crypto primitives, quantum kernels)."""# Package marker for src.core
+"""Core RFT implementation subpackage."""
+# Package marker for algorithms.rft.core
 
+from .closed_form_rft import rft_forward, rft_inverse
 
-from algorithms.compression.vertex.rft_vertex_codec import encode_state_dict, decode_state_dict  # noqa: F401
-
-__all__ = ["encode_state_dict", "decode_state_dict"]
+__all__ = ["rft_forward", "rft_inverse"]

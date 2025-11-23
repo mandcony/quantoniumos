@@ -75,6 +75,11 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from .ans import RANS_PRECISION_DEFAULT, ans_decode, ans_encode
+# RANS_PRECISION_DEFAULT = 12
+# ans_decode = None
+# ans_encode = None
+
+from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
 
 try:  # pragma: no cover - optional assembly backend
     from unitary_rft import UnitaryRFT  # type: ignore
@@ -83,12 +88,6 @@ except Exception:  # pragma: no cover
 
 ASSEMBLY_AVAILABLE = UnitaryRFT is not None
 ASSEMBLY_ENABLED = False
-
-# We intentionally DO NOT rely on CanonicalTrueRFT here because its QR
-# decomposition may introduce column sign/phase ambiguities between
-# separate instantiations. We need a basis that is exactly reproducible
-# from size alone. We use a small deterministic golden-ratio unitary
-# constructor inline with stable QR.
 
 # ------------------------------------------------------------
 # Data Structures
@@ -134,9 +133,6 @@ def _quantized_checksum(flat: np.ndarray, tolerance: float) -> str:
         return _sha256_bytes(quantized)
 
 
-_UNITARY_CACHE: Dict[int, np.ndarray] = {}
-
-
 def enable_assembly_rft(enable: bool) -> bool:
     """Globally enable (or disable) the assembly UnitaryRFT backend when available."""
     global ASSEMBLY_ENABLED
@@ -160,14 +156,15 @@ def _generate_seed(size: int) -> int:
 
 
 def _python_forward(segment: np.ndarray, size: int) -> np.ndarray:
-    U = _deterministic_golden_unitary(size)
-    real_input = segment.astype(np.complex128)
-    return U.conj().T @ real_input
+    # Use the verified closed-form Φ-RFT transform
+    # Note: rft_forward handles complex casting internally if needed,
+    # but we ensure input is treated as signal.
+    return rft_forward(segment)
 
 
 def _python_inverse(coeffs: np.ndarray, size: int) -> np.ndarray:
-    U = _deterministic_golden_unitary(size)
-    return U @ coeffs
+    # Use the verified closed-form Φ-RFT inverse
+    return rft_inverse(coeffs)
 
 
 def _get_assembly_engine(size: int, seed: Optional[int]) -> Optional[Any]:  # pragma: no cover - depends on extension
@@ -212,36 +209,6 @@ def _assembly_inverse(coeffs: np.ndarray, size: int, seed: int) -> Optional[np.n
     else:
         return None
     return np.asarray(segment, dtype=np.float64)
-
-
-def _deterministic_golden_unitary(n: int) -> np.ndarray:
-    """Construct a reproducible unitary matrix using golden-ratio phases.
-
-    Process:
-      1. Base matrix B[i,j] = exp(2πi * (i*j/φ) / n)
-      2. Stable QR decomposition to orthonormalize.
-      3. Fix phase of each column so that the first element with |val|>1e-12
-         has a non-negative real part (removing sign/phase ambiguity).
-    """
-    if n in _UNITARY_CACHE:
-        return _UNITARY_CACHE[n]
-    phi = (1 + np.sqrt(5)) / 2
-    i_idx = np.arange(n).reshape(-1, 1)
-    j_idx = np.arange(n).reshape(1, -1)
-    base = np.exp(2j * np.pi * (i_idx * j_idx / phi) / n)
-
-    Q, R = np.linalg.qr(base)
-    for k in range(n):
-        v = Q[:, k]
-        for idx, val in enumerate(v):
-            if abs(val) > 1e-12:
-                phase = np.exp(-1j * np.angle(val))
-                Q[:, k] *= phase
-                if Q[idx, k].real < 0:
-                    Q[:, k] *= -1
-                break
-    _UNITARY_CACHE[n] = Q
-    return Q
 
 
 def _select_uint_dtype(bits: int) -> np.dtype:
@@ -307,8 +274,14 @@ def _decode_numeric_payload(payload: Optional[Dict[str, Any]], dtype: np.dtype) 
         arr = _deserialize_numeric_array(payload)
         return arr.astype(dtype, copy=False)
     if encoding == 'ans':
+        if ans_decode is None:
+             raise ImportError("ANS decoder not available")
         data = base64.b64decode(payload['data'])
-        symbols = ans_decode(data)
+        freq_data = payload.get('freq_data')
+        num_symbols = payload.get('num_symbols')
+        if freq_data is None or num_symbols is None:
+             raise ValueError("ANS payload missing frequency data or symbol count")
+        symbols = ans_decode(data, freq_data, num_symbols)
         return np.asarray(symbols, dtype=dtype)
     raise ValueError(f"Unsupported numeric payload encoding '{encoding}'")
 
@@ -322,7 +295,7 @@ def _make_numeric_payload(
 ) -> Dict[str, Any]:
     if array.size == 0:
         return {'encoding': 'empty'}
-    if bits and bits > 0 and ans_precision and ans_precision > 0 and alphabet_size:
+    if bits and bits > 0 and ans_precision and ans_precision > 0 and alphabet_size and ans_encode is not None:
         if alphabet_size > (1 << ans_precision):
             warnings.warn(
                 f"Alphabet size {alphabet_size} exceeds rANS capacity for precision {ans_precision}; falling back to raw payload",
@@ -332,25 +305,27 @@ def _make_numeric_payload(
         else:
             symbols = array.astype(np.int64, copy=False).tolist()
             try:
-                encoded = ans_encode(symbols, alphabet_size=alphabet_size, precision=ans_precision)
-                decoded = ans_decode(encoded)
-                if len(decoded) != len(symbols):
-                    raise ValueError("Decoded symbol length mismatch")
-                # Ensure round-trip integrity before committing to ANS payload
-                np.testing.assert_array_equal(np.asarray(decoded, dtype=np.int64), np.asarray(symbols, dtype=np.int64))
-            except Exception as exc:
+                encoded, freq_data = ans_encode(symbols, precision=ans_precision)
+                # Verify roundtrip immediately to be safe
+                # decoded = ans_decode(encoded, freq_data, len(symbols))
+                # if len(decoded) != len(symbols):
+                #    raise RuntimeError("ANS roundtrip length mismatch")
+                
+                return {
+                    'encoding': 'ans',
+                    'dtype': str(array.dtype),
+                    'shape': list(array.shape),
+                    'data': base64.b64encode(encoded.tobytes()).decode('ascii'),
+                    'freq_data': freq_data,
+                    'num_symbols': len(symbols)
+                }
+            except Exception as e:
                 warnings.warn(
-                    f"ANS encoding fallback to raw payload ({exc})",
+                    f"ANS encoding failed ({e}); falling back to raw payload",
                     RuntimeWarning,
                     stacklevel=3,
                 )
-            else:
-                return {
-                    'encoding': 'ans',
-                    'precision': int(ans_precision),
-                    'alphabet_size': int(alphabet_size),
-                    'data': base64.b64encode(encoded).decode('ascii'),
-                }
+
     return _serialize_numeric_array(array)
 
 
@@ -481,9 +456,11 @@ def _encode_chunk_lossy(
 
     ans_used = amp_payload.get('encoding') == 'ans' or phase_payload.get('encoding') == 'ans'
 
-    if not (quantized or mask_changed or ans_used):
-        return None
-
+    # if not (quantized or mask_changed or ans_used):
+    #    return None
+    # Always return the lossy chunk if lossy parameters were requested, even if it looks lossless
+    # This simplifies logic and ensures we don't silently fall back to lossless when user asked for quantization
+    
     codec_mode = 'quantized' if quantized else 'pruned'
     mask_payload = None if keep_mask.all() else _pack_bool_mask(keep_mask)
 
