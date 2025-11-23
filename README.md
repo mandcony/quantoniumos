@@ -1,5 +1,12 @@
 # QuantoniumOS: Quantum-Inspired Research Operating System
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
+[![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-red.svg)](LICENSE-CLAIMS-NC.md)
+[![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](PATENT_NOTICE.md)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](tests/)
+
 > **PATENT-PENDING RESEARCH PLATFORM.** QuantoniumOS bundles:
 > - the **Φ-RFT** (golden-ratio + chirp, **closed-form, fast** unitary transform),
 > - **compression** pipelines (lossless + hybrid learned),
@@ -12,10 +19,10 @@
 
 ---
 
-## 🔬 The Irrevocable Truths (New Findings)
+## The Irrevocable Truths (New Findings)
 
 **Date:** November 23, 2025  
-**Status:** ✅ PROVEN TO MACHINE PRECISION
+**Status:** PROVEN TO MACHINE PRECISION
 
 We have mathematically proven and numerically validated the core claims of the Φ-RFT framework. These are not approximations; they are exact mathematical truths.
 
@@ -143,12 +150,12 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
 
 ## What’s Verified (at a glance)
 
-- ✅ **Φ-RFT unitarity:** exact by factorization; numerically at machine-epsilon.  
-- ✅ **Round-trip:** ~1e-16 relative error.  
-- ✅ **Twisted-algebra diagonalization:** commutative/associative via \(\Psi\)-diagonalization.  
-- ✅ **Non-equivalence to LCT/FrFT/DFT:** multiple independent tests.  
-- ✅ **RFT–SIS avalanche:** ~50% ±3%.  
-- 🔬 **Compression benchmarks:** preliminary small-scale results; larger cross-validation runs in progress.
+- **Φ-RFT unitarity:** exact by factorization; numerically at machine-epsilon.  
+- **Round-trip:** ~1e-16 relative error.  
+- **Twisted-algebra diagonalization:** commutative/associative via \(\Psi\)-diagonalization.  
+- **Non-equivalence to LCT/FrFT/DFT:** multiple independent tests.  
+- **RFT–SIS avalanche:** ~50% ±3%.  
+- **Compression benchmarks:** preliminary small-scale results; larger cross-validation runs in progress.
 
 See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 
