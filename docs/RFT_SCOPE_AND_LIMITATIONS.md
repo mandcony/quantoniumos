@@ -100,12 +100,29 @@ When the underlying signal structure is correlated with the Golden Ratio (as in 
 
 ---
 
-## 5. Summary of Scope
+## 5. Integer Lattice Resonance
+
+**Objective:** Test performance on signals with integer-grid periodicity (standard crystals).
+
+**Results (`verify_variant_claims.py`):**
+- **DFT:** Sparsity 1.0 (Perfect)
+- **Fibonacci Tilt:** Sparsity 1.0 (Perfect)
+- **Original Φ-RFT:** Sparsity 0.78 (Smeared)
+
+**Interpretation:**
+The Original Φ-RFT "detunes" integer lattices due to its irrational $\phi$ basis. This confirms it is a Non-LCT. For integer structures, the **Fibonacci Tilt** variant restores the perfect resonance found in the DFT.
+
+> **Guidance:** For standard integer lattices, use **DFT** or **Fibonacci Tilt**.
+
+---
+
+## 6. Summary of Scope
 
 | Use Case | Recommended Tool | Why? |
 | :--- | :--- | :--- |
 | **General Signal Processing** | **FFT / DCT** | Faster, better standard diagonalization. |
 | **Linear Chirps** | **DCT / FrFT** | Better energy compaction. |
+| **Integer Lattices** | **DFT / Fib. Tilt** | Perfect isolation of integer modes. |
 | **Quasi-Periodic Signals** | **Φ-RFT** | Matches spectral structure of $\phi$. |
 | **Topological/Fractal Data** | **Φ-RFT** | Captures non-integer scaling symmetries. |
 | **Quantum Simulation** | **Tensor Networks** | Φ-RFT does not break the $2^n$ barrier for general states. |

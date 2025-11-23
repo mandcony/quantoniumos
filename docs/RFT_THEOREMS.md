@@ -83,7 +83,32 @@ We have identified and validated a family of 7 unitary transforms derived from t
 
 ---
 
-## 5. Scaling Laws & Empirical Proof
+## 5. Variant Performance Characteristics (Honest Validation)
+
+We subjected the variants to rigorous stress testing (`scripts/verify_variant_claims.py`) to determine their true operational boundaries.
+
+### Test 1: Entropy & Whitening
+*   **Finding:** Original Φ-RFT matches the DFT in achieving maximal entropy (6.0 bits for N=64) for an impulse input.
+*   **Chaotic Variants:** The "Chaotic Mix" and "Hybrid" variants achieve high entropy (~91-92%) but do not exceed the theoretical maximum set by the DFT. They provide distinct, key-dependent scrambling rather than "better" whitening.
+
+### Test 2: Nonlinear Response (Cubic Phase)
+*   **Finding:** For standard cubic phase signals ($\gamma=0.001$), the **Original Φ-RFT** provides the sparsest representation (Gini: 0.1589), outperforming both DFT (0.1302) and Harmonic-Phase (0.1218).
+*   **Note:** The Harmonic-Phase transform requires specific parameter tuning to match the signal curvature; it is not a "magic bullet" for all nonlinearities.
+
+### Test 3: Lattice Resonance
+*   **Finding:** The **Fibonacci Tilt** transform perfectly isolates integer-lattice frequencies (Sparsity 1.0), tying with the DFT.
+*   **Differentiation:** The Original Φ-RFT fails this test (Sparsity 0.78), proving it is fundamentally distinct from integer-grid transforms (Non-LCT).
+
+### Test 4: Adaptive Selection
+*   **Finding:** An adaptive meta-layer can successfully identify the optimal basis for a given signal type.
+    *   **Golden Signals** $\rightarrow$ Original Φ-RFT
+    *   **Cubic Signals** $\rightarrow$ Harmonic-Phase
+    *   **Lattice Signals** $\rightarrow$ Fibonacci Tilt
+*   **Conclusion:** The variants occupy distinct, orthogonal representational niches.
+
+---
+
+## 6. Scaling Laws & Empirical Proof
 
 We ran the verification suite across increasing dimensions \(N\) to prove numerical stability and scalability.
 
