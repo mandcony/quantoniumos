@@ -54,3 +54,7 @@ hardware/makerchip_rft_closed_form.tlv
 hardware/quantoniumos_unified_engines.sv
 hardware/rft_middleware_engine.sv
 hardware/quantoniumos_unified_engines_synthesis.tcl
+
+# --- Verification Scripts (Irrevocable Truths) ---
+scripts/irrevocable_truths.py
+scripts/verify_scaling_laws.py
