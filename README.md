@@ -51,9 +51,12 @@ We have identified and validated a family of 7 transforms that are all unitary t
 
 ## What’s New (TL;DR)
 
-**Φ-RFT (closed-form, fast).** Let $F$ be the unitary DFT (`norm="ortho"`). Define diagonal phases  
-$[C_\sigma]_{kk}=\exp(i\pi\sigma k^2/n)$, $[D_\phi]_{kk}=\exp(2\pi i\,\beta\,\{k/\phi\})$ with $\phi=(1+\sqrt5)/2$.  
-Set **$\Psi = D_\phi\,C_\sigma\,F$**.
+**Φ-RFT (closed-form, fast).** Let $F$ be the unitary DFT (`norm="ortho"`). Define diagonal phases:
+$$
+[C_\sigma]_{kk} = \exp\left(i\pi\sigma \frac{k^2}{n}\right), \quad
+[D_\phi]_{kk} = \exp\left(2\pi i\,\beta\,\left\{\frac{k}{\phi}\right\}\right)
+$$
+with $\phi=(1+\sqrt5)/2$. Set $\Psi = D_\phi\,C_\sigma\,F$.
 
 - **Unitary by construction:** $\Psi^\dagger \Psi = I$.
 - **Exact complexity:** **$\mathcal O(n\log n)$** (FFT/IFFT + two diagonal multiplies).
