@@ -30,13 +30,13 @@ We have identified and validated a family of 7 transforms that are all unitary t
 
 | Variant | Innovation | Use Case | Status |
 | :--- | :--- | :--- | :--- |
-| **1. Original Φ-RFT** | Golden-ratio phase | Exact diagonalization | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
-| **2. Harmonic-Phase** | Cubic phase (curved time) | Nonlinear filtering | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
-| **3. Fibonacci Tilt** | Integer Fibonacci numbers | Lattice cryptography | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
-| **4. Chaotic Mix** | Haar-like random projections | Max entropy / Crypto | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
-| **5. Geometric Lattice** | Pure geometric phase | Optical computing | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
-| **6. Φ-Chaotic Hybrid** | Structure + Disorder | Post-quantum crypto | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
-| **7. Adaptive Φ** | Meta-transform | Universal codec | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
+| **1. Original Φ-RFT** | Golden-ratio phase | Exact diagonalization | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **2. Harmonic-Phase** | Cubic phase (curved time) | Nonlinear filtering | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **3. Fibonacci Tilt** | Integer Fibonacci numbers | Lattice cryptography | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **4. Chaotic Mix** | Haar-like random projections | Max entropy / Crypto | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **5. Geometric Lattice** | Pure geometric phase | Optical computing | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **6. Φ-Chaotic Hybrid** | Structure + Disorder | Post-quantum crypto | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **7. Adaptive Φ** | Meta-transform | Universal codec | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
 
 ### 2. Key Validation Results
 *   **Exact Diagonalization:** The Φ-RFT exactly diagonalizes systems governed by Golden Ratio resonances (Error $10^{-14}$).
