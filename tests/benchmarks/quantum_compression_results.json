@@ -1,0 +1,554 @@
+{
+  "fibonacci_quasiperiodic": {
+    "rft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.200346307857486,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7877
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.3750232770266194,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7877
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.5987388091279129,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7877
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.7226800380430008,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7877
+      }
+    ],
+    "dct": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.13943911991431363,
+        "bits": 2050,
+        "bits_per_value": 4.00390625,
+        "kolmogorov_proxy": 7874
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.27232861129715874,
+        "bits": 4182,
+        "bits_per_value": 8.16796875,
+        "kolmogorov_proxy": 7874
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.46567058198933414,
+        "bits": 8364,
+        "bits_per_value": 16.3359375,
+        "kolmogorov_proxy": 7874
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.6014308945712208,
+        "bits": 12546,
+        "bits_per_value": 24.50390625,
+        "kolmogorov_proxy": 7874
+      }
+    ],
+    "fft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.200346307857486,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7868
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.3750232770266194,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7868
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.5987388091279129,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7868
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.7226800380430007,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7868
+      }
+    ]
+  },
+  "golden_coherent": {
+    "rft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.35395498741298037,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7885
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.6428045274855091,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7885
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.913298727348127,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7885
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9767452924836781,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7885
+      }
+    ],
+    "dct": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.2720005751244174,
+        "bits": 2050,
+        "bits_per_value": 4.00390625,
+        "kolmogorov_proxy": 7819
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.4950281887631571,
+        "bits": 4182,
+        "bits_per_value": 8.16796875,
+        "kolmogorov_proxy": 7819
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.7575789481285946,
+        "bits": 8364,
+        "bits_per_value": 16.3359375,
+        "kolmogorov_proxy": 7819
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9004679553980935,
+        "bits": 12546,
+        "bits_per_value": 24.50390625,
+        "kolmogorov_proxy": 7819
+      }
+    ],
+    "fft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.35395498741298037,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 5779
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.6428045274855091,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 5779
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.9132987273481269,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 5779
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9767452924836781,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 5779
+      }
+    ]
+  },
+  "penrose_tiling": {
+    "rft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.9986079420275896,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7877
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.9993364030719147,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7877
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.9996799433666117,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7877
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9997966610821739,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7877
+      }
+    ],
+    "dct": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.9936136394730699,
+        "bits": 2050,
+        "bits_per_value": 4.00390625,
+        "kolmogorov_proxy": 7941
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.9969837194170391,
+        "bits": 4182,
+        "bits_per_value": 8.16796875,
+        "kolmogorov_proxy": 7941
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.9986429198011555,
+        "bits": 8364,
+        "bits_per_value": 16.3359375,
+        "kolmogorov_proxy": 7941
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9992739738535016,
+        "bits": 12546,
+        "bits_per_value": 24.50390625,
+        "kolmogorov_proxy": 7941
+      }
+    ],
+    "fft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.9986079420275896,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7862
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.9993364030719147,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7862
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.9996799433666117,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7862
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9997966610821739,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7862
+      }
+    ]
+  },
+  "quasicrystal": {
+    "rft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.9780031168759531,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7881
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.9892894448840375,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7881
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.9947783262039916,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7881
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9966691788691594,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7881
+      }
+    ],
+    "dct": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.999747541074186,
+        "bits": 2050,
+        "bits_per_value": 4.00390625,
+        "kolmogorov_proxy": 7963
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.999972503235961,
+        "bits": 4182,
+        "bits_per_value": 8.16796875,
+        "kolmogorov_proxy": 7963
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.9999968982055315,
+        "bits": 8364,
+        "bits_per_value": 16.3359375,
+        "kolmogorov_proxy": 7963
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9999992092432846,
+        "bits": 12546,
+        "bits_per_value": 24.50390625,
+        "kolmogorov_proxy": 7963
+      }
+    ],
+    "fft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.9780031168759533,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7865
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.9892894448840375,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7865
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.9947783262039914,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7865
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.9966691788691592,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7865
+      }
+    ]
+  },
+  "harper_eigenstate": {
+    "rft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": NaN,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 52
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": NaN,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 52
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": NaN,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 52
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": NaN,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 52
+      }
+    ],
+    "dct": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": NaN,
+        "bits": 2050,
+        "bits_per_value": 4.00390625,
+        "kolmogorov_proxy": 92
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": NaN,
+        "bits": 4182,
+        "bits_per_value": 8.16796875,
+        "kolmogorov_proxy": 92
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": NaN,
+        "bits": 8364,
+        "bits_per_value": 16.3359375,
+        "kolmogorov_proxy": 92
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": NaN,
+        "bits": 12546,
+        "bits_per_value": 24.50390625,
+        "kolmogorov_proxy": 92
+      }
+    ],
+    "fft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": NaN,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 52
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": NaN,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 52
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": NaN,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 52
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": NaN,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 52
+      }
+    ]
+  },
+  "random_control": {
+    "rft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.17337656194385595,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7883
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.3028552734080115,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7883
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.4961373468003327,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7883
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.640066482176252,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7883
+      }
+    ],
+    "dct": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.27612963635105425,
+        "bits": 2050,
+        "bits_per_value": 4.00390625,
+        "kolmogorov_proxy": 7941
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.43523093611453767,
+        "bits": 4182,
+        "bits_per_value": 8.16796875,
+        "kolmogorov_proxy": 7941
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.6406550834904349,
+        "bits": 8364,
+        "bits_per_value": 16.3359375,
+        "kolmogorov_proxy": 7941
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.7762097323678596,
+        "bits": 12546,
+        "bits_per_value": 24.50390625,
+        "kolmogorov_proxy": 7941
+      }
+    ],
+    "fft": [
+      {
+        "keep_fraction": 0.05,
+        "fidelity": 0.1733765619438559,
+        "bits": 1825,
+        "bits_per_value": 3.564453125,
+        "kolmogorov_proxy": 7875
+      },
+      {
+        "keep_fraction": 0.1,
+        "fidelity": 0.3028552734080116,
+        "bits": 3723,
+        "bits_per_value": 7.271484375,
+        "kolmogorov_proxy": 7875
+      },
+      {
+        "keep_fraction": 0.2,
+        "fidelity": 0.4961373468003327,
+        "bits": 7446,
+        "bits_per_value": 14.54296875,
+        "kolmogorov_proxy": 7875
+      },
+      {
+        "keep_fraction": 0.3,
+        "fidelity": 0.6400664821762523,
+        "bits": 11169,
+        "bits_per_value": 21.814453125,
+        "kolmogorov_proxy": 7875
+      }
+    ]
+  }
+}

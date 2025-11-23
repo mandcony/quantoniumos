@@ -12,13 +12,13 @@
   },
   "test2": {
     "test": "lct_optimization_fit",
-    "frobenius_error": 14.627271361047125,
-    "relative_error": 1.2928803462065253,
+    "frobenius_error": 14.627271361072339,
+    "relative_error": 1.2928803462087541,
     "best_params": [
-      -5.457631865044021,
-      -0.6489131520918908,
-      0.010094672242456674,
-      -1.546510557137787
+      -5.457631820237777,
+      -0.6489131452104051,
+      0.010094639171105958,
+      -1.5465104668093872
     ],
     "is_distinct": true,
     "verdict": "\u2705 PASS: RFT cannot be approximated by LCT (error = 1.293)"

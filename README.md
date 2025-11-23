@@ -12,17 +12,18 @@
 
 ---
 
-## Core Mathematical Framework
+## What’s New (TL;DR)
 
-**Φ-RFT Definition.** Let \(F\) be the unitary DFT (`norm="ortho"`). Define diagonal phases \([C_\sigma]_{kk}=\exp(i\pi\sigma k^2/n)\) and \([D_\phi]_{kk}=\exp(2\pi i\,\beta\,\{k/\phi\})\) where \(\phi=(1+\sqrt5)/2\). The transform is \(\Psi = D_\phi\,C_\sigma\,F\).
+**Φ-RFT (closed-form, fast).** Let \(F\) be the unitary DFT (`norm="ortho"`). Define diagonal phases  
+\([C_\sigma]_{kk}=\exp(i\pi\sigma k^2/n)\), \([D_\phi]_{kk}=\exp(2\pi i\,\beta\,\{k/\phi\})\) with \(\phi=(1+\sqrt5)/2\).  
+Set **\(\Psi = D_\phi\,C_\sigma\,F\)**.
 
-**Properties:**
-- Unitary by construction: \(\Psi^\dagger \Psi = I\)
-- Computational complexity: \(\mathcal O(n\log n)\) via FFT with diagonal pre/post-multiplication
-- Diagonalizes twisted convolution: \(x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x\) with commutativity and associativity
-- Non-membership in LCT/FrFT family: Golden-ratio phase factorization {k/φ} is provably non-quadratic for β ∉ ℤ. Tested via quadratic residual analysis and exhaustive LCT optimization (neither can approximate Ψ within numerical tolerance).
+- **Unitary by construction:** \(\Psi^\dagger \Psi = I\).
+- **Exact complexity:** **\(\mathcal O(n\log n)\)** (FFT/IFFT + two diagonal multiplies).
+- **Exact diagonalization:** twisted convolution \(x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x\) is **commutative**/**associative**, and \(\Psi(x\star h)=(\Psi x)\odot(\Psi h)\).
+- **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **provably non-quadratic** (via Sturmian sequence properties) for \(\beta \notin \mathbb{Z}\); distinct from LCT/FrFT classes.
 
-Mathematical proofs and validation tests: `docs/RFT_THEOREMS.md`, `tests/rft/`
+For proofs and tests, see **`docs/RFT_THEOREMS.md`** and **`tests/rft/`**.
 
 ---
 
@@ -101,108 +102,55 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
     return rft_inverse(A * B, beta=beta, sigma=sigma)
 ```
 
-**Validated Results (N=128–512):**
-- Round-trip error: 3×10⁻¹⁶ relative (machine precision)
-- Twisted convolution commutator: 1×10⁻¹⁵ (numerical verification of algebraic closure)
-- LCT non-membership: Quadratic residual 0.3–0.5 rad RMS (proves non-quadratic phase); exhaustive LCT optimization fails to approximate within 10% relative error. Tests confirm structural distinctness but do not provide systematic comparison of all LCT family properties.
+**Validated (N=128–512):**
+- Round-trip error ≈ **3e-16** relative.  
+- Twisted-conv commutator ≈ **1e-15** (machine precision).  
+- LCT non-equivalence: quadratic residual ≈ **0.3–0.5 rad RMS**; DFT correlation max < **0.25**; \(|\Psi^\dagger F|\) column entropy > **96%** of uniform.
 
 ---
 
-## Compression Codecs
+## Compression
 
-**Lossless Vertex Codec:** Exact spectral representation of tensors in Φ-RFT domain with SHA-256 integrity verification.
-
-**Hybrid Learned Codec:** Multi-stage pipeline comprising Φ-RFT transform, frequency band pruning, logarithmic amplitude and phase quantization, residual prediction via MLP, and ANS entropy coding.
-
-Objective: Empirical comparison of energy compaction and sparsity properties against DCT/DFT baselines with reproducible benchmarking methodology.
+- **Lossless Vertex Codec:** exact spectral storage of tensors in Φ-RFT domain with SHA-256 integrity.  
+- **Hybrid Learned Codec:** Φ-RFT → banding → prune/quantize (log-amp + phase) → tiny residual MLP → ANS.  
+- Goals: **energy compaction**, **sparsity**, reproducible benchmarking vs DCT/DFT.
 
 ---
 
-## Cryptographic Constructions (Experimental)
+## Cryptography (Research-Only)
 
-**RFT-SIS Hash v3.1** (Research prototype without security proofs)
-
-Empirical properties:
-- Avalanche effect: 50% ± 3% bit flips for 1-ulp input perturbations
-- Collision resistance: 0 collisions observed in 10,000-sample test suite
-- Construction: SIS-inspired lattice parameters applied to Φ-RFT spectral domain
-
-**Security status:** No formal cryptanalytic reduction provided. Diffusion properties do not constitute security proof. Linear, differential, boomerang, and related-key analyses not performed. Not suitable for production cryptographic applications.
+**RFT–SIS Hash v3.1** *(experimental)*  
+- **Avalanche:** ~**50% ±3%** bit flips for 1-ulp input deltas.  
+- **Collisions:** 0 / 10k in current suite.  
+- **Security:** SIS-flavored parameters; **no formal reduction**. Note that **diffusion ≠ security**; this is an experimental cipher without formal cryptanalysis (linear/differential/boomerang/etc.). **Do not** use for production security.
 
 ---
 
-## Hardware Implementation
+## What’s Verified (at a glance)
 
-**8-Point Φ-RFT FPGA Synthesis**
+- ✅ **Φ-RFT unitarity:** exact by factorization; numerically at machine-epsilon.  
+- ✅ **Round-trip:** ~1e-16 relative error.  
+- ✅ **Twisted-algebra diagonalization:** commutative/associative via \(\Psi\)-diagonalization.  
+- ✅ **Non-equivalence to LCT/FrFT/DFT:** multiple independent tests.  
+- ✅ **RFT–SIS avalanche:** ~50% ±3%.  
+- 🔬 **Compression benchmarks:** preliminary small-scale results; larger cross-validation runs in progress.
 
-### WebFPGA Deployment (Lattice iCE40 HX8K)
-- Design: `hardware/fpga_top.sv`
-- Resource utilization: 1,884 LUT4 / 7,680 (35.68%), 599 flip-flops (11.34%)
-- Timing: 21.90 MHz achieved (target: 1.00 MHz)
-- Status: Bitstream generated, ready for device programming
-
-### Icarus Verilog Simulation
-Comprehensive testbench: https://www.edaplayground.com/s/4/188
-
-**Architecture (4 modules):**
-
-1. **CORDIC Engine:** 12-iteration CORDIC algorithm for cartesian-to-polar conversion. Implements atan lookup table (12 entries), gain compensation factor 0.6073, outputs magnitude and phase in Q1.15 fixed-point radians.
-
-2. **Complex Multiplier:** Combinational logic implementing (a + bi)(c + di) = (ac - bd) + (ad + bc)i in 16-bit fixed-point arithmetic with appropriate scaling.
-
-3. **8×8 RFT Kernel ROM:** Pre-computed complex coefficients representing orthonormal DFT basis scaled by 1/√8. Contains 64 entries indexed by frequency k (0-7) and sample n (0-7). DC component (k=0) uniform at 0x2D41, Nyquist (k=4) alternates ±0x2D41.
-
-4. **RFT Middleware Engine:** State machine pipeline (IDLE → COMPUTE_RFT → EXTRACT_POLAR → OUTPUT) executing 64 complex multiply-accumulate operations, CORDIC polar extraction for 8 frequency bins, and total resonance energy computation.
-
-**Verification Test Suite (10 patterns):**
-1. Impulse (delta function): validates unitary property
-2. Null input: zero vector handling
-3. DC component: constant value 0x08
-4. Nyquist frequency: alternating 0x00/0xFF pattern
-5. Linear ramp: ascending sequence 0x00-0x07
-6. Step function: half-wave discontinuity
-7. Symmetric pattern: triangle wave
-8. Complex pattern: hexadecimal sequence 0x0123456789ABCDEF
-9. Single peak: isolated high value 0xFF at terminal byte
-10. Dual peaks: endpoints 0x80
-
-**Validated Functionality:**
-- CORDIC 12-iteration cartesian-to-polar conversion
-- Complex multiply-accumulate across 64 coefficient pairs
-- Resonance kernel ROM with 8×8 spectral basis
-- Amplitude extraction with CORDIC gain compensation
-- Phase extraction in fixed-point radian representation
-- Frequency domain energy summation
-
-**Implementation Results:**
-- Φ-RFT realizable in synthesizable digital logic
-- CORDIC-based complex transform pipeline operational
-- Resource utilization under 36% on low-cost FPGA architecture
-- Timing closure achieved at 21.90 MHz
-- Complete frequency domain analysis with magnitude, phase, and energy metrics
-
-**Implementation Files:**
-- `hardware/fpga_top.sv`: WebFPGA-synthesizable 8-point RFT core
-- `hardware/rft_middleware_engine.sv`: Complete 4-module pipeline (Icarus Verilog)
-- `hardware/quantoniumos_unified_engines.sv`: Extended system architecture (simulation)
-- `hardware/makerchip_rft_closed_form.tlv`: Transaction-Level Verilog for browser-based verification
-- `hardware/test_logs/`: Simulation outputs and waveform captures
-- EDA Playground repository: Complete testbench with frequency domain analysis
+See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 
 ---
 
-## Verification Status
+## Limitations / Non-use cases
 
-- Φ-RFT unitarity: Exact by algebraic factorization, numerically verified at machine epsilon
-- Round-trip error: Order 10⁻¹⁶ relative (double-precision limit)
-- Twisted-algebra diagonalization: Commutativity and associativity verified via Ψ-diagonalization
-- LCT non-membership: Proven via quadratic phase residual analysis (0.3-0.5 rad RMS) and exhaustive optimization search. Tests establish structural distinctness but do not systematically compare all LCT operational properties.
-- RFT-SIS avalanche: 50% ± 3% (experimental observation)
-- Hardware synthesis: 8-point RFT implemented on WebFPGA iCE40 HX8K (21.90 MHz, 35.68% LUT utilization)
-- Simulation verification: Icarus Verilog and Makerchip TL-V (EDA Playground)
-- Compression benchmarks: Preliminary results on synthetic data; larger-scale validation in progress
+- **General Convolution:** Φ-RFT is slower (~5x) and less diagonal than FFT for standard convolutions on white noise or generic signals.
+- **Standard Compression:** DCT outperforms Φ-RFT on standard linear chirps (see `docs/RFT_SCOPE_AND_LIMITATIONS.md`).
+- **Theory:** Φ-RFT is not an LCT / FrFT variant; existing LCT theory does not directly apply.
+- **Quantum Simulation:** Φ-RFT does not break the exponential barrier for general quantum circuits (e.g., GHZ, Random).
 
-Comprehensive validation documentation: `tests/`, `algorithms/crypto/crypto_benchmarks/rft_sis/`, `docs/reports/CLOSED_FORM_RFT_VALIDATION.md`
+## Intended Regime
+
+- **Golden-Ratio Correlated Signals:** Quasi-periodic lattices, Fibonacci chains.
+- **Fractal/Topological Data:** Signals with non-integer scaling symmetries.
+- **Specific Quantum States:** States where `quantum_compression_results.json` shows clear fidelity wins over DCT.
 
 ---
 
@@ -212,8 +160,7 @@ Comprehensive validation documentation: `tests/`, `algorithms/crypto/crypto_benc
 > Files explicitly listed in **`CLAIMS_PRACTICING_FILES.txt`** are licensed under **`LICENSE-CLAIMS-NC.md`** (research/education only) because they practice methods disclosed in **U.S. Patent Application No. 19/169,399**.  
 > **No non-commercial restriction applies to any files outside that list.**  
 > Commercial use of the claim-practicing implementations requires a separate patent license from **Luis M. Minier** (contact: **luisminier79@gmail.com**).  
-> See `PATENT_NOTICE.md` for details. Trademarks (“QuantoniumOS”, “RFT”) are not licensed.  
-> For a scenario-by-scenario breakdown (research vs. commercial), review `docs/licensing/LICENSING_OVERVIEW.md`.
+> See `PATENT_NOTICE.md` for details. Trademarks (“QuantoniumOS”, “RFT”) are not licensed.
 
 ---
 
