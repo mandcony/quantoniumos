@@ -51,14 +51,14 @@ We have identified and validated a family of 7 transforms that are all unitary t
 
 ## What’s New (TL;DR)
 
-**Φ-RFT (closed-form, fast).** Let \(F\) be the unitary DFT (`norm="ortho"`). Define diagonal phases  
-\([C_\sigma]_{kk}=\exp(i\pi\sigma k^2/n)\), \([D_\phi]_{kk}=\exp(2\pi i\,\beta\,\{k/\phi\})\) with \(\phi=(1+\sqrt5)/2\).  
-Set **\(\Psi = D_\phi\,C_\sigma\,F\)**.
+**Φ-RFT (closed-form, fast).** Let $F$ be the unitary DFT (`norm="ortho"`). Define diagonal phases  
+$[C_\sigma]_{kk}=\exp(i\pi\sigma k^2/n)$, $[D_\phi]_{kk}=\exp(2\pi i\,\beta\,\{k/\phi\})$ with $\phi=(1+\sqrt5)/2$.  
+Set **$\Psi = D_\phi\,C_\sigma\,F$**.
 
-- **Unitary by construction:** \(\Psi^\dagger \Psi = I\).
-- **Exact complexity:** **\(\mathcal O(n\log n)\)** (FFT/IFFT + two diagonal multiplies).
-- **Exact diagonalization:** twisted convolution \(x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x\) is **commutative**/**associative**, and \(\Psi(x\star h)=(\Psi x)\odot(\Psi h)\).
-- **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **provably non-quadratic** (via Sturmian sequence properties) for \(\beta \notin \mathbb{Z}\); distinct from LCT/FrFT classes.
+- **Unitary by construction:** $\Psi^\dagger \Psi = I$.
+- **Exact complexity:** **$\mathcal O(n\log n)$** (FFT/IFFT + two diagonal multiplies).
+- **Exact diagonalization:** twisted convolution $x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x$ is **commutative**/**associative**, and $\Psi(x\star h)=(\Psi x)\odot(\Psi h)$.
+- **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **provably non-quadratic** (via Sturmian sequence properties) for $\beta \notin \mathbb{Z}$; distinct from LCT/FrFT classes.
 
 For proofs and tests, see **`docs/validation/RFT_THEOREMS.md`** and **`tests/rft/`**.
 
@@ -142,7 +142,7 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
 **Validated (N=128–512):**
 - Round-trip error ≈ **3e-16** relative.  
 - Twisted-conv commutator ≈ **1e-15** (machine precision).  
-- LCT non-equivalence: quadratic residual ≈ **0.3–0.5 rad RMS**; DFT correlation max < **0.25**; \(|\Psi^\dagger F|\) column entropy > **96%** of uniform.
+- LCT non-equivalence: quadratic residual ≈ **0.3–0.5 rad RMS**; DFT correlation max < **0.25**; $|\Psi^\dagger F|$ column entropy > **96%** of uniform.
 
 ---
 
@@ -167,7 +167,7 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
 
 - **Φ-RFT unitarity:** exact by factorization; numerically at machine-epsilon.  
 - **Round-trip:** ~1e-16 relative error.  
-- **Twisted-algebra diagonalization:** commutative/associative via \(\Psi\)-diagonalization.  
+- **Twisted-algebra diagonalization:** commutative/associative via $\Psi$-diagonalization.  
 - **Non-equivalence to LCT/FrFT/DFT:** multiple independent tests.  
 - **RFT–SIS avalanche:** ~50% ±3%.  
 - **Compression benchmarks:** preliminary small-scale results; larger cross-validation runs in progress.
