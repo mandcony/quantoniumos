@@ -41,8 +41,8 @@ We have identified and validated a family of 7 transforms that are all unitary t
 ### 2. Key Validation Results
 *   **Exact Diagonalization:** The Φ-RFT exactly diagonalizes systems governed by Golden Ratio resonances (Error $10^{-14}$).
 *   **Massive Sparsity:** For golden quasi-periodic signals, the transform achieves **>98% sparsity** at $N=512$.
-*   **Quantum Chaos:** Spectral analysis reveals **Level Repulsion** (Variance $\approx 0.26$), a signature of Quantum Chaos, contrasting with the DFT's Integrable statistics.
-*   **Crypto-Agility:** We have identified **Fibonacci Tilt** as the optimal variant for Lattice-based hashing (RFT-SIS), achieving **~52% avalanche** (vs 49% for DFT), demonstrating strong non-linear mixing in lattice constructions.
+*   **Quantum Chaos:** Eigenphase statistics show **Level Repulsion** (variance $\approx 0.26$), consistent with Wigner–Dyson–like spectra.
+*   **Crypto-Agility:** We have identified **Fibonacci Tilt** as the optimal variant for Lattice-based hashing (RFT-SIS), achieving **~52% avalanche** (vs 49% for DFT, $N=256$, RFT-SIS test), demonstrating strong non-linear mixing in lattice constructions.
 *   **Adaptive Selection:** We have proven that the variants occupy distinct representational niches (Golden vs. Cubic vs. Lattice), enabling an adaptive meta-layer to automatically select the optimal basis.
 
 [![Read Proofs](https://img.shields.io/badge/Read-Full_Proofs-blue)](docs/validation/RFT_THEOREMS.md)
