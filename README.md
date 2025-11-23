@@ -20,7 +20,7 @@
 - Unitary by construction: \(\Psi^\dagger \Psi = I\)
 - Computational complexity: \(\mathcal O(n\log n)\) via FFT with diagonal pre/post-multiplication
 - Diagonalizes twisted convolution: \(x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x\) with commutativity and associativity
-- Provably distinct from LCT/FrFT/DFT classes: golden-ratio phase is non-quadratic for \(\beta \notin \mathbb{Z}\) (Sturmian sequence analysis)
+- Non-membership in LCT/FrFT family: Golden-ratio phase factorization {k/φ} is provably non-quadratic for β ∉ ℤ. Tested via quadratic residual analysis and exhaustive LCT optimization (neither can approximate Ψ within numerical tolerance).
 
 Mathematical proofs and validation tests: `docs/RFT_THEOREMS.md`, `tests/rft/`
 
@@ -104,7 +104,7 @@ def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
 **Validated Results (N=128–512):**
 - Round-trip error: 3×10⁻¹⁶ relative (machine precision)
 - Twisted convolution commutator: 1×10⁻¹⁵ (numerical verification of algebraic closure)
-- LCT non-equivalence metrics: quadratic residual 0.3–0.5 rad RMS, DFT correlation max < 0.25, column entropy > 96% of uniform distribution
+- LCT non-membership: Quadratic residual 0.3–0.5 rad RMS (proves non-quadratic phase); exhaustive LCT optimization fails to approximate within 10% relative error. Tests confirm structural distinctness but do not provide systematic comparison of all LCT family properties.
 
 ---
 
@@ -196,7 +196,7 @@ Comprehensive testbench: https://www.edaplayground.com/s/4/188
 - Φ-RFT unitarity: Exact by algebraic factorization, numerically verified at machine epsilon
 - Round-trip error: Order 10⁻¹⁶ relative (double-precision limit)
 - Twisted-algebra diagonalization: Commutativity and associativity verified via Ψ-diagonalization
-- Non-equivalence to LCT/FrFT/DFT: Multiple independent mathematical tests
+- LCT non-membership: Proven via quadratic phase residual analysis (0.3-0.5 rad RMS) and exhaustive optimization search. Tests establish structural distinctness but do not systematically compare all LCT operational properties.
 - RFT-SIS avalanche: 50% ± 3% (experimental observation)
 - Hardware synthesis: 8-point RFT implemented on WebFPGA iCE40 HX8K (21.90 MHz, 35.68% LUT utilization)
 - Simulation verification: Icarus Verilog and Makerchip TL-V (EDA Playground)
