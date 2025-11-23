@@ -3,16 +3,16 @@
 ## Essential Documentation (READ THESE)
 
 1. **README.md** - Project overview and quick start
-2. **docs/COMPLETE_DEVELOPER_MANUAL.md** - Comprehensive technical reference
-3. **docs/QUICK_START.md** - Get started in 15 minutes
-4. **docs/TECHNICAL_SUMMARY.md** - Architecture and algorithms
+2. **docs/manuals/COMPLETE_DEVELOPER_MANUAL.md** - Comprehensive technical reference
+3. **docs/manuals/QUICK_START.md** - Get started in 15 minutes
+4. **docs/research/TECHNICAL_SUMMARY.md** - Architecture and algorithms
 
 ## Specialized Documentation
 
 ### Development
-- **docs/PROJECT_STRUCTURE.md** - Directory organization
-- **docs/REPRODUCIBILITY.md** - How to reproduce results
-- **docs/RFT_VALIDATION_GUIDE.md** - Testing the RFT algorithms
+- **docs/project/PROJECT_STRUCTURE.md** - Directory organization
+- **docs/validation/REPRODUCIBILITY.md** - How to reproduce results
+- **docs/validation/RFT_VALIDATION_GUIDE.md** - Testing the RFT algorithms
 - **docs/reports/CLOSED_FORM_RFT_VALIDATION.md** - Empirical evidence and novelty analysis for the closed-form Phi-RFT
 
 ### Hardware/FPGA
@@ -25,10 +25,11 @@
 - **LICENSE.md** - MIT License
 - **LICENSE-CLAIMS-NC.md** - Patent claims license
 - **CLAIMS_PRACTICING_FILES.txt** - Files practicing patent claims
+- **docs/patent/USPTO_EXAMINER_RESPONSE_PACKAGE.md** - Patent response package
 
 ### Theory
-- **docs/RFT_THEOREMS.md** - Mathematical theorems
-- **docs/theoretical_justifications.md** - Theoretical foundations
+- **docs/validation/RFT_THEOREMS.md** - Mathematical theorems
+- **docs/research/theoretical_justifications.md** - Theoretical foundations
 - **docs/MATHEMATICAL_FOUNDATIONS.md** - Math background
 
 ### API/User Guides
@@ -52,5 +53,5 @@ See `docs/archive/` for historical reports and planning documents.
 
 **Note**: If you're new, read in this order:
 1. README.md
-2. docs/QUICK_START.md
-3. docs/COMPLETE_DEVELOPER_MANUAL.md
+2. docs/manuals/QUICK_START.md
+3. docs/manuals/COMPLETE_DEVELOPER_MANUAL.md
