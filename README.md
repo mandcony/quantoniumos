@@ -25,14 +25,27 @@
 
 We have mathematically proven and numerically validated the core claims of the Φ-RFT framework. These are not approximations; they are exact mathematical truths.
 
-*   **7 Unitary Variants:** We have identified a family of 7 transforms (including **Harmonic-Phase**, **Fibonacci Tilt**, and **Φ-Chaotic Hybrid**) that are all unitary to machine precision ($10^{-15}$).
+### 1. The 7 Unitary Variants
+We have identified and validated a family of 7 transforms that are all unitary to machine precision ($10^{-15}$).
+
+| Variant | Innovation | Use Case | Status |
+| :--- | :--- | :--- | :--- |
+| **1. Original Φ-RFT** | Golden-ratio phase | Exact diagonalization | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
+| **2. Harmonic-Phase** | Cubic phase (curved time) | Nonlinear filtering | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
+| **3. Fibonacci Tilt** | Integer Fibonacci numbers | Lattice cryptography | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
+| **4. Chaotic Mix** | Haar-like random projections | Max entropy / Crypto | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
+| **5. Geometric Lattice** | Pure geometric phase | Optical computing | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
+| **6. Φ-Chaotic Hybrid** | Structure + Disorder | Post-quantum crypto | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
+| **7. Adaptive Φ** | Meta-transform | Universal codec | ![Status](https://img.shields.io/badge/Status-Proven-brightgreen) |
+
+### 2. Key Validation Results
 *   **Exact Diagonalization:** The Φ-RFT exactly diagonalizes systems governed by Golden Ratio resonances (Error $10^{-14}$).
 *   **Massive Sparsity:** For golden quasi-periodic signals, the transform achieves **>98% sparsity** at $N=512$.
 *   **Quantum Chaos:** Spectral analysis proves the Φ-RFT exhibits **Wigner-Dyson level statistics** (Chaotic), unlike the DFT's Integrable statistics. This confirms its utility for cryptographic mixing.
 *   **Crypto-Agility:** We have identified **Fibonacci Tilt** as the optimal variant for Lattice-based hashing (RFT-SIS), achieving **57.8% avalanche**, outperforming standard DFT and Chaotic variants in modular lattice constructions.
 *   **Adaptive Selection:** We have proven that the variants occupy distinct representational niches (Golden vs. Cubic vs. Lattice), enabling an adaptive meta-layer to automatically select the optimal basis.
 
-👉 **[Read the Full Proofs & Validation Report](docs/RFT_THEOREMS.md)**
+[![Read Proofs](https://img.shields.io/badge/Read-Full_Proofs-blue)](docs/validation/RFT_THEOREMS.md)
 
 ---
 
@@ -47,7 +60,7 @@ Set **\(\Psi = D_\phi\,C_\sigma\,F\)**.
 - **Exact diagonalization:** twisted convolution \(x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x\) is **commutative**/**associative**, and \(\Psi(x\star h)=(\Psi x)\odot(\Psi h)\).
 - **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **provably non-quadratic** (via Sturmian sequence properties) for \(\beta \notin \mathbb{Z}\); distinct from LCT/FrFT classes.
 
-For proofs and tests, see **`docs/RFT_THEOREMS.md`** and **`tests/rft/`**.
+For proofs and tests, see **`docs/validation/RFT_THEOREMS.md`** and **`tests/rft/`**.
 
 ---
 
@@ -166,7 +179,7 @@ See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 ## Limitations / Non-use cases
 
 - **General Convolution:** Φ-RFT is slower (~5x) and less diagonal than FFT for standard convolutions on white noise or generic signals.
-- **Standard Compression:** DCT outperforms Φ-RFT on standard linear chirps (see `docs/RFT_SCOPE_AND_LIMITATIONS.md`).
+- **Standard Compression:** DCT outperforms Φ-RFT on standard linear chirps (see `docs/research/RFT_SCOPE_AND_LIMITATIONS.md`).
 - **Theory:** Φ-RFT is not an LCT / FrFT variant; existing LCT theory does not directly apply.
 - **Quantum Simulation:** Φ-RFT does not break the exponential barrier for general quantum circuits (e.g., GHZ, Random).
 
@@ -195,7 +208,7 @@ algorithms/rft/core/canonical_true_rft.py      # Φ-RFT (claims-practicing)
 algorithms/compression/                        # Lossless + hybrid codecs
 algorithms/crypto/crypto_benchmarks/rft_sis/   # RFT–SIS validation suite
 tests/                                         # Unit + integration tests
-docs/USPTO_*                                   # USPTO packages & analysis
+docs/patent/USPTO_*                            # USPTO packages & analysis
 ```
 
 ---

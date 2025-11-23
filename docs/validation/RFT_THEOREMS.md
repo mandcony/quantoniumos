@@ -81,6 +81,82 @@ We have identified and validated a family of 7 unitary transforms derived from t
 | **6. Φ-Chaotic Hybrid** | Structure + Disorder | Post-quantum crypto | ✅ Proven |
 | **7. Adaptive Φ** | Meta-transform | Universal codec | ✅ Proven |
 
+### Reproducibility
+To verify these transforms yourself, run the irrevocable truths script:
+```bash
+python3 scripts/irrevocable_truths.py
+```
+
+### Implementation Snippets (Protected)
+The following snippets illustrate the mathematical basis for each variant (simplified for documentation). Full implementations are in `scripts/irrevocable_truths.py`.
+
+#### 1. Original Φ-RFT
+**Math:** \( \theta = 2\pi \phi^{-k} \frac{n}{N} + \pi \phi^{-k} \frac{n^2}{2N} \)
+```python
+# scripts/irrevocable_truths.py
+def generate_original_phi_rft(N):
+    phi_k = PHI ** (-k)
+    theta = 2 * np.pi * phi_k * n / N + np.pi * phi_k * (n**2) / (2*N)
+    U_raw = (1.0/np.sqrt(N)) * np.exp(1j * theta)
+    return orthonormalize(U_raw)
+```
+
+#### 2. Harmonic-Phase
+**Math:** \( \theta = \frac{2\pi k n}{N} + \frac{\alpha \pi (kn)^3}{N^2} \)
+```python
+# scripts/irrevocable_truths.py
+def generate_harmonic_phase(N, alpha=0.5):
+    phase = (2 * np.pi * k * n / N) + (alpha * np.pi * (k * n)**3 / (N**2))
+    U_raw = (1.0/np.sqrt(N)) * np.exp(1j * phase)
+    return orthonormalize(U_raw)
+```
+
+#### 3. Fibonacci Tilt
+**Math:** \( \theta = \frac{2\pi F_k n}{F_N} \)
+```python
+# scripts/irrevocable_truths.py
+def generate_fibonacci_tilt(N):
+    # F_k are Fibonacci numbers
+    phase = 2 * np.pi * F_k * n / F_N
+    U_raw = (1.0/np.sqrt(N)) * np.exp(1j * phase)
+    return orthonormalize(U_raw)
+```
+
+#### 4. Chaotic Mix
+**Math:** QR Decomposition of Random Gaussian Matrix
+```python
+# scripts/irrevocable_truths.py
+def generate_chaotic_mix(N, seed=42):
+    rng = np.random.default_rng(seed)
+    A = rng.standard_normal((N, N)) + 1j * rng.standard_normal((N, N))
+    Q, R = np.linalg.qr(A)
+    return Q # Unitary by definition
+```
+
+#### 5. Geometric Lattice
+**Math:** \( \theta = \frac{2\pi k n}{N} + \frac{2\pi (n^2 k + n k^2)}{N^2} \)
+```python
+# scripts/irrevocable_truths.py
+def generate_geometric_lattice(N):
+    phase = (2 * np.pi * k * n / N) + (2 * np.pi * (n**2 * k + n * k**2) / (N**2))
+    U_raw = (1.0/np.sqrt(N)) * np.exp(1j * phase)
+    return orthonormalize(U_raw)
+```
+
+#### 6. Φ-Chaotic Hybrid
+**Math:** \( U_{hybrid} = \text{Orthonormalize}\left(\frac{U_{fib} + U_{chaos}}{\sqrt{2}}\right) \)
+```python
+# scripts/irrevocable_truths.py
+def generate_phi_chaotic_hybrid(N):
+    U_fib = generate_fibonacci_tilt(N)
+    U_chaos = generate_chaotic_mix(N)
+    U_combined = (U_fib + U_chaos) / np.sqrt(2)
+    return orthonormalize(U_combined)
+```
+
+#### 7. Adaptive Φ
+**Logic:** Meta-selector that chooses the optimal basis (Original, Harmonic, or Fibonacci) based on input signal characteristics.
+
 ---
 
 ## 5. Variant Performance Characteristics (Honest Validation)
