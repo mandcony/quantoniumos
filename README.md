@@ -59,7 +59,7 @@ We have identified and validated a family of 7 transforms that are all unitary t
 with $\phi=(1+\sqrt5)/2$. Set $\Psi = D_\phi\,C_\sigma\,F$.
 
 - **Unitary by construction:** $\Psi^\dagger \Psi = I$.
-- **Exact complexity:** **$\mathcal O(n\log n)$** (FFT/IFFT + two diagonal multiplies).
+- **Exact complexity:** $\mathcal O(n\log n)$ (FFT/IFFT + two diagonal multiplies).
 - **Exact diagonalization:** twisted convolution $x\star_{\phi,\sigma}h=\Psi^\dagger\!\mathrm{diag}(\Psi h)\Psi x$ is **commutative**/**associative**, and $\Psi(x\star h)=(\Psi x)\odot(\Psi h)$.
 - **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **provably non-quadratic** (via Sturmian sequence properties) for $\beta \notin \mathbb{Z}$; distinct from LCT/FrFT classes.
 
