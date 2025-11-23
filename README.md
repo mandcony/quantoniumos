@@ -57,7 +57,7 @@ Set **$\Psi = D_\phi\,C_\sigma\,F$**.
 
 - **Unitary by construction:** $\Psi^\dagger \Psi = I$.
 - **Exact complexity:** **$\mathcal O(n\log n)$** (FFT/IFFT + two diagonal multiplies).
-- **Exact diagonalization:** twisted convolution $x\star_{\phi,\sigma}h=\Psi^\dagger\!\operatorname{diag}(\Psi h)\Psi x$ is **commutative**/**associative**, and $\Psi(x\star h)=(\Psi x)\odot(\Psi h)$.
+- **Exact diagonalization:** twisted convolution $x\star_{\phi,\sigma}h=\Psi^\dagger\!\mathrm{diag}(\Psi h)\Psi x$ is **commutative**/**associative**, and $\Psi(x\star h)=(\Psi x)\odot(\Psi h)$.
 - **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **provably non-quadratic** (via Sturmian sequence properties) for $\beta \notin \mathbb{Z}$; distinct from LCT/FrFT classes.
 
 For proofs and tests, see **`docs/validation/RFT_THEOREMS.md`** and **`tests/rft/`**.
