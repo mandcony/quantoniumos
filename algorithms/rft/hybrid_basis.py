@@ -250,7 +250,8 @@ def predict_weights(features: Dict[str, float]) -> Dict[str, float]:
     is_step_like = features["edge_density"] > 0.45 and features["kurtosis"] > -1.2
     
     if is_step_like:
-        return {"dct": 0.95, "rft": 0.05}
+        # Prioritize DCT to clear steps, but keep RFT active for underlying waves
+        return {"dct": 0.70, "rft": 0.30}
 
     if features["quasi_periodicity"] > 0.35:
         if features["spectral_entropy"] > 0.35:
