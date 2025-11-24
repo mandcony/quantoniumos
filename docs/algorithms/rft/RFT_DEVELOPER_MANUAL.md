@@ -348,13 +348,27 @@ Notes: Unitarity deviation is max(|U†U−I|); sparsity refers to proportion of
 
 ### 5.6 Benchmarking Notes
 - CPU model, compiler flags, and repetition counts should be recorded in future expansions.
-- Current scripts approximate GFLOP/s via operation model (~5N log₂N + N phase ops).
 
-The unified orchestrator's performance is critical for real-time applications.
+### 5.7 Assembly/C Backend Implementation
+The high-performance backend (`libquantum_symbolic.so`) implements the RFT variants in C with Assembly optimizations.
 
-- **File**: `algorithms/rft/kernels/unified/kernel/unified_orchestrator.c`
-- **Metric**: End-to-end latency from task reception to result dispatch.
-- **Analysis**: The orchestrator's FSM is designed to minimize state transition overhead. Direct C-level calls to the RFT kernels avoid Python GIL-related delays.
+**Implemented Variants:**
+1.  **Standard (Original Φ-RFT):** Uses $\Phi^{-k}$ phase decay.
+2.  **Harmonic:** Uses cubic phase term $(kn)^3$.
+3.  **Fibonacci:** Uses Fibonacci sequence lattice.
+4.  **Chaotic:** Uses seeded random phase generation.
+5.  **Geometric:** Uses quadratic geometric phase.
+6.  **Hybrid:** Combines Fibonacci and Chaotic phases.
+7.  **Adaptive:** Adaptive variant (currently maps to Hybrid).
+
+**Implementation Details:**
+- **Orthonormalization:** A Modified Gram-Schmidt algorithm is implemented in C to ensure unitarity of the generated bases.
+- **Rank Deficiency:** The Standard and Fibonacci variants exhibit rank deficiency in their raw forms. The C-based Gram-Schmidt process handles this by replacing dependent vectors with random orthogonal vectors, but this results in lower sparsity compared to the Python implementation which uses robust SVD/QR.
+- **Performance:** The Assembly backend is currently unoptimized for speed (O(N^2) complexity) but serves as a correctness reference for the hardware implementation.
+
+**Validation Status:**
+- **Unitarity:** Chaotic, Geometric, Hybrid, and Adaptive variants achieve excellent unitarity (< 1e-10 error). Standard and Harmonic variants have higher error due to rank issues.
+- **Sparsity:** Currently lower than Python reference due to the orthonormalization method.
 
 ## 6. Hardware Integration
 

@@ -36,6 +36,7 @@ class RFTEngine(Structure):
                 ("eigenvalues", POINTER(c_double)),
                 ("initialized", c_bool),
                 ("flags", c_uint32),
+                ("variant", c_int),  # Added variant field
                 ("qubit_count", c_size_t),
                 ("quantum_context", c_void_p),
                 ("topological_qubits", c_void_p),
@@ -50,23 +51,34 @@ RFT_FLAG_QUANTUM_SAFE = 0x00000004
 RFT_FLAG_UNITARY = 0x00000008
 RFT_FLAG_USE_RESONANCE = 0x00000010
 
+# RFT Variants
+RFT_VARIANT_STANDARD = 0
+RFT_VARIANT_HARMONIC = 1
+RFT_VARIANT_FIBONACCI = 2
+RFT_VARIANT_CHAOTIC = 3
+RFT_VARIANT_GEOMETRIC = 4
+RFT_VARIANT_HYBRID = 5
+RFT_VARIANT_ADAPTIVE = 6
+
 class UnitaryRFT:
     """Python interface to the Bare Metal Unitary RFT implementation."""
     
-    def __init__(self, size: int, flags: int = RFT_FLAG_UNITARY):
+    def __init__(self, size: int, flags: int = RFT_FLAG_UNITARY, variant: int = RFT_VARIANT_STANDARD):
         """Initialize the Unitary RFT engine.
         
         Args:
             size: Size of the transform (power of 2 recommended)
             flags: Configuration flags
+            variant: RFT variant to use (default: STANDARD)
         
         Raises:
             RuntimeError: If the RFT library cannot be loaded or initialized
         """
         self.size = size
+        self.variant = variant
         try:
             self.lib = self._load_library()
-            self.engine = self._init_engine(size, flags)
+            self.engine = self._init_engine(size, flags, variant)
             self._is_mock = False
         except RuntimeError:
             # Fallback to mock implementation
@@ -148,17 +160,30 @@ class UnitaryRFT:
                         lib.rft_von_neumann_entropy.restype = c_int
                         
                         lib.rft_validate_bell_state.argtypes = [POINTER(RFTEngine),
-                                                              POINTER(RFTComplex),
-                                                              POINTER(c_double),
-                                                              c_double]
+                                                               POINTER(RFTComplex),
+                                                               POINTER(c_double),
+                                                               c_double]
                         lib.rft_validate_bell_state.restype = c_int
-                        
+
                         lib.rft_validate_golden_ratio_properties.argtypes = [POINTER(RFTEngine),
-                                                                           POINTER(c_double),
-                                                                           c_double]
+                                                                            POINTER(c_double),
+                                                                            c_double]
                         lib.rft_validate_golden_ratio_properties.restype = c_int
-                    except AttributeError as func_error:
-                        print(f"Warning: Some RFT functions not available in {lib_path}: {func_error}")
+
+                        # Variant support
+                        try:
+                            lib.rft_set_variant.argtypes = [POINTER(RFTEngine), c_int, c_bool]
+                            lib.rft_set_variant.restype = c_int
+                            
+                            lib.rft_init_with_variant.argtypes = [POINTER(RFTEngine), c_size_t, c_uint32, c_int]
+                            lib.rft_init_with_variant.restype = c_int
+                        except AttributeError:
+                            pass # Older library version
+
+                        return lib
+                    
+                    except AttributeError as e:
+                        print(f"Warning: Some RFT functions not available in {lib_path}: {e}")
                         # Still return the library for basic functionality
                     
                     return lib
@@ -171,12 +196,21 @@ class UnitaryRFT:
     # with environment override and extended Windows search paths is the single
     # authoritative implementation.
     
-    def _init_engine(self, size: int, flags: int) -> RFTEngine:
+    def _init_engine(self, size: int, flags: int, variant: int) -> RFTEngine:
         """Initialize the RFT engine."""
         engine = RFTEngine()
-        result = self.lib.rft_init(ctypes.byref(engine), size, flags)
+        
+        # Try init_with_variant first
+        if hasattr(self.lib, 'rft_init_with_variant'):
+            result = self.lib.rft_init_with_variant(ctypes.byref(engine), size, flags, variant)
+        else:
+            result = self.lib.rft_init(ctypes.byref(engine), size, flags)
+            if result == 0 and variant != RFT_VARIANT_STANDARD and hasattr(self.lib, 'rft_set_variant'):
+                result = self.lib.rft_set_variant(ctypes.byref(engine), variant, True)
+            
         if result != 0:
-            raise RuntimeError(f"Failed to initialize RFT engine: error code {result}")
+            raise RuntimeError(f"Failed to initialize RFT engine: {result}")
+            
         return engine
     
     def __del__(self):

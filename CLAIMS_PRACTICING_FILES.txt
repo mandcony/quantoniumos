@@ -80,3 +80,23 @@ hardware/quantoniumos_unified_engines_synthesis.tcl
 # --- Verification Scripts (Irrevocable Truths) ---
 scripts/irrevocable_truths.py
 scripts/verify_scaling_laws.py
+tests/validation/test_assembly_variants.py
+tests/validation/test_assembly_rft_vs_classical_transforms.py
+tests/validation/diagnose_assembly_rft.py
+
+# --- AI / Model Management Tools ---
+tools/compression/rft_encode_model.py
+tools/compression/rft_decode_model.py
+tools/compression/rft_hybrid_compress.py
+tools/compression/rft_hybrid_decode.py
+tools/compression/real_dialogpt_compressor.py
+tools/compression/real_hf_model_compressor.py
+tools/compression/real_gpt_neo_compressor.py
+tools/model_management/real_model_downloader.py
+tools/development/dev/tools/quantum_enhanced_conversation_trainer.py
+tools/development/dev/tools/quantum_parameter_harvester.py
+tools/development/dev/tools/hf_streaming_encoder.py
+tools/development/dev/tools/hybrid_image_generator.py
+tools/development/dev/tools/essential_quantum_ai.py
+tools/development/dev/tools/quantonium_model_tester.py
+tools/development/dev/tools/enhanced_essential_quantum_ai.py

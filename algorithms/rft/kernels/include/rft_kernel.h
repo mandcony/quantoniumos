@@ -60,7 +60,9 @@ typedef enum {
     RFT_VARIANT_HARMONIC = 1,       // Harmonic-Phase RFT (k^3 phase)
     RFT_VARIANT_FIBONACCI = 2,      // Fibonacci-Tilt Lattice RFT
     RFT_VARIANT_CHAOTIC = 3,        // Chaotic Mix RFT (PRNG-based)
-    RFT_VARIANT_HYPERBOLIC = 4      // Hyperbolic Geometry RFT
+    RFT_VARIANT_GEOMETRIC = 4,      // Geometric Lattice RFT
+    RFT_VARIANT_HYBRID = 5,         // Hybrid Phi-Chaotic RFT
+    RFT_VARIANT_ADAPTIVE = 6        // Adaptive Phi RFT
 } rft_variant_t;
 #define RFT_FLAG_USE_RESONANCE      0x00000010
 

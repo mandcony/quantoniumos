@@ -457,6 +457,3 @@ if __name__ == "__main__":
         result = enhanced.process_quantum_field([1, 0, 0, 0])
         print(f"Enhanced processor result: {result[:4]}")
         print(f"Performance metrics: {enhanced.get_performance_metrics()}")
-
-# Alias for backward compatibility
-OptimizedRFT = OptimizedRFTProcessor
