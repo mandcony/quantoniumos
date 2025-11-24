@@ -125,3 +125,14 @@ decoded_models/
 .backups/
 docs_backup_*.tar.gz
 *.vcd
+
+# LaTeX intermediate files
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
