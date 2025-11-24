@@ -19,7 +19,7 @@ from typing import Dict, List, Tuple, Any
 import json
 import hashlib
 
-class EnhancedVertexQuantumRFT:
+class VertexQuantumRFT:
     """Enhanced vertex-based quantum-inspired RFT engine with topological integration."""
     
     def __init__(self, data_size: int, vertex_qubits: int = 1000):
@@ -37,7 +37,19 @@ class EnhancedVertexQuantumRFT:
         try:
             import sys
             import os
-            sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'core'))
+            # Try to find the core module in standard locations
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            
+            # Path 1: algorithms/rft/core (relative to python_bindings)
+            rft_core_path = os.path.abspath(os.path.join(current_dir, '..', '..', 'core'))
+            if os.path.exists(rft_core_path) and rft_core_path not in sys.path:
+                sys.path.append(rft_core_path)
+                
+            # Path 2: algorithms/quantum (relative to python_bindings)
+            quantum_path = os.path.abspath(os.path.join(current_dir, '..', '..', '..', 'quantum'))
+            if os.path.exists(quantum_path) and quantum_path not in sys.path:
+                sys.path.append(quantum_path)
+
             from enhanced_topological_qubit import EnhancedTopologicalQubit
             
             self.enhanced_qubit = EnhancedTopologicalQubit(qubit_id=0, num_vertices=vertex_qubits)

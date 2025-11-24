@@ -202,7 +202,7 @@ class CryptoEngine(AssemblyEngine):
     
     def __init__(self):
         # Check if crypto engine is compiled
-        crypto_lib_path = str(engines_path / "crypto_engine" / "feistel_48_engine.so")
+        crypto_lib_path = str(engines_path / "crypto" / "feistel_round48_engine.so")
         if not os.path.exists(crypto_lib_path):
             # Try to find it in compiled directory or fall back to main library
             crypto_lib_path = str(compiled_path / "libquantum_symbolic.so")

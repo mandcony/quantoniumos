@@ -42,7 +42,7 @@ src/apps/quantum_simulator.py              # 1000-qubit symbolic simulation
 # VERIFIED LOCATIONS:
 src/core/geometric_waveform_hash.py         # Waveform generation & hashing
 tests/crypto/scripts/comprehensive_crypto_suite.py # Full crypto validation
-src/assembly/engines/crypto_engine/feistel_48.c   # Assembly crypto engine
+algorithms/rft/kernels/engines/crypto/src/feistel_round48.c   # Assembly crypto engine
 
 # KEY EVIDENCE:
 - Waveform generation: _bytes_to_signal() → complex waveforms

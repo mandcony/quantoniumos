@@ -29,7 +29,7 @@ class NISTRandomnessTests:
         """Generate bits from QuantoniumOS PRNG for testing."""
         try:
             # Import QuantoniumOS PRNG
-            from algorithms.rft.core.crypto_primitives import QuantumPRNG
+            from algorithms.crypto.primitives.quantum_prng import QuantumPRNG
             prng = QuantumPRNG()
             return prng.generate_bits(n_bits)
         except ImportError:

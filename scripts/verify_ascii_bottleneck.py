@@ -11,16 +11,24 @@ We compare Φ-RFT variants against DFT and DCT on:
 1. Natural Text
 2. Source Code
 3. Random ASCII
+4. Mixed Signals (Wave + Text) - Validating Theorem 10
+
+New Transforms Documented:
+- Log-Periodic Φ-RFT: Uses log-warped phase to capture low-frequency symbol statistics.
+- Convex Mixed Φ-RFT: A convex combination of Standard and Log-Periodic phases.
 """
 
 import numpy as np
 import sys
 import os
 from scipy.fft import dct
+from pathlib import Path
 
-# Ensure we can import from the same directory
+# Ensure we can import from the project root
+sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import irrevocable_truths as it
+from algorithms.rft.hybrid_basis import adaptive_hybrid_compress, braided_hybrid_mca
 
 def gini_coefficient(x):
     """Calculate the Gini coefficient of a numpy array."""
@@ -72,12 +80,22 @@ def run_ascii_bottleneck_test():
     print("Lower 'Coeffs for 99% Energy' is BETTER (more compression).")
     print("Higher 'Gini' is BETTER (more sparsity).\n")
 
-    # 1. Define Datasets
-    datasets = {
+    # 1. Define Datasets & Signals
+    raw_datasets = {
         "Natural Text": "The quick brown fox jumps over the lazy dog. " * 10,
         "Python Code": "def rft(x): return np.fft.fft(x) * np.exp(1j*phi) " * 5,
         "Random ASCII": "".join([chr(x) for x in np.random.randint(32, 127, N)])
     }
+    
+    test_signals = {k: text_to_signal(v, N) for k, v in raw_datasets.items()}
+    
+    # Add Mixed Signal (Theorem 10 Validation)
+    # A Phi-resonant wave + text structure
+    t = np.arange(N)
+    phi = (1 + np.sqrt(5)) / 2
+    wave = 0.6 * np.sin(2 * np.pi * (1/phi**2) * t)
+    text_part = text_to_signal("Theorem 10 separates structure from texture.", N)
+    test_signals["Mixed (Wave + Text)"] = wave + text_part
 
     # 2. Define Transforms
     # Pre-compute matrices for RFT variants
@@ -87,19 +105,43 @@ def run_ascii_bottleneck_test():
     U_fib  = it.generate_fibonacci_tilt(N)
     U_chaos = it.generate_chaotic_mix(N)
     
+    def hybrid_transform(x):
+        """Adaptive Hybrid (Theorem 10) - auto-routes to DCT/RFT"""
+        x_struct, x_texture, _, _ = adaptive_hybrid_compress(x, verbose=False)
+        return np.concatenate([x_struct, x_texture])
+
+    def hybrid_transform_logphi(x):
+        """Log-Periodic RFT (Corollary 10.1)"""
+        x_struct, x_texture, _, _ = adaptive_hybrid_compress(x, verbose=False, rft_kind="logphi")
+        return np.concatenate([x_struct, x_texture])
+
+    def hybrid_transform_mixed(x):
+        """Convex Mixed RFT (Corollary 10.2)"""
+        x_struct, x_texture, _, _ = adaptive_hybrid_compress(x, verbose=False, rft_kind="mixed", rft_mix=0.5)
+        return np.concatenate([x_struct, x_texture])
+
+    def hybrid_transform_braided(x):
+        """Braided MCA (Parallel Competition)"""
+        res = braided_hybrid_mca(x, verbose=False, threshold=0.05)
+        return np.concatenate([res.structural, res.texture])
+    
     transforms = {
         "DFT (Complex)": lambda x: np.fft.fft(x, norm="ortho"),
         "DCT (Real)":    lambda x: dct(x, norm="ortho"),
         "Original Φ-RFT": lambda x: U_orig @ x,
         "Harmonic-Phase": lambda x: U_harm @ x,
         "Fibonacci Tilt": lambda x: U_fib @ x,
-        "Chaotic Mix":    lambda x: U_chaos @ x
+        "Chaotic Mix":    lambda x: U_chaos @ x,
+        "RFT Hybrid Basis (T10)": hybrid_transform,
+        "Log-Periodic RFT (New)": hybrid_transform_logphi,
+        "Convex Mixed RFT (New)": hybrid_transform_mixed,
+        "Braided MCA (Parallel)": hybrid_transform_braided
     }
 
     # 3. Run Tests
-    for data_name, text in datasets.items():
+    for data_name, signal in test_signals.items():
         print(f"\n--- Dataset: {data_name} ---")
-        signal = text_to_signal(text, N)
+        # signal is already prepared
         
         print(f"{'Transform':<20} | {'Gini Coeff':<10} | {'% Coeffs (99% E)':<18} | {'Verdict'}")
         print("-" * 60)

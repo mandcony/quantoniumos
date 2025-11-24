@@ -713,7 +713,7 @@ import json
 # Check critical file integrity
 critical_files = [
     'core/enhanced_rft_crypto_v2.py',
-    'ASSEMBLY/engines/crypto_engine/feistel_48.c',
+    'algorithms/rft/kernels/engines/crypto/src/feistel_round48.c',
     'config/app_registry.json'
 ]
 

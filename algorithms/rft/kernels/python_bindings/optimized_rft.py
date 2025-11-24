@@ -45,6 +45,13 @@ class OptimizedRFTEngine(Structure):
                 ("cache_misses", c_uint64),
                 ("num_threads", c_int)]
 
+# RFT variant constants used across bindings
+RFT_VARIANT_STANDARD = 0
+RFT_VARIANT_HARMONIC = 1
+RFT_VARIANT_FIBONACCI = 2
+RFT_VARIANT_CHAOTIC = 3
+RFT_VARIANT_HYPERBOLIC = 4
+
 # Optimization flags
 RFT_OPT_NONE = 0x00000000
 RFT_OPT_AVX2 = 0x00000001
@@ -53,7 +60,7 @@ RFT_OPT_PREFETCH = 0x00000004
 RFT_OPT_PARALLEL = 0x00000008
 RFT_OPT_QUANTUM = 0x00000010
 
-class OptimizedRFTProcessor:
+class OptimizedRFT:
     """High-performance RFT processor with assembly optimization."""
     
     def __init__(self, size: int = 64, opt_flags: int = RFT_OPT_AVX2):
@@ -94,6 +101,9 @@ class OptimizedRFTProcessor:
             # Fallback to regular version
             os.path.join(script_dir, "..", "compiled", "librftkernel.dll"),
             os.path.join(script_dir, "..", "compiled", "librftkernel.so"),
+            # Build directory
+            os.path.join(script_dir, "..", "..", "..", "..", "build", "librftoptimized.so"),
+            os.path.join(script_dir, "..", "..", "..", "..", "build", "librftoptimized.dll"),
         ]
         
         for lib_path in lib_paths:
@@ -364,14 +374,14 @@ class EnhancedRFTProcessor:
         
         # Try to use optimized version first
         try:
-            self.optimized = OptimizedRFTProcessor(size)
+            self.optimized = OptimizedRFT(size)
             self.use_optimized = True
             print("Using optimized assembly RFT processor")
         except Exception as e:
             print(f"Optimized processor not available: {e}")
             # Fallback to standard version
-            from ASSEMBLY.python_bindings.unitary_rft import RFTProcessor
-            self.fallback = RFTProcessor(size)
+            from .unitary_rft import UnitaryRFT
+            self.fallback = UnitaryRFT(size)
             self.use_optimized = False
             print("Using fallback RFT processor")
     

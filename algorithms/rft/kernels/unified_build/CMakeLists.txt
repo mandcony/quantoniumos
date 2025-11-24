@@ -54,14 +54,14 @@ if(BUILD_CRYPTO_ENGINE)
     
     # Crypto engine sources
     set(CRYPTO_SOURCES
-        ../engines/crypto_engine/feistel_48.c
-        ../engines/crypto_engine/sha256.c
-        ../engines/crypto_engine/feistel_asm.asm
+        ../engines/crypto/src/feistel_round48.c
+        ../engines/crypto/src/sha256_portable.c
+        ../engines/crypto/asm/feistel_round48.asm
     )
     
     # Crypto engine library
     add_library(crypto_engine SHARED ${CRYPTO_SOURCES})
-    target_include_directories(crypto_engine PUBLIC ../engines/crypto_engine)
+    target_include_directories(crypto_engine PUBLIC ../engines/crypto/include)
     target_compile_definitions(crypto_engine PRIVATE 
         -DTARGET_THROUGHPUT=9.2
         -DQUANTONIUMOS_CRYPTO_ENGINE=1
@@ -73,14 +73,18 @@ if(BUILD_CRYPTO_ENGINE)
     
     # Python bindings for crypto engine
     if(BUILD_PYTHON_BINDINGS)
-        pybind11_add_module(feistel_crypto ../engines/crypto_engine/python_bindings.cpp)
+        pybind11_add_module(feistel_crypto ../engines/crypto/bindings/feistel_pybind.cpp)
+        target_include_directories(feistel_crypto PRIVATE ../engines/crypto/include)
         target_link_libraries(feistel_crypto PRIVATE crypto_engine)
         target_compile_definitions(feistel_crypto PRIVATE VERSION_INFO=${PROJECT_VERSION})
     endif()
     
     # Crypto engine tests
-    add_executable(crypto_test ../engines/crypto_engine/test_crypto.c)
-    target_link_libraries(crypto_test crypto_engine)
+    set(CRYPTO_TEST_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/../engines/crypto/tests/test_crypto.c)
+    if(EXISTS ${CRYPTO_TEST_SOURCE})
+        add_executable(crypto_test ${CRYPTO_TEST_SOURCE})
+        target_link_libraries(crypto_test crypto_engine)
+    endif()
 endif()
 
 # =============================================================================
@@ -188,7 +192,10 @@ target_link_libraries(benchmark_engines
 # Install libraries
 if(BUILD_CRYPTO_ENGINE)
     install(TARGETS crypto_engine DESTINATION lib)
-    install(FILES ../engines/crypto_engine/feistel_48.h DESTINATION include)
+    install(FILES
+        ../engines/crypto/include/feistel_round48.h
+        ../engines/crypto/include/sha256_portable.h
+    DESTINATION include)
 endif()
 
 if(BUILD_QUANTUM_ENGINE)

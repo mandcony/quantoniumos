@@ -51,7 +51,17 @@ typedef enum {
 #define RFT_FLAG_OPTIMIZE_SIMD      0x00000001
 #define RFT_FLAG_HIGH_PRECISION     0x00000002
 #define RFT_FLAG_QUANTUM_SAFE       0x00000004
-#define RFT_FLAG_UNITARY            0x00000008
+#define RFT_FLAG_DEBUG          0x0008
+#define RFT_FLAG_TOPOLOGICAL    0x0010  // Enable topological protection
+
+// RFT Variant Definitions
+typedef enum {
+    RFT_VARIANT_STANDARD = 0,       // Standard Golden Ratio RFT (k^2 phase)
+    RFT_VARIANT_HARMONIC = 1,       // Harmonic-Phase RFT (k^3 phase)
+    RFT_VARIANT_FIBONACCI = 2,      // Fibonacci-Tilt Lattice RFT
+    RFT_VARIANT_CHAOTIC = 3,        // Chaotic Mix RFT (PRNG-based)
+    RFT_VARIANT_HYPERBOLIC = 4      // Hyperbolic Geometry RFT
+} rft_variant_t;
 #define RFT_FLAG_USE_RESONANCE      0x00000010
 
 // Topological data structures for enhanced quantum computing
@@ -116,6 +126,7 @@ typedef struct {
     double* eigenvalues;           // Eigenvalues array
     bool initialized;              // Initialization flag
     uint32_t flags;               // Configuration flags
+    rft_variant_t variant;        // Active RFT variant
     size_t qubit_count;           // Number of qubits (for quantum operations)
     void* quantum_context;        // Quantum-specific context
     
@@ -143,6 +154,8 @@ rft_error_t rft_forward(rft_engine_t* engine, const rft_complex_t* input,
                         rft_complex_t* output, size_t size);
 rft_error_t rft_inverse(rft_engine_t* engine, const rft_complex_t* input, 
                         rft_complex_t* output, size_t size);
+rft_error_t rft_set_variant(rft_engine_t* engine, rft_variant_t variant, bool rebuild_basis);
+rft_error_t rft_init_with_variant(rft_engine_t* engine, size_t size, uint32_t flags, rft_variant_t variant);
 
 // Quantum operations
 rft_error_t rft_quantum_basis(rft_engine_t* engine, size_t qubit_count);

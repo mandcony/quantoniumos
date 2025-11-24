@@ -11,12 +11,26 @@ Implementation and verification of the Φ-RFT Irrevocable Truths.
 Validates the 7 Transform Variants and the Fundamental Theorems.
 """
 
-import numpy as np
+import argparse
+import csv
+import os
 import sys
+from pathlib import Path
+
+import numpy as np
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+try:
+    from algorithms.rft.variants import VARIANTS, PHI
+except ModuleNotFoundError as exc:  # pragma: no cover - defensive guard for script usage
+    raise SystemExit(
+        "algorithms.rft.variants package is missing; run from project root or install package"
+    ) from exc
 
 # --- 1. Fundamental Constants ---
-PHI = (1.0 + np.sqrt(5.0)) / 2.0
-PHI_BAR = 1.0 / PHI
 
 def print_header(title):
     print(f"\n{'='*60}")
@@ -33,117 +47,9 @@ def check_unitarity(U, name="Transform"):
     
     status = "✅ PROVEN" if error < 1e-10 else "❌ FAILED"
     print(f"{name:<25} | Error: {error:.2e} | {status}")
-    return error < 1e-10
+    return error, error < 1e-10
 
-def orthonormalize(A):
-    """Apply QR decomposition to orthogonalize matrix A."""
-    Q, _ = np.linalg.qr(A)
-    return Q
-
-# --- 2. Transform Generators ---
-
-def generate_original_phi_rft(N):
-    """
-    Variant 1: Original Φ-RFT
-    Base: exp(i * (2pi * phi^-k * n/N + pi * phi^-k * n^2/(2N)))
-    """
-    n = np.arange(N).reshape(-1, 1)
-    k = np.arange(N).reshape(1, -1)
-    
-    # Frequencies based on powers of phi
-    # Note: Using phi^-k as described
-    phi_k = PHI ** (-k)
-    
-    # Phase term
-    # theta = 2pi * phi^-k * n/N + pi * phi^-k * n^2/(2N)
-    theta = 2 * np.pi * phi_k * n / N + np.pi * phi_k * (n**2) / (2*N)
-    
-    U_raw = (1.0/np.sqrt(N)) * np.exp(1j * theta)
-    
-    # Apply correction to ensure exact unitarity (as per "delta_k(n)" term)
-    return orthonormalize(U_raw)
-
-def generate_harmonic_phase(N, alpha=0.5):
-    """
-    Variant 2: Harmonic-Phase Transform
-    Base: exp(i * 2pi * k * n / N + i * alpha * pi * (k*n)^3 / N^2)
-    """
-    n = np.arange(N).reshape(-1, 1)
-    k = np.arange(N).reshape(1, -1)
-    
-    # Standard DFT term + Cubic phase
-    phase = (2 * np.pi * k * n / N) + (alpha * np.pi * (k * n)**3 / (N**2))
-    
-    U_raw = (1.0/np.sqrt(N)) * np.exp(1j * phase)
-    return orthonormalize(U_raw)
-
-def generate_fibonacci_tilt(N):
-    """
-    Variant 3: Fibonacci Tilt Transform
-    Base: exp(i * 2pi * F_k * n / F_N)
-    """
-    # Generate Fibonacci sequence
-    fib = [1, 1]
-    while len(fib) <= N + 5: # Generate enough
-        fib.append(fib[-1] + fib[-2])
-    
-    F_k = np.array(fib[:N], dtype=np.float64).reshape(1, -1)
-    F_N = float(fib[N]) # Or should it be F_N as the Nth number? Using F_N constant.
-    
-    n = np.arange(N).reshape(-1, 1)
-    
-    phase = 2 * np.pi * F_k * n / F_N
-    
-    U_raw = (1.0/np.sqrt(N)) * np.exp(1j * phase)
-    return orthonormalize(U_raw)
-
-def generate_chaotic_mix(N, seed=42):
-    """
-    Variant 4: Chaotic Mix Transform
-    QR(Random Matrix)
-    """
-    rng = np.random.default_rng(seed)
-    A = rng.standard_normal((N, N)) + 1j * rng.standard_normal((N, N))
-    Q, R = np.linalg.qr(A)
-    # Phase correction: U = Q * sign(diag(R)) to ensure unique QR
-    phases = np.diagonal(R) / np.abs(np.diagonal(R))
-    U = Q @ np.diag(phases)
-    return U
-
-def generate_geometric_lattice(N):
-    """
-    Variant 5: Geometric Lattice Transform
-    Base: exp(i * 2pi * k * n / N + i * 2pi * (n^2 k + n k^2) / N^2)
-    """
-    n = np.arange(N).reshape(-1, 1)
-    k = np.arange(N).reshape(1, -1)
-    
-    phase = (2 * np.pi * k * n / N) + (2 * np.pi * (n**2 * k + n * k**2) / (N**2))
-    
-    U_raw = (1.0/np.sqrt(N)) * np.exp(1j * phase)
-    return orthonormalize(U_raw)
-
-def generate_phi_chaotic_hybrid(N):
-    """
-    Variant 6: Φ-Chaotic Hybrid Transform
-    QR((U_Fib + U_Chaos)/sqrt(2))
-    """
-    U_fib = generate_fibonacci_tilt(N)
-    U_chaos = generate_chaotic_mix(N)
-    
-    U_combined = (U_fib + U_chaos) / np.sqrt(2)
-    return orthonormalize(U_combined)
-
-def generate_adaptive_phi(N):
-    """
-    Variant 7: Adaptive Φ Transform
-    For validation, we'll just use the Hybrid as the default fallback
-    since it depends on input signal.
-    """
-    return generate_phi_chaotic_hybrid(N)
-
-
-# --- 3. Theorem Verification ---
+# --- 2. Theorem Verification ---
 
 def verify_diagonalization(N):
     """
@@ -152,7 +58,7 @@ def verify_diagonalization(N):
     """
     print_header("THEOREM 2: Diagonalization")
     
-    U_phi = generate_original_phi_rft(N)
+    U_phi = VARIANTS["original"].generator(N)
     
     # Construct the diagonal matrix Lambda with golden resonances
     # lambda_k = exp(i * 2pi * phi^-k) (ignoring rho_k for unitary check)
@@ -179,7 +85,7 @@ def verify_sparsity(N):
     """
     print_header("THEOREM 3: Sparsity")
     
-    U_phi = generate_original_phi_rft(N)
+    U_phi = VARIANTS["original"].generator(N)
     
     # Create a Golden Quasi-periodic signal
     # x[n] = sum(exp(i * 2pi * phi^-m * n/N)) for a few m
@@ -239,6 +145,10 @@ def verify_wave_containers(N):
 # --- Main Execution ---
 
 def main():
+    parser = argparse.ArgumentParser(description="Verify Irrevocable Truths")
+    parser.add_argument("--export", help="Path to export CSV results", default=None)
+    args = parser.parse_args()
+
     N = 64
     print(f"Running validations with N={N}...\n")
     
@@ -254,23 +164,28 @@ def main():
     print(f"{'Transform Name':<25} | {'Error':<10} | {'Status'}")
     print("-" * 50)
     
-    transforms = [
-        ("Original Φ-RFT", generate_original_phi_rft(N)),
-        ("Harmonic-Phase", generate_harmonic_phase(N)),
-        ("Fibonacci Tilt", generate_fibonacci_tilt(N)),
-        ("Chaotic Mix", generate_chaotic_mix(N)),
-        ("Geometric Lattice", generate_geometric_lattice(N)),
-        ("Φ-Chaotic Hybrid", generate_phi_chaotic_hybrid(N)),
-        ("Adaptive Φ", generate_adaptive_phi(N)),
-    ]
+    transforms = [(variant.name, variant.generator(N)) for variant in VARIANTS.values()]
     
+    results = []
     all_passed = True
     for name, U in transforms:
-        if not check_unitarity(U, name):
+        error, passed = check_unitarity(U, name)
+        results.append({"Variant": name, "Unitarity_Error": error, "Status": "Passed" if passed else "Failed"})
+        if not passed:
             all_passed = False
             
     if all_passed:
         print("\n✅ ALL 7 VARIANTS PROVEN UNITARY")
+
+    if args.export:
+        os.makedirs(os.path.dirname(args.export), exist_ok=True)
+        with open(args.export, 'w', newline='') as csvfile:
+            fieldnames = ['Variant', 'Unitarity_Error', 'Status']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in results:
+                writer.writerow(row)
+        print(f"\n✅ Exported results to {args.export}")
         
     # 3. Theorems
     verify_diagonalization(N)

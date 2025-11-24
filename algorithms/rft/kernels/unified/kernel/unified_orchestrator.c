@@ -23,6 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <math.h>
+#include "../../include/rft_kernel.h"
 
 // Forward declarations for assembly processors
 int call_optimized_rft_processor(unified_task_t* task);
@@ -47,6 +49,7 @@ typedef enum {
 typedef struct {
     uint32_t task_id;
     task_type_t type;
+    rft_variant_t variant;
     assembly_type_t preferred_assembly;
     assembly_type_t fallback_assembly;
     void* input_data;
@@ -340,12 +343,37 @@ int unified_orchestrator_shutdown(void) {
 int call_optimized_rft_processor(unified_task_t* task) {
     printf("🚀 Calling optimized RFT processor for task %d\n", task->task_id);
 
-    // This would interface with the optimized assembly RFT
-    // For now, simulate the processing
-    usleep(1000); // Simulate 1ms processing time
+    if (!task->input_data || !task->output_data) {
+        printf("❌ Error: Invalid data pointers for task %d\n", task->task_id);
+        return -1;
+    }
+
+    size_t num_elements = task->input_size / sizeof(rft_complex_t);
+    
+    rft_engine_t engine;
+    // Initialize with OPTIMIZE_SIMD flag
+    rft_error_t err = rft_init(&engine, num_elements, RFT_FLAG_OPTIMIZE_SIMD);
+    if (err != RFT_SUCCESS) {
+        printf("❌ Error: Failed to initialize RFT engine: %d\n", err);
+        return -1;
+    }
+
+    if (task->variant != RFT_VARIANT_STANDARD) {
+        err = rft_set_variant(&engine, task->variant, true);
+        if (err != RFT_SUCCESS) {
+            printf("❌ Error: Failed to configure variant %d (err=%d)\n", task->variant, err);
+            rft_cleanup(&engine);
+            return -1;
+        }
+    }
+
+    // Perform transform
+    err = rft_forward(&engine, (rft_complex_t*)task->input_data, (rft_complex_t*)task->output_data, num_elements);
+    
+    rft_cleanup(&engine);
 
     printf("✅ Optimized RFT processing complete for task %d\n", task->task_id);
-    return 0;
+    return (err == RFT_SUCCESS) ? 0 : -1;
 }
 
 /**
@@ -354,9 +382,41 @@ int call_optimized_rft_processor(unified_task_t* task) {
 int call_unitary_rft_processor(unified_task_t* task) {
     printf("⚛️ Calling unitary RFT processor for task %d\n", task->task_id);
 
-    // This would interface with the unitary RFT assembly
-    // For now, simulate the processing
-    usleep(1500); // Simulate 1.5ms processing time
+    if (!task->input_data || !task->output_data) {
+        printf("❌ Error: Invalid data pointers for task %d\n", task->task_id);
+        return -1;
+    }
+
+    // Calculate size from input_size (assuming input_size is bytes)
+    size_t num_elements = task->input_size / sizeof(rft_complex_t);
+    
+    // Initialize RFT engine
+    rft_engine_t engine;
+    rft_error_t err = rft_init(&engine, num_elements, RFT_FLAG_DEFAULT);
+    if (err != RFT_SUCCESS) {
+        printf("❌ Error: Failed to initialize RFT engine: %d\n", err);
+        return -1;
+    }
+
+    // Set the variant requested by the task and rebuild basis if needed
+    if (task->variant != RFT_VARIANT_STANDARD) {
+        err = rft_set_variant(&engine, task->variant, true);
+        if (err != RFT_SUCCESS) {
+            printf("❌ Error: Failed to configure variant %d (err=%d)\n", task->variant, err);
+            rft_cleanup(&engine);
+            return -1;
+        }
+    }
+
+    // Perform transform
+    err = rft_forward(&engine, (rft_complex_t*)task->input_data, (rft_complex_t*)task->output_data, num_elements);
+    if (err != RFT_SUCCESS) {
+        printf("❌ Error: RFT forward transform failed: %d\n", err);
+        rft_cleanup(&engine);
+        return -1;
+    }
+
+    rft_cleanup(&engine);
 
     printf("✅ Unitary RFT processing complete for task %d\n", task->task_id);
     return 0;
@@ -368,10 +428,38 @@ int call_unitary_rft_processor(unified_task_t* task) {
 int call_vertex_quantum_rft_processor(unified_task_t* task) {
     printf("🔺 Calling vertex quantum RFT processor for task %d\n", task->task_id);
 
-    // This would interface with the vertex quantum RFT assembly
-    // For now, simulate the processing
-    usleep(2000); // Simulate 2ms processing time
+    if (!task->input_data || !task->output_data) {
+        printf("❌ Error: Invalid data pointers for task %d\n", task->task_id);
+        return -1;
+    }
+
+    size_t num_elements = task->input_size / sizeof(rft_complex_t);
+    
+    rft_engine_t engine;
+    // Initialize with TOPOLOGICAL flag
+    rft_error_t err = rft_init(&engine, num_elements, RFT_FLAG_TOPOLOGICAL);
+    if (err != RFT_SUCCESS) {
+        printf("❌ Error: Failed to initialize RFT engine: %d\n", err);
+        return -1;
+    }
+
+    if (task->variant != RFT_VARIANT_STANDARD) {
+        err = rft_set_variant(&engine, task->variant, true);
+        if (err != RFT_SUCCESS) {
+            rft_cleanup(&engine);
+            return -1;
+        }
+    }
+
+    // Initialize topological mode (derive qubits from size)
+    size_t num_qubits = (num_elements > 0) ? (size_t)(log(num_elements)/log(2)) : 1;
+    rft_init_topological_mode(&engine, num_qubits);
+
+    // Perform transform with topological protection enabled
+    err = rft_forward(&engine, (rft_complex_t*)task->input_data, (rft_complex_t*)task->output_data, num_elements);
+    
+    rft_cleanup(&engine);
 
     printf("✅ Vertex quantum RFT processing complete for task %d\n", task->task_id);
-    return 0;
+    return (err == RFT_SUCCESS) ? 0 : -1;
 }

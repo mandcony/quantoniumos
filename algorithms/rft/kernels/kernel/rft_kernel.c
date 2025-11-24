@@ -15,6 +15,10 @@ static inline double rft_frac(double x) {
     return (frac < 0.0) ? frac + 1.0 : frac;
 }
 
+static inline bool rft_variant_is_valid(rft_variant_t variant) {
+    return variant >= RFT_VARIANT_STANDARD && variant <= RFT_VARIANT_HYPERBOLIC;
+}
+
 // Advanced SIMD intrinsics for AVX
 #ifdef __AVX__
 #include <immintrin.h>
@@ -52,6 +56,7 @@ rft_error_t rft_init(rft_engine_t* engine, size_t size, uint32_t flags) {
     
     engine->size = size;
     engine->flags = flags;
+    engine->variant = RFT_VARIANT_STANDARD; // Default to standard variant
     
     // Build the resonance kernel and compute eigendecomposition
     if (!rft_build_basis(engine)) {
@@ -93,6 +98,49 @@ rft_error_t rft_cleanup(rft_engine_t* engine) {
     return RFT_SUCCESS;
 }
 
+rft_error_t rft_set_variant(rft_engine_t* engine, rft_variant_t variant, bool rebuild_basis) {
+    if (!engine || !rft_variant_is_valid(variant)) {
+        return RFT_ERROR_INVALID_PARAM;
+    }
+
+    if (!engine->basis || !engine->eigenvalues) {
+        return RFT_ERROR_NOT_INITIALIZED;
+    }
+
+    bool variant_changed = (engine->variant != variant);
+    engine->variant = variant;
+
+    if (!rebuild_basis && !variant_changed) {
+        return RFT_SUCCESS;
+    }
+
+    if (rebuild_basis || variant_changed) {
+        if (!rft_build_basis(engine)) {
+            return RFT_ERROR_COMPUTATION;
+        }
+    }
+
+    return RFT_SUCCESS;
+}
+
+rft_error_t rft_init_with_variant(rft_engine_t* engine, size_t size, uint32_t flags, rft_variant_t variant) {
+    rft_error_t err = rft_init(engine, size, flags);
+    if (err != RFT_SUCCESS) {
+        return err;
+    }
+
+    if (!rft_variant_is_valid(variant) || variant == RFT_VARIANT_STANDARD) {
+        return RFT_SUCCESS;
+    }
+
+    err = rft_set_variant(engine, variant, true);
+    if (err != RFT_SUCCESS) {
+        rft_cleanup(engine);
+    }
+
+    return err;
+}
+
 /**
  * Build the RFT basis (eigenvectors) - FIXED True Unitary Implementation
  * 
@@ -114,9 +162,38 @@ bool rft_build_basis(rft_engine_t* engine) {
     const double sigma = 1.0;
 
     for (size_t k = 0; k < N; ++k) {
-        double frac = rft_frac((double)k / RFT_PHI);
+        double frac, chirp;
+
+        switch (engine->variant) {
+            case RFT_VARIANT_HARMONIC:
+                // Harmonic-Phase: Cubic phase chirp (k^3)
+                frac = rft_frac((double)k / RFT_PHI);
+                chirp = RFT_PI * sigma * ((double)k * (double)k * (double)k) / ((double)N * (double)N);
+                break;
+            case RFT_VARIANT_FIBONACCI:
+                // Fibonacci-Tilt: Multiplicative Golden Ratio
+                frac = rft_frac((double)k * RFT_PHI);
+                chirp = RFT_PI * sigma * ((double)k * (double)k) / (double)N;
+                break;
+            case RFT_VARIANT_CHAOTIC:
+                // Chaotic Mix: Deterministic chaos (pseudo-random phase)
+                frac = rft_frac(sin((double)k * 12.9898) * 43758.5453);
+                chirp = RFT_PI * sigma * ((double)k * (double)k) / (double)N;
+                break;
+            case RFT_VARIANT_HYPERBOLIC:
+                // Hyperbolic Geometry: Tanh-based fractional phase
+                frac = tanh((double)k / (double)N);
+                chirp = RFT_PI * sigma * ((double)k * (double)k) / (double)N;
+                break;
+            case RFT_VARIANT_STANDARD:
+            default:
+                // Standard Golden Ratio RFT
+                frac = rft_frac((double)k / RFT_PHI);
+                chirp = RFT_PI * sigma * ((double)k * (double)k) / (double)N;
+                break;
+        }
+
         double theta = RFT_2PI * beta * frac;
-        double chirp = RFT_PI * sigma * ((double)k * (double)k) / (double)N;
         double diag_angle = theta + chirp;
         double diag_real = cos(diag_angle);
         double diag_imag = sin(diag_angle);

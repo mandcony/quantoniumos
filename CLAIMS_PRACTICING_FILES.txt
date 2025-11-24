@@ -5,31 +5,44 @@
 # --- Core closed-form RFT & kernels ---
 algorithms/rft/core/canonical_true_rft.py
 algorithms/rft/core/closed_form_rft.py
-algorithms/rft/core/crypto_primitives.py
-algorithms/rft/core/enhanced_rft_crypto_v2.py
 algorithms/rft/core/quantum_kernel_implementation.py
 algorithms/rft/core/topological_quantum_kernel.py
-
-# --- Additional Core RFT & Compression Implementations ---
 algorithms/rft/core/enhanced_topological_qubit.py
-algorithms/rft/core/asymmetric_number_system.py
 algorithms/rft/core/quantum_gates.py
 algorithms/rft/core/geometric_waveform_hash.py
 algorithms/rft/core/geometric_hashing.py
-algorithms/compression/vertex/ans.py
-algorithms/compression/vertex/rft_vertex_codec.py
-algorithms/compression/hybrid/hybrid_residual_predictor.py
-algorithms/compression/hybrid/rft_hybrid_codec.py
-algorithms/compression/rft_quantum_sim.py
+
+# --- Unitary Algorithm Variants (Theorems) ---
+algorithms/rft/variants/golden_ratio_unitary.py
+algorithms/rft/variants/symbolic_unitary.py
+algorithms/rft/variants/entropic_unitary.py
+algorithms/rft/variants/__init__.py
+
+# --- Consolidated Compression Implementations ---
+algorithms/rft/compression/lossless/rans_stream.py
+algorithms/rft/compression/ans.py
+algorithms/rft/compression/rft_vertex_codec.py
+algorithms/rft/compression/rft_quantum_sim.py
+
+# --- Consolidated Hybrid Codecs ---
+algorithms/rft/hybrids/hybrid_residual_predictor.py
+algorithms/rft/hybrids/rft_hybrid_codec.py
+algorithms/rft/hybrids/legacy_mca.py
+
+# --- Consolidated Crypto Implementations ---
+algorithms/rft/crypto/primitives/quantum_prng.py
+algorithms/rft/crypto/enhanced_cipher.py
+algorithms/rft/crypto/benchmarks/rft_sis/rft_sis_hash_v31.py
+algorithms/rft/crypto/benchmarks/rft_sis/rft_sis_v31_validation_suite.py
 
 # --- Low-level engines & crypto primitives tied to RFT claims ---
-algorithms/rft/kernels/engines/crypto_engine/feistel_48.c
-algorithms/rft/kernels/engines/crypto_engine/feistel_48.h
-algorithms/rft/kernels/engines/crypto_engine/feistel_asm.asm
-algorithms/rft/kernels/engines/crypto_engine/python_bindings.cpp
-algorithms/rft/kernels/engines/crypto_engine/sha256.c
-algorithms/rft/kernels/engines/crypto_engine/sha256.h
-algorithms/rft/kernels/engines/orchestrator_engine/rft_kernel_asm.asm
+algorithms/rft/kernels/engines/crypto/src/feistel_round48.c
+algorithms/rft/kernels/engines/crypto/include/feistel_round48.h
+algorithms/rft/kernels/engines/crypto/asm/feistel_round48.asm
+algorithms/rft/kernels/engines/crypto/bindings/feistel_pybind.cpp
+algorithms/rft/kernels/engines/crypto/src/sha256_portable.c
+algorithms/rft/kernels/engines/crypto/include/sha256_portable.h
+algorithms/rft/kernels/engines/orchestrator/asm/rft_transform.asm
 
 # --- Kernel headers / public APIs that expose claim-bearing behavior ---
 algorithms/rft/kernels/include/rft_kernel.h
@@ -57,9 +70,6 @@ algorithms/rft/kernels/quantonium_os.py
 algorithms/rft/kernels/unified/kernel/unified_orchestrator.c
 algorithms/rft/kernels/unified/python_bindings/unified_orchestrator.py
 
-# --- Crypto validation suites that *practice* RFT+SIS pipeline (not generic) ---
-algorithms/crypto/crypto_benchmarks/rft_sis/**
-
 # --- Hardware implementations practicing claims ---
 hardware/fpga_top.sv
 hardware/makerchip_rft_closed_form.tlv
@@ -70,6 +80,3 @@ hardware/quantoniumos_unified_engines_synthesis.tcl
 # --- Verification Scripts (Irrevocable Truths) ---
 scripts/irrevocable_truths.py
 scripts/verify_scaling_laws.py
-
-# --- New Hybrid Basis (Theorem 10) ---
-algorithms/rft/hybrid_basis.py

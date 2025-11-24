@@ -21,6 +21,8 @@ Theorem:
 import numpy as np
 import scipy.linalg
 import matplotlib.pyplot as plt
+import csv
+import argparse
 import sys
 import os
 
@@ -165,6 +167,32 @@ def run_benchmark():
         print("   FFT fails to sparsify the Fibonacci topology.")
     else:
         print("❌ Inconclusive result.")
+    
+    return components_list, results
+
+def export_to_csv(components_list, results, filepath):
+    """Export wave computer benchmark results to CSV for MATLAB plotting."""
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    
+    with open(filepath, 'w', newline='') as f:
+        writer = csv.writer(f)
+        # Header with metadata
+        writer.writerow(['# Wave Computer Benchmark Results'])
+        writer.writerow(['# Columns: Modes, RFT_MSE, FFT_MSE'])
+        writer.writerow(['Modes', 'RFT_MSE', 'FFT_MSE'])
+        
+        # Data rows
+        for i, k in enumerate(components_list):
+            writer.writerow([k, results['rft'][i], results['fft'][i]])
+    
+    print(f"\n✅ Exported data to {filepath}")
 
 if __name__ == "__main__":
-    run_benchmark()
+    parser = argparse.ArgumentParser(description='Wave Computer Benchmark')
+    parser.add_argument('--export', type=str, help='Export results to CSV file')
+    args = parser.parse_args()
+    
+    components_list, results = run_benchmark()
+    
+    if args.export:
+        export_to_csv(components_list, results, args.export)

@@ -5,6 +5,15 @@ Verifies the "60-year bottleneck" claim by comparing Rate-Distortion curves.
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
+import argparse
+import os
+import sys
+from pathlib import Path
+
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from scipy.fftpack import dct, idct
 from algorithms.rft.hybrid_basis import adaptive_hybrid_compress, rft_forward, rft_inverse, PHI
 from algorithms.compression.entropy import estimate_bitrate, uniform_quantizer
@@ -105,5 +114,32 @@ def analyze_rd_curve():
     print("\nAnalysis Complete.")
     return results
 
+def export_to_csv(results, filepath):
+    """Export rate-distortion results to CSV for MATLAB plotting."""
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    
+    with open(filepath, 'w', newline='') as f:
+        writer = csv.writer(f)
+        # Header with metadata
+        writer.writerow(['# Rate-Distortion Analysis Results'])
+        writer.writerow(['# Columns: Rate_DCT, Distortion_DCT, Rate_RFT, Distortion_RFT, Rate_Hybrid, Distortion_Hybrid'])
+        writer.writerow(['Rate_DCT', 'Distortion_DCT', 'Rate_RFT', 'Distortion_RFT', 'Rate_Hybrid', 'Distortion_Hybrid'])
+        
+        # Data rows
+        for i in range(len(results['DCT'])):
+            r_dct, d_dct = results['DCT'][i]
+            r_rft, d_rft = results['RFT'][i]
+            r_hybrid, d_hybrid = results['Hybrid'][i]
+            writer.writerow([r_dct, d_dct, r_rft, d_rft, r_hybrid, d_hybrid])
+    
+    print(f"\n✅ Exported data to {filepath}")
+
 if __name__ == "__main__":
-    analyze_rd_curve()
+    parser = argparse.ArgumentParser(description='Rate-Distortion Analysis')
+    parser.add_argument('--export', type=str, help='Export results to CSV file')
+    args = parser.parse_args()
+    
+    results = analyze_rd_curve()
+    
+    if args.export:
+        export_to_csv(results, args.export)
