@@ -33,7 +33,7 @@ from copy import deepcopy
 
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 # Import the actual RFT codec for a full encode/decode cycle
-from algorithms.compression.hybrid.rft_hybrid_codec import encode_tensor_hybrid, decode_tensor_hybrid
+from algorithms.rft.hybrids.rft_hybrid_codec import encode_tensor_hybrid, decode_tensor_hybrid
 
 # --- Configuration ---
 # Using a model fine-tuned on MRPC, a standard GLUE task.

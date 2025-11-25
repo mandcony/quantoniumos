@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from core.canonical_true_rft import CanonicalTrueRFT
+from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT
 
 
 @pytest.mark.parametrize("size", [4, 8, 16])

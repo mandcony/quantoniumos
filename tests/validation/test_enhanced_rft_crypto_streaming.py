@@ -12,7 +12,7 @@ import secrets
 
 import numpy as np
 
-from algorithms.crypto.rft.enhanced_cipher import EnhancedRFTCryptoV2
+from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
 import pytest
 
 

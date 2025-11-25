@@ -214,7 +214,7 @@ def generate_feistel_test_vectors(output_file="test_vectors_feistel.hex"):
     print("="*60)
     
     try:
-        from algorithms.crypto.rft.enhanced_cipher import EnhancedRFTCryptoV2
+        from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
     except ImportError:
         print("✗ Cannot import EnhancedRFTCryptoV2 - skipping Feistel tests")
         return

@@ -9,8 +9,8 @@ import sys
 import numpy as np
 
 try:
-    from algorithms.compression.vertex.rft_vertex_codec import encode_tensor, decode_tensor, roundtrip_tensor
-    from algorithms.compression.hybrid.rft_hybrid_codec import encode_tensor_hybrid
+    from algorithms.rft.compression.rft_vertex_codec import encode_tensor, decode_tensor, roundtrip_tensor
+    from algorithms.rft.hybrids.rft_hybrid_codec import encode_tensor_hybrid
     print("✓ Imports successful")
 except ImportError as e:
     print(f"✗ Import failed: {e}")

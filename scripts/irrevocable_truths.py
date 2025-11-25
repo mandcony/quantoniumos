@@ -24,7 +24,17 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 try:
-    from algorithms.rft.variants import VARIANTS, PHI
+    from algorithms.rft.variants import (
+        VARIANTS,
+        PHI,
+        generate_original_phi_rft,
+        generate_harmonic_phase,
+        generate_fibonacci_tilt,
+        generate_chaotic_mix,
+        generate_geometric_lattice,
+        generate_phi_chaotic_hybrid,
+        generate_adaptive_phi,
+    )
 except ModuleNotFoundError as exc:  # pragma: no cover - defensive guard for script usage
     raise SystemExit(
         "algorithms.rft.variants package is missing; run from project root or install package"

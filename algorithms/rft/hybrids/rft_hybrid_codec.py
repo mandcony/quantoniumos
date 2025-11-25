@@ -74,7 +74,7 @@ from typing import Dict, List, Optional, Tuple, Iterable
 import numpy as np
 
 from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
-from ..vertex.rft_vertex_codec import _generate_seed  # deterministic seed for size
+from algorithms.rft.compression.rft_vertex_codec import _generate_seed  # deterministic seed for size
 from .hybrid_residual_predictor import TinyResidualPredictor
 
 # ---------------------------------------------------------------------------

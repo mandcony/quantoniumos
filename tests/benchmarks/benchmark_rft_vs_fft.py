@@ -212,7 +212,7 @@ class TransformBenchmark:
         
         # Use vertex codec for compression
         try:
-            from algorithms.compression.rft_vertex_codec import RFTVertexCodec
+            from algorithms.rft.compression.rft_vertex_codec import RFTVertexCodec
             codec = RFTVertexCodec()
             return codec.encode(data)
         except ImportError:
@@ -232,7 +232,7 @@ class TransformBenchmark:
             return np.zeros((50257, 768))
         
         try:
-            from algorithms.compression.rft_vertex_codec import RFTVertexCodec
+            from algorithms.rft.compression.rft_vertex_codec import RFTVertexCodec
             codec = RFTVertexCodec()
             return codec.decode(compressed)
         except ImportError:

@@ -9,7 +9,8 @@ FULL VALIDATION REPORT: RFT-SIS Hash v3.1
 """
 
 import sys
-sys.path.insert(0, '/home/claude')
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from rft_sis_hash_v31 import RFTSISHashV31, Point2D, Point3D, CanonicalTrueRFT
 
 import numpy as np
@@ -371,7 +372,8 @@ if __name__ == "__main__":
     results = comprehensive_validation()
     
     # Save to JSON for records
-    with open('/home/claude/rft_sis_v31_validation_report.json', 'w') as f:
+    output_path = os.path.join(os.path.dirname(__file__), 'rft_sis_v31_validation_report.json')
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
     
-    print(f"\nFull results saved to: rft_sis_v31_validation_report.json")
+    print(f"\nFull results saved to: {output_path}")

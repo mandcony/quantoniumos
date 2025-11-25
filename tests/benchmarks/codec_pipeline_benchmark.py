@@ -24,8 +24,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 import numpy as np
 from scipy.fftpack import dct, idct
 from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
-from core.rft_vertex_codec import RFTVertexCodec
-from core.rft_hybrid_codec import RFTHybridCodec
+from algorithms.rft.compression.rft_vertex_codec import RFTVertexCodec
+from algorithms.rft.hybrids.rft_hybrid_codec import RFTHybridCodec
 import json
 from typing import Dict, List, Tuple
 import matplotlib.pyplot as plt

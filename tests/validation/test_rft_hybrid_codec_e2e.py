@@ -1,7 +1,7 @@
 """End-to-end smoke tests for the hybrid (lossy) RFT codec."""
 import numpy as np
 
-from core.rft_hybrid_codec import encode_tensor_hybrid, decode_tensor_hybrid
+from algorithms.rft.hybrids.rft_hybrid_codec import encode_tensor_hybrid, decode_tensor_hybrid
 
 
 def test_hybrid_roundtrip_low_error() -> None:

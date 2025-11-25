@@ -30,7 +30,7 @@ class SideChannelAnalyzer:
         try:
             import sys
             sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-            from algorithms.crypto.enhanced_rft_crypto_v2 import RFTCipher
+            from algorithms.rft.core.enhanced_rft_crypto_v2 import RFTCipher
             self.cipher = RFTCipher()
             return True
         except ImportError:

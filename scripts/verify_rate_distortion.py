@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from scipy.fftpack import dct, idct
 from algorithms.rft.hybrid_basis import adaptive_hybrid_compress, rft_forward, rft_inverse, PHI
-from algorithms.compression.entropy import estimate_bitrate, uniform_quantizer
+from algorithms.rft.compression.entropy import estimate_bitrate, uniform_quantizer
 
 def generate_mixed_signal(n=512):
     """Generate a signal with both ASCII-like steps and Fibonacci waves."""

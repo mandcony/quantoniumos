@@ -108,7 +108,7 @@ test_ai_compression() {
     if [ ! -f "algorithms/compression/hybrid/test_tiny_gpt2_compression.py" ]; then
         echo "  Compression test: Creating minimal test..."
         python3 -c "
-from algorithms.compression.hybrid.rft_hybrid_codec import RFTHybridCodec
+from algorithms.rft.hybrids.rft_hybrid_codec import RFTHybridCodec
 import numpy as np
 
 # Test with synthetic weights (reduced size to avoid memory error)
@@ -156,10 +156,10 @@ test_crypto_strength() {
     if [ ! -f "tests/benchmarks/run_complete_cryptanalysis.py" ]; then
         echo "  Cryptanalysis: Using basic entropy test..."
         python3 -c "
-from algorithms.crypto.enhanced_rft_crypto_v2 import EnhancedRFTCrypto
+from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
 import numpy as np
 
-crypto = EnhancedRFTCrypto()
+crypto = EnhancedRFTCryptoV2()
 
 # Test entropy
 plaintext = b'Test message for entropy analysis' * 100
@@ -197,22 +197,23 @@ else:
 
 # Test 5: Quantum Simulator Scaling
 test_quantum_simulator() {
-    echo "Testing quantum simulator (up to 100 qubits)..."
+    echo "Testing RFT algorithms (quantum-inspired transforms)..."
     python3 -c "
 import sys
 import os
 sys.path.insert(0, '/workspaces/quantoniumos')
-from quantonium_os_src.engine.engine.vertex_assembly import EntangledVertexEngine
+# NOTE: quantonium_os_src module does not exist - using RFT algorithms instead
+from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT
 import numpy as np
 
 # Test at multiple scales
 test_sizes = [2, 10, 16, 50, 100]
 
 for n in test_sizes:
-    print(f'  Testing {n} vertices...', end=' ')
+    print(f'  Testing N={n} RFT transform...', end=' ')
     try:
-        # Initialize the engine
-        engine = EntangledVertexEngine(n_vertices=n, entanglement_enabled=True)
+        # Initialize the RFT
+        rft = CanonicalTrueRFT(n)
         
         # Perform a simple symbolic operation
         if n > 1:

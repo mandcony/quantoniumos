@@ -17,8 +17,8 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in os.sys.path:
     os.sys.path.insert(0, str(SRC_DIR))
 
-from core.enhanced_rft_crypto_v2 import EnhancedRFTCryptoV2  # type: ignore
-from core.geometric_waveform_hash import GeometricWaveformHash  # type: ignore
+from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
+from algorithms.rft.quantum.geometric_waveform_hash import GeometricWaveformHash
 
 
 RESULTS_DIR = Path(__file__).resolve().parent / "results"

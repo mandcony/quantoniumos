@@ -1,6 +1,6 @@
 import secrets
 import pytest
-from algorithms.crypto.rft.enhanced_cipher import EnhancedRFTCryptoV2
+from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
 from hypothesis import given, strategies as st
 
 @given(st.binary(min_size=16, max_size=1024))

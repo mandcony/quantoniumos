@@ -1,7 +1,7 @@
 import os
 import random
 import pytest
-from algorithms.compression.lossless.rans_stream import ans_encode, ans_decode
+from algorithms.rft.compression.lossless.rans_stream import ans_encode, ans_decode
 
 @pytest.mark.parametrize("alphabet", [2, 16, 256])
 @pytest.mark.parametrize("precision", [8, 12])

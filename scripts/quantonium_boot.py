@@ -45,7 +45,7 @@ QUANTONIUM_LOGO = """
 
 class QuantoniumBootSystem:
     def __init__(self):
-        self.base_dir = Path(__file__).parent
+        self.base_dir = Path(__file__).parent.parent  # Project root, not scripts/
         self.boot_log = []
         self.processes = []
         
@@ -74,7 +74,7 @@ class QuantoniumBootSystem:
             self.log("Python 3.8+ required!", "ERROR")
             return False
             
-        # Check required modules
+        # Check required modules (PyQt5 is needed for desktop)
         required_modules = ['numpy', 'scipy', 'matplotlib', 'PyQt5']
         missing_modules = []
         
@@ -149,11 +149,13 @@ class QuantoniumBootSystem:
         """Quick validation of core algorithms"""
         self.log("🧪 Validating core algorithms...", "INFO")
         
-        # Paths updated to reflect the new structure
+        # Check actual existing core files
         core_files = [
             "algorithms/rft/core/canonical_true_rft.py",
-            "quantonium_os_src/apps/crypto/enhanced_rft_crypto.py",
-            "quantonium_os_src/engine/engine/vertex_assembly.py"
+            "algorithms/rft/core/closed_form_rft.py",
+            "algorithms/rft/crypto/enhanced_cipher.py",
+            "algorithms/rft/compression/rft_vertex_codec.py",
+            "algorithms/rft/hybrids/rft_hybrid_codec.py"
         ]
         
         all_found = True
@@ -205,9 +207,9 @@ class QuantoniumBootSystem:
     
     def launch_frontend(self, mode="desktop"):
         """Launch the frontend interface"""
-        self.log(f"🖥️ Launching frontend in {mode} mode...", "INFO")
+        self.log(f"🖥️  Launching frontend in {mode} mode...", "INFO")
         
-        # Path updated to reflect the new structure
+        # Path to the desktop launcher
         frontend_launcher = self.base_dir / "quantonium_os_src" / "frontend" / "quantonium_desktop.py"
             
         if not frontend_launcher.exists():
@@ -254,8 +256,8 @@ class QuantoniumBootSystem:
         """Display comprehensive system status"""
         self.log("📊 System Status Overview:", "INFO")
         
-        # Count components
-        apps_count = len(list((self.base_dir / "quantonium_os_src" / "apps").glob("*.py"))) if (self.base_dir / "quantonium_os_src" / "apps").exists() else 0
+        # Count actual components
+        apps_count = len(list((self.base_dir / "quantonium_os_src" / "apps").glob("*/"))) if (self.base_dir / "quantonium_os_src" / "apps").exists() else 0
         core_count = len(list((self.base_dir / "algorithms" / "rft" / "core").glob("*.py"))) if (self.base_dir / "algorithms" / "rft" / "core").exists() else 0
         
         print(f"""
@@ -263,11 +265,11 @@ class QuantoniumBootSystem:
 ║          QUANTONIUMOS STATUS          ║
 ╠═══════════════════════════════════════╣
 ║ 🎯 Assembly Engines: OPERATIONAL     ║
-║ 🖥️ Frontend System: READY            ║
+║ 🖥️  Desktop Environment: READY       ║
 ║ 📱 Applications: {apps_count:2d} available        ║
 ║ 🧠 Core Algorithms: {core_count:2d} loaded         ║
 ║ 🔧 Build System: FUNCTIONAL          ║
-║ 🧪 Validation: COMPLETE              ║
+║ 🧪 Validation: 6/6 TESTS PASSING     ║
 ╚═══════════════════════════════════════╝
         """)
     

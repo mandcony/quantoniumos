@@ -24,7 +24,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from algorithms.crypto.rft.enhanced_cipher import EnhancedRFTCryptoV2  # type: ignore
+from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
 
 
 def generate_stream_bytes(num_bytes: int, out_path: Path) -> None:
