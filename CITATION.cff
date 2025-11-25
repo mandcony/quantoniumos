@@ -5,12 +5,17 @@ message: >
 authors:
   - family-names: Luis M. Minier
     name: Luis M. Minier
-version: 0.4.0-48rft
-date-released: 2025-10-17
+version: 1.0.0-rft-paper
+date-released: 2025-11-25
 repository-code: https://github.com/mandcony/quantoniumos
+doi: 10.5281/zenodo.17712905
+url: https://zenodo.org/records/17712906
 preferred-citation:
   type: software
-  title: QuantoniumOS (48-round RFT crypto)
+  title: "QuantoniumOS: Reciprocal Fibonacci Transform Framework"
   authors:
     - name: Luis M. Minier
-  url: https://github.com/mandcony/quantoniumos
+  doi: 10.5281/zenodo.17712905
+  url: https://zenodo.org/records/17712906
+  version: 1.0.0-rft-paper
+  date-released: 2025-11-25
