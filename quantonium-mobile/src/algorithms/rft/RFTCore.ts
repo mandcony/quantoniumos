@@ -1,4 +1,11 @@
 /**
+ * SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+ * Copyright (C) 2025 Luis M. Minier / quantoniumos
+ * Listed in CLAIMS_PRACTICING_FILES.txt and licensed under LICENSE-CLAIMS-NC.md
+ * (research/education only). Commercial rights require a separate patent license.
+ */
+
+/**
  * Canonical True RFT Implementation - TypeScript
  *
  * Implements the unitary Resonance Fourier Transform (RFT) with

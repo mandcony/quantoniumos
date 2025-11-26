@@ -1,4 +1,11 @@
 /**
+ * SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+ * Copyright (C) 2025 Luis M. Minier / quantoniumos
+ * Listed in CLAIMS_PRACTICING_FILES.txt and licensed under LICENSE-CLAIMS-NC.md
+ * (research/education only). Commercial rights require a separate patent license.
+ */
+
+/**
  * Complex Number Operations
  * Essential mathematical operations for complex numbers in RFT and quantum algorithms
  */

@@ -1,9 +1,16 @@
 /**
+ * SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+ * Copyright (C) 2025 Luis M. Minier / quantoniumos
+ * Listed in CLAIMS_PRACTICING_FILES.txt and licensed under LICENSE-CLAIMS-NC.md
+ * (research/education only). Commercial rights require a separate patent license.
+ */
+
+/**
  * Matrix Operations for Complex Matrices
  * Essential linear algebra operations for RFT and quantum algorithms
  */
 
-import { Complex, add, subtract, multiply, conj, abs, divide } from './Complex';
+import { Complex, add, subtract, multiply, conj, abs, divide, scale } from './Complex';
 
 export interface Matrix {
   rows: number;
@@ -30,6 +37,35 @@ export function matrixIdentity(size: number): Matrix {
 export function matrixZeros(rows: number, cols: number): Matrix {
   const data = Array(rows * cols).fill({ re: 0, im: 0 });
   return { rows, cols, data };
+}
+
+export function matrixFromGenerator(size: number, generator: (row: number, col: number) => Complex): Matrix {
+  const data: Complex[] = [];
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      data.push(generator(i, j));
+    }
+  }
+  return { rows: size, cols: size, data };
+}
+
+export function scaleMatrix(m: Matrix, factor: number): Matrix {
+  return {
+    rows: m.rows,
+    cols: m.cols,
+    data: m.data.map(value => scale(factor, value))
+  };
+}
+
+export function addMatrices(a: Matrix, b: Matrix): Matrix {
+  if (a.rows !== b.rows || a.cols !== b.cols) {
+    throw new Error('Matrix dimensions must match for addition');
+  }
+  const data: Complex[] = [];
+  for (let i = 0; i < a.data.length; i++) {
+    data.push(add(a.data[i], b.data[i]));
+  }
+  return { rows: a.rows, cols: a.cols, data };
 }
 
 /**

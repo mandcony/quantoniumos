@@ -16,6 +16,9 @@ import { CanonicalTrueRFT } from '../algorithms/rft/RFTCore';
 import { RFTEnhancedFeistel } from '../algorithms/crypto/CryptoPrimitives';
 import { QuantumCircuits } from '../algorithms/quantum/QuantumSimulator';
 import { measureCHSH } from '../algorithms/quantum/QuantumGates';
+import { VARIANTS, validateVariantMatrix } from '../algorithms/rft/VariantRegistry';
+import { matrixVectorMultiply, matrixConjugateTranspose } from '../algorithms/rft/Matrix';
+import { subtract, abs } from '../algorithms/rft/Complex';
 
 interface TestResult {
   name: string;
@@ -32,6 +35,7 @@ export default function ValidationScreen() {
     { name: 'Crypto Decryption', status: 'pending', message: 'Not run' },
     { name: 'Quantum Bell State', status: 'pending', message: 'Not run' },
     { name: 'Quantum CHSH Test', status: 'pending', message: 'Not run' },
+    { name: 'Φ-RFT Variant Family', status: 'pending', message: 'Not run' },
   ]);
   const [running, setRunning] = useState(false);
   const [overallStatus, setOverallStatus] = useState<'idle' | 'testing' | 'passed' | 'failed'>('idle');
@@ -186,6 +190,48 @@ export default function ValidationScreen() {
           status: 'failed',
           message: `CHSH = ${chsh.toFixed(3)} (expected 2.828)`,
           time: time6,
+        });
+      }
+
+      // Test 7: Φ-RFT Variant Family
+      updateTest(6, { status: 'running', message: 'Testing...' });
+      const startTime7 = Date.now();
+      const variantSize = 16;
+      let worstUnitarity = 0;
+      let worstRoundtrip = 0;
+
+      VARIANTS.forEach(variant => {
+        const matrix = variant.generator(variantSize);
+        const unitarity = validateVariantMatrix(matrix);
+        worstUnitarity = Math.max(worstUnitarity, unitarity);
+
+        const vector = Array(variantSize)
+          .fill(0)
+          .map(() => ({ re: Math.random() * 2 - 1, im: Math.random() * 2 - 1 }));
+        const forward = matrixVectorMultiply(matrix, vector);
+        const inverse = matrixVectorMultiply(matrixConjugateTranspose(matrix), forward);
+
+        let error = 0;
+        for (let i = 0; i < variantSize; i++) {
+          const diff = subtract(vector[i], inverse[i]);
+          error += abs(diff) ** 2;
+        }
+        error = Math.sqrt(error);
+        worstRoundtrip = Math.max(worstRoundtrip, error);
+      });
+
+      const time7 = Date.now() - startTime7;
+      if (worstUnitarity < 1e-10 && worstRoundtrip < 1e-8) {
+        updateTest(6, {
+          status: 'passed',
+          message: `Max ‖ΨᴴΨ-I‖=${worstUnitarity.toExponential(2)}, roundtrip=${worstRoundtrip.toExponential(2)}`,
+          time: time7,
+        });
+      } else {
+        updateTest(6, {
+          status: 'failed',
+          message: `Unit=${worstUnitarity.toExponential(2)}, roundtrip=${worstRoundtrip.toExponential(2)}`,
+          time: time7,
         });
       }
 
