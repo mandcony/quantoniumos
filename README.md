@@ -43,7 +43,7 @@ We have identified and validated a family of 7 transforms that are all unitary t
 
 ### 3. Theorem 10: Breaking the ASCII Bottleneck & Boundary Problem
 
-**Paper:** [*Coherence-Free Hybrid Transform Coding via Hierarchical Cascade Architecture*](https://doi.org/10.5281/zenodo.17726611) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
+**Paper:** [*Breaking the ASCII Wall: Coherence-Free Hybrid DCT–RFT Transform Coding for Text and Structured Data*](https://doi.org/10.5281/zenodo.17726611) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
 
 We have solved the "ASCII Bottleneck"—the inability of continuous transforms to efficiently compress discrete text/code—and the "Boundary Problem" (Gibbs phenomenon at edges).
 
