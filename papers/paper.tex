@@ -41,13 +41,13 @@
 \end{figure*}
 }
 
-\title{The Resonance Fourier Transform (RFT):\\
+\title{Resonance Fourier Transform:\\
 Unitary Lens for Compression, Crypto,\\
 and Quantum-Inspired Computing}
 
 \author{
   Luis M.~Minier\\
-  Independent Researcher\\
+  QuantoniumOS Research Team, Independent Researcher\\
   Email: \texttt{luisminier79@gmail.com}\\
   GitHub: \url{https://github.com/mandcony/quantoniumos}\\
   DOI: \href{https://doi.org/10.5281/zenodo.17712905}{10.5281/zenodo.17712905}
@@ -70,7 +70,7 @@ resonance transforms, golden ratio, hybrid compression, lattice-inspired mixing,
 \section{Introduction}
 Classical FFT/DCT pipelines were never designed to do three jobs at once: compress data sparsely, mix it chaotically for crypto, and still remain unitary enough for reversible simulation. FFTs give us beautiful algebra on $S^1$ with integer harmonics, but their spectra are too clean and structured to act as good mixers; DCT-based codecs (e.g., JPEG-style) exploit spatial structure but struggle with quasi-periodic textures and non-image data; and cryptographic constructions bolt on separate nonlinear layers that break the clean linear-operator view required for physics-style evolution. 
 
-This paper takes the position that, if we want a single transform backbone to serve compression, crypto-like mixing, and quantum-inspired simulation, we have to leave the integer grid and the flat circle behind. We therefore introduce the \emph{Resonance Fourier Transform} (RFT): a unitary family of transforms built on irrational, golden-ratio--based phase progressions and braided toroidal topologies, with a canonical QR-derived $\Phi$-RFT for theory and a closed-form fast $\Phi$-RFT for practice. On top of this basis, we build: (i) a rigorously validated stack of $\Phi$-RFT theorems covering unitarity, complexity, sparsity, and twisted-convolution algebra; (ii) a hybrid DCT+RFT codec that beats single-basis baselines on mixed-structure signals; (iii) an RFT-SIS experimental lattice playground with measured avalanche/diffusion; and (iv) a unified C/FPGA execution path that removes Python from the hot loop and demonstrates that this resonance-based approach is not just mathematically consistent, but also system-level executable. 
+The Resonance Fourier Transform (RFT) was introduced and formally analyzed in~\cite{minier2025rft} (DOI: 10.5281/zenodo.17712905) as a unitary family of transforms built on irrational, golden-ratio--based phase progressions and braided toroidal topologies, with a canonical QR-derived $\Phi$-RFT for theory and a closed-form fast $\Phi$-RFT for practice. This paper extends that foundational work by demonstrating RFT's practical application in hybrid compression, cryptographic mixing, and quantum-inspired computing. On top of this basis, we build: (i) a rigorously validated stack of $\Phi$-RFT theorems covering unitarity, complexity, sparsity, and twisted-convolution algebra; (ii) a hybrid DCT+RFT codec that beats single-basis baselines on mixed-structure signals; (iii) an RFT-SIS experimental lattice playground with measured avalanche/diffusion; and (iv) a unified C/FPGA execution path that removes Python from the hot loop and demonstrates that this resonance-based approach is not just mathematically consistent, but also system-level executable. 
 
 \section{Background and Related Work}
 \subsection{Classical Transforms}
