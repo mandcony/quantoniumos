@@ -51,11 +51,15 @@ import time
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import hypothesis implementations
-# We need to import the core transform functions, not the experiment wrappers
 from hybrid_mca_fixes import (
     compute_bpp,
     compute_psnr,
-    compute_coherence_violation
+    compute_coherence_violation,
+    baseline_greedy_hybrid,
+    hypothesis3_hierarchical_cascade,
+    hypothesis5_attention_gating,
+    hypothesis6_dictionary_learning,
+    hypothesis7_cascade_attention
 )
 
 # Import transforms directly
@@ -370,30 +374,25 @@ def build_test_suite() -> Dict[str, Tuple[np.ndarray, SignalDescriptor]]:
 # EXPERIMENT RUNNER
 # ============================================================================
 
-def run_method(method_name: str, signal: np.ndarray, sparsity: float = 0.95) -> Tuple[np.ndarray, float]:
+def run_method(method_name: str, signal: np.ndarray, sparsity: float = 0.95):
     """
     Run a single hypothesis method.
     
     Returns:
-        (reconstructed_signal, time_ms)
+        ExperimentResult from hybrid_mca_fixes
     """
-    start = time.perf_counter()
-    
     if method_name == "Baseline_Greedy":
-        recon = baseline_greedy_hybrid(signal, sparsity)
+        return baseline_greedy_hybrid(signal, sparsity)
     elif method_name == "H3_Cascade":
-        recon = hypothesis3_hierarchical_cascade(signal, sparsity)
+        return hypothesis3_hierarchical_cascade(signal, sparsity)
     elif method_name == "H5_Attention":
-        recon = hypothesis5_attention_gating(signal, sparsity)
+        return hypothesis5_attention_gating(signal, sparsity)
     elif method_name == "H6_Dictionary":
-        recon = hypothesis6_dictionary_learning(signal, sparsity)
+        return hypothesis6_dictionary_learning(signal, sparsity)
     elif method_name == "H7_Cascade_Attention":
-        recon = hypothesis7_cascade_attention(signal, sparsity)
+        return hypothesis7_cascade_attention(signal, sparsity)
     else:
         raise ValueError(f"Unknown method: {method_name}")
-    
-    elapsed_ms = (time.perf_counter() - start) * 1000
-    return recon, elapsed_ms
 
 
 def run_single_experiment(
@@ -406,31 +405,21 @@ def run_single_experiment(
     """Run one method on one signal and collect all metrics"""
     
     try:
-        recon, time_ms = run_method(method_name, signal, sparsity)
+        # Get result from hypothesis function (already contains all metrics)
+        result = run_method(method_name, signal, sparsity)
         
-        # Compute all metrics
-        bpp = compute_bpp(recon)
-        psnr = compute_psnr(signal, recon)
-        coherence = compute_coherence_violation(signal, recon)
-        
-        # Sparsity
-        nonzero = np.count_nonzero(np.abs(recon) > 1e-10)
-        sparsity_pct = 100 * (1 - nonzero / len(recon))
-        
-        # Reconstruction error
-        recon_error = np.linalg.norm(signal - recon) / np.linalg.norm(signal)
-        
+        # Convert to our ExperimentResult format with signal metadata
         return ExperimentResult(
             signal_name=descriptor.name,
             signal_category=descriptor.category,
             signal_size=descriptor.size,
             method=method_name,
-            bpp=bpp,
-            psnr_db=psnr,
-            coherence_violation=coherence,
-            sparsity_pct=sparsity_pct,
-            reconstruction_error=recon_error,
-            time_ms=time_ms
+            bpp=result.bpp,
+            psnr_db=result.psnr,
+            coherence_violation=result.coherence_violation,
+            sparsity_pct=result.sparsity_pct,
+            reconstruction_error=result.reconstruction_error,
+            time_ms=result.time_ms
         )
     
     except Exception as e:

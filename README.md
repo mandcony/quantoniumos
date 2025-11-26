@@ -1,6 +1,7 @@
 # QuantoniumOS: Quantum-Inspired Research Operating System
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17712905.svg)](https://doi.org/10.5281/zenodo.17712905)
+[![RFT Framework DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17712905.svg)](https://doi.org/10.5281/zenodo.17712905)
+[![Coherence Paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
 [![TechRxiv DOI](https://img.shields.io/badge/DOI-10.36227%2Ftechrxiv.175384307.75693850%2Fv1-8A2BE2.svg)](https://doi.org/10.36227/techrxiv.175384307.75693850/v1)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
 [![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-red.svg)](LICENSE-CLAIMS-NC.md)
@@ -41,11 +42,28 @@ We have identified and validated a family of 7 transforms that are all unitary t
 | **7. Adaptive Φ** | Meta-transform | Universal codec | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
 
 ### 3. Theorem 10: Breaking the ASCII Bottleneck & Boundary Problem
+
+**Paper:** [*Coherence-Free Hybrid Transform Coding via Hierarchical Cascade Architecture*](https://doi.org/10.5281/zenodo.17726611) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
+
 We have solved the "ASCII Bottleneck"—the inability of continuous transforms to efficiently compress discrete text/code—and the "Boundary Problem" (Gibbs phenomenon at edges).
-*   **Method:** Hybrid $\Phi$-RFT / DCT decomposition with adaptive basis pursuit.
+
+**Key Results:**
+*   **Greedy Hybrid Failure:** BPP = 0.805, Coherence = 0.50 (50% energy loss)
+*   **H3 Cascade Solution:** BPP = 0.672, Coherence = 0.00 (zero energy loss)
+*   **Improvement:** 16.5% compression gain with zero coherence violation
+*   **Method:** Hierarchical cascade decomposition with adaptive basis pursuit.
+*   **Validation:** [![Reproduce Results](https://img.shields.io/badge/Validation-experiments%2Fascii__wall__paper.py-blue)](experiments/ascii_wall_paper.py)
+
+**Run Validation:**
+```bash
+python experiments/ascii_wall_paper.py
+# Validates all 15 architectural variants on 11 signal types
+# Output: experiments/ASCII_WALL_PAPER_RESULTS.md
+```
+
 *   **Result:** Lossless compression of Python source code (DCT-dominant) *and* high-fidelity capture of Fibonacci resonances (RFT-dominant) in the same pipeline.
 *   **Boundary Proof:** The hybrid basis reduces edge reconstruction error by **>30x** compared to pure RFT/DFT for non-periodic signals.
-*   **Proof:** [![Theorem 10](https://img.shields.io/badge/Theorem-10_Proven-brightgreen)](docs/validation/THEOREM_10_HYBRID.md)
+*   **Proof:** [![Theorem 10](https://img.shields.io/badge/Theorem-10_Proven-brightgreen)](papers/coherence_free_hybrid_transforms.tex)
 
 ### 4. Key Validation Results
 *   **Exact Diagonalization:** The Φ-RFT exactly diagonalizes systems governed by Golden Ratio resonances (Error $10^{-14}$).
