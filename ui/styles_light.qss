@@ -1,0 +1,314 @@
+﻿/* QuantoniumOS - Light Theme Design */
+/* Professional light styling with quantum aesthetics */
+
+QMainWindow {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #f0f2f5, stop:0.3 #e0e7ef, 
+        stop:0.7 #d1dced, stop:1.0 #c1d2ec);
+    color: #2c3e50;
+    font-family: "Segoe UI", "SF Pro Display", sans-serif;
+    font-size: 14px;
+}
+
+/* Clean windows */
+QWidget {
+    background: rgba(255, 255, 255, 180);
+    color: #2c3e50;
+    border-radius: 8px;
+}
+
+/* Sleek buttons */
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(100, 166, 255, 220),
+        stop:1 rgba(59, 130, 246, 190));
+    border: 1px solid rgba(100, 166, 255, 200);
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(150, 200, 255, 240),
+        stop:1 rgba(100, 166, 255, 210));
+    border: 1px solid rgba(150, 200, 255, 255);
+}
+
+QPushButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(80, 146, 235, 190),
+        stop:1 rgba(40, 110, 226, 170));
+}
+
+/* Clean text inputs */
+QLineEdit {
+    background: rgba(255, 255, 255, 240);
+    border: 2px solid rgba(100, 166, 255, 150);
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+QLineEdit:focus {
+    border: 2px solid rgba(100, 166, 255, 230);
+    background: rgba(255, 255, 255, 255);
+}
+
+/* Text display areas */
+QTextEdit, QPlainTextEdit {
+    background: rgba(255, 255, 255, 240);
+    border: 2px solid rgba(100, 166, 255, 150);
+    border-radius: 6px;
+    padding: 6px;
+    color: #2c3e50;
+    font-family: "Consolas", "Menlo", monospace;
+    font-size: 14px;
+}
+
+QTextEdit:focus, QPlainTextEdit:focus {
+    border: 2px solid rgba(100, 166, 255, 230);
+    background: rgba(255, 255, 255, 255);
+}
+
+/* Combo boxes */
+QComboBox {
+    background: rgba(255, 255, 255, 240);
+    border: 2px solid rgba(100, 166, 255, 150);
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: #2c3e50;
+    font-size: 14px;
+    selection-background-color: rgba(100, 166, 255, 200);
+}
+
+QComboBox:hover {
+    border: 2px solid rgba(100, 166, 255, 230);
+    background: rgba(255, 255, 255, 255);
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox QAbstractItemView {
+    background: rgba(255, 255, 255, 250);
+    border: 1px solid rgba(100, 166, 255, 150);
+    border-radius: 4px;
+    selection-background-color: rgba(100, 166, 255, 200);
+    color: #2c3e50;
+}
+
+/* List widgets */
+QListWidget {
+    background: rgba(255, 255, 255, 240);
+    border: 2px solid rgba(100, 166, 255, 150);
+    border-radius: 6px;
+    padding: 6px;
+    color: #2c3e50;
+}
+
+QListWidget::item {
+    padding: 6px;
+    border-radius: 4px;
+}
+
+QListWidget::item:selected {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(100, 166, 255, 200),
+        stop:1 rgba(150, 200, 255, 170));
+    color: white;
+}
+
+QListWidget::item:hover {
+    background: rgba(100, 166, 255, 100);
+}
+
+/* Progress bars */
+QProgressBar {
+    background: rgba(255, 255, 255, 240);
+    border: none;
+    border-radius: 6px;
+    text-align: center;
+    color: #2c3e50;
+    font-weight: 600;
+    height: 20px;
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(100, 166, 255, 220),
+        stop:1 rgba(150, 200, 255, 200));
+    border-radius: 6px;
+}
+
+/* Tables */
+QTableWidget {
+    background: rgba(255, 255, 255, 240);
+    border: 1px solid rgba(100, 166, 255, 150);
+    border-radius: 8px;
+    gridline-color: rgba(100, 166, 255, 100);
+    color: #2c3e50;
+}
+
+QTableWidget::item {
+    padding: 8px;
+    border: none;
+}
+
+QTableWidget::item:selected {
+    background: rgba(100, 166, 255, 170);
+    color: white;
+}
+
+QHeaderView::section {
+    background: rgba(100, 166, 255, 180);
+    color: white;
+    padding: 8px;
+    border: none;
+    font-weight: 600;
+}
+
+/* Scrollbars */
+QScrollBar:vertical {
+    background: rgba(230, 240, 250, 200);
+    width: 12px;
+    border-radius: 6px;
+    border: none;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(100, 166, 255, 200);
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: rgba(150, 200, 255, 220);
+}
+
+QScrollBar:horizontal {
+    background: rgba(230, 240, 250, 200);
+    height: 12px;
+    border-radius: 6px;
+    border: none;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgba(100, 166, 255, 200);
+    border-radius: 6px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: rgba(150, 200, 255, 220);
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    border: none;
+    background: none;
+}
+
+/* Menu bars */
+QMenuBar {
+    background: rgba(255, 255, 255, 220);
+    color: #2c3e50;
+    border: none;
+    padding: 4px;
+}
+
+QMenuBar::item {
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+QMenuBar::item:selected {
+    background: rgba(100, 166, 255, 170);
+    color: white;
+}
+
+QMenu {
+    background: rgba(255, 255, 255, 250);
+    border: 1px solid rgba(100, 166, 255, 150);
+    border-radius: 4px;
+    color: #2c3e50;
+}
+
+QMenu::item {
+    padding: 6px 30px 6px 12px;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+QMenu::item:selected {
+    background: rgba(100, 166, 255, 170);
+    color: white;
+}
+
+/* Status bars */
+QStatusBar {
+    background: rgba(255, 255, 255, 220);
+    color: #2c3e50;
+    border-top: 1px solid rgba(100, 166, 255, 150);
+}
+
+QStatusBar::item {
+    border: none;
+}
+
+/* Group boxes */
+QGroupBox {
+    background: rgba(255, 255, 255, 200);
+    border: 2px solid rgba(100, 166, 255, 150);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 8px;
+    padding: 0 8px 0 8px;
+}
+
+/* Tabs */
+QTabWidget::pane {
+    border: 1px solid rgba(100, 166, 255, 150);
+    background: rgba(255, 255, 255, 220);
+    border-radius: 8px;
+    margin-top: 4px;
+}
+
+QTabBar::tab {
+    background: rgba(230, 240, 250, 200);
+    color: #2c3e50;
+    padding: 8px 16px;
+    margin-right: 2px;
+    border: none;
+    border-radius: 6px 6px 0px 0px;
+}
+
+QTabBar::tab:selected {
+    background: rgba(100, 166, 255, 200);
+    color: white;
+    font-weight: 600;
+}
+
+QTabBar::tab:hover:!selected {
+    background: rgba(100, 166, 255, 130);
+}
+
+/* Application-specific styling */
+#AppWindow {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #f0f2f5, stop:0.3 #e0e7ef, 
+        stop:0.7 #d1dced, stop:1.0 #c1d2ec);
+}
+

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bggrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B0D10"/>
+      <stop offset="100%" stop-color="#0F141A"/>
+    </linearGradient>
+    <radialGradient id="ringgrad" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#00D1B2" stop-opacity="0.30"/>
+      <stop offset="60%" stop-color="#8A7FFF" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#8A7FFF" stop-opacity="0.00"/>
+    </radialGradient>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="0 0 0 0 0   0 0 0 0 0.82   0 0 0 0 0.70   0 0 0 0.8 0" />
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style><![CDATA[
+      .stroke { stroke:#E7ECF2; stroke-width:20; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+      .accent { stroke:#00D1B2; }
+      .muted { stroke:rgba(231,236,242,0.35); }
+    ]]></style>
+  </defs>
+  <!-- Background rounded square -->
+  <rect x="64" y="64" rx="140" ry="140" width="896" height="896" fill="url(#bggrad)" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+  <!-- Ambient ring glow -->
+  <circle cx="512" cy="512" r="360" fill="url(#ringgrad)" filter="url(#softGlow)"/>
+  
+  <polyline points="220,610 300,540 380,560 460,460 540,520 620,480 700,520 780,470"
+            fill="none" stroke="#00D1B2" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="740" cy="644" r="70" fill="none" stroke="#8A7FFF" stroke-width="12" opacity="0.6"/>
+  <path d="M740 644 L 740 594" stroke="#E7ECF2" stroke-width="14" stroke-linecap="round"/>
+  <path d="M740 644 A 50 50 0 0 0 782 602" stroke="#00D1B2" stroke-width="16" fill="none" stroke-linecap="round"/>
+
+  <!-- Footer name label (optional for previews) -->
+  <text x="512" y="952" text-anchor="middle" fill="#E7ECF2" opacity="0.55" font-family="Inter,system-ui,Segoe UI,Arial" font-size="36">System Monitor</text>
+</svg>
+

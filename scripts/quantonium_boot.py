@@ -15,6 +15,7 @@ This script boots all QuantoniumOS components in proper order:
 import os
 import sys
 import time
+import signal
 import subprocess
 import threading
 from pathlib import Path
@@ -182,12 +183,19 @@ class QuantoniumBootSystem:
             
         try:
             if background:
-                # Launch in background
+                popen_kwargs = {
+                    "stdout": subprocess.PIPE,
+                    "stderr": subprocess.PIPE,
+                }
+
+                if os.name == "nt":
+                    popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP  # isolate child group on Windows
+                else:
+                    popen_kwargs["preexec_fn"] = os.setsid
+
                 process = subprocess.Popen(
                     [sys.executable, str(assembly_launcher)],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    preexec_fn=os.setsid # Ensure it's a session leader to terminate all children
+                    **popen_kwargs
                 )
                 self.processes.append(process)
                 self.log("Assembly engines launched in background", "SUCCESS")
@@ -278,8 +286,17 @@ class QuantoniumBootSystem:
         self.log("🧹 Cleaning up background processes...", "INFO")
         for process in self.processes:
             try:
-                # Kill process group to terminate children
-                os.killpg(os.getpgid(process.pid), 9)
+                if process.poll() is not None:
+                    continue
+
+                if os.name == "nt":
+                    process.send_signal(signal.CTRL_BREAK_EVENT)
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.terminate()
+                else:
+                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
             except Exception as e:
                 self.log(f"Could not terminate process {process.pid}: {e}", "WARNING")
     

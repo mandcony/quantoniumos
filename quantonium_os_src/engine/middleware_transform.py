@@ -22,11 +22,23 @@ The middleware automatically selects the best RFT transform variant based on:
 - Hardware capabilities
 """
 
+import time
 import numpy as np
 from typing import Optional, Tuple, Dict, Any
 from dataclasses import dataclass
 from algorithms.rft.variants.registry import VARIANTS, VariantInfo
 from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse, PHI
+
+try:
+    from algorithms.rft.kernels.python_bindings.unitary_rft import (
+        UnitaryRFT,
+        RFT_FLAG_QUANTUM_SAFE,
+    )
+    HAS_ASSEMBLY = True
+except ImportError:  # pragma: no cover - assembly optional
+    UnitaryRFT = None
+    RFT_FLAG_QUANTUM_SAFE = 0
+    HAS_ASSEMBLY = False
 
 @dataclass
 class TransformProfile:
@@ -73,17 +85,23 @@ class MiddlewareTransformEngine:
                 return "chaotic_mix"  # Secure scrambling
                 
         elif profile.priority == 'compression':
+            if profile.data_type == 'text':
+                return "log_periodic"  # ASCII bottleneck mitigation
             if profile.size < 1024:
                 return "harmonic_phase"  # Good for small data
             else:
                 return "adaptive_phi"  # Universal compression
                 
         elif profile.priority == 'speed':
+            if profile.data_type in {'texture', 'mixed'}:
+                return "convex_mix"
             return "original"  # Fastest, cleanest transform
             
         elif profile.priority == 'accuracy':
             if profile.data_type == 'image' or profile.data_type == 'audio':
                 return "geometric_lattice"  # Analog/optical optimized
+            if profile.data_type == 'text':
+                return "convex_mix"
             else:
                 return "phi_chaotic_hybrid"  # Resilient codec
         
@@ -238,6 +256,108 @@ class MiddlewareTransformEngine:
             computation_time=computation_time,
             oscillation_frequency=float(avg_frequency)
         )
+
+    def validate_all_unitaries(
+        self,
+        *,
+        matrix_sizes: Tuple[int, ...] = (64,),
+        sample_bytes: int = 64,
+        rng_seed: int = 1337,
+    ) -> Dict[str, Any]:
+        """Validate Φ-RFT middleware across all registered unitary variants."""
+
+        results = []
+        rng = np.random.default_rng(rng_seed)
+        previous_variant = self.selected_variant
+
+        try:
+            for key, info in self.variants.items():
+                variant_entry: Dict[str, Any] = {
+                    "key": key,
+                    "name": info.name,
+                    "unitarity": [],
+                }
+
+                last_matrix = None
+                for size in matrix_sizes:
+                    try:
+                        matrix = info.generator(size)
+                        identity = np.eye(size, dtype=np.complex128)
+                        error = float(np.linalg.norm(matrix.conj().T @ matrix - identity))
+                        variant_entry["unitarity"].append({
+                            "size": size,
+                            "error": error,
+                            "passed": error < 1e-10,
+                        })
+                        if size == matrix_sizes[-1]:
+                            last_matrix = matrix
+                    except Exception as exc:  # pragma: no cover - diagnostics only
+                        variant_entry["unitarity"].append({
+                            "size": size,
+                            "error": None,
+                            "passed": False,
+                            "message": str(exc),
+                        })
+
+                sample = rng.integers(0, 256, size=sample_bytes, dtype=np.uint8).tobytes()
+                start = time.time()
+                self.selected_variant = key
+                try:
+                    waveform = self.binary_to_waveform(sample)
+                    reconstructed = self.waveform_to_binary(waveform, len(sample) * 8)
+                finally:
+                    self.selected_variant = previous_variant
+                elapsed = time.time() - start
+
+                original_bits = np.unpackbits(np.frombuffer(sample, dtype=np.uint8))
+                recovered_bits = np.unpackbits(np.frombuffer(reconstructed[:len(sample)], dtype=np.uint8))
+                min_len = min(original_bits.size, recovered_bits.size)
+                bit_errors = int(np.sum(original_bits[:min_len] != recovered_bits[:min_len]))
+                bit_error_rate = bit_errors / max(1, min_len)
+
+                freq_bins = np.arange(len(waveform))
+                power = np.abs(waveform) ** 2
+                frequency = float(np.sum(freq_bins * power) / np.sum(power)) if power.sum() else 0.0
+
+                variant_entry["round_trip"] = {
+                    "bytes": sample_bytes,
+                    "bit_errors": bit_errors,
+                    "bit_error_rate": bit_error_rate,
+                    "time_ms": elapsed * 1000.0,
+                    "oscillation_frequency": frequency,
+                    "passed": bit_errors == 0,
+                }
+
+                if HAS_ASSEMBLY and key == "original" and last_matrix is not None:
+                    try:
+                        asm = UnitaryRFT(matrix_sizes[-1], RFT_FLAG_QUANTUM_SAFE)
+                        vec = rng.standard_normal(matrix_sizes[-1]) + 1j * rng.standard_normal(matrix_sizes[-1])
+                        python_wave = last_matrix @ vec
+                        asm_wave = asm.forward(vec.astype(np.complex128))
+                        delta = float(np.linalg.norm(python_wave - asm_wave) / np.linalg.norm(vec))
+                        variant_entry["assembly_delta"] = {
+                            "size": matrix_sizes[-1],
+                            "relative_error": delta,
+                        }
+                    except Exception as exc:  # pragma: no cover - diagnostics only
+                        variant_entry["assembly_delta"] = {
+                            "size": matrix_sizes[-1],
+                            "error": str(exc),
+                        }
+                else:
+                    variant_entry["assembly_delta"] = None
+
+                results.append(variant_entry)
+
+        finally:
+            self.selected_variant = previous_variant
+
+        return {
+            "assembly_available": HAS_ASSEMBLY,
+            "matrix_sizes": list(matrix_sizes),
+            "sample_bytes": sample_bytes,
+            "variants": results,
+        }
     
     def get_variant_info(self, variant_name: str) -> Optional[VariantInfo]:
         """Get metadata about a specific transform variant"""
