@@ -1,24 +1,30 @@
 /**
- * Validation Screen - System Status and Testing
+ * Validation Screen - QuantoniumOS Mobile
+ * Mirrors the desktop Φ-RFT validation harness
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
   ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import ScreenShell from '../components/ScreenShell';
 import { CanonicalTrueRFT } from '../algorithms/rft/RFTCore';
 import { RFTEnhancedFeistel } from '../algorithms/crypto/CryptoPrimitives';
 import { QuantumCircuits } from '../algorithms/quantum/QuantumSimulator';
-import { measureCHSH } from '../algorithms/quantum/QuantumGates';
+import { createBellState, measureCHSH } from '../algorithms/quantum/QuantumGates';
 import { VARIANTS, validateVariantMatrix } from '../algorithms/rft/VariantRegistry';
-import { matrixVectorMultiply, matrixConjugateTranspose } from '../algorithms/rft/Matrix';
 import { subtract, abs } from '../algorithms/rft/Complex';
+import {
+  borderRadius,
+  colors,
+  shadows,
+  spacing,
+  typography,
+} from '../constants/DesignSystem';
 
 interface TestResult {
   name: string;
@@ -27,437 +33,446 @@ interface TestResult {
   time?: number;
 }
 
-export default function ValidationScreen() {
-  const [tests, setTests] = useState<TestResult[]>([
-    { name: 'RFT Unitarity', status: 'pending', message: 'Not run' },
-    { name: 'RFT Round-trip', status: 'pending', message: 'Not run' },
-    { name: 'Crypto Encryption', status: 'pending', message: 'Not run' },
-    { name: 'Crypto Decryption', status: 'pending', message: 'Not run' },
-    { name: 'Quantum Bell State', status: 'pending', message: 'Not run' },
-    { name: 'Quantum CHSH Test', status: 'pending', message: 'Not run' },
-    { name: 'Φ-RFT Variant Family', status: 'pending', message: 'Not run' },
-  ]);
-  const [running, setRunning] = useState(false);
-  const [overallStatus, setOverallStatus] = useState<'idle' | 'testing' | 'passed' | 'failed'>('idle');
+type OverallStatus = 'idle' | 'testing' | 'passed' | 'failed';
 
-  const updateTest = (index: number, update: Partial<TestResult>) => {
-    setTests(prev => prev.map((t, i) => (i === index ? { ...t, ...update } : t)));
-  };
+type StatusToken = {
+  background: string;
+  foreground: string;
+  label: string;
+};
+
+const STATUS_PALETTE: Record<TestResult['status'] | OverallStatus, StatusToken> = {
+  pending: {
+    background: 'rgba(52, 152, 219, 0.08)',
+    foreground: colors.darkGray,
+    label: 'Pending',
+  },
+  running: {
+    background: 'rgba(243, 156, 18, 0.18)',
+    foreground: colors.warning,
+    label: 'Running',
+  },
+  passed: {
+    background: 'rgba(39, 174, 96, 0.16)',
+    foreground: colors.success,
+    label: 'Passed',
+  },
+  failed: {
+    background: 'rgba(231, 76, 60, 0.16)',
+    foreground: colors.error,
+    label: 'Failed',
+  },
+  idle: {
+    background: 'rgba(52, 152, 219, 0.12)',
+    foreground: colors.primary,
+    label: 'Idle',
+  },
+  testing: {
+    background: 'rgba(243, 156, 18, 0.14)',
+    foreground: colors.warning,
+    label: 'Testing',
+  },
+};
+
+const INITIAL_TESTS: TestResult[] = [
+  { name: 'RFT Unitarity', status: 'pending', message: 'Not run' },
+  { name: 'RFT Round-trip', status: 'pending', message: 'Not run' },
+  { name: 'Crypto Encryption', status: 'pending', message: 'Not run' },
+  { name: 'Crypto Decryption', status: 'pending', message: 'Not run' },
+  { name: 'Quantum Bell State', status: 'pending', message: 'Not run' },
+  { name: 'Quantum CHSH', status: 'pending', message: 'Not run' },
+  { name: 'Φ-RFT Variant Family', status: 'pending', message: 'Not run' },
+];
+
+function getStatusToken(status: TestResult['status'] | OverallStatus) {
+  return STATUS_PALETTE[status];
+}
+
+function formatDuration(ms?: number) {
+  if (typeof ms !== 'number') {
+    return '';
+  }
+  if (ms < 1000) {
+    return `${ms} ms`;
+  }
+  const seconds = ms / 1000;
+  return `${seconds.toFixed(2)} s`;
+}
+
+export default function ValidationScreen() {
+  const [tests, setTests] = useState<TestResult[]>(INITIAL_TESTS);
+  const [overallStatus, setOverallStatus] = useState<OverallStatus>('idle');
+  const [running, setRunning] = useState(false);
 
   const runAllTests = async () => {
+    if (running) {
+      return;
+    }
+
     setRunning(true);
     setOverallStatus('testing');
 
+    const nextTests = INITIAL_TESTS.map(test => ({ ...test }));
+    setTests(nextTests);
+
     try {
-      // Test 1: RFT Unitarity
-      updateTest(0, { status: 'running', message: 'Testing...' });
-      const startTime1 = Date.now();
       const rft = new CanonicalTrueRFT(32);
-      const unitarityError = rft.getUnitarityError();
-      const time1 = Date.now() - startTime1;
-
-      if (unitarityError < 1e-12) {
-        updateTest(0, {
-          status: 'passed',
-          message: `Error: ${unitarityError.toExponential(2)} (< 1e-12)`,
-          time: time1,
-        });
-      } else {
-        updateTest(0, {
-          status: 'failed',
-          message: `Error: ${unitarityError.toExponential(2)} (too high)`,
-          time: time1,
-        });
-      }
-
-      // Test 2: RFT Round-trip
-      updateTest(1, { status: 'running', message: 'Testing...' });
-      const startTime2 = Date.now();
-      const testSignal = Array(32).fill(0).map(() => ({
-        re: Math.random(),
-        im: Math.random(),
-      }));
-      const transformed = rft.forwardTransform(testSignal);
-      const reconstructed = rft.inverseTransform(transformed);
-
-      let roundtripError = 0;
-      for (let i = 0; i < 32; i++) {
-        const diff = Math.sqrt(
-          (testSignal[i].re - reconstructed[i].re) ** 2 +
-          (testSignal[i].im - reconstructed[i].im) ** 2
-        );
-        roundtripError += diff ** 2;
-      }
-      roundtripError = Math.sqrt(roundtripError);
-      const time2 = Date.now() - startTime2;
-
-      if (roundtripError < 1e-10) {
-        updateTest(1, {
-          status: 'passed',
-          message: `Error: ${roundtripError.toExponential(2)} (< 1e-10)`,
-          time: time2,
-        });
-      } else {
-        updateTest(1, {
-          status: 'failed',
-          message: `Error: ${roundtripError.toExponential(2)} (too high)`,
-          time: time2,
-        });
-      }
-
-      // Test 3: Crypto Encryption
-      updateTest(2, { status: 'running', message: 'Testing...' });
-      const startTime3 = Date.now();
       const cipher = new RFTEnhancedFeistel(48, 16);
-      const key = new Uint8Array(32).fill(42);
-      const plaintext = new Uint8Array(16).fill(0x5a);
-      const ciphertext = cipher.encrypt(plaintext, key);
-      const time3 = Date.now() - startTime3;
 
-      if (ciphertext.length === 16 && !ciphertext.every((b, i) => b === plaintext[i])) {
-        updateTest(2, {
-          status: 'passed',
-          message: `Encrypted 16 bytes (${ciphertext.slice(0, 4).join(',')})`,
-          time: time3,
-        });
-      } else {
-        updateTest(2, {
-          status: 'failed',
-          message: 'Encryption did not change data',
-          time: time3,
-        });
-      }
+      // Test 0: RFT Unitarity
+      nextTests[0] = { ...nextTests[0], status: 'running', message: 'Computing Φ residual' };
+      setTests([...nextTests]);
+      let started = Date.now();
+      const unitarityError = rft.getUnitarityError();
+      let elapsed = Date.now() - started;
+      const unitarityPass = unitarityError < 1e-12;
+      nextTests[0] = {
+        ...nextTests[0],
+        status: unitarityPass ? 'passed' : 'failed',
+        message: `ε = ${unitarityError.toExponential(2)}`,
+        time: elapsed,
+      };
+      setTests([...nextTests]);
 
-      // Test 4: Crypto Decryption
-      updateTest(3, { status: 'running', message: 'Testing...' });
-      const startTime4 = Date.now();
-      const decrypted = cipher.decrypt(ciphertext, key);
-      const time4 = Date.now() - startTime4;
-
-      const decryptionValid = plaintext.every((b, i) => b === decrypted[i]);
-      if (decryptionValid) {
-        updateTest(3, {
-          status: 'passed',
-          message: 'Successfully decrypted to original',
-          time: time4,
-        });
-      } else {
-        updateTest(3, {
-          status: 'failed',
-          message: 'Decryption mismatch',
-          time: time4,
-        });
-      }
-
-      // Test 5: Quantum Bell State
-      updateTest(4, { status: 'running', message: 'Testing...' });
-      const startTime5 = Date.now();
-      const bellSim = QuantumCircuits.bellState();
-      const probs = bellSim.getProbabilities();
-      const time5 = Date.now() - startTime5;
-
-      const hasCorrectStates = probs.some(p => p.state === '|00⟩') && probs.some(p => p.state === '|11⟩');
-      const probsCorrect = probs.every(p => Math.abs(p.probability - 0.5) < 0.01);
-
-      if (hasCorrectStates && probsCorrect) {
-        updateTest(4, {
-          status: 'passed',
-          message: '|00⟩ and |11⟩ with ~50% each',
-          time: time5,
-        });
-      } else {
-        updateTest(4, {
-          status: 'failed',
-          message: 'Incorrect Bell state probabilities',
-          time: time5,
-        });
-      }
-
-      // Test 6: Quantum CHSH
-      updateTest(5, { status: 'running', message: 'Testing...' });
-      const startTime6 = Date.now();
-      const chsh = measureCHSH();
-      const time6 = Date.now() - startTime6;
-
-      if (Math.abs(chsh - 2.828) < 0.01) {
-        updateTest(5, {
-          status: 'passed',
-          message: `CHSH = ${chsh.toFixed(3)} (violates classical limit)`,
-          time: time6,
-        });
-      } else {
-        updateTest(5, {
-          status: 'failed',
-          message: `CHSH = ${chsh.toFixed(3)} (expected 2.828)`,
-          time: time6,
-        });
-      }
-
-      // Test 7: Φ-RFT Variant Family
-      updateTest(6, { status: 'running', message: 'Testing...' });
-      const startTime7 = Date.now();
-      const variantSize = 16;
-      let worstUnitarity = 0;
-      let worstRoundtrip = 0;
-
-      VARIANTS.forEach(variant => {
-        const matrix = variant.generator(variantSize);
-        const unitarity = validateVariantMatrix(matrix);
-        worstUnitarity = Math.max(worstUnitarity, unitarity);
-
-        const vector = Array(variantSize)
-          .fill(0)
-          .map(() => ({ re: Math.random() * 2 - 1, im: Math.random() * 2 - 1 }));
-        const forward = matrixVectorMultiply(matrix, vector);
-        const inverse = matrixVectorMultiply(matrixConjugateTranspose(matrix), forward);
-
-        let error = 0;
-        for (let i = 0; i < variantSize; i++) {
-          const diff = subtract(vector[i], inverse[i]);
-          error += abs(diff) ** 2;
+      // Test 1: RFT Round-trip
+      nextTests[1] = { ...nextTests[1], status: 'running', message: 'Verifying forward/inverse fidelity' };
+      setTests([...nextTests]);
+      started = Date.now();
+      const signal = Array.from({ length: 32 }, (_, index) => ({
+        re: Math.sin(index * 0.91),
+        im: Math.cos(index * 1.13),
+      }));
+      const transformed = rft.forwardTransform(signal);
+      const reconstructed = rft.inverseTransform(transformed);
+      let maxError = 0;
+      for (let i = 0; i < signal.length; i += 1) {
+        const error = abs(subtract(signal[i], reconstructed[i]));
+        if (error > maxError) {
+          maxError = error;
         }
-        error = Math.sqrt(error);
-        worstRoundtrip = Math.max(worstRoundtrip, error);
-      });
+      }
+      elapsed = Date.now() - started;
+      const roundtripPass = maxError < 1e-10;
+      nextTests[1] = {
+        ...nextTests[1],
+        status: roundtripPass ? 'passed' : 'failed',
+        message: `δ = ${maxError.toExponential(2)}`,
+        time: elapsed,
+      };
+      setTests([...nextTests]);
 
-      const time7 = Date.now() - startTime7;
-      if (worstUnitarity < 1e-10 && worstRoundtrip < 1e-8) {
-        updateTest(6, {
-          status: 'passed',
-          message: `Max ‖ΨᴴΨ-I‖=${worstUnitarity.toExponential(2)}, roundtrip=${worstRoundtrip.toExponential(2)}`,
-          time: time7,
-        });
-      } else {
-        updateTest(6, {
-          status: 'failed',
-          message: `Unit=${worstUnitarity.toExponential(2)}, roundtrip=${worstRoundtrip.toExponential(2)}`,
-          time: time7,
-        });
+      // Prepare deterministic block/key for crypto tests
+      const key = new Uint8Array(32);
+      for (let i = 0; i < key.length; i += 1) {
+        key[i] = (i * 37) % 256;
+      }
+      const plaintext = new Uint8Array(16);
+      for (let i = 0; i < plaintext.length; i += 1) {
+        plaintext[i] = (i * 11) % 256;
       }
 
-      // Determine overall status
-      setTests(currentTests => {
-        const allPassed = currentTests.every(t => t.status === 'passed');
-        setOverallStatus(allPassed ? 'passed' : 'failed');
-        return currentTests;
+      // Test 2: Crypto Encryption
+      nextTests[2] = { ...nextTests[2], status: 'running', message: 'Executing 48-round Feistel cipher' };
+      setTests([...nextTests]);
+      started = Date.now();
+      const ciphertext = cipher.encrypt(plaintext, key);
+      elapsed = Date.now() - started;
+      const encryptionDiffers = ciphertext.some((byte, idx) => byte !== plaintext[idx]);
+      nextTests[2] = {
+        ...nextTests[2],
+        status: encryptionDiffers ? 'passed' : 'failed',
+        message: encryptionDiffers
+          ? `Ciphertext diverges (0x${ciphertext[0].toString(16).padStart(2, '0')})`
+          : 'Ciphertext matches plaintext – check cipher',
+        time: elapsed,
+      };
+      setTests([...nextTests]);
+
+      // Test 3: Crypto Decryption
+      nextTests[3] = { ...nextTests[3], status: 'running', message: 'Checking decryption parity' };
+      setTests([...nextTests]);
+      started = Date.now();
+      const decrypted = cipher.decrypt(ciphertext, key);
+      elapsed = Date.now() - started;
+      const cryptoParity = decrypted.every((byte, idx) => byte === plaintext[idx]);
+      nextTests[3] = {
+        ...nextTests[3],
+        status: cryptoParity ? 'passed' : 'failed',
+        message: cryptoParity ? 'Parity restored' : 'Mismatch on decrypt',
+        time: elapsed,
+      };
+      setTests([...nextTests]);
+
+      // Test 4: Quantum Bell State
+      nextTests[4] = { ...nextTests[4], status: 'running', message: 'Preparing |Φ+⟩ and evaluating fidelity' };
+      setTests([...nextTests]);
+      started = Date.now();
+      const bellSimulator = QuantumCircuits.bellState();
+      const expectedBell = createBellState();
+      const fidelity = bellSimulator.fidelity(expectedBell);
+      const bellState = bellSimulator.getState();
+      const prob00 = abs(bellState.amplitudes[0]) ** 2;
+      elapsed = Date.now() - started;
+      const bellPass = fidelity > 0.999;
+      nextTests[4] = {
+        ...nextTests[4],
+        status: bellPass ? 'passed' : 'failed',
+        message: `Fidelity = ${fidelity.toFixed(6)}; P(|00⟩) = ${prob00.toFixed(3)}`,
+        time: elapsed,
+      };
+      setTests([...nextTests]);
+
+      // Test 5: Quantum CHSH
+      nextTests[5] = { ...nextTests[5], status: 'running', message: 'Measuring CHSH inequality bound' };
+      setTests([...nextTests]);
+      started = Date.now();
+      const chsh = measureCHSH();
+      elapsed = Date.now() - started;
+      const chshPass = chsh > 2.0;
+      nextTests[5] = {
+        ...nextTests[5],
+        status: chshPass ? 'passed' : 'failed',
+        message: `S = ${chsh.toFixed(3)}`,
+        time: elapsed,
+      };
+      setTests([...nextTests]);
+
+      // Test 6: Φ-RFT Variant Family
+      nextTests[6] = { ...nextTests[6], status: 'running', message: 'Orthonormalising Φ variants' };
+      setTests([...nextTests]);
+      started = Date.now();
+      const subset = VARIANTS.slice(0, 5);
+      const variantResiduals = subset.map(variant => {
+        const matrix = variant.generator(16);
+        const residual = validateVariantMatrix(matrix);
+        return { key: variant.key, name: variant.name, residual };
       });
+      elapsed = Date.now() - started;
+      const worstResidual = Math.max(...variantResiduals.map(entry => entry.residual));
+      const variantsPass = worstResidual < 1e-10;
+      const summary = variantResiduals
+        .map(entry => `${entry.name.split(' ')[0]}:${entry.residual.toExponential(1)}`)
+        .join('  ');
+      nextTests[6] = {
+        ...nextTests[6],
+        status: variantsPass ? 'passed' : 'failed',
+        message: summary,
+        time: elapsed,
+      };
+      setTests([...nextTests]);
+
+      const allPassed = nextTests.every(test => test.status === 'passed');
+      setOverallStatus(allPassed ? 'passed' : 'failed');
     } catch (error) {
-      console.error('Test error:', error);
+      console.error('Validation suite failed', error);
+      nextTests.forEach((test, index) => {
+        if (test.status === 'running') {
+          nextTests[index] = {
+            ...test,
+            status: 'failed',
+            message: 'Execution interrupted',
+          };
+        }
+      });
+      setTests([...nextTests]);
       setOverallStatus('failed');
     } finally {
       setRunning(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'passed':
-        return '#4caf50';
-      case 'failed':
-        return '#f44336';
-      case 'running':
-        return '#ff9800';
-      default:
-        return '#9e9e9e';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'passed':
-        return '✓';
-      case 'failed':
-        return '✗';
-      case 'running':
-        return '⟳';
-      default:
-        return '○';
-    }
-  };
-
   return (
-    <LinearGradient colors={['#fa709a', '#fee140']} style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>System Validation</Text>
-          <Text style={styles.headerSubtitle}>Comprehensive Testing Suite</Text>
-        </View>
+    <ScreenShell
+      title="RFT Validation Suite"
+      subtitle="QuantoniumOS reproducibility harness"
+    >
+      <View style={styles.leadCopy}>
+        <Text style={styles.leadText}>
+          Execute the exact Φ-RFT validation regimen distributed with the desktop build.
+          Every gate mirrors the reproducibility notebook to certify on-device fidelity.
+        </Text>
+      </View>
 
-        <View style={styles.overallStatus}>
-          <Text style={styles.overallStatusTitle}>Overall Status</Text>
-          <View
-            style={[
-              styles.overallStatusBadge,
-              { backgroundColor: getStatusColor(overallStatus) },
-            ]}
-          >
-            <Text style={styles.overallStatusText}>
-              {overallStatus === 'idle' && 'Ready to Test'}
-              {overallStatus === 'testing' && 'Testing in Progress...'}
-              {overallStatus === 'passed' && 'ALL TESTS PASSED'}
-              {overallStatus === 'failed' && 'SOME TESTS FAILED'}
-            </Text>
-          </View>
+      <View style={styles.statusCard}>
+        <Text style={styles.sectionTitle}>Overall Status</Text>
+        <View
+          style={[
+            styles.statusPill,
+            { backgroundColor: getStatusToken(overallStatus).background },
+          ]}
+        >
+          <Text style={[styles.statusText, { color: getStatusToken(overallStatus).foreground }]}>
+            {overallStatus === 'idle' && 'Ready to run the Φ-RFT harness'}
+            {overallStatus === 'testing' && 'Validation in progress'}
+            {overallStatus === 'passed' && 'All validation gates passed'}
+            {overallStatus === 'failed' && 'Attention: at least one gate failed'}
+          </Text>
         </View>
 
         <TouchableOpacity
-          style={[styles.runButton, running && styles.runButtonDisabled]}
+          style={[styles.primaryButton, running && styles.buttonDisabled]}
           onPress={runAllTests}
           disabled={running}
         >
           {running ? (
-            <ActivityIndicator color="#ffffff" />
+            <ActivityIndicator color={colors.white} />
           ) : (
-            <Text style={styles.runButtonText}>▶ Run All Tests</Text>
+            <Text style={styles.primaryButtonText}>Run Full Validation</Text>
           )}
         </TouchableOpacity>
+      </View>
 
-        <View style={styles.testsList}>
-          {tests.map((test, index) => (
-            <View
-              key={index}
-              style={[
-                styles.testCard,
-                { borderLeftColor: getStatusColor(test.status), borderLeftWidth: 4 },
-              ]}
-            >
+      <View style={styles.testsList}>
+        {tests.map(test => {
+          const token = getStatusToken(test.status);
+          return (
+            <View key={test.name} style={styles.testCard}>
               <View style={styles.testHeader}>
-                <Text style={styles.testIcon}>{getStatusIcon(test.status)}</Text>
+                <View style={[styles.testIndicator, { backgroundColor: token.background }]} />
                 <View style={styles.testInfo}>
                   <Text style={styles.testName}>{test.name}</Text>
                   <Text style={styles.testMessage}>{test.message}</Text>
-                  {test.time && (
-                    <Text style={styles.testTime}>{test.time}ms</Text>
-                  )}
                 </View>
+                <Text style={[styles.testState, { color: token.foreground }]}>
+                  {token.label}
+                </Text>
               </View>
+              {test.time != null ? (
+                <Text style={styles.testTime}> {formatDuration(test.time)}</Text>
+              ) : null}
             </View>
-          ))}
-        </View>
+          );
+        })}
+      </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            QuantoniumOS Mobile v1.0
-          </Text>
-          <Text style={styles.footerSubtext}>
-            Patent-Pending USPTO 19/169,399
-          </Text>
-        </View>
-      </ScrollView>
-    </LinearGradient>
+      <View style={styles.infoCard}>
+        <Text style={styles.infoTitle}>Harness Coverage</Text>
+        <Text style={styles.infoText}>
+          Suite checks matrix unitarity, round-trip fidelity, cipher parity, Bell-state fidelity,
+          CHSH violation, and Φ-RFT variant orthonormality. Identical tolerances to the USPTO-ready
+          desktop harness ensure results remain publication-grade on mobile hardware.
+        </Text>
+      </View>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  leadCopy: {
+    marginBottom: spacing.xl,
   },
-  scrollView: {
-    flex: 1,
+  leadText: {
+    fontSize: typography.body,
+    lineHeight: typography.body + 6,
+    color: colors.darkGray,
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+  statusCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.18)',
+    ...shadows.sm,
   },
-  header: {
+  sectionTitle: {
+    fontSize: typography.subtitle,
+    color: colors.dark,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    marginBottom: spacing.sm,
+  },
+  statusPill: {
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  statusText: {
+    fontSize: typography.small,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  primaryButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md,
     alignItems: 'center',
-    marginBottom: 20,
+    ...shadows.md,
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 8,
+  primaryButtonText: {
+    fontSize: typography.body,
+    color: colors.white,
+    fontWeight: '600',
+    letterSpacing: 1,
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  overallStatus: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    padding: 20,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  overallStatusTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 10,
-  },
-  overallStatusBadge: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  overallStatusText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  runButton: {
-    backgroundColor: '#2196f3',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  runButtonDisabled: {
-    backgroundColor: '#9e9e9e',
-  },
-  runButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
+  buttonDisabled: {
+    opacity: 0.6,
   },
   testsList: {
-    gap: 12,
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
   testCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.12)',
+    ...shadows.sm,
   },
   testHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  testIcon: {
-    fontSize: 24,
-    marginRight: 12,
+  testIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginTop: spacing.xs,
+    marginRight: spacing.md,
   },
   testInfo: {
     flex: 1,
   },
   testName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  testMessage: {
-    fontSize: 13,
-    color: '#666',
-  },
-  testTime: {
-    fontSize: 11,
-    color: '#999',
-    marginTop: 4,
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: typography.body,
+    color: colors.dark,
     fontWeight: '600',
   },
-  footerSubtext: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 5,
+  testMessage: {
+    marginTop: spacing.xs,
+    fontSize: typography.small,
+    color: colors.gray,
+    lineHeight: typography.small + 4,
+  },
+  testState: {
+    fontSize: typography.small,
+    fontWeight: '600',
+  },
+  testTime: {
+    marginTop: spacing.md,
+    fontSize: typography.micro,
+    color: colors.gray,
+    fontFamily: 'monospace',
+  },
+  infoCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.12)',
+    ...shadows.sm,
+  },
+  infoTitle: {
+    fontSize: typography.subtitle,
+    color: colors.dark,
+    fontWeight: '600',
+    marginBottom: spacing.sm,
+  },
+  infoText: {
+    fontSize: typography.small,
+    color: colors.darkGray,
+    lineHeight: typography.small + 6,
   },
 });

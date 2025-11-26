@@ -138,7 +138,7 @@ export default function LauncherScreen({ navigation }: Props) {
       <View style={styles.footer}>
         <Text style={styles.brandingText}>QUANTONIUMOS</Text>
         <Text style={styles.footerSubtext}>
-          🚀 Symbolic Quantum-Inspired Computing
+          Symbolic Quantum-Inspired Computing
         </Text>
         <Text style={styles.patentText}>
           USPTO 19/169,399

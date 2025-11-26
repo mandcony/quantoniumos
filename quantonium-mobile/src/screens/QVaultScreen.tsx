@@ -10,12 +10,21 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  ScrollView,
   Alert,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
-import { RFTEnhancedFeistel, CryptoUtils } from '../algorithms/crypto/CryptoPrimitives';
+import ScreenShell from '../components/ScreenShell';
+import {
+  RFTEnhancedFeistel,
+  CryptoUtils,
+} from '../algorithms/crypto/CryptoPrimitives';
+import {
+  borderRadius,
+  colors,
+  shadows,
+  spacing,
+  typography,
+} from '../constants/DesignSystem';
 
 interface VaultItem {
   id: string;
@@ -187,275 +196,321 @@ export default function QVaultScreen() {
   };
 
   return (
-    <LinearGradient colors={['#667eea', '#764ba2']} style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Q-Vault</Text>
-          <Text style={styles.headerSubtitle}>
-            48-Round RFT-Enhanced Feistel Encryption
+    <ScreenShell
+      title="Q-Vault"
+      subtitle="48-round Φ-RFT Feistel quantum secure enclave"
+    >
+      <View style={styles.leadCopy}>
+        <Text style={styles.leadText}>
+          Secure sensitive research artifacts with the same Φ-RFT Feistel core
+          powering the QuantoniumOS desktop vault. Entries are encrypted on-device
+          before storage and only decrypted momentarily when you review them.
+        </Text>
+      </View>
+
+      <View style={styles.statusCard}>
+        <Text style={styles.statusLabel}>Stored Entries</Text>
+        <Text style={styles.statusValue}>{items.length.toString().padStart(2, '0')}</Text>
+        <Text style={styles.statusCaption}>
+          Cipher Suite · Φ-RFT Feistel · 48 rounds · 256-bit master key
+        </Text>
+      </View>
+
+      {!showAddForm ? (
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => setShowAddForm(true)}
+        >
+          <Text style={styles.primaryButtonText}>Add Secure Item</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.formCard}>
+          <Text style={styles.sectionTitle}>New Secure Item</Text>
+          <Text style={styles.sectionSubtitle}>
+            Title and notes are encrypted locally using the Φ-RFT vault cipher.
           </Text>
-          <View style={styles.statusBadge}>
-            <Text style={styles.statusText}>
-              🔐 {items.length} items secured
+
+          <TextInput
+            style={styles.input}
+            placeholder="Title"
+            placeholderTextColor={colors.gray}
+            value={newTitle}
+            onChangeText={setNewTitle}
+          />
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Content (encrypted before storage)"
+            placeholderTextColor={colors.gray}
+            value={newContent}
+            onChangeText={setNewContent}
+            multiline
+          />
+
+          <View style={styles.formActions}>
+            <TouchableOpacity
+              style={[styles.secondaryButton, styles.cancelButton]}
+              onPress={() => {
+                setShowAddForm(false);
+                setNewTitle('');
+                setNewContent('');
+              }}
+            >
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.secondaryButton, styles.saveButton]}
+              onPress={addItem}
+            >
+              <Text style={styles.saveButtonText}>Encrypt & Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      <View>
+        <Text style={styles.sectionTitle}>Vault Contents</Text>
+        <Text style={styles.sectionSubtitle}>
+          Items remain opaque at rest; only decrypted within the secure session
+          preview.
+        </Text>
+
+        {items.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyGlyph}>�</Text>
+            <Text style={styles.emptyTitle}>No encrypted entries yet</Text>
+            <Text style={styles.emptySubtitle}>
+              Add research notes or credentials to seed the Φ-RFT vault.
             </Text>
           </View>
-        </View>
-
-        {!showAddForm ? (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setShowAddForm(true)}
-          >
-            <Text style={styles.addButtonText}>+ Add Secure Item</Text>
-          </TouchableOpacity>
         ) : (
-          <View style={styles.form}>
-            <Text style={styles.formTitle}>New Secure Item</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Title"
-              placeholderTextColor="#aaa"
-              value={newTitle}
-              onChangeText={setNewTitle}
-            />
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Content (will be encrypted)"
-              placeholderTextColor="#aaa"
-              value={newContent}
-              onChangeText={setNewContent}
-              multiline
-              numberOfLines={4}
-            />
-            <View style={styles.formButtons}>
-              <TouchableOpacity
-                style={[styles.formButton, styles.cancelButton]}
-                onPress={() => {
-                  setShowAddForm(false);
-                  setNewTitle('');
-                  setNewContent('');
-                }}
-              >
-                <Text style={styles.formButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.formButton, styles.saveButton]}
-                onPress={addItem}
-              >
-                <Text style={styles.formButtonText}>Encrypt & Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        <View style={styles.itemsList}>
-          {items.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>🔒</Text>
-              <Text style={styles.emptyText}>Your vault is empty</Text>
-              <Text style={styles.emptySubtext}>
-                Add items to store them with quantum-resistant encryption
-              </Text>
-            </View>
-          ) : (
-            items.map((item) => (
-              <View key={item.id} style={styles.item}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle}>{item.title}</Text>
-                  <Text style={styles.itemDate}>
-                    {new Date(item.timestamp).toLocaleDateString()}
-                  </Text>
-                </View>
-                <Text style={styles.itemPreview}>
-                  [Encrypted • {item.content.length} bytes]
+          items.map(item => (
+            <View key={item.id} style={styles.itemCard}>
+              <View style={styles.itemHeader}>
+                <Text style={styles.itemTitle}>{item.title}</Text>
+                <Text style={styles.itemMeta}>
+                  {new Date(item.timestamp).toLocaleDateString()}
                 </Text>
-                <View style={styles.itemActions}>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.viewButton]}
-                    onPress={() => viewItem(item)}
-                  >
-                    <Text style={styles.actionButtonText}>👁️ View</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.deleteButton]}
-                    onPress={() => deleteItem(item.id)}
-                  >
-                    <Text style={styles.actionButtonText}>🗑️ Delete</Text>
-                  </TouchableOpacity>
-                </View>
               </View>
-            ))
-          )}
-        </View>
-      </ScrollView>
-    </LinearGradient>
+              <Text style={styles.itemCipherLine}>
+                [Encrypted • {item.content.length} bytes]
+              </Text>
+              <View style={styles.itemActions}>
+                <TouchableOpacity
+                  style={[styles.inlineButton, styles.viewAction]}
+                  onPress={() => viewItem(item)}
+                >
+                  <Text style={styles.inlineButtonText}>Preview Decrypted</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.inlineButton, styles.deleteAction]}
+                  onPress={() => deleteItem(item.id)}
+                >
+                  <Text style={styles.inlineButtonText}>Delete Entry</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
+        )}
+      </View>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  leadCopy: {
+    marginBottom: spacing.xl,
   },
-  scrollView: {
-    flex: 1,
+  leadText: {
+    fontSize: typography.body,
+    lineHeight: typography.body + 6,
+    color: colors.darkGray,
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+  statusCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.2)',
+    ...shadows.md,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
+  statusLabel: {
+    fontSize: typography.small,
+    color: colors.gray,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
   },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  statusBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  statusText: {
-    color: '#ffffff',
-    fontSize: 14,
+  statusValue: {
+    fontSize: typography.hero,
+    color: colors.primary,
     fontWeight: '600',
+    marginTop: spacing.sm,
   },
-  addButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    padding: 15,
-    borderRadius: 12,
+  statusCaption: {
+    marginTop: spacing.sm,
+    fontSize: typography.small,
+    color: colors.darkGray,
+  },
+  primaryButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.xl,
+    ...shadows.md,
   },
-  addButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  primaryButtonText: {
+    color: colors.white,
+    fontSize: typography.body,
+    fontWeight: '600',
+    letterSpacing: 1,
   },
-  form: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 20,
+  formCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.15)',
+    ...shadows.sm,
   },
-  formTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 15,
+  sectionTitle: {
+    fontSize: typography.subtitle,
+    color: colors.dark,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+  },
+  sectionSubtitle: {
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    fontSize: typography.small,
+    color: colors.gray,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-    fontSize: 16,
-    color: '#333',
+    backgroundColor: colors.offWhite,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: typography.body,
+    color: colors.dark,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.25)',
+    marginBottom: spacing.md,
   },
   textArea: {
-    height: 100,
+    minHeight: 120,
     textAlignVertical: 'top',
   },
-  formButtons: {
+  formActions: {
     flexDirection: 'row',
-    gap: 10,
+    justifyContent: 'flex-end',
+    marginTop: spacing.md,
   },
-  formButton: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
+  secondaryButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+    marginLeft: spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.3)',
   },
   cancelButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: colors.white,
   },
   saveButton: {
-    backgroundColor: '#4caf50',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
-  formButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
+  secondaryButtonText: {
+    fontSize: typography.small,
+    color: colors.dark,
     fontWeight: '600',
   },
-  itemsList: {
-    gap: 15,
+  saveButtonText: {
+    fontSize: typography.small,
+    color: colors.white,
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: spacing.xxl,
+    borderRadius: borderRadius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.15)',
+    backgroundColor: colors.surfaceElevated,
+    marginTop: spacing.lg,
+    ...shadows.sm,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 20,
+  emptyGlyph: {
+    fontSize: typography.hero,
+    marginBottom: spacing.md,
   },
-  emptyText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 10,
+  emptyTitle: {
+    fontSize: typography.subtitle,
+    color: colors.dark,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
   },
-  emptySubtext: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
+  emptySubtitle: {
+    fontSize: typography.small,
+    color: colors.gray,
     textAlign: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: spacing.lg,
   },
-  item: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    padding: 15,
-    borderRadius: 12,
+  itemCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginTop: spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.18)',
+    ...shadows.sm,
   },
   itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'flex-end',
+    marginBottom: spacing.sm,
   },
   itemTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontSize: typography.body,
+    color: colors.dark,
+    fontWeight: '600',
     flex: 1,
+    marginRight: spacing.sm,
   },
-  itemDate: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
+  itemMeta: {
+    fontSize: typography.small,
+    color: colors.gray,
   },
-  itemPreview: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginBottom: 12,
+  itemCipherLine: {
+    fontSize: typography.small,
+    color: colors.darkGray,
     fontStyle: 'italic',
+    marginBottom: spacing.md,
   },
   itemActions: {
     flexDirection: 'row',
-    gap: 10,
+    justifyContent: 'flex-end',
   },
-  actionButton: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 8,
-    alignItems: 'center',
+  inlineButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+    marginLeft: spacing.sm,
+    borderWidth: 1,
   },
-  viewButton: {
-    backgroundColor: 'rgba(100, 200, 255, 0.5)',
+  viewAction: {
+    borderColor: 'rgba(52, 152, 219, 0.3)',
+    backgroundColor: colors.white,
   },
-  deleteButton: {
-    backgroundColor: 'rgba(255, 100, 100, 0.5)',
+  deleteAction: {
+    borderColor: 'rgba(231, 76, 60, 0.3)',
+    backgroundColor: colors.white,
   },
-  actionButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
+  inlineButtonText: {
+    fontSize: typography.small,
+    color: colors.dark,
     fontWeight: '600',
   },
 });

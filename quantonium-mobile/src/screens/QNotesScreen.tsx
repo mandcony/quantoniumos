@@ -9,11 +9,17 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  ScrollView,
   Alert,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as SecureStore from 'expo-secure-store';
+import ScreenShell from '../components/ScreenShell';
+import {
+  borderRadius,
+  colors as dsColors,
+  shadows,
+  spacing,
+  typography,
+} from '../constants/DesignSystem';
 
 interface Note {
   id: string;
@@ -23,7 +29,7 @@ interface Note {
   color: string;
 }
 
-const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#a29bfe'];
+const NOTE_STORAGE_KEY = 'qnotes_data';
 
 export default function QNotesScreen() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -38,7 +44,7 @@ export default function QNotesScreen() {
 
   const loadNotes = async () => {
     try {
-      const notesJson = await SecureStore.getItemAsync('qnotes_data');
+      const notesJson = await SecureStore.getItemAsync(NOTE_STORAGE_KEY);
       if (notesJson) {
         setNotes(JSON.parse(notesJson));
       }
@@ -49,7 +55,7 @@ export default function QNotesScreen() {
 
   const saveNotes = async (newNotes: Note[]) => {
     try {
-      await SecureStore.setItemAsync('qnotes_data', JSON.stringify(newNotes));
+      await SecureStore.setItemAsync(NOTE_STORAGE_KEY, JSON.stringify(newNotes));
       setNotes(newNotes);
     } catch (error) {
       console.error('Failed to save notes:', error);
@@ -92,7 +98,7 @@ export default function QNotesScreen() {
         title,
         content,
         timestamp: Date.now(),
-        color: colors[Math.floor(Math.random() * colors.length)],
+        color: dsColors.primaryLight,
       };
       saveNotes([...notes, newNote]);
     }
@@ -117,29 +123,47 @@ export default function QNotesScreen() {
     ]);
   };
 
-  if (showEditor) {
-    return (
-      <LinearGradient colors={['#f093fb', '#f5576c']} style={styles.container}>
-        <View style={styles.editor}>
+  return (
+    <ScreenShell
+      title="Q-Notes"
+      subtitle="Encrypted research notebook aligned with Φ-RFT design"
+    >
+      <View style={styles.leadCopy}>
+        <Text style={styles.leadText}>
+          Draft experiments, patent notes, and system memos inside the QuantoniumOS
+          notebook. Entries remain on-device and inherit the Φ-RFT vault
+          encryption layer.
+        </Text>
+      </View>
+
+      {showEditor ? (
+        <View style={styles.editorCard}>
+          <Text style={styles.sectionTitle}>
+            {currentNote ? 'Update Note' : 'Create Note'}
+          </Text>
+          <Text style={styles.sectionSubtitle}>
+            {currentNote
+              ? 'Edit the secured entry. Changes save into the Φ-RFT notebook ledger.'
+              : 'Compose a new encrypted entry. Upon save it is sealed with Φ-RFT crypto.'}
+          </Text>
           <TextInput
-            style={styles.titleInput}
-            placeholder="Note Title"
-            placeholderTextColor="#aaa"
+            style={styles.input}
+            placeholder="Note title"
+            placeholderTextColor={dsColors.gray}
             value={title}
             onChangeText={setTitle}
           />
           <TextInput
-            style={styles.contentInput}
-            placeholder="Write your note here..."
-            placeholderTextColor="#aaa"
+            style={[styles.input, styles.textArea]}
+            placeholder="Write your note..."
+            placeholderTextColor={dsColors.gray}
             value={content}
             onChangeText={setContent}
             multiline
-            textAlignVertical="top"
           />
-          <View style={styles.editorButtons}>
+          <View style={styles.editorActions}>
             <TouchableOpacity
-              style={[styles.editorButton, styles.cancelButton]}
+              style={[styles.secondaryButton, styles.cancelButton]}
               onPress={() => {
                 setShowEditor(false);
                 setTitle('');
@@ -147,189 +171,252 @@ export default function QNotesScreen() {
                 setCurrentNote(null);
               }}
             >
-              <Text style={styles.editorButtonText}>Cancel</Text>
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.editorButton, styles.saveButton]}
+              style={[styles.secondaryButton, styles.saveButton]}
               onPress={saveNote}
             >
-              <Text style={styles.editorButtonText}>Save Note</Text>
+              <Text style={styles.saveButtonText}>
+                {currentNote ? 'Save Changes' : 'Save Note'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
-      </LinearGradient>
-    );
-  }
-
-  return (
-    <LinearGradient colors={['#f093fb', '#f5576c']} style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Q-Notes</Text>
-          <Text style={styles.headerSubtitle}>Secure Note Taking</Text>
-        </View>
-
-        <TouchableOpacity style={styles.createButton} onPress={createNote}>
-          <Text style={styles.createButtonText}>+ Create New Note</Text>
+      ) : (
+        <TouchableOpacity style={styles.primaryButton} onPress={createNote}>
+          <Text style={styles.primaryButtonText}>Create New Note</Text>
         </TouchableOpacity>
+      )}
+
+      <View>
+        <Text style={styles.sectionTitle}>Notebook Entries</Text>
+        <Text style={styles.sectionSubtitle}>
+          {notes.length === 0
+            ? 'No encrypted notes yet. Start drafting to populate the ledger.'
+            : 'Tap a card to edit; hold to remove. Decryption happens only in-session.'}
+        </Text>
 
         {notes.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>📝</Text>
-            <Text style={styles.emptyText}>No notes yet</Text>
-            <Text style={styles.emptySubtext}>Create your first note to get started</Text>
+            <Text style={styles.emptyTitle}>Notebook is empty</Text>
+            <Text style={styles.emptySubtitle}>
+              Create a note to mirror the QuantoniumOS desktop research workspace.
+            </Text>
           </View>
         ) : (
-          <View style={styles.notesGrid}>
-            {notes.map(note => (
-              <TouchableOpacity
-                key={note.id}
-                style={[styles.noteCard, { backgroundColor: note.color }]}
-                onPress={() => editNote(note)}
-                onLongPress={() => deleteNote(note.id)}
-              >
-                <Text style={styles.noteTitle} numberOfLines={2}>
-                  {note.title}
-                </Text>
-                <Text style={styles.noteContent} numberOfLines={5}>
-                  {note.content}
-                </Text>
-                <Text style={styles.noteDate}>
-                  {new Date(note.timestamp).toLocaleDateString()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          notes.map(note => (
+            <View key={note.id} style={styles.noteCard}>
+              <View style={styles.noteHeader}>
+                <View style={styles.noteAccent} />
+                <View style={styles.noteHeadings}>
+                  <Text style={styles.noteTitle} numberOfLines={2}>
+                    {note.title}
+                  </Text>
+                  <Text style={styles.noteMeta}>
+                    {new Date(note.timestamp).toLocaleDateString()}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.notePreview} numberOfLines={5}>
+                {note.content || '—'}
+              </Text>
+              <View style={styles.noteActions}>
+                <TouchableOpacity
+                  style={[styles.inlineButton, styles.editAction]}
+                  onPress={() => editNote(note)}
+                >
+                  <Text style={styles.inlineButtonText}>Edit Entry</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.inlineButton, styles.deleteAction]}
+                  onPress={() => deleteNote(note.id)}
+                >
+                  <Text style={styles.inlineButtonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
         )}
-      </ScrollView>
-    </LinearGradient>
+      </View>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  leadCopy: {
+    marginBottom: spacing.xl,
   },
-  scrollView: {
-    flex: 1,
+  leadText: {
+    fontSize: typography.body,
+    lineHeight: typography.body + 6,
+    color: dsColors.darkGray,
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  header: {
+  primaryButton: {
+    backgroundColor: dsColors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.xl,
+    ...shadows.md,
   },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 8,
+  primaryButtonText: {
+    color: dsColors.white,
+    fontSize: typography.body,
+    fontWeight: '600',
+    letterSpacing: 1,
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
+  sectionTitle: {
+    fontSize: typography.subtitle,
+    color: dsColors.dark,
+    fontWeight: '600',
+    letterSpacing: 0.6,
   },
-  createButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 20,
+  sectionSubtitle: {
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    fontSize: typography.small,
+    color: dsColors.gray,
+    lineHeight: typography.small + 4,
   },
-  createButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  editorCard: {
+    backgroundColor: dsColors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.18)',
+    ...shadows.sm,
+  },
+  input: {
+    backgroundColor: dsColors.offWhite,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: typography.body,
+    color: dsColors.dark,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.25)',
+    marginBottom: spacing.md,
+  },
+  textArea: {
+    minHeight: 140,
+    textAlignVertical: 'top',
+  },
+  editorActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: spacing.md,
+  },
+  secondaryButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.28)',
+    marginLeft: spacing.sm,
+  },
+  cancelButton: {
+    backgroundColor: dsColors.white,
+  },
+  saveButton: {
+    backgroundColor: dsColors.primary,
+    borderColor: dsColors.primary,
+  },
+  secondaryButtonText: {
+    fontSize: typography.small,
+    color: dsColors.dark,
+    fontWeight: '600',
+  },
+  saveButtonText: {
+    fontSize: typography.small,
+    color: dsColors.white,
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: spacing.xxl,
+    borderRadius: borderRadius.xl,
+    backgroundColor: dsColors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.15)',
+    ...shadows.sm,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 20,
+  emptyTitle: {
+    fontSize: typography.subtitle,
+    color: dsColors.dark,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
   },
-  emptyText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 10,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  notesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 15,
+  emptySubtitle: {
+    fontSize: typography.small,
+    color: dsColors.gray,
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
+    lineHeight: typography.small + 4,
   },
   noteCard: {
-    width: '47%',
-    minHeight: 150,
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
+    backgroundColor: dsColors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.15)',
+    ...shadows.sm,
+  },
+  noteHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  noteAccent: {
+    width: 6,
+    alignSelf: 'stretch',
+    borderRadius: borderRadius.sm,
+    backgroundColor: dsColors.primary,
+    marginRight: spacing.md,
+  },
+  noteHeadings: {
+    flex: 1,
   },
   noteTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 10,
+    fontSize: typography.body,
+    color: dsColors.dark,
+    fontWeight: '600',
   },
-  noteContent: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.9)',
-    flex: 1,
+  noteMeta: {
+    marginTop: spacing.xs,
+    fontSize: typography.small,
+    color: dsColors.gray,
   },
-  noteDate: {
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 10,
+  notePreview: {
+    fontSize: typography.small,
+    color: dsColors.darkGray,
+    lineHeight: typography.small + 6,
+    marginBottom: spacing.md,
   },
-  editor: {
-    flex: 1,
-    padding: 20,
-  },
-  titleInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: 15,
-    borderRadius: 8,
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#333',
-  },
-  contentInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: 15,
-    borderRadius: 8,
-    fontSize: 16,
-    flex: 1,
-    marginBottom: 15,
-    color: '#333',
-  },
-  editorButtons: {
+  noteActions: {
     flexDirection: 'row',
-    gap: 10,
+    justifyContent: 'flex-end',
   },
-  editorButton: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
+  inlineButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    marginLeft: spacing.sm,
   },
-  cancelButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  inlineButtonText: {
+    fontSize: typography.small,
+    fontWeight: '600',
+    color: dsColors.dark,
   },
-  saveButton: {
-    backgroundColor: '#4caf50',
+  editAction: {
+    borderColor: 'rgba(52, 152, 219, 0.28)',
+    backgroundColor: dsColors.white,
   },
-  editorButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  deleteAction: {
+    borderColor: 'rgba(231, 76, 60, 0.28)',
+    backgroundColor: dsColors.white,
   },
 });

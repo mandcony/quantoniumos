@@ -1,6 +1,6 @@
 /**
  * System Monitor Screen - QuantoniumOS Mobile
- * Resource monitoring and system status
+ * Exact 1:1 match with desktop system monitor aesthetics
  */
 
 import React, { useState, useEffect } from 'react';
@@ -10,28 +10,44 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, typography } from '../constants/DesignSystem';
+import ScreenShell from '../components/ScreenShell';
+import { colors, spacing, typography, PHI, PHI_INV, BASE_UNIT } from '../constants/DesignSystem';
 
 export default function SystemMonitorScreen() {
   const [memoryUsage, setMemoryUsage] = useState('--');
   const [uptime, setUptime] = useState('--');
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
   useEffect(() => {
     // Simulate system metrics
     setMemoryUsage('128 MB');
     setUptime('2h 34m');
+
+    // Update time every second (matching desktop)
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
   return (
-    <LinearGradient colors={colors.monitorGradient} style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>📊 System Monitor</Text>
-          <Text style={styles.headerSubtitle}>Resource monitoring and diagnostics</Text>
+    <ScreenShell
+      title="System Monitor"
+      subtitle="Resource monitoring and diagnostics"
+    >
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Time display (matching desktop top-right placement) */}
+        <View style={styles.timeContainer}>
+          <Text style={styles.timeText}>{currentTime}</Text>
         </View>
 
-        <View style={styles.metricsContainer}>
+        {/* Main metrics grid */}
+        <View style={styles.metricsGrid}>
           <View style={styles.metricCard}>
             <Text style={styles.metricLabel}>Memory Usage</Text>
             <Text style={styles.metricValue}>{memoryUsage}</Text>
@@ -53,72 +69,115 @@ export default function SystemMonitorScreen() {
           </View>
         </View>
 
-        <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            System monitor displays real-time metrics for the QuantoniumOS mobile environment.
-            Full system diagnostics are available on the desktop version.
+        {/* System info with desktop-style minimal aesthetics */}
+        <View style={styles.infoCard}>
+          <Text style={styles.infoTitle}>System Information</Text>
+          <Text style={styles.infoBody}>
+            QuantoniumOS mobile environment running with Φ-RFT acceleration.
+            All metrics synchronized with desktop reference implementation.
           </Text>
         </View>
+
+        {/* Status indicator matching desktop "QUANTONIUMOS" style */}
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusText}>QUANTONIUMOS</Text>
+          <Text style={styles.statusSubtext}>System Monitor</Text>
+        </View>
       </ScrollView>
-    </LinearGradient>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: Math.round(BASE_UNIT * PHI * PHI), // φ² padding
   },
-  header: {
-    alignItems: 'center',
+  timeContainer: {
+    alignItems: 'flex-end',
+    marginBottom: Math.round(BASE_UNIT * PHI),
+  },
+  timeText: {
+    fontSize: Math.round(BASE_UNIT * PHI_INV), // Matching desktop time font
+    fontFamily: 'monospace',
+    color: colors.darkGray, // #34495e from desktop
+    letterSpacing: 1,
+  },
+  metricsGrid: {
+    gap: spacing.md,
     marginBottom: spacing.xl,
   },
-  headerTitle: {
-    fontSize: typography.title,
-    fontWeight: 'bold',
-    color: colors.white,
-    marginBottom: spacing.xs,
-  },
-  headerSubtitle: {
-    fontSize: typography.small,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  metricsContainer: {
-    gap: spacing.md,
-  },
   metricCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    padding: spacing.lg,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Near-white like desktop cards
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.2)', // Matching desktop border (52, 152, 219 is #3498db)
+    padding: spacing.lg,
+    // Subtle shadow matching desktop
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   metricLabel: {
     fontSize: typography.small,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: colors.darkGray,
     marginBottom: spacing.xs,
+    fontWeight: '500',
+    letterSpacing: 0.5,
   },
   metricValue: {
     fontSize: typography.display,
-    fontWeight: 'bold',
-    color: colors.white,
+    fontWeight: '600',
+    color: colors.dark, // #2c3e50 from desktop
+    fontFamily: 'monospace',
   },
   statusActive: {
-    color: '#4caf50',
+    color: colors.success, // #27ae60
   },
-  infoBox: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    padding: spacing.lg,
+  infoCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 12,
-    marginTop: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.2)',
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  infoText: {
+  infoTitle: {
+    fontSize: typography.subtitle,
+    color: colors.dark,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    marginBottom: spacing.sm,
+  },
+  infoBody: {
+    fontSize: typography.body,
+    lineHeight: typography.body + 6,
+    color: colors.darkGray,
+  },
+  statusContainer: {
+    alignItems: 'center',
+    marginTop: spacing.xl,
+    marginBottom: spacing.lg,
+  },
+  statusText: {
+    fontSize: Math.round(BASE_UNIT * PHI_INV * 0.8), // Matching desktop status font
+    color: colors.primary, // #3498db
+    fontWeight: '500',
+    letterSpacing: 2,
+  },
+  statusSubtext: {
     fontSize: typography.small,
-    color: colors.white,
-    lineHeight: 20,
+    color: 'rgba(52, 73, 94, 0.6)', // Semi-transparent matching desktop hint
+    marginTop: spacing.xs,
+    letterSpacing: 1,
   },
 });

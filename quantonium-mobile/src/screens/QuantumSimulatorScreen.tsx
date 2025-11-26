@@ -11,9 +11,21 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { QuantumSimulator, QuantumCircuits } from '../algorithms/quantum/QuantumSimulator';
-import { PauliGates, HadamardGate, TwoQubitGates, createBellState, measureCHSH } from '../algorithms/quantum/QuantumGates';
+import ScreenShell from '../components/ScreenShell';
+import { QuantumSimulator } from '../algorithms/quantum/QuantumSimulator';
+import {
+  PauliGates,
+  HadamardGate,
+  TwoQubitGates,
+  measureCHSH,
+} from '../algorithms/quantum/QuantumGates';
+import {
+  borderRadius,
+  colors,
+  shadows,
+  spacing,
+  typography,
+} from '../constants/DesignSystem';
 
 export default function QuantumSimulatorScreen() {
   const [simulator, setSimulator] = useState(() => new QuantumSimulator(2));
@@ -21,6 +33,15 @@ export default function QuantumSimulatorScreen() {
 
   const appendOutput = (text: string) => {
     setOutput(prev => prev + '\n\n' + text);
+  };
+
+  const showProbabilities = () => {
+    const probs = simulator.getProbabilities();
+    const lines = probs.map((p, i) => {
+      const binary = i.toString(2).padStart(2, '0');
+      return `|${binary}⟩: ${(p * 100).toFixed(2)}%`;
+    });
+    appendOutput('State probabilities:\n' + lines.join('\n'));
   };
 
   const applyHadamard = () => {
@@ -46,189 +67,190 @@ export default function QuantumSimulatorScreen() {
     newSim.applyGate(HadamardGate.H(), [0]);
     newSim.applyGate(TwoQubitGates.CNOT(), [0, 1]);
     setSimulator(newSim);
-    appendOutput('Created Bell State |Φ+⟩ = (|00⟩ + |11⟩)/√2');
-    const probs = newSim.getProbabilities();
-    const probStr = probs.map(p => `${p.state}: ${(p.probability * 100).toFixed(1)}%`).join('\n');
-    appendOutput('Probabilities:\n' + probStr);
-
-    const chsh = measureCHSH();
-    appendOutput(`CHSH value: ${chsh.toFixed(3)} (violates classical limit of 2.0)`);
+    appendOutput('Created Bell state |Φ+⟩ = (|00⟩ + |11⟩)/√2');
+    showProbabilities();
   };
 
   const measure = () => {
-    const result = simulator.measureAll();
-    appendOutput(`Measurement result: ${result.outcome} (probability: ${(result.probability * 100).toFixed(1)}%)`);
-  };
-
-  const showProbabilities = () => {
-    const probs = simulator.getProbabilities();
-    if (probs.length === 0) {
-      appendOutput('State collapsed after measurement');
-      return;
-    }
-    const probStr = probs.map(p => `${p.state}: ${(p.probability * 100).toFixed(1)}%`).join(', ');
-    appendOutput('Current probabilities: ' + probStr);
+    const result = simulator.measure();
+    const binary = result.toString(2).padStart(2, '0');
+    appendOutput(`Measured: |${binary}⟩`);
+    appendOutput('State collapsed. System reset to measured state.');
   };
 
   const reset = () => {
-    simulator.reset();
-    setOutput('Simulator reset to |00⟩ state');
+    const newSim = new QuantumSimulator(2);
+    setSimulator(newSim);
+    setOutput('Quantum Simulator reset to |00⟩ state');
   };
 
   return (
-    <LinearGradient colors={['#4facfe', '#00f2fe']} style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>⚛️ Quantum Simulator</Text>
-          <Text style={styles.headerSubtitle}>Classical Quantum Circuit Simulation</Text>
+    <ScreenShell
+      title="Quantum Simulator"
+      subtitle="Two-qubit Φ-RFT aligned classical emulator"
+    >
+      <View style={styles.leadCopy}>
+        <Text style={styles.leadText}>
+          Interact with the QuantoniumOS circuit sandbox. Apply gates, generate entangled
+          states, and inspect measurement probabilities using the same logic as the
+          desktop simulator.
+        </Text>
+      </View>
+
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>Single-Qubit Gates</Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.gateButton} onPress={applyHadamard}>
+            <Text style={styles.gateButtonSymbol}>H</Text>
+            <Text style={styles.gateButtonLabel}>Hadamard</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.gateButton} onPress={applyPauliX}>
+            <Text style={styles.gateButtonSymbol}>X</Text>
+            <Text style={styles.gateButtonLabel}>Pauli-X</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.controls}>
-          <Text style={styles.sectionTitle}>Single-Qubit Gates</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.gateButton} onPress={applyHadamard}>
-              <Text style={styles.gateButtonText}>H</Text>
-              <Text style={styles.gateLabel}>Hadamard</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.gateButton} onPress={applyPauliX}>
-              <Text style={styles.gateButtonText}>X</Text>
-              <Text style={styles.gateLabel}>Pauli-X</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.sectionTitle}>Two-Qubit Gates</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.gateButton} onPress={applyCNOT}>
-              <Text style={styles.gateButtonText}>CNOT</Text>
-              <Text style={styles.gateLabel}>Controlled-NOT</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.sectionTitle}>Pre-Built Circuits</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.gateButton, styles.specialButton]} onPress={createBell}>
-              <Text style={styles.gateButtonText}>Bell</Text>
-              <Text style={styles.gateLabel}>Entangled State</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.sectionTitle}>Operations</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.actionButton, styles.measureButton]} onPress={measure}>
-              <Text style={styles.actionButtonText}>📏 Measure</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionButton, styles.resetButton]} onPress={reset}>
-              <Text style={styles.actionButtonText}>🔄 Reset</Text>
-            </TouchableOpacity>
-          </View>
+        <Text style={styles.sectionTitle}>Two-Qubit Gates</Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.gateButton} onPress={applyCNOT}>
+            <Text style={styles.gateButtonSymbol}>CNOT</Text>
+            <Text style={styles.gateButtonLabel}>Controlled-NOT</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.output}>
-          <Text style={styles.outputTitle}>Simulation Output</Text>
-          <ScrollView style={styles.outputScroll} nestedScrollEnabled>
-            <Text style={styles.outputText}>{output}</Text>
-          </ScrollView>
+        <Text style={styles.sectionTitle}>Pre-Built Circuits</Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={[styles.gateButton, styles.highlightButton]} onPress={createBell}>
+            <Text style={styles.gateButtonSymbol}>Φ+</Text>
+            <Text style={styles.gateButtonLabel}>Bell Entanglement</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-    </LinearGradient>
+      </View>
+
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>Operations</Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={[styles.actionButton, styles.measureButton]} onPress={measure}>
+            <Text style={styles.actionButtonText}>Measure</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.actionButton, styles.resetButton]} onPress={reset}>
+            <Text style={styles.actionButtonText}>Reset</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.logCard}>
+        <Text style={styles.sectionTitle}>Simulation Output</Text>
+        <Text style={styles.sectionSubtitle}>Logs stream in chronological order.</Text>
+        <ScrollView style={styles.outputScroll} nestedScrollEnabled>
+          <Text style={styles.outputText}>{output}</Text>
+        </ScrollView>
+      </View>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  leadCopy: {
+    marginBottom: spacing.xl,
   },
-  scrollView: {
-    flex: 1,
+  leadText: {
+    fontSize: typography.body,
+    lineHeight: typography.body + 6,
+    color: colors.darkGray,
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  controls: {
-    marginBottom: 20,
+  sectionCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.18)',
+    ...shadows.sm,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginTop: 15,
-    marginBottom: 10,
+    fontSize: typography.subtitle,
+    color: colors.dark,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    marginBottom: spacing.sm,
+  },
+  sectionSubtitle: {
+    fontSize: typography.small,
+    color: colors.gray,
+    marginBottom: spacing.md,
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 10,
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
   },
   gateButton: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    padding: 15,
-    borderRadius: 12,
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.lg,
+    marginHorizontal: spacing.sm,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.2)',
+    ...shadows.sm,
   },
-  gateButtonText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 5,
+  gateButtonSymbol: {
+    fontSize: typography.title,
+    color: colors.primary,
+    fontWeight: '600',
+    letterSpacing: 1,
   },
-  gateLabel: {
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.8)',
+  gateButtonLabel: {
+    marginTop: spacing.xs,
+    fontSize: typography.small,
+    color: colors.gray,
   },
-  specialButton: {
-    backgroundColor: 'rgba(255, 215, 0, 0.3)',
+  highlightButton: {
+    backgroundColor: colors.offWhite,
+    borderColor: 'rgba(243, 196, 15, 0.45)',
   },
   actionButton: {
     flex: 1,
-    padding: 15,
-    borderRadius: 12,
+    paddingVertical: spacing.md,
+    marginHorizontal: spacing.sm,
     alignItems: 'center',
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
   },
   measureButton: {
-    backgroundColor: 'rgba(100, 200, 100, 0.5)',
+    backgroundColor: colors.white,
+    borderColor: 'rgba(46, 204, 113, 0.35)',
+    ...shadows.sm,
   },
   resetButton: {
-    backgroundColor: 'rgba(255, 100, 100, 0.5)',
+    backgroundColor: colors.white,
+    borderColor: 'rgba(231, 76, 60, 0.35)',
+    ...shadows.sm,
   },
   actionButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontSize: typography.body,
+    color: colors.dark,
+    fontWeight: '600',
   },
-  output: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 12,
-    padding: 15,
-    height: 300,
-  },
-  outputTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 10,
+  logCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.18)',
+    ...shadows.sm,
+    minHeight: 260,
   },
   outputScroll: {
-    flex: 1,
+    marginTop: spacing.sm,
+    maxHeight: 240,
   },
   outputText: {
-    fontSize: 12,
-    color: '#ffffff',
+    fontSize: typography.small,
+    color: colors.dark,
     fontFamily: 'monospace',
+    lineHeight: typography.small + 4,
   },
 });

@@ -12,9 +12,16 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import ScreenShell from '../components/ScreenShell';
 import { CanonicalTrueRFT, validateRFTProperties } from '../algorithms/rft/RFTCore';
 import { Complex } from '../algorithms/rft/Complex';
+import {
+  borderRadius,
+  colors,
+  shadows,
+  spacing,
+  typography,
+} from '../constants/DesignSystem';
 
 export default function RFTVisualizerScreen() {
   const [loading, setLoading] = useState(false);
@@ -110,205 +117,193 @@ export default function RFTVisualizerScreen() {
   };
 
   return (
-    <LinearGradient colors={['#43e97b', '#38f9d7']} style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>📊 RFT Visualizer</Text>
-          <Text style={styles.headerSubtitle}>Golden-Ratio Parameterized Transform</Text>
+    <ScreenShell
+      title="RFT Visualizer"
+      subtitle="Golden ratio resonance transform exploration"
+    >
+      <View style={styles.leadCopy}>
+        <Text style={styles.leadText}>
+          Execute Φ-RFT transforms at multiple orders and review validation metrics. This
+          view mirrors the QuantoniumOS desktop diagnostics panel.
+        </Text>
+      </View>
+
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>Transform Sizes</Text>
+        <Text style={styles.sectionSubtitle}>Select a dimension to run forward and inverse passes.</Text>
+        <View style={styles.buttonGrid}>
+          {[8, 16, 32, 64, 128].map(size => (
+            <TouchableOpacity
+              key={size}
+              style={[styles.sizeButton, loading && styles.buttonDisabled]}
+              onPress={() => runRFT(size)}
+              disabled={loading}
+            >
+              <Text style={styles.sizeButtonLabel}>{`${size}×${size}`}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
+      </View>
 
-        <View style={styles.controls}>
-          <Text style={styles.sectionTitle}>Transform Sizes</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.sizeButton}
-              onPress={() => runRFT(8)}
-              disabled={loading}
-            >
-              <Text style={styles.sizeButtonText}>8×8</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.sizeButton}
-              onPress={() => runRFT(16)}
-              disabled={loading}
-            >
-              <Text style={styles.sizeButtonText}>16×16</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.sizeButton}
-              onPress={() => runRFT(32)}
-              disabled={loading}
-            >
-              <Text style={styles.sizeButtonText}>32×32</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.sizeButton}
-              onPress={() => runRFT(64)}
-              disabled={loading}
-            >
-              <Text style={styles.sizeButtonText}>64×64</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.sizeButton}
-              onPress={() => runRFT(128)}
-              disabled={loading}
-            >
-              <Text style={styles.sizeButtonText}>128×128</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.sectionTitle}>Validation</Text>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.validateButton]}
-            onPress={runValidation}
-            disabled={loading}
-          >
-            <Text style={styles.actionButtonText}>
-              {loading ? 'Running...' : '✓ Run Full Validation'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#ffffff" />
-            <Text style={styles.loadingText}>Computing transforms...</Text>
-          </View>
-        )}
-
-        <View style={styles.output}>
-          <Text style={styles.outputTitle}>Results</Text>
-          <ScrollView style={styles.outputScroll} nestedScrollEnabled>
-            <Text style={styles.outputText}>{output}</Text>
-          </ScrollView>
-        </View>
-
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>About RFT</Text>
-          <Text style={styles.infoText}>
-            The Resonance Fourier Transform uses golden ratio (φ = 1.618...)
-            parameterization in its kernel matrix. It achieves unitarity error
-            {'<'}1e-12 and is mathematically distinct from the DFT.
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionTitle}>Validation Suite</Text>
+        <Text style={styles.sectionSubtitle}>
+          Run the Φ-RFT paper validation harness for unitarity, roundtrip error, and DFT
+          distance checks.
+        </Text>
+        <TouchableOpacity
+          style={[styles.primaryButton, loading && styles.buttonDisabled]}
+          onPress={runValidation}
+          disabled={loading}
+        >
+          <Text style={styles.primaryButtonText}>
+            {loading ? 'Running…' : 'Run Comprehensive Validation'}
           </Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <View style={styles.loadingCard}>
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text style={styles.loadingText}>Computing transforms…</Text>
         </View>
-      </ScrollView>
-    </LinearGradient>
+      ) : null}
+
+      <View style={styles.logCard}>
+        <Text style={styles.sectionTitle}>Results</Text>
+        <Text style={styles.sectionSubtitle}>Logs mirror the desktop diagnostic console.</Text>
+        <ScrollView style={styles.outputScroll} nestedScrollEnabled>
+          <Text style={styles.outputText}>{output}</Text>
+        </ScrollView>
+      </View>
+
+      <View style={styles.infoCard}>
+        <Text style={styles.sectionTitle}>About Φ-RFT</Text>
+        <Text style={styles.infoBody}>
+          The Resonance Fourier Transform employs φ-symmetric scaling to preserve
+          unitarity (&lt;1e-12 error) while remaining distinct from the Discrete Fourier
+          Transform. All mobile calculations follow the published desktop reference.
+        </Text>
+      </View>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  leadCopy: {
+    marginBottom: spacing.xl,
   },
-  scrollView: {
-    flex: 1,
+  leadText: {
+    fontSize: typography.body,
+    lineHeight: typography.body + 6,
+    color: colors.darkGray,
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-  },
-  controls: {
-    marginBottom: 20,
+  sectionCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    marginBottom: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.18)',
+    ...shadows.sm,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginTop: 15,
-    marginBottom: 10,
+    fontSize: typography.subtitle,
+    color: colors.dark,
+    fontWeight: '600',
+    letterSpacing: 0.6,
   },
-  buttonRow: {
+  sectionSubtitle: {
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+    fontSize: typography.small,
+    color: colors.gray,
+  },
+  buttonGrid: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 10,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: spacing.sm,
+    columnGap: spacing.sm,
   },
   sizeButton: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    padding: 15,
-    borderRadius: 12,
+    flexBasis: '48%',
+    backgroundColor: colors.white,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.lg,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.22)',
+    ...shadows.sm,
   },
-  sizeButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
+  buttonDisabled: {
+    opacity: 0.4,
   },
-  actionButton: {
-    padding: 15,
-    borderRadius: 12,
+  sizeButtonLabel: {
+    fontSize: typography.body,
+    color: colors.dark,
+    fontWeight: '600',
+  },
+  primaryButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md,
     alignItems: 'center',
+    ...shadows.md,
   },
-  validateButton: {
-    backgroundColor: 'rgba(100, 150, 255, 0.5)',
+  primaryButtonText: {
+    fontSize: typography.body,
+    color: colors.white,
+    fontWeight: '600',
+    letterSpacing: 1,
   },
-  actionButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  loadingContainer: {
+  loadingCard: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    justifyContent: 'center',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.offWhite,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.2)',
+    marginBottom: spacing.xl,
+    ...shadows.sm,
   },
   loadingText: {
-    color: '#ffffff',
-    marginTop: 10,
-    fontSize: 14,
+    marginLeft: spacing.md,
+    fontSize: typography.small,
+    color: colors.darkGray,
   },
-  output: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 12,
-    padding: 15,
-    height: 300,
-    marginBottom: 20,
-  },
-  outputTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 10,
+  logCard: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.18)',
+    ...shadows.sm,
   },
   outputScroll: {
-    flex: 1,
+    marginTop: spacing.sm,
+    maxHeight: 280,
   },
   outputText: {
-    fontSize: 11,
-    color: '#ffffff',
+    fontSize: typography.micro,
+    color: colors.dark,
     fontFamily: 'monospace',
+    lineHeight: typography.micro + 6,
   },
-  infoBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    padding: 15,
-    borderRadius: 12,
+  infoCard: {
+    marginTop: spacing.xl,
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.12)',
+    ...shadows.sm,
   },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginBottom: 8,
-  },
-  infoText: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.9)',
-    lineHeight: 20,
+  infoBody: {
+    fontSize: typography.small,
+    color: colors.darkGray,
+    lineHeight: typography.small + 6,
   },
 });

@@ -1,6 +1,6 @@
 /**
  * AI Chat Screen - QuantoniumOS Mobile
- * Quantum-enhanced AI assistant
+ * Exact 1:1 match with desktop chat interface aesthetics
  */
 
 import React, { useState } from 'react';
@@ -15,8 +15,8 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing, typography } from '../constants/DesignSystem';
+import ScreenShell from '../components/ScreenShell';
+import { colors, spacing, typography, PHI, PHI_INV, BASE_UNIT } from '../constants/DesignSystem';
 import {
   DOMAIN_OPTIONS,
   DomainKey,
@@ -98,17 +98,16 @@ export default function AIChatScreen() {
   };
 
   return (
-    <LinearGradient colors={colors.aiGradient} style={styles.container}>
+    <ScreenShell
+      title="AI Chat"
+      subtitle="Quantum-Enhanced Assistant"
+    >
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={100}
       >
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>🤖 AI Chat</Text>
-          <Text style={styles.headerSubtitle}>Quantum-Enhanced Assistant</Text>
-        </View>
-
+        {/* Domain selector with desktop minimal style */}
         <View style={styles.domainSelector}>
           {DOMAIN_OPTIONS.map(option => {
             const active = selectedDomain === option.value;
@@ -128,6 +127,7 @@ export default function AIChatScreen() {
           })}
         </View>
 
+        {/* Messages area */}
         <ScrollView
           style={styles.messagesContainer}
           contentContainerStyle={styles.messagesContent}
@@ -159,15 +159,17 @@ export default function AIChatScreen() {
           ))}
         </ScrollView>
 
+        {/* Input area with desktop minimal aesthetics */}
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
             placeholder="Ask about quantum computing, RFT, or crypto..."
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.gray}
             value={inputText}
             onChangeText={setInputText}
             onSubmitEditing={sendMessage}
             returnKeyType="send"
+            multiline
           />
           <TouchableOpacity
             style={[styles.sendButton, isLoading && styles.sendButtonDisabled]}
@@ -175,14 +177,14 @@ export default function AIChatScreen() {
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.sendButtonText}>📤</Text>
+              <Text style={styles.sendButtonText}>→</Text>
             )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </ScreenShell>
   );
 }
 
@@ -190,42 +192,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    alignItems: 'center',
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-  headerTitle: {
-    fontSize: typography.title,
-    fontWeight: 'bold',
-    color: colors.white,
-    marginBottom: spacing.xs,
-  },
-  headerSubtitle: {
-    fontSize: typography.small,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
   domainSelector: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(52, 152, 219, 0.15)',
   },
   domainChip: {
     paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderColor: 'rgba(52, 152, 219, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
   domainChipActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderColor: colors.white,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   domainChipText: {
     fontSize: typography.small,
-    color: colors.white,
+    color: colors.dark,
+    fontWeight: '500',
   },
   domainChipTextActive: {
     color: colors.white,
@@ -233,6 +225,7 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
+    backgroundColor: colors.surface,
   },
   messagesContent: {
     padding: spacing.lg,
@@ -241,45 +234,61 @@ const styles = StyleSheet.create({
   messageBubble: {
     maxWidth: '80%',
     padding: spacing.md,
-    borderRadius: 16,
+    borderRadius: 12,
     marginBottom: spacing.md,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
   },
   userBubble: {
     alignSelf: 'flex-end',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(52, 152, 219, 0.1)', // Light blue tint
+    borderColor: 'rgba(52, 152, 219, 0.3)',
   },
   aiBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderColor: 'rgba(52, 152, 219, 0.2)',
   },
   messageText: {
     fontSize: typography.body,
-    color: colors.white,
+    color: colors.dark,
+    lineHeight: typography.body + 6,
     marginBottom: spacing.xs,
   },
   messageMeta: {
     fontSize: typography.micro,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: colors.gray,
     marginBottom: spacing.xs,
+    fontFamily: 'monospace',
   },
   messageTime: {
     fontSize: typography.micro,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: colors.gray,
     alignSelf: 'flex-end',
+    fontFamily: 'monospace',
   },
   inputContainer: {
     flexDirection: 'row',
     padding: spacing.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.white,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(52, 152, 219, 0.15)',
     gap: spacing.sm,
   },
   input: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: colors.surface,
     padding: spacing.md,
-    borderRadius: 24,
+    borderRadius: 12,
     fontSize: typography.body,
-    color: '#333',
+    color: colors.dark,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 152, 219, 0.2)',
+    maxHeight: 100,
   },
   sendButton: {
     backgroundColor: colors.primary,
@@ -288,12 +297,18 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   sendButtonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   sendButtonText: {
     fontSize: 24,
+    color: colors.white,
+    fontWeight: 'bold',
   },
 });
-
