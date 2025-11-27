@@ -1,6 +1,6 @@
 # Real Corpus Testing Results - ASCII Wall Paper
 
-**Copyright (C) 2025 QuantoniumOS Research Team**  
+**Copyright (C) 2025 Luis Michael Minier**  
 **Licensed under Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**  
 **For commercial licensing inquiries, contact: github.com/mandcony/quantoniumos**
 
