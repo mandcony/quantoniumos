@@ -1,7 +1,7 @@
 # QuantoniumOS: Quantum-Inspired Research Operating System
 
 [![RFT Framework DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17712905.svg)](https://doi.org/10.5281/zenodo.17712905)
-[![Coherence Paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
+[![Coherence Paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://zenodo.org/records/17726611)
 [![TechRxiv DOI](https://img.shields.io/badge/DOI-10.36227%2Ftechrxiv.175384307.75693850%2Fv1-8A2BE2.svg)](https://doi.org/10.36227/techrxiv.175384307.75693850/v1)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
 [![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-red.svg)](LICENSE-CLAIMS-NC.md)
@@ -43,7 +43,7 @@ We have identified and validated a family of 7 transforms that are all unitary t
 
 ### 3. Theorem 10: Breaking the ASCII Bottleneck & Boundary Problem
 
-**Paper:** [*Breaking the ASCII Wall: Coherence-Free Hybrid DCT–RFT Transform Coding for Text and Structured Data*](https://doi.org/10.5281/zenodo.17726611) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
+**Paper:** [*Breaking the ASCII Wall: Coherence-Free Hybrid DCT–RFT Transform Coding for Text and Structured Data*](https://zenodo.org/uploads/17726611) [![Paper](https://img.shields.io/badge/Paper-Zenodo-blue)](https://zenodo.org/uploads/17726611)
 
 We have solved the "ASCII Bottleneck"—the inability of continuous transforms to efficiently compress discrete text/code—and the "Boundary Problem" (Gibbs phenomenon at edges).
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Image frame -->
+  <rect x="8" y="12" width="48" height="40" rx="3"/>
+  <!-- Mountains/landscape -->
+  <path d="M8 44 L20 28 L28 36 L40 20 L56 44"/>
+  <!-- Sun -->
+  <circle cx="48" cy="22" r="5"/>
+  <!-- Grid overlay hint (RFT) -->
+  <line x1="8" y1="32" x2="56" y2="32" stroke-dasharray="3,3" opacity="0.4"/>
+  <line x1="32" y1="12" x2="32" y2="52" stroke-dasharray="3,3" opacity="0.4"/>
+  <!-- Frequency domain hint -->
+  <path d="M12 56 L16 54 L20 58 L24 52 L28 56" opacity="0.6"/>
+</svg>

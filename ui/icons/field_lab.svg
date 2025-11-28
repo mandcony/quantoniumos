@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Wave field visualization -->
+  <ellipse cx="32" cy="32" rx="24" ry="12"/>
+  <ellipse cx="32" cy="32" rx="16" ry="8" opacity="0.7"/>
+  <ellipse cx="32" cy="32" rx="8" ry="4" opacity="0.5"/>
+  <!-- Central point -->
+  <circle cx="32" cy="32" r="3" fill="#3498db"/>
+  <!-- Wave propagation arrows -->
+  <path d="M32 16 L32 8 M28 10 L32 6 L36 10"/>
+  <path d="M32 48 L32 56 M28 54 L32 58 L36 54"/>
+  <path d="M8 32 L4 32 M6 28 L2 32 L6 36"/>
+  <path d="M56 32 L60 32 M58 28 L62 32 L58 36"/>
+  <!-- Field lines -->
+  <path d="M16 20 Q32 16 48 20" stroke-dasharray="2,2" opacity="0.5"/>
+  <path d="M16 44 Q32 48 48 44" stroke-dasharray="2,2" opacity="0.5"/>
+</svg>

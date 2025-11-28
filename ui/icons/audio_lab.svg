@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Audio waveform visualization -->
+  <path d="M8 32 Q12 20 16 32 Q20 44 24 32 Q28 20 32 32 Q36 44 40 32 Q44 20 48 32 Q52 44 56 32"/>
+  <!-- Speaker/sound icon -->
+  <rect x="18" y="44" width="10" height="12" rx="2"/>
+  <path d="M28 44 L36 38 L36 62 L28 56 Z"/>
+  <path d="M42 42 Q48 48 42 54"/>
+  <path d="M46 38 Q56 48 46 58"/>
+  <!-- Golden ratio spiral hint -->
+  <circle cx="32" cy="20" r="6" stroke-dasharray="2,2" opacity="0.5"/>
+</svg>
