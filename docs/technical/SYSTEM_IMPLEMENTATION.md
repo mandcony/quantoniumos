@@ -5,30 +5,35 @@
 
 ## Implementation Overview
 
-QuantoniumOS is a symbolic quantum computing platform built on PyQt5 with integrated mathematical kernels. The system provides a desktop environment with applications for quantum simulation, cryptography, and data management.
+QuantoniumOS is a **signal processing framework** built on PyQt5 with integrated mathematical kernels. The system provides a desktop environment with applications for signal processing, experimental cryptography, and data management.
+
+> **SCOPE LIMITATIONS:**
+> - "Quantum simulation" is structured state compression (NOT general quantum)
+> - Cryptography is experimental (no security proofs)
+> - O(N) scaling applies to restricted state families only
 
 ## Core Implementation Stack
 
 ### 1. Mathematical Foundation
-- **RFT Kernel**: `src/assembly/kernel/rft_kernel.c` - Unitary transform with golden ratio parameterization
-- **Core Algorithms**: `src/core/` - Python implementations of mathematical operations
+- **RFT Kernel**: `algorithms/rft/core/` - Unitary transform with golden ratio parameterization
+- **Core Algorithms**: Python implementations of mathematical operations
 - **Validation**: Machine precision unitarity (< 1e-15 error)
+- **Complexity**: O(N log N) time, O(N) space
 
 ### 2. Application Layer
-- **Quantum Simulator**: `src/apps/quantum_simulator.py` - 1000+ qubit simulation via vertex encoding
-- **Q-Notes**: `src/apps/q_notes.py` - Note-taking application
-- **Q-Vault**: `src/apps/q_vault.py` - Secure storage system
-- **Additional Apps**: System monitoring, cryptographic tools, chat interface
+- **QuantSoundDesign**: `src/apps/quantsounddesign/` - Audio processing with Φ-RFT
+- **Q-Notes**: `src/apps/q_notes/` - Note-taking application
+- **Q-Vault**: `src/apps/q_vault/` - Encrypted storage (experimental crypto)
 
 ### 3. Desktop Environment
-- **Desktop Manager**: `src/frontend/quantonium_desktop.py` - PyQt5 main interface
+- **Desktop Manager**: `quantonium_os_src/frontend/quantonium_desktop.py` - PyQt5 main interface
 - **App Integration**: Dynamic import system for in-process app launching
 - **UI Design**: Golden ratio proportions, dark/light themes
 
 ### 4. Cryptographic System
-- **Implementation**: `src/core/enhanced_rft_crypto_v2.py` - 64-round (previously 48) Feistel cipher
+- **Implementation**: `algorithms/rft/apps/enhanced_rft_crypto_v2.py` - 48-round Feistel cipher
 - **Features**: Authenticated encryption, RFT-derived key schedules
-- **Performance**: 24.0 blocks/sec measured throughput
+- **Status**: EXPERIMENTAL - No formal security analysis
 
 ## Technical Architecture
 
@@ -47,17 +52,23 @@ QuantoniumOS Implementation:
 
 ## Key Features
 
-### Quantum Simulation
-- **Scale**: Supports 1000+ vertices through compression
-- **Algorithms**: Grover's search, QFT, Shor's factorization
-- **Encoding**: Vertex-based instead of standard qubit representation
-- **Performance**: Linear O(n) vs exponential O(2^n) scaling
+### Signal Processing (Φ-RFT)
+- **Transform**: Unitary with golden ratio parameterization
+- **Complexity**: O(N log N) time, O(N) space
+- **Applications**: Audio processing, compression, spectral analysis
+- **Validation**: Machine precision unitarity verified
 
-### Cryptographic Operations
+### Structured State Compression
+- **Scope**: Operates on separable, φ-structured states ONLY
+- **Scaling**: O(N) for this restricted family (trivially expected)
+- **NOT**: General quantum simulation or circuit execution
+- **Reality**: Classical signal processing, not "quantum computing"
+
+### Cryptographic Operations (EXPERIMENTAL)
 - **Structure**: 48-round Feistel network with AES components
-- **Security**: Statistical validation shows uniform distribution
-- **Integration**: RFT-derived entropy injection
-- **Applications**: Authenticated encryption, secure storage
+- **Status**: Research prototype, NOT production-ready
+- **No Proofs**: No formal security analysis or hardness reductions
+- **Applications**: Research into φ-structured cryptography
 
 ### Desktop Integration
 - **Environment**: Unified PyQt5 interface with golden ratio design
@@ -68,9 +79,9 @@ QuantoniumOS Implementation:
 ## Performance Characteristics
 
 ### Mathematical Operations
-- **RFT Transform**: O(N²) complexity for dense matrices
+- **RFT Transform**: O(N log N) complexity
 - **Unitarity**: Machine precision accuracy (< 1e-15)
-- **Memory**: Linear scaling with compression techniques
+- **Memory**: O(N) scaling
 
 ### System Performance
 - **Startup**: Fast application loading via dynamic imports
@@ -78,24 +89,22 @@ QuantoniumOS Implementation:
 - **Stability**: No crashes or integration failures
 
 ### Cryptographic Performance
-- **Throughput**: 24.0 blocks/sec for authenticated encryption
-- **Latency**: Suitable for interactive applications
-- **Security**: Basic statistical validation completed
+- **Status**: EXPERIMENTAL - performance metrics not meaningful without security analysis
+- **Note**: Do not use for production security applications
 
 ## Implementation Quality
 
 ### Code Organization
 - **Structure**: Clear separation of concerns across layers
 - **Documentation**: Inline comments and technical documentation
-- **Testing**: Basic unit tests and validation frameworks
+- **Testing**: Validation tests for mathematical properties
 
 ### System Integration
 - **Dependencies**: Standard Python libraries (PyQt5, NumPy, etc.)
-- **Compatibility**: Windows environment with PowerShell
+- **Compatibility**: Cross-platform (Windows, Linux, macOS)
 - **Deployment**: Single repository with requirements.txt
 
-### Future Enhancement Areas
-- **Validation**: Extended cryptographic analysis (10⁶+ trials)
-- **Performance**: Advanced SIMD optimization
-- **Applications**: Additional quantum algorithms and tools
-- **Documentation**: Complete API and user guides
+### Known Limitations
+- **Crypto**: No formal security proofs - experimental only
+- **"Quantum"**: Terminology is misleading - this is classical processing
+- **O(N) claims**: Only valid for restricted structured states

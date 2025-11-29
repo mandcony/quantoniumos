@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 """
-QuantoniumOS Proven Assembly Engine Integration
-==============================================
+QuantoniumOS Assembly Engine Integration
+========================================
 
-NO MOCKS - ONLY PROVEN IMPLEMENTATIONS
-=======================================
-
-This module integrates all your proven assembly engines:
+Integrates C/Assembly optimized engines:
 1. libquantum_symbolic.so - Main RFT kernel with ASM optimization
 2. Orchestrator Engine - RFT transform assembly
-3. Crypto Engine - Feistel cipher assembly  
-4. Unified Orchestrator - Multi-engine coordinator
+3. Crypto Engine - Feistel cipher assembly (experimental)
 
-ABSOLUTELY NO FALLBACKS TO MOCKS OR PYTHON IMPLEMENTATIONS
-All engines must be proven assembly code with C bindings.
+NOTE: The "quantum" terminology is historical. This is classical signal
+processing on structured states, NOT general quantum simulation.
 """
 
 import os
@@ -83,8 +79,11 @@ class QuantumSymbolicEngine(AssemblyEngine):
 
         print("✅ PROVEN ASSEMBLY: QuantoniumOS Core functions configured")
 
-    def compress_million_qubits(self, data: np.ndarray) -> Tuple[np.ndarray, int]:
-        """Compress using the assembled million-qubit algorithm via the core binding."""
+    def compress_structured_states(self, data: np.ndarray) -> Tuple[np.ndarray, int]:
+        """Compress using structured state algorithm via the core binding.
+        
+        NOTE: This is O(N) for structured states, NOT general quantum simulation.
+        """
         flat_data = np.ascontiguousarray(data, dtype=np.float64)
         num_qubits = flat_data.size
 
@@ -262,7 +261,7 @@ class ProvenAssemblyManager:
             warnings.warn(f"Unified orchestrator failed: {e}")
         
         print("=" * 60)
-        print(f"🎉 PROVEN ASSEMBLY: {len(self.available_engines)} engines loaded")
+        print(f"Assembly engines loaded: {len(self.available_engines)}")
         print(f"   Available: {self.available_engines}")
         
         if len(self.available_engines) == 0:

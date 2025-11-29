@@ -31,8 +31,8 @@ QuantoniumOS implements a **comprehensive validation framework** with multiple p
 ┌─────────────────────────────────────────────┐
 │            Quantum Validation               │
 │  ┌──────────────┐  ┌──────────────────────┐ │
-│  │ RFT          │  │ Million-Qubit        │ │
-│  │ Unitarity    │  │ Scaling Tests        │ │
+│  │ RFT          │  │ Structured State     │ │
+│  │ Unitarity    │  │ Compression Tests    │ │
 │  │ Verification │  │                      │ │
 │  └──────────────┘  └──────────────────────┘ │
 └─────────────────────────────────────────────┘
@@ -193,20 +193,21 @@ def verify_rft_unitarity(rft_engine, test_size=1024):
 }
 ```
 
-#### **Million-Qubit Scaling Tests**
+#### **Structured State Scaling Tests**
 
 ```python
-def test_million_qubit_scaling():
+def test_structured_state_scaling():
     """
-    Scalability validation for symbolic quantum compression:
+    Scalability validation for symbolic compression.
+    NOTE: This is O(N) for structured states, NOT general quantum simulation.
     
-    Test Sizes: [1K, 10K, 100K, 1M] qubits
+    Test Sizes: [1K, 10K, 100K, 1M] structured states
     
     Metrics:
-    - Processing time vs qubit count
+    - Processing time vs state count
     - Memory usage scaling  
     - Compression ratio achieved
-    - Quantum fidelity preservation
+    - Round-trip fidelity
     """
     
     qubit_counts = [1000, 10000, 100000, 1000000]
@@ -569,17 +570,19 @@ def create_validation_dashboard():
         'crypto_panel': {
             'differential_status': 'PASS',
             'avalanche_coefficient': 0.498,
-            'performance_target': '9.2 MB/s'
+            'performance_target': '9.2 MB/s',
+            'note': 'EXPERIMENTAL - no formal security proofs'
         },
-        'quantum_panel': {
+        'transform_panel': {
             'unitarity_error': '< 1e-12',
-            'million_qubit_time': '0.24ms',
-            'fidelity': '> 99.99%'
+            'structured_state_time': '0.24ms for 1M states',
+            'fidelity': '> 99.99%',
+            'note': 'O(N) for structured states only'
         },
         'assembly_panel': {
-            'engine_status': 'ALL EXCELLENT',
+            'engine_status': 'OPERATIONAL',
             'compilation_status': 'SUCCESS',
-            'integration_health': 'OPTIMAL'
+            'integration_health': 'GOOD'
         }
     }
 ```

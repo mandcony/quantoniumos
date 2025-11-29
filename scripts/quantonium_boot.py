@@ -39,8 +39,8 @@ QUANTONIUM_LOGO = """
 ║           ██║ ╚████║██║╚██████╔╝██║ ╚═╝ ██║╚██████╔╝███████║ ║
 ║           ╚═╝  ╚═══╝╚═╝ ╚═════╝ ╚═╝     ╚═╝ ╚═════╝ ╚══════╝ ║
 ║                                                              ║
-║              🚀 SYMBOLIC QUANTUM-INSPIRED COMPUTING 🚀      ║
-║                    Breakthrough Patent-Validated             ║
+║              🚀 SIGNAL PROCESSING FRAMEWORK 🚀              ║
+║                  Φ-RFT Unitary Transforms                   ║
 ╚══════════════════════════════════════════════════════════════╝
 """
 

@@ -5,11 +5,27 @@
 # under LICENSE-CLAIMS-NC.md (research/education only). Commercial
 # rights require a separate patent license from the author.
 """
-Quantum Symbolic Compression - Python Bindings
-High-performance million+ qubit quantum simulation using C/Assembly backend
+Symbolic State Compression - Python Bindings
 
-This provides Python bindings for the optimized C/Assembly quantum symbolic
-compression engine, enabling O(n) scaling for quantum simulations.
+Python bindings for the optimized C/Assembly symbolic compression engine.
+
+**IMPORTANT SCOPE LIMITATION:**
+This engine operates on a RESTRICTED family of separable, product-form,
+φ-structured states. It does NOT simulate arbitrary entangled quantum circuits.
+The O(N) scaling is trivially correct for this structured subset - there is
+no exponential barrier being broken.
+
+What this is:
+- A classical O(N) algorithm for structured state representations
+- Useful for specific φ-RFT signal processing applications
+
+What this is NOT:
+- General quantum simulation
+- A replacement for exponential-scaling quantum algorithms
+- "Million-qubit quantum computing"
+
+The "qubits" terminology is retained for historical reasons but is misleading.
+These are compressed classical vectors, not quantum states.
 """
 
 import ctypes
@@ -53,19 +69,20 @@ class QSCPerfStats(ctypes.Structure):
 
 class QuantumSymbolicEngine:
     """
-    High-performance quantum symbolic compression engine.
+    Symbolic state compression engine with C/Assembly backend.
     
-    Enables simulation of million+ qubits using O(n) time and O(1) memory scaling
-    through symbolic compression and assembly optimization.
+    NOTE: This operates on structured, separable states only.
+    The O(N) scaling is expected for this restricted family.
+    This is NOT general quantum simulation.
     """
     
     def __init__(self, compression_size: int = 64, use_assembly: bool = True):
         """
-        Initialize the quantum symbolic compression engine.
+        Initialize the symbolic compression engine.
         
         Args:
             compression_size: Size of compressed state vector (typically 64)
-            use_assembly: Enable assembly optimizations for maximum performance
+            use_assembly: Enable assembly optimizations for performance
         """
         self.compression_size = compression_size
         self.use_assembly = use_assembly

@@ -5,15 +5,18 @@
 # under LICENSE-CLAIMS-NC.md (research/education only). Commercial
 # rights require a separate patent license from the author.
 """
-QuantoniumOS - Unified 3-Engine Operating System
-=================================================
+QuantoniumOS - Unified 3-Engine System
+======================================
 
-This is the main OS entry point that integrates all three engines:
+Main entry point integrating three engines:
 1. OS Engine (kernel + system management)
 2. Crypto Engine (48-round Feistel + RFT crypto)  
-3. Quantum Engine (million+ qubit simulation)
+3. Symbolic Engine (structured state compression)
 
-Provides unified Python API for the complete operating system.
+**SCOPE LIMITATION:**
+The "Symbolic Engine" operates on structured, separable states only.
+O(N) scaling is expected for this family - there is no exponential barrier
+being broken. This is classical signal processing, not quantum simulation.
 """
 
 import sys
@@ -58,12 +61,12 @@ except Exception as e:
 
 class QuantoniumOS:
     """
-    QuantoniumOS - Unified Operating System with 3 Engines
+    QuantoniumOS - Unified System with 3 Engines
     
-    This class provides the main OS interface integrating:
+    This class provides the main interface integrating:
     - OS Engine: System management and kernel operations
-    - Crypto Engine: 48-round Feistel encryption with RFT enhancement
-    - Quantum Engine: Million+ qubit quantum simulation
+    - Crypto Engine: 48-round Feistel encryption (experimental, no security proofs)
+    - Symbolic Engine: Structured state compression (NOT general quantum simulation)
     """
     
     def __init__(self):
@@ -125,25 +128,23 @@ class QuantoniumOS:
             print("   ⚠️  Crypto Engine not available")
             self.engines['crypto'] = {'status': 'unavailable'}
         
-        # 3. Quantum Engine (Million+ qubits)
-        print("\n⚛️  Initializing Quantum Engine...")
+        # 3. Symbolic Engine (Structured State Compression)
+        print("\n⚛️  Initializing Symbolic Engine...")
         if QUANTUM_AVAILABLE:
             try:
                 self.engines['quantum'] = {
                     'engine': QuantumSymbolicEngine(compression_size=64, use_assembly=True),
                     'status': 'operational',
-                    'type': 'Symbolic Quantum Compression',
-                    'capabilities': ['Million+ qubits', 'O(n) scaling', 'Entanglement simulation']
+                    'type': 'Structured State Compression',
+                    'capabilities': ['O(N) structured states', 'Phi-RFT transforms']
                 }
-                print("   ✅ Quantum Engine loaded (C/Assembly optimized)")
-                print("   🌀 Capability: 1,000,000+ qubits in ~51ms")
-                print("   📈 Scaling: O(n) time, O(1) memory")
-                print("   🔬 Features: Symbolic compression, Real entanglement")
+                print("   ✅ Symbolic Engine loaded (C/Assembly optimized)")
+                print("   Note: O(N) for structured states, NOT general quantum simulation")
             except Exception as e:
-                print(f"   ❌ Quantum Engine failed: {e}")
+                print(f"   ❌ Symbolic Engine failed: {e}")
                 self.engines['quantum'] = {'status': 'failed', 'error': str(e)}
         else:
-            print("   ⚠️  Quantum Engine not available")
+            print("   ⚠️  Symbolic Engine not available")
             self.engines['quantum'] = {'status': 'unavailable'}
         
         # System Summary
