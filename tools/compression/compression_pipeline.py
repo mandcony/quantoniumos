@@ -14,10 +14,12 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict
 
-# Add QuantoniumOS paths
-sys.path.append('/workspaces/quantoniumos/src')
-sys.path.append('/workspaces/quantoniumos')
-sys.path.append('/workspaces/quantoniumos/tools')
+# Add QuantoniumOS paths (relative to this file's location)
+_this_dir = Path(__file__).resolve().parent
+_project_root = _this_dir.parent.parent
+sys.path.insert(0, str(_project_root / "src"))
+sys.path.insert(0, str(_project_root))
+sys.path.insert(0, str(_project_root / "tools"))
 
 from real_hf_model_compressor import HuggingFaceRFTCompressor
 from validate_compressed_model import CompressedModelValidator
@@ -29,7 +31,7 @@ class CompressionPipeline:
         self.compressor = HuggingFaceRFTCompressor()
         self.validator = CompressedModelValidator()
         self.results = []
-        self.base_dir = Path("/workspaces/quantoniumos")
+        self.base_dir = _project_root
         
         # Pipeline configuration
         self.config = {

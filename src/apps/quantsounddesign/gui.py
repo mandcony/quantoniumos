@@ -1,5 +1,5 @@
 """
-Wave DAW Pro - Professional DAW with Φ-RFT Native Engine
+QuantSoundDesign - Professional Sound Design Studio with Φ-RFT Native Engine
 
 Design Philosophy:
 - FL Studio/Ableton-inspired professional workflow
@@ -64,7 +64,7 @@ except ImportError as e:
     print(f"Pattern editor not available: {e}")
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PROFESSIONAL STYLE THEME - Wave DAW Pro
+# PROFESSIONAL STYLE THEME - QuantSoundDesign
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Color palette
@@ -2201,15 +2201,15 @@ class DevicePanel(QFrame):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# MAIN WAVE DAW PRO WINDOW
+# MAIN QUANTSOUNDDESIGN WINDOW
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class WaveDAW(QMainWindow):
-    """Wave DAW Pro - Professional DAW with Φ-RFT Native Engine."""
+class QuantSoundDesign(QMainWindow):
+    """QuantSoundDesign - Professional Sound Design Studio with Φ-RFT Native Engine."""
     
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Wave DAW Pro - Φ-RFT Native Engine")
+        self.setWindowTitle("QuantSoundDesign - Φ-RFT Sound Design Studio")
         self.setGeometry(50, 50, 1600, 1000)
         self.setMinimumSize(1200, 800)
         self.setStyleSheet(STYLE)
@@ -2261,7 +2261,7 @@ class WaveDAW(QMainWindow):
         
         # Show startup message
         print("\n" + "="*60)
-        print("  WAVE DAW PRO - Φ-RFT Native Engine")
+        print("  QUANTSOUNDDESIGN - Φ-RFT Sound Design Studio")
         print("="*60)
         print("  Press A-K keys to play notes")
         print("  Click on clips to edit patterns")
@@ -2466,7 +2466,7 @@ class WaveDAW(QMainWindow):
             }
         """)
         self.setStatusBar(self.status)
-        self.status.showMessage("Wave DAW Pro Ready | Φ-RFT Native Engine Active | Press A-K to play!")
+        self.status.showMessage("QuantSoundDesign Ready | Φ-RFT Engine Active | Press A-K to play!")
         
         # Menu bar
         self.setup_menus()
@@ -2684,7 +2684,7 @@ class WaveDAW(QMainWindow):
         # Help menu
         help_menu = menubar.addMenu("Help")
         
-        about_action = QAction("About Wave DAW Pro", self)
+        about_action = QAction("About QuantSoundDesign", self)
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
         
@@ -2710,7 +2710,7 @@ class WaveDAW(QMainWindow):
         """Open a project file."""
         filename, _ = QFileDialog.getOpenFileName(
             self, 'Open Project', '', 
-            'Wave DAW Projects (*.wdaw);;All Files (*)'
+            'QuantSoundDesign Projects (*.qsd);;All Files (*)'
         )
         if filename:
             self.status.showMessage(f"Opening: {filename} (project loading coming soon)")
@@ -2723,7 +2723,7 @@ class WaveDAW(QMainWindow):
         """Save project with a new name."""
         filename, _ = QFileDialog.getSaveFileName(
             self, 'Save Project As', '',
-            'Wave DAW Projects (*.wdaw);;All Files (*)'
+            'QuantSoundDesign Projects (*.qsd);;All Files (*)'
         )
         if filename:
             self.status.showMessage(f"Saved as: {filename} (save functionality coming soon)")
@@ -2841,11 +2841,11 @@ class WaveDAW(QMainWindow):
     
     def show_about(self):
         """Show about dialog."""
-        QMessageBox.about(self, "About Wave DAW Pro",
-            "<h2>Wave DAW Pro</h2>"
-            "<p><b>Φ-RFT Native Audio Engine</b></p>"
+        QMessageBox.about(self, "About QuantSoundDesign",
+            "<h2>QuantSoundDesign</h2>"
+            "<p><b>Φ-RFT Sound Design Studio</b></p>"
             "<p>Version 1.0.0</p>"
-            "<p>A professional DAW built with UnitaryRFT transforms.</p>"
+            "<p>A professional sound design studio built with UnitaryRFT transforms.</p>"
             "<p>© 2025 QuantoniumOS</p>"
         )
     
@@ -3216,11 +3216,11 @@ class WaveDAW(QMainWindow):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def main():
-    """Launch Wave DAW."""
+    """Launch QuantSoundDesign."""
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
-    window = WaveDAW()
+    window = QuantSoundDesign()
     window.show()
     
     sys.exit(app.exec_())

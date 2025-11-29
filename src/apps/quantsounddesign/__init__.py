@@ -1,6 +1,6 @@
-# Wave DAW - Φ-RFT Native Digital Audio Workstation
+# QuantSoundDesign - Φ-RFT Sound Design Studio
 """
-Wave DAW: FL Studio/Ableton-class DAW powered by wave-native Φ-RFT engine.
+QuantSoundDesign: FL Studio/Ableton-class sound design studio powered by wave-native Φ-RFT engine.
 
 Core Philosophy:
 - Wave-first: Audio processed in RFT wave domain, not just time domain

@@ -1,16 +1,16 @@
-# Wave DAW Pro - Technical Documentation
+# QuantSoundDesign - Technical Documentation
 
 ## Overview
 
-**Wave DAW Pro** is a professional Digital Audio Workstation (DAW) built on QuantoniumOS with native Φ-RFT (Recursive Fibonacci Transform) integration. It provides an FL Studio/Ableton-inspired workflow for music production, audio synthesis, and pattern-based composition.
+**QuantSoundDesign** is a professional sound design studio built on QuantoniumOS with native Φ-RFT (Recursive Fibonacci Transform) integration. It provides an FL Studio/Ableton-inspired workflow for music production, audio synthesis, and pattern-based composition.
 
 > **STATUS: TESTING / IN DEVELOPMENT**  
-> Wave DAW is functional but still under active development. Features may change.
+> QuantSoundDesign is functional but still under active development. Features may change.
 
 ## Architecture
 
 ```
-src/apps/wave_daw/
+src/apps/quantsounddesign/
 ├── gui.py            # Main UI (3231 lines) - PyQt5 main window, views, styles
 ├── engine.py         # Core Engine (895 lines) - Session, tracks, clips, audio graph
 ├── synth_engine.py   # Synthesizer (731 lines) - PolySynth, RFT oscillators
@@ -35,11 +35,80 @@ The main PyQt5 interface providing:
 - **Instrument Browser** - Preset library and sound selection
 
 **Key Classes:**
-- `WaveDAWPro(QMainWindow)` - Main application window
+- `QuantSoundDesign(QMainWindow)` - Main application window
 - `TransportWidget` - Playback controls
 - `TrackLane` - Individual track visualization
 - `MixerStrip` - Per-channel mixer controls
 - `PatternGrid` - Step sequencer grid widget
+
+### 2. Core Engine (`engine.py`)
+
+The audio processing backend with UnitaryRFT integration:
+
+```python
+# UnitaryRFT is connected for native Φ-RFT processing
+from algorithms.rft.kernels.python_bindings.unitary_rft import (
+    UnitaryRFT,
+    RFT_VARIANT_HARMONIC,
+    RFT_VARIANT_FIBONACCI,
+    # ... 7 total variants
+)
+```
+
+**Key Classes:**
+- `Session` - Complete project state (tracks, tempo, patterns)
+- `AudioEngine` - Real-time audio graph processing
+- `Track` - Audio/MIDI track container
+- `Clip` - Audio or MIDI data unit
+- `WaveField` - Core signal abstraction (time or RFT domain)
+- `Device` - Effect or instrument in chain
+
+**RFT Variants Available:**
+| Variant | Use Case |
+|---------|----------|
+| `STANDARD` | General purpose |
+| `HARMONIC` | Harmonic series analysis |
+| `FIBONACCI` | Fibonacci-spaced processing |
+| `CHAOTIC` | Non-linear dynamics |
+| `GEOMETRIC` | Geometric sequences |
+| `HYBRID` | Combined approaches |
+| `ADAPTIVE` | Data-dependent selection |
+
+## Running QuantSoundDesign
+
+### Prerequisites
+
+```bash
+pip install PyQt5 numpy sounddevice
+```
+
+### Launch
+
+```python
+from src.apps.quantsounddesign.gui import QuantSoundDesign
+from PyQt5.QtWidgets import QApplication
+import sys
+
+app = QApplication(sys.argv)
+qsd = QuantSoundDesign()
+qsd.show()
+sys.exit(app.exec_())
+```
+
+Or via the QuantoniumOS desktop:
+```python
+python quantonium_os_src/frontend/quantonium_desktop.py
+# Click "QuantSoundDesign" in the launcher
+```
+
+## License
+
+See `LICENSE.md` and `LICENSE-CLAIMS-NC.md` in the root directory.
+
+---
+
+**QuantSoundDesign** - Φ-RFT Sound Design Studio  
+*Part of QuantoniumOS - Building the future of audio with golden ratio mathematics.*
 
 ### 2. Core Engine (`engine.py`)
 

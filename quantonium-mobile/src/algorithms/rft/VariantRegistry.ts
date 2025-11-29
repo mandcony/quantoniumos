@@ -189,14 +189,14 @@ export const VARIANTS: VariantInfo[] = [
     key: 'fibonacci_tilt',
     name: 'Fibonacci Tilt',
     innovation: 'Integer lattice alignment',
-    useCase: 'Post-quantum crypto',
+    useCase: 'Lattice structures (experimental)',
     generator: generateFibonacciTilt,
   },
   {
     key: 'chaotic_mix',
     name: 'Chaotic Mix',
     innovation: 'Haar-like randomness',
-    useCase: 'Secure scrambling',
+    useCase: 'Mixing/diffusion (experimental)',
     generator: generateChaoticMix,
   },
   {

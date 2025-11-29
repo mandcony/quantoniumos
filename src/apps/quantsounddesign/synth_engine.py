@@ -1,5 +1,5 @@
 """
-Wave DAW Synthesizer Engine - Φ-RFT Native Synthesis
+QuantSoundDesign Synthesizer Engine - Φ-RFT Native Synthesis
 
 Provides:
 - Polyphonic synth with multiple oscillators

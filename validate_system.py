@@ -23,10 +23,10 @@ try:
 except Exception as e:
     print(f'    FAILED: {e}')
 
-# Test 2: Wave DAW RFT Engine
-print('\n[2] Wave DAW Engine:')
+# Test 2: QuantSoundDesign RFT Engine
+print('\n[2] QuantSoundDesign Engine:')
 try:
-    from src.apps.wave_daw import engine
+    from src.apps.quantsounddesign import engine
     status = engine.get_rft_status()
     print(f'    UnitaryRFT Available: {status["unitary_available"]}')
     print(f'    Is Mock: {status["is_mock"]}')
@@ -40,10 +40,10 @@ try:
 except Exception as e:
     print(f'    FAILED: {e}')
 
-# Test 3: Wave DAW Synth Engine
-print('\n[3] Wave DAW Synth Engine:')
+# Test 3: QuantSoundDesign Synth Engine
+print('\n[3] QuantSoundDesign Synth Engine:')
 try:
-    from src.apps.wave_daw.synth_engine import rft_additive_synthesis, UNITARY_RFT_AVAILABLE
+    from src.apps.quantsounddesign.synth_engine import rft_additive_synthesis, UNITARY_RFT_AVAILABLE
     print(f'    UnitaryRFT Available: {UNITARY_RFT_AVAILABLE}')
     waveform = rft_additive_synthesis(440.0, 0.1, 44100, num_harmonics=8)
     print(f'    Waveform Shape: {waveform.shape}')
@@ -52,10 +52,10 @@ try:
 except Exception as e:
     print(f'    FAILED: {e}')
 
-# Test 4: Wave DAW Drum Synthesizer
-print('\n[4] Wave DAW Drum Synthesizer:')
+# Test 4: QuantSoundDesign Drum Synthesizer
+print('\n[4] QuantSoundDesign Drum Synthesizer:')
 try:
-    from src.apps.wave_daw.pattern_editor import DrumSynthesizer, DrumType
+    from src.apps.quantsounddesign.pattern_editor import DrumSynthesizer, DrumType
     drums = DrumSynthesizer()
     kick = drums.synthesize_rft(DrumType.KICK)
     snare = drums.synthesize_rft(DrumType.SNARE)

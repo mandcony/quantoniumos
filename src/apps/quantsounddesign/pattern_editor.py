@@ -1,5 +1,5 @@
 """
-Wave DAW Pattern Editor - Step sequencer and pattern editing.
+QuantSoundDesign Pattern Editor - Step sequencer and pattern editing.
 
 Provides:
 - Step sequencer for drums

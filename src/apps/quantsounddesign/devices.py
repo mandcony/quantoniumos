@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
 # Copyright (C) 2025 Luis M. Minier / quantoniumos
-"""Wave DAW - Built-in Devices
+"""QuantSoundDesign - Built-in Devices
 
 RFT-native audio devices: EQ, filters, dynamics, utilities.
 These are the "special sauce" - DSP that uses Φ-RFT transforms.

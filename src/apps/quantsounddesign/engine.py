@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
 # Copyright (C) 2025 Luis M. Minier / quantoniumos
-"""Wave DAW - Core Engine
+"""QuantSoundDesign - Core Engine
 
-Φ-RFT native Digital Audio Workstation core data models and processing engine.
+Φ-RFT native sound design studio core data models and processing engine.
 Now connected to the full UnitaryRFT system for true unitary transforms.
 """
 
@@ -34,7 +34,7 @@ try:
         RFT_VARIANT_ADAPTIVE,
     )
     UNITARY_RFT_AVAILABLE = True
-    print("[OK] UnitaryRFT system connected to Wave DAW")
+    print("[OK] UnitaryRFT system connected to QuantSoundDesign")
 except ImportError as e:
     UNITARY_RFT_AVAILABLE = False
     print(f"⚠ UnitaryRFT not available, using fallback: {e}")
@@ -94,7 +94,7 @@ class DeviceKind(Enum):
 @dataclass
 class WaveField:
     """
-    Core signal abstraction for Wave DAW.
+    Core signal abstraction for QuantSoundDesign.
     Can represent audio in time domain or wave domain (RFT).
     """
     id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])

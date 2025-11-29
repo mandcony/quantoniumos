@@ -1,5 +1,5 @@
 """
-Wave DAW Piano Roll & Instrument Browser Widgets
+QuantSoundDesign Piano Roll & Instrument Browser Widgets
 
 Provides:
 - Interactive piano roll for MIDI editing

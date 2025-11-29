@@ -1,7 +1,7 @@
 """
-Wave DAW Audio Backend - Real-time audio I/O with sounddevice.
+QuantSoundDesign Audio Backend - Real-time audio I/O with sounddevice.
 
-Integrates with Session/AudioEngine for proper DAW graph audio processing.
+Integrates with Session/AudioEngine for proper audio graph processing.
 """
 
 import numpy as np

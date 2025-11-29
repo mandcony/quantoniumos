@@ -35,19 +35,19 @@ We have identified and validated a family of 7 transforms that are all unitary t
 | :--- | :--- | :--- | :--- |
 | **1. Original Φ-RFT** | Golden-ratio phase | Exact diagonalization | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
 | **2. Harmonic-Phase** | Cubic phase (curved time) | Nonlinear filtering | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
-| **3. Fibonacci Tilt** | Integer Fibonacci numbers | Lattice cryptography | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
-| **4. Chaotic Mix** | Haar-like random projections | Max entropy / Crypto | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **3. Fibonacci Tilt** | Integer Fibonacci numbers | Lattice structures | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **4. Chaotic Mix** | Haar-like random projections | Max entropy / Mixing | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
 | **5. Geometric Lattice** | Pure geometric phase | Optical computing | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
-| **6. Φ-Chaotic Hybrid** | Structure + Disorder | Post-quantum crypto | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+| **6. Φ-Chaotic Hybrid** | Structure + Disorder | Experimental crypto | [![Status](https://img.shields.io/badge/Status-Experimental-yellow)](docs/validation/RFT_THEOREMS.md) |
 | **7. Adaptive Φ** | Meta-transform | Universal codec | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
 
-### 3. Theorem 10: Breaking the ASCII Bottleneck & Boundary Problem
+### 3. Compression: Competitive Transform Codec (Not a Breakthrough)
 
-**Paper:** [*Breaking the ASCII Wall: Coherence-Free Hybrid DCT–RFT Transform Coding for Text and Structured Data*](https://zenodo.org/uploads/17726611) [![Paper](https://img.shields.io/badge/Paper-Zenodo-blue)](https://zenodo.org/uploads/17726611)
+**Paper:** [*Coherence-Free Hybrid DCT–RFT Transform Coding for Text and Structured Data*](https://zenodo.org/uploads/17726611) [![Paper](https://img.shields.io/badge/Paper-Zenodo-blue)](https://zenodo.org/uploads/17726611)
 
-We have solved the "ASCII Bottleneck"—the inability of continuous transforms to efficiently compress discrete text/code—and the "Boundary Problem" (Gibbs phenomenon at edges).
+We built a hierarchical transform codec combining DCT and Φ-RFT that is **competitive with classical transform codecs** on structured signals. It does NOT beat entropy bounds or general-purpose compressors.
 
-**Key Results:**
+**Honest Results:**
 *   **Greedy Hybrid Failure:** BPP = 0.805, Coherence = 0.50 (50% energy loss)
 *   **H3 Cascade Solution:** BPP = 0.672, Coherence = 0.00 (zero energy loss)
 *   **Improvement:** 16.5% compression gain with zero coherence violation
@@ -66,11 +66,16 @@ python experiments/ascii_wall_paper.py
 *   **Proof:** [![Theorem 10](https://img.shields.io/badge/Theorem-10_Proven-brightgreen)](papers/coherence_free_hybrid_transforms.tex)
 
 ### 4. Key Validation Results
-*   **Exact Diagonalization:** The Φ-RFT exactly diagonalizes systems governed by Golden Ratio resonances (Error $10^{-14}$).
-*   **Massive Sparsity:** For golden quasi-periodic signals, the transform achieves **>98% sparsity** at $N=512$.
-*   **Quantum Chaos:** Eigenphase statistics show **Level Repulsion** (variance $\approx 0.26$), consistent with Wigner–Dyson–like spectra.
-*   **Crypto-Agility:** We have identified **Fibonacci Tilt** as the optimal variant for Lattice-based hashing (RFT-SIS), achieving **~52% avalanche** (vs 49% for DFT, $N=256$, RFT-SIS test), demonstrating strong non-linear mixing in lattice constructions.
-*   **Adaptive Selection:** We have proven that the variants occupy distinct representational niches (Golden vs. Cubic vs. Lattice), enabling an adaptive meta-layer to automatically select the optimal basis.
+*   **Exact Unitarity:** Round-trip error < 1e-14 across all 7 variants.
+*   **Coherence Reduction:** Up to 79.6% lower mutual coherence vs DCT at optimal σ.
+*   **Sparsity:** For golden quasi-periodic signals, achieves >98% sparsity at N=512.
+*   **Avalanche Effect:** ~50.7% bit flip rate in experimental hash constructions.
+*   **Timbre Coverage:** RFT oscillators cover 280x more timbre space than standard (H9 hypothesis).
+
+**⚠️ Important Disclaimers:**
+- **Crypto:** All cryptographic constructions are **experimental** with no hardness proofs or third-party cryptanalysis. NOT production-ready.
+- **Compression:** Does NOT beat entropy bounds. Competitive with classical transform codecs, not a "breakthrough."
+- **Quantum:** This is classical signal processing. "Symbolic qubit" representations are compressed encodings, not quantum computation.
 
 [![Read Proofs](https://img.shields.io/badge/Read-Full_Proofs-blue)](docs/validation/RFT_THEOREMS.md)
 
@@ -103,7 +108,7 @@ QuantoniumOS/
 │  ├─ compression/              # Lossless & hybrid codecs
 │  └─ crypto/                   # RFT–SIS experiments & validators
 ├─ src/apps/
-│  ├─ wave_daw/                 # Φ-RFT Native DAW (see below)
+│  ├─ quantsounddesign/        # Φ-RFT Sound Design Studio (see below)
 │  ├─ qshll_system_monitor.py   # System monitor
 │  ├─ qshll_chatbox.py          # AI chat interface
 │  ├─ q_notes.py                # Notes app
@@ -119,15 +124,15 @@ QuantoniumOS/
 
 ---
 
-## Wave DAW: Φ-RFT Native Digital Audio Workstation
+## QuantSoundDesign: Φ-RFT Sound Design Studio
 
-**Wave DAW** is a professional-grade DAW built natively on the Φ-RFT framework. Unlike traditional DAWs that use FFT/DCT for audio processing, Wave DAW leverages the 7 unitary Φ-RFT variants for synthesis, analysis, and effects.
+**QuantSoundDesign** is a professional-grade sound design studio built natively on the Φ-RFT framework. Unlike traditional DAWs that use FFT/DCT for audio processing, QuantSoundDesign leverages the 7 unitary Φ-RFT variants for synthesis, analysis, and effects.
 
 ### Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      Wave DAW Pro GUI                        │
+│                    QuantSoundDesign GUI                     │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
 │  │ Arrangement │  │   Mixer     │  │   Pattern Editor    │  │
 │  │   View      │  │   (8 ch)    │  │   16-step grid      │  │
@@ -175,10 +180,10 @@ QuantoniumOS/
 ```bash
 # From desktop launcher
 python quantonium_os_src/frontend/quantonium_desktop.py
-# Click "Wave DAW" in Applications
+# Click "QuantSoundDesign" in Applications
 
 # Standalone
-python -c "from src.apps.wave_daw.gui import WaveDAW; from PyQt5.QtWidgets import QApplication; import sys; app = QApplication(sys.argv); w = WaveDAW(); w.show(); app.exec_()"
+python -c "from src.apps.quantsounddesign.gui import QuantSoundDesign; from PyQt5.QtWidgets import QApplication; import sys; app = QApplication(sys.argv); w = QuantSoundDesign(); w.show(); app.exec_()"
 ```
 
 ---
@@ -220,7 +225,7 @@ python scripts/verify_scaling_laws.py
 - Round-trip error: ~1e-16
 - Native C kernel with Python bindings
 
-**Wave DAW Integration:**
+**QuantSoundDesign Integration:**
 - HARMONIC variant for synthesis
 - Real-time RFT-based waveform generation
 - Drum synthesis via RFT spectral shaping

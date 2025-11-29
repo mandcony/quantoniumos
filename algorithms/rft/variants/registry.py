@@ -147,13 +147,13 @@ VARIANTS: Dict[str, VariantInfo] = {
         name="Fibonacci Tilt",
         generator=generate_fibonacci_tilt,
         innovation="Integer lattice alignment",
-        use_case="Post-quantum crypto",
+        use_case="Lattice structures (experimental)",
     ),
     "chaotic_mix": VariantInfo(
         name="Chaotic Mix",
         generator=generate_chaotic_mix,
         innovation="Haar-like randomness",
-        use_case="Secure scrambling",
+        use_case="Mixing/diffusion (experimental)",
     ),
     "geometric_lattice": VariantInfo(
         name="Geometric Lattice",

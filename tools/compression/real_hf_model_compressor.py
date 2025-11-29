@@ -21,9 +21,11 @@ from pathlib import Path
 from datetime import datetime
 import numpy as np
 
-# Add QuantoniumOS paths
-sys.path.append('/workspaces/quantoniumos/src')
-sys.path.append('/workspaces/quantoniumos')
+# Add QuantoniumOS paths (relative to this file's location)
+_this_dir = Path(__file__).resolve().parent
+_project_root = _this_dir.parent.parent
+sys.path.insert(0, str(_project_root / "src"))
+sys.path.insert(0, str(_project_root))
 
 try:
     from src.core.canonical_true_rft import CanonicalTrueRFT
@@ -324,24 +326,27 @@ def main():
     
     compressor = HuggingFaceRFTCompressor()
     
+    # Use relative paths from project root
+    project_root = _project_root
+    
     # Compress DialoGPT-small
-    model_path = "/workspaces/quantoniumos/hf_models/downloaded/DialoGPT-small"
+    model_path = project_root / "hf_models" / "downloaded" / "DialoGPT-small"
     model_id = "microsoft/DialoGPT-small"
     
-    if not Path(model_path).exists():
+    if not model_path.exists():
         print(f"❌ Model not found at {model_path}")
         print("   Download it first with the download script")
         return
     
     # Perform compression
-    result = compressor.compress_huggingface_model(model_path, model_id)
+    result = compressor.compress_huggingface_model(str(model_path), model_id)
     
     # Save compressed model
-    output_path = f"/workspaces/quantoniumos/data/parameters/quantum_models/dialogpt_small_compressed.pkl.gz"
-    saved_path = compressor.save_compressed_model(result, output_path)
+    output_path = project_root / "data" / "parameters" / "quantum_models" / "dialogpt_small_compressed.pkl.gz"
+    saved_path = compressor.save_compressed_model(result, str(output_path))
     
     # Update results database
-    results_file = "/workspaces/quantoniumos/results/real_hf_compression_results.json"
+    results_file = project_root / "results" / "real_hf_compression_results.json"
     
     try:
         with open(results_file, 'r') as f:

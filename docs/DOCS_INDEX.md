@@ -17,8 +17,8 @@
 
 ### Applications
 
-#### Wave DAW Pro (In Development)
-- **src/apps/wave_daw/README.md** - Complete technical documentation
+#### QuantSoundDesign (In Development)
+- **src/apps/quantsounddesign/README.md** - Complete technical documentation
   - Architecture overview (gui.py → engine.py → audio_backend.py)
   - Φ-RFT integration points (UnitaryRFT + RFTMW)
   - Synth engine with RFT oscillators (280x timbre coverage)
@@ -80,7 +80,7 @@ quantoniumos/
 │   ├── tetrahedral/    # Geometry deep-dive
 │   ├── sota_benchmarks/ # SOTA comparisons
 │   └── corpus/         # Real-world testing
-├── src/apps/wave_daw/   # Wave DAW Pro (testing)
+├── src/apps/quantsounddesign/ # QuantSoundDesign (testing)
 ├── hardware/            # FPGA/Verilog implementations
 ├── papers/              # Academic papers
 ├── docs/                # Documentation
@@ -92,7 +92,7 @@ quantoniumos/
 **Documentation Statistics:**
 - Core documentation files: ~15
 - Experiments with results: 7 categories
-- Applications: Wave DAW (testing phase)
+- Applications: QuantSoundDesign (testing phase)
 - Total essential reading: ~8 files
 - Archived historical docs: ~5
 
