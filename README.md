@@ -102,12 +102,128 @@ QuantoniumOS/
 │  ├─ rft/core/                 # Φ-RFT core + tests
 │  ├─ compression/              # Lossless & hybrid codecs
 │  └─ crypto/                   # RFT–SIS experiments & validators
-├─ os/                          # Desktop apps & visualizers
-├─ tools/                       # Dev helpers, benchmarking, data prep
+├─ src/apps/
+│  ├─ wave_daw/                 # Φ-RFT Native DAW (see below)
+│  ├─ qshll_system_monitor.py   # System monitor
+│  ├─ qshll_chatbox.py          # AI chat interface
+│  ├─ q_notes.py                # Notes app
+│  └─ quantum_simulator.py      # Vertex qubit simulator (experimental)
+├─ quantonium_os_src/
+│  ├─ frontend/                 # Desktop launcher
+│  └─ engine/RFTMW.py           # Middleware Transform Engine
+├─ tools/                       # Dev helpers, benchmarking
 ├─ tests/                       # Unit, integration, validation
 ├─ docs/                        # Tech docs, USPTO packages
-└─ data/                        # Configs, fixtures
+└─ experiments/                 # Research experiments
 ```
+
+---
+
+## Wave DAW: Φ-RFT Native Digital Audio Workstation
+
+**Wave DAW** is a professional-grade DAW built natively on the Φ-RFT framework. Unlike traditional DAWs that use FFT/DCT for audio processing, Wave DAW leverages the 7 unitary Φ-RFT variants for synthesis, analysis, and effects.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Wave DAW Pro GUI                        │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │ Arrangement │  │   Mixer     │  │   Pattern Editor    │  │
+│  │   View      │  │   (8 ch)    │  │   16-step grid      │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                    Synth Engine                              │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ PolySynth (8 voices) → Φ-RFT Additive Synthesis         ││
+│  │ DrumSynthesizer      → RFT-based drum generation        ││
+│  │ Piano Roll          → MIDI + keyboard input (ASDFGHJK)  ││
+│  └─────────────────────────────────────────────────────────┘│
+├─────────────────────────────────────────────────────────────┤
+│                    UnitaryRFT Engine                         │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │ HARMONIC variant  → Primary synthesis                   ││
+│  │ FIBONACCI variant → Lattice-based effects               ││
+│  │ GEOMETRIC variant → Phase modulation                    ││
+│  │ Round-trip error: ~1e-16 (machine precision)            ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Core Components
+
+| File | Purpose |
+|------|---------|
+| `gui.py` | Main UI (FL Studio/Ableton-inspired, 3200+ LOC) |
+| `engine.py` | Track/clip management, RFT processing pipeline |
+| `synth_engine.py` | Polyphonic synth with Φ-RFT additive synthesis |
+| `pattern_editor.py` | 16-step drum sequencer with RFT drum synthesis |
+| `piano_roll.py` | MIDI editor with computer keyboard input |
+| `audio_backend.py` | PyAudio/sounddevice output |
+
+### Features
+
+- **Φ-RFT Synthesis**: All waveforms generated via UnitaryRFT transforms
+- **RFT Drum Synth**: Kick, snare, hihat synthesized with golden-ratio harmonics
+- **8-Channel Mixer**: Volume, pan, mute/solo per track
+- **Pattern Editor**: 16-step grid with velocity, step preview on click
+- **Blank Session Start**: Opens empty project for creative freedom
+- **Computer Keyboard Piano**: ASDFGHJKL = C D E F G A B (octave playable)
+
+### Launch
+
+```bash
+# From desktop launcher
+python quantonium_os_src/frontend/quantonium_desktop.py
+# Click "Wave DAW" in Applications
+
+# Standalone
+python -c "from src.apps.wave_daw.gui import WaveDAW; from PyQt5.QtWidgets import QApplication; import sys; app = QApplication(sys.argv); w = WaveDAW(); w.show(); app.exec_()"
+```
+
+---
+
+## RFT Validation & Experiments
+
+### Validated Claims
+
+All experiments are in `experiments/` and can be reproduced:
+
+| Experiment | Script | Key Results |
+|------------|--------|-------------|
+| **ASCII Bottleneck** | `ascii_wall_paper.py` | H3 Cascade: BPP 0.672, coherence 0.00 |
+| **Scaling Laws** | `sota_compression_benchmark.py` | 61.8%+ sparsity for golden signals |
+| **Fibonacci Tilt** | `fibonacci_tilt_hypotheses.py` | Optimal for lattice crypto (52% avalanche) |
+| **Tetrahedral RFT** | `tetrahedral_deep_dive.py` | Geometric variant validation |
+| **SOTA Benchmark** | `sota_compression_benchmark.py` | Comparison vs DCT/DFT |
+
+### Run All Validations
+
+```bash
+# Quick validation
+python validate_system.py
+
+# Full RFT test suite
+pytest tests/rft/ -v
+
+# ASCII Wall theorem (Theorem 10)
+python experiments/ascii_wall_paper.py
+
+# Scaling laws (Theorem 3)
+python scripts/verify_scaling_laws.py
+```
+
+### Test Results Summary
+
+**UnitaryRFT Engine:**
+- 7 variants all unitary to machine precision (error < 1e-14)
+- Round-trip error: ~1e-16
+- Native C kernel with Python bindings
+
+**Wave DAW Integration:**
+- HARMONIC variant for synthesis
+- Real-time RFT-based waveform generation
+- Drum synthesis via RFT spectral shaping
 
 ---
 

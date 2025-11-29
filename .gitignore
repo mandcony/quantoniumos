@@ -136,3 +136,13 @@ docs_backup_*.tar.gz
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+
+# Mobile app dependencies (large, should install locally)
+quantonium-mobile/node_modules/
+quantonium-mobile/.expo/
+
+# Compiled native libraries (platform-specific)
+*.dll
+*.dylib
+algorithms/rft/kernels/compiled/
+

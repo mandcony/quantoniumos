@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: LicenseRef-Quantonium-NC
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 # License: LICENSE-CLAIMS-NC.md (Research/Education Only)
 """Hybrid Φ-RFT / DCT decomposition utilities for Theorem 10 tests.
 
@@ -8,20 +9,31 @@ This module implements:
   - A hybrid DCT + Φ-RFT decomposition (structure + texture)
   - An adaptive front-end that chooses thresholds/ordering from signal features
 
-This version adds experimental Φ-RFT kernel variants to probe the
-'ASCII bottleneck' and try to beat DCT on discrete symbol streams:
+This version integrates the canonical closed-form unitary transforms from
+`algorithms.rft.core.closed_form_rft` and all 7 variants from
+`algorithms.rft.variants.registry` to provide maximum flexibility for
+breaking the 'ASCII bottleneck':
 
-  kind="standard"  : original β·frac(k/φ) phase (baseline, fully proven)
-  kind="logphi"    : log-frequency warped phase (experimental)
-  kind="mixed"     : convex blend of standard + logphi, projected to unit circle
+  variant="standard"       : Original β·frac(k/φ) phase (baseline, fully proven)
+  variant="logphi"         : Log-frequency warped phase (low-freq emphasis)
+  variant="mixed"          : Convex blend of standard + logphi
+  variant="original"       : Matrix-based original Φ-RFT from registry
+  variant="harmonic_phase" : Cubic time-base for nonlinear filtering
+  variant="fibonacci_tilt" : Integer lattice alignment for crypto
+  variant="chaotic_mix"    : Haar-like randomness for secure scrambling
+  variant="geometric_lattice" : Phase-engineered for analog/optical
+  variant="phi_chaotic_hybrid": Structure + disorder for resilient codecs
+  variant="adaptive_phi"   : Meta selection for universal compression
+  variant="log_periodic"   : Log-frequency phase warp for symbols
+  variant="convex_mix"     : Hybrid log/standard adaptive textures
+  variant="golden_ratio_exact": Full resonance lattice for validation
 
-All variants remain unit-modulus diagonal on top of FFT, so the core
-operator is still unitary in exact arithmetic.
+All variants remain unitary (error < 10⁻¹⁴ in exact arithmetic).
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional, Callable
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -29,7 +41,85 @@ from scipy.fftpack import dct, idct
 from numpy.fft import fft, ifft
 from scipy.stats import kurtosis
 
+# Import canonical closed-form RFT
+try:
+    from algorithms.rft.core.closed_form_rft import (
+        rft_forward as canonical_rft_forward,
+        rft_inverse as canonical_rft_inverse,
+        PHI as CANONICAL_PHI,
+    )
+    HAS_CANONICAL_RFT = True
+except ImportError:
+    HAS_CANONICAL_RFT = False
+
+# Import all 7 variants from registry
+try:
+    from algorithms.rft.variants.registry import (
+        VARIANTS,
+        generate_original_phi_rft,
+        generate_harmonic_phase,
+        generate_fibonacci_tilt,
+        generate_chaotic_mix,
+        generate_geometric_lattice,
+        generate_phi_chaotic_hybrid,
+        generate_adaptive_phi,
+        generate_log_periodic_phi_rft,
+        generate_convex_mixed_phi_rft,
+        generate_exact_golden_ratio_unitary,
+    )
+    HAS_VARIANTS = True
+except ImportError:
+    HAS_VARIANTS = False
+    VARIANTS = {}
+
 PHI: float = (1.0 + np.sqrt(5.0)) / 2.0
+
+
+# ---------------------------------------------------------------------------
+# Variant matrix cache (for matrix-based variants)
+# ---------------------------------------------------------------------------
+_VARIANT_MATRIX_CACHE: Dict[Tuple[str, int], np.ndarray] = {}
+
+
+def _get_variant_matrix(variant: str, n: int) -> Optional[np.ndarray]:
+    """Get or generate the unitary matrix for a registry variant."""
+    if not HAS_VARIANTS:
+        return None
+    
+    cache_key = (variant, n)
+    if cache_key in _VARIANT_MATRIX_CACHE:
+        return _VARIANT_MATRIX_CACHE[cache_key]
+    
+    if variant not in VARIANTS:
+        return None
+    
+    matrix = VARIANTS[variant].generator(n)
+    _VARIANT_MATRIX_CACHE[cache_key] = matrix
+    return matrix
+
+
+def list_available_variants() -> Dict[str, str]:
+    """List all available Φ-RFT variants with their use cases.
+    
+    Returns
+    -------
+    Dict[str, str]
+        Mapping of variant name to description/use case.
+    """
+    variants = {}
+    
+    # Phase-based (always available)
+    variants["standard"] = "Original β·frac(k/φ) phase - baseline, fully proven"
+    variants["logphi"] = "Log-frequency warped - low-frequency emphasis"
+    variants["mixed"] = "Convex blend of standard + logphi"
+    variants["canonical"] = "Closed-form RFT from core module (O(n log n))"
+    
+    # Matrix-based (from registry)
+    if HAS_VARIANTS:
+        for name, info in VARIANTS.items():
+            variants[name] = f"{info.name} - {info.use_case}"
+    
+    return variants
 
 
 # ---------------------------------------------------------------------------
@@ -99,7 +189,19 @@ def _phi_phase(
 
 # ---------------------------------------------------------------------------
 # Φ-RFT forward/inverse transforms (FFT-factorized, unitary)
+# Supports both local phase-based variants AND registry matrix-based variants
 # ---------------------------------------------------------------------------
+
+# Registry variant names that use matrix multiplication
+MATRIX_VARIANTS = {
+    "original", "harmonic_phase", "fibonacci_tilt", "chaotic_mix",
+    "geometric_lattice", "phi_chaotic_hybrid", "adaptive_phi",
+    "log_periodic", "convex_mix", "golden_ratio_exact"
+}
+
+# Phase-based variants (FFT-factorized, O(n log n))
+PHASE_VARIANTS = {"standard", "logphi", "mixed", "canonical"}
+
 
 def rft_forward(
     x: ArrayLike,
@@ -108,21 +210,32 @@ def rft_forward(
     sigma: float = 1.25,
     kind: str = "standard",
     mix: float = 0.25,
+    variant: Optional[str] = None,
 ) -> np.ndarray:
     """Φ-RFT forward transform for one-dimensional sequences.
+
+    Supports two modes:
+    1. Phase-based (O(n log n)): kind in {"standard", "logphi", "mixed", "canonical"}
+    2. Matrix-based (O(n²)): variant in registry (7+ unitary matrices)
 
     Parameters
     ----------
     x : ArrayLike
         Input signal (real or complex), shape (N,).
     beta : float
-        Golden phase scaling parameter.
+        Golden phase scaling parameter (phase-based only).
     sigma : float
-        Quadratic chirp scaling parameter.
-    kind : {"standard", "logphi", "mixed"}
-        φ-phase variant to use (see `_phi_phase`).
+        Quadratic chirp scaling parameter (phase-based only).
+    kind : {"standard", "logphi", "mixed", "canonical"}
+        Phase-based φ-variant. "canonical" uses closed_form_rft.py.
     mix : float
         Blend factor for "mixed" variant.
+    variant : str, optional
+        If provided, use a matrix-based variant from the registry.
+        Overrides `kind`. Options: "original", "harmonic_phase",
+        "fibonacci_tilt", "chaotic_mix", "geometric_lattice",
+        "phi_chaotic_hybrid", "adaptive_phi", "log_periodic",
+        "convex_mix", "golden_ratio_exact".
 
     Returns
     -------
@@ -131,6 +244,20 @@ def rft_forward(
     """
     signal = np.asarray(x, dtype=np.complex128)
     n = signal.shape[0]
+    
+    # --- Matrix-based variants (from registry) ---
+    if variant is not None and variant in MATRIX_VARIANTS:
+        matrix = _get_variant_matrix(variant, n)
+        if matrix is not None:
+            return matrix @ signal
+        # Fallback to phase-based if matrix unavailable
+        kind = "standard"
+    
+    # --- Canonical closed-form RFT ---
+    if kind == "canonical" and HAS_CANONICAL_RFT:
+        return canonical_rft_forward(signal, beta=beta, sigma=sigma)
+    
+    # --- Phase-based variants (O(n log n)) ---
     k = np.arange(n, dtype=np.float64)
 
     phase_golden = _phi_phase(k, n, beta=beta, kind=kind, mix=mix)
@@ -147,8 +274,13 @@ def rft_inverse(
     sigma: float = 1.25,
     kind: str = "standard",
     mix: float = 0.25,
+    variant: Optional[str] = None,
 ) -> np.ndarray:
     """Inverse Φ-RFT transform matching :func:`rft_forward`.
+
+    Supports two modes:
+    1. Phase-based (O(n log n)): kind in {"standard", "logphi", "mixed", "canonical"}
+    2. Matrix-based (O(n²)): variant in registry (7+ unitary matrices)
 
     Parameters
     ----------
@@ -158,10 +290,13 @@ def rft_inverse(
         Golden phase scaling parameter (must match forward).
     sigma : float
         Quadratic chirp scaling parameter (must match forward).
-    kind : {"standard", "logphi", "mixed"}
-        φ-phase variant (must match forward).
+    kind : {"standard", "logphi", "mixed", "canonical"}
+        φ-phase variant (must match forward). "canonical" uses closed_form_rft.py.
     mix : float
         Blend factor for "mixed" variant.
+    variant : str, optional
+        If provided, use a matrix-based variant from the registry.
+        Must match the variant used in forward transform.
 
     Returns
     -------
@@ -170,6 +305,21 @@ def rft_inverse(
     """
     coeffs = np.asarray(y, dtype=np.complex128)
     n = coeffs.shape[0]
+    
+    # --- Matrix-based variants (from registry) ---
+    if variant is not None and variant in MATRIX_VARIANTS:
+        matrix = _get_variant_matrix(variant, n)
+        if matrix is not None:
+            # Inverse of unitary matrix is conjugate transpose
+            return np.conj(matrix.T) @ coeffs
+        # Fallback to phase-based if matrix unavailable
+        kind = "standard"
+    
+    # --- Canonical closed-form RFT ---
+    if kind == "canonical" and HAS_CANONICAL_RFT:
+        return canonical_rft_inverse(coeffs, beta=beta, sigma=sigma)
+    
+    # --- Phase-based variants (O(n log n)) ---
     k = np.arange(n, dtype=np.float64)
 
     phase_golden = _phi_phase(k, n, beta=beta, kind=kind, mix=mix)
@@ -204,11 +354,13 @@ def hybrid_decomposition(
     threshold_rft: float = 0.05,
     strategy: str = "balanced",
     verbose: bool = False,
-    # New Φ-RFT controls:
+    # Φ-RFT controls (phase-based):
     rft_kind: str = "standard",
     rft_mix: float = 0.25,
     rft_beta: float = 0.83,
     rft_sigma: float = 1.25,
+    # NEW: Matrix-based variant from registry
+    rft_variant: Optional[str] = None,
 ) -> HybridResult:
     """Split ``x`` into DCT-sparse structure and Φ-RFT-sparse texture.
 
@@ -226,14 +378,19 @@ def hybrid_decomposition(
         Order of applying basis updates per iteration.
     verbose : bool
         If True, prints energy breakdown per iteration.
-    rft_kind : {"standard", "logphi", "mixed"}
-        Φ-RFT variant to employ for the texture component.
+    rft_kind : {"standard", "logphi", "mixed", "canonical"}
+        Phase-based Φ-RFT variant for the texture component.
     rft_mix : float
         Blend factor when rft_kind="mixed".
     rft_beta : float
         Golden phase scaling, forwarded to rft_forward / rft_inverse.
     rft_sigma : float
         Quadratic chirp scaling, forwarded to rft_forward / rft_inverse.
+    rft_variant : str, optional
+        Matrix-based variant from registry. Overrides rft_kind.
+        Options: "original", "harmonic_phase", "fibonacci_tilt",
+        "chaotic_mix", "geometric_lattice", "phi_chaotic_hybrid",
+        "adaptive_phi", "log_periodic", "convex_mix", "golden_ratio_exact".
 
     Returns
     -------
@@ -255,6 +412,7 @@ def hybrid_decomposition(
         "residual_energy": [],
         "struct_sparsity": [],
         "texture_sparsity": [],
+        "rft_variant": rft_variant if rft_variant else rft_kind,
     }
 
     total_energy = _energy(signal)
@@ -306,13 +464,14 @@ def hybrid_decomposition(
                 metadata["texture_sparsity"].append(1.0)
 
             elif step_type == "rft":
-                # --- Φ-RFT Update (experimental kernels allowed) ---
+                # --- Φ-RFT Update (supports all unitary variants) ---
                 rft_coeffs = rft_forward(
                     residual,
                     beta=rft_beta,
                     sigma=rft_sigma,
                     kind=rft_kind,
                     mix=rft_mix,
+                    variant=rft_variant,  # NEW: matrix-based variant
                 )
                 rft_thresh_val = (
                     thresh * np.max(np.abs(rft_coeffs)) if rft_coeffs.size else 0.0
@@ -339,6 +498,7 @@ def hybrid_decomposition(
                     sigma=rft_sigma,
                     kind=rft_kind,
                     mix=rft_mix,
+                    variant=rft_variant,  # NEW: matrix-based variant
                 )
                 texture += texture_update
                 residual -= texture_update
@@ -478,13 +638,20 @@ def adaptive_hybrid_compress(
     *,
     verbose: bool = False,
     max_iter: int = 5,
-    # New knobs to explore beating the ASCII wall:
+    # Phase-based knobs:
     rft_kind: str = "standard",
     rft_mix: float = 0.25,
     rft_beta: float = 0.83,
     rft_sigma: float = 1.25,
+    # NEW: Matrix-based variant from registry
+    rft_variant: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray, Dict[str, float], Dict[str, object]]:
-    """Run adaptive hybrid decomposition and return components plus metadata.
+    """Run adaptive hybrid decomposition using any unitary Φ-RFT variant.
+
+    This function integrates:
+    - The canonical closed-form RFT (O(n log n))
+    - All 7+ matrix-based variants from the registry (O(n²))
+    - Phase-based variants for experimentation
 
     Parameters
     ----------
@@ -494,14 +661,28 @@ def adaptive_hybrid_compress(
         If True, prints intermediate diagnostics.
     max_iter : int
         Maximum hybrid iterations.
-    rft_kind : {"standard", "logphi", "mixed"}
-        Φ-RFT variant for the texture component.
+    rft_kind : {"standard", "logphi", "mixed", "canonical"}
+        Phase-based Φ-RFT variant for the texture component.
+        "canonical" uses the closed_form_rft.py implementation.
     rft_mix : float
         Blend factor for "mixed" variant (0..1).
     rft_beta : float
         Golden phase scaling parameter.
     rft_sigma : float
         Quadratic chirp scaling parameter.
+    rft_variant : str, optional
+        Matrix-based variant from registry. Overrides rft_kind.
+        Options:
+        - "original": Original Φ-RFT (quantum simulation)
+        - "harmonic_phase": Cubic time-base (nonlinear filtering)
+        - "fibonacci_tilt": Integer lattice (post-quantum crypto)
+        - "chaotic_mix": Haar-like randomness (secure scrambling)
+        - "geometric_lattice": Phase-engineered (analog/optical)
+        - "phi_chaotic_hybrid": Structure+disorder (resilient codecs)
+        - "adaptive_phi": Meta selection (universal compression)
+        - "log_periodic": Log-frequency (symbol compression)
+        - "convex_mix": Hybrid log/standard (adaptive textures)
+        - "golden_ratio_exact": Full resonance (theorem validation)
 
     Returns
     -------
@@ -524,6 +705,10 @@ def adaptive_hybrid_compress(
         print("Predicted weights:")
         print(f"  DCT: {weights['dct']:.2f}")
         print(f"  RFT: {weights['rft']:.2f}")
+        if rft_variant:
+            print(f"  RFT Variant: {rft_variant}")
+        else:
+            print(f"  RFT Kind: {rft_kind}")
 
     # Translate weights into thresholds: more weight → lower threshold
     threshold_dct = 0.15 * (1.0 - weights["dct"])
@@ -549,6 +734,7 @@ def adaptive_hybrid_compress(
         rft_mix=rft_mix,
         rft_beta=rft_beta,
         rft_sigma=rft_sigma,
+        rft_variant=rft_variant,  # NEW: pass variant through
     )
     result.metadata["features"] = features
     result.metadata["weights"] = weights

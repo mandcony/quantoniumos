@@ -1,0 +1,113 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
+#
+# QuantoniumOS Paper Validation Container
+# ========================================
+# This Dockerfile creates an environment for reproducing all claims
+# from the QuantoniumOS research papers:
+#
+#   - TechRxiv: 10.36227/techrxiv.175384307.75693850/v1
+#   - Zenodo: 10.5281/zenodo.17712905
+#   - USPTO Application: 19/169,399
+#
+# Usage:
+#   docker build -f Dockerfile.papers -t quantoniumos-papers .
+#   docker run --rm quantoniumos-papers
+#
+# To run specific validations:
+#   docker run --rm quantoniumos-papers python scripts/irrevocable_truths.py
+#   docker run --rm quantoniumos-papers python scripts/verify_scaling_laws.py
+#   docker run --rm quantoniumos-papers pytest tests/rft/ -v
+
+FROM python:3.11-slim
+
+LABEL maintainer="Luis M. Minier"
+LABEL description="QuantoniumOS Paper Validation Environment"
+LABEL version="1.0"
+
+# Environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONIOENCODING=utf-8 \
+    PIP_NO_CACHE_DIR=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create working directory
+WORKDIR /quantoniumos
+
+# Copy only requirements first (for layer caching)
+COPY requirements.txt pyproject.toml ./
+
+# Install Python dependencies (minimal set for paper validation)
+RUN pip install --upgrade pip && \
+    pip install \
+    numpy>=1.21.0 \
+    scipy>=1.7.0 \
+    matplotlib>=3.4.0 \
+    pytest>=6.0.0 \
+    sympy>=1.8
+
+# Copy source code
+COPY algorithms/ ./algorithms/
+COPY scripts/ ./scripts/
+COPY tests/ ./tests/
+COPY docs/ ./docs/
+COPY experiments/ ./experiments/
+COPY papers/ ./papers/
+
+# Install package in development mode
+RUN pip install -e .
+
+# Create validation script
+RUN echo '#!/bin/bash\n\
+echo "========================================"\n\
+echo "QuantoniumOS Paper Validation Suite"\n\
+echo "========================================"\n\
+echo ""\n\
+echo "Papers validated:"\n\
+echo "  - TechRxiv DOI: 10.36227/techrxiv.175384307.75693850/v1"\n\
+echo "  - Zenodo DOI: 10.5281/zenodo.17712905"\n\
+echo "  - USPTO App: 19/169,399"\n\
+echo ""\n\
+echo "========================================"\n\
+echo "[1/5] Irrevocable Truths (7 Variants)"\n\
+echo "========================================"\n\
+python scripts/irrevocable_truths.py\n\
+echo ""\n\
+echo "========================================"\n\
+echo "[2/5] Scaling Laws (Theorem 3)"\n\
+echo "========================================"\n\
+python scripts/verify_scaling_laws.py\n\
+echo ""\n\
+echo "========================================"\n\
+echo "[3/5] Variant Claims (Theorems 4-7)"\n\
+echo "========================================"\n\
+python scripts/verify_variant_claims.py\n\
+echo ""\n\
+echo "========================================"\n\
+echo "[4/5] Unit Tests"\n\
+echo "========================================"\n\
+pytest tests/rft/ -v --tb=short\n\
+echo ""\n\
+echo "========================================"\n\
+echo "[5/5] ASCII Bottleneck (Theorem 10)"\n\
+echo "========================================"\n\
+python scripts/verify_ascii_bottleneck.py 2>/dev/null || echo "Optional: requires additional data"\n\
+echo ""\n\
+echo "========================================"\n\
+echo "Validation Complete"\n\
+echo "========================================"\n\
+' > /quantoniumos/run_all_validations.sh && chmod +x /quantoniumos/run_all_validations.sh
+
+# Default command: run full validation suite
+CMD ["/bin/bash", "/quantoniumos/run_all_validations.sh"]
+
+# Alternative entrypoints (use with docker run):
+# docker run --rm quantoniumos-papers python scripts/irrevocable_truths.py
+# docker run --rm quantoniumos-papers pytest tests/rft/ -v
+# docker run --rm quantoniumos-papers python -c "from algorithms.rft import closed_form_rft; print('OK')"

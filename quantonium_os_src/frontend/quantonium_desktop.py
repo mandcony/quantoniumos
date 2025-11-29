@@ -494,34 +494,13 @@ class QuantoniumDesktop(QMainWindow):
                 "description": "Secure data storage",
                 "icon": "q_vault.svg"
             },
-            # === Wavespace Labs ===
+            # === Wave DAW ===
             {
-                "name": "Audio Lab",
-                "path": os.path.join(project_root, "src", "apps", "audio_lab", "cli.py"),
-                "category": "LABS",
-                "description": "RFT-based audio processing",
-                "icon": "audio_lab.svg"
-            },
-            {
-                "name": "Visual Lab",
-                "path": os.path.join(project_root, "src", "apps", "visual_lab", "cli.py"),
-                "category": "LABS",
-                "description": "RFT-based image/video processing",
-                "icon": "visual_lab.svg"
-            },
-            {
-                "name": "Field Lab",
-                "path": os.path.join(project_root, "src", "apps", "field_lab", "cli.py"),
-                "category": "LABS",
-                "description": "Wave/field simulation sandbox",
-                "icon": "field_lab.svg"
-            },
-            {
-                "name": "Crypto Lab",
-                "path": os.path.join(project_root, "src", "apps", "crypto_lab", "cli.py"),
-                "category": "LABS",
-                "description": "Wave-crypto research (experimental)",
-                "icon": "crypto_lab.svg"
+                "name": "Wave DAW",
+                "path": os.path.join(project_root, "src", "apps", "wave_daw", "gui.py"),
+                "category": "STUDIO",
+                "description": "Φ-RFT Native DAW",
+                "icon": "wave_daw.svg"
             }
         ]
     
@@ -694,15 +673,9 @@ class QuantoniumDesktop(QMainWindow):
                 self.launch_ai_chat()
             elif "rft_validation" in app_path.lower():
                 self.launch_rft_validator()
-            # Wavespace Labs
-            elif "audio_lab" in app_path.lower():
-                self.launch_audio_lab()
-            elif "visual_lab" in app_path.lower():
-                self.launch_visual_lab()
-            elif "field_lab" in app_path.lower():
-                self.launch_field_lab()
-            elif "crypto_lab" in app_path.lower():
-                self.launch_crypto_lab()
+            # Wave DAW
+            elif "wave_daw" in app_path.lower():
+                self.launch_wave_daw()
             else:
                 # Fallback to subprocess for unknown apps
                 self.launch_app_subprocess(app_data)
@@ -998,86 +971,18 @@ class QuantoniumDesktop(QMainWindow):
             import traceback
             traceback.print_exc()
     
-    # === Wavespace Labs Launchers ===
-    
-    def launch_audio_lab(self):
-        """Launch Audio Lab within the OS environment"""
+    def launch_wave_daw(self):
+        """Launch Wave DAW - Φ-RFT Native DAW"""
         try:
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            lab_path = os.path.join(project_root, "src", "apps", "audio_lab", "cli.py")
-            
-            spec = importlib.util.spec_from_file_location("audio_lab_cli", lab_path)
-            lab_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(lab_module)
-            
-            # Run the main function (terminal output for now)
-            if hasattr(lab_module, 'main'):
-                lab_module.main()
-            else:
-                print("Audio Lab: module loaded but no main() found")
-                
+            import sys
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            if project_root not in sys.path:
+                sys.path.insert(0, project_root)
+            from src.apps.wave_daw.gui import WaveDAW
+            self.wave_daw_window = WaveDAW()
+            self.wave_daw_window.show()
         except Exception as e:
-            print(f"Error launching Audio Lab: {e}")
-            import traceback
-            traceback.print_exc()
-    
-    def launch_visual_lab(self):
-        """Launch Visual Lab within the OS environment"""
-        try:
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            lab_path = os.path.join(project_root, "src", "apps", "visual_lab", "cli.py")
-            
-            spec = importlib.util.spec_from_file_location("visual_lab_cli", lab_path)
-            lab_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(lab_module)
-            
-            if hasattr(lab_module, 'main'):
-                lab_module.main()
-            else:
-                print("Visual Lab: module loaded but no main() found")
-                
-        except Exception as e:
-            print(f"Error launching Visual Lab: {e}")
-            import traceback
-            traceback.print_exc()
-    
-    def launch_field_lab(self):
-        """Launch Field Lab within the OS environment"""
-        try:
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            lab_path = os.path.join(project_root, "src", "apps", "field_lab", "cli.py")
-            
-            spec = importlib.util.spec_from_file_location("field_lab_cli", lab_path)
-            lab_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(lab_module)
-            
-            if hasattr(lab_module, 'main'):
-                lab_module.main()
-            else:
-                print("Field Lab: module loaded but no main() found")
-                
-        except Exception as e:
-            print(f"Error launching Field Lab: {e}")
-            import traceback
-            traceback.print_exc()
-    
-    def launch_crypto_lab(self):
-        """Launch Crypto Lab within the OS environment"""
-        try:
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            lab_path = os.path.join(project_root, "src", "apps", "crypto_lab", "cli.py")
-            
-            spec = importlib.util.spec_from_file_location("crypto_lab_cli", lab_path)
-            lab_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(lab_module)
-            
-            if hasattr(lab_module, 'main'):
-                lab_module.main()
-            else:
-                print("Crypto Lab: module loaded but no main() found")
-                
-        except Exception as e:
-            print(f"Error launching Crypto Lab: {e}")
+            print(f"Error launching Wave DAW: {e}")
             import traceback
             traceback.print_exc()
     

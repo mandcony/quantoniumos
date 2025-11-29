@@ -114,7 +114,7 @@ theta_k = 2π * frac(k/φ)
 
 ### Core Files
 
-1. **`quantonium_os_src/engine/middleware_transform.py`**
+1. **`quantonium_os_src/engine/RFTMW.py`**
    - Main middleware engine
    - Transform selection logic
    - Binary ↔ Waveform conversion
@@ -131,7 +131,7 @@ theta_k = 2π * frac(k/φ)
 ### Usage Example
 
 ```python
-from quantonium_os_src.engine.middleware_transform import MiddlewareTransformEngine
+from quantonium_os_src.engine.RFTMW import MiddlewareTransformEngine
 
 # Create engine
 engine = MiddlewareTransformEngine()
@@ -197,7 +197,7 @@ The golden-ratio phase modulation and middleware architecture are covered by the
 Run the middleware directly to see the wave computation in action:
 
 ```bash
-python3 quantonium_os_src/engine/middleware_transform.py
+python3 quantonium_os_src/engine/RFTMW.py
 ```
 
 This will demonstrate:

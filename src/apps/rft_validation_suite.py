@@ -50,7 +50,7 @@ except Exception as e:
     print(f"RFT not available: {e}")
     RFT_AVAILABLE = False
 
-from quantonium_os_src.engine.middleware_transform import MiddlewareTransformEngine
+from quantonium_os_src.engine.RFTMW import MiddlewareTransformEngine
 
 # --- Brand palette ------------------------------------------------------------
 ACCENT       = "#0ea5e9"   # QuantoniumOS cyan

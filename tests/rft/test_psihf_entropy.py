@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 Ψ†F Structure Test via Column Entropy
 Tests that Ψ†F has high-entropy columns (not monomial/permutation-like)

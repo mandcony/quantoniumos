@@ -62,7 +62,8 @@ typedef enum {
     RFT_VARIANT_CHAOTIC = 3,        // Chaotic Mix RFT (PRNG-based)
     RFT_VARIANT_GEOMETRIC = 4,      // Geometric Lattice RFT
     RFT_VARIANT_HYBRID = 5,         // Hybrid Phi-Chaotic RFT
-    RFT_VARIANT_ADAPTIVE = 6        // Adaptive Phi RFT
+    RFT_VARIANT_ADAPTIVE = 6,       // Adaptive Phi RFT
+    RFT_VARIANT_HYPERBOLIC = 7      // Hyperbolic RFT
 } rft_variant_t;
 #define RFT_FLAG_USE_RESONANCE      0x00000010
 
