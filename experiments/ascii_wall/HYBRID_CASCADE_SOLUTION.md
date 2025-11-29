@@ -1,8 +1,11 @@
-# Breaking the ASCII Wall: The Hierarchical Cascade Solution
+# Hybrid Cascade Architecture: The Solution
+
+> **DISCLAIMER:** All improvements reported here are relative to our own baseline
+> hybrid codecs. We do not claim to beat Shannon entropy or any universal limit.
 
 ## Problem Statement
 
-**The ASCII Wall (2024):**
+**The Coherence Problem (informally: "ASCII Wall"):**
 - Pure DCT: 4.83 BPP at ~15 dB (poor on discontinuities)
 - Pure RFT: 7.72 BPP at ~12 dB (wastes bits on structure)
 - Greedy Hybrid: 4.96-7.72 BPP (coherence violations kill sparsity)

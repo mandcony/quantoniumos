@@ -2,6 +2,25 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
+ARCHIVED / INVALID EXPERIMENT
+=============================
+
+This file reflects an early, incorrect claim of "quantum supremacy" and
+O(N) complexity for Φ-RFT. It is kept only as a historical artifact.
+
+THE CLAIMS IN THIS FILE ARE FALSE:
+- There is NO exponential quantum speedup
+- There is NO O(N) vs O(N log N) advantage
+- The actual Φ-RFT complexity is O(N log N), same as FFT
+- This is NOT suitable for Nature/Science publication
+
+This file was moved to docs/archive/deprecated_overclaims/ because it
+would immediately destroy credibility with any peer reviewer.
+
+See docs/algorithms/rft/MATHEMATICAL_FOUNDATIONS.md for correct claims.
+
+--- ORIGINAL (INCORRECT) DOCSTRING BELOW ---
+
 Quantum Supremacy Benchmark Suite
 =================================
 

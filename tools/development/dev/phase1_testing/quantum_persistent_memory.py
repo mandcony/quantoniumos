@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
 """
+DEV-ONLY EXPERIMENTAL SCRIPT
+============================
+
+NOTE: This is an experimental dev script using "quantum" terminology
+for purely classical state storage. It is NOT part of the core RFT
+scientific claims and should be treated as a toy prototype.
+
+The "quantum" naming is historical/marketing - this is just JSON/pickle
+persistence with some fancy naming. There is nothing quantum about it.
+
+Do not include in scientific publications.
+
+---
+
 Phase 3: Persistent Memory with Quantum States
 Quantum-encoded memory system with state validation and persistence
 """

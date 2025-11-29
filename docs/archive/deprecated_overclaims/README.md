@@ -26,6 +26,15 @@ See `docs/algorithms/rft/MATHEMATICAL_FOUNDATIONS.md` for an honest, accurate de
 - Empirically verified vs conjectured properties
 - Honest limitations
 
+### quantum_supremacy_benchmark.py
+**THE WORST OFFENDER.** Contains:
+- "demonstrates exponential quantum speedup over classical FFT"
+- "providing the primary result for Nature/Science publication"
+- "Compare RFT O(N) vs Classical FFT O(N log N)"
+
+Reality: There is NO exponential speedup. The actual Φ-RFT complexity is O(N log N),
+same as FFT. This file would have immediately destroyed credibility with any reviewer.
+
 ## Lesson Learned
 
 **Overclaiming destroys credibility.** The underlying Φ-RFT work is solid:

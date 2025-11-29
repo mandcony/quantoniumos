@@ -1,4 +1,7 @@
-# Breaking the ASCII Wall: Experimental Results
+# Hybrid DCT-RFT Cascade: Experimental Results
+
+> **NOTE:** All improvements are relative to our own baseline hybrid codecs.
+> We do not claim to beat Shannon entropy bounds or any universal compression limits.
 
 ## Summary by Signal Category
 

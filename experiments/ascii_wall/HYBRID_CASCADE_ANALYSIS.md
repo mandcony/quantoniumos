@@ -1,4 +1,4 @@
-# The ASCII Wall Theorem: Hierarchical Cascade RFT
+# Hybrid Cascade Transform Analysis
 
 **Copyright (C) 2025 QuantoniumOS Research Team**  
 **Licensed under Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**  
@@ -6,15 +6,21 @@
 
 **Finalized: November 25, 2025**
 
+> **IMPORTANT DISCLAIMER:**
+> All improvements reported here are relative to our own hybrid baseline codecs.
+> We do NOT claim to beat Shannon entropy bounds or any proven universal limits.
+> The "ASCII Wall" is an informal name for the coherence problem we observed,
+> not a fundamental barrier in information theory.
+
 ## Abstract
 
-We present a complete solution to the "ASCII Wall" problem in hybrid transform coding, where non-orthogonal basis competition causes catastrophic compression failure on discontinuous signals. Through systematic hypothesis testing, we prove that **hierarchical cascade architecture** eliminates mutual coherence violations while achieving 0.406-0.828 BPP compression on ASCII/structured data—a 50-84% improvement over baseline hybrid methods.
+We present a solution to the coherence problem in hybrid DCT-RFT transform coding, where non-orthogonal basis competition causes compression degradation on discontinuous signals. Through systematic hypothesis testing, we show that **hierarchical cascade architecture** eliminates mutual coherence violations while achieving 0.406-0.828 BPP compression on ASCII/structured data—a 50-84% improvement over our baseline hybrid methods.
 
 ## 1. Problem Statement
 
-### The ASCII Wall
+### The Coherence Problem (informally: "ASCII Wall")
 
-**Definition:** Hybrid DCT-RFT codecs achieve 4.83-7.72 BPP on ASCII text, worse than pure DCT or naive methods, despite theoretical complementarity of the transforms.
+**Observation:** Our hybrid DCT-RFT codecs achieve 4.83-7.72 BPP on ASCII text, worse than pure DCT or naive methods, despite theoretical complementarity of the transforms.
 
 **Root Cause:** Per-bin greedy selection between non-orthogonal bases (DCT, RFT) violates Parseval's theorem locally, discarding correlated energy. For ASCII signals with high edge density, this coherence loss reaches 50% of total signal energy.
 
