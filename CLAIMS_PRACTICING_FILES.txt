@@ -103,6 +103,8 @@ tools/development/dev/tools/enhanced_essential_quantum_ai.py
 
 # --- QuantSoundDesign DAW (Φ-RFT Sound Design Studio) ---
 src/apps/quantsounddesign/audio_backend.py
+src/apps/quantsounddesign/audio_settings_dialog.py
+src/apps/quantsounddesign/audio_stress_test.py
 src/apps/quantsounddesign/core.py
 src/apps/quantsounddesign/gui.py
 src/apps/quantsounddesign/pattern_editor.py

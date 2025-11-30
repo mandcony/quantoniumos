@@ -26,10 +26,10 @@ try:
         QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton,
         QLabel, QComboBox, QScrollArea, QFrame, QSlider, QSpinBox, QDoubleSpinBox,
         QTabWidget, QListWidget, QListWidgetItem, QGroupBox, QSplitter,
-        QMenu, QAction, QCheckBox
+        QMenu, QAction, QCheckBox, QShortcut
     )
     from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-    from PyQt5.QtGui import QPainter, QColor, QBrush, QPen, QFont, QLinearGradient
+    from PyQt5.QtGui import QPainter, QColor, QBrush, QPen, QFont, QLinearGradient, QKeySequence
 except ImportError:
     pass
 
@@ -1051,7 +1051,12 @@ class PatternEditorWidget(QWidget):
         self.selected_row = -1
         self.selected_step = -1
         
+        # Step clipboard for copy/paste
+        self._step_clipboard: Optional[PatternStep] = None
+        self._row_clipboard: Optional[List[PatternStep]] = None
+        
         self._setup_ui()
+        self._setup_shortcuts()
     
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -1248,6 +1253,213 @@ class PatternEditorWidget(QWidget):
         
         scroll.setWidget(self.rows_container)
         layout.addWidget(scroll)
+    
+    def _setup_shortcuts(self):
+        """Setup keyboard shortcuts for pattern editor"""
+        # Copy/Paste step
+        copy = QShortcut(QKeySequence("Ctrl+C"), self)
+        copy.activated.connect(self.copy_step)
+        
+        paste = QShortcut(QKeySequence("Ctrl+V"), self)
+        paste.activated.connect(self.paste_step)
+        
+        # Copy/Paste row
+        copy_row = QShortcut(QKeySequence("Ctrl+Shift+C"), self)
+        copy_row.activated.connect(self.copy_row)
+        
+        paste_row = QShortcut(QKeySequence("Ctrl+Shift+V"), self)
+        paste_row.activated.connect(self.paste_row)
+        
+        # Delete step
+        delete = QShortcut(QKeySequence(Qt.Key_Delete), self)
+        delete.activated.connect(self.clear_selected_step)
+        
+        # Toggle step
+        space = QShortcut(QKeySequence(Qt.Key_Space), self)
+        space.activated.connect(self.toggle_selected_step)
+        
+        # Arrow key navigation
+        left = QShortcut(QKeySequence(Qt.Key_Left), self)
+        left.activated.connect(lambda: self._navigate(-1, 0))
+        
+        right = QShortcut(QKeySequence(Qt.Key_Right), self)
+        right.activated.connect(lambda: self._navigate(1, 0))
+        
+        up = QShortcut(QKeySequence(Qt.Key_Up), self)
+        up.activated.connect(lambda: self._navigate(0, -1))
+        
+        down = QShortcut(QKeySequence(Qt.Key_Down), self)
+        down.activated.connect(lambda: self._navigate(0, 1))
+        
+        # Velocity up/down
+        vel_up = QShortcut(QKeySequence("Shift+Up"), self)
+        vel_up.activated.connect(lambda: self._adjust_velocity(0.1))
+        
+        vel_down = QShortcut(QKeySequence("Shift+Down"), self)
+        vel_down.activated.connect(lambda: self._adjust_velocity(-0.1))
+        
+        # Fill row with current step
+        fill = QShortcut(QKeySequence("Ctrl+F"), self)
+        fill.activated.connect(self.fill_row)
+    
+    def copy_step(self):
+        """Copy selected step to clipboard"""
+        if self.pattern and 0 <= self.selected_row < len(self.pattern.rows):
+            row = self.pattern.rows[self.selected_row]
+            if 0 <= self.selected_step < len(row.steps):
+                orig = row.steps[self.selected_step]
+                self._step_clipboard = PatternStep(
+                    active=orig.active,
+                    velocity=orig.velocity,
+                    note=orig.note,
+                    probability=orig.probability,
+                    offset=orig.offset,
+                    decay=orig.decay,
+                    slide=orig.slide
+                )
+    
+    def paste_step(self):
+        """Paste clipboard step to selected position"""
+        if self._step_clipboard is None:
+            return
+        if self.pattern and 0 <= self.selected_row < len(self.pattern.rows):
+            row = self.pattern.rows[self.selected_row]
+            if 0 <= self.selected_step < len(row.steps):
+                step = row.steps[self.selected_step]
+                step.active = self._step_clipboard.active
+                step.velocity = self._step_clipboard.velocity
+                step.note = self._step_clipboard.note
+                step.probability = self._step_clipboard.probability
+                step.offset = self._step_clipboard.offset
+                step.decay = self._step_clipboard.decay
+                step.slide = self._step_clipboard.slide
+                
+                # Refresh display
+                if 0 <= self.selected_row < len(self.row_widgets):
+                    self.row_widgets[self.selected_row].refresh_step(self.selected_step)
+                self._populate_step_controls(step)
+                self.pattern_changed.emit()
+    
+    def copy_row(self):
+        """Copy entire selected row"""
+        if self.pattern and 0 <= self.selected_row < len(self.pattern.rows):
+            row = self.pattern.rows[self.selected_row]
+            self._row_clipboard = [
+                PatternStep(
+                    active=s.active,
+                    velocity=s.velocity,
+                    note=s.note,
+                    probability=s.probability,
+                    offset=s.offset,
+                    decay=s.decay,
+                    slide=s.slide
+                ) for s in row.steps
+            ]
+    
+    def paste_row(self):
+        """Paste clipboard row to selected row"""
+        if not self._row_clipboard:
+            return
+        if self.pattern and 0 <= self.selected_row < len(self.pattern.rows):
+            row = self.pattern.rows[self.selected_row]
+            for i, clip in enumerate(self._row_clipboard):
+                if i < len(row.steps):
+                    step = row.steps[i]
+                    step.active = clip.active
+                    step.velocity = clip.velocity
+                    step.note = clip.note
+                    step.probability = clip.probability
+                    step.offset = clip.offset
+                    step.decay = clip.decay
+                    step.slide = clip.slide
+            
+            # Refresh row display
+            self._refresh_row(self.selected_row)
+            self.pattern_changed.emit()
+    
+    def clear_selected_step(self):
+        """Clear the selected step"""
+        if self.pattern and 0 <= self.selected_row < len(self.pattern.rows):
+            row = self.pattern.rows[self.selected_row]
+            if 0 <= self.selected_step < len(row.steps):
+                step = row.steps[self.selected_step]
+                step.active = False
+                step.velocity = 0.8
+                step.probability = 1.0
+                step.offset = 0.0
+                step.decay = 1.0
+                step.slide = False
+                
+                if 0 <= self.selected_row < len(self.row_widgets):
+                    self.row_widgets[self.selected_row].refresh_step(self.selected_step)
+                self._populate_step_controls(step)
+                self.pattern_changed.emit()
+    
+    def toggle_selected_step(self):
+        """Toggle the selected step active state"""
+        if self.pattern and 0 <= self.selected_row < len(self.pattern.rows):
+            row = self.pattern.rows[self.selected_row]
+            if 0 <= self.selected_step < len(row.steps):
+                step = row.steps[self.selected_step]
+                step.active = not step.active
+                
+                if 0 <= self.selected_row < len(self.row_widgets):
+                    self.row_widgets[self.selected_row].refresh_step(self.selected_step)
+                
+                # Trigger preview if activating
+                if step.active:
+                    self.step_preview.emit(self.selected_row, step.velocity)
+                
+                self.pattern_changed.emit()
+    
+    def fill_row(self):
+        """Fill row by repeating clipboard step"""
+        if not self._step_clipboard:
+            return
+        if self.pattern and 0 <= self.selected_row < len(self.pattern.rows):
+            row = self.pattern.rows[self.selected_row]
+            for step in row.steps:
+                step.active = self._step_clipboard.active
+                step.velocity = self._step_clipboard.velocity
+                step.note = self._step_clipboard.note
+                step.probability = self._step_clipboard.probability
+                step.offset = self._step_clipboard.offset
+                step.decay = self._step_clipboard.decay
+                step.slide = self._step_clipboard.slide
+            
+            self._refresh_row(self.selected_row)
+            self.pattern_changed.emit()
+    
+    def _navigate(self, dx: int, dy: int):
+        """Navigate selection by delta"""
+        if not self.pattern:
+            return
+        
+        new_step = max(0, min(self.pattern.steps - 1, self.selected_step + dx))
+        new_row = max(0, min(len(self.pattern.rows) - 1, self.selected_row + dy))
+        
+        if new_row != self.selected_row or new_step != self.selected_step:
+            self._on_step_selected(new_row, new_step)
+    
+    def _adjust_velocity(self, delta: float):
+        """Adjust velocity of selected step"""
+        if self.pattern and 0 <= self.selected_row < len(self.pattern.rows):
+            row = self.pattern.rows[self.selected_row]
+            if 0 <= self.selected_step < len(row.steps):
+                step = row.steps[self.selected_step]
+                step.velocity = max(0.0, min(1.0, step.velocity + delta))
+                
+                if 0 <= self.selected_row < len(self.row_widgets):
+                    self.row_widgets[self.selected_row].refresh_step(self.selected_step)
+                self._populate_step_controls(step)
+                self.pattern_changed.emit()
+    
+    def _refresh_row(self, row_index: int):
+        """Refresh all steps in a row"""
+        if 0 <= row_index < len(self.row_widgets):
+            widget = self.row_widgets[row_index]
+            for i in range(len(widget.step_buttons)):
+                widget.refresh_step(i)
     
     def _set_scale_controls_enabled(self, enabled: bool):
         if hasattr(self, 'scale_root_combo'):

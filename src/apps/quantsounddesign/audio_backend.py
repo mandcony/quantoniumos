@@ -353,6 +353,12 @@ class AudioBackend:
         self.drum_synth = None
         self._last_step = -1  # Track which step was last triggered
         
+        # Track state (volume, pan, mute, solo)
+        self.track_volumes: Dict[int, float] = {}  # track_idx -> volume (0-1)
+        self.track_pans: Dict[int, float] = {}     # track_idx -> pan (-1 to 1)
+        self.track_mutes: Dict[int, bool] = {}     # track_idx -> muted
+        self.track_solos: Dict[int, bool] = {}     # track_idx -> soloed
+        
         # Thread safety
         self.lock = threading.Lock()
         
@@ -544,6 +550,50 @@ class AudioBackend:
             if audio_data.dtype != np.float32:
                 audio_data = audio_data.astype(np.float32)
             self.preview_sounds.append((0, audio_data))
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # TRACK CONTROL METHODS
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    def set_track_volume(self, track_idx: int, volume: float):
+        """Set volume for a track (0.0 to 1.0)."""
+        with self.lock:
+            if track_idx not in self.track_volumes:
+                self.track_volumes[track_idx] = 1.0
+            self.track_volumes[track_idx] = max(0.0, min(1.0, volume))
+    
+    def set_track_pan(self, track_idx: int, pan: float):
+        """Set pan for a track (-1.0 left to 1.0 right)."""
+        with self.lock:
+            if track_idx not in self.track_pans:
+                self.track_pans[track_idx] = 0.0
+            self.track_pans[track_idx] = max(-1.0, min(1.0, pan))
+    
+    def set_track_mute(self, track_idx: int, muted: bool):
+        """Set mute state for a track."""
+        with self.lock:
+            self.track_mutes[track_idx] = muted
+    
+    def set_track_solo(self, track_idx: int, soloed: bool):
+        """Set solo state for a track."""
+        with self.lock:
+            self.track_solos[track_idx] = soloed
+    
+    def get_track_volume(self, track_idx: int) -> float:
+        """Get volume for a track."""
+        return self.track_volumes.get(track_idx, 1.0)
+    
+    def get_track_pan(self, track_idx: int) -> float:
+        """Get pan for a track."""
+        return self.track_pans.get(track_idx, 0.0)
+    
+    def is_track_muted(self, track_idx: int) -> bool:
+        """Check if a track is muted."""
+        return self.track_mutes.get(track_idx, False)
+    
+    def is_track_soloed(self, track_idx: int) -> bool:
+        """Check if a track is soloed."""
+        return self.track_solos.get(track_idx, False)
     
     def _audio_callback(self, outdata: np.ndarray, frames: int, 
                         time_info, status):
@@ -915,6 +965,109 @@ def get_performance_stats() -> Optional[PerformanceStats]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# PERSISTENT CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import json
+import os
+from pathlib import Path
+
+
+def get_config_dir() -> Path:
+    """Get the QuantoniumOS config directory"""
+    if os.name == 'nt':  # Windows
+        base = Path(os.environ.get('APPDATA', Path.home()))
+    else:  # macOS/Linux
+        base = Path.home() / '.config'
+    
+    config_dir = base / 'quantoniumos'
+    config_dir.mkdir(parents=True, exist_ok=True)
+    return config_dir
+
+
+def get_audio_config_path() -> Path:
+    """Get the audio config file path"""
+    return get_config_dir() / 'audio_config.json'
+
+
+def save_audio_config(settings: AudioSettings) -> bool:
+    """
+    Save audio settings to disk.
+    
+    Settings are persisted globally so the DAW remembers your devices
+    and latency preferences between sessions.
+    """
+    try:
+        config_path = get_audio_config_path()
+        data = settings.to_dict()
+        
+        # Add metadata
+        data['_version'] = 1
+        data['_saved_at'] = time.strftime('%Y-%m-%d %H:%M:%S')
+        
+        with open(config_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        
+        print(f"✓ Audio config saved to {config_path}")
+        return True
+    except Exception as e:
+        print(f"✗ Failed to save audio config: {e}")
+        return False
+
+
+def load_audio_config() -> Optional[AudioSettings]:
+    """
+    Load audio settings from disk.
+    
+    Returns None if no config exists or if loading fails.
+    Falls back to safe defaults if saved device is no longer available.
+    """
+    try:
+        config_path = get_audio_config_path()
+        if not config_path.exists():
+            return None
+        
+        with open(config_path, 'r') as f:
+            data = json.load(f)
+        
+        settings = AudioSettings.from_dict(data)
+        
+        # Validate devices still exist
+        input_devices, output_devices = get_audio_devices()
+        input_ids = {d.id for d in input_devices}
+        output_ids = {d.id for d in output_devices}
+        
+        if settings.input_device is not None and settings.input_device not in input_ids:
+            print(f"⚠ Saved input device {settings.input_device} not found, using default")
+            settings.input_device = None
+        
+        if settings.output_device is not None and settings.output_device not in output_ids:
+            print(f"⚠ Saved output device {settings.output_device} not found, using default")
+            settings.output_device = None
+        
+        print(f"✓ Audio config loaded from {config_path}")
+        return settings
+        
+    except Exception as e:
+        print(f"⚠ Failed to load audio config, using defaults: {e}")
+        return None
+
+
+def load_or_create_audio_settings() -> AudioSettings:
+    """
+    Load audio settings from disk, or create defaults.
+    
+    This is the main entry point for getting audio settings at startup.
+    """
+    settings = load_audio_config()
+    if settings is None:
+        settings = AudioSettings()
+        # Save defaults for next time
+        save_audio_config(settings)
+    return settings
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # EXPORTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -934,6 +1087,12 @@ __all__ = [
     # Device enumeration
     'get_audio_devices',
     'get_default_device_info',
+    
+    # Persistent config
+    'get_config_dir',
+    'save_audio_config',
+    'load_audio_config',
+    'load_or_create_audio_settings',
     
     # Global functions
     'get_audio_backend',

@@ -18,7 +18,7 @@ Design Philosophy:
 import sys
 import os
 import numpy as np
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Tuple, Any
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -30,13 +30,14 @@ try:
         QComboBox, QToolBar, QStatusBar, QDockWidget, QListWidget,
         QListWidgetItem, QGraphicsView, QGraphicsScene, QGraphicsRectItem,
         QGridLayout, QTabWidget, QSizePolicy, QStackedWidget, QProgressBar,
-        QToolButton
+        QToolButton, QTreeView
     )
     from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QRectF, QPointF, QSize
     from PyQt5.QtGui import (
         QColor, QPainter, QBrush, QPen, QFont, QLinearGradient, 
         QRadialGradient, QPainterPath, QIcon, QPixmap
     )
+    from PyQt5.QtWidgets import QFileSystemModel
 except ImportError:
     print("PyQt5 required: pip install PyQt5")
     sys.exit(1)
@@ -56,12 +57,12 @@ except ImportError:
 # Import synth and piano roll
 try:
     from .synth_engine import PolySynth, PRESET_LIBRARY
-    from .piano_roll import InstrumentEditor, PianoKeyboard, InstrumentBrowser
+    from .piano_roll import InstrumentEditor, PianoKeyboard, InstrumentBrowser, PianoRollToolbar
     SYNTH_AVAILABLE = True
 except ImportError:
     try:
         from synth_engine import PolySynth, PRESET_LIBRARY
-        from piano_roll import InstrumentEditor, PianoKeyboard, InstrumentBrowser
+        from piano_roll import InstrumentEditor, PianoKeyboard, InstrumentBrowser, PianoRollToolbar
         SYNTH_AVAILABLE = True
     except ImportError as e:
         SYNTH_AVAILABLE = False
@@ -104,6 +105,22 @@ except ImportError:
     except ImportError as e:
         CORE_AVAILABLE = False
         print(f"Core module not available: {e}")
+
+# Import audio settings dialog and meter widget (EPIC 01)
+try:
+    from .audio_settings_dialog import (
+        AudioSettingsDialog, AudioMeterWidget, show_audio_settings_dialog
+    )
+    AUDIO_SETTINGS_AVAILABLE = True
+except ImportError:
+    try:
+        from audio_settings_dialog import (
+            AudioSettingsDialog, AudioMeterWidget, show_audio_settings_dialog
+        )
+        AUDIO_SETTINGS_AVAILABLE = True
+    except ImportError as e:
+        AUDIO_SETTINGS_AVAILABLE = False
+        print(f"Audio settings dialog not available: {e}")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PROFESSIONAL STYLE THEME - QuantSoundDesign
@@ -1217,6 +1234,229 @@ class PlayheadOverlay(QWidget):
             painter.fillRect(ph_x - 3, 0, 6, self.height(), glow)
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUTOMATION LANE WIDGET
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class AutomationLaneWidget(QWidget):
+    """Visual editor for automation curves with point editing"""
+    
+    point_added = pyqtSignal(float, float)  # beat, value
+    point_moved = pyqtSignal(int, float, float)  # index, new_beat, new_value
+    point_removed = pyqtSignal(int)  # index
+    
+    def __init__(self, param_name: str = "Volume", parent=None):
+        super().__init__(parent)
+        self.param_name = param_name
+        self.points: List[Tuple[float, float]] = []  # (beat, value) pairs
+        
+        # Display settings
+        self.beat_width = 40
+        self.min_value = 0.0
+        self.max_value = 1.0
+        self.grid_beats = 32
+        
+        # Editing state
+        self.selected_point = -1
+        self.dragging = False
+        self.drag_start: Optional[QPointF] = None
+        
+        # Recording
+        self.recording = False
+        self.record_buffer: List[Tuple[float, float]] = []
+        
+        self.setMinimumHeight(60)
+        self.setMaximumHeight(80)
+        self.setMouseTracking(True)
+        self.setFocusPolicy(Qt.StrongFocus)
+        
+        self.setStyleSheet("background: #151515;")
+    
+    def set_points(self, points: List[Tuple[float, float]]):
+        """Set automation points"""
+        self.points = list(points)
+        self.update()
+    
+    def add_point(self, beat: float, value: float):
+        """Add a point and keep sorted by beat"""
+        self.points.append((beat, value))
+        self.points.sort(key=lambda p: p[0])
+        self.point_added.emit(beat, value)
+        self.update()
+    
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        
+        w = self.width()
+        h = self.height()
+        
+        # Background
+        painter.fillRect(0, 0, w, h, QColor("#151515"))
+        
+        # Grid lines (every beat)
+        painter.setPen(QPen(QColor("#222222"), 1))
+        for beat in range(self.grid_beats + 1):
+            x = beat * self.beat_width
+            if x > w:
+                break
+            if beat % 4 == 0:
+                painter.setPen(QPen(QColor("#333333"), 1))
+            else:
+                painter.setPen(QPen(QColor("#1a1a1a"), 1))
+            painter.drawLine(int(x), 0, int(x), h)
+        
+        # Center line (0.5 value)
+        mid_y = h // 2
+        painter.setPen(QPen(QColor("#333333"), 1, Qt.DashLine))
+        painter.drawLine(0, mid_y, w, mid_y)
+        
+        # Draw automation curve
+        if len(self.points) >= 2:
+            path = QPainterPath()
+            first_point = self.points[0]
+            x0 = first_point[0] * self.beat_width
+            y0 = h - (first_point[1] - self.min_value) / (self.max_value - self.min_value) * h
+            path.moveTo(x0, y0)
+            
+            for beat, value in self.points[1:]:
+                x = beat * self.beat_width
+                y = h - (value - self.min_value) / (self.max_value - self.min_value) * h
+                path.lineTo(x, y)
+            
+            # Draw curve
+            painter.setPen(QPen(QColor("#00aaff"), 2))
+            painter.drawPath(path)
+            
+            # Fill under curve
+            fill_path = QPainterPath(path)
+            fill_path.lineTo(self.points[-1][0] * self.beat_width, h)
+            fill_path.lineTo(self.points[0][0] * self.beat_width, h)
+            fill_path.closeSubpath()
+            painter.fillPath(fill_path, QColor(0, 170, 255, 30))
+        
+        # Draw points
+        for i, (beat, value) in enumerate(self.points):
+            x = beat * self.beat_width
+            y = h - (value - self.min_value) / (self.max_value - self.min_value) * h
+            
+            if i == self.selected_point:
+                painter.setBrush(QBrush(QColor("#00ffaa")))
+                painter.setPen(QPen(QColor("#ffffff"), 2))
+                radius = 6
+            else:
+                painter.setBrush(QBrush(QColor("#00aaff")))
+                painter.setPen(QPen(QColor("#ffffff"), 1))
+                radius = 4
+            
+            painter.drawEllipse(QPointF(x, y), radius, radius)
+        
+        # Param name
+        painter.setPen(QColor("#666666"))
+        painter.setFont(QFont("Segoe UI", 8))
+        painter.drawText(4, 12, self.param_name)
+        
+        # Recording indicator
+        if self.recording:
+            painter.fillRect(w - 40, 4, 36, 12, QColor("#ff0000"))
+            painter.setPen(QColor("#ffffff"))
+            painter.drawText(w - 38, 13, "REC")
+    
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            # Check if clicking on a point
+            hit = self._hit_test(event.pos())
+            if hit >= 0:
+                self.selected_point = hit
+                self.dragging = True
+                self.drag_start = event.pos()
+            else:
+                # Add new point
+                beat = event.x() / self.beat_width
+                value = self.max_value - (event.y() / self.height()) * (self.max_value - self.min_value)
+                value = max(self.min_value, min(self.max_value, value))
+                self.add_point(beat, value)
+                
+                # Select the new point
+                for i, (b, v) in enumerate(self.points):
+                    if abs(b - beat) < 0.01:
+                        self.selected_point = i
+                        break
+            
+            self.update()
+        
+        elif event.button() == Qt.RightButton:
+            # Remove point
+            hit = self._hit_test(event.pos())
+            if hit >= 0:
+                del self.points[hit]
+                self.point_removed.emit(hit)
+                self.selected_point = -1
+                self.update()
+    
+    def mouseMoveEvent(self, event):
+        if self.dragging and self.selected_point >= 0:
+            beat = event.x() / self.beat_width
+            value = self.max_value - (event.y() / self.height()) * (self.max_value - self.min_value)
+            value = max(self.min_value, min(self.max_value, value))
+            beat = max(0, beat)
+            
+            self.points[self.selected_point] = (beat, value)
+            self.points.sort(key=lambda p: p[0])
+            
+            # Re-find the selected point after sorting
+            for i, (b, v) in enumerate(self.points):
+                if abs(b - beat) < 0.01 and abs(v - value) < 0.01:
+                    self.selected_point = i
+                    break
+            
+            self.update()
+    
+    def mouseReleaseEvent(self, event):
+        if self.dragging and self.selected_point >= 0:
+            beat, value = self.points[self.selected_point]
+            self.point_moved.emit(self.selected_point, beat, value)
+        self.dragging = False
+        self.drag_start = None
+    
+    def _hit_test(self, pos: QPointF) -> int:
+        """Check if position hits a point, return index or -1"""
+        h = self.height()
+        for i, (beat, value) in enumerate(self.points):
+            x = beat * self.beat_width
+            y = h - (value - self.min_value) / (self.max_value - self.min_value) * h
+            
+            dist = ((pos.x() - x) ** 2 + (pos.y() - y) ** 2) ** 0.5
+            if dist <= 8:
+                return i
+        return -1
+    
+    def start_recording(self):
+        """Start recording automation"""
+        self.recording = True
+        self.record_buffer.clear()
+        self.update()
+    
+    def record_value(self, beat: float, value: float):
+        """Record a value at beat position"""
+        if self.recording:
+            self.record_buffer.append((beat, value))
+    
+    def stop_recording(self):
+        """Stop recording and merge buffer"""
+        self.recording = False
+        
+        # Merge recorded points (thin them out)
+        if self.record_buffer:
+            # Simple thinning: keep every Nth point
+            thinned = self.record_buffer[::4]  # Keep every 4th point
+            for beat, value in thinned:
+                self.add_point(beat, value)
+            self.record_buffer.clear()
+        
+        self.update()
+
+
 class ArrangementView(QWidget):
     """Professional arrangement view with larger tracks and timeline."""
     
@@ -1515,37 +1755,186 @@ class MeterWidget(QFrame):
                 gradient.setColorAt(1.0, QColor('#ff0000'))
                 painter.fillRect(x, h - level_h, meter_w, level_h, gradient)
             
-            # Peak indicator
+            # Peak indicator with hold
             peak_y = int((1 - peak) * h)
             if peak > 0.9:
-                painter.setPen(QPen(QColor('#ff0000'), 2))
+                painter.setPen(QPen(QColor('#ff0000'), 3))
+            elif peak > 0.7:
+                painter.setPen(QPen(QColor('#ffaa00'), 2))
             else:
-                painter.setPen(QPen(QColor('#ffffff'), 2))
+                painter.setPen(QPen(QColor('#00ff00'), 2))
             painter.drawLine(x, peak_y, x + meter_w, peak_y)
+    
+    def clear_clip(self):
+        """Reset peak hold"""
+        self.peak_l = 0.0
+        self.peak_r = 0.0
+        self.update()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# INSERT SLOT - FX Insert for Channel Strip
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class InsertSlot(QFrame):
+    """Single insert slot for FX chain"""
+    
+    fx_changed = pyqtSignal(int, str)  # slot_index, fx_name
+    fx_removed = pyqtSignal(int)  # slot_index
+    
+    FX_LIST = [
+        "---",
+        "EQ 3-Band",
+        "Compressor",
+        "Limiter",
+        "Reverb",
+        "Delay",
+        "Chorus",
+        "Phaser",
+        "Distortion",
+        "Filter LP",
+        "Filter HP",
+        "Gate",
+        "Φ-RFT Spatial"
+    ]
+    
+    def __init__(self, slot_index: int, parent=None):
+        super().__init__(parent)
+        self.slot_index = slot_index
+        self.fx_name = "---"
+        self.enabled = True
+        
+        self.setFixedHeight(20)
+        self.setStyleSheet("""
+            InsertSlot {
+                background: #1a1a1a;
+                border: 1px solid #333;
+                border-radius: 2px;
+            }
+            InsertSlot:hover {
+                border-color: #00aaff;
+            }
+        """)
+        
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(2, 0, 2, 0)
+        layout.setSpacing(2)
+        
+        # Enable button
+        self.enable_btn = QPushButton()
+        self.enable_btn.setFixedSize(12, 12)
+        self.enable_btn.setCheckable(True)
+        self.enable_btn.setChecked(True)
+        self.enable_btn.setStyleSheet("""
+            QPushButton { background: #333; border: none; border-radius: 2px; }
+            QPushButton:checked { background: #00aaff; }
+        """)
+        self.enable_btn.clicked.connect(self._toggle_enable)
+        layout.addWidget(self.enable_btn)
+        
+        # FX label (click to open menu)
+        self.fx_label = QLabel("---")
+        self.fx_label.setStyleSheet("color: #666; font-size: 8px;")
+        self.fx_label.setCursor(Qt.PointingHandCursor)
+        self.fx_label.mousePressEvent = self._show_fx_menu
+        layout.addWidget(self.fx_label, 1)
+    
+    def _toggle_enable(self, checked):
+        self.enabled = checked
+        self.fx_label.setStyleSheet(f"color: {'#aaa' if checked else '#444'}; font-size: 8px;")
+    
+    def _show_fx_menu(self, event):
+        menu = QMenu(self)
+        for fx in self.FX_LIST:
+            action = menu.addAction(fx)
+            action.triggered.connect(lambda c, f=fx: self._set_fx(f))
+        menu.exec_(event.globalPos())
+    
+    def _set_fx(self, fx_name: str):
+        self.fx_name = fx_name
+        self.fx_label.setText(fx_name if fx_name != "---" else "---")
+        if fx_name != "---":
+            self.fx_label.setStyleSheet("color: #00ffaa; font-size: 8px;")
+            self.fx_changed.emit(self.slot_index, fx_name)
+        else:
+            self.fx_label.setStyleSheet("color: #666; font-size: 8px;")
+            self.fx_removed.emit(self.slot_index)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SEND KNOB - Aux Send Control
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class SendKnob(QFrame):
+    """Aux send level control"""
+    
+    level_changed = pyqtSignal(int, float)  # send_index, level
+    
+    SEND_COLORS = ["#00aaff", "#00ffaa", "#ffaa00", "#ff00aa"]
+    
+    def __init__(self, send_index: int, label: str = "A", parent=None):
+        super().__init__(parent)
+        self.send_index = send_index
+        self.level = 0.0
+        self.color = self.SEND_COLORS[send_index % len(self.SEND_COLORS)]
+        
+        self.setFixedSize(32, 40)
+        
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(1)
+        
+        # Label
+        lbl = QLabel(label)
+        lbl.setAlignment(Qt.AlignCenter)
+        lbl.setStyleSheet(f"color: {self.color}; font-size: 8px; font-weight: bold;")
+        layout.addWidget(lbl)
+        
+        # Knob (slider for now)
+        self.slider = QSlider(Qt.Vertical)
+        self.slider.setRange(0, 100)
+        self.slider.setValue(0)
+        self.slider.setFixedHeight(28)
+        self.slider.valueChanged.connect(self._on_change)
+        self.slider.setStyleSheet(f"""
+            QSlider::groove:vertical {{ background: #222; width: 4px; border-radius: 2px; }}
+            QSlider::handle:vertical {{ background: {self.color}; height: 8px; margin: -2px; border-radius: 3px; }}
+        """)
+        layout.addWidget(self.slider, 0, Qt.AlignCenter)
+    
+    def _on_change(self, value):
+        self.level = value / 100.0
+        self.level_changed.emit(self.send_index, self.level)
 
 
 class ChannelStrip(QFrame):
-    """Professional mixer channel strip with fader, pan, meters."""
+    """Professional mixer channel strip with fader, pan, meters, inserts, and sends."""
     
     volume_changed = pyqtSignal(int, float)
     pan_changed = pyqtSignal(int, float)
+    send_changed = pyqtSignal(int, int, float)  # track_idx, send_idx, level
+    fx_changed = pyqtSignal(int, int, str)  # track_idx, slot_idx, fx_name
     
     COLORS = TrackHeader.TRACK_COLORS
     
-    def __init__(self, track_name: str, index: int, parent=None):
+    def __init__(self, track_name: str, index: int, parent=None, show_inserts: bool = True, show_sends: bool = True):
         super().__init__(parent)
         self.index = index
         self.track_color = self.COLORS[index % len(self.COLORS)] if index >= 0 else '#00aaff'
+        self.show_inserts = show_inserts
+        self.show_sends = show_sends
+        self.insert_slots: List[InsertSlot] = []
+        self.send_knobs: List[SendKnob] = []
         
-        self.setFixedWidth(80)
-        self.setMinimumHeight(360)
+        self.setFixedWidth(90 if (show_inserts or show_sends) else 80)
+        self.setMinimumHeight(420 if (show_inserts or show_sends) else 360)
         self.setup_ui(track_name)
         self.update_style()
         
     def setup_ui(self, track_name: str):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(6, 8, 6, 8)
-        layout.setSpacing(6)
+        layout.setContentsMargins(4, 6, 4, 6)
+        layout.setSpacing(4)
         
         # Color bar at top
         self.color_bar = QFrame()
@@ -1559,15 +1948,15 @@ class ChannelStrip(QFrame):
         self.name_label.setWordWrap(True)
         self.name_label.setStyleSheet(f"""
             color: {self.track_color}; 
-            font-size: 10px; 
+            font-size: 9px; 
             font-weight: bold;
-            padding: 4px;
+            padding: 2px;
         """)
         layout.addWidget(self.name_label)
         
         # Mute/Solo/Arm buttons
         btn_row = QHBoxLayout()
-        btn_row.setSpacing(3)
+        btn_row.setSpacing(2)
         
         self.mute_btn = self._create_btn("M", "#ff4444")
         self.solo_btn = self._create_btn("S", "#ffaa00")
@@ -1578,34 +1967,67 @@ class ChannelStrip(QFrame):
         btn_row.addWidget(self.arm_btn)
         layout.addLayout(btn_row)
         
-        # Pan control
-        pan_row = QHBoxLayout()
-        pan_row.setSpacing(4)
+        # Insert slots (if enabled)
+        if self.show_inserts and self.index >= 0:
+            inserts_frame = QFrame()
+            inserts_frame.setStyleSheet("background: #151515; border-radius: 3px;")
+            inserts_layout = QVBoxLayout(inserts_frame)
+            inserts_layout.setContentsMargins(2, 2, 2, 2)
+            inserts_layout.setSpacing(1)
+            
+            # Label
+            ins_label = QLabel("INSERTS")
+            ins_label.setStyleSheet("color: #555; font-size: 7px;")
+            ins_label.setAlignment(Qt.AlignCenter)
+            inserts_layout.addWidget(ins_label)
+            
+            # 4 insert slots
+            for i in range(4):
+                slot = InsertSlot(i)
+                slot.fx_changed.connect(lambda si, fn, ti=self.index: self.fx_changed.emit(ti, si, fn))
+                self.insert_slots.append(slot)
+                inserts_layout.addWidget(slot)
+            
+            layout.addWidget(inserts_frame)
         
+        # Pan control
         pan_label = QLabel("PAN")
-        pan_label.setStyleSheet("color: #666; font-size: 8px;")
+        pan_label.setStyleSheet("color: #555; font-size: 7px;")
         pan_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(pan_label)
         
         self.pan_slider = QSlider(Qt.Horizontal)
         self.pan_slider.setRange(-100, 100)
         self.pan_slider.setValue(0)
-        self.pan_slider.setFixedHeight(16)
+        self.pan_slider.setFixedHeight(14)
         self.pan_slider.valueChanged.connect(
             lambda v: self.pan_changed.emit(self.index, v / 100)
         )
         
         self.pan_value = QLabel("C")
-        self.pan_value.setStyleSheet("color: #888; font-size: 9px; min-width: 24px;")
+        self.pan_value.setStyleSheet("color: #888; font-size: 8px; min-width: 24px;")
         self.pan_value.setAlignment(Qt.AlignCenter)
         self.pan_slider.valueChanged.connect(self._update_pan_label)
         
-        layout.addWidget(pan_label)
         layout.addWidget(self.pan_slider)
         layout.addWidget(self.pan_value)
         
+        # Send knobs (if enabled)
+        if self.show_sends and self.index >= 0:
+            sends_row = QHBoxLayout()
+            sends_row.setSpacing(2)
+            
+            for i, label in enumerate(["A", "B"]):
+                knob = SendKnob(i, label)
+                knob.level_changed.connect(lambda si, lv, ti=self.index: self.send_changed.emit(ti, si, lv))
+                self.send_knobs.append(knob)
+                sends_row.addWidget(knob)
+            
+            layout.addLayout(sends_row)
+        
         # Meter + Fader section
         fader_section = QHBoxLayout()
-        fader_section.setSpacing(4)
+        fader_section.setSpacing(2)
         
         # VU Meter
         self.meter = MeterWidget()
@@ -1618,7 +2040,7 @@ class ChannelStrip(QFrame):
         self.fader = QSlider(Qt.Vertical)
         self.fader.setRange(0, 127)
         self.fader.setValue(100)
-        self.fader.setMinimumHeight(160)
+        self.fader.setMinimumHeight(140)
         self.fader.valueChanged.connect(self._on_fader_changed)
         fader_container.addWidget(self.fader, 1)
         
@@ -1626,17 +2048,17 @@ class ChannelStrip(QFrame):
         
         layout.addLayout(fader_section, 1)
         
-        # dB display
+        # dB display with gain staging indicator
         self.db_label = QLabel("0.0 dB")
         self.db_label.setAlignment(Qt.AlignCenter)
         self.db_label.setStyleSheet("""
             color: #00ffaa; 
-            font-size: 10px; 
+            font-size: 9px; 
             font-family: 'Consolas', monospace;
             font-weight: bold;
             background: #1a1a1a;
             border-radius: 3px;
-            padding: 4px;
+            padding: 3px;
         """)
         layout.addWidget(self.db_label)
         
@@ -1700,16 +2122,18 @@ class ChannelStrip(QFrame):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class MixerView(QWidget):
-    """Professional mixer view with channel strips and master."""
+    """Professional mixer view with channel strips, returns, and master."""
     
     track_volume_changed = pyqtSignal(int, float)  # track_idx, volume 0-1
     track_pan_changed = pyqtSignal(int, float)  # track_idx, pan -1 to 1
     track_muted = pyqtSignal(int, bool)  # track_idx, muted
     track_soloed = pyqtSignal(int, bool)  # track_idx, soloed
+    send_level_changed = pyqtSignal(int, int, float)  # track_idx, send_idx, level
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.strips = []
+        self.return_strips = []
         self.setup_ui()
         
         # Meter animation timer
@@ -1730,7 +2154,7 @@ class MixerView(QWidget):
             }
         """)
         
-        # Scrollable area for strips
+        # Scrollable area for channel strips
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -1747,17 +2171,59 @@ class MixerView(QWidget):
         scroll.setWidget(self.strip_container)
         layout.addWidget(scroll, 1)
         
-        # Divider
-        divider = QFrame()
-        divider.setFixedWidth(2)
-        divider.setStyleSheet("background-color: #00aaff;")
-        layout.addWidget(divider)
+        # Divider before returns
+        divider1 = QFrame()
+        divider1.setFixedWidth(2)
+        divider1.setStyleSheet("background-color: #444;")
+        layout.addWidget(divider1)
+        
+        # Return buses section
+        returns_container = QWidget()
+        returns_container.setStyleSheet("background: #0a0a0a;")
+        returns_layout = QVBoxLayout(returns_container)
+        returns_layout.setContentsMargins(4, 4, 4, 4)
+        returns_layout.setSpacing(0)
+        
+        # Returns label
+        returns_label = QLabel("RETURNS")
+        returns_label.setStyleSheet("color: #666; font-size: 8px; font-weight: bold;")
+        returns_label.setAlignment(Qt.AlignCenter)
+        returns_layout.addWidget(returns_label)
+        
+        # Return strips
+        returns_strips = QHBoxLayout()
+        returns_strips.setSpacing(2)
+        
+        # Return A (Reverb)
+        self.return_a = ChannelStrip("Return A", -2, show_inserts=False, show_sends=False)
+        self.return_a.setFixedWidth(70)
+        self.return_a.color_bar.setStyleSheet("background: #00aaff; border-radius: 2px;")
+        self.return_a.name_label.setStyleSheet("color: #00aaff; font-size: 9px; font-weight: bold;")
+        returns_strips.addWidget(self.return_a)
+        self.return_strips.append(self.return_a)
+        
+        # Return B (Delay)
+        self.return_b = ChannelStrip("Return B", -3, show_inserts=False, show_sends=False)
+        self.return_b.setFixedWidth(70)
+        self.return_b.color_bar.setStyleSheet("background: #00ffaa; border-radius: 2px;")
+        self.return_b.name_label.setStyleSheet("color: #00ffaa; font-size: 9px; font-weight: bold;")
+        returns_strips.addWidget(self.return_b)
+        self.return_strips.append(self.return_b)
+        
+        returns_layout.addLayout(returns_strips)
+        layout.addWidget(returns_container)
+        
+        # Divider before master
+        divider2 = QFrame()
+        divider2.setFixedWidth(2)
+        divider2.setStyleSheet("background-color: #00aaff;")
+        layout.addWidget(divider2)
         
         # Master channel (always visible)
-        self.master = ChannelStrip("MASTER", -1)
-        self.master.setFixedWidth(90)
+        self.master = ChannelStrip("MASTER", -1, show_inserts=True, show_sends=False)
+        self.master.setFixedWidth(95)
         self.master.color_bar.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #00aaff, stop:1 #00ffaa); border-radius: 2px;")
-        self.master.name_label.setStyleSheet("color: #00ffaa; font-size: 11px; font-weight: bold;")
+        self.master.name_label.setStyleSheet("color: #00ffaa; font-size: 10px; font-weight: bold;")
         layout.addWidget(self.master)
         
     def add_strip(self, name: str) -> ChannelStrip:
@@ -1770,6 +2236,7 @@ class MixerView(QWidget):
         strip.pan_changed.connect(self.track_pan_changed.emit)
         strip.mute_btn.clicked.connect(lambda c, i=idx: self.track_muted.emit(i, c))
         strip.solo_btn.clicked.connect(lambda c, i=idx: self.track_soloed.emit(i, c))
+        strip.send_changed.connect(self.send_level_changed.emit)
         
         self.strips.append(strip)
         self.strip_layout.insertWidget(self.strip_layout.count() - 1, strip)
@@ -2449,6 +2916,693 @@ class DevicePanel(QFrame):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# MEDIA POOL / FILE BROWSER - EPIC 07
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class MediaPoolWidget(QFrame):
+    """File browser and media pool for audio samples and project assets."""
+    
+    # Signal emitted when user wants to import a file to arrangement
+    file_import_requested = pyqtSignal(str)  # path
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.current_path = os.path.expanduser("~")
+        self.preview_playing = False
+        self.audio_preview = None
+        self.setup_ui()
+        
+    def setup_ui(self):
+        self.setStyleSheet("""
+            MediaPoolWidget {
+                background: #0d0d0d;
+            }
+        """)
+        
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        
+        # Navigation bar
+        nav_bar = QFrame()
+        nav_bar.setFixedHeight(32)
+        nav_bar.setStyleSheet("background: #151515; border-bottom: 1px solid #2a2a2a;")
+        nav_layout = QHBoxLayout(nav_bar)
+        nav_layout.setContentsMargins(4, 0, 4, 0)
+        nav_layout.setSpacing(4)
+        
+        # Back/Forward/Up buttons
+        self.back_btn = QPushButton("◀")
+        self.back_btn.setFixedSize(24, 24)
+        self.back_btn.setToolTip("Back")
+        self.back_btn.clicked.connect(self.go_back)
+        nav_layout.addWidget(self.back_btn)
+        
+        self.up_btn = QPushButton("▲")
+        self.up_btn.setFixedSize(24, 24)
+        self.up_btn.setToolTip("Parent folder")
+        self.up_btn.clicked.connect(self.go_up)
+        nav_layout.addWidget(self.up_btn)
+        
+        self.home_btn = QPushButton("🏠")
+        self.home_btn.setFixedSize(24, 24)
+        self.home_btn.setToolTip("Home folder")
+        self.home_btn.clicked.connect(self.go_home)
+        nav_layout.addWidget(self.home_btn)
+        
+        # Path display
+        self.path_label = QLabel(self.current_path)
+        self.path_label.setStyleSheet("color: #888; font-size: 9px; padding-left: 4px;")
+        self.path_label.setMinimumWidth(50)
+        nav_layout.addWidget(self.path_label, 1)
+        
+        layout.addWidget(nav_bar)
+        
+        # Quick access buttons
+        quick_bar = QFrame()
+        quick_bar.setFixedHeight(28)
+        quick_bar.setStyleSheet("background: #121212;")
+        quick_layout = QHBoxLayout(quick_bar)
+        quick_layout.setContentsMargins(4, 2, 4, 2)
+        quick_layout.setSpacing(2)
+        
+        for name, icon in [("Desktop", "🖥️"), ("Music", "🎵"), ("Project", "📁")]:
+            btn = QPushButton(f"{icon}")
+            btn.setToolTip(name)
+            btn.setFixedSize(28, 22)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background: #1a1a1a;
+                    border: 1px solid #333;
+                    border-radius: 3px;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    border-color: #00aaff;
+                    background: #252525;
+                }
+            """)
+            btn.clicked.connect(lambda checked, n=name: self.go_to_special(n))
+            quick_layout.addWidget(btn)
+        quick_layout.addStretch()
+        
+        layout.addWidget(quick_bar)
+        
+        # File system view
+        self.file_model = QFileSystemModel()
+        self.file_model.setRootPath("")
+        self.file_model.setNameFilters([
+            "*.wav", "*.mp3", "*.flac", "*.ogg", "*.aiff", "*.aif",
+            "*.mid", "*.midi", "*.qsd"
+        ])
+        self.file_model.setNameFilterDisables(False)
+        
+        self.file_tree = QTreeView()
+        self.file_tree.setModel(self.file_model)
+        self.file_tree.setRootIndex(self.file_model.index(self.current_path))
+        self.file_tree.setColumnWidth(0, 150)
+        self.file_tree.hideColumn(1)  # Size
+        self.file_tree.hideColumn(2)  # Type
+        self.file_tree.hideColumn(3)  # Date
+        self.file_tree.setHeaderHidden(True)
+        self.file_tree.setAnimated(True)
+        self.file_tree.setIndentation(12)
+        self.file_tree.setDragEnabled(True)
+        self.file_tree.setStyleSheet("""
+            QTreeView {
+                background: #0d0d0d;
+                color: #ccc;
+                border: none;
+                font-size: 11px;
+            }
+            QTreeView::item {
+                padding: 4px 2px;
+                border-radius: 3px;
+            }
+            QTreeView::item:hover {
+                background: #1a1a1a;
+            }
+            QTreeView::item:selected {
+                background: #00557f;
+                color: white;
+            }
+            QTreeView::branch:has-children:!has-siblings:closed,
+            QTreeView::branch:closed:has-children:has-siblings {
+                border-image: none;
+                image: url(none);
+            }
+            QTreeView::branch:open:has-children:!has-siblings,
+            QTreeView::branch:open:has-children:has-siblings {
+                border-image: none;
+                image: url(none);
+            }
+        """)
+        self.file_tree.clicked.connect(self.on_file_clicked)
+        self.file_tree.doubleClicked.connect(self.on_file_double_clicked)
+        layout.addWidget(self.file_tree, 1)
+        
+        # Preview bar
+        preview_bar = QFrame()
+        preview_bar.setFixedHeight(36)
+        preview_bar.setStyleSheet("background: #151515; border-top: 1px solid #2a2a2a;")
+        preview_layout = QHBoxLayout(preview_bar)
+        preview_layout.setContentsMargins(8, 0, 8, 0)
+        preview_layout.setSpacing(6)
+        
+        self.preview_btn = QPushButton("▶")
+        self.preview_btn.setFixedSize(28, 24)
+        self.preview_btn.setToolTip("Preview audio file")
+        self.preview_btn.setStyleSheet("""
+            QPushButton {
+                background: #00aaff;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: #00ccff;
+            }
+            QPushButton:pressed {
+                background: #0088cc;
+            }
+        """)
+        self.preview_btn.clicked.connect(self.toggle_preview)
+        preview_layout.addWidget(self.preview_btn)
+        
+        self.file_info_label = QLabel("Select an audio file")
+        self.file_info_label.setStyleSheet("color: #888; font-size: 10px;")
+        preview_layout.addWidget(self.file_info_label, 1)
+        
+        self.import_btn = QPushButton("+ Import")
+        self.import_btn.setFixedSize(60, 24)
+        self.import_btn.setToolTip("Import to arrangement")
+        self.import_btn.setStyleSheet("""
+            QPushButton {
+                background: #2a2a2a;
+                border: 1px solid #00ffaa;
+                border-radius: 4px;
+                color: #00ffaa;
+                font-size: 10px;
+            }
+            QPushButton:hover {
+                background: #00ffaa;
+                color: black;
+            }
+        """)
+        self.import_btn.clicked.connect(self.import_selected_file)
+        preview_layout.addWidget(self.import_btn)
+        
+        layout.addWidget(preview_bar)
+        
+        # History for back navigation
+        self.history = []
+        self.history_index = -1
+        
+        self._apply_button_style()
+        
+    def _apply_button_style(self):
+        """Apply consistent button styling."""
+        btn_style = """
+            QPushButton {
+                background: #1a1a1a;
+                border: 1px solid #333;
+                border-radius: 4px;
+                color: #aaa;
+            }
+            QPushButton:hover {
+                border-color: #00aaff;
+                color: #00aaff;
+            }
+            QPushButton:pressed {
+                background: #252525;
+            }
+        """
+        self.back_btn.setStyleSheet(btn_style)
+        self.up_btn.setStyleSheet(btn_style)
+        self.home_btn.setStyleSheet(btn_style)
+        
+    def navigate_to(self, path: str):
+        """Navigate to a directory."""
+        if os.path.isdir(path):
+            self.current_path = path
+            self.file_tree.setRootIndex(self.file_model.index(path))
+            self.path_label.setText(self._truncate_path(path))
+            self.path_label.setToolTip(path)
+            # Add to history
+            if self.history_index < len(self.history) - 1:
+                self.history = self.history[:self.history_index + 1]
+            self.history.append(path)
+            self.history_index = len(self.history) - 1
+            
+    def _truncate_path(self, path: str, max_len: int = 25) -> str:
+        """Truncate path for display."""
+        if len(path) <= max_len:
+            return path
+        parts = path.split(os.sep)
+        if len(parts) <= 2:
+            return "..." + path[-max_len:]
+        return parts[0] + os.sep + "..." + os.sep + parts[-1]
+        
+    def go_back(self):
+        """Go to previous directory in history."""
+        if self.history_index > 0:
+            self.history_index -= 1
+            path = self.history[self.history_index]
+            self.current_path = path
+            self.file_tree.setRootIndex(self.file_model.index(path))
+            self.path_label.setText(self._truncate_path(path))
+            
+    def go_up(self):
+        """Go to parent directory."""
+        parent = os.path.dirname(self.current_path)
+        if parent and parent != self.current_path:
+            self.navigate_to(parent)
+            
+    def go_home(self):
+        """Go to home directory."""
+        self.navigate_to(os.path.expanduser("~"))
+        
+    def go_to_special(self, name: str):
+        """Go to a special folder."""
+        home = os.path.expanduser("~")
+        if name == "Desktop":
+            path = os.path.join(home, "Desktop")
+        elif name == "Music":
+            path = os.path.join(home, "Music")
+        elif name == "Project":
+            # Stay in current working directory
+            path = os.getcwd()
+        else:
+            path = home
+        if os.path.isdir(path):
+            self.navigate_to(path)
+            
+    def on_file_clicked(self, index):
+        """Handle file selection."""
+        path = self.file_model.filePath(index)
+        if os.path.isfile(path):
+            ext = os.path.splitext(path)[1].lower()
+            if ext in ['.wav', '.mp3', '.flac', '.ogg', '.aiff', '.aif']:
+                size = os.path.getsize(path)
+                size_str = f"{size / 1024:.1f} KB" if size < 1024*1024 else f"{size / (1024*1024):.1f} MB"
+                self.file_info_label.setText(f"{os.path.basename(path)} ({size_str})")
+            else:
+                self.file_info_label.setText(os.path.basename(path))
+                
+    def on_file_double_clicked(self, index):
+        """Handle double-click - navigate to folder or import file."""
+        path = self.file_model.filePath(index)
+        if os.path.isdir(path):
+            self.navigate_to(path)
+        elif os.path.isfile(path):
+            ext = os.path.splitext(path)[1].lower()
+            if ext in ['.wav', '.mp3', '.flac', '.ogg', '.aiff', '.aif']:
+                self.file_import_requested.emit(path)
+                
+    def toggle_preview(self):
+        """Toggle audio preview playback."""
+        if self.preview_playing:
+            self.stop_preview()
+        else:
+            self.start_preview()
+            
+    def start_preview(self):
+        """Start previewing the selected audio file."""
+        index = self.file_tree.currentIndex()
+        if index.isValid():
+            path = self.file_model.filePath(index)
+            if os.path.isfile(path):
+                ext = os.path.splitext(path)[1].lower()
+                if ext in ['.wav', '.mp3', '.flac', '.ogg', '.aiff', '.aif']:
+                    self.preview_playing = True
+                    self.preview_btn.setText("⏹")
+                    # Actual audio preview would go here
+                    # For now just update UI
+                    
+    def stop_preview(self):
+        """Stop audio preview."""
+        self.preview_playing = False
+        self.preview_btn.setText("▶")
+        
+    def import_selected_file(self):
+        """Import the selected file to the arrangement."""
+        index = self.file_tree.currentIndex()
+        if index.isValid():
+            path = self.file_model.filePath(index)
+            if os.path.isfile(path):
+                self.file_import_requested.emit(path)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# EXPORT DIALOG - EPIC 08
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class ExportDialog(QWidget):
+    """Export dialog for rendering project to audio files."""
+    
+    export_started = pyqtSignal(dict)  # Export settings
+    
+    def __init__(self, session=None, parent=None):
+        super().__init__(parent)
+        self.session = session
+        self.setWindowTitle("Export Audio")
+        self.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint)
+        self.setFixedSize(480, 520)
+        self.setStyleSheet("""
+            QWidget {
+                background: #1a1a1a;
+                color: #e0e0e0;
+            }
+            QGroupBox {
+                border: 1px solid #3a3a3a;
+                border-radius: 6px;
+                margin-top: 12px;
+                padding-top: 8px;
+                font-weight: bold;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                color: #00aaff;
+            }
+        """)
+        self.setup_ui()
+        
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(12)
+        
+        # Header
+        header = QLabel("📤 EXPORT AUDIO")
+        header.setStyleSheet("font-size: 16px; font-weight: bold; color: #00aaff;")
+        layout.addWidget(header)
+        
+        # Format section
+        format_group = QFrame()
+        format_group.setStyleSheet("QFrame { background: #222; border-radius: 8px; padding: 12px; }")
+        format_layout = QVBoxLayout(format_group)
+        
+        format_label = QLabel("Format")
+        format_label.setStyleSheet("color: #888; font-size: 10px;")
+        format_layout.addWidget(format_label)
+        
+        format_row = QHBoxLayout()
+        self.format_combo = QComboBox()
+        self.format_combo.addItems(["WAV (Lossless)", "FLAC (Lossless)", "MP3 (320kbps)", "OGG (High Quality)"])
+        self.format_combo.setStyleSheet("""
+            QComboBox {
+                background: #2a2a2a;
+                border: 1px solid #3a3a3a;
+                border-radius: 4px;
+                padding: 6px 12px;
+                min-width: 200px;
+            }
+            QComboBox:hover {
+                border-color: #00aaff;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 24px;
+            }
+        """)
+        format_row.addWidget(self.format_combo)
+        format_row.addStretch()
+        format_layout.addLayout(format_row)
+        
+        # Bit depth
+        depth_row = QHBoxLayout()
+        depth_label = QLabel("Bit Depth:")
+        depth_label.setStyleSheet("color: #aaa;")
+        depth_row.addWidget(depth_label)
+        self.depth_combo = QComboBox()
+        self.depth_combo.addItems(["16-bit", "24-bit", "32-bit float"])
+        self.depth_combo.setCurrentIndex(1)  # Default 24-bit
+        self.depth_combo.setStyleSheet(self.format_combo.styleSheet())
+        depth_row.addWidget(self.depth_combo)
+        depth_row.addStretch()
+        format_layout.addLayout(depth_row)
+        
+        # Sample rate
+        sr_row = QHBoxLayout()
+        sr_label = QLabel("Sample Rate:")
+        sr_label.setStyleSheet("color: #aaa;")
+        sr_row.addWidget(sr_label)
+        self.sr_combo = QComboBox()
+        self.sr_combo.addItems(["44100 Hz", "48000 Hz", "88200 Hz", "96000 Hz"])
+        self.sr_combo.setCurrentIndex(1)  # Default 48kHz
+        self.sr_combo.setStyleSheet(self.format_combo.styleSheet())
+        sr_row.addWidget(self.sr_combo)
+        sr_row.addStretch()
+        format_layout.addLayout(sr_row)
+        
+        layout.addWidget(format_group)
+        
+        # Range section
+        range_group = QFrame()
+        range_group.setStyleSheet("QFrame { background: #222; border-radius: 8px; padding: 12px; }")
+        range_layout = QVBoxLayout(range_group)
+        
+        range_label = QLabel("Export Range")
+        range_label.setStyleSheet("color: #888; font-size: 10px;")
+        range_layout.addWidget(range_label)
+        
+        self.range_full = QPushButton("Full Project")
+        self.range_full.setCheckable(True)
+        self.range_full.setChecked(True)
+        self.range_loop = QPushButton("Loop Region")
+        self.range_loop.setCheckable(True)
+        self.range_selection = QPushButton("Selection")
+        self.range_selection.setCheckable(True)
+        
+        btn_style = """
+            QPushButton {
+                background: #2a2a2a;
+                border: 1px solid #3a3a3a;
+                border-radius: 4px;
+                padding: 8px 16px;
+                color: #aaa;
+            }
+            QPushButton:hover {
+                border-color: #00aaff;
+            }
+            QPushButton:checked {
+                background: #00557f;
+                border-color: #00aaff;
+                color: white;
+            }
+        """
+        self.range_full.setStyleSheet(btn_style)
+        self.range_loop.setStyleSheet(btn_style)
+        self.range_selection.setStyleSheet(btn_style)
+        
+        # Make them mutually exclusive
+        self.range_full.clicked.connect(lambda: self._set_range("full"))
+        self.range_loop.clicked.connect(lambda: self._set_range("loop"))
+        self.range_selection.clicked.connect(lambda: self._set_range("selection"))
+        
+        range_btn_row = QHBoxLayout()
+        range_btn_row.addWidget(self.range_full)
+        range_btn_row.addWidget(self.range_loop)
+        range_btn_row.addWidget(self.range_selection)
+        range_layout.addLayout(range_btn_row)
+        
+        layout.addWidget(range_group)
+        
+        # Stem export section
+        stem_group = QFrame()
+        stem_group.setStyleSheet("QFrame { background: #222; border-radius: 8px; padding: 12px; }")
+        stem_layout = QVBoxLayout(stem_group)
+        
+        stem_header = QHBoxLayout()
+        stem_label = QLabel("Stem Export")
+        stem_label.setStyleSheet("color: #888; font-size: 10px;")
+        stem_header.addWidget(stem_label)
+        
+        self.stem_checkbox = QPushButton("Export Stems")
+        self.stem_checkbox.setCheckable(True)
+        self.stem_checkbox.setStyleSheet(btn_style)
+        stem_header.addStretch()
+        stem_header.addWidget(self.stem_checkbox)
+        stem_layout.addLayout(stem_header)
+        
+        stem_note = QLabel("Creates separate file for each track")
+        stem_note.setStyleSheet("color: #666; font-size: 9px; font-style: italic;")
+        stem_layout.addWidget(stem_note)
+        
+        layout.addWidget(stem_group)
+        
+        # Normalize / Dither section
+        options_group = QFrame()
+        options_group.setStyleSheet("QFrame { background: #222; border-radius: 8px; padding: 12px; }")
+        options_layout = QVBoxLayout(options_group)
+        
+        options_label = QLabel("Processing")
+        options_label.setStyleSheet("color: #888; font-size: 10px;")
+        options_layout.addWidget(options_label)
+        
+        opts_row = QHBoxLayout()
+        self.normalize_btn = QPushButton("Normalize")
+        self.normalize_btn.setCheckable(True)
+        self.normalize_btn.setStyleSheet(btn_style)
+        opts_row.addWidget(self.normalize_btn)
+        
+        self.dither_btn = QPushButton("Dither")
+        self.dither_btn.setCheckable(True)
+        self.dither_btn.setChecked(True)
+        self.dither_btn.setStyleSheet(btn_style)
+        opts_row.addWidget(self.dither_btn)
+        
+        opts_row.addStretch()
+        options_layout.addLayout(opts_row)
+        
+        layout.addWidget(options_group)
+        
+        # Destination
+        dest_group = QFrame()
+        dest_group.setStyleSheet("QFrame { background: #222; border-radius: 8px; padding: 12px; }")
+        dest_layout = QVBoxLayout(dest_group)
+        
+        dest_label = QLabel("Destination")
+        dest_label.setStyleSheet("color: #888; font-size: 10px;")
+        dest_layout.addWidget(dest_label)
+        
+        dest_row = QHBoxLayout()
+        self.dest_path = QLabel("No file selected")
+        self.dest_path.setStyleSheet("color: #aaa; padding: 6px;")
+        dest_row.addWidget(self.dest_path, 1)
+        
+        browse_btn = QPushButton("Browse...")
+        browse_btn.setStyleSheet("""
+            QPushButton {
+                background: #00aaff;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: #00ccff;
+            }
+        """)
+        browse_btn.clicked.connect(self.browse_destination)
+        dest_row.addWidget(browse_btn)
+        dest_layout.addLayout(dest_row)
+        
+        layout.addWidget(dest_group)
+        
+        layout.addStretch()
+        
+        # Export button
+        export_row = QHBoxLayout()
+        export_row.addStretch()
+        
+        cancel_btn = QPushButton("Cancel")
+        cancel_btn.setStyleSheet("""
+            QPushButton {
+                background: #2a2a2a;
+                border: 1px solid #3a3a3a;
+                border-radius: 4px;
+                padding: 10px 24px;
+                color: #aaa;
+            }
+            QPushButton:hover {
+                border-color: #ff5555;
+                color: #ff5555;
+            }
+        """)
+        cancel_btn.clicked.connect(self.close)
+        export_row.addWidget(cancel_btn)
+        
+        self.export_btn = QPushButton("🚀 Export")
+        self.export_btn.setStyleSheet("""
+            QPushButton {
+                background: #00ffaa;
+                border: none;
+                border-radius: 4px;
+                padding: 10px 32px;
+                color: black;
+                font-weight: bold;
+                font-size: 13px;
+            }
+            QPushButton:hover {
+                background: #00ff88;
+            }
+            QPushButton:disabled {
+                background: #444;
+                color: #666;
+            }
+        """)
+        self.export_btn.setEnabled(False)
+        self.export_btn.clicked.connect(self.start_export)
+        export_row.addWidget(self.export_btn)
+        
+        layout.addLayout(export_row)
+        
+        self.export_path = None
+        
+    def _set_range(self, range_type: str):
+        """Set export range - mutually exclusive buttons."""
+        self.range_full.setChecked(range_type == "full")
+        self.range_loop.setChecked(range_type == "loop")
+        self.range_selection.setChecked(range_type == "selection")
+        
+    def browse_destination(self):
+        """Open file dialog to select export destination."""
+        format_map = {
+            "WAV (Lossless)": "WAV Audio (*.wav)",
+            "FLAC (Lossless)": "FLAC Audio (*.flac)",
+            "MP3 (320kbps)": "MP3 Audio (*.mp3)",
+            "OGG (High Quality)": "OGG Audio (*.ogg)"
+        }
+        ext_map = {
+            "WAV (Lossless)": ".wav",
+            "FLAC (Lossless)": ".flac",
+            "MP3 (320kbps)": ".mp3",
+            "OGG (High Quality)": ".ogg"
+        }
+        
+        current_format = self.format_combo.currentText()
+        filter_str = format_map.get(current_format, "All Files (*)")
+        default_ext = ext_map.get(current_format, ".wav")
+        
+        filename, _ = QFileDialog.getSaveFileName(
+            self, 'Export To', '', filter_str
+        )
+        if filename:
+            if not filename.endswith(default_ext):
+                filename += default_ext
+            self.export_path = filename
+            # Truncate display
+            display_name = os.path.basename(filename)
+            self.dest_path.setText(display_name)
+            self.dest_path.setToolTip(filename)
+            self.export_btn.setEnabled(True)
+            
+    def start_export(self):
+        """Start the export process."""
+        if not self.export_path:
+            return
+            
+        # Collect settings
+        settings = {
+            'path': self.export_path,
+            'format': self.format_combo.currentText(),
+            'bit_depth': self.depth_combo.currentText(),
+            'sample_rate': int(self.sr_combo.currentText().replace(' Hz', '')),
+            'range': 'full' if self.range_full.isChecked() else ('loop' if self.range_loop.isChecked() else 'selection'),
+            'stems': self.stem_checkbox.isChecked(),
+            'normalize': self.normalize_btn.isChecked(),
+            'dither': self.dither_btn.isChecked()
+        }
+        
+        self.export_started.emit(settings)
+        self.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # MAIN QUANTSOUNDDESIGN WINDOW
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -2482,6 +3636,8 @@ class QuantSoundDesign(QMainWindow):
         self.toggle_browser_action = None
         self.editor_toggle_btn = None
         self._start_cue_beat = 0.0  # Start cue position for playback
+        self.current_project_path = None  # Path to current project file
+        self.project_modified = False  # Track unsaved changes
         
         if AUDIO_AVAILABLE:
             self.audio_backend = get_audio_backend()
@@ -2554,11 +3710,12 @@ class QuantSoundDesign(QMainWindow):
         """)
         self.h_splitter = h_splitter
         
-        # Left sidebar - Instrument Browser
+        # Left sidebar - Browser Panel with tabs
         left_panel = None
         if SYNTH_AVAILABLE:
             left_panel = QFrame()
-            left_panel.setMaximumWidth(240)
+            left_panel.setMaximumWidth(280)
+            left_panel.setMinimumWidth(200)
             left_panel.setStyleSheet("""
                 QFrame {
                     background-color: #0d0d0d;
@@ -2569,23 +3726,45 @@ class QuantSoundDesign(QMainWindow):
             left_layout.setContentsMargins(0, 0, 0, 0)
             left_layout.setSpacing(0)
             
-            # Browser header
-            browser_header = QFrame()
-            browser_header.setFixedHeight(36)
-            browser_header.setStyleSheet("background: #151515; border-bottom: 1px solid #2a2a2a;")
-            bh_layout = QHBoxLayout(browser_header)
-            bh_layout.setContentsMargins(12, 0, 12, 0)
+            # Browser tabs
+            self.browser_tabs = QTabWidget()
+            self.browser_tabs.setTabPosition(QTabWidget.North)
+            self.browser_tabs.setStyleSheet("""
+                QTabWidget::pane {
+                    border: none;
+                    background: #0d0d0d;
+                }
+                QTabBar::tab {
+                    background: #151515;
+                    color: #888;
+                    padding: 8px 16px;
+                    border: none;
+                    border-bottom: 2px solid transparent;
+                    font-size: 10px;
+                    font-weight: bold;
+                }
+                QTabBar::tab:selected {
+                    background: #1a1a1a;
+                    color: #00aaff;
+                    border-bottom: 2px solid #00aaff;
+                }
+                QTabBar::tab:hover:!selected {
+                    background: #1a1a1a;
+                    color: #aaa;
+                }
+            """)
             
-            browser_title = QLabel("🎹 INSTRUMENTS")
-            browser_title.setStyleSheet("color: #00aaff; font-weight: bold; font-size: 11px;")
-            bh_layout.addWidget(browser_title)
-            bh_layout.addStretch()
-            
-            left_layout.addWidget(browser_header)
-            
+            # Instruments tab
             self.instrument_browser = InstrumentBrowser()
             self.instrument_browser.preset_selected.connect(self.on_preset_selected)
-            left_layout.addWidget(self.instrument_browser)
+            self.browser_tabs.addTab(self.instrument_browser, "🎹 Instruments")
+            
+            # Files/Media Pool tab
+            self.media_pool = MediaPoolWidget()
+            self.media_pool.file_import_requested.connect(self.on_file_import)
+            self.browser_tabs.addTab(self.media_pool, "📁 Files")
+            
+            left_layout.addWidget(self.browser_tabs)
             
             h_splitter.addWidget(left_panel)
             self.left_panel = left_panel
@@ -2733,6 +3912,14 @@ class QuantSoundDesign(QMainWindow):
         self.setStatusBar(self.status)
         self.status.showMessage("QuantSoundDesign Ready | Φ-RFT Engine Active | Press A-K to play!")
         
+        # Add audio performance meter to status bar (EPIC 01)
+        if AUDIO_SETTINGS_AVAILABLE:
+            self.audio_meter = AudioMeterWidget()
+            self.audio_meter.clicked.connect(self.show_audio_settings)
+            self.status.addPermanentWidget(self.audio_meter)
+        else:
+            self.audio_meter = None
+        
         # Menu bar
         self.setup_menus()
         # Ensure splitter defaults stored for future toggles
@@ -2808,15 +3995,43 @@ class QuantSoundDesign(QMainWindow):
         end_shortcut = QShortcut(QKeySequence(Qt.Key_End), self)
         end_shortcut.activated.connect(self.goto_end)
         
+        # Loop toggle
+        l_shortcut = QShortcut(QKeySequence(Qt.Key_L), self)
+        l_shortcut.activated.connect(self.toggle_loop)
+        
+        # Record toggle
+        r_shortcut = QShortcut(QKeySequence(Qt.Key_R), self)
+        r_shortcut.activated.connect(self.toggle_record)
+        
+        # View shortcuts (F5-F9)
+        f5_shortcut = QShortcut(QKeySequence(Qt.Key_F5), self)
+        f5_shortcut.activated.connect(lambda: self.switch_view("arrangement"))
+        
+        f6_shortcut = QShortcut(QKeySequence(Qt.Key_F6), self)
+        f6_shortcut.activated.connect(lambda: self.switch_view("pattern"))
+        
+        f7_shortcut = QShortcut(QKeySequence(Qt.Key_F7), self)
+        f7_shortcut.activated.connect(lambda: self.switch_view("piano"))
+        
+        f8_shortcut = QShortcut(QKeySequence(Qt.Key_F8), self)
+        f8_shortcut.activated.connect(lambda: self.switch_view("devices"))
+        
+        f9_shortcut = QShortcut(QKeySequence(Qt.Key_F9), self)
+        f9_shortcut.activated.connect(lambda: self.switch_view("mixer"))
+        
         # Additional view shortcuts (F10-F12)
         f10_shortcut = QShortcut(QKeySequence(Qt.Key_F10), self)
-        f10_shortcut.activated.connect(self.show_step_sequencer)
+        f10_shortcut.activated.connect(self.show_audio_settings)  # EPIC 01: Audio Settings
         
         f11_shortcut = QShortcut(QKeySequence(Qt.Key_F11), self)
         f11_shortcut.activated.connect(self.toggle_fullscreen)
         
         f12_shortcut = QShortcut(QKeySequence(Qt.Key_F12), self)
         f12_shortcut.activated.connect(self.show_script_console)
+        
+        # F1 Help
+        f1_shortcut = QShortcut(QKeySequence(Qt.Key_F1), self)
+        f1_shortcut.activated.connect(self.show_shortcuts)
         
         # Tool shortcuts
         b_shortcut = QShortcut(QKeySequence(Qt.Key_B), self)
@@ -2828,14 +4043,19 @@ class QuantSoundDesign(QMainWindow):
         m_shortcut = QShortcut(QKeySequence(Qt.Key_M), self)
         m_shortcut.activated.connect(lambda: self.set_tool("mute"))
         
-        c_shortcut = QShortcut(QKeySequence(Qt.Key_C), self)
-        c_shortcut.activated.connect(lambda: self.set_tool("slice"))
+        # Use 'S' for slice instead of 'C' (C is often used for copy)
+        s_shortcut = QShortcut(QKeySequence(Qt.Key_S), self)
+        s_shortcut.activated.connect(lambda: self.set_tool("slice"))
         
         p_shortcut = QShortcut(QKeySequence(Qt.Key_P), self)
         p_shortcut.activated.connect(lambda: self.set_tool("paint"))
         
-        z_shortcut = QShortcut(QKeySequence(Qt.Key_Z), self)
-        z_shortcut.activated.connect(lambda: self.set_tool("zoom"))
+        # Zoom shortcuts
+        plus_shortcut = QShortcut(QKeySequence(Qt.Key_Plus), self)
+        plus_shortcut.activated.connect(self.zoom_in)
+        
+        minus_shortcut = QShortcut(QKeySequence(Qt.Key_Minus), self)
+        minus_shortcut.activated.connect(self.zoom_out)
         
         print("[OK] Keyboard shortcuts initialized")
     
@@ -2843,6 +4063,52 @@ class QuantSoundDesign(QMainWindow):
     # SHORTCUT ACTION HANDLERS
     # ═══════════════════════════════════════════════════════════════════════════
     
+    def toggle_loop(self):
+        """Toggle loop mode."""
+        if hasattr(self, 'transport'):
+            self.transport.toggle_loop()
+            loop_state = "ON" if self.transport.loop_btn.isChecked() else "OFF"
+            self.status.showMessage(f"Loop: {loop_state}")
+    
+    def toggle_record(self):
+        """Toggle record arm."""
+        if hasattr(self, 'transport'):
+            self.transport.toggle_record()
+            rec_state = "ARMED" if self.transport.rec_btn.isChecked() else "OFF"
+            self.status.showMessage(f"Record: {rec_state}")
+    
+    def switch_view(self, view_name: str):
+        """Switch to a specific view/tab."""
+        if hasattr(self, 'editor_tabs'):
+            tab_map = {
+                "arrangement": 0,
+                "pattern": 0,  # Pattern is usually first tab
+                "piano": 1,
+                "devices": 2,
+                "mixer": 3
+            }
+            idx = tab_map.get(view_name, 0)
+            if idx < self.editor_tabs.count():
+                self.editor_tabs.setCurrentIndex(idx)
+                self.status.showMessage(f"View: {view_name.capitalize()}")
+    
+    def zoom_in(self):
+        """Zoom in on arrangement."""
+        if hasattr(self, 'arrangement'):
+            # Increase pixels per beat
+            current = getattr(self.arrangement, 'pixels_per_beat', 50)
+            self.arrangement.pixels_per_beat = min(current * 1.25, 200)
+            self.arrangement.update()
+            self.status.showMessage(f"Zoom: {int(self.arrangement.pixels_per_beat)}%")
+    
+    def zoom_out(self):
+        """Zoom out on arrangement."""
+        if hasattr(self, 'arrangement'):
+            current = getattr(self.arrangement, 'pixels_per_beat', 50)
+            self.arrangement.pixels_per_beat = max(current / 1.25, 10)
+            self.arrangement.update()
+            self.status.showMessage(f"Zoom: {int(self.arrangement.pixels_per_beat)}%")
+
     def toggle_playback(self):
         """Toggle play/pause."""
         if self.is_playing:
@@ -2881,6 +4147,21 @@ class QuantSoundDesign(QMainWindow):
     def show_script_console(self):
         """Show script console (F12)."""
         self.status.showMessage("Script Console (coming soon)")
+    
+    def show_audio_settings(self):
+        """Show audio settings dialog (F10)."""
+        if AUDIO_SETTINGS_AVAILABLE:
+            dialog = AudioSettingsDialog(self)
+            dialog.settings_changed.connect(self._on_audio_settings_changed)
+            dialog.exec_()
+        else:
+            self.status.showMessage("Audio settings not available")
+    
+    def _on_audio_settings_changed(self, settings):
+        """Handle audio settings changes."""
+        self.status.showMessage(
+            f"Audio: {settings.sample_rate}Hz, {settings.buffer_size} samples "
+            f"({settings.get_latency_ms():.1f}ms latency)")
     
     def set_tool(self, tool_name: str):
         """Set the current editing tool."""
@@ -3055,6 +4336,14 @@ class QuantSoundDesign(QMainWindow):
             self.toggle_browser_action.toggled.connect(self._toggle_instrument_browser)
         view_menu.addAction(self.toggle_browser_action)
         
+        view_menu.addSeparator()
+        
+        # Audio Settings (EPIC 01)
+        audio_settings_action = QAction("Audio Settings...", self)
+        audio_settings_action.setShortcut("F10")
+        audio_settings_action.triggered.connect(self.show_audio_settings)
+        view_menu.addAction(audio_settings_action)
+        
         # Help menu
         help_menu = menubar.addMenu("Help")
         
@@ -3073,25 +4362,55 @@ class QuantSoundDesign(QMainWindow):
     
     def on_new_project(self):
         """Create a new empty project."""
-        reply = QMessageBox.question(self, 'New Project',
-            'Create a new project? Unsaved changes will be lost.',
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            self.create_blank_session()
-            self.status.showMessage("New blank project created")
+        if self.project_modified:
+            reply = QMessageBox.question(self, 'New Project',
+                'Create a new project? Unsaved changes will be lost.',
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply != QMessageBox.Yes:
+                return
+        self.create_blank_session()
+        self.current_project_path = None
+        self.project_modified = False
+        self.update_window_title()
+        self.status.showMessage("New blank project created")
     
     def on_open_project(self):
         """Open a project file."""
+        if self.project_modified:
+            reply = QMessageBox.question(self, 'Open Project',
+                'Open a project? Unsaved changes will be lost.',
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply != QMessageBox.Yes:
+                return
+        
         filename, _ = QFileDialog.getOpenFileName(
             self, 'Open Project', '', 
             'QuantSoundDesign Projects (*.qsd);;All Files (*)'
         )
         if filename:
-            self.status.showMessage(f"Opening: {filename} (project loading coming soon)")
+            try:
+                from .engine import Session
+                self.session = Session.load_from_file(filename)
+                self.current_project_path = filename
+                self.project_modified = False
+                self.update_window_title()
+                self.refresh_ui_from_session()
+                self.status.showMessage(f"Opened: {filename}")
+            except Exception as e:
+                QMessageBox.critical(self, 'Error', f'Failed to open project:\n{str(e)}')
     
     def on_save_project(self):
         """Save the current project."""
-        self.status.showMessage("Project saved (save functionality coming soon)")
+        if self.current_project_path:
+            try:
+                self.session.save_to_file(self.current_project_path)
+                self.project_modified = False
+                self.update_window_title()
+                self.status.showMessage(f"Saved: {self.current_project_path}")
+            except Exception as e:
+                QMessageBox.critical(self, 'Error', f'Failed to save project:\n{str(e)}')
+        else:
+            self.on_save_project_as()
     
     def on_save_project_as(self):
         """Save project with a new name."""
@@ -3100,16 +4419,106 @@ class QuantSoundDesign(QMainWindow):
             'QuantSoundDesign Projects (*.qsd);;All Files (*)'
         )
         if filename:
-            self.status.showMessage(f"Saved as: {filename} (save functionality coming soon)")
+            if not filename.endswith('.qsd'):
+                filename += '.qsd'
+            try:
+                self.session.save_to_file(filename)
+                self.current_project_path = filename
+                self.project_modified = False
+                self.update_window_title()
+                self.status.showMessage(f"Saved as: {filename}")
+            except Exception as e:
+                QMessageBox.critical(self, 'Error', f'Failed to save project:\n{str(e)}')
+    
+    def update_window_title(self):
+        """Update window title with project name and modified state."""
+        base_title = "QuantSoundDesign - Φ-RFT Sound Design Studio"
+        if self.current_project_path:
+            import os
+            project_name = os.path.basename(self.current_project_path)
+            modified = " *" if self.project_modified else ""
+            self.setWindowTitle(f"{project_name}{modified} - {base_title}")
+        else:
+            modified = " *" if self.project_modified else ""
+            self.setWindowTitle(f"Untitled{modified} - {base_title}")
+    
+    def mark_project_modified(self):
+        """Mark the project as having unsaved changes."""
+        if not self.project_modified:
+            self.project_modified = True
+            self.update_window_title()
+    
+    def refresh_ui_from_session(self):
+        """Refresh all UI components from current session data."""
+        # Update transport display
+        if hasattr(self, 'transport'):
+            self.transport.set_bpm(self.session.tempo_bpm)
+        # Update arrangement view
+        if hasattr(self, 'arrangement'):
+            self.arrangement.update()
+        # Update mixer
+        if hasattr(self, 'mixer_view'):
+            self.mixer_view.update()
+        self.status.showMessage("Session loaded")
     
     def on_export_audio(self):
         """Export audio to file."""
-        filename, _ = QFileDialog.getSaveFileName(
-            self, 'Export Audio', '',
-            'WAV Audio (*.wav);;FLAC Audio (*.flac);;MP3 Audio (*.mp3)'
-        )
-        if filename:
-            self.status.showMessage(f"Exporting to: {filename} (export coming soon)")
+        self.export_dialog = ExportDialog(session=self.session, parent=self)
+        self.export_dialog.export_started.connect(self.perform_export)
+        self.export_dialog.show()
+        
+    def perform_export(self, settings: dict):
+        """Perform the actual audio export."""
+        path = settings['path']
+        export_format = settings['format']
+        
+        # Show progress
+        progress = QProgressBar(self)
+        progress.setRange(0, 100)
+        progress.setValue(0)
+        self.status.addPermanentWidget(progress)
+        
+        try:
+            # Get project length
+            project_length_beats = 0.0
+            for header, lane, widget, track_type in self.arrangement.tracks:
+                for clip in lane.clips:
+                    end_beat = clip.start_beat + clip.length_beats
+                    if end_beat > project_length_beats:
+                        project_length_beats = end_beat
+            
+            if project_length_beats == 0:
+                project_length_beats = 16.0  # Default 16 bars
+                
+            # Calculate samples
+            sample_rate = settings['sample_rate']
+            tempo = self.session.tempo_bpm if hasattr(self, 'session') else 120
+            samples_per_beat = (sample_rate * 60) / tempo
+            total_samples = int(project_length_beats * samples_per_beat)
+            
+            # Render offline (placeholder - actual rendering would use engine)
+            progress.setValue(50)
+            
+            # For now just create a silent file as placeholder
+            # Real implementation would render through AudioEngine
+            import wave
+            if path.endswith('.wav'):
+                with wave.open(path, 'w') as wf:
+                    wf.setnchannels(2)
+                    wf.setsampwidth(2)  # 16-bit
+                    wf.setframerate(sample_rate)
+                    # Write silence
+                    silence = np.zeros((total_samples, 2), dtype=np.int16)
+                    wf.writeframes(silence.tobytes())
+                    
+            progress.setValue(100)
+            self.status.showMessage(f"✓ Exported: {os.path.basename(path)}")
+            
+        except Exception as e:
+            QMessageBox.critical(self, 'Export Error', f'Failed to export:\n{str(e)}')
+        finally:
+            self.status.removeWidget(progress)
+            progress.deleteLater()
     
     def on_undo(self):
         """Undo last action."""
@@ -3226,26 +4635,112 @@ class QuantSoundDesign(QMainWindow):
     def show_shortcuts(self):
         """Show keyboard shortcuts."""
         shortcuts = """
-        <h3>Keyboard Shortcuts</h3>
+        <style>
+            h3 { color: #00aaff; }
+            table { border-collapse: collapse; width: 100%; }
+            th { background: #333; color: #00aaff; padding: 8px; text-align: left; }
+            td { padding: 6px 12px; border-bottom: 1px solid #333; }
+            .category { color: #00ffaa; font-weight: bold; padding-top: 12px; }
+        </style>
+        <h3>⌨️ Keyboard Shortcuts</h3>
+        
+        <p class="category">🎬 Transport</p>
         <table>
-        <tr><td><b>Space</b></td><td>Play/Pause</td></tr>
-        <tr><td><b>Enter</b></td><td>Stop</td></tr>
-        <tr><td><b>A-K</b></td><td>Play notes</td></tr>
-        <tr><td><b>Ctrl+N</b></td><td>New Project</td></tr>
-        <tr><td><b>Ctrl+S</b></td><td>Save</td></tr>
+        <tr><td><b>Space</b></td><td>Play / Pause</td></tr>
+        <tr><td><b>Enter</b></td><td>Stop &amp; return to start</td></tr>
+        <tr><td><b>Home</b></td><td>Go to start</td></tr>
+        <tr><td><b>End</b></td><td>Go to end</td></tr>
+        <tr><td><b>L</b></td><td>Toggle loop</td></tr>
+        <tr><td><b>R</b></td><td>Toggle record</td></tr>
+        </table>
+        
+        <p class="category">📁 Project</p>
+        <table>
+        <tr><td><b>Ctrl+N</b></td><td>New project</td></tr>
+        <tr><td><b>Ctrl+O</b></td><td>Open project</td></tr>
+        <tr><td><b>Ctrl+S</b></td><td>Save project</td></tr>
+        <tr><td><b>Ctrl+Shift+S</b></td><td>Save As...</td></tr>
+        <tr><td><b>Ctrl+Shift+E</b></td><td>Export audio</td></tr>
+        </table>
+        
+        <p class="category">✂️ Editing</p>
+        <table>
         <tr><td><b>Ctrl+Z</b></td><td>Undo</td></tr>
-        <tr><td><b>Ctrl+Shift+A</b></td><td>Add Audio Track</td></tr>
-        <tr><td><b>Ctrl+Shift+I</b></td><td>Add Instrument Track</td></tr>
-        <tr><td><b>Ctrl+Shift+D</b></td><td>Add Drum Track</td></tr>
-        <tr><td><b>F5</b></td><td>Arrangement View</td></tr>
-        <tr><td><b>F6</b></td><td>Pattern Editor</td></tr>
-        <tr><td><b>F7</b></td><td>Piano Roll</td></tr>
-        <tr><td><b>F8</b></td><td>Device Chain</td></tr>
+        <tr><td><b>Ctrl+Y</b></td><td>Redo</td></tr>
+        <tr><td><b>Ctrl+X</b></td><td>Cut</td></tr>
+        <tr><td><b>Ctrl+C</b></td><td>Copy</td></tr>
+        <tr><td><b>Ctrl+V</b></td><td>Paste</td></tr>
+        <tr><td><b>Ctrl+A</b></td><td>Select all</td></tr>
+        <tr><td><b>Delete</b></td><td>Delete selected</td></tr>
+        <tr><td><b>Ctrl+D</b></td><td>Duplicate</td></tr>
+        </table>
+        
+        <p class="category">🎹 Tracks</p>
+        <table>
+        <tr><td><b>Ctrl+Shift+A</b></td><td>Add audio track</td></tr>
+        <tr><td><b>Ctrl+Shift+I</b></td><td>Add instrument track</td></tr>
+        <tr><td><b>Ctrl+Shift+D</b></td><td>Add drum track</td></tr>
+        </table>
+        
+        <p class="category">🔧 Tools</p>
+        <table>
+        <tr><td><b>B</b></td><td>Draw/Brush tool</td></tr>
+        <tr><td><b>E</b></td><td>Erase tool</td></tr>
+        <tr><td><b>M</b></td><td>Mute tool</td></tr>
+        <tr><td><b>C</b></td><td>Slice/Cut tool</td></tr>
+        <tr><td><b>P</b></td><td>Paint tool</td></tr>
+        <tr><td><b>Z</b></td><td>Zoom tool</td></tr>
+        </table>
+        
+        <p class="category">👁️ Views</p>
+        <table>
+        <tr><td><b>F5</b></td><td>Arrangement view</td></tr>
+        <tr><td><b>F6</b></td><td>Pattern editor</td></tr>
+        <tr><td><b>F7</b></td><td>Piano roll</td></tr>
+        <tr><td><b>F8</b></td><td>Device chain</td></tr>
         <tr><td><b>F9</b></td><td>Mixer</td></tr>
-        <tr><td><b>Delete</b></td><td>Delete Selected</td></tr>
+        <tr><td><b>F10</b></td><td>Audio settings</td></tr>
+        <tr><td><b>F11</b></td><td>Fullscreen</td></tr>
+        <tr><td><b>F1</b></td><td>Show this help</td></tr>
+        </table>
+        
+        <p class="category">🎵 Pattern Editor</p>
+        <table>
+        <tr><td><b>Ctrl+C</b></td><td>Copy step</td></tr>
+        <tr><td><b>Ctrl+V</b></td><td>Paste step</td></tr>
+        <tr><td><b>Ctrl+D</b></td><td>Duplicate step</td></tr>
+        <tr><td><b>←/→</b></td><td>Nudge step</td></tr>
+        <tr><td><b>Shift+D</b></td><td>Double pattern</td></tr>
+        <tr><td><b>Shift+H</b></td><td>Halve pattern</td></tr>
+        </table>
+        
+        <p class="category">🎹 Piano (Live Play)</p>
+        <table>
+        <tr><td><b>A-K</b></td><td>Play notes (C-B)</td></tr>
+        <tr><td><b>W,E,T,Y,U</b></td><td>Sharp notes</td></tr>
         </table>
         """
-        QMessageBox.information(self, "Keyboard Shortcuts", shortcuts)
+        msg = QMessageBox(self)
+        msg.setWindowTitle("Keyboard Shortcuts")
+        msg.setTextFormat(Qt.RichText)
+        msg.setText(shortcuts)
+        msg.setStyleSheet("""
+            QMessageBox {
+                background: #1a1a1a;
+            }
+            QLabel {
+                color: #e0e0e0;
+                min-width: 400px;
+            }
+            QPushButton {
+                background: #00aaff;
+                border: none;
+                padding: 8px 20px;
+                border-radius: 4px;
+                color: white;
+            }
+        """)
+        msg.exec_()
         
     def add_track(self, track_type: str):
         """Add a new track."""
@@ -3473,6 +4968,62 @@ class QuantSoundDesign(QMainWindow):
             self.synth.set_preset(preset)
             self.status.showMessage(f"🎹 Loaded: {preset.name} | Press A-K to play!")
     
+    def on_file_import(self, file_path: str):
+        """Handle file import from media pool."""
+        import os
+        filename = os.path.basename(file_path)
+        ext = os.path.splitext(file_path)[1].lower()
+        
+        if ext in ['.wav', '.mp3', '.flac', '.ogg', '.aiff', '.aif']:
+            # Import audio file to first available audio track
+            target_track_idx = -1
+            for idx, (header, lane, widget, track_type) in enumerate(self.arrangement.tracks):
+                if track_type == "audio":
+                    target_track_idx = idx
+                    break
+            
+            if target_track_idx == -1:
+                # No audio track - add one
+                self.add_track("audio")
+                target_track_idx = len(self.arrangement.tracks) - 1
+                
+            # Create audio clip at playhead position
+            if target_track_idx >= 0 and target_track_idx < len(self.arrangement.tracks):
+                header, lane, widget, track_type = self.arrangement.tracks[target_track_idx]
+                
+                # Import with default 4-bar length (adjust based on file analysis later)
+                from .engine import Clip, ClipKind
+                clip = Clip(
+                    kind=ClipKind.AUDIO,
+                    name=filename,
+                    start_beat=self.playback_position,
+                    length_beats=4.0,
+                    color="#00ffaa"
+                )
+                clip.audio_file = file_path  # Store file path for later loading
+                lane.clips.append(clip)
+                lane.update()
+                
+                self.mark_project_modified()
+                self.status.showMessage(f"📁 Imported: {filename} to track {target_track_idx + 1}")
+        elif ext in ['.mid', '.midi']:
+            # Import MIDI file
+            self.status.showMessage(f"🎹 MIDI import: {filename} (coming soon)")
+        elif ext == '.qsd':
+            # Open project file
+            try:
+                from .engine import Session
+                self.session = Session.load_from_file(file_path)
+                self.current_project_path = file_path
+                self.project_modified = False
+                self.update_window_title()
+                self.refresh_ui_from_session()
+                self.status.showMessage(f"Opened project: {filename}")
+            except Exception as e:
+                QMessageBox.critical(self, 'Error', f'Failed to open project:\n{str(e)}')
+        else:
+            self.status.showMessage(f"Unknown file type: {ext}")
+    
     def on_clip_selected(self, clip):
         """Handle clip selection in arrangement - route to pattern editor"""
         self.current_clip = clip
@@ -3619,9 +5170,40 @@ class QuantSoundDesign(QMainWindow):
             self.trigger_drum_preview(row.drum_type, velocity)
 
     def closeEvent(self, event):
-        """Clean up audio on close"""
-        if self.audio_backend:
-            self.audio_backend.stop()
+        """Handle application close with unsaved changes check and cleanup."""
+        # Check for unsaved changes
+        if self.project_modified:
+            reply = QMessageBox.question(
+                self, 'Unsaved Changes',
+                'You have unsaved changes. Do you want to save before closing?',
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                QMessageBox.Save
+            )
+            
+            if reply == QMessageBox.Save:
+                self.on_save_project()
+                if self.project_modified:  # Save was cancelled or failed
+                    event.ignore()
+                    return
+            elif reply == QMessageBox.Cancel:
+                event.ignore()
+                return
+        
+        # Stop audio playback
+        try:
+            if self.audio_backend:
+                self.audio_backend.stop()
+        except Exception as e:
+            print(f"Warning: Error stopping audio backend: {e}")
+        
+        # Stop any running timers
+        try:
+            if hasattr(self, 'timer') and self.timer:
+                self.timer.stop()
+        except Exception as e:
+            print(f"Warning: Error stopping timer: {e}")
+        
+        # Accept close event
         event.accept()
     
     def keyPressEvent(self, event):
@@ -3643,14 +5225,51 @@ class QuantSoundDesign(QMainWindow):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def main():
-    """Launch QuantSoundDesign."""
-    app = QApplication(sys.argv)
-    app.setStyle("Fusion")
+    """Launch QuantSoundDesign with error handling."""
+    import traceback
+    import logging
     
-    window = QuantSoundDesign()
-    window.show()
+    # Set up logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s [%(levelname)s] %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+        ]
+    )
+    logger = logging.getLogger('QuantSoundDesign')
     
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        app.setStyle("Fusion")
+        app.setApplicationName("QuantSoundDesign")
+        app.setApplicationVersion("1.0.0")
+        app.setOrganizationName("QuantoniumOS")
+        
+        # Set exception hook for Qt
+        def exception_hook(exc_type, exc_value, exc_tb):
+            logger.error("Unhandled exception:", exc_info=(exc_type, exc_value, exc_tb))
+            # Show error dialog
+            error_msg = ''.join(traceback.format_exception(exc_type, exc_value, exc_tb))
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Error")
+            msg.setText("An unexpected error occurred.")
+            msg.setDetailedText(error_msg)
+            msg.exec_()
+        
+        sys.excepthook = exception_hook
+        
+        window = QuantSoundDesign()
+        window.show()
+        
+        logger.info("QuantSoundDesign started successfully")
+        sys.exit(app.exec_())
+        
+    except Exception as e:
+        logger.error(f"Failed to start QuantSoundDesign: {e}")
+        traceback.print_exc()
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -685,6 +685,21 @@ class Track:
 # SESSION
 # ═══════════════════════════════════════════════════════════════════════════════
 
+class RecordingMode(Enum):
+    """Recording behavior modes"""
+    REPLACE = "replace"      # Overwrite existing data
+    OVERDUB = "overdub"      # Layer on top
+    PUNCH_IN = "punch_in"    # Record only in loop region
+
+
+class AutomationMode(Enum):
+    """Automation recording modes"""
+    READ = "read"       # Playback only
+    WRITE = "write"     # Record automation, replacing existing
+    LATCH = "latch"     # Start recording on first touch, continue
+    TOUCH = "touch"     # Record while touching, return to existing on release
+
+
 @dataclass
 class TransportState:
     """Playback transport state"""
@@ -695,6 +710,21 @@ class TransportState:
     loop_enabled: bool = False
     loop_start_beats: float = 0.0
     loop_end_beats: float = 8.0
+    
+    # Recording modes
+    recording_mode: RecordingMode = RecordingMode.REPLACE
+    automation_mode: AutomationMode = AutomationMode.READ
+    
+    # Punch in/out
+    punch_in_enabled: bool = False
+    punch_in_beats: float = 0.0
+    punch_out_beats: float = 4.0
+    
+    # Count-in
+    count_in_bars: int = 0  # 0=off, 1, 2
+    
+    # Pre-roll
+    pre_roll_bars: float = 0.0
 
 
 @dataclass
@@ -764,10 +794,341 @@ class Session:
             if track.id == track_id:
                 return track
         return None
+    
+    # ─────────────────────────────────────────────────────────────────────────
+    # SERIALIZATION
+    # ─────────────────────────────────────────────────────────────────────────
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize session to dictionary for JSON storage"""
+        return {
+            "format_version": "1.0",
+            "id": self.id,
+            "name": self.name,
+            "sample_rate": self.sample_rate,
+            "block_size": self.block_size,
+            "tempo_bpm": self.tempo_bpm,
+            "time_sig_num": self.time_sig_num,
+            "time_sig_den": self.time_sig_den,
+            "tracks": [self._track_to_dict(t) for t in self.tracks],
+            "master_track": self._track_to_dict(self.master_track),
+            "automation_lanes": [self._automation_to_dict(a) for a in self.automation_lanes],
+            "transport": {
+                "loop_enabled": self.transport.loop_enabled,
+                "loop_start_beats": self.transport.loop_start_beats,
+                "loop_end_beats": self.transport.loop_end_beats,
+                "recording_mode": self.transport.recording_mode.value,
+                "automation_mode": self.transport.automation_mode.value,
+            },
+            "metadata": self.metadata
+        }
+    
+    def _track_to_dict(self, track: 'Track') -> Dict[str, Any]:
+        """Serialize a track"""
+        return {
+            "id": track.id,
+            "name": track.name,
+            "kind": track.kind.value,
+            "color": track.color,
+            "volume": track.volume,
+            "pan": track.pan,
+            "mute": track.mute,
+            "solo": track.solo,
+            "armed": track.armed,
+            "clips": [self._clip_to_dict(c) for c in track.clips],
+        }
+    
+    def _clip_to_dict(self, clip: 'Clip') -> Dict[str, Any]:
+        """Serialize a clip"""
+        return {
+            "id": clip.id,
+            "name": clip.name,
+            "kind": clip.kind.value,
+            "color": clip.color,
+            "start_beat": clip.start_beat,
+            "length_beats": clip.length_beats,
+            "offset_beats": clip.offset_beats,
+            "loop_enabled": clip.loop_enabled,
+            "muted": clip.muted,
+        }
+    
+    def _automation_to_dict(self, lane: 'AutomationLane') -> Dict[str, Any]:
+        """Serialize an automation lane"""
+        return {
+            "id": lane.id,
+            "target_track_id": lane.target_track_id,
+            "target_device_id": lane.target_device_id,
+            "target_param": lane.target_param,
+            "points": [{"beat": p.beat, "value": p.value, "curve": p.curve} for p in lane.points]
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Session':
+        """Deserialize session from dictionary"""
+        session = cls(
+            id=data.get("id", str(uuid.uuid4())[:8]),
+            name=data.get("name", "Untitled"),
+            sample_rate=data.get("sample_rate", 48000.0),
+            block_size=data.get("block_size", 256),
+            tempo_bpm=data.get("tempo_bpm", 120.0),
+            time_sig_num=data.get("time_sig_num", 4),
+            time_sig_den=data.get("time_sig_den", 4),
+            metadata=data.get("metadata", {})
+        )
+        
+        # Restore tracks
+        for track_data in data.get("tracks", []):
+            track = cls._track_from_dict(track_data)
+            session.tracks.append(track)
+        
+        # Restore master
+        if "master_track" in data:
+            session.master_track = cls._track_from_dict(data["master_track"])
+        
+        # Restore automation
+        for lane_data in data.get("automation_lanes", []):
+            lane = cls._automation_from_dict(lane_data)
+            session.automation_lanes.append(lane)
+        
+        # Restore transport settings
+        if "transport" in data:
+            t = data["transport"]
+            session.transport.loop_enabled = t.get("loop_enabled", False)
+            session.transport.loop_start_beats = t.get("loop_start_beats", 0.0)
+            session.transport.loop_end_beats = t.get("loop_end_beats", 8.0)
+            if "recording_mode" in t:
+                session.transport.recording_mode = RecordingMode(t["recording_mode"])
+            if "automation_mode" in t:
+                session.transport.automation_mode = AutomationMode(t["automation_mode"])
+        
+        return session
+    
+    @staticmethod
+    def _track_from_dict(data: Dict[str, Any]) -> 'Track':
+        """Deserialize a track"""
+        track = Track(
+            id=data.get("id", str(uuid.uuid4())[:8]),
+            name=data.get("name", "Track"),
+            kind=TrackKind(data.get("kind", "audio")),
+            color=data.get("color", "#00aaff"),
+            volume=data.get("volume", 1.0),
+            pan=data.get("pan", 0.0),
+            mute=data.get("mute", False),
+            solo=data.get("solo", False),
+            armed=data.get("armed", False),
+        )
+        
+        for clip_data in data.get("clips", []):
+            clip = Session._clip_from_dict(clip_data)
+            track.clips.append(clip)
+        
+        return track
+    
+    @staticmethod
+    def _clip_from_dict(data: Dict[str, Any]) -> 'Clip':
+        """Deserialize a clip"""
+        return Clip(
+            id=data.get("id", str(uuid.uuid4())[:8]),
+            name=data.get("name", "Clip"),
+            kind=ClipKind(data.get("kind", "audio")),
+            color=data.get("color", "#00aaff"),
+            start_beat=data.get("start_beat", 0.0),
+            length_beats=data.get("length_beats", 4.0),
+            offset_beats=data.get("offset_beats", 0.0),
+            loop_enabled=data.get("loop_enabled", False),
+            muted=data.get("muted", False),
+        )
+    
+    @staticmethod
+    def _automation_from_dict(data: Dict[str, Any]) -> 'AutomationLane':
+        """Deserialize an automation lane"""
+        lane = AutomationLane(
+            id=data.get("id", str(uuid.uuid4())[:8]),
+            target_track_id=data.get("target_track_id", ""),
+            target_device_id=data.get("target_device_id", ""),
+            target_param=data.get("target_param", ""),
+        )
+        
+        for pt in data.get("points", []):
+            lane.points.append(AutomationPoint(
+                beat=pt.get("beat", 0.0),
+                value=pt.get("value", 0.0),
+                curve=pt.get("curve", "linear")
+            ))
+        
+        return lane
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# AUDIO ENGINE
+# PROJECT FILE MANAGER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import json
+from pathlib import Path
+from datetime import datetime
+
+
+class ProjectManager:
+    """
+    Handles project file operations:
+    - Save/load .qsproj files
+    - Recent projects list
+    - Autosave/crash recovery
+    """
+    
+    PROJECT_EXT = ".qsproj"
+    AUTOSAVE_DIR = ".quantoniumos_autosave"
+    RECENT_FILE = "recent_projects.json"
+    MAX_RECENT = 10
+    
+    def __init__(self):
+        self.config_dir = self._get_config_dir()
+        self.autosave_dir = self.config_dir / self.AUTOSAVE_DIR
+        self.autosave_dir.mkdir(parents=True, exist_ok=True)
+        
+        self.recent_projects: List[Dict[str, Any]] = []
+        self._load_recent()
+    
+    def _get_config_dir(self) -> Path:
+        """Get the config directory"""
+        if os.name == 'nt':
+            base = Path(os.environ.get('APPDATA', Path.home()))
+        else:
+            base = Path.home() / '.config'
+        
+        config_dir = base / 'quantoniumos'
+        config_dir.mkdir(parents=True, exist_ok=True)
+        return config_dir
+    
+    def save_project(self, session: Session, path: str) -> bool:
+        """Save session to project file"""
+        try:
+            filepath = Path(path)
+            if not filepath.suffix:
+                filepath = filepath.with_suffix(self.PROJECT_EXT)
+            
+            data = session.to_dict()
+            data["saved_at"] = datetime.now().isoformat()
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2)
+            
+            # Update recent projects
+            self._add_to_recent(str(filepath), session.name)
+            
+            return True
+        except Exception as e:
+            print(f"Error saving project: {e}")
+            return False
+    
+    def load_project(self, path: str) -> Optional[Session]:
+        """Load session from project file"""
+        try:
+            filepath = Path(path)
+            
+            with open(filepath, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            session = Session.from_dict(data)
+            
+            # Update recent projects
+            self._add_to_recent(str(filepath), session.name)
+            
+            return session
+        except Exception as e:
+            print(f"Error loading project: {e}")
+            return None
+    
+    def autosave(self, session: Session):
+        """Save an autosave backup"""
+        try:
+            autosave_path = self.autosave_dir / f"autosave_{session.id}.qsproj"
+            
+            data = session.to_dict()
+            data["autosaved_at"] = datetime.now().isoformat()
+            
+            with open(autosave_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            print(f"Autosave failed: {e}")
+    
+    def recover_autosave(self) -> List[Dict[str, Any]]:
+        """Get list of recoverable autosaves"""
+        recoverable = []
+        
+        for autosave in self.autosave_dir.glob("autosave_*.qsproj"):
+            try:
+                with open(autosave, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                recoverable.append({
+                    "path": str(autosave),
+                    "name": data.get("name", "Unknown"),
+                    "saved_at": data.get("autosaved_at", "Unknown"),
+                })
+            except Exception:
+                pass
+        
+        return recoverable
+    
+    def clear_autosave(self, session_id: str):
+        """Clear autosave for a session"""
+        autosave_path = self.autosave_dir / f"autosave_{session_id}.qsproj"
+        if autosave_path.exists():
+            autosave_path.unlink()
+    
+    def _add_to_recent(self, path: str, name: str):
+        """Add project to recent list"""
+        # Remove if already exists
+        self.recent_projects = [p for p in self.recent_projects if p["path"] != path]
+        
+        # Add to front
+        self.recent_projects.insert(0, {
+            "path": path,
+            "name": name,
+            "accessed_at": datetime.now().isoformat()
+        })
+        
+        # Trim to max
+        self.recent_projects = self.recent_projects[:self.MAX_RECENT]
+        
+        # Save
+        self._save_recent()
+    
+    def _load_recent(self):
+        """Load recent projects list"""
+        try:
+            recent_file = self.config_dir / self.RECENT_FILE
+            if recent_file.exists():
+                with open(recent_file, 'r', encoding='utf-8') as f:
+                    self.recent_projects = json.load(f)
+        except Exception:
+            self.recent_projects = []
+    
+    def _save_recent(self):
+        """Save recent projects list"""
+        try:
+            recent_file = self.config_dir / self.RECENT_FILE
+            with open(recent_file, 'w', encoding='utf-8') as f:
+                json.dump(self.recent_projects, f, indent=2)
+        except Exception:
+            pass
+    
+    def get_recent_projects(self) -> List[Dict[str, Any]]:
+        """Get list of recent projects"""
+        return self.recent_projects.copy()
+
+
+# Global project manager instance
+_project_manager: Optional[ProjectManager] = None
+
+
+def get_project_manager() -> ProjectManager:
+    """Get the global project manager"""
+    global _project_manager
+    if _project_manager is None:
+        _project_manager = ProjectManager()
+    return _project_manager
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class AudioEngine:
@@ -885,6 +1246,7 @@ class AudioEngine:
 __all__ = [
     'PHI', 'PHI_INV',
     'Domain', 'TrackKind', 'ClipKind', 'DeviceKind',
+    'RecordingMode', 'AutomationMode',
     'WaveField', 'rft_forward', 'rft_inverse', 'rft_overlap_add',
     'Note', 'CCEvent', 'AudioPayload', 'MidiPayload', 'Clip',
     'AutomationPoint', 'AutomationLane',
