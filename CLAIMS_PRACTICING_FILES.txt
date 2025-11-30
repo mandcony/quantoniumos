@@ -100,3 +100,15 @@ tools/development/dev/tools/hybrid_image_generator.py
 tools/development/dev/tools/essential_quantum_ai.py
 tools/development/dev/tools/quantonium_model_tester.py
 tools/development/dev/tools/enhanced_essential_quantum_ai.py
+
+# --- QuantSoundDesign DAW (Φ-RFT Sound Design Studio) ---
+src/apps/quantsounddesign/audio_backend.py
+src/apps/quantsounddesign/core.py
+src/apps/quantsounddesign/gui.py
+src/apps/quantsounddesign/pattern_editor.py
+src/apps/quantsounddesign/piano_roll.py
+src/apps/quantsounddesign/synth_engine.py
+src/apps/quantsounddesign/run_daw.py
+
+# --- DAW Test Files ---
+tests/test_audio_backend.py
