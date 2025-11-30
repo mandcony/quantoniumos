@@ -1,13 +1,23 @@
 """
 QuantSoundDesign Audio Backend - Real-time audio I/O with sounddevice.
 
+EPIC 1: Rock-solid, low-latency audio engine for live recording and monitoring.
 Integrates with Session/AudioEngine for proper audio graph processing.
+
+Features:
+- Configurable sample rate (44.1k/48k/96k)
+- Configurable buffer size (64/128/256/512)
+- Callback-based processing with minimal allocation
+- XRun detection and performance monitoring
+- Sample-accurate transport synchronization
 """
 
 import numpy as np
 import threading
-from typing import Optional, Callable, List
-from dataclasses import dataclass
+import time
+from typing import Optional, Callable, List, Dict, Any, Tuple
+from dataclasses import dataclass, field
+from enum import Enum
 
 try:
     import sounddevice as sd
@@ -19,18 +29,268 @@ except ImportError:
 PHI = (1 + np.sqrt(5)) / 2
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUDIO CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class LatencyMode(Enum):
+    """Latency mode presets"""
+    ULTRA_LOW = "ultra_low"    # 64 samples - minimum latency, high CPU
+    LOW = "low"                # 128 samples - good for live playing
+    BALANCED = "balanced"      # 256 samples - default, stable
+    SAFE = "safe"              # 512 samples - for complex projects
+    HIGH = "high"              # 1024 samples - maximum stability
+
+
+class SampleRate(Enum):
+    """Supported sample rates"""
+    SR_44100 = 44100
+    SR_48000 = 48000
+    SR_88200 = 88200
+    SR_96000 = 96000
+
+
+# Buffer size presets by latency mode
+BUFFER_SIZES = {
+    LatencyMode.ULTRA_LOW: 64,
+    LatencyMode.LOW: 128,
+    LatencyMode.BALANCED: 256,
+    LatencyMode.SAFE: 512,
+    LatencyMode.HIGH: 1024,
+}
+
+
+@dataclass
+class AudioDeviceInfo:
+    """Information about an audio device"""
+    id: int
+    name: str
+    max_input_channels: int
+    max_output_channels: int
+    default_sample_rate: float
+    is_default_input: bool = False
+    is_default_output: bool = False
+
+
+@dataclass
+class AudioSettings:
+    """
+    Complete audio configuration for QuantSoundDesign.
+    
+    This is the single source of truth for all audio settings.
+    Can be saved per-session or globally.
+    """
+    # Core settings
+    sample_rate: int = 48000
+    buffer_size: int = 256
+    channels: int = 2
+    dtype: str = 'float32'
+    
+    # Device selection (None = system default)
+    input_device: Optional[int] = None
+    output_device: Optional[int] = None
+    
+    # Latency mode (for presets)
+    latency_mode: LatencyMode = LatencyMode.BALANCED
+    
+    # Performance tuning
+    use_exclusive_mode: bool = False  # WASAPI exclusive on Windows
+    use_low_latency: bool = True      # Request low latency from driver
+    
+    # Monitoring
+    enable_performance_monitoring: bool = True
+    xrun_callback: Optional[Callable[[str], None]] = None
+    
+    def get_latency_ms(self) -> float:
+        """Calculate one-way latency in milliseconds"""
+        return (self.buffer_size / self.sample_rate) * 1000
+    
+    def get_roundtrip_latency_ms(self) -> float:
+        """Calculate roundtrip (input + output) latency in ms"""
+        return self.get_latency_ms() * 2
+    
+    @classmethod
+    def from_latency_mode(cls, mode: LatencyMode, 
+                          sample_rate: int = 48000) -> "AudioSettings":
+        """Create settings from a latency mode preset"""
+        return cls(
+            sample_rate=sample_rate,
+            buffer_size=BUFFER_SIZES[mode],
+            latency_mode=mode
+        )
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize to dict for saving"""
+        return {
+            "sample_rate": self.sample_rate,
+            "buffer_size": self.buffer_size,
+            "channels": self.channels,
+            "input_device": self.input_device,
+            "output_device": self.output_device,
+            "latency_mode": self.latency_mode.value,
+            "use_exclusive_mode": self.use_exclusive_mode,
+            "use_low_latency": self.use_low_latency,
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "AudioSettings":
+        """Deserialize from dict"""
+        mode = LatencyMode(data.get("latency_mode", "balanced"))
+        return cls(
+            sample_rate=data.get("sample_rate", 48000),
+            buffer_size=data.get("buffer_size", 256),
+            channels=data.get("channels", 2),
+            input_device=data.get("input_device"),
+            output_device=data.get("output_device"),
+            latency_mode=mode,
+            use_exclusive_mode=data.get("use_exclusive_mode", False),
+            use_low_latency=data.get("use_low_latency", True),
+        )
+
+
+@dataclass
+class PerformanceStats:
+    """Real-time performance statistics"""
+    # XRun counts
+    underruns: int = 0
+    overruns: int = 0
+    
+    # CPU load estimation
+    callback_time_us: float = 0.0  # Average callback processing time
+    max_callback_time_us: float = 0.0
+    buffer_time_us: float = 0.0  # Time available per buffer
+    cpu_load_percent: float = 0.0
+    
+    # Timing
+    last_callback_time: float = 0.0
+    callbacks_total: int = 0
+    
+    # History for averaging
+    _callback_times: List[float] = field(default_factory=list)
+    _max_history: int = 100
+    
+    def record_callback(self, duration_us: float):
+        """Record a callback duration"""
+        self._callback_times.append(duration_us)
+        if len(self._callback_times) > self._max_history:
+            self._callback_times.pop(0)
+        
+        self.callback_time_us = np.mean(self._callback_times)
+        self.max_callback_time_us = max(self.max_callback_time_us, duration_us)
+        self.callbacks_total += 1
+        
+        if self.buffer_time_us > 0:
+            self.cpu_load_percent = (self.callback_time_us / self.buffer_time_us) * 100
+    
+    def record_xrun(self, is_underrun: bool = True):
+        """Record an XRun event"""
+        if is_underrun:
+            self.underruns += 1
+        else:
+            self.overruns += 1
+    
+    def reset(self):
+        """Reset all stats"""
+        self.underruns = 0
+        self.overruns = 0
+        self.callback_time_us = 0.0
+        self.max_callback_time_us = 0.0
+        self.cpu_load_percent = 0.0
+        self.callbacks_total = 0
+        self._callback_times.clear()
+
+
+# Legacy compatibility
 @dataclass
 class AudioBackendConfig:
-    """Audio backend configuration"""
+    """Audio backend configuration (legacy - use AudioSettings instead)"""
     sample_rate: int = 44100
     block_size: int = 512
     channels: int = 2
     dtype: str = 'float32'
+    
+    def to_audio_settings(self) -> AudioSettings:
+        """Convert to new AudioSettings"""
+        return AudioSettings(
+            sample_rate=self.sample_rate,
+            buffer_size=self.block_size,
+            channels=self.channels,
+            dtype=self.dtype
+        )
 
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DEVICE ENUMERATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def get_audio_devices() -> Tuple[List[AudioDeviceInfo], List[AudioDeviceInfo]]:
+    """
+    Get available audio input and output devices.
+    
+    Returns:
+        Tuple of (input_devices, output_devices)
+    """
+    if sd is None:
+        return [], []
+    
+    input_devices = []
+    output_devices = []
+    
+    try:
+        devices = sd.query_devices()
+        default_input = sd.default.device[0]
+        default_output = sd.default.device[1]
+        
+        for i, dev in enumerate(devices):
+            info = AudioDeviceInfo(
+                id=i,
+                name=dev['name'],
+                max_input_channels=dev['max_input_channels'],
+                max_output_channels=dev['max_output_channels'],
+                default_sample_rate=dev['default_samplerate'],
+                is_default_input=(i == default_input),
+                is_default_output=(i == default_output),
+            )
+            
+            if dev['max_input_channels'] > 0:
+                input_devices.append(info)
+            if dev['max_output_channels'] > 0:
+                output_devices.append(info)
+    except Exception as e:
+        print(f"Error querying audio devices: {e}")
+    
+    return input_devices, output_devices
+
+
+def get_default_device_info() -> Dict[str, Any]:
+    """Get information about default audio devices"""
+    if sd is None:
+        return {"available": False}
+    
+    try:
+        return {
+            "available": True,
+            "default_input": sd.default.device[0],
+            "default_output": sd.default.device[1],
+            "default_samplerate": sd.default.samplerate,
+        }
+    except Exception as e:
+        return {"available": False, "error": str(e)}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUDIO BACKEND
+# ═══════════════════════════════════════════════════════════════════════════════
 
 class AudioBackend:
     """
     Real-time audio backend using sounddevice.
+    
+    Features:
+    - Callback-based audio processing (minimal latency)
+    - Configurable sample rate and buffer size
+    - XRun detection and performance monitoring
+    - Sample-accurate transport synchronization
     
     Integrates with Session/AudioEngine for:
     - Playing back DAW tracks through the audio graph
@@ -38,8 +298,25 @@ class AudioBackend:
     - Metronome and click track
     """
     
-    def __init__(self, config: AudioBackendConfig = None, session=None):
-        self.config = config or AudioBackendConfig()
+    def __init__(self, config: AudioBackendConfig = None, 
+                 settings: AudioSettings = None,
+                 session=None):
+        # Handle both old and new config styles
+        if settings is not None:
+            self.settings = settings
+        elif config is not None:
+            self.settings = config.to_audio_settings()
+        else:
+            self.settings = AudioSettings()
+        
+        # Legacy config for backward compatibility
+        self.config = AudioBackendConfig(
+            sample_rate=self.settings.sample_rate,
+            block_size=self.settings.buffer_size,
+            channels=self.settings.channels,
+            dtype=self.settings.dtype
+        )
+        
         self.stream: Optional[sd.OutputStream] = None
         self.is_running = False
         
@@ -65,12 +342,25 @@ class AudioBackend:
         # Synth for real-time keyboard playback
         self.synth = None
         
+        # Pattern player for drum/step sequencer playback
+        self.pattern_player = None
+        self.drum_synth = None
+        self._last_step = -1  # Track which step was last triggered
+        
         # Thread safety
         self.lock = threading.Lock()
         
         # Metronome state
         self._metro_phase = 0.0
         self._last_beat = -1
+        
+        # Performance monitoring
+        self.stats = PerformanceStats()
+        self.stats.buffer_time_us = (self.settings.buffer_size / 
+                                      self.settings.sample_rate) * 1_000_000
+        
+        # Callback timing
+        self._callback_start_time = 0.0
     
     def attach_session(self, session):
         """Attach a Session after construction"""
@@ -78,33 +368,89 @@ class AudioBackend:
             self.session = session
             self.engine = session.engine if session else None
             if session:
-                self.tempo_bpm = session.tempo
+                self.tempo_bpm = session.tempo_bpm if hasattr(session, 'tempo_bpm') else session.tempo
     
     def set_synth(self, synth):
         """Set the synth for real-time playback"""
         with self.lock:
             self.synth = synth
+    
+    def set_pattern_player(self, pattern_player, drum_synth):
+        """Set the pattern player and drum synth for step sequencer playback"""
+        with self.lock:
+            self.pattern_player = pattern_player
+            self.drum_synth = drum_synth
+    
+    def apply_settings(self, settings: AudioSettings, restart: bool = True) -> bool:
+        """
+        Apply new audio settings.
         
-    def start(self):
+        Args:
+            settings: New audio settings
+            restart: Whether to restart the stream
+        
+        Returns:
+            True if successful
+        """
+        was_running = self.is_running
+        
+        if was_running and restart:
+            self.stop()
+        
+        self.settings = settings
+        self.config = AudioBackendConfig(
+            sample_rate=settings.sample_rate,
+            block_size=settings.buffer_size,
+            channels=settings.channels,
+            dtype=settings.dtype
+        )
+        
+        # Update performance monitoring
+        self.stats.buffer_time_us = (settings.buffer_size / 
+                                      settings.sample_rate) * 1_000_000
+        self.stats.reset()
+        
+        if was_running and restart:
+            return self.start()
+        
+        return True
+    
+    def get_settings(self) -> AudioSettings:
+        """Get current audio settings"""
+        return self.settings
+    
+    def get_stats(self) -> PerformanceStats:
+        """Get performance statistics"""
+        return self.stats
+        
+    def start(self) -> bool:
         """Start the audio stream"""
         if sd is None:
             print("sounddevice not available")
             return False
             
         try:
+            # Configure stream with settings
+            latency = 'low' if self.settings.use_low_latency else 'high'
+            
             self.stream = sd.OutputStream(
-                samplerate=self.config.sample_rate,
-                blocksize=self.config.block_size,
-                channels=self.config.channels,
-                dtype=self.config.dtype,
+                samplerate=self.settings.sample_rate,
+                blocksize=self.settings.buffer_size,
+                channels=self.settings.channels,
+                dtype=self.settings.dtype,
+                device=self.settings.output_device,
+                latency=latency,
                 callback=self._audio_callback
             )
             self.stream.start()
             self.is_running = True
-            print(f"Audio backend started: {self.config.sample_rate}Hz, {self.config.block_size} samples")
+            
+            latency_ms = self.settings.get_latency_ms()
+            print(f"✓ Audio backend started: {self.settings.sample_rate}Hz, "
+                  f"{self.settings.buffer_size} samples ({latency_ms:.1f}ms latency)")
             return True
         except Exception as e:
-            print(f"Failed to start audio: {e}")
+            print(f"✗ Failed to start audio: {e}")
             return False
     
     def stop(self):
@@ -136,9 +482,11 @@ class AudioBackend:
             self.playing = False
             self.position_samples = 0
             self._last_beat = -1
+            self._last_step = -1  # Reset step counter for pattern playback
             if self.session:
                 self.session.transport.playing = False
-                self.session.transport.position = 0.0
+                self.session.transport.position_beats = 0.0
+                self.session.transport.position_samples = 0
     
     def set_tempo(self, bpm: float):
         """Set tempo in BPM"""
@@ -146,27 +494,34 @@ class AudioBackend:
         with self.lock:
             self.tempo_bpm = bpm
             if self.session:
-                self.session.tempo = bpm
+                self.session.tempo_bpm = bpm
     
     def set_position(self, beat: float):
         """Set position in beats"""
-        samples_per_beat = (self.config.sample_rate * 60) / self.tempo_bpm
+        samples_per_beat = (self.settings.sample_rate * 60) / self.tempo_bpm
         with self.lock:
             self.position_samples = int(beat * samples_per_beat)
             self._last_beat = int(beat) - 1
             if self.session:
-                self.session.transport.position = beat
+                self.session.transport.position_beats = beat
+                self.session.transport.position_samples = self.position_samples
     
     def get_position_beats(self) -> float:
         """Get current position in beats"""
         if self.session:
-            return self.session.transport.position
-        samples_per_beat = (self.config.sample_rate * 60) / self.tempo_bpm
+            return self.session.transport.position_beats
+        samples_per_beat = (self.settings.sample_rate * 60) / self.tempo_bpm
         return self.position_samples / samples_per_beat
+    
+    def get_position_samples(self) -> int:
+        """Get current position in samples (sample-accurate)"""
+        if self.session:
+            return self.session.transport.position_samples
+        return self.position_samples
     
     def add_clip(self, start_beat: float, audio_data: np.ndarray):
         """Add an audio clip to play (legacy - prefer using Session tracks)"""
-        samples_per_beat = (self.config.sample_rate * 60) / self.tempo_bpm
+        samples_per_beat = (self.settings.sample_rate * 60) / self.tempo_bpm
         start_sample = int(start_beat * samples_per_beat)
         with self.lock:
             self.clips.append((start_sample, audio_data))
@@ -189,9 +544,22 @@ class AudioBackend:
         """
         Audio callback - called by sounddevice for each block.
         This runs in a separate thread!
+        
+        IMPORTANT: Minimal work here - no disk I/O, no heavy allocations.
         """
+        # Start timing for performance monitoring
+        callback_start = time.perf_counter()
+        
+        # Check for XRuns
         if status:
-            pass  # Suppress underflow messages
+            if status.output_underflow:
+                self.stats.record_xrun(is_underrun=True)
+                if self.settings.xrun_callback:
+                    self.settings.xrun_callback("underrun")
+            if status.output_overflow:
+                self.stats.record_xrun(is_underrun=False)
+                if self.settings.xrun_callback:
+                    self.settings.xrun_callback("overrun")
         
         # Start with silence
         outdata.fill(0)
@@ -215,6 +583,11 @@ class AudioBackend:
                 self._process_with_engine(outdata, frames)
             else:
                 self._process_fallback(outdata, frames)
+        
+        # Record callback performance (outside lock for accuracy)
+        if self.settings.enable_performance_monitoring:
+            callback_duration_us = (time.perf_counter() - callback_start) * 1_000_000
+            self.stats.record_callback(callback_duration_us)
     
     def _process_with_engine(self, outdata: np.ndarray, frames: int):
         """Process audio through the Session's AudioEngine"""
@@ -235,39 +608,78 @@ class AudioBackend:
                     outdata[:, 1] += engine_out[1, :frames] if engine_out.shape[0] > 1 else engine_out[0, :frames]
             
             # Calculate timing for metronome
-            samples_per_beat = (self.config.sample_rate * 60) / self.session.tempo
-            current_beat = self.session.transport.position
+            samples_per_beat = (self.settings.sample_rate * 60) / self.session.tempo_bpm
+            current_beat = self.session.transport.position_beats
             
             # Generate metronome clicks
             if self.metronome_enabled:
                 self._generate_metronome(outdata, frames, current_beat, samples_per_beat)
             
-            # Advance transport
+            # Advance transport (sample-accurate)
+            self.session.transport.position_samples += frames
             beat_increment = frames / samples_per_beat
-            self.session.transport.position += beat_increment
+            self.session.transport.position_beats += beat_increment
             
         except Exception as e:
             print(f"Engine process error: {e}")
     
     def _process_fallback(self, outdata: np.ndarray, frames: int):
-        """Fallback processing without Session (metronome + legacy clips)"""
+        """Fallback processing without Session (metronome + legacy clips + patterns)"""
         if not self.playing:
             return
         
         # Calculate timing
-        samples_per_beat = (self.config.sample_rate * 60) / self.tempo_bpm
+        samples_per_beat = (self.settings.sample_rate * 60) / self.tempo_bpm
         current_beat = self.position_samples / samples_per_beat
         
         # Generate metronome clicks
         if self.metronome_enabled:
             self._generate_metronome(outdata, frames, current_beat, samples_per_beat)
         
+        # Trigger pattern steps (16th notes = 4 steps per beat)
+        self._process_pattern_steps(current_beat)
+        
         # Mix in any legacy clips
         for start_sample, audio_data in self.clips:
             self._mix_clip(outdata, frames, start_sample, audio_data)
         
-        # Advance position
+        # Advance position (sample-accurate)
         self.position_samples += frames
+    
+    def _process_pattern_steps(self, current_beat: float):
+        """Trigger pattern steps at the correct time"""
+        if not self.pattern_player or not self.drum_synth:
+            return
+        
+        # Calculate current step (16th notes = 4 steps per beat)
+        steps_per_beat = 4  # 16th notes
+        current_step = int(current_beat * steps_per_beat)
+        
+        # Check if we crossed a step boundary
+        if current_step > self._last_step:
+            self._last_step = current_step
+            
+            # Trigger the pattern player at this step
+            # PatternPlayer.trigger_step expects step index within pattern (0-15 for 16 steps)
+            for track_id, pattern in self.pattern_player.patterns.items():
+                pattern_step = current_step % pattern.steps
+                
+                for row, step_data in pattern.get_active_steps_at(pattern_step):
+                    # Check probability
+                    import numpy as np
+                    if np.random.random() > step_data.probability:
+                        continue
+                    
+                    velocity = step_data.velocity * row.volume
+                    
+                    if pattern.is_drum and row.drum_type:
+                        # Synthesize and queue drum sound
+                        audio = self.drum_synth.synthesize(
+                            row.drum_type,
+                            velocity=velocity,
+                            duration=0.3
+                        )
+                        self.preview_sounds.append((0, audio))
     
     def _generate_metronome(self, outdata: np.ndarray, frames: int,
                             current_beat: float, samples_per_beat: float):
@@ -282,10 +694,10 @@ class AudioBackend:
             is_downbeat = (current_beat_int % 4) == 0
             freq = 1000.0 if is_downbeat else 800.0
             amplitude = 0.5 if is_downbeat else 0.3
-            click_samples = int(0.02 * self.config.sample_rate)  # 20ms click
+            click_samples = int(0.02 * self.settings.sample_rate)  # 20ms click
             
             # Generate click
-            t = np.arange(click_samples) / self.config.sample_rate
+            t = np.arange(click_samples) / self.settings.sample_rate
             
             # Sine with exponential decay
             envelope = np.exp(-t * 50)
@@ -416,31 +828,66 @@ class TestToneGenerator:
         return signal.astype(np.float32)
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# GLOBAL BACKEND MANAGEMENT
+# ═══════════════════════════════════════════════════════════════════════════════
+
 # Singleton backend instance
 _backend: Optional[AudioBackend] = None
+_settings: Optional[AudioSettings] = None
 
 
 def get_audio_backend() -> AudioBackend:
     """Get or create the global audio backend"""
-    global _backend
+    global _backend, _settings
     if _backend is None:
-        _backend = AudioBackend()
+        _backend = AudioBackend(settings=_settings or AudioSettings())
     return _backend
 
 
-def init_audio() -> bool:
-    """Initialize the audio system"""
+def get_audio_settings() -> AudioSettings:
+    """Get current audio settings"""
+    global _backend, _settings
+    if _backend is not None:
+        return _backend.get_settings()
+    if _settings is None:
+        _settings = AudioSettings()
+    return _settings
+
+
+def set_audio_settings(settings: AudioSettings) -> bool:
+    """Set audio settings (will restart audio if running)"""
+    global _backend, _settings
+    _settings = settings
+    if _backend is not None:
+        return _backend.apply_settings(settings, restart=True)
+    return True
+
+
+def init_audio(settings: AudioSettings = None) -> bool:
+    """Initialize the audio system with optional settings"""
+    global _settings
+    if settings is not None:
+        _settings = settings
     backend = get_audio_backend()
+    if settings is not None:
+        backend.apply_settings(settings, restart=False)
     return backend.start()
 
 
-def init_audio_with_session(session) -> AudioBackend:
+def init_audio_with_session(session, settings: AudioSettings = None) -> AudioBackend:
     """Initialize audio with a Session for full DAW integration"""
-    global _backend
+    global _backend, _settings
+    if settings is not None:
+        _settings = settings
+    
     if _backend is None:
-        _backend = AudioBackend(session=session)
+        _backend = AudioBackend(settings=_settings or AudioSettings(), session=session)
     else:
         _backend.attach_session(session)
+        if settings is not None:
+            _backend.apply_settings(settings, restart=False)
+    
     _backend.start()
     return _backend
 
@@ -451,3 +898,43 @@ def shutdown_audio():
     if _backend:
         _backend.stop()
         _backend = None
+
+
+def get_performance_stats() -> Optional[PerformanceStats]:
+    """Get current performance statistics"""
+    global _backend
+    if _backend:
+        return _backend.get_stats()
+    return None
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# EXPORTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+__all__ = [
+    # Configuration
+    'AudioSettings',
+    'AudioDeviceInfo',
+    'LatencyMode',
+    'SampleRate',
+    'PerformanceStats',
+    'AudioBackendConfig',  # Legacy
+    
+    # Backend
+    'AudioBackend',
+    'TestToneGenerator',
+    
+    # Device enumeration
+    'get_audio_devices',
+    'get_default_device_info',
+    
+    # Global functions
+    'get_audio_backend',
+    'get_audio_settings',
+    'set_audio_settings',
+    'init_audio',
+    'init_audio_with_session',
+    'shutdown_audio',
+    'get_performance_stats',
+]

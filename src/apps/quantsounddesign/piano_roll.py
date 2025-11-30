@@ -27,10 +27,17 @@ except ImportError:
     print("PyQt5 required")
     sys.exit(1)
 
-from .synth_engine import (
-    PRESET_LIBRARY, InstrumentPreset, PolySynth,
-    key_to_note, note_to_name, SIMPLE_KEYBOARD_MAP
-)
+# Support both package and direct execution
+try:
+    from .synth_engine import (
+        PRESET_LIBRARY, InstrumentPreset, PolySynth,
+        key_to_note, note_to_name, SIMPLE_KEYBOARD_MAP
+    )
+except ImportError:
+    from synth_engine import (
+        PRESET_LIBRARY, InstrumentPreset, PolySynth,
+        key_to_note, note_to_name, SIMPLE_KEYBOARD_MAP
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

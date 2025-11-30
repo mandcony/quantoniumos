@@ -35,22 +35,31 @@ except ImportError:
     print("PyQt5 required: pip install PyQt5")
     sys.exit(1)
 
-# Import audio backend
+# Import audio backend - support both package and direct execution
 try:
     from .audio_backend import get_audio_backend, init_audio, shutdown_audio, TestToneGenerator
     AUDIO_AVAILABLE = True
 except ImportError:
-    AUDIO_AVAILABLE = False
-    print("Audio backend not available")
+    try:
+        from audio_backend import get_audio_backend, init_audio, shutdown_audio, TestToneGenerator
+        AUDIO_AVAILABLE = True
+    except ImportError:
+        AUDIO_AVAILABLE = False
+        print("Audio backend not available")
 
 # Import synth and piano roll
 try:
     from .synth_engine import PolySynth, PRESET_LIBRARY
     from .piano_roll import InstrumentEditor, PianoKeyboard, InstrumentBrowser
     SYNTH_AVAILABLE = True
-except ImportError as e:
-    SYNTH_AVAILABLE = False
-    print(f"Synth/Piano roll not available: {e}")
+except ImportError:
+    try:
+        from synth_engine import PolySynth, PRESET_LIBRARY
+        from piano_roll import InstrumentEditor, PianoKeyboard, InstrumentBrowser
+        SYNTH_AVAILABLE = True
+    except ImportError as e:
+        SYNTH_AVAILABLE = False
+        print(f"Synth/Piano roll not available: {e}")
 
 # Import pattern editor
 try:
@@ -59,9 +68,36 @@ try:
         PatternPlayer, DrumSynthesizer, DrumType, InstrumentSelector
     )
     PATTERN_AVAILABLE = True
-except ImportError as e:
-    PATTERN_AVAILABLE = False
-    print(f"Pattern editor not available: {e}")
+except ImportError:
+    try:
+        from pattern_editor import (
+            Pattern, PatternRow, PatternStep, PatternEditorWidget,
+            PatternPlayer, DrumSynthesizer, DrumType, InstrumentSelector
+        )
+        PATTERN_AVAILABLE = True
+    except ImportError as e:
+        PATTERN_AVAILABLE = False
+        print(f"Pattern editor not available: {e}")
+
+# Import core infrastructure (KeymapRegistry, SelectionModel, etc.)
+try:
+    from .core import (
+        get_keymap_registry, get_selection_model, get_audition_engine,
+        KeymapContext, beats_to_samples, samples_to_beats, snap_to_grid,
+        Scale, ScaleType, Chord, ChordType
+    )
+    CORE_AVAILABLE = True
+except ImportError:
+    try:
+        from core import (
+            get_keymap_registry, get_selection_model, get_audition_engine,
+            KeymapContext, beats_to_samples, samples_to_beats, snap_to_grid,
+            Scale, ScaleType, Chord, ChordType
+        )
+        CORE_AVAILABLE = True
+    except ImportError as e:
+        CORE_AVAILABLE = False
+        print(f"Core module not available: {e}")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PROFESSIONAL STYLE THEME - QuantSoundDesign
@@ -638,6 +674,12 @@ class TrackLane(QFrame):
         self.resizing = False
         self.resize_edge = None  # 'left' or 'right'
         
+        # Create clip by dragging
+        self.creating_clip = False
+        self.create_start_x = 0
+        self.create_start_beat = 0
+        self.create_preview_end = 0  # For drawing preview
+        
         self.setMinimumHeight(100)  # TALLER - was 60
         self.setMouseTracking(True)
         self.setCursor(Qt.ArrowCursor)
@@ -707,6 +749,12 @@ class TrackLane(QFrame):
                 self.drag_start_beat = clip.start
             
             self.update()
+        else:
+            # Click on empty area - start drawing a new clip
+            self.creating_clip = True
+            self.create_start_x = event.x()
+            beat_pos = event.x() / self.pixels_per_beat
+            self.create_start_beat = round(beat_pos * 4) / 4  # Snap to quarter
         super().mousePressEvent(event)
     
     def mouseMoveEvent(self, event):
@@ -738,6 +786,12 @@ class TrackLane(QFrame):
                 self.drag_clip.length = new_length
             
             self.update()
+        elif self.creating_clip:
+            # Update preview for clip being created
+            beat_pos = event.x() / self.pixels_per_beat
+            self.create_preview_end = round(beat_pos * 4) / 4
+            self.setCursor(Qt.CrossCursor)
+            self.update()
         else:
             # Just hovering - update cursor
             clip = self.get_clip_at(event.x())
@@ -762,11 +816,28 @@ class TrackLane(QFrame):
             self.clip_moved.emit(self.drag_clip, self.drag_clip.start)
         elif self.resizing and self.drag_clip:
             self.clip_resized.emit(self.drag_clip, self.drag_clip.length)
+        elif self.creating_clip:
+            # Finish creating clip
+            end_beat = event.x() / self.pixels_per_beat
+            end_beat = round(end_beat * 4) / 4
+            
+            start = min(self.create_start_beat, end_beat)
+            end = max(self.create_start_beat, end_beat)
+            length = max(1, end - start)  # Minimum 1 beat
+            
+            # Create the new clip
+            new_clip = self.add_clip(start, length, "New Pattern")
+            self.clip_selected.emit(new_clip)
+            
+            self.creating_clip = False
+            self.create_start_beat = 0
+            self.create_preview_end = 0
         
         self.dragging = False
         self.resizing = False
         self.drag_clip = None
         self.resize_edge = None
+        self.creating_clip = False
         self.setCursor(Qt.ArrowCursor)
         super().mouseReleaseEvent(event)
     
@@ -818,6 +889,19 @@ class TrackLane(QFrame):
         # Draw clips with professional styling
         for clip in self.clips:
             self._draw_clip(painter, clip, height)
+        
+        # Draw clip creation preview
+        if self.creating_clip and self.create_preview_end != self.create_start_beat:
+            start = min(self.create_start_beat, self.create_preview_end)
+            end = max(self.create_start_beat, self.create_preview_end)
+            x = int(start * self.pixels_per_beat)
+            w = int((end - start) * self.pixels_per_beat)
+            y_margin = 6
+            
+            # Draw semi-transparent preview
+            painter.setBrush(QBrush(QColor(0, 170, 255, 80)))
+            painter.setPen(QPen(QColor(0, 170, 255), 2, Qt.DashLine))
+            painter.drawRoundedRect(x, y_margin, w, height - y_margin * 2, 4, 4)
         
         # Bottom border
         painter.setPen(QPen(QColor('#2a2a2a'), 1))
@@ -943,13 +1027,65 @@ class TrackLane(QFrame):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class TimelineHeader(QFrame):
-    """Professional timeline with bar numbers and markers."""
+    """Professional timeline with bar numbers, markers, and start cue."""
+    
+    start_cue_changed = pyqtSignal(float)  # Signal when start cue is moved
+    position_clicked = pyqtSignal(float)   # Signal when user clicks to set position
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.pixels_per_beat = 30
         self.setFixedHeight(40)
         self.setMinimumWidth(4000)
+        self.start_cue_beat = 0.0  # Start cue position in beats
+        self.playhead_beat = 0.0   # Current playhead position
+        self.dragging_cue = False
+        self.setMouseTracking(True)
+        
+    def set_playhead(self, beat: float):
+        """Set playhead position and repaint"""
+        self.playhead_beat = beat
+        self.update()
+        
+    def set_start_cue(self, beat: float):
+        """Set start cue position"""
+        self.start_cue_beat = max(0, beat)
+        self.update()
+        
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            beat_pos = event.x() / self.pixels_per_beat
+            # Check if clicking on start cue marker (within 10px)
+            cue_x = int(self.start_cue_beat * self.pixels_per_beat)
+            if abs(event.x() - cue_x) < 10:
+                self.dragging_cue = True
+                self.setCursor(Qt.SizeHorCursor)
+            else:
+                # Click to set playhead position
+                self.position_clicked.emit(beat_pos)
+        super().mousePressEvent(event)
+        
+    def mouseMoveEvent(self, event):
+        if self.dragging_cue:
+            beat_pos = max(0, event.x() / self.pixels_per_beat)
+            beat_pos = round(beat_pos * 4) / 4  # Snap to quarter notes
+            self.start_cue_beat = beat_pos
+            self.start_cue_changed.emit(beat_pos)
+            self.update()
+        else:
+            # Update cursor if near start cue
+            cue_x = int(self.start_cue_beat * self.pixels_per_beat)
+            if abs(event.x() - cue_x) < 10:
+                self.setCursor(Qt.SizeHorCursor)
+            else:
+                self.setCursor(Qt.ArrowCursor)
+        super().mouseMoveEvent(event)
+        
+    def mouseReleaseEvent(self, event):
+        if self.dragging_cue:
+            self.dragging_cue = False
+            self.setCursor(Qt.ArrowCursor)
+        super().mouseReleaseEvent(event)
         
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -994,9 +1130,85 @@ class TimelineHeader(QFrame):
                 painter.setPen(QPen(QColor('#333333'), 1))
                 painter.drawLine(x, height - 8, x, height)
         
+        # Draw start cue marker (orange/yellow triangle)
+        cue_x = int(self.start_cue_beat * self.pixels_per_beat)
+        painter.setBrush(QBrush(QColor('#ffaa00')))
+        painter.setPen(QPen(QColor('#ffcc00'), 1))
+        # Draw downward triangle
+        triangle = QPainterPath()
+        triangle.moveTo(cue_x, 2)
+        triangle.lineTo(cue_x - 6, 14)
+        triangle.lineTo(cue_x + 6, 14)
+        triangle.closeSubpath()
+        painter.drawPath(triangle)
+        # Draw vertical line from cue
+        painter.setPen(QPen(QColor('#ffaa00'), 1, Qt.DashLine))
+        painter.drawLine(cue_x, 14, cue_x, height)
+        
+        # Draw playhead marker (cyan/blue triangle and line)
+        if self.playhead_beat >= 0:
+            ph_x = int(self.playhead_beat * self.pixels_per_beat)
+            painter.setBrush(QBrush(QColor('#00ffff')))
+            painter.setPen(QPen(QColor('#00ffff'), 1))
+            # Draw downward triangle for playhead
+            ph_triangle = QPainterPath()
+            ph_triangle.moveTo(ph_x, 2)
+            ph_triangle.lineTo(ph_x - 5, 12)
+            ph_triangle.lineTo(ph_x + 5, 12)
+            ph_triangle.closeSubpath()
+            painter.drawPath(ph_triangle)
+        
         # Bottom border
         painter.setPen(QPen(QColor('#00aaff'), 2))
         painter.drawLine(0, height - 1, self.width(), height - 1)
+
+
+class PlayheadOverlay(QWidget):
+    """Transparent overlay widget that draws the playhead line across all tracks."""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents)  # Let clicks pass through
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.playhead_beat = 0.0
+        self.pixels_per_beat = 30
+        self.is_playing = False
+        
+    def set_playhead(self, beat: float):
+        """Update playhead position"""
+        self.playhead_beat = beat
+        self.update()
+        
+    def set_playing(self, playing: bool):
+        """Set playing state for visual feedback"""
+        self.is_playing = playing
+        self.update()
+        
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        
+        # Calculate playhead x position
+        ph_x = int(self.playhead_beat * self.pixels_per_beat)
+        
+        if ph_x < 0 or ph_x > self.width():
+            return
+        
+        # Draw playhead line - bright cyan when playing, dimmer when stopped
+        if self.is_playing:
+            color = QColor('#00ffff')
+            width = 2
+        else:
+            color = QColor('#00aaaa')
+            width = 1
+        
+        painter.setPen(QPen(color, width))
+        painter.drawLine(ph_x, 0, ph_x, self.height())
+        
+        # Draw glow effect when playing
+        if self.is_playing:
+            glow = QColor(0, 255, 255, 30)
+            painter.fillRect(ph_x - 3, 0, 6, self.height(), glow)
 
 
 class ArrangementView(QWidget):
@@ -1006,11 +1218,14 @@ class ArrangementView(QWidget):
     clip_double_clicked = pyqtSignal(object)
     track_selected = pyqtSignal(int)
     add_track_requested = pyqtSignal(str)  # Signal to main window
+    position_changed = pyqtSignal(float)  # Signal when user clicks to change position
+    start_cue_changed = pyqtSignal(float)  # Signal when start cue is moved
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.tracks = []
         self.selected_track = -1
+        self.playhead_overlay = None
         self.setup_ui()
         
     def setup_ui(self):
@@ -1124,6 +1339,15 @@ class ArrangementView(QWidget):
         
         self.lane_scroll.setWidget(self.lane_container)
         
+        # Create playhead overlay on top of lane scroll
+        self.playhead_overlay = PlayheadOverlay(self.lane_scroll.viewport())
+        self.playhead_overlay.setGeometry(0, 0, 6000, 2000)
+        self.playhead_overlay.raise_()  # Ensure it's on top
+        
+        # Connect timeline signals
+        self.timeline.position_clicked.connect(self.position_changed.emit)
+        self.timeline.start_cue_changed.connect(self.start_cue_changed.emit)
+        
         # Sync vertical scrolling
         self.lane_scroll.verticalScrollBar().valueChanged.connect(
             self.header_scroll.verticalScrollBar().setValue
@@ -1137,6 +1361,21 @@ class ArrangementView(QWidget):
         
         layout.addWidget(content, 1)
     
+    def set_playhead(self, beat: float):
+        """Update playhead position in timeline and overlay."""
+        self.timeline.set_playhead(beat)
+        if self.playhead_overlay:
+            self.playhead_overlay.set_playhead(beat)
+            
+    def set_playing(self, playing: bool):
+        """Update playing state for playhead visualization."""
+        if self.playhead_overlay:
+            self.playhead_overlay.set_playing(playing)
+            
+    def set_start_cue(self, beat: float):
+        """Set the start cue position."""
+        self.timeline.set_start_cue(beat)
+    
     def _on_zoom_changed(self, value):
         """Update zoom level for all lanes."""
         for header, lane, widget, track_type in self.tracks:
@@ -1144,6 +1383,9 @@ class ArrangementView(QWidget):
             lane.update()
         self.timeline.pixels_per_beat = value
         self.timeline.update()
+        if self.playhead_overlay:
+            self.playhead_overlay.pixels_per_beat = value
+            self.playhead_overlay.update()
         
     def _request_add_track(self, track_type: str):
         """Request to add a new track - emit signal to main window."""
@@ -2226,12 +2468,14 @@ class QuantSoundDesign(QMainWindow):
         self.h_splitter = None
         self.v_splitter = None
         self.bottom_panel = None
+        self.current_tool = "draw"  # Default editing tool
         self.editor_tabs_container = None
         self._last_split_sizes = None
         self._last_h_split_sizes = None
         self.toggle_editors_action = None
         self.toggle_browser_action = None
         self.editor_toggle_btn = None
+        self._start_cue_beat = 0.0  # Start cue position for playback
         
         if AUDIO_AVAILABLE:
             self.audio_backend = get_audio_backend()
@@ -2252,9 +2496,22 @@ class QuantSoundDesign(QMainWindow):
         if PATTERN_AVAILABLE:
             self.pattern_player = PatternPlayer()
             self.drum_synth = DrumSynthesizer()
+            # Connect pattern player to audio backend for playback
+            if self.audio_backend:
+                self.audio_backend.set_pattern_player(self.pattern_player, self.drum_synth)
             print("[OK] Pattern editor and drum synth initialized")
         
+        # Initialize core infrastructure
+        if CORE_AVAILABLE:
+            self.keymap = get_keymap_registry()
+            self.selection = get_selection_model()
+            self.audition = get_audition_engine()
+            if self.audio_backend:
+                self.audition.set_audio_backend(self.audio_backend)
+            print("[OK] Core infrastructure initialized (KeymapRegistry, SelectionModel)")
+        
         self.setup_ui()
+        self.setup_shortcuts()  # Set up keyboard shortcuts
         self.create_blank_session()
         self.setup_timer()
         self.connect_transport()
@@ -2353,6 +2610,8 @@ class QuantSoundDesign(QMainWindow):
         self.arrangement.clip_double_clicked.connect(self.on_clip_double_clicked)
         self.arrangement.track_selected.connect(self.on_track_selected)
         self.arrangement.add_track_requested.connect(self.add_track)  # Connect add track buttons
+        self.arrangement.position_changed.connect(self.on_position_changed)  # Timeline click-to-set
+        self.arrangement.start_cue_changed.connect(self.on_start_cue_changed)  # Start cue drag
         v_splitter.addWidget(self.arrangement)
         
         # Bottom section with tabs (Pattern / Piano Roll / Devices / Mixer)
@@ -2520,7 +2779,116 @@ class QuantSoundDesign(QMainWindow):
             self.toggle_browser_action.blockSignals(True)
             self.toggle_browser_action.setChecked(visible)
             self.toggle_browser_action.blockSignals(False)
+
+    def setup_shortcuts(self):
+        """Set up global keyboard shortcuts using the centralized KeymapRegistry."""
+        if not CORE_AVAILABLE:
+            return
+            
+        from PyQt5.QtWidgets import QShortcut
+        from PyQt5.QtGui import QKeySequence
         
+        # Transport shortcuts
+        space_shortcut = QShortcut(QKeySequence(Qt.Key_Space), self)
+        space_shortcut.activated.connect(self.toggle_playback)
+        
+        enter_shortcut = QShortcut(QKeySequence(Qt.Key_Return), self)
+        enter_shortcut.activated.connect(self.stop_playback)
+        
+        # Navigation shortcuts
+        home_shortcut = QShortcut(QKeySequence(Qt.Key_Home), self)
+        home_shortcut.activated.connect(self.goto_start)
+        
+        end_shortcut = QShortcut(QKeySequence(Qt.Key_End), self)
+        end_shortcut.activated.connect(self.goto_end)
+        
+        # Additional view shortcuts (F10-F12)
+        f10_shortcut = QShortcut(QKeySequence(Qt.Key_F10), self)
+        f10_shortcut.activated.connect(self.show_step_sequencer)
+        
+        f11_shortcut = QShortcut(QKeySequence(Qt.Key_F11), self)
+        f11_shortcut.activated.connect(self.toggle_fullscreen)
+        
+        f12_shortcut = QShortcut(QKeySequence(Qt.Key_F12), self)
+        f12_shortcut.activated.connect(self.show_script_console)
+        
+        # Tool shortcuts
+        b_shortcut = QShortcut(QKeySequence(Qt.Key_B), self)
+        b_shortcut.activated.connect(lambda: self.set_tool("draw"))
+        
+        e_shortcut = QShortcut(QKeySequence(Qt.Key_E), self)
+        e_shortcut.activated.connect(lambda: self.set_tool("erase"))
+        
+        m_shortcut = QShortcut(QKeySequence(Qt.Key_M), self)
+        m_shortcut.activated.connect(lambda: self.set_tool("mute"))
+        
+        c_shortcut = QShortcut(QKeySequence(Qt.Key_C), self)
+        c_shortcut.activated.connect(lambda: self.set_tool("slice"))
+        
+        p_shortcut = QShortcut(QKeySequence(Qt.Key_P), self)
+        p_shortcut.activated.connect(lambda: self.set_tool("paint"))
+        
+        z_shortcut = QShortcut(QKeySequence(Qt.Key_Z), self)
+        z_shortcut.activated.connect(lambda: self.set_tool("zoom"))
+        
+        print("[OK] Keyboard shortcuts initialized")
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # SHORTCUT ACTION HANDLERS
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    def toggle_playback(self):
+        """Toggle play/pause."""
+        if self.is_playing:
+            self.stop()
+        else:
+            self.play()
+    
+    def stop_playback(self):
+        """Stop and reset to start."""
+        self.stop()
+        if hasattr(self, 'arrangement') and self.arrangement:
+            self.arrangement.set_playhead(0.0)
+    
+    def goto_start(self):
+        """Go to start of arrangement."""
+        if hasattr(self, 'arrangement') and self.arrangement:
+            self.arrangement.set_playhead(0.0)
+            self.status.showMessage("Returned to start")
+    
+    def goto_end(self):
+        """Go to end of arrangement."""
+        self.status.showMessage("Go to end (coming soon)")
+    
+    def show_step_sequencer(self):
+        """Show step sequencer (F10)."""
+        self.show_pattern_editor()
+        self.status.showMessage("Step Sequencer")
+    
+    def toggle_fullscreen(self):
+        """Toggle fullscreen mode (F11)."""
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
+    
+    def show_script_console(self):
+        """Show script console (F12)."""
+        self.status.showMessage("Script Console (coming soon)")
+    
+    def set_tool(self, tool_name: str):
+        """Set the current editing tool."""
+        self.current_tool = tool_name
+        tool_display = {
+            "draw": "✏️ Draw Tool (B)",
+            "erase": "🗑️ Erase Tool (E)", 
+            "mute": "🔇 Mute Tool (M)",
+            "slice": "✂️ Slice Tool (C)",
+            "paint": "🖌️ Paint Tool (P)",
+            "zoom": "🔍 Zoom Tool (Z)",
+        }
+        self.status.showMessage(tool_display.get(tool_name, f"Tool: {tool_name}"))
+
     def setup_menus(self):
         menubar = self.menuBar()
         menubar.setStyleSheet("background-color: #1a1a1a; color: #e0e0e0;")
@@ -2982,6 +3350,9 @@ class QuantSoundDesign(QMainWindow):
             blank_clip = drum_lane.add_clip(0, 16, "Pattern 1", drum_lane.track_color)
             if blank_clip.pattern and hasattr(self, 'pattern_editor'):
                 self.pattern_editor.set_pattern(blank_clip.pattern)
+                # Register pattern with pattern player for playback
+                if self.pattern_player:
+                    self.pattern_player.set_pattern("drums_1", blank_clip.pattern)
         self.current_clip = blank_clip
         self.status.showMessage("Blank session loaded. Double-click lanes to add clips.")
     
@@ -2990,13 +3361,22 @@ class QuantSoundDesign(QMainWindow):
         self.transport.play_clicked.connect(self.on_play_clicked)
         self.transport.stop_clicked.connect(self.on_stop_clicked)
         self.transport.tempo_changed.connect(self.on_tempo_changed)
+        self.transport.metronome_toggled.connect(self.on_metronome_toggled)
+    
+    def on_metronome_toggled(self, enabled: bool):
+        """Handle metronome toggle"""
+        if self.audio_backend:
+            self.audio_backend.metronome_enabled = enabled
+            status = "ON 🔔" if enabled else "OFF 🔕"
+            self.status.showMessage(f"Metronome {status}")
     
     def on_play_clicked(self):
         """Handle play/pause button"""
         if self.audio_backend:
             if self.transport.is_playing:
                 self.audio_backend.play()
-                self.status.showMessage("▶ Playing - Metronome ON (hear the click!)")
+                metro_status = "🔔" if self.audio_backend.metronome_enabled else ""
+                self.status.showMessage(f"▶ Playing {metro_status}")
             else:
                 self.audio_backend.pause()
                 self.status.showMessage("⏸ Paused")
@@ -3006,7 +3386,31 @@ class QuantSoundDesign(QMainWindow):
         if self.audio_backend:
             self.audio_backend.stop_playback()
             self.playback_position = 0
+        # Update playhead to start position
+        self.arrangement.set_playhead(0)
+        self.arrangement.set_playing(False)
         self.status.showMessage("⏹ Stopped")
+    
+    def on_position_changed(self, beat: float):
+        """Handle click on timeline to set playback position."""
+        self.playback_position = beat
+        if self.audio_backend:
+            self.audio_backend.set_position(beat)
+        # Update displays
+        bar = int(beat / 4) + 1
+        beat_num = int(beat % 4) + 1
+        tick = int((beat % 1) * 960)
+        self.transport.update_position(bar, beat_num, tick)
+        self.arrangement.set_playhead(beat)
+        self.status.showMessage(f"Position: Bar {bar}, Beat {beat_num}")
+    
+    def on_start_cue_changed(self, beat: float):
+        """Handle start cue marker drag."""
+        # Store start cue position for playback
+        self._start_cue_beat = beat
+        bar = int(beat / 4) + 1
+        beat_num = int(beat % 4) + 1
+        self.status.showMessage(f"Start Cue: Bar {bar}, Beat {beat_num}")
     
     def on_tempo_changed(self, bpm: float):
         """Handle tempo change"""
@@ -3023,7 +3427,7 @@ class QuantSoundDesign(QMainWindow):
         self.playback_position = 0  # In beats
         
     def update_playback(self):
-        """Update playback position display."""
+        """Update playback position display and playhead."""
         if self.audio_backend and self.transport.is_playing:
             # Get actual position from audio backend
             self.playback_position = self.audio_backend.get_position_beats()
@@ -3033,6 +3437,10 @@ class QuantSoundDesign(QMainWindow):
             tick = int((self.playback_position % 1) * 960)
             
             self.transport.update_position(bar, beat, tick)
+            
+            # Update arrangement playhead
+            self.arrangement.set_playhead(self.playback_position)
+            self.arrangement.set_playing(True)
         elif self.transport.is_playing:
             # Fallback if no audio backend
             tempo = self.transport.tempo_spin.value()
@@ -3044,6 +3452,14 @@ class QuantSoundDesign(QMainWindow):
             tick = int((self.playback_position % 1) * 960)
             
             self.transport.update_position(bar, beat, tick)
+            
+            # Update arrangement playhead
+            self.arrangement.set_playhead(self.playback_position)
+            self.arrangement.set_playing(True)
+        else:
+            # Not playing - update playhead to show current position but dim
+            self.arrangement.set_playhead(self.playback_position)
+            self.arrangement.set_playing(False)
     
     def on_preset_selected(self, preset):
         """Handle preset selection from browser"""
@@ -3058,6 +3474,11 @@ class QuantSoundDesign(QMainWindow):
         # If it has a pattern, load into pattern editor
         if PATTERN_AVAILABLE and hasattr(self, 'pattern_editor') and clip.pattern:
             self.pattern_editor.set_pattern(clip.pattern)
+            
+            # Register pattern with pattern player for playback
+            if self.pattern_player:
+                self.pattern_player.set_pattern("active", clip.pattern)
+            
             # Switch to pattern tab
             if hasattr(self, 'editor_tabs'):
                 for i in range(self.editor_tabs.count()):
@@ -3069,7 +3490,7 @@ class QuantSoundDesign(QMainWindow):
             track_name = clip.name.split()[0] if ' ' in clip.name else clip.name
             self.devices.set_track(track_name)
             
-            self.status.showMessage(f"🥁 Editing pattern: {clip.name} | Click cells to select, hold for velocity")
+            self.status.showMessage(f"🥁 Editing pattern: {clip.name} | Click cells to add drums, press PLAY to hear")
         else:
             self.status.showMessage(f"Selected: {clip.name}")
     

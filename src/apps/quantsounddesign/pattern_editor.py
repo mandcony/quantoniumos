@@ -23,7 +23,7 @@ try:
         QMenu, QAction, QCheckBox
     )
     from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-    from PyQt5.QtGui import QPainter, QColor, QBrush, QPen, QFont
+    from PyQt5.QtGui import QPainter, QColor, QBrush, QPen, QFont, QLinearGradient
 except ImportError:
     pass
 
@@ -571,12 +571,27 @@ class PatternPlayer:
 # PATTERN EDITOR WIDGET
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class StepButton(QPushButton):
-    """Single step button in the grid - Maschine/Push style"""
+class StepButton(QWidget):
+    """FL Studio-style step button with velocity-based coloring and visual feedback"""
     
     step_changed = pyqtSignal(int, int, bool, float)  # row, step, active, velocity
     step_selected = pyqtSignal(int, int)  # row, step - for selection
     velocity_edit_requested = pyqtSignal(int, int)  # row, step - for velocity popup
+    
+    # FL Studio color palette for velocity
+    VEL_COLORS = [
+        QColor(60, 60, 60),      # 0% - dark gray (off)
+        QColor(120, 80, 40),     # 10% - brown
+        QColor(180, 100, 30),    # 20% - burnt orange
+        QColor(220, 120, 20),    # 30% - orange
+        QColor(245, 140, 10),    # 40% - bright orange
+        QColor(255, 160, 0),     # 50% - gold
+        QColor(255, 180, 30),    # 60% - yellow-orange
+        QColor(255, 200, 60),    # 70% - light orange
+        QColor(255, 220, 100),   # 80% - pale yellow
+        QColor(255, 240, 150),   # 90% - cream
+        QColor(255, 255, 200),   # 100% - almost white
+    ]
     
     def __init__(self, row: int, step: int, parent=None):
         super().__init__(parent)
@@ -590,40 +605,119 @@ class StepButton(QPushButton):
         self.slide = False
         self.selected = False
         self.playing = False  # Playhead is on this step
-        self.held = False  # For velocity editing (like Ableton Push)
-        self._hold_timer = QTimer()
-        self._hold_timer.setSingleShot(True)
-        self._hold_timer.timeout.connect(self._on_hold_timeout)
+        self.hover = False
+        self._drag_start_y = 0
+        self._drag_velocity = 0.8
         
-        self.setFixedSize(32, 32)  # Slightly bigger for better visibility
-        self.setCheckable(True)
-        self.update_style()
+        self.setFixedSize(36, 28)  # FL Studio proportions
+        self.setMouseTracking(True)
+        self.setCursor(Qt.PointingHandCursor)
+        self._update_tooltip()
+    
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
         
-        self.clicked.connect(self._on_click)
+        w, h = self.width(), self.height()
+        
+        # Determine bar grouping colors (FL Studio style - every 4 steps grouped)
+        bar_group = self.step // 4
+        is_odd_bar = (bar_group % 2) == 1
+        is_downbeat = (self.step % 4) == 0
+        
+        # Background based on position in bar
+        if self.active:
+            # Velocity-based color (FL Studio orange gradient)
+            vel_idx = min(10, max(0, int(self.velocity * 10)))
+            base_color = self.VEL_COLORS[vel_idx]
+            
+            # Draw gradient fill
+            gradient = QLinearGradient(0, 0, 0, h)
+            gradient.setColorAt(0, base_color.lighter(120))
+            gradient.setColorAt(0.5, base_color)
+            gradient.setColorAt(1, base_color.darker(130))
+            painter.setBrush(QBrush(gradient))
+        else:
+            # Inactive - subtle grid pattern like FL
+            if is_odd_bar:
+                bg = QColor(45, 42, 38) if is_downbeat else QColor(38, 36, 33)
+            else:
+                bg = QColor(55, 52, 48) if is_downbeat else QColor(48, 45, 42)
+            painter.setBrush(QBrush(bg))
+        
+        # Border
+        if self.playing:
+            painter.setPen(QPen(QColor(0, 255, 100), 2))
+        elif self.selected:
+            painter.setPen(QPen(QColor(255, 255, 255), 2))
+        elif self.hover:
+            painter.setPen(QPen(QColor(100, 160, 220), 1))
+        elif self.active:
+            painter.setPen(QPen(QColor(80, 60, 40), 1))
+        else:
+            painter.setPen(QPen(QColor(60, 55, 50), 1))
+        
+        # Draw rounded rectangle (FL style)
+        painter.drawRoundedRect(1, 1, w - 2, h - 2, 3, 3)
+        
+        # Draw velocity bar at bottom (FL Studio feature)
+        if self.active:
+            bar_h = 4
+            bar_w = int((w - 6) * self.velocity)
+            vel_bar_color = QColor(255, 100, 50) if self.velocity > 0.8 else QColor(255, 180, 80)
+            painter.fillRect(3, h - bar_h - 2, bar_w, bar_h, vel_bar_color)
+        
+        # Probability indicator (dimmed if < 100%)
+        if self.active and self.probability < 1.0:
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QBrush(QColor(0, 0, 0, int(150 * (1 - self.probability)))))
+            painter.drawRoundedRect(1, 1, w - 2, h - 2, 3, 3)
+            # Draw probability percentage
+            painter.setPen(QColor(255, 255, 255, 180))
+            painter.setFont(QFont("Segoe UI", 7))
+            painter.drawText(self.rect(), Qt.AlignCenter, f"{int(self.probability * 100)}%")
+        
+        # Slide indicator
+        if self.active and self.slide:
+            painter.setPen(QColor(0, 255, 255))
+            painter.setFont(QFont("Segoe UI", 10, QFont.Bold))
+            painter.drawText(self.rect(), Qt.AlignCenter, "→")
+    
+    def enterEvent(self, event):
+        self.hover = True
+        self.update()
+    
+    def leaveEvent(self, event):
+        self.hover = False
+        self.update()
     
     def mousePressEvent(self, event):
-        """Start hold timer for velocity editing"""
         if event.button() == Qt.LeftButton:
-            self._hold_timer.start(300)  # 300ms hold = velocity edit
-        super().mousePressEvent(event)
-    
-    def mouseReleaseEvent(self, event):
-        """Stop hold timer"""
-        self._hold_timer.stop()
-        self.held = False
-        super().mouseReleaseEvent(event)
-    
-    def _on_hold_timeout(self):
-        """User held the button - open velocity editor"""
-        self.held = True
-        self.velocity_edit_requested.emit(self.row, self.step)
-    
-    def _on_click(self):
-        if not self.held:  # Only toggle if not held for velocity
-            self.active = self.isChecked()
-            self.update_style()
+            self._drag_start_y = event.y()
+            self._drag_velocity = self.velocity
+            # Toggle on click
+            self.active = not self.active
+            self.update()
             self.step_changed.emit(self.row, self.step, self.active, self.velocity)
             self.step_selected.emit(self.row, self.step)
+        elif event.button() == Qt.RightButton:
+            # Right-click opens velocity editor
+            self.velocity_edit_requested.emit(self.row, self.step)
+    
+    def mouseMoveEvent(self, event):
+        if event.buttons() & Qt.LeftButton and self.active:
+            # Drag up/down to change velocity (FL Studio behavior)
+            delta = self._drag_start_y - event.y()
+            new_vel = self._drag_velocity + delta * 0.01
+            new_vel = max(0.1, min(1.0, new_vel))
+            if abs(new_vel - self.velocity) > 0.01:
+                self.velocity = new_vel
+                self.update()
+                self._update_tooltip()
+                self.step_changed.emit(self.row, self.step, self.active, self.velocity)
+    
+    def mouseReleaseEvent(self, event):
+        pass  # Nothing special needed
     
     def set_state(
         self,
@@ -640,29 +734,31 @@ class StepButton(QPushButton):
         self.offset = max(-0.5, min(0.5, offset))
         self.decay = max(0.1, min(4.0, decay))
         self.slide = slide
-        self.setChecked(active)
-        self.update_style()
+        self._update_tooltip()
+        self.update()
     
     def set_selected(self, selected: bool):
-        """Set selected state (white border like Ableton)"""
+        """Set selected state (white border)"""
         self.selected = selected
-        self.update_style()
+        self.update()
     
     def set_playing(self, playing: bool):
-        """Set playing state (green like Ableton - playhead is here)"""
+        """Set playing state (green border - playhead is here)"""
         self.playing = playing
-        self.update_style()
+        self.update()
     
     def set_velocity(self, velocity: float):
         """Update velocity and refresh display"""
         self.velocity = max(0.0, min(1.0, velocity))
-        self.update_style()
+        self._update_tooltip()
+        self.update()
         self.step_changed.emit(self.row, self.step, self.active, self.velocity)
 
     def set_probability(self, probability: float):
         """Update probability for this step."""
         self.probability = max(0.0, min(1.0, probability))
-        self.update_style()
+        self._update_tooltip()
+        self.update()
     
     def set_offset(self, offset: float):
         self.offset = max(-0.5, min(0.5, offset))
@@ -674,79 +770,12 @@ class StepButton(QPushButton):
 
     def set_slide(self, slide: bool):
         self.slide = slide
-        self.update_style()
-
-    def update_style(self):
-        # Determine color based on state (Ableton Push color scheme)
-        is_downbeat = (self.step % 4) == 0
-        is_offbeat = (self.step % 2) == 1
-        border_width_value = 1
-        
-        if self.active:
-            # Velocity affects color intensity (brighter = louder)
-            v = int(100 + self.velocity * 155)
-            # Track color for active steps - orange/yellow gradient based on velocity
-            if self.velocity > 0.8:
-                color = f"rgb({v}, {int(v * 0.6)}, 0)"  # Hot orange for loud
-            else:
-                color = f"rgb(0, {v}, {int(v * 0.6)})"  # Green for normal
-            border = "#00ffaa"
-            border_width_value = 1 + int(self.probability * 2)
-        else:
-            # Empty step - subtle grid colors
-            if is_downbeat:
-                color = "#3a3a3a"
-            elif is_offbeat:
-                color = "#252525"
-            else:
-                color = "#2d2d2d"
-            border = "#444"
-        
-        # Override for special states
-        if self.playing:
-            border = "#00ff00"  # Green border for playhead
-            border_width = "3px"
-        elif self.selected:
-            border = "#ffffff"  # White border for selected (Ableton style)
-            border_width = "2px"
-        else:
-            border_width = f"{border_width_value}px"
-        
-        # Slide indicator text styling
-        if self.active and self.slide:
-            self.setText("➜")
-            text_color = "#0d0d0d"
-            font_weight = "bold"
-        else:
-            self.setText("")
-            text_color = "#e0e0e0"
-            font_weight = "normal"
-
-        self.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {color};
-                border: {border_width} solid {border};
-                border-radius: 4px;
-                margin: 1px;
-                color: {text_color};
-                font-weight: {font_weight};
-            }}
-            QPushButton:hover {{
-                border: 2px solid #00aaff;
-                background-color: {'#4a4a4a' if not self.active else color};
-            }}
-        """)
-        self._update_tooltip()
+        self.update()
 
     def _update_tooltip(self):
         self.setToolTip(
-            "Velocity: {vel}% | Probability: {prob}% | Offset: {offset:+.0f}% | Decay: {decay:.0f}% | Slide: {slide}".format(
-                vel=int(self.velocity * 100),
-                prob=int(self.probability * 100),
-                offset=self.offset * 100,
-                decay=self.decay * 100,
-                slide="On" if self.slide else "Off",
-            )
+            f"Step {self.step + 1} | Vel: {int(self.velocity * 100)}% | "
+            f"Prob: {int(self.probability * 100)}% | Offset: {self.offset * 100:+.0f}%"
         )
     
     def set_highlight(self, highlighted: bool):
@@ -755,7 +784,7 @@ class StepButton(QPushButton):
 
 
 class DrumRowWidget(QWidget):
-    """Single drum row with label and steps - Maschine/Push style"""
+    """FL Studio-style drum row with LED-style label and step pads"""
     
     row_changed = pyqtSignal(int)  # row index
     row_selected = pyqtSignal(int)  # row selected for editing
@@ -763,65 +792,98 @@ class DrumRowWidget(QWidget):
     velocity_edit = pyqtSignal(int, int)  # row, step for velocity edit popup
     step_activated = pyqtSignal(int, float)  # row_index, velocity - for triggering preview sound
     
+    # FL Studio row colors
+    ROW_COLORS = [
+        QColor(255, 120, 80),   # Kick - red-orange
+        QColor(255, 180, 60),   # Snare - orange
+        QColor(200, 120, 255),  # Clap - purple
+        QColor(80, 200, 255),   # Hihat C - cyan
+        QColor(100, 255, 200),  # Hihat O - teal
+        QColor(255, 100, 150),  # Tom Hi - pink
+        QColor(255, 140, 100),  # Tom Mid - salmon
+        QColor(200, 100, 80),   # Tom Lo - brown
+        QColor(255, 220, 100),  # Crash - yellow
+        QColor(180, 180, 255),  # Ride - light blue
+        QColor(255, 160, 200),  # Rim - light pink
+        QColor(200, 255, 150),  # Cowbell - lime
+    ]
+    
     def __init__(self, row_index: int, row_data: PatternRow, parent=None):
         super().__init__(parent)
         self.row_index = row_index
         self.row_data = row_data
         self.step_buttons: List[StepButton] = []
         self.is_selected = False
+        self.row_color = self.ROW_COLORS[row_index % len(self.ROW_COLORS)]
+        
+        self.setFixedHeight(34)
         
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(2, 2, 2, 2)
-        layout.setSpacing(2)
+        layout.setContentsMargins(0, 1, 4, 1)
+        layout.setSpacing(1)
         
-        # Row label and controls - clickable for selection
+        # FL Studio style - colored indicator LED + name
+        self.indicator = QFrame()
+        self.indicator.setFixedSize(6, 28)
+        self.indicator.setStyleSheet(f"""
+            QFrame {{
+                background-color: {self.row_color.name()};
+                border-radius: 2px;
+            }}
+        """)
+        layout.addWidget(self.indicator)
+        
+        # Row label with mute/solo - FL Studio compact style
         label_frame = QFrame()
-        label_frame.setFixedWidth(120)  # Wider for better visibility
+        label_frame.setFixedWidth(100)
         label_frame.setCursor(Qt.PointingHandCursor)
         label_frame.mousePressEvent = lambda e: self._on_row_click()
         label_layout = QHBoxLayout(label_frame)
-        label_layout.setContentsMargins(4, 0, 4, 0)
-        label_layout.setSpacing(4)
+        label_layout.setContentsMargins(4, 0, 2, 0)
+        label_layout.setSpacing(2)
         
-        # Mute/Solo buttons with improved styling
-        self.mute_btn = QPushButton("M")
-        self.mute_btn.setFixedSize(22, 22)
+        # Compact mute button (FL style - just colored when active)
+        self.mute_btn = QPushButton()
+        self.mute_btn.setFixedSize(18, 18)
         self.mute_btn.setCheckable(True)
+        self.mute_btn.setToolTip("Mute")
         self.mute_btn.setStyleSheet("""
             QPushButton { 
-                background: #333; 
-                border: 1px solid #444; 
-                border-radius: 3px; 
-                color: #888; 
-                font-size: 10px; 
-                font-weight: bold;
+                background: #2a2a2a; 
+                border: none; 
+                border-radius: 2px;
+                image: none;
             }
-            QPushButton:hover { border-color: #ff4444; color: #ff4444; }
-            QPushButton:checked { background: #ff4444; color: white; border-color: #ff4444; }
+            QPushButton:hover { background: #3a3a3a; }
+            QPushButton:checked { background: #ff4444; }
         """)
         self.mute_btn.clicked.connect(self._on_mute)
         
-        self.solo_btn = QPushButton("S")
-        self.solo_btn.setFixedSize(22, 22)
+        # Compact solo button
+        self.solo_btn = QPushButton()
+        self.solo_btn.setFixedSize(18, 18)
         self.solo_btn.setCheckable(True)
+        self.solo_btn.setToolTip("Solo")
         self.solo_btn.setStyleSheet("""
             QPushButton { 
-                background: #333; 
-                border: 1px solid #444; 
-                border-radius: 3px; 
-                color: #888; 
-                font-size: 10px;
-                font-weight: bold;
+                background: #2a2a2a; 
+                border: none; 
+                border-radius: 2px;
             }
-            QPushButton:hover { border-color: #ffaa00; color: #ffaa00; }
-            QPushButton:checked { background: #ffaa00; color: black; border-color: #ffaa00; }
+            QPushButton:hover { background: #3a3a3a; }
+            QPushButton:checked { background: #00cc66; }
         """)
         self.solo_btn.clicked.connect(self._on_solo)
         
-        # Name label with selection highlighting
-        self.name_label = QLabel(row_data.name)
-        self.name_label.setStyleSheet("color: #ccc; font-size: 11px; font-weight: 500;")
-        self.name_label.setFixedWidth(60)
+        # Name label - FL style truncated
+        self.name_label = QLabel(row_data.name[:8])  # Truncate long names
+        self.name_label.setStyleSheet(f"""
+            color: {self.row_color.name()}; 
+            font-size: 10px; 
+            font-weight: bold;
+            font-family: 'Segoe UI', sans-serif;
+        """)
+        self.name_label.setFixedWidth(55)
         
         label_layout.addWidget(self.mute_btn)
         label_layout.addWidget(self.solo_btn)
@@ -830,8 +892,26 @@ class DrumRowWidget(QWidget):
         self.label_frame = label_frame
         layout.addWidget(label_frame)
         
-        # Step buttons
+        # Separator between label and steps
+        sep = QFrame()
+        sep.setFixedWidth(1)
+        sep.setStyleSheet("background: #3a3a3a;")
+        layout.addWidget(sep)
+        
+        # Step buttons - FL Studio grouping with bar separators
+        steps_container = QWidget()
+        steps_layout = QHBoxLayout(steps_container)
+        steps_layout.setContentsMargins(2, 0, 0, 0)
+        steps_layout.setSpacing(1)
+        
         for step in range(len(row_data.steps)):
+            # Add bar separator every 4 steps (FL Studio style)
+            if step > 0 and step % 4 == 0:
+                bar_sep = QFrame()
+                bar_sep.setFixedWidth(2)
+                bar_sep.setStyleSheet("background: #4a4a4a;")
+                steps_layout.addWidget(bar_sep)
+            
             btn = StepButton(row_index, step)
             btn.set_state(
                 row_data.steps[step].active,
@@ -845,9 +925,11 @@ class DrumRowWidget(QWidget):
             btn.step_selected.connect(self._on_step_selected)
             btn.velocity_edit_requested.connect(self._on_velocity_edit)
             self.step_buttons.append(btn)
-            layout.addWidget(btn)
+            steps_layout.addWidget(btn)
         
-        layout.addStretch()
+        steps_layout.addStretch()
+        layout.addWidget(steps_container, 1)
+        
         self._update_selection_style()
     
     def _on_row_click(self):
@@ -864,23 +946,23 @@ class DrumRowWidget(QWidget):
         if self.is_selected:
             self.label_frame.setStyleSheet("""
                 QFrame {
-                    background: #2a2a2a;
-                    border-left: 3px solid #00aaff;
-                    border-radius: 2px;
+                    background: #2d2d2d;
+                    border: 1px solid #00aaff;
+                    border-radius: 3px;
                 }
             """)
-            self.name_label.setStyleSheet("color: #00aaff; font-size: 11px; font-weight: bold;")
         else:
             self.label_frame.setStyleSheet("""
                 QFrame {
-                    background: transparent;
-                    border-left: 3px solid transparent;
+                    background: #1e1e1e;
+                    border: 1px solid transparent;
+                    border-radius: 3px;
                 }
                 QFrame:hover {
-                    background: #222;
+                    background: #252525;
+                    border: 1px solid #3a3a3a;
                 }
             """)
-            self.name_label.setStyleSheet("color: #ccc; font-size: 11px; font-weight: 500;")
     
     def _on_mute(self):
         self.row_data.mute = self.mute_btn.isChecked()

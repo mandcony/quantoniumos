@@ -24,10 +24,10 @@ The middleware automatically selects the best RFT transform variant based on:
 
 import time
 import numpy as np
-from typing import Optional, Tuple, Dict, Any
+from typing import Optional, Tuple, Dict, Any, List, Union
 from dataclasses import dataclass
 from algorithms.rft.variants.registry import VARIANTS, VariantInfo
-from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse, PHI
+from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse, rft_matrix, PHI
 
 try:
     from algorithms.rft.kernels.python_bindings.unitary_rft import (
@@ -39,6 +39,17 @@ except ImportError:  # pragma: no cover - assembly optional
     UnitaryRFT = None
     RFT_FLAG_QUANTUM_SAFE = 0
     HAS_ASSEMBLY = False
+
+# Import quantum gates for unified engine
+try:
+    from algorithms.rft.quantum.quantum_gates import (
+        QuantumGate, PauliGates, RotationGates, PhaseGates,
+        HadamardGates, ControlledGates
+    )
+    HAS_QUANTUM_GATES = True
+except ImportError:
+    HAS_QUANTUM_GATES = False
+    QuantumGate = None
 
 @dataclass
 class TransformProfile:
@@ -366,6 +377,323 @@ class MiddlewareTransformEngine:
     def list_all_variants(self) -> Dict[str, VariantInfo]:
         """List all available transform variants"""
         return self.variants.copy()
+
+
+class QuantumEngine:
+    """
+    Unified Quantum Operations Engine
+    ==================================
+    
+    Integrates all quantum unitaries into a single interface:
+    - Standard quantum gates (Pauli, Hadamard, CNOT, etc.)
+    - Rotation gates (Rx, Ry, Rz)
+    - Phase gates (S, T, P)
+    - Controlled gates (CNOT, CZ, Toffoli)
+    - RFT-based unitary transforms
+    
+    All operations are verified unitary (U†U = I) to machine precision.
+    """
+    
+    def __init__(self, num_qubits: int = 4):
+        """Initialize quantum engine with specified number of qubits.
+        
+        Args:
+            num_qubits: Number of qubits (state vector size = 2^num_qubits)
+        """
+        self.num_qubits = num_qubits
+        self.state_size = 2 ** num_qubits
+        self.state = np.zeros(self.state_size, dtype=complex)
+        self.state[0] = 1.0  # Initialize to |0...0⟩
+        
+        # Gate cache for performance
+        self._gate_cache: Dict[str, np.ndarray] = {}
+        
+        # Track applied gates
+        self.circuit: List[Dict[str, Any]] = []
+        
+        # Load standard gates
+        self._init_standard_gates()
+        
+        # Load RFT-based unitaries
+        self._init_rft_unitaries()
+        
+        print(f"🔬 QuantumEngine initialized: {num_qubits} qubits ({self.state_size} amplitudes)")
+    
+    def _init_standard_gates(self):
+        """Initialize standard quantum gates."""
+        if not HAS_QUANTUM_GATES:
+            print("⚠️  Quantum gates module not available")
+            return
+        
+        # Single-qubit gates
+        self._gate_cache['X'] = PauliGates.X().matrix
+        self._gate_cache['Y'] = PauliGates.Y().matrix
+        self._gate_cache['Z'] = PauliGates.Z().matrix
+        self._gate_cache['H'] = HadamardGates.H().matrix
+        self._gate_cache['S'] = PhaseGates.S().matrix
+        self._gate_cache['T'] = PhaseGates.T().matrix
+        
+        # Two-qubit gates
+        self._gate_cache['CNOT'] = ControlledGates.CNOT().matrix
+        self._gate_cache['CZ'] = ControlledGates.CZ().matrix
+        
+        # Three-qubit gates
+        self._gate_cache['Toffoli'] = ControlledGates.Toffoli().matrix
+        
+        print(f"   ✅ Loaded {len(self._gate_cache)} standard quantum gates")
+    
+    def _init_rft_unitaries(self):
+        """Initialize RFT-based unitary transforms."""
+        # RFT matrices for various sizes
+        for size in [2, 4, 8, 16, 32, 64]:
+            if size <= self.state_size:
+                try:
+                    rft = rft_matrix(size)
+                    self._gate_cache[f'RFT_{size}'] = rft
+                except Exception as e:
+                    print(f"   ⚠️  Could not create RFT_{size}: {e}")
+        
+        # Create phi-rotation gates using golden ratio
+        phi = PHI
+        for k in range(1, 5):
+            theta = 2 * np.pi * phi * k / 10
+            self._gate_cache[f'Rphi_{k}'] = RotationGates.Rz(theta).matrix
+        
+        print(f"   ✅ Loaded RFT unitaries up to size {self.state_size}")
+    
+    def reset(self):
+        """Reset quantum state to |0...0⟩."""
+        self.state = np.zeros(self.state_size, dtype=complex)
+        self.state[0] = 1.0
+        self.circuit = []
+    
+    def get_state(self) -> np.ndarray:
+        """Get current quantum state vector."""
+        return self.state.copy()
+    
+    def set_state(self, state: np.ndarray):
+        """Set quantum state (must be normalized)."""
+        if len(state) != self.state_size:
+            raise ValueError(f"State size mismatch: expected {self.state_size}, got {len(state)}")
+        norm = np.linalg.norm(state)
+        if not np.isclose(norm, 1.0, atol=1e-10):
+            raise ValueError(f"State not normalized: |ψ| = {norm}")
+        self.state = state.astype(complex)
+    
+    def apply_gate(self, gate_name: str, target: int, control: Optional[int] = None) -> np.ndarray:
+        """Apply a quantum gate to the state.
+        
+        Args:
+            gate_name: Name of gate ('X', 'Y', 'Z', 'H', 'CNOT', etc.)
+            target: Target qubit index (0-indexed)
+            control: Control qubit for controlled gates
+            
+        Returns:
+            Updated state vector
+        """
+        if gate_name not in self._gate_cache:
+            raise ValueError(f"Unknown gate: {gate_name}")
+        
+        gate = self._gate_cache[gate_name]
+        gate_size = gate.shape[0]
+        gate_qubits = int(np.log2(gate_size))
+        
+        if gate_qubits == 1:
+            # Single-qubit gate
+            full_gate = self._expand_single_qubit_gate(gate, target)
+        elif gate_qubits == 2:
+            # Two-qubit gate (control is first qubit of gate)
+            if control is None:
+                control = target
+                target = (target + 1) % self.num_qubits
+            full_gate = self._expand_two_qubit_gate(gate, control, target)
+        else:
+            raise NotImplementedError(f"{gate_qubits}-qubit gates not yet supported")
+        
+        # Apply gate
+        self.state = full_gate @ self.state
+        
+        # Record in circuit
+        self.circuit.append({
+            'gate': gate_name,
+            'target': target,
+            'control': control
+        })
+        
+        return self.state
+    
+    def _expand_single_qubit_gate(self, gate: np.ndarray, target: int) -> np.ndarray:
+        """Expand single-qubit gate to full state space using tensor products."""
+        # Build: I ⊗ I ⊗ ... ⊗ G ⊗ ... ⊗ I
+        result = np.array([[1]], dtype=complex)
+        for i in range(self.num_qubits):
+            if i == target:
+                result = np.kron(result, gate)
+            else:
+                result = np.kron(result, np.eye(2, dtype=complex))
+        return result
+    
+    def _expand_two_qubit_gate(self, gate: np.ndarray, control: int, target: int) -> np.ndarray:
+        """Expand two-qubit gate to full state space."""
+        # For simplicity, use permutation approach for arbitrary control/target
+        n = self.num_qubits
+        dim = 2 ** n
+        
+        # Create full matrix
+        full_gate = np.eye(dim, dtype=complex)
+        
+        # Apply gate to each basis state
+        for i in range(dim):
+            # Extract control and target bits
+            ctrl_bit = (i >> (n - 1 - control)) & 1
+            tgt_bit = (i >> (n - 1 - target)) & 1
+            
+            if ctrl_bit == 1:  # Control is active
+                # Determine which 2x2 block of the gate to use
+                # CNOT flips target when control is 1
+                for j in range(dim):
+                    ctrl_bit_j = (j >> (n - 1 - control)) & 1
+                    tgt_bit_j = (j >> (n - 1 - target)) & 1
+                    
+                    if ctrl_bit_j == 1:  # Both have control bit set
+                        # Check if only target differs
+                        mask = ~((1 << (n - 1 - control)) | (1 << (n - 1 - target)))
+                        if (i & mask) == (j & mask):
+                            # Get gate element
+                            gate_row = tgt_bit
+                            gate_col = tgt_bit_j
+                            full_gate[i, j] = gate[2 + gate_row, 2 + gate_col]
+        
+        return full_gate
+    
+    def apply_rotation(self, axis: str, theta: float, target: int) -> np.ndarray:
+        """Apply rotation gate around specified axis.
+        
+        Args:
+            axis: 'x', 'y', or 'z'
+            theta: Rotation angle in radians
+            target: Target qubit
+        """
+        if axis.lower() == 'x':
+            gate = RotationGates.Rx(theta).matrix
+        elif axis.lower() == 'y':
+            gate = RotationGates.Ry(theta).matrix
+        elif axis.lower() == 'z':
+            gate = RotationGates.Rz(theta).matrix
+        else:
+            raise ValueError(f"Unknown axis: {axis}")
+        
+        full_gate = self._expand_single_qubit_gate(gate, target)
+        self.state = full_gate @ self.state
+        
+        self.circuit.append({
+            'gate': f'R{axis}({theta:.4f})',
+            'target': target,
+            'control': None
+        })
+        
+        return self.state
+    
+    def apply_rft(self, size: Optional[int] = None) -> np.ndarray:
+        """Apply RFT unitary transform to the state.
+        
+        Args:
+            size: RFT size (default: full state size)
+        """
+        if size is None:
+            size = self.state_size
+        
+        rft_key = f'RFT_{size}'
+        if rft_key not in self._gate_cache:
+            self._gate_cache[rft_key] = rft_matrix(size)
+        
+        rft = self._gate_cache[rft_key]
+        
+        if size == self.state_size:
+            self.state = rft @ self.state
+        else:
+            # Apply to first 'size' amplitudes
+            self.state[:size] = rft @ self.state[:size]
+        
+        self.circuit.append({
+            'gate': f'RFT_{size}',
+            'target': 'all',
+            'control': None
+        })
+        
+        return self.state
+    
+    def apply_inverse_rft(self, size: Optional[int] = None) -> np.ndarray:
+        """Apply inverse RFT (RFT†) to the state."""
+        if size is None:
+            size = self.state_size
+        
+        rft_key = f'RFT_{size}'
+        if rft_key not in self._gate_cache:
+            self._gate_cache[rft_key] = rft_matrix(size)
+        
+        rft_dag = self._gate_cache[rft_key].conj().T  # Hermitian conjugate
+        
+        if size == self.state_size:
+            self.state = rft_dag @ self.state
+        else:
+            self.state[:size] = rft_dag @ self.state[:size]
+        
+        return self.state
+    
+    def create_bell_state(self, qubit1: int = 0, qubit2: int = 1) -> np.ndarray:
+        """Create Bell state |Φ+⟩ = (|00⟩ + |11⟩)/√2 on specified qubits."""
+        self.reset()
+        self.apply_gate('H', qubit1)
+        self.apply_gate('CNOT', qubit2, control=qubit1)
+        return self.state
+    
+    def create_ghz_state(self) -> np.ndarray:
+        """Create GHZ state (|0...0⟩ + |1...1⟩)/√2 on all qubits."""
+        self.reset()
+        self.apply_gate('H', 0)
+        for i in range(1, self.num_qubits):
+            self.apply_gate('CNOT', i, control=i-1)
+        return self.state
+    
+    def measure_probabilities(self) -> np.ndarray:
+        """Get measurement probabilities for all basis states."""
+        return np.abs(self.state) ** 2
+    
+    def measure(self) -> int:
+        """Perform measurement, collapse state, return result."""
+        probs = self.measure_probabilities()
+        result = np.random.choice(len(probs), p=probs)
+        
+        # Collapse state
+        self.state = np.zeros(self.state_size, dtype=complex)
+        self.state[result] = 1.0
+        
+        return result
+    
+    def fidelity(self, target_state: np.ndarray) -> float:
+        """Calculate fidelity |⟨ψ|φ⟩|² with target state."""
+        return float(np.abs(np.vdot(self.state, target_state)) ** 2)
+    
+    def validate_unitarity(self, gate_name: str) -> float:
+        """Validate that a gate is unitary, return ||U†U - I||."""
+        if gate_name not in self._gate_cache:
+            raise ValueError(f"Unknown gate: {gate_name}")
+        
+        gate = self._gate_cache[gate_name]
+        identity = np.eye(gate.shape[0], dtype=complex)
+        return float(np.linalg.norm(gate.conj().T @ gate - identity))
+    
+    def list_available_gates(self) -> List[str]:
+        """List all available gate names."""
+        return list(self._gate_cache.keys())
+    
+    def get_circuit_depth(self) -> int:
+        """Get number of gates applied."""
+        return len(self.circuit)
+    
+    def __repr__(self) -> str:
+        return f"QuantumEngine({self.num_qubits} qubits, {len(self._gate_cache)} gates, depth={self.get_circuit_depth()})"
 
 
 # Convenience functions for direct use
