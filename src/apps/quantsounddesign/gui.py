@@ -4651,7 +4651,32 @@ class QuantSoundDesign(QMainWindow):
             start_beat, end_beat = self._determine_export_range(settings)
 
             if settings.get('stems'):
-                self.status.showMessage("Stem export not implemented yet; rendering master mix only", 6000)
+                # Stem export: render each track separately
+                stem_dir = os.path.splitext(path)[0] + "_stems"
+                os.makedirs(stem_dir, exist_ok=True)
+                stem_count = 0
+                
+                if hasattr(self, 'arrangement'):
+                    tracks = getattr(self.arrangement, 'tracks', [])
+                    for i, (header, lane, widget, track_type) in enumerate(tracks):
+                        track_name = getattr(header, 'track_name', f'Track_{i+1}')
+                        # Render this track solo
+                        try:
+                            stem_buffer = engine.render_track_offline(
+                                i, start_beat, end_beat,
+                                sample_rate=sample_rate,
+                                progress_callback=lambda pct: progress.setValue(5 + int(pct * 80 / max(1, len(tracks))))
+                            )
+                            if stem_buffer.size > 0:
+                                stem_audio = stem_buffer.T.astype(np.float32, copy=False)
+                                stem_audio = np.clip(stem_audio, -1.0, 1.0)
+                                stem_path = os.path.join(stem_dir, f"{track_name}.wav")
+                                self._write_wav_file(stem_path, stem_audio, sample_rate, bit_depth)
+                                stem_count += 1
+                        except Exception as stem_err:
+                            self.status.showMessage(f"Stem '{track_name}' failed: {stem_err}", 4000)
+                
+                self.status.showMessage(f"Exported {stem_count} stems to {stem_dir}", 6000)
 
             progress.setValue(5)
             buffer = engine.render_offline(

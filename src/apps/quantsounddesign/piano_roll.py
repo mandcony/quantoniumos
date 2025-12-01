@@ -1089,8 +1089,9 @@ class PianoRollView(QWidget):
         # Find the earliest note in clipboard
         min_start = min(n.start for n in self._clipboard)
         
-        # TODO: Paste at playhead position
-        paste_offset = 0  # For now, paste at original position
+        # Paste at playhead position (or beat 0 if no playhead)
+        playhead_beat = getattr(self, 'playhead_beat', 0.0)
+        paste_offset = playhead_beat
         
         new_notes = []
         for clip_note in self._clipboard:

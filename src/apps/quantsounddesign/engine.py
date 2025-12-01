@@ -1335,6 +1335,88 @@ class AudioEngine:
 
         return render_buffer
 
+    def render_track_offline(
+        self,
+        track_index: int,
+        start_beat: float,
+        end_beat: float,
+        sample_rate: Optional[int] = None,
+        block_size: Optional[int] = None,
+        progress_callback: Optional[Callable[[float], None]] = None,
+    ) -> np.ndarray:
+        """Render a single track's audio offline (for stem export)"""
+        session = self.session
+        if end_beat <= start_beat:
+            return np.zeros((2, 0), dtype=np.float32)
+        
+        if track_index < 0 or track_index >= len(session.tracks):
+            return np.zeros((2, 0), dtype=np.float32)
+
+        original_sr = session.sample_rate
+        original_block = session.block_size
+        original_transport = {
+            "playing": session.transport.playing,
+            "position_beats": session.transport.position_beats,
+            "position_samples": session.transport.position_samples,
+            "loop_enabled": session.transport.loop_enabled,
+            "loop_start": session.transport.loop_start_beats,
+            "loop_end": session.transport.loop_end_beats,
+        }
+        
+        # Store original solo/mute states
+        original_solo_mute = [(t.solo, t.mute) for t in session.tracks]
+
+        if sample_rate and sample_rate > 0:
+            session.sample_rate = float(sample_rate)
+        if block_size and block_size > 0:
+            session.block_size = int(block_size)
+
+        # Solo only this track
+        for i, track in enumerate(session.tracks):
+            track.solo = (i == track_index)
+            track.mute = False
+
+        samples_per_beat = session.samples_per_beat if session.tempo_bpm else 1.0
+        total_frames = int(np.ceil((end_beat - start_beat) * samples_per_beat))
+        render_buffer = np.zeros((2, total_frames), dtype=np.float32)
+
+        session.transport.playing = True
+        session.transport.loop_enabled = False
+        session.transport.position_beats = start_beat
+        session.transport.position_samples = int(start_beat * samples_per_beat)
+
+        frames_rendered = 0
+        try:
+            while frames_rendered < total_frames:
+                frames_to_render = min(session.block_size, total_frames - frames_rendered)
+                block = self.process_block(frames_to_render)
+                block_frames = min(block.shape[1], frames_to_render)
+                render_buffer[:, frames_rendered:frames_rendered + block_frames] = block[:, :block_frames]
+                frames_rendered += block_frames
+                if progress_callback:
+                    try:
+                        progress_callback(frames_rendered / total_frames)
+                    except Exception:
+                        pass
+        finally:
+            # Restore session state
+            session.sample_rate = original_sr
+            session.block_size = original_block
+            session.transport.playing = original_transport["playing"]
+            session.transport.position_beats = original_transport["position_beats"]
+            session.transport.position_samples = original_transport["position_samples"]
+            session.transport.loop_enabled = original_transport["loop_enabled"]
+            session.transport.loop_start_beats = original_transport["loop_start"]
+            session.transport.loop_end_beats = original_transport["loop_end"]
+            
+            # Restore solo/mute states
+            for i, (solo, mute) in enumerate(original_solo_mute):
+                if i < len(session.tracks):
+                    session.tracks[i].solo = solo
+                    session.tracks[i].mute = mute
+
+        return render_buffer
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXPORTS

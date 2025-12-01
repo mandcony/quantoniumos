@@ -92,21 +92,23 @@ class RansEncoder:
     def __init__(self, precision=RANS_PRECISION_DEFAULT):
         self.state = RANS_L_BASE
         self.precision = precision
+        self.total_freq = 1 << precision
         self.encoded_data = []
 
     def encode_symbol(self, symbol, symbol_map, cumulative_freqs, total_freq):
-        """Encodes a single symbol."""
+        """Encodes a single symbol using rANS."""
         sym_idx = symbol_map[symbol]
-        start_freq = cumulative_freqs[sym_idx]
-        freq = cumulative_freqs[sym_idx + 1] - start_freq
+        start = int(cumulative_freqs[sym_idx])
+        freq = int(cumulative_freqs[sym_idx + 1]) - start
 
-        # Renormalize state if it's too large
-        if self.state >= RANS_L_BASE * freq:
+        # Renormalize: output 16-bit chunks while state is too large
+        x_max = ((RANS_L_BASE >> self.precision) << 16) * freq
+        while self.state >= x_max:
             self.encoded_data.append(self.state & 0xFFFF)
             self.state >>= 16
 
-        # Update state
-        self.state = ((self.state // freq) << self.precision) + (self.state % freq) + start_freq
+        # C(s,x) = (x // freq) * total_freq + start + (x % freq)
+        self.state = (self.state // freq) * total_freq + start + (self.state % freq)
 
     def get_encoded_data(self):
         """Finalizes encoding and returns the compressed data."""
@@ -121,28 +123,34 @@ class RansEncoder:
 # --- rANS Decoder ---
 
 class RansDecoder:
-    def __init__(self, encoded_data):
-        self.encoded_data = list(encoded_data)
+    def __init__(self, encoded_data, precision=RANS_PRECISION_DEFAULT):
+        # Convert to list of Python ints to avoid numpy uint16 overflow on shifts
+        self.encoded_data = [int(x) for x in encoded_data]
+        self.precision = precision
+        self.total_freq = 1 << precision
         # Reconstruct the initial state from the end of the data
         self.state = 0
         while self.state < RANS_L_BASE and self.encoded_data:
             self.state = (self.state << 16) | self.encoded_data.pop()
 
     def decode_symbol(self, symbols, cumulative_freqs, total_freq):
-        """Decodes a single symbol."""
-        # Find symbol from state
-        slot = self.state & (total_freq - 1)
+        """Decodes a single symbol using rANS."""
+        # D(x) extracts symbol from state
+        # slot = x mod total_freq  => index into cumulative table
+        slot = self.state % total_freq
+        
+        # Binary search to find symbol
         sym_idx = np.searchsorted(cumulative_freqs, slot, side='right') - 1
         symbol = symbols[sym_idx]
 
-        start_freq = cumulative_freqs[sym_idx]
-        freq = cumulative_freqs[sym_idx + 1] - start_freq
+        start = int(cumulative_freqs[sym_idx])
+        freq = int(cumulative_freqs[sym_idx + 1]) - start
 
-        # Update state
-        self.state = freq * (self.state >> RANS_PRECISION_DEFAULT) + slot - start_freq
+        # D(x) = freq * (x // total_freq) + (x % total_freq) - start
+        self.state = freq * (self.state // total_freq) + slot - start
 
-        # Renormalize state if it's too small
-        if self.state < RANS_L_BASE and self.encoded_data:
+        # Renormalize: read 16-bit chunks while state is too small
+        while self.state < RANS_L_BASE and self.encoded_data:
             self.state = (self.state << 16) | self.encoded_data.pop()
             
         return symbol
@@ -206,7 +214,7 @@ def ans_decode(encoded_data, freq_data, num_symbols):
     
     symbols, _, cumulative_freqs, total_freq = build_cumulative_freq_table(frequencies, precision)
     
-    decoder = RansDecoder(encoded_data)
+    decoder = RansDecoder(encoded_data, precision=precision)
     
     decoded_data = []
     for _ in range(num_symbols):

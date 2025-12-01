@@ -1,0 +1,198 @@
+name: Shannon Entropy Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'algorithms/**'
+      - 'experiments/**'
+      - 'tests/**'
+      - 'scripts/run_shannon_tests.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'algorithms/**'
+      - 'experiments/**'
+      - 'tests/**'
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Quick smoke tests (run on every push)
+  smoke-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest scipy matplotlib brotli zstandard
+      
+      - name: Run transform correctness tests
+        run: |
+          python -m pytest tests/transforms/test_rft_correctness.py -v --tb=short
+      
+      - name: Run codec tests
+        run: |
+          python -m pytest tests/codec_tests/ -v --tb=short
+
+  # Full entropy benchmarks (run on PRs and main)
+  entropy-benchmarks:
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest scipy matplotlib brotli zstandard pillow
+      
+      - name: Measure dataset entropy
+        run: |
+          python experiments/entropy/measure_entropy.py --all --output results/entropy/all_datasets.json
+      
+      - name: Run entropy gap benchmark
+        run: |
+          python experiments/entropy/benchmark_entropy_gap.py --all --json --output-dir results/entropy_gap
+      
+      - name: Upload entropy results
+        uses: actions/upload-artifact@v4
+        with:
+          name: entropy-results
+          path: results/entropy*/
+          retention-days: 30
+
+  # Runtime benchmarks
+  runtime-benchmarks:
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install scipy matplotlib
+      
+      - name: Run runtime benchmarks
+        run: |
+          python experiments/runtime/benchmark_transforms.py --iterations 50 --output-dir results/runtime
+      
+      - name: Upload runtime results
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-results
+          path: results/runtime/
+          retention-days: 30
+
+  # Full test suite (runs all tests and generates report)
+  full-test-suite:
+    runs-on: ubuntu-latest
+    needs: [entropy-benchmarks, runtime-benchmarks]
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install all dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest scipy matplotlib brotli zstandard pillow
+      
+      - name: Run full Shannon test suite
+        run: |
+          python scripts/run_shannon_tests.py --verbose --output-dir results/shannon_tests
+      
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: shannon-test-report
+          path: results/shannon_tests/
+          retention-days: 90
+      
+      - name: Check for failures
+        run: |
+          if [ -f "results/shannon_tests/shannon_test_results_*.json" ]; then
+            if grep -q '"all_passed": false' results/shannon_tests/shannon_test_results_*.json; then
+              echo "Some tests failed!"
+              exit 1
+            fi
+          fi
+
+  # Coherence and crypto tests
+  advanced-tests:
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest scipy
+      
+      - name: Run coherence tests
+        run: |
+          python -m pytest tests/benchmarks/test_coherence.py -v --tb=short
+      
+      - name: Run crypto tests
+        run: |
+          python -m pytest tests/crypto/test_avalanche.py -v --tb=short
+
+  # Summary job
+  test-summary:
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, entropy-benchmarks, runtime-benchmarks, advanced-tests, full-test-suite]
+    if: always()
+    steps:
+      - name: Check job results
+        run: |
+          if [[ "${{ needs.smoke-tests.result }}" == "failure" ]]; then
+            echo "Smoke tests failed!"
+            exit 1
+          fi
+          if [[ "${{ needs.full-test-suite.result }}" == "failure" ]]; then
+            echo "Full test suite failed!"
+            exit 1
+          fi
+          echo "All Shannon entropy tests passed!"

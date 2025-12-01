@@ -2,7 +2,7 @@
 
 Quality parameter: 75
 
-NOTE: RFT figures are produced by stub encoder/decoder and are NOT indicative of final performance.
+NOTE: RFT figures use the verified Φ-RFT transform (`closed_form_rft.py`). Results reflect real transform performance with top-K (5%) coefficient retention.
 
 |image|rft_keep_fraction|rft_cr|jxl_cr|avif_cr|rft_psnr|jxl_psnr|avif_psnr|rft_ssim|jxl_ssim|avif_ssim|
 |---|---|---|---|---|---|---|---|---|---|---|

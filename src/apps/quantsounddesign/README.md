@@ -336,6 +336,7 @@ python src/quantonium_desktop.py
 - Effect chains
 - Automation lanes
 - Project save/load
+- Stem export (individual track WAV files)
 
 ❌ **Not Yet Implemented:**
 - Audio clip editing

@@ -36,11 +36,11 @@ Initial evaluation will use a handful (5–20) of small, public-domain images pl
 
 ## Verification Levels
 - Baseline tool metrics (JPEG XL, AVIF) are deterministic given identical binaries and inputs.
-- Φ-RFT metrics are **[EXPERIMENTAL]** until encoder/decoder achieve round-trip fidelity.
+- Φ-RFT metrics use the **verified closed-form implementation** (`rft_forward`/`rft_inverse` from `closed_form_rft.py`).
+- Current benchmarks use separable 2D RFT (row-wise then column-wise) with top-K coefficient retention.
 - No performance advantage claims are to be labeled **[VERIFIED]** until:
   - A CI job runs the harness on a fixed dataset.
   - Statistical variance across ≥3 runs is reported.
-  - Code paths are free of placeholder logic (current stub uses FFT + coefficient truncation; not true Φ-RFT implementation).
 
 ## Planned Extensions
 | Area | Description | Status |
@@ -51,15 +51,16 @@ Initial evaluation will use a handful (5–20) of small, public-domain images pl
 | Parallel Scaling | Benchmark multi-core throughput (batch encode) | Planned |
 
 ## Limitations
-- Stub RFT codec does not reflect theoretical performance; serves as harness integration point only.
+- RFT codec uses simple top-K coefficient retention (no entropy coding yet).
 - External tool versions (libjxl, libavif) affect results; pin versions in future lockfile.
 - Image set choice can bias outcomes; must disclose dataset list with each published table.
 
 ## Next Steps
-1. Replace stub with actual vertex codec forward + inverse path.
-2. Add integrity check (RMS / PSNR vs original) for claimed “near-lossless” cases.
+1. ~~Replace stub with actual vertex codec forward + inverse path.~~ **DONE** - Now uses `closed_form_rft.py`.
+2. Add integrity check (RMS / PSNR vs original) for claimed "near-lossless" cases.
 3. Automate environment setup script to ensure reproducibility.
 4. Add CLI option to emit raw metric CSV for external statistical analysis.
+5. Integrate ANS entropy coding from `algorithms/rft/compression/ans.py`.
 
 ---
 *This methodology file is experimental and will evolve as codecs mature.*

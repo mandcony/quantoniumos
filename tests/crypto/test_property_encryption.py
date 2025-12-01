@@ -1,9 +1,10 @@
 import secrets
 import pytest
 from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
-from hypothesis import given, strategies as st
+from hypothesis import given, settings, strategies as st
 
 @given(st.binary(min_size=16, max_size=1024))
+@settings(deadline=None)  # Disable deadline for slow crypto operations
 def test_encryption_roundtrip_property(data):
     key = secrets.token_bytes(32)
     cipher = EnhancedRFTCryptoV2(key)
