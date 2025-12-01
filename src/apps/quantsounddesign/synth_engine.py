@@ -20,6 +20,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 import threading
 
+from algorithms.rft.rft_status import is_unitary_available as kernel_unitary_available
+
 # Golden ratio
 PHI = (1 + np.sqrt(5)) / 2
 
@@ -35,9 +37,13 @@ try:
         RFT_VARIANT_HARMONIC,
         RFT_VARIANT_FIBONACCI,
     )
-    UNITARY_RFT_AVAILABLE = True
-    print("[OK] UnitaryRFT connected to Synth Engine")
+    UNITARY_RFT_AVAILABLE = kernel_unitary_available()
+    if UNITARY_RFT_AVAILABLE:
+        print("[OK] UnitaryRFT connected to Synth Engine")
+    else:
+        print("⚠ UnitaryRFT python bindings loaded for synth, native kernel inactive")
 except ImportError as e:
+    UnitaryRFT = None
     UNITARY_RFT_AVAILABLE = False
     print(f"[WARN] UnitaryRFT not available for synth: {e}")
 

@@ -328,7 +328,12 @@ class AudioBackend:
         
         # Session and engine references
         self.session = session
-        self.engine = session.engine if session else None
+        self.engine = None
+        if session is not None:
+            try:
+                self.engine = session.ensure_engine()
+            except AttributeError:
+                self.engine = getattr(session, "engine", None)
         
         # Playback state (fallback when no session)
         self.playing = False
@@ -378,7 +383,13 @@ class AudioBackend:
         """Attach a Session after construction"""
         with self.lock:
             self.session = session
-            self.engine = session.engine if session else None
+            if session is not None:
+                try:
+                    self.engine = session.ensure_engine()
+                except AttributeError:
+                    self.engine = getattr(session, "engine", None)
+            else:
+                self.engine = None
             if session:
                 self.tempo_bpm = session.tempo_bpm if hasattr(session, 'tempo_bpm') else session.tempo
     

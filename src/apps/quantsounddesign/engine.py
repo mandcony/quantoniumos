@@ -13,6 +13,11 @@ from enum import Enum
 import numpy as np
 import uuid
 
+from algorithms.rft.rft_status import (
+    get_status as get_kernel_status,
+    is_unitary_available as kernel_unitary_available,
+)
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # UNITARY RFT INTEGRATION
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -20,8 +25,8 @@ import uuid
 # Try to import the full UnitaryRFT system
 try:
     from algorithms.rft.kernels.python_bindings.unitary_rft import (
-        UnitaryRFT, 
-        RFT_FLAG_UNITARY, 
+        UnitaryRFT,
+        RFT_FLAG_UNITARY,
         RFT_FLAG_QUANTUM_SAFE,
         RFT_FLAG_USE_RESONANCE,
         RFT_FLAG_HIGH_PRECISION,
@@ -33,9 +38,13 @@ try:
         RFT_VARIANT_HYBRID,
         RFT_VARIANT_ADAPTIVE,
     )
-    UNITARY_RFT_AVAILABLE = True
-    print("[OK] UnitaryRFT system connected to QuantSoundDesign")
+    UNITARY_RFT_AVAILABLE = kernel_unitary_available()
+    if UNITARY_RFT_AVAILABLE:
+        print("[OK] UnitaryRFT system connected to QuantSoundDesign")
+    else:
+        print("⚠ UnitaryRFT python bindings loaded, but native kernel is not active")
 except ImportError as e:
+    UnitaryRFT = None
     UNITARY_RFT_AVAILABLE = False
     print(f"⚠ UnitaryRFT not available, using fallback: {e}")
     # Define fallback constants
@@ -109,6 +118,7 @@ class WaveField:
     
     # Metadata
     metadata: Dict[str, Any] = field(default_factory=dict)
+    engine: Optional["AudioEngine"] = field(default=None, repr=False, compare=False)
     
     def __post_init__(self):
         if self.data_time is None and self.data_wave is None:
@@ -387,10 +397,16 @@ def rft_synthesize(coeffs: np.ndarray, variant: int = None) -> np.ndarray:
 
 def get_rft_status() -> Dict[str, Any]:
     """Get the current RFT engine status."""
-    engine = get_rft_engine(64) if len(_rft_engines) == 0 else list(_rft_engines.values())[0]
-    
+    kernel_status = get_kernel_status()
+    engine = (
+        get_rft_engine(64)
+        if len(_rft_engines) == 0 and UNITARY_RFT_AVAILABLE
+        else next(iter(_rft_engines.values()), None)
+    )
+
     return {
-        "unitary_available": UNITARY_RFT_AVAILABLE,
+        "unitary_available": kernel_status.get("unitary", False),
+        "kernel": kernel_status,
         "is_mock": engine._is_mock if engine else True,
         "current_variant": _current_rft_variant,
         "current_flags": _current_rft_flags,
@@ -403,7 +419,7 @@ def get_rft_status() -> Dict[str, Any]:
             "GEOMETRIC": RFT_VARIANT_GEOMETRIC,
             "HYBRID": RFT_VARIANT_HYBRID,
             "ADAPTIVE": RFT_VARIANT_ADAPTIVE,
-        }
+        },
     }
 
 
@@ -794,6 +810,12 @@ class Session:
             if track.id == track_id:
                 return track
         return None
+
+    def ensure_engine(self) -> "AudioEngine":
+        """Ensure the session has an AudioEngine instance"""
+        if self.engine is None:
+            self.engine = AudioEngine(self)
+        return self.engine
     
     # ─────────────────────────────────────────────────────────────────────────
     # SERIALIZATION
@@ -1148,8 +1170,15 @@ class AudioEngine:
         self._mix_buffer = np.zeros(
             (2, session.block_size), dtype=np.float32
         )
+
+    def _ensure_buffers(self, block_size: int) -> None:
+        """Resize working buffers if block size changes"""
+        if self._block_buffer.shape[1] != block_size:
+            self._block_buffer = np.zeros((2, block_size), dtype=np.float32)
+        if self._mix_buffer.shape[1] != block_size:
+            self._mix_buffer = np.zeros((2, block_size), dtype=np.float32)
     
-    def process_block(self) -> np.ndarray:
+    def process_block(self, frames: Optional[int] = None) -> np.ndarray:
         """
         Process one audio block.
         Called by audio callback.
@@ -1158,7 +1187,10 @@ class AudioEngine:
             Stereo output buffer (2, block_size)
         """
         session = self.session
-        block_size = session.block_size
+        block_size = frames or session.block_size
+        self._ensure_buffers(block_size)
+        samples_per_beat = session.samples_per_beat if session.tempo_bpm else 1.0
+        beats_this_block = block_size / samples_per_beat
         
         # Clear mix buffer
         self._mix_buffer.fill(0)
@@ -1185,7 +1217,7 @@ class AudioEngine:
             for clip in track.get_clips_at(current_beat):
                 clip_audio = clip.get_samples_at(
                     current_beat, 
-                    session.beats_per_block,
+                    beats_this_block,
                     session.sample_rate,
                     session.tempo_bpm
                 )
@@ -1213,7 +1245,7 @@ class AudioEngine:
         output = session.master_track.apply_volume(output)
         
         # Advance transport
-        session.transport.position_beats += session.beats_per_block
+        session.transport.position_beats += beats_this_block
         session.transport.position_samples += block_size
         
         # Handle loop
@@ -1237,6 +1269,71 @@ class AudioEngine:
         """Seek to beat position"""
         self.session.transport.position_beats = beat
         self.session.transport.position_samples = int(beat * self.session.samples_per_beat)
+
+    def render_offline(
+        self,
+        start_beat: float,
+        end_beat: float,
+        sample_rate: Optional[int] = None,
+        block_size: Optional[int] = None,
+        progress_callback: Optional[Callable[[float], None]] = None,
+    ) -> np.ndarray:
+        """Render session audio offline between two beat positions"""
+        session = self.session
+        if end_beat <= start_beat:
+            return np.zeros((2, 0), dtype=np.float32)
+
+        original_sr = session.sample_rate
+        original_block = session.block_size
+        original_transport = {
+            "playing": session.transport.playing,
+            "position_beats": session.transport.position_beats,
+            "position_samples": session.transport.position_samples,
+            "loop_enabled": session.transport.loop_enabled,
+            "loop_start": session.transport.loop_start_beats,
+            "loop_end": session.transport.loop_end_beats,
+        }
+
+        if sample_rate and sample_rate > 0:
+            session.sample_rate = float(sample_rate)
+        if block_size and block_size > 0:
+            session.block_size = int(block_size)
+
+        samples_per_beat = session.samples_per_beat if session.tempo_bpm else 1.0
+        total_frames = int(np.ceil((end_beat - start_beat) * samples_per_beat))
+        render_buffer = np.zeros((2, total_frames), dtype=np.float32)
+
+        # Prep transport
+        session.transport.playing = True
+        session.transport.loop_enabled = False
+        session.transport.position_beats = start_beat
+        session.transport.position_samples = int(start_beat * samples_per_beat)
+
+        frames_rendered = 0
+        try:
+            while frames_rendered < total_frames:
+                frames_to_render = min(session.block_size, total_frames - frames_rendered)
+                block = self.process_block(frames_to_render)
+                block_frames = min(block.shape[1], frames_to_render)
+                render_buffer[:, frames_rendered:frames_rendered + block_frames] = block[:, :block_frames]
+                frames_rendered += block_frames
+                if progress_callback:
+                    try:
+                        progress_callback(frames_rendered / total_frames)
+                    except Exception:
+                        pass
+        finally:
+            # Restore session state regardless of render success
+            session.sample_rate = original_sr
+            session.block_size = original_block
+            session.transport.playing = original_transport["playing"]
+            session.transport.position_beats = original_transport["position_beats"]
+            session.transport.position_samples = original_transport["position_samples"]
+            session.transport.loop_enabled = original_transport["loop_enabled"]
+            session.transport.loop_start_beats = original_transport["loop_start"]
+            session.transport.loop_end_beats = original_transport["loop_end"]
+
+        return render_buffer
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

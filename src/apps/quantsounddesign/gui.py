@@ -22,6 +22,8 @@ from typing import Optional, List, Dict, Tuple, Any
 from dataclasses import dataclass, field
 from enum import Enum
 
+from algorithms.rft.rft_status import get_status as get_kernel_status
+
 try:
     from PyQt5.QtWidgets import (
         QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -53,6 +55,14 @@ except ImportError:
     except ImportError:
         AUDIO_AVAILABLE = False
         print("Audio backend not available")
+
+# Core session/engine models
+try:
+    from .engine import Session
+    ENGINE_AVAILABLE = True
+except ImportError as engine_exc:  # noqa: F841 - surfaced at runtime
+    ENGINE_AVAILABLE = False
+    print(f"Engine module not available: {engine_exc}")
 
 # Import synth and piano roll
 try:
@@ -2656,6 +2666,17 @@ class TransportBar(QFrame):
     def update_position(self, bar: int, beat: int, tick: int):
         self.position_label.setText(f"{bar:03d} : {beat:02d} : {tick:03d}")
 
+    def update_engine_status(self, is_native: bool, status_text: Optional[str] = None):
+        """Visual badge showing whether the Φ-RFT engine is native or fallback."""
+        if not hasattr(self, "engine_label"):
+            return
+        label = status_text or ("Φ-RFT Native" if is_native else "Φ-RFT Fallback")
+        color = "#00ffaa" if is_native else "#ffcc66"
+        self.engine_label.setText(label)
+        self.engine_label.setStyleSheet(
+            f"color: {color}; font-size: 10px; font-weight: bold;"
+        )
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # DEVICE PANEL - Professional Effects Chain
@@ -2791,7 +2812,11 @@ class DevicePanel(QFrame):
         
         # EQ submenu
         eq_menu = menu.addMenu("📊 EQ")
-        eq_menu.addAction("Φ-RFT EQ", lambda: self.add_device_widget("eq", "EQ"))
+        native_available = getattr(self.window(), "rft_native_active", False)
+        rft_eq_action = eq_menu.addAction("Φ-RFT EQ", lambda: self.add_device_widget("eq", "EQ"))
+        if not native_available:
+            rft_eq_action.setEnabled(False)
+            rft_eq_action.setText("⚠ Φ-RFT EQ (Requires Native)")
         eq_menu.addAction("Parametric EQ", lambda: self.add_device_widget("eq", "Parametric"))
         eq_menu.addAction("Graphic EQ", lambda: self.add_device_widget("eq", "Graphic"))
         
@@ -2803,7 +2828,10 @@ class DevicePanel(QFrame):
         
         # Effects submenu
         fx_menu = menu.addMenu("✨ Effects")
-        fx_menu.addAction("Φ-RFT Reverb", lambda: self.add_device_widget("reverb", "Reverb"))
+        rft_reverb = fx_menu.addAction("Φ-RFT Reverb", lambda: self.add_device_widget("reverb", "Reverb"))
+        if not native_available:
+            rft_reverb.setEnabled(False)
+            rft_reverb.setText("⚠ Φ-RFT Reverb (Requires Native)")
         fx_menu.addAction("Delay", lambda: self.add_device_widget("delay", "Delay"))
         fx_menu.addAction("Chorus", lambda: self.add_device_widget("chorus", "Chorus"))
         fx_menu.addAction("Phaser", lambda: self.add_device_widget("phaser", "Phaser"))
@@ -3638,6 +3666,13 @@ class QuantSoundDesign(QMainWindow):
         self._start_cue_beat = 0.0  # Start cue position for playback
         self.current_project_path = None  # Path to current project file
         self.project_modified = False  # Track unsaved changes
+        self.require_native_rft = False
+        self.require_native_action = None
+        self.rft_status_info: Dict[str, Any] = {}
+        self.rft_native_active = False
+        self.rft_indicator = None
+        self.session: Optional[Session] = None
+        self.audio_engine = None
         
         if AUDIO_AVAILABLE:
             self.audio_backend = get_audio_backend()
@@ -3910,7 +3945,21 @@ class QuantSoundDesign(QMainWindow):
             }
         """)
         self.setStatusBar(self.status)
-        self.status.showMessage("QuantSoundDesign Ready | Φ-RFT Engine Active | Press A-K to play!")
+        self.status.showMessage("QuantSoundDesign Ready | Press A-K to play!")
+
+        # Φ-RFT status indicator (global truth source)
+        self.rft_indicator = QLabel("Φ-RFT: unknown")
+        self.rft_indicator.setStyleSheet("""
+            QLabel {
+                padding: 2px 10px;
+                border-radius: 6px;
+                border: 1px solid #444;
+                color: #ddd;
+                background: #222;
+                font-weight: bold;
+            }
+        """)
+        self.status.addPermanentWidget(self.rft_indicator)
         
         # Add audio performance meter to status bar (EPIC 01)
         if AUDIO_SETTINGS_AVAILABLE:
@@ -3919,6 +3968,9 @@ class QuantSoundDesign(QMainWindow):
             self.status.addPermanentWidget(self.audio_meter)
         else:
             self.audio_meter = None
+
+        # Reflect current Φ-RFT availability for indicator + transport badge
+        self._refresh_rft_status_ui()
         
         # Menu bar
         self.setup_menus()
@@ -3972,6 +4024,69 @@ class QuantSoundDesign(QMainWindow):
             self.toggle_browser_action.blockSignals(True)
             self.toggle_browser_action.setChecked(visible)
             self.toggle_browser_action.blockSignals(False)
+
+    def _refresh_rft_status_ui(self, force: bool = False):
+        """Update all surfaces (status bar, transport, menus) with Φ-RFT status."""
+        try:
+            status = get_kernel_status(use_cache=not force)
+        except Exception as exc:  # noqa: BLE001 - show unexpected issues to the user
+            status = {"unitary": False, "error": str(exc)}
+
+        self.rft_status_info = status
+        self.rft_native_active = bool(status.get("unitary") and not status.get("is_mock", False))
+
+        indicator_text = (
+            "Φ-RFT: NATIVE (unitary)"
+            if self.rft_native_active
+            else "Φ-RFT: FALLBACK (FFT/φ only)"
+        )
+        tooltip = "Native Φ-RFT kernel loaded" if self.rft_native_active else (
+            status.get("error") or "Golden-ratio DSP running in FFT fallback"
+        )
+
+        if self.rft_indicator:
+            bg = "#0f2f1a" if self.rft_native_active else "#3a2500"
+            border = "#1f6c32" if self.rft_native_active else "#d39e00"
+            fg = "#7dffb2" if self.rft_native_active else "#ffd37a"
+            self.rft_indicator.setText(indicator_text)
+            self.rft_indicator.setToolTip(tooltip)
+            self.rft_indicator.setStyleSheet(
+                f"QLabel {{ padding: 2px 10px; border-radius: 6px; border: 1px solid {border};"
+                f" background: {bg}; color: {fg}; font-weight: bold; }}"
+            )
+
+        if getattr(self, "transport", None):
+            self.transport.update_engine_status(self.rft_native_active)
+
+        self._enforce_native_requirement_if_needed()
+
+    def _enforce_native_requirement_if_needed(self):
+        if not getattr(self, "require_native_rft", False):
+            return
+        if self.rft_native_active:
+            return
+        QMessageBox.critical(
+            self,
+            "Φ-RFT Kernel Required",
+            "Native Φ-RFT kernel not loaded. Can't start engine while 'Require Native Φ-RFT' is enabled.",
+        )
+        QTimer.singleShot(0, self.close)
+
+    def _reset_session_model(self, session: Optional[Session] = None):
+        """Reset or attach a session model + engine, wiring audio backend"""
+        if not ENGINE_AVAILABLE:
+            print("Engine module unavailable; session model cannot be initialized")
+            return
+
+        self.session = session or Session()
+        try:
+            self.audio_engine = self.session.ensure_engine()
+        except Exception as exc:  # noqa: BLE001 - log for debugging
+            self.audio_engine = None
+            print(f"Failed to initialize audio engine: {exc}")
+
+        if self.audio_backend and self.session:
+            self.audio_backend.attach_session(self.session)
 
     def setup_shortcuts(self):
         """Set up global keyboard shortcuts using the centralized KeymapRegistry."""
@@ -4344,6 +4459,14 @@ class QuantSoundDesign(QMainWindow):
         audio_settings_action.triggered.connect(self.show_audio_settings)
         view_menu.addAction(audio_settings_action)
         
+        # Settings / Preferences menu
+        settings_menu = menubar.addMenu("Settings")
+        self.require_native_action = QAction("Require Native Φ-RFT", self)
+        self.require_native_action.setCheckable(True)
+        self.require_native_action.setChecked(self.require_native_rft)
+        self.require_native_action.toggled.connect(self._on_require_native_changed)
+        settings_menu.addAction(self.require_native_action)
+
         # Help menu
         help_menu = menubar.addMenu("Help")
         
@@ -4356,6 +4479,14 @@ class QuantSoundDesign(QMainWindow):
         shortcuts_action.triggered.connect(self.show_shortcuts)
         help_menu.addAction(shortcuts_action)
     
+    def _on_require_native_changed(self, checked: bool):
+        self.require_native_rft = checked
+        if checked:
+            self.status.showMessage("Native Φ-RFT enforcement enabled", 4000)
+            self._enforce_native_requirement_if_needed()
+        else:
+            self.status.showMessage("Native Φ-RFT enforcement disabled", 3000)
+
     # ═══════════════════════════════════════════════════════════════════════════
     # MENU ACTION HANDLERS
     # ═══════════════════════════════════════════════════════════════════════════
@@ -4391,6 +4522,7 @@ class QuantSoundDesign(QMainWindow):
             try:
                 from .engine import Session
                 self.session = Session.load_from_file(filename)
+                self._reset_session_model(self.session)
                 self.current_project_path = filename
                 self.project_modified = False
                 self.update_window_title()
@@ -4466,59 +4598,123 @@ class QuantSoundDesign(QMainWindow):
         self.export_dialog = ExportDialog(session=self.session, parent=self)
         self.export_dialog.export_started.connect(self.perform_export)
         self.export_dialog.show()
+
+    def _estimate_project_length_beats(self) -> float:
+        """Estimate total project length based on arrangement clips"""
+        max_end = 0.0
+        if hasattr(self, 'arrangement'):
+            for header, lane, widget, track_type in getattr(self.arrangement, 'tracks', []):
+                for clip in getattr(lane, 'clips', []):
+                    if hasattr(clip, 'end'):
+                        max_end = max(max_end, clip.end())
+                    else:
+                        max_end = max(max_end, clip.start + getattr(clip, 'length', 4.0))
+        return max_end if max_end > 0 else 16.0
+
+    def _determine_export_range(self, settings: dict) -> Tuple[float, float]:
+        """Compute start/end beats for export respecting loop/selection"""
+        start_beat = 0.0
+        end_beat = self._estimate_project_length_beats()
+        export_range = settings.get('range', 'full')
+
+        if export_range == 'loop' and self.session and self.session.transport.loop_enabled:
+            start_beat = self.session.transport.loop_start_beats
+            end_beat = self.session.transport.loop_end_beats
+        elif export_range == 'selection' and self.current_clip:
+            start_beat = getattr(self.current_clip, 'start', start_beat)
+            if hasattr(self.current_clip, 'end'):
+                end_beat = max(start_beat + 1.0, self.current_clip.end())
+            else:
+                end_beat = max(start_beat + 1.0, start_beat + getattr(self.current_clip, 'length', 4.0))
+        end_beat = max(end_beat, start_beat + 1.0)
+        return start_beat, end_beat
         
     def perform_export(self, settings: dict):
         """Perform the actual audio export."""
         path = settings['path']
         export_format = settings['format']
-        
-        # Show progress
         progress = QProgressBar(self)
         progress.setRange(0, 100)
         progress.setValue(0)
         self.status.addPermanentWidget(progress)
-        
+
         try:
-            # Get project length
-            project_length_beats = 0.0
-            for header, lane, widget, track_type in self.arrangement.tracks:
-                for clip in lane.clips:
-                    end_beat = clip.start_beat + clip.length_beats
-                    if end_beat > project_length_beats:
-                        project_length_beats = end_beat
-            
-            if project_length_beats == 0:
-                project_length_beats = 16.0  # Default 16 bars
-                
-            # Calculate samples
-            sample_rate = settings['sample_rate']
-            tempo = self.session.tempo_bpm if hasattr(self, 'session') else 120
-            samples_per_beat = (sample_rate * 60) / tempo
-            total_samples = int(project_length_beats * samples_per_beat)
-            
-            # Render offline (placeholder - actual rendering would use engine)
-            progress.setValue(50)
-            
-            # For now just create a silent file as placeholder
-            # Real implementation would render through AudioEngine
-            import wave
-            if path.endswith('.wav'):
-                with wave.open(path, 'w') as wf:
-                    wf.setnchannels(2)
-                    wf.setsampwidth(2)  # 16-bit
-                    wf.setframerate(sample_rate)
-                    # Write silence
-                    silence = np.zeros((total_samples, 2), dtype=np.int16)
-                    wf.writeframes(silence.tobytes())
-                    
+            if not self.session:
+                raise RuntimeError("Session not initialized; cannot export")
+
+            if not export_format.startswith("WAV"):
+                raise ValueError("Only WAV exports are supported in this build")
+
+            engine = self.session.ensure_engine()
+            sample_rate = settings.get('sample_rate', int(self.session.sample_rate))
+            bit_depth = settings.get('bit_depth', '24-bit')
+            start_beat, end_beat = self._determine_export_range(settings)
+
+            if settings.get('stems'):
+                self.status.showMessage("Stem export not implemented yet; rendering master mix only", 6000)
+
+            progress.setValue(5)
+            buffer = engine.render_offline(
+                start_beat,
+                end_beat,
+                sample_rate=sample_rate,
+                progress_callback=lambda pct: progress.setValue(5 + int(pct * 80))
+            )
+
+            if buffer.size == 0:
+                raise RuntimeError("Nothing to render in the selected range")
+
+            audio = buffer.T.astype(np.float32, copy=False)
+            audio = np.clip(audio, -1.0, 1.0)
+
+            if settings.get('normalize'):
+                peak = np.max(np.abs(audio))
+                if peak > 0:
+                    audio *= 0.999 / peak
+
+            if settings.get('dither') and bit_depth in ('16-bit', '24-bit'):
+                rng = np.random.default_rng()
+                lsb = 1.0 / (2 ** (15 if bit_depth == '16-bit' else 23))
+                noise = (rng.random(audio.shape, dtype=np.float32) - rng.random(audio.shape, dtype=np.float32)) * lsb
+                audio = np.clip(audio + noise, -1.0, 1.0)
+
+            self._write_wav_file(path, audio, sample_rate, bit_depth)
             progress.setValue(100)
             self.status.showMessage(f"✓ Exported: {os.path.basename(path)}")
-            
+
         except Exception as e:
             QMessageBox.critical(self, 'Export Error', f'Failed to export:\n{str(e)}')
         finally:
             self.status.removeWidget(progress)
             progress.deleteLater()
+
+    def _write_wav_file(self, path: str, audio: np.ndarray, sample_rate: int, bit_depth: str) -> None:
+        """Write numpy audio buffer to WAV on disk"""
+        import wave
+
+        if audio.ndim == 1:
+            audio = audio[:, None]
+
+        frames, channels = audio.shape
+        flat = np.ascontiguousarray(audio.reshape(-1))
+
+        if bit_depth == '16-bit':
+            pcm = np.clip(flat * 32767.0, -32768, 32767).astype('<i2')
+            sampwidth = 2
+            payload = pcm.tobytes()
+        elif bit_depth == '24-bit':
+            pcm = np.clip(flat * 8388607.0, -8388608, 8388607).astype('<i4')
+            byte_view = pcm.view(np.uint8).reshape(-1, 4)
+            payload = byte_view[:, :3].reshape(-1).tobytes()
+            sampwidth = 3
+        else:
+            raise ValueError(f"Unsupported bit depth: {bit_depth}")
+
+        with wave.open(path, 'wb') as wf:
+            wf.setnchannels(channels)
+            wf.setsampwidth(sampwidth)
+            wf.setframerate(sample_rate)
+            wf.writeframes(payload)
     
     def on_undo(self):
         """Undo last action."""
@@ -4757,6 +4953,7 @@ class QuantSoundDesign(QMainWindow):
         
     def setup_demo_session(self):
         """Set up a demo session with some tracks."""
+        self._reset_session_model()
         self.clear_session()
         # Add some demo tracks with different types
         track_configs = [
@@ -4804,8 +5001,11 @@ class QuantSoundDesign(QMainWindow):
                 lane.add_clip(28, 8, "Riser", color)
                 lane.add_clip(60, 8, "Drop FX", color)
         
-        # Add demo devices
-        self.devices.add_device_widget("eq", "Φ-RFT EQ")
+        # Add demo devices (respect native kernel availability)
+        if self.rft_native_active:
+            self.devices.add_device_widget("eq", "Φ-RFT EQ")
+        else:
+            self.devices.add_device_widget("eq", "Parametric EQ")
         
         # Load first drum pattern into editor
         if PATTERN_AVAILABLE and hasattr(self, 'pattern_editor'):
@@ -4843,6 +5043,7 @@ class QuantSoundDesign(QMainWindow):
 
     def create_blank_session(self):
         """Create a minimal blank song with empty drum pattern ready to edit."""
+        self._reset_session_model()
         self.clear_session()
         drum_lane = self.arrangement.add_track("Drums 1", "drums")
         self.mixer.add_strip("Drums 1")
@@ -5014,6 +5215,7 @@ class QuantSoundDesign(QMainWindow):
             try:
                 from .engine import Session
                 self.session = Session.load_from_file(file_path)
+                self._reset_session_model(self.session)
                 self.current_project_path = file_path
                 self.project_modified = False
                 self.update_window_title()
