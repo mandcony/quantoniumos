@@ -220,8 +220,8 @@ feistel_arx_asm:
     vpaddd xmm2, xmm0, xmm1
     
     ; Rotate left by 7 bits (using shifts and ORs)
-    vpsll xmm3, xmm2, 7
-    vpsrl xmm4, xmm2, 25
+    vpslld xmm3, xmm2, 7
+    vpsrld xmm4, xmm2, 25
     vpor xmm5, xmm3, xmm4
     
     ; XOR with b

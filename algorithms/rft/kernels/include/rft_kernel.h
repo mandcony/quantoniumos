@@ -54,17 +54,37 @@ typedef enum {
 #define RFT_FLAG_DEBUG          0x0008
 #define RFT_FLAG_TOPOLOGICAL    0x0010  // Enable topological protection
 
-// RFT Variant Definitions
+// RFT Variant Definitions - All Proven/Tested Variants
+// Group A: Core 7 Unitary Variants (machine-precision validated)
+// Group B: Hybrid DCT-RFT Variants (hypothesis-tested)
 typedef enum {
-    RFT_VARIANT_STANDARD = 0,       // Standard Golden Ratio RFT (k^2 phase)
-    RFT_VARIANT_HARMONIC = 1,       // Harmonic-Phase RFT (k^3 phase)
-    RFT_VARIANT_FIBONACCI = 2,      // Fibonacci-Tilt Lattice RFT
-    RFT_VARIANT_CHAOTIC = 3,        // Chaotic Mix RFT (PRNG-based)
-    RFT_VARIANT_GEOMETRIC = 4,      // Geometric Lattice RFT
-    RFT_VARIANT_HYBRID = 5,         // Hybrid Phi-Chaotic RFT
-    RFT_VARIANT_ADAPTIVE = 6,       // Adaptive Phi RFT
-    RFT_VARIANT_HYPERBOLIC = 7      // Hyperbolic RFT
+    // === GROUP A: Core Unitary RFT Variants ===
+    RFT_VARIANT_STANDARD = 0,       // Original Φ-RFT (k/φ fractional, k² chirp)
+    RFT_VARIANT_HARMONIC = 1,       // Harmonic-Phase (k³ cubic chirp)
+    RFT_VARIANT_FIBONACCI = 2,      // Fibonacci-Tilt Lattice (k*F_k, crypto-optimized)
+    RFT_VARIANT_CHAOTIC = 3,        // Chaotic Mix (PRNG-based, max entropy)
+    RFT_VARIANT_GEOMETRIC = 4,      // Geometric Lattice (φ^k, optical computing)
+    RFT_VARIANT_PHI_CHAOTIC = 5,    // Φ-Chaotic Hybrid ((Fib + Chaos)/√2)
+    RFT_VARIANT_HYPERBOLIC = 6,     // Hyperbolic (tanh-based fractional phase)
+    
+    // === GROUP B: Hybrid DCT-RFT Variants (H1-H12 tested) ===
+    RFT_VARIANT_DCT = 7,            // Pure DCT-II basis
+    RFT_VARIANT_HYBRID_DCT = 8,     // Adaptive DCT+RFT coefficient selection
+    RFT_VARIANT_CASCADE = 9,        // H3: Hierarchical cascade (zero coherence)
+    RFT_VARIANT_ADAPTIVE_SPLIT = 10,// FH2: Variance-based DCT/RFT routing (50% BPP win)
+    RFT_VARIANT_ENTROPY_GUIDED = 11 // FH5: Entropy-based routing (50% BPP win)
 } rft_variant_t;
+
+// DCT/Hybrid computation constants
+#define RFT_DCT_NORM_FACTOR  0.7071067811865476  // 1/sqrt(2) for DCT-II normalization
+
+// Tetrahedral vertex coordinates (for geometric variants)
+#define RFT_TETRA_V0_X  0.5773502691896258   // 1/√3
+#define RFT_TETRA_V0_Y  0.5773502691896258
+#define RFT_TETRA_V0_Z  0.5773502691896258
+#define RFT_TETRA_V1_X  0.5773502691896258
+#define RFT_TETRA_V1_Y -0.5773502691896258
+#define RFT_TETRA_V1_Z -0.5773502691896258
 #define RFT_FLAG_USE_RESONANCE      0x00000010
 
 // Topological data structures for enhanced quantum computing

@@ -236,6 +236,48 @@ qsc_error_t qsc_create_bell_state(qsc_state_t* state, int bell_type) {
     return QSC_SUCCESS;
 }
 
+// Create GHZ state for multi-qubit entanglement
+// |GHZ_n⟩ = (1/√2)(|0...0⟩ + |1...1⟩)
+qsc_error_t qsc_create_ghz_state(qsc_state_t* state, size_t num_qubits) {
+    if (!state || !state->initialized) {
+        return QSC_ERROR_INVALID_PARAM;
+    }
+    
+    if (num_qubits == 0 || num_qubits > 30) {  // Limit to prevent overflow
+        return QSC_ERROR_INVALID_PARAM;
+    }
+    
+    // GHZ state for n qubits has 2^n amplitudes
+    // In symbolic compression, we only store the non-zero amplitudes
+    size_t full_dim = 1UL << num_qubits;  // 2^n
+    
+    // Reset state amplitudes
+    memset(state->amplitudes, 0, sizeof(qsc_complex_t) * state->size);
+    
+    // GHZ = (|00...0⟩ + |11...1⟩)/√2
+    // Only two amplitudes are non-zero
+    const double amplitude = QSC_INV_SQRT_2;
+    
+    // |00...0⟩ at index 0
+    state->amplitudes[0].real = amplitude;
+    state->amplitudes[0].imag = 0.0;
+    
+    // |11...1⟩ at index full_dim-1 (or mapped to compressed representation)
+    if (full_dim - 1 < state->size) {
+        state->amplitudes[full_dim - 1].real = amplitude;
+        state->amplitudes[full_dim - 1].imag = 0.0;
+    } else {
+        // For compressed representation, use second-to-last slot
+        state->amplitudes[state->size - 1].real = amplitude;
+        state->amplitudes[state->size - 1].imag = 0.0;
+    }
+    
+    state->norm = 1.0;
+    state->num_qubits = num_qubits;
+    
+    return QSC_SUCCESS;
+}
+
 // Benchmark scaling performance
 qsc_error_t qsc_benchmark_scaling(size_t max_qubits, qsc_perf_stats_t* results) {
     if (!results || max_qubits == 0) {
