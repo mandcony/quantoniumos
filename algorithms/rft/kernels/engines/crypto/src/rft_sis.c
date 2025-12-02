@@ -145,10 +145,11 @@ static void compute_sis(const rft_sis_ctx_t* ctx, const int32_t* s,
 // Public API Implementation
 // ============================================================================
 
-rft_sis_error_t rft_sis_init(rft_sis_ctx_t* ctx, const uint8_t* seed) {
+rft_sis_error_t rft_sis_init(rft_sis_ctx_t* ctx, const uint8_t* seed, rft_variant_t variant) {
     if (!ctx) return RFT_SIS_ERROR_INVALID_PARAM;
     
     memset(ctx, 0, sizeof(rft_sis_ctx_t));
+    ctx->variant = variant;  // Store variant for RFT phase generation
     
     // Use default seed if none provided
     const uint8_t default_seed[] = "RFT-SIS-v1.0-QuantoniumOS-2025";

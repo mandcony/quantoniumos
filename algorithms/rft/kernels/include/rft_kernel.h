@@ -72,7 +72,8 @@ typedef enum {
     RFT_VARIANT_HYBRID_DCT = 8,     // Adaptive DCT+RFT coefficient selection
     RFT_VARIANT_CASCADE = 9,        // H3: Hierarchical cascade (zero coherence)
     RFT_VARIANT_ADAPTIVE_SPLIT = 10,// FH2: Variance-based DCT/RFT routing (50% BPP win)
-    RFT_VARIANT_ENTROPY_GUIDED = 11 // FH5: Entropy-based routing (50% BPP win)
+    RFT_VARIANT_ENTROPY_GUIDED = 11,// FH5: Entropy-based routing (50% BPP win)
+    RFT_VARIANT_DICTIONARY = 12     // H6: Dictionary learning bridge atoms (best PSNR)
 } rft_variant_t;
 
 // DCT/Hybrid computation constants

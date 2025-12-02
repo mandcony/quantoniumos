@@ -34,7 +34,7 @@ static bool g_rft_sis_initialized = false;
 // Initialize RFT-SIS on first use
 static rft_sis_error_t ensure_rft_sis_init(void) {
     if (!g_rft_sis_initialized) {
-        rft_sis_error_t err = rft_sis_init(&g_rft_sis_ctx, NULL);
+        rft_sis_error_t err = rft_sis_init(&g_rft_sis_ctx, NULL, RFT_VARIANT_FIBONACCI);  // FIBONACCI for lattice crypto
         if (err == RFT_SIS_SUCCESS) {
             g_rft_sis_initialized = true;
         }
@@ -136,7 +136,7 @@ static uint64_t get_time_ns(void);
  * The SIS problem remains hard even against quantum computers.
  */
 feistel_error_t feistel_init(feistel_ctx_t* ctx, const uint8_t* master_key, 
-                            size_t key_len, uint32_t flags) {
+                            size_t key_len, uint32_t flags, rft_variant_t variant) {
     if (!ctx || !master_key || key_len < 16) {
         return FEISTEL_ERROR_INVALID_PARAM;
     }
@@ -145,6 +145,7 @@ feistel_error_t feistel_init(feistel_ctx_t* ctx, const uint8_t* master_key,
     
     // Store configuration
     ctx->flags = flags;
+    ctx->variant = variant;  // Store variant for round function
     
     // Initialize RFT-SIS for post-quantum key derivation
     if (ensure_rft_sis_init() != RFT_SIS_SUCCESS) {
@@ -708,8 +709,8 @@ feistel_error_t feistel_self_test(void) {
     uint8_t ciphertext[16];
     uint8_t decrypted[16];
     
-    // Initialize cipher
-    if (feistel_init(&ctx, key, sizeof(key), 0) != FEISTEL_SUCCESS) {
+    // Initialize cipher with CHAOTIC variant (max entropy for testing)
+    if (feistel_init(&ctx, key, sizeof(key), 0, RFT_VARIANT_CHAOTIC) != FEISTEL_SUCCESS) {
         return FEISTEL_ERROR_INIT_FAILED;
     }
     

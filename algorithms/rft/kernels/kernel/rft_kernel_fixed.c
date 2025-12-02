@@ -90,7 +90,7 @@ rft_error_t rft_cleanup(rft_engine_t* engine) {
 }
 
 static inline bool rft_variant_is_valid(rft_variant_t variant) {
-    return variant >= RFT_VARIANT_STANDARD && variant <= RFT_VARIANT_ADAPTIVE;
+    return variant >= RFT_VARIANT_STANDARD && variant <= RFT_VARIANT_ENTROPY_GUIDED;
 }
 
 rft_error_t rft_set_variant(rft_engine_t* engine, rft_variant_t variant, bool rebuild_basis) {
@@ -240,8 +240,8 @@ bool rft_build_basis(rft_engine_t* engine) {
                     amp = mag; // Amplitude varies
                     break;
                 }
-                case RFT_VARIANT_HYBRID: 
-                case RFT_VARIANT_ADAPTIVE: {
+                case RFT_VARIANT_HYBRID_DCT:
+                case RFT_VARIANT_ENTROPY_GUIDED: {
                     // Hybrid: Fibonacci + Chaotic
                     // Calculate Fibonacci part
                     double f_k = 0.0;

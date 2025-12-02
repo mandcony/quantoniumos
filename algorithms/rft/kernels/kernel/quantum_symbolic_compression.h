@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <complex.h>
+#include "../include/rft_kernel.h"  // For rft_variant_t
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,6 +54,7 @@ typedef struct {
     double normalization;       // Normalization factor
     bool use_simd;             // Enable SIMD optimizations
     bool use_assembly;         // Enable assembly optimizations
+    rft_variant_t variant;     // RFT variant for compression (CASCADE recommended)
 } qsc_params_t;
 
 // Compressed quantum state

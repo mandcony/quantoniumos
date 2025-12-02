@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../../../include/rft_kernel.h"  // For rft_variant_t
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,6 +59,7 @@ typedef struct {
     uint8_t pre_whiten_key[FEISTEL_ROUND_KEY_SIZE];
     uint8_t post_whiten_key[FEISTEL_ROUND_KEY_SIZE];
     uint8_t auth_key[FEISTEL_KEY_SIZE];
+    rft_variant_t variant;  // RFT variant for round function (CHAOTIC recommended for diffusion)
     uint32_t flags;
     bool initialized;
 } feistel_ctx_t;
@@ -74,7 +76,7 @@ typedef struct {
 
 // Core API functions
 feistel_error_t feistel_init(feistel_ctx_t* ctx, const uint8_t* master_key, 
-                            size_t key_len, uint32_t flags);
+                            size_t key_len, uint32_t flags, rft_variant_t variant);
 feistel_error_t feistel_cleanup(feistel_ctx_t* ctx);
 
 // Block cipher operations

@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../../../include/rft_kernel.h"  // For rft_variant_t
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,6 +57,7 @@ typedef enum {
 typedef struct {
     int32_t A[RFT_SIS_M][RFT_SIS_N];  // Public lattice matrix
     double rft_phases[RFT_SIS_N];      // Pre-computed RFT phases
+    rft_variant_t variant;             // RFT variant (FIBONACCI recommended for lattice)
     bool initialized;
 } rft_sis_ctx_t;
 
@@ -71,9 +73,10 @@ typedef struct {
  * Initialize RFT-SIS context
  * @param ctx Context to initialize
  * @param seed Random seed for lattice generation (use NULL for default)
+ * @param variant RFT variant to use (RFT_VARIANT_FIBONACCI recommended for lattice crypto)
  * @return RFT_SIS_SUCCESS or error code
  */
-rft_sis_error_t rft_sis_init(rft_sis_ctx_t* ctx, const uint8_t* seed);
+rft_sis_error_t rft_sis_init(rft_sis_ctx_t* ctx, const uint8_t* seed, rft_variant_t variant);
 
 /**
  * Cleanup RFT-SIS context

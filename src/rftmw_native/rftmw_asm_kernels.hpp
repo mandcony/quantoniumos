@@ -123,7 +123,8 @@ public:
         HYBRID_DCT = 8,     // Adaptive DCT+RFT coefficient selection
         CASCADE = 9,        // H3: Hierarchical cascade (zero coherence)
         ADAPTIVE_SPLIT = 10,// FH2: Variance-based DCT/RFT routing (50% BPP win)
-        ENTROPY_GUIDED = 11 // FH5: Entropy-based routing (50% BPP win)
+        ENTROPY_GUIDED = 11,// FH5: Entropy-based routing (50% BPP win)
+        DICTIONARY = 12     // H6: Dictionary learning bridge atoms (best PSNR)
     };
 
     RFTKernelEngine(size_t size, uint32_t flags = 0, Variant variant = Variant::STANDARD) {
@@ -296,6 +297,7 @@ public:
         double phi = 1.618033988749895;
         bool use_simd = true;
         bool use_assembly = true;
+        RFTKernelEngine::Variant variant = RFTKernelEngine::Variant::CASCADE;  // CASCADE recommended for quantum (η=0)
     };
 
     QuantumSymbolicCompressor() {
@@ -307,6 +309,7 @@ public:
         params_.normalization = 1.0;
         params_.use_simd = default_params.use_simd;
         params_.use_assembly = default_params.use_assembly;
+        params_.variant = static_cast<rft_variant_t>(default_params.variant);
         
         qsc_error_t err = qsc_init_state(&state_, &params_);
         if (err != QSC_SUCCESS) {
@@ -326,6 +329,7 @@ public:
         params_.normalization = 1.0;
         params_.use_simd = params.use_simd;
         params_.use_assembly = params.use_assembly;
+        params_.variant = static_cast<rft_variant_t>(params.variant);
         
         qsc_error_t err = qsc_init_state(&state_, &params_);
         if (err != QSC_SUCCESS) {
@@ -493,9 +497,11 @@ public:
         PARALLEL = 0x00000004
     };
 
-    FeistelCipher(const uint8_t* master_key, size_t key_len, uint32_t flags = 0) {
+    FeistelCipher(const uint8_t* master_key, size_t key_len, uint32_t flags = 0,
+                  RFTKernelEngine::Variant variant = RFTKernelEngine::Variant::CHAOTIC) {
 #ifdef RFTMW_ENABLE_ASM
-        feistel_error_t err = feistel_init(&ctx_, master_key, key_len, flags);
+        feistel_error_t err = feistel_init(&ctx_, master_key, key_len, flags,
+                                           static_cast<rft_variant_t>(variant));
         if (err != FEISTEL_SUCCESS) {
             throw std::runtime_error("Failed to initialize Feistel cipher");
         }
@@ -505,8 +511,9 @@ public:
 #endif
     }
 
-    FeistelCipher(const std::vector<uint8_t>& key, uint32_t flags = 0)
-        : FeistelCipher(key.data(), key.size(), flags) {}
+    FeistelCipher(const std::vector<uint8_t>& key, uint32_t flags = 0,
+                  RFTKernelEngine::Variant variant = RFTKernelEngine::Variant::CHAOTIC)
+        : FeistelCipher(key.data(), key.size(), flags, variant) {}
 
     ~FeistelCipher() {
 #ifdef RFTMW_ENABLE_ASM

@@ -21,6 +21,47 @@
 
 ---
 
+## 🚀 Quick Start
+
+**New here?** → **[GETTING_STARTED.md](GETTING_STARTED.md)** (your first steps)
+
+**Documentation:**
+- 📖 **[GETTING_STARTED.md](GETTING_STARTED.md)** - First steps, examples, learning path
+- 🔧 **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Installation, troubleshooting, verification
+- 🏗️ **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Technical deep dive (ASM → C → C++ → Python)
+- 📋 **[docs/ARCHITECTURE_QUICKREF.md](docs/ARCHITECTURE_QUICKREF.md)** - One-page cheat sheet
+
+**Quick installation:**
+```bash
+# Clone and setup
+git clone https://github.com/mandcony/quantoniumos.git
+cd quantoniumos
+./quantoniumos-bootstrap.sh
+
+# Or manual setup (no compilation needed!)
+python3 -m venv .venv && source .venv/bin/activate
+pip install numpy scipy sympy numba
+python -c "from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT; print('✓ Setup complete!')"
+```
+
+**Build native engines for 3-10× speedup (optional):**
+```bash
+# C/ASM kernel
+cd algorithms/rft/kernels && make -j$(nproc) && cd ../../..
+
+# C++ engine with AVX2/AVX-512
+cd src/rftmw_native && mkdir -p build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DRFTMW_ENABLE_ASM=ON && make -j$(nproc)
+cp rftmw_native.cpython-*-linux-gnu.so ../../../.venv/lib/python3.12/site-packages/
+```
+
+**Verify setup:**
+```bash
+./verify_setup.sh  # Automated health check
+```
+
+---
+
 ## The Irrevocable Truths (New Findings)
 
 **Date:** November 23, 2025  

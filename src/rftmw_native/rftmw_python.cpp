@@ -348,6 +348,7 @@ PYBIND11_MODULE(rftmw_native, m) {
         .value("CASCADE", asm_kernels::RFTKernelEngine::Variant::CASCADE, "H3: Hierarchical cascade (zero coherence)")
         .value("ADAPTIVE_SPLIT", asm_kernels::RFTKernelEngine::Variant::ADAPTIVE_SPLIT, "FH2: Variance-based DCT/RFT routing (50% BPP win)")
         .value("ENTROPY_GUIDED", asm_kernels::RFTKernelEngine::Variant::ENTROPY_GUIDED, "FH5: Entropy-based routing (50% BPP win)")
+        .value("DICTIONARY", asm_kernels::RFTKernelEngine::Variant::DICTIONARY, "H6: Dictionary learning bridge atoms (best PSNR)")
         .export_values();
     
     py::class_<asm_kernels::RFTKernelEngine>(m, "RFTKernelEngine", R"pbdoc(
@@ -396,11 +397,18 @@ PYBIND11_MODULE(rftmw_native, m) {
         Enables O(n) scaling for million+ qubit simulation using the
         optimized assembly kernel from quantum_symbolic_compression.asm.
         
+        Recommended variant: CASCADE (η=0 zero coherence for quantum superposition)
+        
         Example:
-            >>> compressor = rft.QuantumSymbolicCompressor()
+            >>> compressor = rft.QuantumSymbolicCompressor(variant=rft.RFTVariant.CASCADE)
             >>> compressed = compressor.compress(1000000, compression_size=64)
     )pbdoc")
         .def(py::init<>())
+        .def(py::init([](asm_kernels::RFTKernelEngine::Variant variant) {
+            asm_kernels::QuantumSymbolicCompressor::Params params;
+            params.variant = variant;
+            return new asm_kernels::QuantumSymbolicCompressor(params);
+        }), py::arg("variant"))
         
         .def("compress", [](asm_kernels::QuantumSymbolicCompressor& self,
                            size_t num_qubits, size_t compression_size) {
@@ -427,6 +435,8 @@ PYBIND11_MODULE(rftmw_native, m) {
         High-performance cipher using optimized assembly from feistel_round48.asm.
         Target throughput: 9.2 MB/s as specified in QuantoniumOS paper.
         
+        Recommended variant: CHAOTIC (maximum entropy diffusion for security)
+        
         Features:
         - 48-round Feistel network with 128-bit blocks
         - AES S-box substitution with AVX2
@@ -435,17 +445,27 @@ PYBIND11_MODULE(rftmw_native, m) {
         
         Example:
             >>> key = bytes(32)  # 256-bit key
-            >>> cipher = rft.FeistelCipher(key)
+            >>> cipher = rft.FeistelCipher(key, variant=rft.RFTVariant.CHAOTIC)
             >>> encrypted = cipher.encrypt_block(plaintext)
     )pbdoc")
-        .def(py::init([](py::bytes key, uint32_t flags) {
+        .def(py::init([](py::bytes key, uint32_t flags, asm_kernels::RFTKernelEngine::Variant variant) {
             std::string key_str = key;
             return new asm_kernels::FeistelCipher(
                 reinterpret_cast<const uint8_t*>(key_str.data()),
                 key_str.size(),
-                flags
+                flags,
+                variant
             );
-        }), py::arg("key"), py::arg("flags") = 0)
+        }), py::arg("key"), py::arg("flags") = 0, py::arg("variant") = asm_kernels::RFTKernelEngine::Variant::CHAOTIC)
+        .def(py::init([](py::bytes key) {
+            std::string key_str = key;
+            return new asm_kernels::FeistelCipher(
+                reinterpret_cast<const uint8_t*>(key_str.data()),
+                key_str.size(),
+                0,
+                asm_kernels::RFTKernelEngine::Variant::CHAOTIC
+            );
+        }), py::arg("key"))
         
         .def("encrypt_block", [](asm_kernels::FeistelCipher& self, py::bytes plaintext) {
             std::string pt = plaintext;

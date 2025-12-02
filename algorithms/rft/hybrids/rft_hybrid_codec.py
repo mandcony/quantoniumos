@@ -76,6 +76,7 @@ import numpy as np
 from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
 from algorithms.rft.compression.rft_vertex_codec import _generate_seed  # deterministic seed for size
 from .hybrid_residual_predictor import TinyResidualPredictor
+from .cascade_hybrids import H3HierarchicalCascade, FH5EntropyGuided, H6DictionaryLearning
 
 # ---------------------------------------------------------------------------
 # Helper serialization
@@ -311,15 +312,102 @@ def decode_tensor_hybrid(container: Dict, predictor: Optional[TinyResidualPredic
 class RFTHybridCodec:
     """
     A wrapper class for the hybrid codec functions to provide a consistent interface.
+    
+    Supports multiple hybrid modes:
+    - 'legacy': Original RFT-only transform with quantization
+    - 'h3_cascade': H3 Hierarchical Cascade (0.673 BPP avg, η=0 coherence)
+    - 'fh5_entropy': FH5 Entropy-Guided (0.406 BPP on edges, adaptive routing)
+    - 'h6_dictionary': H6 Dictionary Learning (49.9 dB PSNR, best quality)
     """
-    def __init__(self, **kwargs):
+    def __init__(self, mode: str = 'legacy', **kwargs):
+        """
+        Initialize codec with specified hybrid mode.
+        
+        Args:
+            mode: Hybrid mode selection - 'legacy', 'h3_cascade', 'fh5_entropy', 'h6_dictionary'
+            **kwargs: Additional encoding parameters (prune_threshold, quant_amp_bits, etc.)
+        """
+        self.mode = mode
         self.encode_kwargs = kwargs
+        
+        # Initialize cascade transform if needed
+        if mode == 'h3_cascade':
+            self.cascade = H3HierarchicalCascade()
+        elif mode == 'fh5_entropy':
+            self.cascade = FH5EntropyGuided()
+        elif mode == 'h6_dictionary':
+            self.cascade = H6DictionaryLearning()
+        elif mode == 'legacy':
+            self.cascade = None
+        else:
+            raise ValueError(f"Unknown mode '{mode}'. Choose: 'legacy', 'h3_cascade', 'fh5_entropy', 'h6_dictionary'")
 
     def encode(self, tensor: np.ndarray) -> Dict:
-        return encode_tensor_hybrid(tensor, **self.encode_kwargs).container
+        """Encode tensor using selected hybrid mode"""
+        if self.mode == 'legacy':
+            return encode_tensor_hybrid(tensor, **self.encode_kwargs).container
+        else:
+            # Use cascade hybrid encode
+            cascade_result = self.cascade.encode(tensor)
+            
+            # Serialize CascadeResult to dict (for JSON/storage compatibility)
+            compressed_dict = {
+                "coefficients": cascade_result.coefficients.tolist(),  # Convert to list for JSON
+                "coefficients_dtype": str(cascade_result.coefficients.dtype),
+                "coefficients_shape": list(cascade_result.coefficients.shape),
+                "bpp": float(cascade_result.bpp),
+                "coherence": float(cascade_result.coherence),
+                "sparsity": float(cascade_result.sparsity),
+                "variant": cascade_result.variant,
+                "time_ms": float(cascade_result.time_ms),
+                "psnr": float(cascade_result.psnr) if cascade_result.psnr is not None else None
+            }
+            
+            # Wrap in container format
+            container = {
+                "type": "rft_cascade_tensor",
+                "version": 2,
+                "mode": self.mode,
+                "dtype": str(tensor.dtype),
+                "original_shape": list(tensor.shape),
+                "original_length": int(tensor.size),
+                "compressed": compressed_dict
+            }
+            return container
 
     def decode(self, container: Dict, predictor: Optional[TinyResidualPredictor] = None) -> np.ndarray:
-        return decode_tensor_hybrid(container, predictor)
+        """Decode tensor using original encoding mode"""
+        if container.get("type") == "rft_hybrid_tensor":
+            # Legacy format
+            return decode_tensor_hybrid(container, predictor)
+        elif container.get("type") == "rft_cascade_tensor":
+            # Cascade format
+            mode = container.get("mode", "h3_cascade")
+            original_length = container.get("original_length")
+            original_shape = tuple(container.get("original_shape", [original_length]))
+            
+            # Deserialize coefficients from dict
+            compressed_dict = container["compressed"]
+            coefficients = np.array(
+                compressed_dict["coefficients"],
+                dtype=np.dtype(compressed_dict["coefficients_dtype"])
+            ).reshape(compressed_dict["coefficients_shape"])
+            
+            # Initialize appropriate cascade
+            if mode == 'h3_cascade':
+                cascade = H3HierarchicalCascade()
+            elif mode == 'fh5_entropy':
+                cascade = FH5EntropyGuided()
+            elif mode == 'h6_dictionary':
+                cascade = H6DictionaryLearning()
+            else:
+                raise ValueError(f"Unknown cascade mode '{mode}'")
+            
+            # Decode using original_length
+            reconstructed = cascade.decode(coefficients, original_length)
+            return reconstructed.reshape(original_shape)
+        else:
+            raise ValueError(f"Unknown container type: {container.get('type')}")
 
 
 __all__ = [

@@ -99,6 +99,7 @@ if(RFTMW_ENABLE_ASM AND EXISTS "${KERNELS_DIR}")
         ${KERNELS_DIR}/include
         ${KERNELS_DIR}/kernel
         ${KERNELS_DIR}/engines/crypto/include
+        ${KERNELS_DIR}/engines/orchestrator/include
     )
     
     # C source files from kernel infrastructure (always available)
