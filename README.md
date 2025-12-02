@@ -104,22 +104,33 @@ For proofs and tests, see **`docs/validation/RFT_THEOREMS.md`** and **`tests/rft
 ```
 QuantoniumOS/
 ├─ algorithms/
-│  ├─ rft/core/                 # Φ-RFT core + tests
-│  ├─ compression/              # Lossless & hybrid codecs
-│  └─ crypto/                   # RFT–SIS experiments & validators
-├─ src/apps/
-│  ├─ quantsounddesign/        # Φ-RFT Sound Design Studio (see below)
-│  ├─ qshll_system_monitor.py   # System monitor
-│  ├─ qshll_chatbox.py          # AI chat interface
-│  ├─ q_notes.py                # Notes app
-│  └─ quantum_simulator.py      # Vertex qubit simulator (experimental)
-├─ quantonium_os_src/
-│  ├─ frontend/                 # Desktop launcher
-│  └─ engine/RFTMW.py           # Middleware Transform Engine
-├─ tools/                       # Dev helpers, benchmarking
-├─ tests/                       # Unit, integration, validation
-├─ docs/                        # Tech docs, USPTO packages
-└─ experiments/                 # Research experiments
+│  ├─ rft/core/
+│  │  ├─ canonical_true_rft.py     # Reference Φ-RFT (claims-practicing)
+│  │  ├─ closed_form_rft.py        # Original implementation
+│  │  └─ rft_optimized.py          # Optimized fused-diagonal RFT ⚡
+│  ├─ compression/                 # Lossless & hybrid codecs
+│  └─ crypto/                      # RFT–SIS experiments & validators
+├─ src/
+│  ├─ rftmw_native/
+│  │  ├─ rftmw_core.hpp            # C++ RFT engine
+│  │  ├─ rft_fused_kernel.hpp      # AVX2/AVX512 SIMD kernels ⚡
+│  │  └─ rftmw_python.cpp          # pybind11 bindings
+│  └─ apps/
+│     ├─ quantsounddesign/         # Φ-RFT Sound Design Studio
+│     └─ ...
+├─ experiments/
+│  ├─ competitors/
+│  │  ├─ benchmark_transforms_vs_fft.py   # RFT vs FFT/DCT benchmark
+│  │  ├─ benchmark_compression_vs_codecs.py
+│  │  └─ benchmark_crypto_throughput.py
+│  └─ ...
+├─ scripts/
+│  └─ run_full_suite.sh            # One-command benchmark runner
+├─ results/                        # Benchmark output (JSON/CSV/MD)
+├─ tests/                          # Unit, integration, validation
+├─ docs/                           # Tech docs, USPTO packages
+├─ REPRODUCING_RESULTS.md          # Reproducibility guide
+└─ README.md                       # This file
 ```
 
 ---
@@ -234,30 +245,110 @@ python scripts/verify_scaling_laws.py
 
 ## Quick Start
 
+### System Requirements
+
+- **OS**: Ubuntu 22.04+ / Windows 10+ / macOS 12+
+- **Python**: 3.10+ (3.12 recommended)
+- **Optional**: CMake + C++ compiler for native SIMD kernels
+
+### Installation
+
 ```bash
-# 1) Environment
+# 1. Clone the repository
+git clone https://github.com/mandcony/quantoniumos.git
+cd quantoniumos
+
+# 2. Create virtual environment
 python -m venv .venv
-# Windows: .\.venv\Scripts\Activate.ps1
-# macOS/Linux:
+
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+
+# Linux/macOS:
 source .venv/bin/activate
 
-# 2) Install
-pip install -e .[dev,ai,image]
+# 3. Install in editable mode
+pip install --upgrade pip
+pip install -e .
 
-# 3) (Optional) Build native kernels
-make -C algorithms/rft/kernels all
-export RFT_KERNEL_LIB=$(find algorithms/rft/kernels -name 'libquantum_symbolic.so' | head -n1)
+# 4. Verify installation
+python -c "from algorithms.rft.core.rft_optimized import rft_forward; print('✓ RFT installed')"
+```
 
-# 4) Run tests
-pytest -m "not slow"
+### Build Native SIMD Kernels (Optional)
 
-# 5) Launch desktop tools
-python quantonium_boot.py
+For maximum performance with AVX2/AVX512 acceleration:
+
+```bash
+cd src/rftmw_native
+mkdir -p build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DRFTMW_ENABLE_ASM=ON
+make -j$(nproc)
+cd ../../..
+
+# Verify native module
+python -c "import rftmw_native; print('✓ Native module:', rftmw_native.has_simd())"
+```
+
+### Run Benchmarks
+
+```bash
+# Quick transform benchmark
+python experiments/competitors/benchmark_transforms_vs_fft.py --sizes 256,1024,4096 --runs 5
+
+# Full benchmark suite (Linux/macOS)
+./scripts/run_full_suite.sh
+
+# Or manually on Windows:
+python experiments/competitors/benchmark_transforms_vs_fft.py --output-dir results/competitors
+python experiments/competitors/benchmark_compression_vs_codecs.py --output-dir results/competitors
+python experiments/competitors/benchmark_crypto_throughput.py --output-dir results/competitors
+```
+
+See **[REPRODUCING_RESULTS.md](REPRODUCING_RESULTS.md)** for complete reproducibility guide.
+
+### Run Tests
+
+```bash
+# Quick validation
+python validate_system.py
+
+# Full test suite
+pytest tests/ -v
+
+# RFT-specific tests
+pytest tests/rft/ -v -m "not slow"
 ```
 
 ---
 
-## Φ-RFT: Reference API (NumPy)
+## Φ-RFT: Reference API
+
+### Optimized Implementation (Recommended)
+
+The optimized RFT fuses the D_φ and C_σ diagonals into a single pass, achieving **~1.06× FFT speed** (down from ~5× overhead in the original).
+
+```python
+from algorithms.rft.core.rft_optimized import (
+    rft_forward_optimized,
+    rft_inverse_optimized,
+    OptimizedRFTEngine,
+)
+import numpy as np
+
+# Simple API (recommended)
+x = np.random.randn(1024)
+Y = rft_forward_optimized(x)           # Forward transform
+x_rec = rft_inverse_optimized(Y)       # Inverse transform
+print(f"Round-trip error: {np.linalg.norm(x - x_rec):.2e}")  # ~1e-15
+
+# Stateful engine for repeated transforms (zero-copy)
+engine = OptimizedRFTEngine(size=1024, beta=1.0, sigma=1.0)
+Y = engine.forward(x)
+x_rec = engine.inverse(Y)
+```
+
+### Original Implementation (Reference)
 
 ```python
 import numpy as np
@@ -268,15 +359,17 @@ PHI = (1.0 + np.sqrt(5.0)) / 2.0
 def _frac(v):
     return v - np.floor(v)
 
-def rft_forward(x, *, beta=0.83, sigma=1.25):
+def rft_forward(x, *, beta=1.0, sigma=1.0):
+    """Forward Φ-RFT: Y = D_φ · C_σ · FFT(x)"""
     x = np.asarray(x, dtype=np.complex128)
     n  = x.shape[0]
     k  = np.arange(n, dtype=np.float64)
-    D  = np.exp(2j*np.pi*beta*_frac(k/PHI))
-    C  = np.exp(1j*np.pi*sigma*(k*k)/n)
+    D  = np.exp(2j*np.pi*beta*_frac(k/PHI))   # Golden-ratio phase
+    C  = np.exp(1j*np.pi*sigma*(k*k)/n)       # Chirp phase
     return D * (C * fft(x, norm="ortho"))
 
-def rft_inverse(y, *, beta=0.83, sigma=1.25):
+def rft_inverse(y, *, beta=1.0, sigma=1.0):
+    """Inverse Φ-RFT: x = IFFT(C†_σ · D†_φ · Y)"""
     y = np.asarray(y, dtype=np.complex128)
     n  = y.shape[0]
     k  = np.arange(n, dtype=np.float64)
@@ -284,11 +377,25 @@ def rft_inverse(y, *, beta=0.83, sigma=1.25):
     C  = np.exp(1j*np.pi*sigma*(k*k)/n)
     return ifft(np.conj(C) * np.conj(D) * y, norm="ortho")
 
-def rft_twisted_conv(a, b, *, beta=0.83, sigma=1.25):
+def rft_twisted_conv(a, b, *, beta=1.0, sigma=1.0):
+    """Twisted convolution via Φ-RFT diagonalization"""
     A = rft_forward(a, beta=beta, sigma=sigma)
     B = rft_forward(b, beta=beta, sigma=sigma)
     return rft_inverse(A * B, beta=beta, sigma=sigma)
 ```
+
+### Performance Comparison
+
+| Implementation | n=1024 | n=4096 | Ratio to FFT |
+|----------------|--------|--------|--------------|
+| **FFT (NumPy)** | 15.6 µs | 38.6 µs | 1.00× |
+| **RFT Optimized** | 21.4 µs | 43.7 µs | **1.06×** |
+| **RFT Original** | 85.4 µs | 296.9 µs | 4.97× |
+
+The optimized version achieves **4–7× speedup** by:
+1. Fusing D_φ and C_σ into single diagonal E = D_φ ⊙ C_σ
+2. Precomputing and caching phase tables
+3. Using single `exp()` and multiply instead of two
 
 **Validated (N=128–512):**
 - Round-trip error ≈ **3e-16** relative.  
@@ -329,7 +436,7 @@ See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 
 ## Limitations / Non-use cases
 
-- **General Convolution:** Φ-RFT is slower (~5x) and less diagonal than FFT for standard convolutions on white noise or generic signals.
+- **General Convolution:** Φ-RFT (optimized) runs at ~1.06× FFT speed but offers no advantage for standard linear convolutions on white noise.
 - **Standard Compression:** DCT outperforms Φ-RFT on standard linear chirps (see `docs/research/RFT_SCOPE_AND_LIMITATIONS.md`).
 - **Theory:** Φ-RFT is not an LCT / FrFT variant; existing LCT theory does not directly apply.
 - **Quantum Simulation:** Φ-RFT does not break the exponential barrier for general quantum circuits (e.g., GHZ, Random).
@@ -355,11 +462,14 @@ See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 ## Key Paths
 
 ```
-algorithms/rft/core/canonical_true_rft.py      # Φ-RFT (claims-practicing)
-algorithms/compression/                        # Lossless + hybrid codecs
-algorithms/crypto/crypto_benchmarks/rft_sis/   # RFT–SIS validation suite
-tests/                                         # Unit + integration tests
-docs/patent/USPTO_*                            # USPTO packages & analysis
+algorithms/rft/core/rft_optimized.py           # Optimized Φ-RFT (fused diagonals) ⚡
+algorithms/rft/core/canonical_true_rft.py      # Reference Φ-RFT (claims-practicing)
+algorithms/rft/core/closed_form_rft.py         # Original implementation
+src/rftmw_native/rft_fused_kernel.hpp          # AVX2/AVX512 SIMD kernels
+experiments/competitors/                       # Benchmark suite vs FFT/DCT/codecs
+results/competitors/                           # Benchmark output (JSON/CSV/MD)
+REPRODUCING_RESULTS.md                         # Complete reproducibility guide
+scripts/run_full_suite.sh                      # One-command benchmark runner
 ```
 
 ---

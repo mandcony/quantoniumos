@@ -182,7 +182,7 @@ def generate_final_report(
         "The RFT cipher is a research tool and should NOT be used for production security.",
     ])
     
-    with open(report_path, 'w') as f:
+    with open(report_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(lines))
     
     return report_path

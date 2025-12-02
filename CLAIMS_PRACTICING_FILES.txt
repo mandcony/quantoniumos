@@ -5,12 +5,18 @@
 # --- Core closed-form RFT & kernels ---
 algorithms/rft/core/canonical_true_rft.py
 algorithms/rft/core/closed_form_rft.py
+algorithms/rft/core/rft_optimized.py
 algorithms/rft/core/quantum_kernel_implementation.py
 algorithms/rft/core/topological_quantum_kernel.py
 algorithms/rft/core/enhanced_topological_qubit.py
 algorithms/rft/core/quantum_gates.py
 algorithms/rft/core/geometric_waveform_hash.py
 algorithms/rft/core/geometric_hashing.py
+
+# --- Native C++/SIMD RFT implementations ---
+src/rftmw_native/rftmw_core.hpp
+src/rftmw_native/rft_fused_kernel.hpp
+src/rftmw_native/rftmw_python.cpp
 
 # --- Unitary Algorithm Variants (Theorems) ---
 algorithms/rft/variants/golden_ratio_unitary.py

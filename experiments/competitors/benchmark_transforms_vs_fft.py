@@ -37,7 +37,16 @@ _HERE = Path(__file__).resolve().parent
 _PROJECT_ROOT = _HERE.parents[1]
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
+# Use optimized RFT with fused diagonals for better performance
+from algorithms.rft.core.rft_optimized import (
+    rft_forward_optimized as rft_forward,
+    rft_inverse_optimized as rft_inverse,
+)
+# Also import original for comparison
+from algorithms.rft.core.closed_form_rft import (
+    rft_forward as rft_forward_orig,
+    rft_inverse as rft_inverse_orig,
+)
 from experiments.entropy.datasets import (
     load_ascii_corpus,
     load_audio_frames,
@@ -110,6 +119,10 @@ class TransformBenchmark:
             'rft': (
                 rft_forward,
                 rft_inverse
+            ),
+            'rft_orig': (
+                rft_forward_orig,
+                rft_inverse_orig
             ),
             'dct': (
                 lambda x: dct(x, type=2, norm='ortho'),

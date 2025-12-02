@@ -465,7 +465,7 @@ def main():
     # Generate summary
     summary = generate_summary(results)
     summary_path = args.output_dir / f"crypto_benchmark_{timestamp}.md"
-    with open(summary_path, 'w') as f:
+    with open(summary_path, 'w', encoding='utf-8') as f:
         f.write(summary)
     print(f"  Summary: {summary_path}")
     
