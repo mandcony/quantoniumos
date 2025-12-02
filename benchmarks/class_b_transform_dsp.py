@@ -16,6 +16,7 @@ HONEST FRAMING:
 """
 
 import sys
+import os
 import time
 import numpy as np
 
@@ -53,10 +54,17 @@ except ImportError:
 # Try to import hybrid variants
 RFT_HYBRID_AVAILABLE = False
 try:
-    sys.path.insert(0, 'experiments/hypothesis_testing')
+    # Add project root to path
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+    
+    # Now import from experiments
+    sys.path.insert(0, os.path.join(project_root, 'experiments/hypothesis_testing'))
     from hybrid_mca_fixes import hypothesis3_hierarchical_cascade
     RFT_HYBRID_AVAILABLE = True
-except ImportError:
+except (ImportError, Exception) as e:
+    # Silently fail if hybrid not available
     pass
 
 

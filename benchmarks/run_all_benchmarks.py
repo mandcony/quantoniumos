@@ -71,8 +71,8 @@ def check_dependencies():
     
     try:
         import pyfftw
-        deps['class_b']['pyfftw'] = pyfftw.version.version
-    except ImportError:
+        deps['class_b']['pyfftw'] = pyfftw.__version__
+    except (ImportError, AttributeError):
         deps['class_b']['pyfftw'] = None
     
     # Class C - Compression
