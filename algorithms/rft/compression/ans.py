@@ -1,5 +1,5 @@
 # algorithms/compression/vertex/ans.py
-# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025 Luis M. Minier / quantoniumos
 """
 Asymmetric Numeral Systems (ANS) Coder
@@ -27,8 +27,7 @@ is serialized as the compressed data.
 This implementation is for educational and research purposes and may not be as
 optimized as production-level ANS coders found in libraries like CRAM or Zstandard.
 
-Author: Based on public domain rANS principles by Jarek Duda.
-License: MIT
+Note: rANS algorithm by Jarek Duda is public domain.
 """
 
 from collections import Counter
@@ -219,7 +218,8 @@ def ans_decode(encoded_data, freq_data, num_symbols):
     decoded_data = []
     for _ in range(num_symbols):
         decoded_data.append(decoder.decode_symbol(symbols, cumulative_freqs, total_freq))
-        
-    return decoded_data
+    
+    # Decoder emits symbols in reverse order because encoder processes input backwards.
+    return list(reversed(decoded_data))
 
 __all__ = ["ans_encode", "ans_decode", "RANS_PRECISION_DEFAULT"]

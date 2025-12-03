@@ -25,8 +25,7 @@ algorithms/rft/variants/entropic_unitary.py
 algorithms/rft/variants/__init__.py
 
 # --- Consolidated Compression Implementations ---
-algorithms/rft/compression/lossless/rans_stream.py
-algorithms/rft/compression/ans.py
+# Note: rANS (ans.py, rans_stream.py) is AGPL - Duda's public domain algorithm
 algorithms/rft/compression/rft_vertex_codec.py
 algorithms/rft/compression/rft_quantum_sim.py
 

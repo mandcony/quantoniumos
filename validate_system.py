@@ -4,6 +4,8 @@
 import numpy as np
 import sys
 
+from algorithms.rft.variants.manifest import iter_variants
+
 print('=' * 60)
 print('QUANTONIUMOS FULL SYSTEM VALIDATION')
 print('=' * 60)
@@ -68,25 +70,19 @@ except Exception as e:
 # Test 5: All RFT Variants
 print('\n[5] RFT Variants Test:')
 try:
-    from algorithms.rft.kernels.python_bindings.unitary_rft import (
-        UnitaryRFT, RFT_VARIANT_STANDARD, RFT_VARIANT_HARMONIC,
-        RFT_VARIANT_FIBONACCI, RFT_VARIANT_CHAOTIC, RFT_VARIANT_GEOMETRIC
-    )
-    variants = {
-        'STANDARD': RFT_VARIANT_STANDARD,
-        'HARMONIC': RFT_VARIANT_HARMONIC,
-        'FIBONACCI': RFT_VARIANT_FIBONACCI,
-        'CHAOTIC': RFT_VARIANT_CHAOTIC,
-        'GEOMETRIC': RFT_VARIANT_GEOMETRIC,
-    }
-    for name, var in variants.items():
-        rft = UnitaryRFT(64, variant=var)
+    from algorithms.rft.kernels.python_bindings.unitary_rft import UnitaryRFT
+
+    manifest = list(iter_variants(include_experimental=True, require_kernel_constant=True))
+    if not manifest:
+        print('    SKIPPED: No variant manifest entries are available in this environment.')
+    for entry in manifest:
+        rft = UnitaryRFT(64, variant=entry.kernel_id)
         x = np.random.randn(64)
         y = rft.forward(x)
         z = rft.inverse(y)
         error = np.max(np.abs(x - z))
         status = 'PASS' if error < 1e-10 else 'FAIL'
-        print(f'    {name}: {status} (error={error:.2e})')
+        print(f'    {entry.code}: {status} (error={error:.2e})')
 except Exception as e:
     print(f'    FAILED: {e}')
 

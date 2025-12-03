@@ -12,9 +12,15 @@ Classes:
   D - Cryptography (RFT-SIS + Feistel vs OpenSSL/liboqs)
   E - Audio & DAW (Audio engine performance)
 
+VARIANT COVERAGE:
+  - All 14 Φ-RFT variants benchmarked per class
+  - All 17 hybrids tested where applicable
+  - Use --variants flag to run full variant/hybrid benchmarks
+
 Usage:
     python run_all_benchmarks.py           # Run all classes
     python run_all_benchmarks.py A B       # Run specific classes
+    python run_all_benchmarks.py --variants # Include variant/hybrid benchmarks
     python run_all_benchmarks.py --install # Install missing dependencies
 """
 
@@ -189,10 +195,23 @@ def install_dependencies():
 def run_class_a():
     """Run Class A benchmark"""
     try:
-        from class_a_quantum_simulation import run_class_a_benchmark
-        return run_class_a_benchmark()
+        from class_a_quantum_simulation import run_class_a_benchmark, run_variant_quantum_benchmark, run_hybrid_quantum_benchmark
+        result = run_class_a_benchmark()
+        return {'main': result}
     except Exception as e:
         print(f"  Error: {e}")
+        return None
+
+
+def run_class_a_variants():
+    """Run Class A variant benchmarks"""
+    try:
+        from class_a_quantum_simulation import run_variant_quantum_benchmark, run_hybrid_quantum_benchmark
+        v = run_variant_quantum_benchmark()
+        h = run_hybrid_quantum_benchmark()
+        return {'variants': len(v), 'hybrids': len(h)}
+    except Exception as e:
+        print(f"  Variant Error: {e}")
         return None
 
 
@@ -206,6 +225,18 @@ def run_class_b():
         return None
 
 
+def run_class_b_variants():
+    """Run Class B variant benchmarks"""
+    try:
+        from class_b_transform_dsp import run_variant_dsp_benchmark, run_hybrid_dsp_benchmark
+        v = run_variant_dsp_benchmark()
+        h = run_hybrid_dsp_benchmark()
+        return {'variants': len(v), 'hybrids': len(h)}
+    except Exception as e:
+        print(f"  Variant Error: {e}")
+        return None
+
+
 def run_class_c():
     """Run Class C benchmark"""
     try:
@@ -213,6 +244,18 @@ def run_class_c():
         return run_class_c_benchmark()
     except Exception as e:
         print(f"  Error: {e}")
+        return None
+
+
+def run_class_c_variants():
+    """Run Class C variant benchmarks"""
+    try:
+        from class_c_compression import run_variant_compression_benchmark, run_hybrid_compression_benchmark
+        v = run_variant_compression_benchmark()
+        h = run_hybrid_compression_benchmark()
+        return {'variants': len(v), 'hybrids': len(h)}
+    except Exception as e:
+        print(f"  Variant Error: {e}")
         return None
 
 
@@ -226,6 +269,17 @@ def run_class_d():
         return None
 
 
+def run_class_d_variants():
+    """Run Class D variant benchmarks"""
+    try:
+        from class_d_crypto import run_variant_crypto_benchmark
+        v = run_variant_crypto_benchmark()
+        return {'variants': len(v)}
+    except Exception as e:
+        print(f"  Variant Error: {e}")
+        return None
+
+
 def run_class_e():
     """Run Class E benchmark"""
     try:
@@ -233,6 +287,18 @@ def run_class_e():
         return run_class_e_benchmark()
     except Exception as e:
         print(f"  Error: {e}")
+        return None
+
+
+def run_class_e_variants():
+    """Run Class E variant benchmarks"""
+    try:
+        from class_e_audio_daw import run_variant_audio_benchmark, run_hybrid_audio_benchmark
+        v = run_variant_audio_benchmark()
+        h = run_hybrid_audio_benchmark()
+        return {'variants': len(v), 'hybrids': len(h)}
+    except Exception as e:
+        print(f"  Variant Error: {e}")
         return None
 
 
@@ -247,7 +313,7 @@ def print_summary(results):
     summary = []
     
     if 'A' in results:
-        summary.append("  CLASS A (Quantum):      QSC achieves O(n) vs O(2^n)")
+        summary.append("  CLASS A (Quantum):      QSC achieves O(n) symbolic compression")
     if 'B' in results:
         summary.append("  CLASS B (Transform):    Φ-RFT provides golden-ratio decorrelation")
     if 'C' in results:
@@ -279,6 +345,8 @@ def main():
                         help='Install missing dependencies')
     parser.add_argument('--deps', action='store_true',
                         help='Check dependencies only')
+    parser.add_argument('--variants', action='store_true',
+                        help='Include full variant/hybrid benchmarks')
     parser.add_argument('--json', type=str,
                         help='Save results to JSON file')
     
@@ -321,17 +389,17 @@ def main():
     results = {}
     
     class_runners = {
-        'A': ('Quantum Symbolic Simulation', run_class_a),
-        'B': ('Transform & DSP', run_class_b),
-        'C': ('Compression', run_class_c),
-        'D': ('Cryptography & Post-Quantum', run_class_d),
-        'E': ('Audio & DAW', run_class_e),
+        'A': ('Quantum Symbolic Simulation', run_class_a, run_class_a_variants),
+        'B': ('Transform & DSP', run_class_b, run_class_b_variants),
+        'C': ('Compression', run_class_c, run_class_c_variants),
+        'D': ('Cryptography & Post-Quantum', run_class_d, run_class_d_variants),
+        'E': ('Audio & DAW', run_class_e, run_class_e_variants),
     }
     
     for cls in args.classes:
         cls = cls.upper()
         if cls in class_runners:
-            name, runner = class_runners[cls]
+            name, runner, variant_runner = class_runners[cls]
             print()
             print(f"{'─' * 75}")
             print(f"  Running CLASS {cls}: {name}")
@@ -350,6 +418,18 @@ def main():
             
             print()
             print(f"  CLASS {cls} completed in {elapsed:.2f}s")
+            
+            # Run variant benchmarks if requested
+            if args.variants and variant_runner:
+                print()
+                print(f"  Running CLASS {cls} VARIANT BENCHMARKS...")
+                variant_start = time.perf_counter()
+                variant_result = variant_runner()
+                variant_elapsed = time.perf_counter() - variant_start
+                
+                results[cls]['variant_data'] = variant_result
+                results[cls]['variant_elapsed_s'] = variant_elapsed
+                print(f"  CLASS {cls} variants completed in {variant_elapsed:.2f}s")
     
     # Summary
     print_summary(results)

@@ -12,25 +12,18 @@ import os
 # Add workspace root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from algorithms.rft.kernels.python_bindings.unitary_rft import (
-    UnitaryRFT, RFT_VARIANT_STANDARD, RFT_VARIANT_HARMONIC, 
-    RFT_VARIANT_FIBONACCI, RFT_VARIANT_CHAOTIC, RFT_VARIANT_GEOMETRIC,
-    RFT_VARIANT_HYBRID, RFT_VARIANT_ADAPTIVE
-)
-from algorithms.rft.variants.registry import VARIANTS, generate_original_phi_rft
+from algorithms.rft.kernels.python_bindings.unitary_rft import UnitaryRFT
+from algorithms.rft.variants.manifest import iter_variants
+from algorithms.rft.variants.registry import VARIANTS
 
 class TestAssemblyVariants(unittest.TestCase):
     def setUp(self):
         self.N = 64
-        self.variants_map = {
-            RFT_VARIANT_STANDARD: "original",
-            RFT_VARIANT_HARMONIC: "harmonic_phase",
-            RFT_VARIANT_FIBONACCI: "fibonacci_tilt",
-            RFT_VARIANT_CHAOTIC: "chaotic_mix",
-            RFT_VARIANT_GEOMETRIC: "geometric_lattice", # Mapped from Hyperbolic
-            RFT_VARIANT_HYBRID: "phi_chaotic_hybrid",
-            RFT_VARIANT_ADAPTIVE: "adaptive_phi"
-        }
+        self.variant_entries = list(
+            iter_variants(include_experimental=True, require_kernel_constant=True)
+        )
+        if not self.variant_entries:
+            self.skipTest("No variant entries with kernel IDs are available")
 
     def get_basis_from_assembly(self, rft):
         N = rft.size
@@ -52,12 +45,12 @@ class TestAssemblyVariants(unittest.TestCase):
 
     def test_all_variants_initialization(self):
         """Test that all variants can be initialized in Assembly."""
-        for variant_id, name in self.variants_map.items():
-            print(f"Testing initialization of variant: {name} (ID: {variant_id})")
+        for entry in self.variant_entries:
+            print(f"Testing initialization of variant: {entry.code} (registry={entry.registry_key})")
             try:
-                rft = UnitaryRFT(self.N, variant=variant_id)
+                rft = UnitaryRFT(self.N, variant=entry.kernel_id)
                 self.assertIsNotNone(rft.engine)
-                self.assertEqual(rft.variant, variant_id)
+                self.assertEqual(rft.variant, entry.kernel_id)
                 
                 # Check unitarity
                 basis = self.get_basis_from_assembly(rft)
@@ -71,15 +64,18 @@ class TestAssemblyVariants(unittest.TestCase):
                     print(f"  Variant {name} is unitary.")
                 
             except Exception as e:
-                print(f"  FAILED to initialize variant {name}: {e}")
+                print(f"  FAILED to initialize variant {entry.code}: {e}")
                 # self.fail(f"Failed to initialize variant {name}: {e}")
 
     def test_standard_variant_match(self):
         """Test that Assembly Standard variant matches Python implementation."""
-        rft = UnitaryRFT(self.N, variant=RFT_VARIANT_STANDARD)
+        standard_entry = next(
+            entry for entry in self.variant_entries if entry.registry_key == "original"
+        )
+        rft = UnitaryRFT(self.N, variant=standard_entry.kernel_id)
         asm_basis = self.get_basis_from_assembly(rft)
         
-        py_basis = generate_original_phi_rft(self.N)
+        py_basis = VARIANTS[standard_entry.registry_key].generator(self.N)
         
         # Note: Phase ambiguity might exist (columns can be multiplied by e^i*theta)
         # So we check if they span the same space or are close up to phase

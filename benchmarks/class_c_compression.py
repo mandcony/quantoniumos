@@ -14,6 +14,10 @@ HONEST FRAMING:
 - Industrial codecs: decades of optimization, billions of deployments
 - RFTMW: physics-inspired entropy-gap exploitation, unique properties
 - NOT A RATIO CONTEST: we show different trade-offs
+
+VARIANT COVERAGE:
+- All 14 Φ-RFT variants tested for compression quality
+- All 17 hybrids benchmarked for BPP/PSNR trade-offs
 """
 
 import sys
@@ -22,6 +26,23 @@ import time
 import hashlib
 import zlib
 import lzma
+from pathlib import Path
+
+# Add project root
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Import variant harness
+try:
+    from benchmarks.variant_benchmark_harness import (
+        load_variant_generators, load_hybrid_functions,
+        generate_benchmark_signals, VARIANT_CODES,
+        run_all_variants_benchmark, run_all_hybrids_benchmark,
+        print_variant_results, print_hybrid_results
+    )
+    VARIANT_HARNESS_AVAILABLE = True
+except ImportError:
+    VARIANT_HARNESS_AVAILABLE = False
 
 # Track what's available
 ZSTD_AVAILABLE = False
@@ -452,5 +473,45 @@ def run_class_c_benchmark():
     return results
 
 
+def run_variant_compression_benchmark():
+    """Run all 14 variants on compression test signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("\n  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  Φ-RFT VARIANT COMPRESSION BENCHMARK")
+    print("  Testing all 14 variants for compression quality")
+    print("━" * 75)
+    print()
+    
+    signals = generate_benchmark_signals(1024)
+    results = run_all_variants_benchmark(signals)
+    print_variant_results(results, f"COMPRESSION VARIANT BENCHMARK ({len(signals)} signals)")
+    return results
+
+
+def run_hybrid_compression_benchmark():
+    """Run all hybrids on compression test signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("\n  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  HYBRID COMPRESSION BENCHMARK")
+    print("  Testing all hybrids for BPP/PSNR trade-offs")
+    print("━" * 75)
+    print()
+    
+    signals = generate_benchmark_signals(1024)
+    results = run_all_hybrids_benchmark(signals)
+    print_hybrid_results(results, f"COMPRESSION HYBRID BENCHMARK ({len(signals)} signals)")
+    return results
+
+
 if __name__ == "__main__":
     run_class_c_benchmark()
+    run_variant_compression_benchmark()
+    run_hybrid_compression_benchmark()

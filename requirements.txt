@@ -13,6 +13,7 @@ qutip>=4.7.0  # Required for entanglement validation suites
 pytest>=6.0.0
 black>=21.0.0
 flake8>=3.9.0
+hypothesis>=6.0.0  # For property-based testing
 
 # Hugging Face AI/ML Dependencies
 torch>=2.0.0

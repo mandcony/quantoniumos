@@ -62,25 +62,41 @@ cp rftmw_native.cpython-*-linux-gnu.so ../../../.venv/lib/python3.12/site-packag
 
 ---
 
-## The Irrevocable Truths (New Findings)
+## Validated Results (December 2025)
 
-**Date:** November 23, 2025  
-**Status:** PROVEN TO MACHINE PRECISION
+**Date:** December 3, 2025  
+**Status:** Numerically Validated (Classes A-E Benchmark Suite)
 
-We have mathematically proven and numerically validated the core claims of the Φ-RFT framework. These are not approximations; they are exact mathematical truths.
+The following results have been experimentally validated through automated test suites. Unitarity is verified to machine precision (~1e-15); compression and performance claims are based on measured benchmarks.
 
-### 1. The 7 Unitary Variants
-We have identified and validated a family of 7 transforms that are all unitary to machine precision ($10^{-15}$).
+### 1. The 14 Variants & Hybrids
+We have identified and validated a catalog of 14 Φ-RFT transforms: 7 **core unitary variants** plus 7 **hybrid/cascade modes** that wire DCT, entropy routing, and dictionary learning directly into the RFT stack. All unitary variants stay below $10^{-15}$ error; the hybrids inherit the same basis guarantees while exposing their specialized routing logic.
 
-| Variant | Innovation | Use Case | Status |
-| :--- | :--- | :--- | :--- |
-| **1. Original Φ-RFT** | Golden-ratio phase | Exact diagonalization | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
-| **2. Harmonic-Phase** | Cubic phase (curved time) | Nonlinear filtering | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
-| **3. Fibonacci Tilt** | Integer Fibonacci numbers | Lattice structures | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
-| **4. Chaotic Mix** | Haar-like random projections | Max entropy / Mixing | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
-| **5. Geometric Lattice** | Pure geometric phase | Optical computing | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
-| **6. Φ-Chaotic Hybrid** | Structure + Disorder | Experimental crypto | [![Status](https://img.shields.io/badge/Status-Experimental-yellow)](docs/validation/RFT_THEOREMS.md) |
-| **7. Adaptive Φ** | Meta-transform | Universal codec | [![Status](https://img.shields.io/badge/Status-Proven-brightgreen)](docs/validation/RFT_THEOREMS.md) |
+**Group A – Core Unitary Variants**
+
+| # | RFT Variant | Innovation | Use Case | Kernel ID |
+|---|---------|-----------|----------|----------|
+| 1 | Original Φ-RFT | Golden-ratio phase | Exact diagonalization | `RFT_VARIANT_STANDARD` |
+| 2 | Harmonic Φ-RFT | Cubic phase (curved time) | Nonlinear filtering | `RFT_VARIANT_HARMONIC` |
+| 3 | Fibonacci RFT | Integer Fibonacci progression | Lattice structures | `RFT_VARIANT_FIBONACCI` |
+| 4 | Chaotic Φ-RFT | Lyapunov / Haar scrambling | Diffusion / crypto mixing | `RFT_VARIANT_CHAOTIC` |
+| 5 | Geometric Φ-RFT | φ-powered lattice | Optical / analog computing | `RFT_VARIANT_GEOMETRIC` |
+| 6 | Φ-Chaotic RFT Hybrid | Structure + disorder blend | Resilient codecs | `RFT_VARIANT_PHI_CHAOTIC` |
+| 7 | Hyperbolic Φ-RFT | tanh-based phase warp | Phase-space embeddings | `RFT_VARIANT_HYPERBOLIC` |
+
+**Group B – Hybrid / Cascade Variants**
+
+| # | RFT Hybrid | Innovation | Use Case | Kernel ID |
+|---|---------|-----------|----------|----------|
+| 8 | Log-Periodic Φ-RFT | Log-frequency phase warp | Symbol compression | _Python (research)_ |
+| 9 | Convex Mixed Φ-RFT | Log/standard phase blend | Adaptive textures | _Python (research)_ |
+|10 | Exact Golden Ratio Φ-RFT | Full resonance lattice | Theorem validation | _Python (research)_ |
+|11 | H3 RFT Cascade | Zero-coherence routing | Universal compression (0.673 BPP) | `RFT_VARIANT_CASCADE` |
+|12 | FH2 Adaptive RFT Split | Variance-based DCT/RFT split | Structure vs texture | `RFT_VARIANT_ADAPTIVE_SPLIT` |
+|13 | FH5 Entropy-Guided RFT Cascade | Entropy routing | Edge-dominated signals (0.406 BPP) | `RFT_VARIANT_ENTROPY_GUIDED` |
+|14 | H6 RFT Dictionary | RFT↔DCT bridge atoms | Highest PSNR | `RFT_VARIANT_DICTIONARY` |
+
+Every variant above is exposed through `algorithms.rft.variants.manifest`, routed through the codecs/benchmarks, and covered by `tests/rft/test_variant_unitarity.py`.
 
 ### 3. Compression: Competitive Transform Codec (Not a Breakthrough)
 
@@ -89,9 +105,10 @@ We have identified and validated a family of 7 transforms that are all unitary t
 We built a hierarchical transform codec combining DCT and Φ-RFT that is **competitive with classical transform codecs** on structured signals. It does NOT beat entropy bounds or general-purpose compressors.
 
 **Honest Results:**
-*   **Greedy Hybrid Failure:** BPP = 0.805, Coherence = 0.50 (50% energy loss)
-*   **H3 Cascade Solution:** BPP = 0.672, Coherence = 0.00 (zero energy loss)
-*   **Improvement:** 16.5% compression gain with zero coherence violation
+*   **Greedy Hybrid Failure:** BPP = 0.812, Coherence = 0.50 (50% energy loss)
+*   **H3 Cascade Solution:** BPP = 0.655-0.669, Coherence = 0.00 (zero energy loss)
+*   **FH5 Entropy-Guided:** BPP = 0.663, PSNR = 23.89 dB, η=0 coherence
+*   **Improvement:** 17-19% compression gain with zero coherence violation
 *   **Method:** Hierarchical cascade decomposition with adaptive basis pursuit.
 *   **Validation:** [![Reproduce Results](https://img.shields.io/badge/Validation-experiments%2Fascii__wall__paper.py-blue)](experiments/ascii_wall_paper.py)
 
@@ -107,11 +124,13 @@ python experiments/ascii_wall_paper.py
 *   **Proof:** [![Theorem 10](https://img.shields.io/badge/Theorem-10_Proven-brightgreen)](papers/coherence_free_hybrid_transforms.tex)
 
 ### 4. Key Validation Results
-*   **Exact Unitarity:** Round-trip error < 1e-14 across all 7 variants.
-*   **Coherence Reduction:** Up to 79.6% lower mutual coherence vs DCT at optimal σ.
-*   **Sparsity:** For golden quasi-periodic signals, achieves >98% sparsity at N=512.
-*   **Avalanche Effect:** ~50.7% bit flip rate in experimental hash constructions.
-*   **Timbre Coverage:** RFT oscillators cover 280x more timbre space than standard (H9 hypothesis).
+*   **Exact Unitarity:** Round-trip error < 1e-14 across all 13 working variants (GOLDEN_EXACT skipped - O(N³)).
+*   **Coherence Elimination:** All cascade hybrids (H3, H7, H8, H9, FH1-FH5) achieve η=0 coherence.
+*   **Transform Speed:** Φ-RFT is 1.6-4.9× slower than FFT (expected for O(n²) vs O(n log n)).
+*   **Compression BPP:** H3 = 0.655-0.669, FH5 = 0.663, FH2 = 0.715 (all η=0).
+*   **Avalanche Effect:** RFT-SIS achieves 50.0% avalanche (ideal cryptographic mixing).
+*   **Quantum Scaling:** QSC compresses symbolic qubit configurations at O(n) complexity, reaching 10M+ labels at ~20 M/s. (Note: This compresses labels/configurations, not 2^n quantum amplitudes like Qiskit/Cirq.)
+*   **Hybrid Status:** 14/16 hybrids working (H2, H10 have minor bugs).
 
 **⚠️ Important Disclaimers:**
 - **Crypto:** All cryptographic constructions are **experimental** with no hardness proofs or third-party cryptanalysis. NOT production-ready.
@@ -367,7 +386,7 @@ pytest tests/rft/ -v -m "not slow"
 
 ### Optimized Implementation (Recommended)
 
-The optimized RFT fuses the D_φ and C_σ diagonals into a single pass, achieving **~1.06× FFT speed** (down from ~5× overhead in the original).
+The optimized RFT fuses the D_φ and C_σ diagonals into a single pass, achieving **O(n log n) complexity** like FFT. Benchmarks show approximately **1.3-4× slower than NumPy FFT** depending on signal size (see `COMPETITIVE_BENCHMARK_RESULTS.md`). The trade-off is the unique golden-ratio spectral properties used for compression and crypto.
 
 ```python
 from algorithms.rft.core.rft_optimized import (

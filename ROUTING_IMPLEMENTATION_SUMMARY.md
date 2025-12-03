@@ -62,15 +62,32 @@ Successfully implemented comprehensive RFT variant routing optimization for the 
 
 ## Performance Champions
 
-From `test_all_hybrids.py` (16 variants × 8 signal types):
+From `test_all_hybrids.py` (17 hybrids × 8 signal types, validated 2025-12-03):
 
 | Metric | Winner | Value | Context |
 |--------|--------|-------|---------|
 | **Best BPP (avg)** | H3 CASCADE | 0.673 | Won 7/8 signals |
-| **Best BPP (edges)** | FH5 ENTROPY | 0.406 | 50% improvement |
-| **Best PSNR** | H6 DICTIONARY | 49.9 dB | Smooth signals |
-| **Best Latency** | H3 CASCADE | 0.57 ms | Real-time capable |
-| **Coherence** | All cascades | η=0 | Zero interference |
+| **Best BPP (edges)** | FH5 ENTROPY | 0.406 | Steps signal, 50% improvement |
+| **Best PSNR (smooth)** | H6 DICTIONARY | 49.9 dB | sine_smooth signal |
+| **Best PSNR (ascii)** | H6 DICTIONARY | 322.46 dB | ascii_code signal |
+| **Best Latency** | H0 BASELINE | 0.36 ms | sine_smooth |
+| **Best Cascade Latency** | H3 CASCADE | 0.58 ms | Real-time capable |
+| **Zero Coherence** | 9 variants | η=0 | H3, H7-H9, FH1-FH5 |
+
+### Top 10 Overall (by Avg BPP)
+
+| Rank | Hybrid | Avg BPP | Signals | Coherence |
+|------|--------|---------|---------|-----------|
+| 🏆 1 | H3_Hierarchical_Cascade | 0.673 | 8 | η=0 |
+| 2 | FH5_Entropy_Guided | 0.765 | 8 | η=0 |
+| 3 | H0_Baseline_Greedy | 0.811 | 8 | 0.5 |
+| 4 | H1_Coherence_Aware | 0.811 | 8 | 0.5 |
+| 5 | H5_Attention_Gating | 0.811 | 8 | 0.5 |
+| 6 | FH3_Frequency_Cascade | 0.811 | 8 | η=0 |
+| 7 | FH1_MultiLevel_Cascade | 0.812 | 8 | η=0 |
+| 8 | H7_Cascade_Attention | 0.813 | 8 | η=0 |
+| 9 | H6_Dictionary_Learning | 0.813 | 8 | 0.5 |
+| 10 | FH2_Adaptive_Split | 0.815 | 8 | η=0 |
 
 ---
 
@@ -184,13 +201,43 @@ engine = rft.RFTKernelEngine(1024, variant=rft.RFTVariant.HARMONIC)
 coeffs = engine.forward(signal)
 ```
 
+### Unified Scheduler Exposure
+
+`algorithms/rft/kernels/unified/python_bindings/unified_orchestrator.py` now boots directly from the shared Φ-RFT manifest (`algorithms/rft/variants/manifest.py`).
+
+| Task Type | Assembly Hint | Manifest Variants (priority order) |
+|-----------|---------------|-------------------------------------|
+| `RFT_TRANSFORM` | `UNITARY` | STANDARD → HARMONIC → FIBONACCI → GEOMETRIC → GOLDEN_EXACT |
+| `QUANTUM_CONTEXT` | `OPTIMIZED` / `VERTEX` fallback | CHAOTIC → PHI_CHAOTIC → HYPERBOLIC |
+| `SEMANTIC_ENCODE` | `OPTIMIZED` | CASCADE → ADAPTIVE_SPLIT → ENTROPY_GUIDED → DICTIONARY → LOG_PERIODIC → CONVEX_MIX |
+| `ENTANGLEMENT` | `VERTEX` | PHI_CHAOTIC → HYPERBOLIC → LOG_PERIODIC → CONVEX_MIX |
+
+Each submitted task now carries its manifest entry, preferred/fallback assemblies, and the orchestrator caches variant bases so the worker threads apply the correct generator before running SimpleRFT/Unitary engines. Scheduler telemetry surfaces per-variant assignment/completion counters via `get_status()` to keep runtime routing aligned with benchmark/test coverage.
+
 ---
 
 ## Validation Status
 
+### ✅ Unit Tests
+- `tests/rft/test_variant_unitarity.py` - 14/14 variants unitary ✓ (Exit Code 0)
+
 ### ✅ Integration Tests
-- `benchmarks/test_cascade_integration.py` - 12 tests passing
-- `benchmarks/test_all_hybrids.py` - 16 variants × 8 signals validated
+- `benchmarks/test_cascade_integration.py` - 12 tests passing ✓
+- `benchmarks/test_all_hybrids.py` - 17 hybrids × 8 signals validated ✓
+
+### ✅ Benchmark Suite (2025-12-03)
+- **Class A**: Quantum Simulation ✓
+- **Class B**: Hybrid Quick + Transform DSP ✓
+- **Class C**: Compression ✓
+- **Class D**: Crypto (RFT-SIS/Feistel) ✓
+- **Class E**: Audio DAW ✓
+
+### ⚠️ Known Issues (3 hybrids)
+| Hybrid | Error | Status |
+|--------|-------|--------|
+| H2_Phase_Adaptive | `operands could not be broadcast` | Pre-existing |
+| H10_Quality_Cascade | `index can't contain negative values` | Pre-existing |
+| Legacy_Hybrid_Codec | `RFTHybridCodec constructor` | Deprecated |
 
 ### ✅ Architecture Verification
 - C enum: 13 variants (0-12) ✓
@@ -200,10 +247,11 @@ coeffs = engine.forward(signal)
 - Codec integration: H3/FH5/H6 fully operational ✓
 
 ### ✅ Performance Validation
-- H3 CASCADE: 0.673 BPP average (winner)
-- FH5 ENTROPY: 0.406 BPP on edges (50% improvement)
-- H6 DICTIONARY: 49.9 dB PSNR (best quality)
-- All cascade variants: η=0 (zero coherence guaranteed)
+- H3 CASCADE: 0.673 BPP average (🏆 champion)
+- FH5 ENTROPY: 0.406 BPP on edges (50% improvement over baseline)
+- H6 DICTIONARY: 49.9 dB PSNR smooth, 322.46 dB on ascii_code
+- FH3 FREQUENCY: 42.64 dB PSNR on sine, 47.57 dB on ascii
+- All cascade variants (9 total): η=0 (zero coherence guaranteed)
 
 ---
 
@@ -247,7 +295,7 @@ coeffs = engine.forward(signal)
 
 **Goal**: Route RFT variants with best distribution where their properties are required, check everything down to RFTMW.
 
-**Status**: ✅ COMPLETE
+**Status**: ✅ COMPLETE (Validated 2025-12-03)
 
 **Achievements**:
 1. ✅ Cataloged all 16 RFT variants with properties and use cases
@@ -256,5 +304,8 @@ coeffs = engine.forward(signal)
 4. ✅ Audited benchmark usage and identified optimization opportunities
 5. ✅ Demonstrated working integration with 4 practical examples
 6. ✅ Validated performance: H3 (0.673 BPP), FH5 (0.406 BPP), H6 (49.9 dB)
+7. ✅ All 14 Φ-RFT variants pass unitarity tests
+8. ✅ All 5 benchmark classes passing
+9. ✅ 14/17 hybrids operational (3 pre-existing bugs in H2/H10/Legacy)
 
 **Result**: Optimal routing infrastructure in place. Developers can now automatically select the best variant for their use case, with documented performance characteristics and integration patterns.

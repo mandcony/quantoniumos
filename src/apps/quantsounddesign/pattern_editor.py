@@ -30,8 +30,52 @@ try:
     )
     from PyQt5.QtCore import Qt, pyqtSignal, QTimer
     from PyQt5.QtGui import QPainter, QColor, QBrush, QPen, QFont, QLinearGradient, QKeySequence
+    HAS_PYQT5 = True
 except ImportError:
-    pass
+    HAS_PYQT5 = False
+    # Dummy classes for when PyQt5 is not available
+    class QWidget: pass
+    class QPushButton: pass
+    class QLabel: pass
+    class QComboBox: pass
+    class QVBoxLayout: pass
+    class QHBoxLayout: pass
+    class QGridLayout: pass
+    class QScrollArea: pass
+    class QFrame: pass
+    class QSlider: pass
+    class QSpinBox: pass
+    class QDoubleSpinBox: pass
+    class QTabWidget: pass
+    class QListWidget: pass
+    class QListWidgetItem: pass
+    class QGroupBox: pass
+    class QSplitter: pass
+    class QMenu: pass
+    class QAction: pass
+    class QCheckBox: pass
+    class QShortcut: pass
+    class Qt: 
+        AlignCenter = 0
+        AlignLeft = 0
+        AlignRight = 0
+        Horizontal = 0
+        Vertical = 0
+        LeftButton = 0
+        RightButton = 0
+        Key_Space = 0
+    def pyqtSignal(*args, **kwargs):
+        """Dummy pyqtSignal that accepts any arguments"""
+        return None
+    class QTimer: pass
+    class QPainter: pass
+    class QColor: 
+        def __init__(self, *args): pass
+    class QBrush: pass
+    class QPen: pass
+    class QFont: pass
+    class QLinearGradient: pass
+    class QKeySequence: pass
 
 # Golden ratio
 PHI = (1 + np.sqrt(5)) / 2

@@ -11,9 +11,11 @@ from .registry import (
 	generate_fibonacci_tilt,
 	generate_geometric_lattice,
 	generate_harmonic_phase,
+	generate_hyperbolic_phase,
 	generate_log_periodic_phi_rft,
 	generate_original_phi_rft,
 	generate_phi_chaotic_hybrid,
+	generate_adaptive_split_variant,
 )
 from .golden_ratio_unitary import GoldenRatioUnitary
 from .symbolic_unitary import SymbolicUnitary
@@ -30,9 +32,11 @@ __all__ = [
 	"generate_geometric_lattice",
 	"generate_phi_chaotic_hybrid",
 	"generate_adaptive_phi",
+	"generate_hyperbolic_phase",
 	"generate_log_periodic_phi_rft",
 	"generate_convex_mixed_phi_rft",
 	"generate_exact_golden_ratio_unitary",
+	"generate_adaptive_split_variant",
 	"GoldenRatioUnitary",
 	"SymbolicUnitary",
 	"EntropicUnitary",

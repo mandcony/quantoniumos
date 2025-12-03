@@ -6,7 +6,7 @@
 """Round-trip tests for the symbolic RFT vertex codec."""
 import numpy as np
 
-from core import rft_vertex_codec as codec
+from algorithms.rft.compression import rft_vertex_codec as codec
 
 
 def test_vertex_codec_roundtrip() -> None:

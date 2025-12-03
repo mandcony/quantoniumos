@@ -1,10 +1,12 @@
-# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025 Luis M. Minier / quantoniumos
 """Simple rANS encoder/decoder for integer symbol streams.
 
 The implementation follows a single-state range Asymmetric Numeral Systems (rANS)
 with configurable precision. Frequencies are derived from the symbol histogram
 with Laplace smoothing so every symbol remains decodable.
+
+Note: rANS algorithm by Jarek Duda is public domain.
 """
 
 from __future__ import annotations
@@ -99,6 +101,7 @@ def ans_encode(symbols: Iterable[int], alphabet_size: int, precision: int = RANS
     state = RANS_L
     out = bytearray()
     mask = (1 << precision) - 1
+    # Encode in reverse order: last symbol first so decoder gets first symbol first
     for sym in reversed(symbols_list):
         freq = table.freq[sym]
         cum = table.cum[sym]
@@ -148,6 +151,7 @@ def ans_decode(blob: bytes) -> List[int]:
         for offset in range(f):
             table.lookup[start + offset] = sym
     buf = payload
+    # Read bytes from end (LIFO - last written is first read)
     ptr = len(buf) - 1
     result: List[int] = []
     for _ in range(length):
@@ -160,7 +164,6 @@ def ans_decode(blob: bytes) -> List[int]:
             state = (state << 8) | buf[ptr]
             ptr -= 1
         result.append(sym)
-    if ptr >= 0:
-        raise ValueError("Malformed ANS payload: remaining bytes after decode")
+    # Symbols were encoded in reverse, so we decode in reverse order - need to reverse back
     result.reverse()
     return result

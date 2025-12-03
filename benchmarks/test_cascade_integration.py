@@ -61,7 +61,7 @@ def compute_metrics(original: np.ndarray, reconstructed: np.ndarray) -> Tuple[fl
     return psnr, mse
 
 
-def test_codec_mode(mode: str, signal_name: str, signal: np.ndarray) -> Dict:
+def _run_codec_mode(mode: str, signal_name: str, signal: np.ndarray) -> Dict:
     """Test a single codec mode on a signal"""
     import time
     
@@ -156,7 +156,7 @@ def main():
         mode_results = []
         for signal_name, signal_data in signals.items():
             try:
-                result = test_codec_mode(mode, signal_name, signal_data)
+                result = _run_codec_mode(mode, signal_name, signal_data)
                 mode_results.append(result)
                 
                 # Print result

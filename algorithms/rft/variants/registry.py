@@ -74,6 +74,17 @@ def generate_adaptive_phi(n: int) -> np.ndarray:
     return generate_phi_chaotic_hybrid(n)
 
 
+def generate_hyperbolic_phase(n: int, curvature: float = 0.85) -> np.ndarray:
+    """Hyperbolic phase warp variant using tanh envelopes."""
+    samples = np.arange(n).reshape(-1, 1)
+    k = np.arange(n).reshape(1, -1)
+    centered = (k - (n - 1) / 2.0) / float(n)
+    warp = np.tanh(curvature * centered)
+    phase = 2 * np.pi * warp * samples / n
+    raw = (1.0 / np.sqrt(n)) * np.exp(1j * phase)
+    return _orthonormalize(raw)
+
+
 def _fft_factorized_basis(
     n: int,
     *,
@@ -151,6 +162,23 @@ def generate_h3_hierarchical_cascade(n: int) -> np.ndarray:
     return _orthonormalize(combined)
 
 
+def generate_adaptive_split_variant(n: int, split_ratio: float = 0.5) -> np.ndarray:
+    """FH2 Adaptive Split: route low freq to DCT, high freq to RFT."""
+    split = int(max(1, min(n - 1, round(n * split_ratio))))
+    # DCT basis for low-frequency structure
+    k = np.arange(n).reshape(-1, 1)
+    i = np.arange(n).reshape(1, -1)
+    dct_basis = np.cos(np.pi * k * (2 * i + 1) / (2 * n)) * np.sqrt(2.0 / n)
+    dct_basis[0, :] *= 1.0 / np.sqrt(2.0)
+
+    rft_basis = generate_original_phi_rft(n)
+
+    combined = np.zeros((n, n), dtype=np.complex128)
+    combined[:split] = dct_basis[:split]
+    combined[split:] = rft_basis[split:]
+    return _orthonormalize(combined)
+
+
 def generate_fh5_entropy_guided(n: int) -> np.ndarray:
     """
     FH5 Entropy-Guided Cascade: Adaptive routing via entropy.
@@ -224,37 +252,43 @@ VARIANTS: Dict[str, VariantInfo] = {
         use_case="Quantum simulation",
     ),
     "harmonic_phase": VariantInfo(
-        name="Harmonic-Phase",
+        name="Harmonic Φ-RFT",
         generator=generate_harmonic_phase,
         innovation="Cubic time-base",
         use_case="Nonlinear filtering",
     ),
     "fibonacci_tilt": VariantInfo(
-        name="Fibonacci Tilt",
+        name="Fibonacci Φ-RFT",
         generator=generate_fibonacci_tilt,
         innovation="Integer lattice alignment",
         use_case="Lattice structures (experimental)",
     ),
     "chaotic_mix": VariantInfo(
-        name="Chaotic Mix",
+        name="Chaotic Φ-RFT",
         generator=generate_chaotic_mix,
         innovation="Haar-like randomness",
         use_case="Mixing/diffusion (experimental)",
     ),
     "geometric_lattice": VariantInfo(
-        name="Geometric Lattice",
+        name="Geometric Φ-RFT",
         generator=generate_geometric_lattice,
         innovation="Phase-engineered lattice",
         use_case="Analog / optical computing",
     ),
     "phi_chaotic_hybrid": VariantInfo(
-        name="Φ-Chaotic Hybrid",
+        name="Φ-Chaotic RFT Hybrid",
         generator=generate_phi_chaotic_hybrid,
         innovation="Structure + disorder",
         use_case="Resilient codecs",
     ),
+    "hyperbolic_phase": VariantInfo(
+        name="Hyperbolic Φ-RFT",
+        generator=generate_hyperbolic_phase,
+        innovation="Tanh envelope warp",
+        use_case="Phase-space embeddings",
+    ),
     "adaptive_phi": VariantInfo(
-        name="Adaptive Φ",
+        name="Adaptive Φ-RFT",
         generator=generate_adaptive_phi,
         innovation="Meta selection",
         use_case="Universal compression",
@@ -272,25 +306,31 @@ VARIANTS: Dict[str, VariantInfo] = {
         use_case="Adaptive textures",
     ),
     "golden_ratio_exact": VariantInfo(
-        name="Exact Golden Ratio Kernel",
+        name="Exact Golden Ratio Φ-RFT",
         generator=generate_exact_golden_ratio_unitary,
         innovation="Full resonance lattice",
         use_case="Theorem validation",
     ),
     "h3_cascade": VariantInfo(
-        name="H3 Hierarchical Cascade",
+        name="H3 RFT Cascade",
         generator=generate_h3_hierarchical_cascade,
         innovation="Zero-coherence structure/texture split (η=0)",
         use_case="RECOMMENDED: Universal compression (0.673 BPP avg)",
     ),
+    "adaptive_split": VariantInfo(
+        name="FH2 Adaptive RFT Split",
+        generator=generate_adaptive_split_variant,
+        innovation="Variance-based DCT/RFT routing",
+        use_case="Structure vs texture separation",
+    ),
     "fh5_entropy": VariantInfo(
-        name="FH5 Entropy-Guided Cascade",
+        name="FH5 Entropy-Guided RFT Cascade",
         generator=generate_fh5_entropy_guided,
         innovation="Adaptive entropy-based routing",
         use_case="Edge-dominated signals (0.406 BPP, 50% improvement)",
     ),
     "h6_dictionary": VariantInfo(
-        name="H6 Dictionary Learning",
+        name="H6 RFT Dictionary",
         generator=generate_h6_dictionary_learning,
         innovation="Bridge atoms between DCT/RFT bases",
         use_case="High-quality reconstruction (best PSNR)",
@@ -307,7 +347,9 @@ __all__ = [
     "generate_chaotic_mix",
     "generate_geometric_lattice",
     "generate_phi_chaotic_hybrid",
+    "generate_hyperbolic_phase",
     "generate_adaptive_phi",
+    "generate_adaptive_split_variant",
     "generate_log_periodic_phi_rft",
     "generate_convex_mixed_phi_rft",
     "generate_exact_golden_ratio_unitary",

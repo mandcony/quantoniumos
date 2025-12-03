@@ -12,6 +12,10 @@ HONEST FRAMING:
 - OpenSSL/libsodium: Industry standard, NIST-approved, billion-device deployed
 - RFT-SIS: Research lattice-based construction, unique φ-phase properties
 - We benchmark throughput and avalanche, NOT claiming to replace standards
+
+VARIANT COVERAGE:
+- All 14 Φ-RFT variants tested for diffusion quality
+- CHAOTIC variant specialized for crypto mixing
 """
 
 import sys
@@ -19,6 +23,21 @@ import os
 import time
 import hashlib
 import hmac
+from pathlib import Path
+
+# Add project root
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Import variant harness
+try:
+    from benchmarks.variant_benchmark_harness import (
+        load_variant_generators, VARIANT_CODES,
+        benchmark_variant_on_signal, print_variant_results
+    )
+    VARIANT_HARNESS_AVAILABLE = True
+except ImportError:
+    VARIANT_HARNESS_AVAILABLE = False
 
 # Track what's available
 CRYPTOGRAPHY_AVAILABLE = False
@@ -492,5 +511,52 @@ def run_class_d_benchmark():
     }
 
 
+def run_variant_crypto_benchmark():
+    """Run all 14 variants for diffusion/mixing quality."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("\n  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  Φ-RFT VARIANT DIFFUSION BENCHMARK")
+    print("  Testing all 14 variants for crypto mixing quality")
+    print("━" * 75)
+    print()
+    
+    import numpy as np
+    
+    generators = load_variant_generators()
+    results = []
+    
+    # Test on pseudo-random input (key-like)
+    np.random.seed(42)
+    key_signal = np.random.randn(256)
+    
+    print(f"  {'Variant':<20} │ {'Coherence':>12} │ {'Transform (ms)':>15} │ Status")
+    print("  " + "─" * 60)
+    
+    for variant in VARIANT_CODES:
+        result = benchmark_variant_on_signal(variant, key_signal, "crypto_key", generators)
+        results.append(result)
+        
+        if result.success:
+            coh_str = "η=0" if result.coherence < 1e-6 else f"{result.coherence:.2e}"
+            print(f"  {variant:<20} │ {coh_str:>12} │ {result.time_ms:>14.2f}ms │ ✓")
+        else:
+            print(f"  {variant:<20} │ {'N/A':>12} │ {'N/A':>15} │ ✗ {result.error[:20]}")
+    
+    print()
+    
+    # Find best for crypto (lowest coherence = best diffusion)
+    successful = [r for r in results if r.success]
+    if successful:
+        best = min(successful, key=lambda r: r.coherence)
+        print(f"  Best for crypto mixing: {best.variant} (coherence={best.coherence:.2e})")
+    
+    return results
+
+
 if __name__ == "__main__":
     run_class_d_benchmark()
+    run_variant_crypto_benchmark()

@@ -12,12 +12,34 @@ HONEST FRAMING:
 - QuantoniumOS: Symbolic compression, O(n) scaling, different object
 
 We show the regime where QSC keeps scaling while classical blows up.
+
+VARIANT COVERAGE:
+- All 14 Φ-RFT variants tested on quantum state compression
+- All 17 hybrids benchmarked for quantum signal encoding
 """
 
 import sys
 import time
 import traceback
 import numpy as np
+from pathlib import Path
+
+# Add project root
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Import variant harness
+try:
+    from benchmarks.variant_benchmark_harness import (
+        load_variant_generators, load_hybrid_functions,
+        generate_quantum_state, VARIANT_CODES, HYBRID_NAMES,
+        benchmark_variant_on_signal, benchmark_hybrid_on_signal,
+        print_variant_results, print_hybrid_results,
+        VariantResult, HybridResult
+    )
+    VARIANT_HARNESS_AVAILABLE = True
+except ImportError:
+    VARIANT_HARNESS_AVAILABLE = False
 
 # Track what's available
 QISKIT_AVAILABLE = False
@@ -240,5 +262,79 @@ def run_class_a_benchmark():
     return {'classical': classical_results, 'qsc': qsc_results}
 
 
+def run_variant_quantum_benchmark():
+    """Run all 14 variants on quantum state signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  Φ-RFT VARIANT QUANTUM STATE COMPRESSION")
+    print("  Testing all 14 variants on quantum state vectors")
+    print("━" * 75)
+    print()
+    
+    generators = load_variant_generators()
+    results = []
+    
+    # Skip slow O(N³) variants
+    SLOW_VARIANTS = {"GOLDEN_EXACT"}
+    
+    # Test different qubit counts
+    qubit_counts = [4, 6, 8]
+    
+    for n_qubits in qubit_counts:
+        print(f"  Testing {n_qubits}-qubit states (dim={2**n_qubits})...")
+        state = generate_quantum_state(n_qubits)
+        signal = np.abs(state)  # Amplitude distribution
+        
+        for variant in VARIANT_CODES:
+            if variant in SLOW_VARIANTS:
+                # Skip and add placeholder
+                results.append(VariantResult(
+                    variant=variant,
+                    signal_type=f"quantum_{n_qubits}q",
+                    bpp=0.0, psnr=0.0, time_ms=0.0, coherence=0.0,
+                    success=False, error="Skipped (O(N³) complexity)"
+                ))
+                continue
+            result = benchmark_variant_on_signal(variant, signal, f"quantum_{n_qubits}q", generators)
+            results.append(result)
+    
+    print_variant_results(results, f"QUANTUM STATE VARIANT BENCHMARK ({len(qubit_counts)} sizes × {len(VARIANT_CODES)} variants)")
+    return results
+
+
+def run_hybrid_quantum_benchmark():
+    """Run all hybrids on quantum state signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  HYBRID QUANTUM STATE COMPRESSION")
+    print("  Testing all hybrids on quantum amplitude distributions")
+    print("━" * 75)
+    print()
+    
+    hybrids = load_hybrid_functions()
+    results = []
+    
+    # Test 6-qubit state (64 amplitudes)
+    state = generate_quantum_state(6)
+    signal = np.abs(state)
+    
+    for hybrid in list(hybrids.keys()):
+        result = benchmark_hybrid_on_signal(hybrid, signal, "quantum_6q", hybrids)
+        results.append(result)
+    
+    print_hybrid_results(results, "QUANTUM STATE HYBRID BENCHMARK")
+    return results
+
+
 if __name__ == "__main__":
     run_class_a_benchmark()
+    run_variant_quantum_benchmark()
+    run_hybrid_quantum_benchmark()

@@ -9,6 +9,10 @@ not speed. H3 achieves 0.664 avg BPP vs 0.812 baseline (18% improvement).
 
 For speed: RFT is 3-7× slower than FFT (expected, different complexity).
 For compression: H3 Cascade eliminates coherence violations and improves BPP.
+
+VARIANT COVERAGE:
+- All 14 Φ-RFT variants benchmarked
+- All 17 hybrids tested including H3 Cascade
 """
 
 import numpy as np
@@ -17,7 +21,20 @@ import time
 from pathlib import Path
 
 # Add parent to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Import variant harness
+try:
+    from benchmarks.variant_benchmark_harness import (
+        load_variant_generators, load_hybrid_functions,
+        generate_benchmark_signals, VARIANT_CODES,
+        run_all_variants_benchmark, run_all_hybrids_benchmark,
+        print_variant_results, print_hybrid_results
+    )
+    VARIANT_HARNESS_AVAILABLE = True
+except ImportError:
+    VARIANT_HARNESS_AVAILABLE = False
 
 def simple_h3_cascade_demo():
     """Demonstrate H3 cascade without full hypothesis testing infrastructure"""
@@ -128,9 +145,43 @@ def fft_vs_rft_speed_reality():
         print(f"  ✗ Could not import RFT: {e}")
 
 
+def run_full_variant_benchmark():
+    """Run all 14 variants on quick test signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("\n  ⚠ Variant harness not available")
+        return
+    
+    print()
+    print("=" * 75)
+    print("  FULL VARIANT BENCHMARK (14 Φ-RFT VARIANTS)")
+    print("=" * 75)
+    
+    signals = generate_benchmark_signals(1024)
+    results = run_all_variants_benchmark(signals)
+    print_variant_results(results, "QUICK VARIANT BENCHMARK")
+
+
+def run_full_hybrid_benchmark():
+    """Run all hybrids on quick test signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("\n  ⚠ Variant harness not available")
+        return
+    
+    print()
+    print("=" * 75)
+    print("  FULL HYBRID BENCHMARK (ALL HYBRIDS)")
+    print("=" * 75)
+    
+    signals = generate_benchmark_signals(1024)
+    results = run_all_hybrids_benchmark(signals)
+    print_hybrid_results(results, "QUICK HYBRID BENCHMARK")
+
+
 if __name__ == "__main__":
     simple_h3_cascade_demo()
     fft_vs_rft_speed_reality()
+    run_full_variant_benchmark()
+    run_full_hybrid_benchmark()
     
     print()
     print("=" * 75)

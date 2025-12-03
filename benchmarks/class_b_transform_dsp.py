@@ -13,12 +13,33 @@ HONEST FRAMING:
 - FFT: O(n log n), fastest, standard basis
 - Φ-RFT: O(n²), 3-7× slower, but provides golden-ratio spectral mixing
   that decorrelates structured signals more effectively
+
+VARIANT COVERAGE:
+- All 14 Φ-RFT variants benchmarked for transform quality
+- All 17 hybrids tested for DSP compression
 """
 
 import sys
 import os
 import time
 import numpy as np
+from pathlib import Path
+
+# Add project root
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Import variant harness
+try:
+    from benchmarks.variant_benchmark_harness import (
+        load_variant_generators, load_hybrid_functions,
+        generate_benchmark_signals, VARIANT_CODES, HYBRID_NAMES,
+        run_all_variants_benchmark, run_all_hybrids_benchmark,
+        print_variant_results, print_hybrid_results
+    )
+    VARIANT_HARNESS_AVAILABLE = True
+except ImportError:
+    VARIANT_HARNESS_AVAILABLE = False
 
 # Track what's available
 SCIPY_AVAILABLE = False
@@ -353,5 +374,45 @@ def run_class_b_benchmark():
     return results
 
 
+def run_variant_dsp_benchmark():
+    """Run all 14 variants on DSP test signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  Φ-RFT VARIANT DSP BENCHMARK")
+    print("  Testing all 14 variants on signal processing signals")
+    print("━" * 75)
+    print()
+    
+    signals = generate_benchmark_signals(512)  # Medium size for DSP
+    results = run_all_variants_benchmark(signals)
+    print_variant_results(results, f"DSP VARIANT BENCHMARK ({len(signals)} signals × {len(VARIANT_CODES)} variants)")
+    return results
+
+
+def run_hybrid_dsp_benchmark():
+    """Run all hybrids on DSP test signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  HYBRID DSP BENCHMARK")
+    print("  Testing all hybrids on signal processing signals")
+    print("━" * 75)
+    print()
+    
+    signals = generate_benchmark_signals(512)
+    results = run_all_hybrids_benchmark(signals)
+    print_hybrid_results(results, f"DSP HYBRID BENCHMARK ({len(signals)} signals)")
+    return results
+
+
 if __name__ == "__main__":
     run_class_b_benchmark()
+    run_variant_dsp_benchmark()
+    run_hybrid_dsp_benchmark()

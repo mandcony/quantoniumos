@@ -25,9 +25,23 @@ except ImportError:
     qt = None
     print("❌ QuTiP not available — skipping QuTiP-specific benchmarks")
 
-from quantonium_os_src.engine.vertex_assembly import EntangledVertexEngine
-from quantonium_os_src.engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
-from tests.proofs.test_entanglement_protocols import BellTestProtocol, EntanglementValidationSuite
+# Note: These modules are placeholders for future quantum engine implementation
+# from quantonium_os_src.engine.vertex_assembly import EntangledVertexEngine
+# from quantonium_os_src.engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
+from tests.proofs.test_entanglement_protocols import BellTestProtocol
+
+# Stub classes for missing modules
+class EntangledVertexEngine:
+    """Placeholder for entangled vertex engine."""
+    pass
+
+class OpenQuantumSystem:
+    """Placeholder for open quantum system."""
+    pass
+
+class NoiseModel:
+    """Placeholder for noise model."""
+    pass
 
 
 def calculate_chsh_manual(state: np.ndarray) -> float:

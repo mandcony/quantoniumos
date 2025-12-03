@@ -13,12 +13,34 @@ HONEST FRAMING:
 - DAW engines: decades of optimization, sub-ms latency, VST ecosystem
 - QuantoniumOS: φ-RFT spectral processing, unique decorrelation properties
 - NOT replacing Pro Tools/Ableton, showing niche audio processing strengths
+
+VARIANT COVERAGE:
+- All 14 Φ-RFT variants tested on audio signals
+- HARMONIC variant specialized for audio analysis
+- All 17 hybrids benchmarked for audio compression
 """
 
 import sys
 import os
 import time
 import numpy as np
+from pathlib import Path
+
+# Add project root
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Import variant harness
+try:
+    from benchmarks.variant_benchmark_harness import (
+        load_variant_generators, load_hybrid_functions,
+        generate_audio_signals, VARIANT_CODES, HYBRID_NAMES,
+        benchmark_variant_on_signal, benchmark_hybrid_on_signal,
+        print_variant_results, print_hybrid_results
+    )
+    VARIANT_HARNESS_AVAILABLE = True
+except ImportError:
+    VARIANT_HARNESS_AVAILABLE = False
 
 # Track what's available
 SOUNDDEVICE_AVAILABLE = False
@@ -443,5 +465,86 @@ def run_class_e_benchmark():
     }
 
 
+def run_variant_audio_benchmark():
+    """Run all 14 variants on audio signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("\n  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  Φ-RFT VARIANT AUDIO BENCHMARK")
+    print("  Testing all 14 variants on audio signals")
+    print("━" * 75)
+    print()
+    
+    # Skip slow O(N³) variants
+    SLOW_VARIANTS = {"GOLDEN_EXACT"}
+    
+    # Generate audio signals (1 second at 44.1kHz, downsampled for testing)
+    audio_signals = generate_audio_signals(sample_rate=8000, duration=0.25)
+    
+    generators = load_variant_generators()
+    results = []
+    
+    for variant in VARIANT_CODES:
+        if variant in SLOW_VARIANTS:
+            print(f"  Skipping {variant} (O(N³) complexity)")
+            continue
+        for signal_name, signal in audio_signals.items():
+            result = benchmark_variant_on_signal(variant, signal, signal_name, generators)
+            results.append(result)
+    
+    print_variant_results(results, f"AUDIO VARIANT BENCHMARK ({len(audio_signals)} signals × {len(VARIANT_CODES)} variants)")
+    
+    # Find best for audio (HARMONIC expected to do well)
+    by_variant = {}
+    for r in results:
+        if r.success:
+            if r.variant not in by_variant:
+                by_variant[r.variant] = []
+            by_variant[r.variant].append(r)
+    
+    if by_variant:
+        print("  Best variants for audio (by avg PSNR):")
+        avg_psnr = [(v, np.mean([r.psnr for r in rs if r.psnr != float('inf')])) 
+                    for v, rs in by_variant.items() if rs]
+        avg_psnr.sort(key=lambda x: -x[1])
+        for v, psnr in avg_psnr[:5]:
+            print(f"    {v}: {psnr:.2f} dB")
+    
+    return results
+
+
+def run_hybrid_audio_benchmark():
+    """Run all hybrids on audio signals."""
+    if not VARIANT_HARNESS_AVAILABLE:
+        print("\n  ⚠ Variant harness not available")
+        return []
+    
+    print()
+    print("━" * 75)
+    print("  HYBRID AUDIO BENCHMARK")
+    print("  Testing all hybrids on audio compression")
+    print("━" * 75)
+    print()
+    
+    # Generate short audio signals for hybrid testing
+    audio_signals = generate_audio_signals(sample_rate=8000, duration=0.125)
+    
+    hybrids = load_hybrid_functions()
+    results = []
+    
+    for hybrid in list(hybrids.keys()):
+        for signal_name, signal in audio_signals.items():
+            result = benchmark_hybrid_on_signal(hybrid, signal, signal_name, hybrids)
+            results.append(result)
+    
+    print_hybrid_results(results, f"AUDIO HYBRID BENCHMARK ({len(audio_signals)} signals)")
+    return results
+
+
 if __name__ == "__main__":
     run_class_e_benchmark()
+    run_variant_audio_benchmark()
+    run_hybrid_audio_benchmark()
