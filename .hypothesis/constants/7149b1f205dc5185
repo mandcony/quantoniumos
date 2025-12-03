@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/algorithms/rft/quantum/quantum_gates.py
+# hypothesis_version: 6.148.5
+
+[1e-10, 'CNOT', 'CZ', 'ControlledGates', 'Gate', 'H', 'Hadamard', 'HadamardGates', 'I', 'Identity', 'Pauli-X', 'Pauli-Y', 'Pauli-Z', 'PauliGates', 'PhaseGates', 'QuantumGate', 'QuantumGates', 'RFTGates', 'RotationGates', 'S', 'T', 'Toffoli', 'X', 'Y', 'Z']

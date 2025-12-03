@@ -47,6 +47,10 @@ def test_c_rft():
     """Test the C RFT implementation with safety checks."""
     try:
         from unitary_rft import UnitaryRFT, RFT_FLAG_QUANTUM_SAFE
+    except ImportError as e:
+        pytest.skip(f"Native RFT library not available: {e}")
+    
+    try:
         print("✅ UnitaryRFT imported successfully")
         
         # Test with a very small size first
@@ -66,13 +70,14 @@ def test_c_rft():
         # N=64
         err64 = _roundtrip_ok(64)
         print(f"N=64 ok, err={err64}")
-        return True
+        # All passed
+        assert True
 
     except Exception as e:
         print(f"❌ C/ASM RFT test failed: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        pytest.fail(f"C/ASM RFT test failed: {e}")
 
 if __name__ == "__main__":
     success = test_c_rft()

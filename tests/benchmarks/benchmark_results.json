@@ -1,0 +1,58 @@
+{
+  "speed": {
+    "64": {
+      "fft_time": 0.003819467000539589,
+      "rft_time": Infinity,
+      "ratio": Infinity
+    },
+    "128": {
+      "fft_time": 0.004982268000276235,
+      "rft_time": Infinity,
+      "ratio": Infinity
+    },
+    "256": {
+      "fft_time": 0.005471485999805736,
+      "rft_time": Infinity,
+      "ratio": Infinity
+    },
+    "512": {
+      "fft_time": 0.007405715999993845,
+      "rft_time": Infinity,
+      "ratio": Infinity
+    },
+    "1024": {
+      "fft_time": 0.010122080999281025,
+      "rft_time": Infinity,
+      "ratio": Infinity
+    },
+    "2048": {
+      "fft_time": 0.018477030000212835,
+      "rft_time": Infinity,
+      "ratio": Infinity
+    }
+  },
+  "accuracy": {
+    "256": {
+      "fft_error": 8.881784197001252e-16,
+      "rft_error": Infinity
+    },
+    "512": {
+      "fft_error": 1.1957467920563633e-15,
+      "rft_error": Infinity
+    },
+    "1024": {
+      "fft_error": 1.2291051413029512e-15,
+      "rft_error": Infinity
+    }
+  },
+  "compression": {
+    "original_size": 154389504,
+    "fft_size": 77194752,
+    "rft_size": 0,
+    "fft_mse": 0.624771111446803,
+    "rft_mse": 0.9996677359160008,
+    "fft_ratio": 2.0,
+    "rft_ratio": 0
+  },
+  "memory": {}
+}

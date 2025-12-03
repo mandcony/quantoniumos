@@ -219,7 +219,7 @@ def ans_decode(encoded_data, freq_data, num_symbols):
     for _ in range(num_symbols):
         decoded_data.append(decoder.decode_symbol(symbols, cumulative_freqs, total_freq))
     
-    # Decoder emits symbols in reverse order because encoder processes input backwards.
-    return list(reversed(decoded_data))
+    # Decoder already emits symbols in forward order (encoder processed in reverse)
+    return decoded_data
 
 __all__ = ["ans_encode", "ans_decode", "RANS_PRECISION_DEFAULT"]

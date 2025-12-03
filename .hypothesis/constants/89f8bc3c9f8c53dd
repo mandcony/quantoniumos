@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/algorithms/rft/compression/ans.py
+# hypothesis_version: 6.148.5
+
+[65535, 'ans_decode', 'ans_encode', 'frequencies', 'precision', 'right']

@@ -12,7 +12,7 @@ import os
 # Add workspace root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from algorithms.rft.kernels.python_bindings.unitary_rft import UnitaryRFT
+from algorithms.rft.kernels.python_bindings.unitary_rft import UnitaryRFT, RFT_VARIANT_STANDARD
 from algorithms.rft.variants.manifest import iter_variants
 from algorithms.rft.variants.registry import VARIANTS
 
@@ -24,6 +24,11 @@ class TestAssemblyVariants(unittest.TestCase):
         )
         if not self.variant_entries:
             self.skipTest("No variant entries with kernel IDs are available")
+        
+        # Check if native library is available by trying to create an engine
+        test_rft = UnitaryRFT(self.N, variant=RFT_VARIANT_STANDARD)
+        if test_rft.engine is None:
+            self.skipTest("Native RFT library not available - skipping assembly tests")
 
     def get_basis_from_assembly(self, rft):
         N = rft.size
@@ -70,9 +75,18 @@ class TestAssemblyVariants(unittest.TestCase):
     def test_standard_variant_match(self):
         """Test that Assembly Standard variant matches Python implementation."""
         standard_entry = next(
-            entry for entry in self.variant_entries if entry.registry_key == "original"
+            (entry for entry in self.variant_entries if entry.registry_key == "original"),
+            None
         )
+        if standard_entry is None:
+            self.skipTest("No 'original' variant found in manifest")
+        
         rft = UnitaryRFT(self.N, variant=standard_entry.kernel_id)
+        
+        # Skip if native library not available
+        if rft.engine is None:
+            self.skipTest("Native RFT library not available")
+        
         asm_basis = self.get_basis_from_assembly(rft)
         
         py_basis = VARIANTS[standard_entry.registry_key].generator(self.N)
@@ -104,6 +118,10 @@ class TestAssemblyVariants(unittest.TestCase):
         sig = np.exp(1j * 2 * np.pi * (1/phi) * t)
         
         rft = UnitaryRFT(self.N, variant=RFT_VARIANT_STANDARD)
+        
+        # Skip if native library not available
+        if rft.engine is None:
+            self.skipTest("Native RFT library not available")
         
         # Forward transform
         # We can use the basis directly: X = B^H * x

@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/algorithms/rft/kernels/python_bindings/optimized_rft.py
+# hypothesis_version: 6.148.5
+
+[1.0, 100, 256, 1000, '..', 'AVX', 'AVX-512', 'AVX2', 'Basic', 'Python+ctypes', 'SSE4.2', 'Unknown', '__main__', 'avx', 'avx2', 'avx512f', 'build', 'cache_miss_rate', 'cache_misses', 'compiled', 'engine', 'fallback', 'flags', 'imag', 'initialized', 'iterations', 'lib', 'librftkernel.dll', 'librftkernel.so', 'librftoptimized.dll', 'librftoptimized.so', 'log_size', 'note', 'num_threads', 'opt_flags', 'optimization_level', 'optimized', 'performance_stats', 'processor_type', 'real', 'reconstruction_error', 'simd_support', 'size', 'sse4_2', 'total_cycles', 'total_transforms', 'transform_count', 'twiddle_factors', 'workspace']

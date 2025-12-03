@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/src/apps/quantsounddesign/__init__.py
+# hypothesis_version: 6.148.5
+
+['0.1.0', 'AudioEngine', 'Clip', 'ClipKind', 'DeviceChain', 'DeviceKind', 'DeviceNode', 'Domain', 'Session', 'Track', 'TrackKind', 'TransportState', 'WaveField', 'create_compressor', 'create_device', 'create_meter', 'create_rft_eq', 'create_rft_filter', 'create_rft_morph', 'create_rft_reverb', 'create_utility']

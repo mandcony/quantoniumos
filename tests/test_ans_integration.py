@@ -4,16 +4,19 @@
 import sys
 import os
 import numpy as np
+import pytest
 
 # Add repo root to path
-sys.path.insert(0, os.getcwd())
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 try:
     from algorithms.rft.compression.rft_vertex_codec import encode_tensor, decode_tensor
-    print("Imports successful.")
+    IMPORTS_AVAILABLE = True
 except ImportError as e:
-    print(f"Import failed: {e}")
-    sys.exit(1)
+    IMPORTS_AVAILABLE = False
+    IMPORT_ERROR = str(e)
+
+pytestmark = pytest.mark.skipif(not IMPORTS_AVAILABLE, reason="algorithms.rft not available")
 
 def test_ans_integration():
     print("Testing ANS Integration...")

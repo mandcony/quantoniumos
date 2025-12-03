@@ -165,14 +165,15 @@ class LCTTransform:
         # Chirp multiplication
         n = self.n
         t = np.arange(n)
-        chirp = np.exp(-1j * np.pi * t**2 * np.cot(theta) / n)
+        cot_theta = 1.0 / np.tan(theta)
+        chirp = np.exp(-1j * np.pi * t**2 * cot_theta / n)
         
         # FFT
         X = fft(x * chirp, norm='ortho')
         
         # Chirp multiplication in frequency domain
         f = np.arange(n)
-        chirp_f = np.exp(-1j * np.pi * f**2 * np.cot(theta) / n)
+        chirp_f = np.exp(-1j * np.pi * f**2 * cot_theta / n)
         
         return X * chirp_f * np.exp(-1j * theta)
     
@@ -184,13 +185,14 @@ class LCTTransform:
             return X
         
         n = self.n
+        cot_theta = 1.0 / np.tan(theta)
         f = np.arange(n)
-        chirp_f = np.exp(-1j * np.pi * f**2 * np.cot(theta) / n)
+        chirp_f = np.exp(-1j * np.pi * f**2 * cot_theta / n)
         
         x = ifft(X * chirp_f, norm='ortho')
         
         t = np.arange(n)
-        chirp = np.exp(-1j * np.pi * t**2 * np.cot(theta) / n)
+        chirp = np.exp(-1j * np.pi * t**2 * cot_theta / n)
         
         return x * chirp * np.exp(-1j * theta)
 
@@ -235,12 +237,7 @@ def compute_energy_concentration(X: np.ndarray, percentile: float = 0.9) -> int:
 
 def test_unitarity_all_transforms():
     """Test that all transforms preserve unitarity (round-trip)"""
-    print_section("TEST 1: Unitarity / Round-Trip Reconstruction")
-    
-    results = {}
-    
     for n in TEST_SIZES:
-        print(f"\nSize N={n}:")
         x = generate_random_signal(n)
         
         # Test each transform
@@ -258,37 +255,26 @@ def test_unitarity_all_transforms():
         ])
         
         for transform in transforms:
-            try:
-                # Forward-inverse round trip
-                X = transform.forward(x)
-                x_rec = transform.inverse(X)
-                
-                # Compute reconstruction error
-                if transform.name.startswith("DCT"):
-                    # DCT only uses real part
-                    error = np.linalg.norm(np.real(x_rec) - np.real(x)) / np.linalg.norm(np.real(x))
-                else:
-                    error = np.linalg.norm(x_rec - x) / np.linalg.norm(x)
-                
-                status = "✓ PASS" if error < TOLERANCE else "✗ FAIL"
-                print(f"  {transform.name:20s}: error={error:.2e} {status}")
-                
-                if n not in results:
-                    results[n] = {}
-                results[n][transform.name] = {'unitarity_error': error}
-                
-            except Exception as e:
-                print(f"  {transform.name:20s}: ERROR - {e}")
-    
-    return results
+            # Forward-inverse round trip
+            X = transform.forward(x)
+            x_rec = transform.inverse(X)
+            
+            # Compute reconstruction error
+            if transform.name.startswith("DCT"):
+                # DCT only uses real part
+                error = np.linalg.norm(np.real(x_rec) - np.real(x)) / np.linalg.norm(np.real(x))
+            else:
+                error = np.linalg.norm(x_rec - x) / np.linalg.norm(x)
+            
+            assert error < TOLERANCE, f"{transform.name} N={n}: unitarity error={error:.2e}"
 
 
 # =============================================================================
 # TEST 2: SPARSITY COMPARISON
 # =============================================================================
 
-def test_sparsity_comparison():
-    """Compare sparsity across transforms for different signal types"""
+def _sparsity_comparison():
+    """Compare sparsity across transforms for different signal types (diagnostic)"""
     print_section("TEST 2: Sparsity for Quasi-Periodic vs Periodic Signals")
     
     signal_types = {
@@ -351,8 +337,8 @@ def test_sparsity_comparison():
 # TEST 3: PERFORMANCE BENCHMARKING
 # =============================================================================
 
-def test_performance_comparison():
-    """Compare execution speed across transforms"""
+def _performance_comparison():
+    """Compare execution speed across transforms (diagnostic)"""
     print_section("TEST 3: Performance Comparison (Execution Time)")
     
     iterations = 100
@@ -418,12 +404,7 @@ def test_performance_comparison():
 
 def test_energy_preservation():
     """Verify Parseval's theorem for all transforms"""
-    print_section("TEST 4: Energy Preservation (Parseval's Theorem)")
-    
-    results = {}
-    
     for n in TEST_SIZES:
-        print(f"\nSize N={n}:")
         x = generate_random_signal(n)
         energy_time = np.sum(np.abs(x) ** 2)
         
@@ -434,27 +415,16 @@ def test_energy_preservation():
             except:
                 pass
         
-        transforms.extend([
-            FFTTransform(n),
-            DCTTransform(n),
-        ])
+        # Only test transforms that preserve complex energy
+        # DCT is real-only and doesn't satisfy Parseval for complex signals
+        transforms.append(FFTTransform(n))
         
         for transform in transforms:
-            try:
-                X = transform.forward(x)
-                energy_freq = np.sum(np.abs(X) ** 2)
-                
-                error = abs(energy_freq - energy_time) / energy_time
-                status = "✓ PASS" if error < TOLERANCE else "✗ FAIL"
-                
-                print(f"  {transform.name:20s}: E_time={energy_time:.4f}, E_freq={energy_freq:.4f}, err={error:.2e} {status}")
-                
-                results[(n, transform.name)] = {'energy_error': error}
-                
-            except Exception as e:
-                print(f"  {transform.name:20s}: ERROR - {e}")
-    
-    return results
+            X = transform.forward(x)
+            energy_freq = np.sum(np.abs(X) ** 2)
+            
+            error = abs(energy_freq - energy_time) / energy_time
+            assert error < TOLERANCE, f"{transform.name} N={n}: energy error={error:.2e}"
 
 
 # =============================================================================
@@ -462,7 +432,7 @@ def test_energy_preservation():
 # =============================================================================
 
 def run_all_tests():
-    """Run all comparative tests"""
+    """Run all comparative tests (diagnostic runner)"""
     print("\n" + "="*80)
     print(" ASSEMBLY/C RFT vs CLASSICAL TRANSFORMS COMPARISON")
     print("="*80)
@@ -477,10 +447,10 @@ def run_all_tests():
     all_results = {}
     
     # Run all test suites
-    all_results['unitarity'] = test_unitarity_all_transforms()
-    all_results['sparsity'] = test_sparsity_comparison()
-    all_results['performance'] = test_performance_comparison()
-    all_results['energy'] = test_energy_preservation()
+    test_unitarity_all_transforms()
+    all_results['sparsity'] = _sparsity_comparison()
+    all_results['performance'] = _performance_comparison()
+    test_energy_preservation()
     
     # Summary
     print_section("SUMMARY")

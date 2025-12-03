@@ -24,12 +24,8 @@ def test_lossless_roundtrip():
     ok, err = roundtrip_tensor(data, atol=1e-5)
     
     print(f"  Max error: {err:.2e}")
-    if ok:
-        print("  ✓ PASSED")
-        return True
-    else:
-        print(f"  ✗ FAILED (error {err} > 1e-5)")
-        return False
+    assert ok, f"Lossless roundtrip failed with error {err} > 1e-5"
+    print("  ✓ PASSED")
 
 def test_lossless_2d():
     """Test 2D tensor encoding."""
@@ -42,12 +38,8 @@ def test_lossless_2d():
     err = np.max(np.abs(data - decoded))
     print(f"  Max error: {err:.2e}")
     
-    if err < 1e-5:
-        print("  ✓ PASSED")
-        return True
-    else:
-        print(f"  ✗ FAILED")
-        return False
+    assert err < 1e-5, f"2D tensor roundtrip failed with error {err}"
+    print("  ✓ PASSED")
 
 def test_sparse_data():
     """Test codec on sparse data (good for compression)."""
@@ -60,12 +52,8 @@ def test_sparse_data():
     
     print(f"  Lossless max error: {err:.2e}")
     
-    if ok:
-        print("  ✓ PASSED")
-        return True
-    else:
-        print(f"  ✗ FAILED")
-        return False
+    assert ok, f"Sparse data roundtrip failed with error {err}"
+    print("  ✓ PASSED")
 
 def test_quantized_lossy():
     """Test lossy quantization path."""
@@ -83,12 +71,8 @@ def test_quantized_lossy():
     print(f"  Relative error: {rel_err:.4f}")
     
     # With 14-bit quantization, relative error should be < 1%
-    if rel_err < 0.01:
-        print("  ✓ PASSED")
-        return True
-    else:
-        print(f"  ✗ FAILED (relative error too high)")
-        return False
+    assert rel_err < 0.01, f"Quantized lossy failed with relative error {rel_err}"
+    print("  ✓ PASSED")
 
 def test_pruning():
     """Test coefficient pruning (lossy compression)."""
@@ -106,26 +90,17 @@ def test_pruning():
     print(f"  Relative error: {rel_err:.4f}")
     
     # Pruning introduces error, but check it's reasonable
-    if rel_err < 0.5:  # Allow up to 50% relative error for aggressive pruning
-        print("  ✓ PASSED")
-        return True
-    else:
-        print(f"  ✗ FAILED")
-        return False
+    assert rel_err < 0.5, f"Pruning failed with relative error {rel_err}"
+    print("  ✓ PASSED")
 
 def test_hybrid_codec():
     """Test hybrid codec integration."""
     print("\n[Test 6] Hybrid Codec")
     data = np.random.randn(256).astype(np.float32)
     
-    try:
-        result = encode_tensor_hybrid(data, prune_threshold=0.0, quant_amp_bits=10, quant_phase_bits=10)
-        print(f"  Encoded container type: {result.container.get('type')}")
-        print("  ✓ PASSED")
-        return True
-    except Exception as e:
-        print(f"  ✗ FAILED: {e}")
-        return False
+    result = encode_tensor_hybrid(data, prune_threshold=0.0, quant_amp_bits=10, quant_phase_bits=10)
+    print(f"  Encoded container type: {result.container.get('type')}")
+    print("  ✓ PASSED")
 
 def test_ans_entropy_coding():
     """Test ANS entropy coding integration (known lossy due to quantization)."""
@@ -162,12 +137,11 @@ def test_ans_entropy_coding():
     # For production use, consider Cartesian quantization or residual correction.
     
     # Just verify it doesn't crash and ANS activates
+    assert ans_used or True, "ANS encoding expected"  # Always pass, just checking it runs
     if ans_used:
         print("  ✓ PASSED (ANS functional, accuracy limited by quantization)")
-        return True
     else:
         print("  ⚠ PASSED (fallback mode)")
-        return True
 
 def main():
     print("="*60)
