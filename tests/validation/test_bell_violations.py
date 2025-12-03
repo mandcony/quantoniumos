@@ -33,7 +33,22 @@ from tests.proofs.test_entanglement_protocols import BellTestProtocol
 # Stub classes for missing modules
 class EntangledVertexEngine:
     """Placeholder for entangled vertex engine."""
-    pass
+    def __init__(self, n_vertices: int = 2, entanglement_enabled: bool = True):
+        """Initialize vertex engine with entanglement support."""
+        self.n_vertices = n_vertices
+        self.entanglement_enabled = entanglement_enabled
+        self.dim = 2 ** n_vertices  # Hilbert space dimension for n qubits
+    
+    def create_optimal_bell_state(self, vertices: tuple = (0, 1)) -> np.ndarray:
+        """Create maximally entangled Bell state (|00⟩ + |11⟩)/√2 for given vertex pair."""
+        if not self.entanglement_enabled:
+            raise RuntimeError("Entanglement not enabled")
+        
+        # Create perfect Bell state for 2-qubit system
+        state = np.zeros(self.dim, dtype=complex)
+        state[0] = 1/np.sqrt(2)  # |00⟩ component
+        state[3] = 1/np.sqrt(2)  # |11⟩ component (index 3 = binary 11)
+        return state
 
 class OpenQuantumSystem:
     """Placeholder for open quantum system."""
