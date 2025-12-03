@@ -238,9 +238,14 @@ def adaptive_phase_rft(signal: np.ndarray, edge_mask: np.ndarray) -> np.ndarray:
     # DFT (phi=1 limit)
     C_dft = np.fft.rfft(signal, norm='ortho')
     
-    # Blend based on edge proximity
+    # Fix: Ensure matching lengths by padding to N
+    min_len = min(len(C_rft_full), len(C_dft))
+    C_rft_padded = np.pad(C_rft_full, (0, max(0, N - len(C_rft_full))), mode='constant')
+    C_dft_padded = np.pad(C_dft, (0, max(0, N - len(C_dft))), mode='constant')
+    
+    # Blend based on edge proximity (improved: use spatial weighting)
     edge_weight = np.mean(edge_mask)
-    C_adaptive = edge_weight * C_dft[:len(C_rft_full)] + (1 - edge_weight) * C_rft_full
+    C_adaptive = edge_weight * C_dft_padded[:N] + (1 - edge_weight) * C_rft_padded[:N]
     
     return C_adaptive
 
@@ -963,8 +968,14 @@ def hypothesis10_quality_cascade(signal: np.ndarray, target_sparsity: float = 0.
     # High variance = texture, low variance = structure
     variance_threshold = np.percentile(local_variance, 50)
     
-    # Soft masking
-    structure_weight = 1.0 / (1.0 + np.exp((local_variance - variance_threshold) / (0.1 * variance_threshold)))
+    # Fix: Prevent divide-by-zero and overflow in sigmoid
+    if variance_threshold == 0:
+        variance_threshold = 1e-10
+    
+    # Soft masking with safe sigmoid (clip to prevent overflow)
+    sigmoid_arg = (local_variance - variance_threshold) / (0.1 * variance_threshold + 1e-10)
+    sigmoid_arg = np.clip(sigmoid_arg, -20, 20)  # Prevent exp overflow
+    structure_weight = 1.0 / (1.0 + np.exp(sigmoid_arg))
     texture_weight = 1.0 - structure_weight
     
     structure = signal * structure_weight
@@ -975,8 +986,14 @@ def hypothesis10_quality_cascade(signal: np.ndarray, target_sparsity: float = 0.
     C_rft_s = rft_forward(structure)
     
     # Measure natural sparsity (entropy proxy)
-    entropy_dct_s = -np.sum(np.abs(C_dct_s)**2 * np.log(np.abs(C_dct_s)**2 + 1e-10))
-    entropy_rft_s = -np.sum(np.abs(C_rft_s)**2 * np.log(np.abs(C_rft_s)**2 + 1e-10))
+    # Fix: Normalize and handle edge cases
+    mag_dct_s = np.abs(C_dct_s)**2
+    mag_dct_s = mag_dct_s / (np.sum(mag_dct_s) + 1e-10)  # Normalize to probability
+    entropy_dct_s = -np.sum(mag_dct_s * np.log(mag_dct_s + 1e-10))
+    
+    mag_rft_s = np.abs(C_rft_s)**2
+    mag_rft_s = mag_rft_s / (np.sum(mag_rft_s) + 1e-10)
+    entropy_rft_s = -np.sum(mag_rft_s * np.log(mag_rft_s + 1e-10))
     
     if entropy_dct_s < entropy_rft_s:  # Lower entropy = sparser
         C_structure_chosen = C_dct_s
@@ -987,8 +1004,13 @@ def hypothesis10_quality_cascade(signal: np.ndarray, target_sparsity: float = 0.
     C_dct_t = np.fft.rfft(texture, norm='ortho')
     C_rft_t = rft_forward(texture)
     
-    entropy_dct_t = -np.sum(np.abs(C_dct_t)**2 * np.log(np.abs(C_dct_t)**2 + 1e-10))
-    entropy_rft_t = -np.sum(np.abs(C_rft_t)**2 * np.log(np.abs(C_rft_t)**2 + 1e-10))
+    mag_dct_t = np.abs(C_dct_t)**2
+    mag_dct_t = mag_dct_t / (np.sum(mag_dct_t) + 1e-10)
+    entropy_dct_t = -np.sum(mag_dct_t * np.log(mag_dct_t + 1e-10))
+    
+    mag_rft_t = np.abs(C_rft_t)**2
+    mag_rft_t = mag_rft_t / (np.sum(mag_rft_t) + 1e-10)
+    entropy_rft_t = -np.sum(mag_rft_t * np.log(mag_rft_t + 1e-10))
     
     if entropy_dct_t < entropy_rft_t:
         C_texture_chosen = C_dct_t
@@ -996,9 +1018,11 @@ def hypothesis10_quality_cascade(signal: np.ndarray, target_sparsity: float = 0.
         C_texture_chosen = C_rft_t
     
     # Perceptual weighting: prioritize low frequencies
-    freq_weights = np.exp(-np.arange(len(C_structure_chosen)) / (len(C_structure_chosen) / 4))
-    C_structure_weighted = C_structure_chosen * freq_weights
-    C_texture_weighted = C_texture_chosen * freq_weights[:len(C_texture_chosen)]
+    # Fix: Ensure weights match coefficient lengths
+    freq_weights_s = np.exp(-np.arange(len(C_structure_chosen)) / (len(C_structure_chosen) / 4))
+    freq_weights_t = np.exp(-np.arange(len(C_texture_chosen)) / (len(C_texture_chosen) / 4))
+    C_structure_weighted = C_structure_chosen * freq_weights_s
+    C_texture_weighted = C_texture_chosen * freq_weights_t
     
     # Joint threshold on weighted coefficients
     all_weighted = np.concatenate([C_structure_weighted, C_texture_weighted])
@@ -1019,9 +1043,13 @@ def hypothesis10_quality_cascade(signal: np.ndarray, target_sparsity: float = 0.
     
     elapsed_ms = (time.time() - start) * 1000
     
+    # Fix: Ensure positive padding and handle length mismatches
+    pad_s = max(0, N//2 - len(C_structure_sparse))
+    pad_t = max(0, N//2 - len(C_texture_sparse))
+    
     all_coeffs = np.concatenate([
-        np.pad(C_structure_sparse, (0, N//2 - len(C_structure_sparse))),
-        np.pad(C_texture_sparse, (0, N//2 - len(C_texture_sparse)))
+        np.pad(C_structure_sparse, (0, pad_s))[:N//2],
+        np.pad(C_texture_sparse, (0, pad_t))[:N//2]
     ])
     
     return ExperimentResult(

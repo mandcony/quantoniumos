@@ -95,7 +95,7 @@ module canonical_rft_core #(
     // Unpack input signal
     integer unpack_idx;
     always @(*) begin
-        for (unpack_idx <= 0; unpack_idx < N; unpack_idx <= unpack_idx + 1) begin
+        for (unpack_idx = 0; unpack_idx < N; unpack_idx = unpack_idx + 1) begin
             signal_in_unpacked[unpack_idx] = signal_in[unpack_idx*PRECISION +: PRECISION];
         end
     end
@@ -103,7 +103,7 @@ module canonical_rft_core #(
     // Pack output signal
     integer pack_idx;
     always @(*) begin
-        for (pack_idx <= 0; pack_idx < N; pack_idx <= pack_idx + 1) begin
+        for (pack_idx = 0; pack_idx < N; pack_idx = pack_idx + 1) begin
             signal_out[pack_idx*PRECISION +: PRECISION] = signal_out_unpacked[pack_idx];
         end
     end
@@ -391,7 +391,7 @@ module rft_sis_hash_v31 #(
     
     integer rft_pack_idx;
     always @(*) begin
-        for (rft_pack_idx <= 0; rft_pack_idx < SIS_N; rft_pack_idx <= rft_pack_idx + 1) begin
+        for (rft_pack_idx = 0; rft_pack_idx < SIS_N; rft_pack_idx = rft_pack_idx + 1) begin
             rft_signal_in_packed[rft_pack_idx*32 +: 32] = rft_signal_in_array[rft_pack_idx];
             rft_signal_out_array[rft_pack_idx] = rft_signal_out_packed[rft_pack_idx*32 +: 32];
         end
@@ -459,12 +459,12 @@ module rft_sis_hash_v31 #(
             valid <= 0;
             rft_start <= 0;
             hash_digest <= 0;
-            for (loop_idx <= 0; loop_idx < SIS_N; loop_idx <= loop_idx + 1) begin
+            for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
                 expanded[loop_idx] = 0;
                 rft_output[loop_idx] = 0;
                 sis_vector[loop_idx] = 0;
             end
-            for (loop_idx <= 0; loop_idx < SIS_M; loop_idx <= loop_idx + 1) begin
+            for (loop_idx = 0; loop_idx < SIS_M; loop_idx = loop_idx + 1) begin
                 lattice_point[loop_idx] = 0;
             end
         end else begin
@@ -482,7 +482,7 @@ module rft_sis_hash_v31 #(
                     expand_coordinates(coordinate_x, coordinate_y, coordinate_z);
                     
                     // Prepare RFT input
-                    for (loop_idx <= 0; loop_idx < SIS_N; loop_idx <= loop_idx + 1) begin
+                    for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
                         rft_signal_in_array[loop_idx] = expanded[loop_idx][31:0];
                     end
                     
@@ -494,7 +494,7 @@ module rft_sis_hash_v31 #(
                     rft_start <= 0;
                     if (rft_done) begin
                         // Capture RFT output
-                        for (loop_idx <= 0; loop_idx < SIS_N; loop_idx <= loop_idx + 1) begin
+                        for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
                             rft_output[loop_idx] = rft_signal_out_array[loop_idx];
                         end
                         state <= SIS_QUANTIZE;
@@ -503,7 +503,7 @@ module rft_sis_hash_v31 #(
                 
                 SIS_QUANTIZE: begin
                     // Quantize RFT output to SIS vector: s ∈ [-β, β]
-                    for (loop_idx <= 0; loop_idx < SIS_N; loop_idx <= loop_idx + 1) begin
+                    for (loop_idx = 0; loop_idx < SIS_N; loop_idx = loop_idx + 1) begin
                         // Scale and clip to [-SIS_BETA, SIS_BETA]
                         sis_vector[loop_idx] = 16'(rft_output[loop_idx][30:16]) % SIS_BETA;
                     end
@@ -819,7 +819,7 @@ module quantoniumos_unified_core #(
     // Pack/unpack RFT arrays
     integer rft_idx;
     always @(*) begin
-        for (rft_idx <= 0; rft_idx < RFT_SIZE; rft_idx <= rft_idx + 1) begin
+        for (rft_idx = 0; rft_idx < RFT_SIZE; rft_idx = rft_idx + 1) begin
             rft_signal_in_packed[rft_idx*32 +: 32] = rft_signal_in_array[rft_idx];
             rft_signal_out_array[rft_idx] = rft_signal_out_packed[rft_idx*32 +: 32];
         end
