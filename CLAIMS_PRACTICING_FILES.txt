@@ -119,3 +119,4 @@ src/apps/quantsounddesign/run_daw.py
 
 # --- DAW Test Files ---
 tests/test_audio_backend.py
+quantoniumos/quantum_search.py

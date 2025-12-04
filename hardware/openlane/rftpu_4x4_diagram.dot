@@ -1,0 +1,71 @@
+digraph RFTPU_4x4 {
+    rankdir=TB;
+    node [shape=box, style=filled];
+    
+    // Top level
+    top [label="RFTPU Accelerator\n4×4 Tile Array\n~180K gates, 2.5mm²", fillcolor=lightblue, fontsize=14, fontweight=bold];
+    
+    // DMA
+    dma [label="DMA Ingress\nController", fillcolor=lightgreen];
+    
+    // NoC
+    noc [label="NoC Fabric\n8×8 Mesh\nWormhole Routing\n16 Inflight Buffers", fillcolor=orange];
+    
+    // Tiles (4x4 grid)
+    subgraph cluster_tiles {
+        label="16 Tiles (4×4 Grid)";
+        style=filled;
+        fillcolor=lightyellow;
+        
+        t0 [label="Tile(0,0)\nΦ-RFT Core\n32×256b Scratch\n32×256b Topo", fillcolor=wheat];
+        t1 [label="Tile(1,0)\nΦ-RFT Core\n32×256b Scratch\n32×256b Topo", fillcolor=wheat];
+        t2 [label="Tile(2,0)\nΦ-RFT Core\n32×256b Scratch\n32×256b Topo", fillcolor=wheat];
+        t3 [label="Tile(3,0)\nΦ-RFT Core\n32×256b Scratch\n32×256b Topo", fillcolor=wheat];
+        
+        t4 [label="Tile(0,1)", fillcolor=wheat];
+        t5 [label="Tile(1,1)", fillcolor=wheat];
+        t6 [label="Tile(2,1)", fillcolor=wheat];
+        t7 [label="Tile(3,1)", fillcolor=wheat];
+        
+        t8 [label="Tile(0,2)", fillcolor=wheat];
+        t9 [label="Tile(1,2)", fillcolor=wheat];
+        t10 [label="Tile(2,2)", fillcolor=wheat];
+        t11 [label="Tile(3,2)", fillcolor=wheat];
+        
+        t12 [label="Tile(0,3)", fillcolor=wheat];
+        t13 [label="Tile(1,3)", fillcolor=wheat];
+        t14 [label="Tile(2,3)", fillcolor=wheat];
+        t15 [label="Tile(3,3)", fillcolor=wheat];
+        
+        // NoC connections (mesh)
+        t0 -> t1 [dir=both, label="NoC"];
+        t1 -> t2 [dir=both];
+        t2 -> t3 [dir=both];
+        t0 -> t4 [dir=both];
+        t4 -> t8 [dir=both];
+        t8 -> t12 [dir=both];
+    }
+    
+    // Connections
+    top -> dma [label="DMA\nInterface"];
+    top -> noc [label="NoC\nInterface"];
+    dma -> t0 [label="Samples", color=blue];
+    dma -> t1 [color=blue];
+    dma -> t2 [color=blue];
+    dma -> t3 [color=blue];
+    
+    noc -> t0 [label="Packets", color=red, dir=both];
+    noc -> t5 [color=red, dir=both];
+    noc -> t10 [color=red, dir=both];
+    noc -> t15 [color=red, dir=both];
+    
+    // Legend
+    legend [shape=plaintext, label=<
+        <table border="0" cellborder="1" cellspacing="0">
+        <tr><td bgcolor="lightblue"><b>Top Module</b></td></tr>
+        <tr><td bgcolor="lightgreen"><b>DMA Controller</b></td></tr>
+        <tr><td bgcolor="orange"><b>NoC Fabric</b></td></tr>
+        <tr><td bgcolor="wheat"><b>Processing Tiles</b></td></tr>
+        </table>
+    >];
+}
