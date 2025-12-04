@@ -25,83 +25,82 @@ except ImportError:
     qt = None
     print("❌ QuTiP not available — skipping QuTiP-specific benchmarks")
 
-# Note: These modules are placeholders for future quantum engine implementation
-# from quantonium_os_src.engine.vertex_assembly import EntangledVertexEngine
-# from quantonium_os_src.engine.open_quantum_systems import OpenQuantumSystem, NoiseModel
 from tests.proofs.test_entanglement_protocols import BellTestProtocol
+from algorithms.rft.quantum.quantum_gates import RotationGates
+from quantonium_os_src.engine.RFTMW import QuantumEngine
 
-# Stub classes for missing modules
+
 class EntangledVertexEngine:
-    """Placeholder for entangled vertex engine."""
+    """Adapter around the production QuantumEngine for entanglement tests."""
+
     def __init__(self, n_vertices: int = 2, entanglement_enabled: bool = True):
-        """Initialize vertex engine with entanglement support."""
+        if n_vertices < 2:
+            raise ValueError("EntangledVertexEngine requires at least two vertices")
         self.n_vertices = n_vertices
         self.entanglement_enabled = entanglement_enabled
-        self.dim = 2 ** n_vertices  # Hilbert space dimension for n qubits
-    
-    def create_optimal_bell_state(self, vertices: tuple = (0, 1)) -> np.ndarray:
-        """Create maximally entangled Bell state (|00⟩ + |11⟩)/√2 for given vertex pair."""
+        self._engine = QuantumEngine(num_qubits=n_vertices)
+        self._control = 0
+        self._target = 1
+
+    def _ensure_rotation_gate(self, theta: float) -> str:
+        gate_name = f"Ry_{theta:.6f}"
+        if gate_name not in self._engine._gate_cache:
+            self._engine._gate_cache[gate_name] = RotationGates.Ry(theta).matrix
+        return gate_name
+
+    def _current_state(self) -> np.ndarray:
+        return self._engine.get_state()
+
+    def create_optimal_bell_state(self, vertices: tuple[int, int] = (0, 1)) -> np.ndarray:
+        """Create maximally entangled Bell state using real gate operations."""
         if not self.entanglement_enabled:
             raise RuntimeError("Entanglement not enabled")
-        
-        # Create perfect Bell state for 2-qubit system
-        state = np.zeros(self.dim, dtype=complex)
-        state[0] = 1/np.sqrt(2)  # |00⟩ component
-        state[3] = 1/np.sqrt(2)  # |11⟩ component (index 3 = binary 11)
-        return state
-    
+        control, target = vertices
+        if control >= self.n_vertices or target >= self.n_vertices:
+            raise ValueError("Vertex index out of range")
+        self._control, self._target = control, target
+        self._engine.reset()
+        self._engine.apply_gate('H', control)
+        self._engine.apply_gate('CNOT', target, control=control)
+        return self._current_state()
+
     def assemble_entangled_state(self, entanglement_level: float = 1.0) -> np.ndarray:
-        """Assemble entangled state with given entanglement level.
-        
-        Args:
-            entanglement_level: Level of entanglement (0.0 to 1.0)
-                1.0 = maximally entangled Bell state
-                0.0 = separable product state
-        
-        Returns:
-            Complex state vector in computational basis
-        """
+        """Assemble an entangled state by programming the QuantumEngine."""
         if not self.entanglement_enabled:
             raise RuntimeError("Entanglement not enabled")
-        
-        state = np.zeros(self.dim, dtype=complex)
-        
-        if entanglement_level >= 0.99:
-            # Maximally entangled Bell state (|00⟩ + |11⟩)/√2
-            state[0] = 1/np.sqrt(2)  # |00⟩
-            state[3] = 1/np.sqrt(2)  # |11⟩
-        else:
-            # Partially entangled state
-            # |ψ⟩ = cos(θ)|00⟩ + sin(θ)|11⟩ where θ = entanglement_level * π/4
-            theta = entanglement_level * np.pi / 4
-            state[0] = np.cos(theta)
-            state[3] = np.sin(theta)
-            # Normalize
-            state /= np.linalg.norm(state)
-        
-        return state
-    
+
+        level = float(np.clip(entanglement_level, 0.0, 1.0))
+        if np.isclose(level, 1.0, atol=1e-3):
+            return self.create_optimal_bell_state((self._control, self._target))
+
+        self._engine.reset()
+        if level <= 1e-6:
+            return self._current_state()
+
+        theta = level * (np.pi / 2.0)
+        gate_name = self._ensure_rotation_gate(theta)
+        self._engine.apply_gate(gate_name, self._control)
+        self._engine.apply_gate('CNOT', self._target, control=self._control)
+        return self._current_state()
+
     def fidelity_with_qutip(self, state_type: str = "bell") -> float:
-        """Calculate fidelity with ideal QuTiP state.
-        
-        Args:
-            state_type: Type of reference state ("bell", "ghz", etc.)
-        
-        Returns:
-            Fidelity value between 0 and 1
-        """
-        # For the stub, return perfect fidelity for Bell state
-        if state_type == "bell":
-            return 1.0
-        return 0.0
+        """Return fidelity with the requested target state."""
+        if state_type != "bell":
+            raise ValueError(f"Unsupported state_type: {state_type}")
 
-class OpenQuantumSystem:
-    """Placeholder for open quantum system."""
-    pass
+        state = self._current_state()
+        target = np.zeros_like(state, dtype=complex)
+        target[0] = 1 / np.sqrt(2)
+        target[3] = 1 / np.sqrt(2)
 
-class NoiseModel:
-    """Placeholder for noise model."""
-    pass
+        if QUTIP_AVAILABLE and qt is not None:
+            bell = qt.Qobj(target.reshape(-1, 1))
+            current = qt.Qobj(state.reshape(-1, 1))
+            overlap = (bell.dag() * current).full()[0, 0]
+            return float(np.abs(overlap) ** 2)
+
+        overlap = np.vdot(target, state)
+        return float(np.abs(overlap) ** 2)
 
 
 def calculate_chsh_manual(state: np.ndarray) -> float:
