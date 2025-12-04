@@ -16,6 +16,8 @@ from .registry import (
 	generate_original_phi_rft,
 	generate_phi_chaotic_hybrid,
 	generate_adaptive_split_variant,
+	generate_dct_basis,
+	generate_hybrid_dct_rft,
 )
 from .golden_ratio_unitary import GoldenRatioUnitary
 from .symbolic_unitary import SymbolicUnitary
@@ -37,6 +39,8 @@ __all__ = [
 	"generate_convex_mixed_phi_rft",
 	"generate_exact_golden_ratio_unitary",
 	"generate_adaptive_split_variant",
+	"generate_dct_basis",
+	"generate_hybrid_dct_rft",
 	"GoldenRatioUnitary",
 	"SymbolicUnitary",
 	"EntropicUnitary",

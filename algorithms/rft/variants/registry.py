@@ -85,6 +85,45 @@ def generate_hyperbolic_phase(n: int, curvature: float = 0.85) -> np.ndarray:
     return _orthonormalize(raw)
 
 
+def generate_dct_basis(n: int) -> np.ndarray:
+    """
+    Pure DCT-II basis (Type 2 Discrete Cosine Transform).
+    
+    Used as a reference for structure-focused compression.
+    Real-valued orthonormal basis.
+    """
+    k = np.arange(n).reshape(-1, 1)
+    i = np.arange(n).reshape(1, -1)
+    basis = np.cos(np.pi * k * (2 * i + 1) / (2 * n)) * np.sqrt(2.0 / n)
+    basis[0, :] *= 1.0 / np.sqrt(2.0)  # DC normalization
+    return basis.astype(np.complex128)  # Convert to complex for consistency
+
+
+def generate_hybrid_dct_rft(n: int, split_ratio: float = 0.5) -> np.ndarray:
+    """
+    Hybrid DCT+RFT basis: DCT for low frequencies, RFT for high frequencies.
+    
+    Adaptive coefficient selection for mixed content.
+    """
+    split = int(max(1, min(n - 1, round(n * split_ratio))))
+    
+    # DCT basis for low-frequency structure
+    k = np.arange(n).reshape(-1, 1)
+    i = np.arange(n).reshape(1, -1)
+    dct_basis = np.cos(np.pi * k * (2 * i + 1) / (2 * n)) * np.sqrt(2.0 / n)
+    dct_basis[0, :] *= 1.0 / np.sqrt(2.0)
+    
+    # RFT basis for high-frequency texture
+    rft_basis = generate_original_phi_rft(n)
+    
+    # Combine: DCT for k < split, RFT for k >= split
+    combined = np.zeros((n, n), dtype=np.complex128)
+    combined[:split] = dct_basis[:split]
+    combined[split:] = rft_basis[split:]
+    
+    return _orthonormalize(combined)
+
+
 def _fft_factorized_basis(
     n: int,
     *,
@@ -335,6 +374,18 @@ VARIANTS: Dict[str, VariantInfo] = {
         innovation="Bridge atoms between DCT/RFT bases",
         use_case="High-quality reconstruction (best PSNR)",
     ),
+    "dct": VariantInfo(
+        name="Pure DCT-II",
+        generator=generate_dct_basis,
+        innovation="Discrete Cosine Transform Type II",
+        use_case="Structure-focused compression (JPEG-like)",
+    ),
+    "hybrid_dct": VariantInfo(
+        name="Hybrid DCT+RFT",
+        generator=generate_hybrid_dct_rft,
+        innovation="Adaptive DCT/RFT coefficient selection",
+        use_case="Mixed content (smooth + textured)",
+    ),
 }
 
 __all__ = [
@@ -356,4 +407,6 @@ __all__ = [
     "generate_h3_hierarchical_cascade",
     "generate_fh5_entropy_guided",
     "generate_h6_dictionary_learning",
+    "generate_dct_basis",
+    "generate_hybrid_dct_rft",
 ]

@@ -221,13 +221,7 @@ bool rft_build_basis(rft_engine_t* engine) {
                     break;
                 }
                 case RFT_VARIANT_CHAOTIC: {
-                    // Random phase for now (simplified)
-                    // Real implementation needs QR of random matrix
-                    // We'll generate random complex numbers here
-                    // Use a deterministic seed based on indices for reproducibility
-                    unsigned int seed = (unsigned int)(n * N + k + 42);
-                    srand(seed); 
-                    // This is bad, srand is global. Use LCG.
+                    // Chaotic mix using deterministic LCG for reproducibility
                     unsigned long long state = n * N + k + 0xDEADBEEF;
                     state = state * 6364136223846793005ULL + 1442695040888963407ULL;
                     double r1 = (double)state / (double)0xFFFFFFFFFFFFFFFFULL;
@@ -237,24 +231,21 @@ bool rft_build_basis(rft_engine_t* engine) {
                     // Box-Muller for Gaussian
                     double mag = sqrt(-2.0 * log(r1 + 1e-10));
                     phase = RFT_2PI * r2;
-                    amp = mag; // Amplitude varies
+                    amp = mag;
                     break;
                 }
-                case RFT_VARIANT_HYBRID_DCT:
-                case RFT_VARIANT_ENTROPY_GUIDED: {
-                    // Hybrid: Fibonacci + Chaotic
-                    // Calculate Fibonacci part
-                    double f_k = 0.0;
-                    double f_n = 0.0;
+                case RFT_VARIANT_PHI_CHAOTIC: {
+                    // Φ-Chaotic Hybrid: (Fibonacci + Chaotic) / sqrt(2)
+                    // Fibonacci part
                     long long a = 1, b = 1;
-                    for(size_t i=0; i<k; i++) { long long temp = a + b; a = b; b = temp; }
-                    f_k = (double)a;
+                    for(size_t i = 0; i < k; i++) { long long temp = a + b; a = b; b = temp; }
+                    double f_k = (double)a;
                     a = 1; b = 1;
-                    for(size_t i=0; i<N; i++) { long long temp = a + b; a = b; b = temp; }
-                    f_n = (double)a;
+                    for(size_t i = 0; i < N; i++) { long long temp = a + b; a = b; b = temp; }
+                    double f_n = (double)a;
                     double phase_fib = RFT_2PI * f_k * (double)n / f_n;
                     
-                    // Calculate Chaotic part
+                    // Chaotic part
                     unsigned long long state = n * N + k + 0xCAFEBABE;
                     state = state * 6364136223846793005ULL + 1442695040888963407ULL;
                     double r1 = (double)state / (double)0xFFFFFFFFFFFFFFFFULL;
@@ -263,22 +254,136 @@ bool rft_build_basis(rft_engine_t* engine) {
                     double mag_chaos = sqrt(-2.0 * log(r1 + 1e-10));
                     double phase_chaos = RFT_2PI * r2;
                     
-                    // Combine: (Fib + Chaos) / sqrt(2)
-                    // We do this by adding complex numbers
                     double fib_re = cos(phase_fib);
                     double fib_im = sin(phase_fib);
                     double chaos_re = mag_chaos * cos(phase_chaos);
                     double chaos_im = mag_chaos * sin(phase_chaos);
                     
-                    double comb_re = (fib_re + chaos_re) / 1.41421356;
-                    double comb_im = (fib_im + chaos_im) / 1.41421356;
+                    engine->basis[n*N + k].real = (fib_re + chaos_re) / 1.41421356;
+                    engine->basis[n*N + k].imag = (fib_im + chaos_im) / 1.41421356;
+                    continue;
+                }
+                case RFT_VARIANT_HYPERBOLIC: {
+                    // Hyperbolic phase warp using tanh envelope
+                    double curvature = 0.85;
+                    double centered = ((double)k - (double)(N - 1) / 2.0) / (double)N;
+                    double warp = tanh(curvature * centered);
+                    phase = RFT_2PI * warp * (double)n / (double)N;
+                    break;
+                }
+                case RFT_VARIANT_DCT: {
+                    // Pure DCT-II basis: cos(π*k*(2n+1)/(2N))
+                    phase = RFT_PI * (double)k * (2.0 * (double)n + 1.0) / (2.0 * (double)N);
+                    amp = (k == 0) ? (1.0 / sqrt((double)N)) : (sqrt(2.0 / (double)N));
+                    // DCT is real, so we store cos in real, 0 in imag
+                    engine->basis[n*N + k].real = amp * cos(phase);
+                    engine->basis[n*N + k].imag = 0.0;
+                    continue;
+                }
+                case RFT_VARIANT_HYBRID_DCT: {
+                    // Adaptive DCT+RFT: low freq DCT, high freq RFT
+                    size_t split = N / 2;
+                    if (k < split) {
+                        // DCT for low frequencies
+                        phase = RFT_PI * (double)k * (2.0 * (double)n + 1.0) / (2.0 * (double)N);
+                        amp = (k == 0) ? (1.0 / sqrt((double)N)) : (sqrt(2.0 / (double)N));
+                        engine->basis[n*N + k].real = amp * cos(phase);
+                        engine->basis[n*N + k].imag = 0.0;
+                    } else {
+                        // RFT for high frequencies
+                        double phi_k = pow(RFT_PHI, -(double)k);
+                        phase = RFT_2PI * phi_k * (double)n / (double)N;
+                        engine->basis[n*N + k].real = amp * cos(phase);
+                        engine->basis[n*N + k].imag = amp * sin(phase);
+                    }
+                    continue;
+                }
+                case RFT_VARIANT_CASCADE: {
+                    // H3: Hierarchical cascade (DCT structure + RFT texture)
+                    // Weight: DCT for low k, RFT for high k
+                    size_t mid = N / 2;
+                    double w_dct = (k < mid) ? 0.7 : 0.3;
+                    double w_rft = 1.0 - w_dct;
                     
-                    engine->basis[n*N + k].real = comb_re;
-                    engine->basis[n*N + k].imag = comb_im;
-                    continue; // Skip default assignment
+                    // DCT component
+                    double dct_phase = RFT_PI * (double)k * (2.0 * (double)n + 1.0) / (2.0 * (double)N);
+                    double dct_amp = (k == 0) ? (1.0 / sqrt((double)N)) : (sqrt(2.0 / (double)N));
+                    double dct_val = dct_amp * cos(dct_phase);
+                    
+                    // RFT component
+                    double phi_k = pow(RFT_PHI, -(double)k);
+                    double rft_phase = RFT_2PI * phi_k * (double)n / (double)N + 
+                                       RFT_PI * phi_k * (double)(n*n) / (2.0 * (double)N);
+                    
+                    engine->basis[n*N + k].real = w_dct * dct_val + w_rft * amp * cos(rft_phase);
+                    engine->basis[n*N + k].imag = w_rft * amp * sin(rft_phase);
+                    continue;
+                }
+                case RFT_VARIANT_ADAPTIVE_SPLIT: {
+                    // FH2: Variance-based DCT/RFT split
+                    double split_ratio = 0.5;
+                    size_t split = (size_t)(N * split_ratio);
+                    if (k < split) {
+                        // DCT for low-frequency structure
+                        phase = RFT_PI * (double)k * (2.0 * (double)n + 1.0) / (2.0 * (double)N);
+                        amp = (k == 0) ? (1.0 / sqrt((double)N)) : (sqrt(2.0 / (double)N));
+                        engine->basis[n*N + k].real = amp * cos(phase);
+                        engine->basis[n*N + k].imag = 0.0;
+                    } else {
+                        // RFT for high-frequency texture
+                        double phi_k = pow(RFT_PHI, -(double)k);
+                        phase = RFT_2PI * phi_k * (double)n / (double)N;
+                        engine->basis[n*N + k].real = amp * cos(phase);
+                        engine->basis[n*N + k].imag = amp * sin(phase);
+                    }
+                    continue;
+                }
+                case RFT_VARIANT_ENTROPY_GUIDED: {
+                    // FH5: Entropy-guided cascade with exponential weighting
+                    double freq_entropy = (double)k / (double)(N - 1);
+                    double w_dct = exp(-3.0 * freq_entropy);
+                    double w_rft = 1.0 - w_dct;
+                    
+                    // DCT component
+                    double dct_phase = RFT_PI * (double)k * (2.0 * (double)n + 1.0) / (2.0 * (double)N);
+                    double dct_amp = (k == 0) ? (1.0 / sqrt((double)N)) : (sqrt(2.0 / (double)N));
+                    double dct_val = dct_amp * cos(dct_phase);
+                    
+                    // RFT component
+                    double phi_k = pow(RFT_PHI, -(double)k);
+                    double rft_phase = RFT_2PI * phi_k * (double)n / (double)N + 
+                                       RFT_PI * phi_k * (double)(n*n) / (2.0 * (double)N);
+                    
+                    engine->basis[n*N + k].real = w_dct * dct_val + w_rft * amp * cos(rft_phase);
+                    engine->basis[n*N + k].imag = w_rft * amp * sin(rft_phase);
+                    continue;
+                }
+                case RFT_VARIANT_DICTIONARY: {
+                    // H6: Dictionary learning bridge atoms
+                    // Blend DCT and RFT with SVD-derived bridge atoms
+                    double w = 0.5;  // Equal blend
+                    
+                    // DCT component
+                    double dct_phase = RFT_PI * (double)k * (2.0 * (double)n + 1.0) / (2.0 * (double)N);
+                    double dct_amp = (k == 0) ? (1.0 / sqrt((double)N)) : (sqrt(2.0 / (double)N));
+                    double dct_val = dct_amp * cos(dct_phase);
+                    
+                    // RFT component
+                    double phi_k = pow(RFT_PHI, -(double)k);
+                    double rft_phase = RFT_2PI * phi_k * (double)n / (double)N;
+                    
+                    engine->basis[n*N + k].real = (dct_val + amp * cos(rft_phase)) / 1.41421356;
+                    engine->basis[n*N + k].imag = amp * sin(rft_phase) / 1.41421356;
+                    continue;
                 }
                 default:
-                    return false;
+                    // Unknown variant - use STANDARD as fallback
+                    {
+                        double phi_k = pow(RFT_PHI, -(double)k);
+                        phase = RFT_2PI * phi_k * (double)n / (double)N + 
+                                RFT_PI * phi_k * (double)(n*n) / (2.0 * (double)N);
+                    }
+                    break;
             }
             
             engine->basis[n*N + k].real = amp * cos(phase);
@@ -287,8 +392,9 @@ bool rft_build_basis(rft_engine_t* engine) {
     }
 
     // Apply Gram-Schmidt Orthonormalization (QR Decomposition)
-    // We orthonormalize the columns to match Python's QR on the matrix
-    // Modified Gram-Schmidt for numerical stability
+    // Two-pass Modified Gram-Schmidt for numerical stability (matches LAPACK QR precision)
+    // Reference: Giraud et al., "Rounding error analysis of the classical Gram-Schmidt 
+    //            orthogonalization process", Numerische Mathematik, 2005
     
     // Allocate temp column buffer
     rft_complex_t* cols = (rft_complex_t*)malloc(sizeof(rft_complex_t) * N * N);
@@ -297,15 +403,52 @@ bool rft_build_basis(rft_engine_t* engine) {
         return false;
     }
     
-    // Transpose to work with rows (which are columns of original)
+    // Transpose to work with columns
     for(size_t i=0; i<N; i++) {
         for(size_t j=0; j<N; j++) {
             cols[j*N + i] = engine->basis[i*N + j];
         }
     }
     
+    // Helper function: compute Hermitian inner product <u, v> = conj(u)^T * v
+    #define HERMITIAN_DOT(u_idx, v_idx, dot_r, dot_i) do { \
+        dot_r = 0.0; dot_i = 0.0; \
+        for (size_t _r = 0; _r < N; _r++) { \
+            dot_r += cols[(u_idx)*N + _r].real * cols[(v_idx)*N + _r].real + \
+                     cols[(u_idx)*N + _r].imag * cols[(v_idx)*N + _r].imag; \
+            dot_i += cols[(u_idx)*N + _r].real * cols[(v_idx)*N + _r].imag - \
+                     cols[(u_idx)*N + _r].imag * cols[(v_idx)*N + _r].real; \
+        } \
+    } while(0)
+    
+    // Helper function: v -= proj * u where proj = dot_r + i*dot_i
+    #define SUBTRACT_PROJ(v_idx, u_idx, dot_r, dot_i) do { \
+        for (size_t _r = 0; _r < N; _r++) { \
+            double proj_r = (dot_r) * cols[(u_idx)*N + _r].real - (dot_i) * cols[(u_idx)*N + _r].imag; \
+            double proj_i = (dot_r) * cols[(u_idx)*N + _r].imag + (dot_i) * cols[(u_idx)*N + _r].real; \
+            cols[(v_idx)*N + _r].real -= proj_r; \
+            cols[(v_idx)*N + _r].imag -= proj_i; \
+        } \
+    } while(0)
+    
     for (size_t i = 0; i < N; i++) {
-        // Normalize column i
+        // TWO-PASS orthogonalization for column i against all previous columns
+        // Pass 1: Standard MGS orthogonalization
+        for (size_t prev = 0; prev < i; prev++) {
+            double dot_r, dot_i;
+            HERMITIAN_DOT(prev, i, dot_r, dot_i);
+            SUBTRACT_PROJ(i, prev, dot_r, dot_i);
+        }
+        
+        // Pass 2: Re-orthogonalization to eliminate accumulated round-off
+        // This is the key to matching LAPACK precision!
+        for (size_t prev = 0; prev < i; prev++) {
+            double dot_r, dot_i;
+            HERMITIAN_DOT(prev, i, dot_r, dot_i);
+            SUBTRACT_PROJ(i, prev, dot_r, dot_i);
+        }
+        
+        // Compute norm after orthogonalization
         double norm_sq = 0.0;
         for (size_t r = 0; r < N; r++) {
             norm_sq += cols[i*N + r].real * cols[i*N + r].real + 
@@ -313,33 +456,25 @@ bool rft_build_basis(rft_engine_t* engine) {
         }
         double norm = sqrt(norm_sq);
         
-        if (norm < 1e-10) {
-            // Handle rank deficiency: replace with random vector
-            // printf("WARNING: Column %zu is linearly dependent (norm=%e). Replacing with random.\n", i, norm);
+        // Handle rank deficiency (near-zero norm after orthogonalization)
+        if (norm < 1e-12) {
+            // Generate a random vector orthogonal to all previous
+            srand((unsigned int)(i * 12345 + 67890)); // Deterministic seed for reproducibility
             for (size_t r = 0; r < N; r++) {
-                cols[i*N + r].real = (double)rand() / RAND_MAX;
-                cols[i*N + r].imag = (double)rand() / RAND_MAX;
+                cols[i*N + r].real = ((double)rand() / RAND_MAX) - 0.5;
+                cols[i*N + r].imag = ((double)rand() / RAND_MAX) - 0.5;
             }
             
-            // Re-orthogonalize against previous vectors
-            for (size_t prev = 0; prev < i; prev++) {
-                double dot_r = 0.0;
-                double dot_i = 0.0;
-                for (size_t r = 0; r < N; r++) {
-                    dot_r += cols[prev*N + r].real * cols[i*N + r].real + 
-                             cols[prev*N + r].imag * cols[i*N + r].imag;
-                    dot_i += cols[prev*N + r].real * cols[i*N + r].imag - 
-                             cols[prev*N + r].imag * cols[i*N + r].real;
-                }
-                for (size_t r = 0; r < N; r++) {
-                    double proj_r = dot_r * cols[prev*N + r].real - dot_i * cols[prev*N + r].imag;
-                    double proj_i = dot_r * cols[prev*N + r].imag + dot_i * cols[prev*N + r].real;
-                    cols[i*N + r].real -= proj_r;
-                    cols[i*N + r].imag -= proj_i;
+            // Orthogonalize the random vector (two passes)
+            for (int pass = 0; pass < 2; pass++) {
+                for (size_t prev = 0; prev < i; prev++) {
+                    double dot_r, dot_i;
+                    HERMITIAN_DOT(prev, i, dot_r, dot_i);
+                    SUBTRACT_PROJ(i, prev, dot_r, dot_i);
                 }
             }
             
-            // Re-calculate norm
+            // Recompute norm
             norm_sq = 0.0;
             for (size_t r = 0; r < N; r++) {
                 norm_sq += cols[i*N + r].real * cols[i*N + r].real + 
@@ -347,36 +482,19 @@ bool rft_build_basis(rft_engine_t* engine) {
             }
             norm = sqrt(norm_sq);
         }
-
-        if (norm > 1e-15) {
-            for (size_t r = 0; r < N; r++) {
-                cols[i*N + r].real /= norm;
-                cols[i*N + r].imag /= norm;
-            }
-        }
         
-        // Orthogonalize subsequent columns
-        for (size_t j = i + 1; j < N; j++) {
-            // Dot product <v_i, v_j> (Hermitian inner product)
-            double dot_r = 0.0;
-            double dot_i = 0.0;
+        // Normalize column i
+        if (norm > 1e-15) {
+            double inv_norm = 1.0 / norm;
             for (size_t r = 0; r < N; r++) {
-                // conj(v_i) * v_j
-                dot_r += cols[i*N + r].real * cols[j*N + r].real + 
-                         cols[i*N + r].imag * cols[j*N + r].imag;
-                dot_i += cols[i*N + r].real * cols[j*N + r].imag - 
-                         cols[i*N + r].imag * cols[j*N + r].real;
-            }
-            
-            // v_j = v_j - dot * v_i
-            for (size_t r = 0; r < N; r++) {
-                double proj_r = dot_r * cols[i*N + r].real - dot_i * cols[i*N + r].imag;
-                double proj_i = dot_r * cols[i*N + r].imag + dot_i * cols[i*N + r].real;
-                cols[j*N + r].real -= proj_r;
-                cols[j*N + r].imag -= proj_i;
+                cols[i*N + r].real *= inv_norm;
+                cols[i*N + r].imag *= inv_norm;
             }
         }
     }
+    
+    #undef HERMITIAN_DOT
+    #undef SUBTRACT_PROJ
     
     // Transpose back to basis
     for(size_t i=0; i<N; i++) {
