@@ -146,3 +146,4 @@ quantonium-mobile/.expo/
 *.dylib
 algorithms/rft/kernels/compiled/
 
+hardware/tb/obj_phi_rft/

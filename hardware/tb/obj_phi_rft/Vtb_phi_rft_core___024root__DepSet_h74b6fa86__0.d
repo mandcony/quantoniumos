@@ -1,3 +1,0 @@
-Vtb_phi_rft_core___024root__DepSet_h74b6fa86__0.o: \
- Vtb_phi_rft_core___024root__DepSet_h74b6fa86__0.cpp \
- Vtb_phi_rft_core__pch.h Vtb_phi_rft_core___024root.h
