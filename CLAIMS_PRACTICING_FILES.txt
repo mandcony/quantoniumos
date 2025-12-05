@@ -77,10 +77,23 @@ algorithms/rft/kernels/unified/python_bindings/unified_orchestrator.py
 
 # --- Hardware implementations practicing claims ---
 hardware/fpga_top.sv
-hardware/makerchip_rft_closed_form.tlv
 hardware/quantoniumos_unified_engines.sv
 hardware/rft_middleware_engine.sv
 hardware/quantoniumos_unified_engines_synthesis.tcl
+hardware/rftpu_architecture.tlv
+hardware/tb_quantoniumos_unified.sv
+hardware/tb_rft_middleware.sv
+hardware/tb/tb_rftpu_accelerator.sv
+hardware/tb/tb_phi_rft_core_enhanced.sv
+hardware/tb/rftpu_formal_props.sv
+hardware/rftpu_chip_layout.svg
+hardware/PHYSICAL_DESIGN_SPEC.md
+hardware/rftpu-3d-viewer/src/RFTPU3DChipDissect.jsx
+hardware/rftpu-3d-viewer/src/main.jsx
+hardware/rftpu-3d-viewer/src/index.css
+hardware/rftpu-3d-viewer/index.html
+hardware/rftpu-3d-viewer/vite.config.js
+hardware/rftpu-3d-viewer/package.json
 
 # --- Verification Scripts (Irrevocable Truths) ---
 scripts/irrevocable_truths.py
