@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/variants/manifest.py
-# hypothesis_version: 6.148.5
-
-['ADAPTIVE_SPLIT', 'CASCADE', 'CHAOTIC', 'CONVEX_MIX', 'DICTIONARY', 'ENTROPY_GUIDED', 'FIBONACCI', 'GEOMETRIC', 'GOLDEN_EXACT', 'HARMONIC', 'HYPERBOLIC', 'LOG_PERIODIC', 'PHI_CHAOTIC', 'RFT_VARIANT_CASCADE', 'RFT_VARIANT_CHAOTIC', 'RFT_VARIANT_HARMONIC', 'RFT_VARIANT_STANDARD', 'STANDARD', 'VARIANT_MANIFEST', 'VariantEntry', 'adaptive_split', 'chaotic_mix', 'convex_mix', 'fh5_entropy', 'fibonacci_tilt', 'geometric_lattice', 'get_variant_codes', 'golden_ratio_exact', 'h3_cascade', 'h6_dictionary', 'harmonic_phase', 'hyperbolic_phase', 'iter_variants', 'log_periodic', 'original', 'phi_chaotic_hybrid']

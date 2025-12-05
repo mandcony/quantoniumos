@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/hybrids/cascade_hybrids.py
-# hypothesis_version: 6.148.5
-
-[0.0, 1e-10, 0.25, 0.95, 2.0, 100, 1000, 'CascadeResult', 'FH5EntropyGuided', 'FH5_Entropy_Guided', 'H6DictionaryLearning', 'create_cascade', 'fh5', 'h3', 'h6', 'ortho', 'same']

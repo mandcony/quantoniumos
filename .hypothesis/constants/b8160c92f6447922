@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/hybrids/rft_hybrid_codec.py
-# hypothesis_version: 6.148.5
-
-[0.0, 1e-12, 1.0, 2.0, 'RFTHybridCodec', 'amp_codes', 'amp_scale', 'ascii', 'bands', 'bitrate_coeff', 'bits', 'bpp', 'codec', 'coefficients', 'coefficients_dtype', 'coefficients_shape', 'coherence', 'compressed', 'decode_tensor_hybrid', 'dtype', 'encode_tensor_hybrid', 'end', 'f', 'fh5_entropy', 'h3_cascade', 'h6_dictionary', 'hybrid', 'id', 'indices', 'kept_coeff', 'legacy', 'levels', 'max', 'min', 'mode', 'numel', 'original_length', 'original_shape', 'partition_bands', 'payload', 'phase_codes', 'phase_scale', 'prune_threshold', 'psnr', 'quant_amp_bits', 'quant_phase_bits', 'rft_cascade_tensor', 'rft_hybrid_tensor', 'sparsity', 'start', 'tensor', 'time_ms', 'total_coeff', 'type', 'variant', 'version']
