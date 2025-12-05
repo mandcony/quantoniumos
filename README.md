@@ -22,27 +22,27 @@
 
 ---
 
-## 📊 Current Status (Phase 4)
+## Current Status (Phase 4)
 
 **December 3, 2025** - Production Optimization Phase  
-- ✅ Core RFT: 39/39 tests passing (100%)  
-- ✅ Hybrid Codecs: 16/17 working (94%)  
-- 🔄 Performance Optimization: H1 (146ms→<10ms target), H10 (16ms→<5ms target)  
-- 📚 Documentation: Generating Sphinx API docs  
+- Core RFT: 39/39 tests passing (100%)  
+- Hybrid Codecs: 16/17 working (94%)  
+- Performance Optimization: H1 (146ms→<10ms target), H10 (16ms→<5ms target)  
+- Documentation: Generating Sphinx API docs  
 
 See `PHASE4_PLAN.md` for detailed roadmap.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 **New here?** → **[GETTING_STARTED.md](GETTING_STARTED.md)** (your first steps)
 
 **Documentation:**
-- 📖 **[GETTING_STARTED.md](GETTING_STARTED.md)** - First steps, examples, learning path
-- 🔧 **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Installation, troubleshooting, verification
-- 🏗️ **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Technical deep dive (ASM → C → C++ → Python)
-- 📋 **[docs/ARCHITECTURE_QUICKREF.md](docs/ARCHITECTURE_QUICKREF.md)** - One-page cheat sheet
+- **[GETTING_STARTED.md](GETTING_STARTED.md)** - First steps, examples, learning path
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Installation, troubleshooting, verification
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Technical deep dive (ASM → C → C++ → Python)
+- **[docs/ARCHITECTURE_QUICKREF.md](docs/ARCHITECTURE_QUICKREF.md)** - One-page cheat sheet
 
 **Quick installation:**
 ```bash
@@ -72,18 +72,6 @@ cp rftmw_native.cpython-*-linux-gnu.so ../../../.venv/lib/python3.12/site-packag
 ```bash
 ./verify_setup.sh  # Automated health check
 ```
-
----
-
-## 📊 Current Status (Phase 4)
-
-**December 3, 2025** - Production Optimization Phase  
-- ✅ Core RFT: 39/39 tests passing (100%)  
-- ✅ Hybrid Codecs: 16/17 working (94%)  
-- 🔄 Performance Optimization: H1 (146ms→<10ms target), H10 (16ms→<5ms target)  
-- 📚 Documentation: Generating Sphinx API docs  
-
-See `PHASE4_PLAN.md` for detailed roadmap.
 
 ---
 
@@ -157,7 +145,7 @@ python experiments/ascii_wall_paper.py
 *   **Quantum Scaling:** QSC compresses symbolic qubit configurations at O(n) complexity, reaching 10M+ labels at ~20 M/s. (Note: This compresses labels/configurations, not 2^n quantum amplitudes like Qiskit/Cirq.)
 *   **Hybrid Status:** 14/16 hybrids working (H2, H10 have minor bugs).
 
-**⚠️ Important Disclaimers:**
+**Important Disclaimers:**
 - **Crypto:** All cryptographic constructions are **experimental** with no hardness proofs or third-party cryptanalysis. NOT production-ready.
 - **Compression:** Does NOT beat entropy bounds. Competitive with classical transform codecs, not a "breakthrough."
 - **Quantum:** This is classical signal processing. "Symbolic qubit" representations are compressed encodings, not quantum computation.
@@ -192,7 +180,7 @@ QuantoniumOS/
 │  ├─ rft/core/
 │  │  ├─ canonical_true_rft.py     # Reference Φ-RFT (claims-practicing)
 │  │  ├─ closed_form_rft.py        # Original implementation
-│  │  └─ rft_optimized.py          # Optimized fused-diagonal RFT ⚡
+│  │  └─ rft_optimized.py          # Optimized fused-diagonal RFT
 │  ├─ compression/                 # Lossless & hybrid codecs
 │  └─ crypto/                      # RFT–SIS experiments & validators
 ├─ hardware/
@@ -209,7 +197,7 @@ QuantoniumOS/
 ├─ src/
 │  ├─ rftmw_native/
 │  │  ├─ rftmw_core.hpp            # C++ RFT engine
-│  │  ├─ rft_fused_kernel.hpp      # AVX2/AVX512 SIMD kernels ⚡
+│  │  ├─ rft_fused_kernel.hpp      # AVX2/AVX512 SIMD kernels
 │  │  └─ rftmw_python.cpp          # pybind11 bindings
 │  └─ apps/
 │     ├─ quantsounddesign/         # Φ-RFT Sound Design Studio
