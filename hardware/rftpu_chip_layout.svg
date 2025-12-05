@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" width="1200" height="1000">
+  <defs>
+    <linearGradient id="tileGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a2332;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f1419;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="coreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00e5b8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00a080;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="nocGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a9eff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d7dd2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dmaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d44d7a;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1a2332" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0a0e14"/>
+  <rect width="100%" height="100%" fill="url(#gridPattern)" opacity="0.5"/>
+  
+  <!-- Main chip boundary -->
+  <rect x="100" y="120" width="900" height="780" rx="12" fill="none" stroke="#00d4aa" stroke-width="4" stroke-dasharray="12,6" opacity="0.6"/>
+  
+  <!-- Title -->
+  <text x="600" y="60" font-family="Consolas, monospace" font-size="28" fill="#00d4aa" text-anchor="middle" font-weight="bold">
+    RFTPU ACCELERATOR — 64-TILE MESH ARCHITECTURE
+  </text>
+  <text x="600" y="90" font-family="Consolas, monospace" font-size="14" fill="#7d8590" text-anchor="middle">
+    Resonant Fourier Transform Processing Unit • USPTO Application #19/169,399 • QuantoniumOS
+  </text>
+  
+  <!-- NoC Mesh horizontal lines -->
+  <g stroke="#4a9eff" stroke-width="2" opacity="0.5">
+    <!-- Row 0 -->
+    <line x1="264" y1="213" x2="880" y2="213"/>
+    <!-- Row 1 -->
+    <line x1="264" y1="293" x2="880" y2="293"/>
+    <!-- Row 2 -->
+    <line x1="264" y1="373" x2="880" y2="373"/>
+    <!-- Row 3 -->
+    <line x1="264" y1="453" x2="880" y2="453"/>
+    <!-- Row 4 -->
+    <line x1="264" y1="533" x2="880" y2="533"/>
+    <!-- Row 5 -->
+    <line x1="264" y1="613" x2="880" y2="613"/>
+    <!-- Row 6 -->
+    <line x1="264" y1="693" x2="880" y2="693"/>
+    <!-- Row 7 -->
+    <line x1="264" y1="773" x2="880" y2="773"/>
+  </g>
+  
+  <!-- NoC Mesh vertical lines -->
+  <g stroke="#4a9eff" stroke-width="2" opacity="0.5">
+    <!-- Col 0-7 -->
+    <line x1="220" y1="256" x2="220" y2="816"/>
+    <line x1="308" y1="256" x2="308" y2="816"/>
+    <line x1="396" y1="256" x2="396" y2="816"/>
+    <line x1="484" y1="256" x2="484" y2="816"/>
+    <line x1="572" y1="256" x2="572" y2="816"/>
+    <line x1="660" y1="256" x2="660" y2="816"/>
+    <line x1="748" y1="256" x2="748" y2="816"/>
+    <line x1="836" y1="256" x2="836" y2="816"/>
+  </g>
+  
+  <!-- Generate 64 tiles (8x8 grid) -->
+  <!-- Row 0 -->
+  <g transform="translate(176, 170)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <text x="26" y="30" font-family="Consolas, monospace" font-size="9" fill="#0a0e14" text-anchor="middle" font-weight="bold">Φ-RFT</text>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <text x="66" y="17" font-family="Consolas, monospace" font-size="7" fill="#0a0e14" text-anchor="middle">SCR</text>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <text x="66" y="35" font-family="Consolas, monospace" font-size="7" fill="#0a0e14" text-anchor="middle">TOPO</text>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="68" font-family="Consolas, monospace" font-size="10" fill="#0a0e14" text-anchor="middle" font-weight="bold">NoC RTR</text>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[0,0]</text>
+  </g>
+  
+  <g transform="translate(264, 170)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <text x="26" y="30" font-family="Consolas, monospace" font-size="9" fill="#0a0e14" text-anchor="middle" font-weight="bold">Φ-RFT</text>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[1,0]</text>
+  </g>
+  
+  <g transform="translate(352, 170)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[2,0]</text>
+  </g>
+  
+  <g transform="translate(440, 170)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[3,0]</text>
+  </g>
+  
+  <g transform="translate(528, 170)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[4,0]</text>
+  </g>
+  
+  <g transform="translate(616, 170)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[5,0]</text>
+  </g>
+  
+  <g transform="translate(704, 170)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[6,0]</text>
+  </g>
+  
+  <g transform="translate(792, 170)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[7,0]</text>
+  </g>
+  
+  <!-- Row 1-7 (simplified - showing representative tiles) -->
+  <!-- Row 1 -->
+  <g transform="translate(176, 258)">
+    <rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d" stroke-width="1"/>
+    <rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/>
+    <rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/>
+    <rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/>
+    <rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/>
+    <text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[0,1]</text>
+  </g>
+  
+  <g transform="translate(264, 258)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(352, 258)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(440, 258)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(528, 258)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(616, 258)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(704, 258)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(792, 258)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  
+  <!-- Row 2 -->
+  <g transform="translate(176, 346)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/><text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[0,2]</text></g>
+  <g transform="translate(264, 346)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(352, 346)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(440, 346)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(528, 346)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(616, 346)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(704, 346)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(792, 346)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  
+  <!-- Row 3 -->
+  <g transform="translate(176, 434)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/><text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[0,3]</text></g>
+  <g transform="translate(264, 434)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(352, 434)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(440, 434)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(528, 434)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(616, 434)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(704, 434)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(792, 434)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  
+  <!-- Row 4 -->
+  <g transform="translate(176, 522)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/><text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[0,4]</text></g>
+  <g transform="translate(264, 522)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(352, 522)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(440, 522)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(528, 522)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(616, 522)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(704, 522)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(792, 522)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  
+  <!-- Row 5 -->
+  <g transform="translate(176, 610)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/><text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[0,5]</text></g>
+  <g transform="translate(264, 610)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(352, 610)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(440, 610)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(528, 610)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(616, 610)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(704, 610)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(792, 610)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  
+  <!-- Row 6 -->
+  <g transform="translate(176, 698)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/><text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[0,6]</text></g>
+  <g transform="translate(264, 698)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(352, 698)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(440, 698)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(528, 698)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(616, 698)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(704, 698)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(792, 698)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  
+  <!-- Row 7 -->
+  <g transform="translate(176, 786)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/><text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[0,7]</text></g>
+  <g transform="translate(264, 786)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(352, 786)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(440, 786)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(528, 786)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(616, 786)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(704, 786)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/></g>
+  <g transform="translate(792, 786)"><rect width="88" height="86" rx="6" fill="url(#tileGrad)" stroke="#30363d"/><rect x="6" y="6" width="40" height="36" rx="3" fill="url(#coreGrad)"/><rect x="50" y="6" width="32" height="16" rx="2" fill="#4a9eff" opacity="0.8"/><rect x="50" y="24" width="32" height="16" rx="2" fill="#ff6b9d" opacity="0.8"/><rect x="6" y="46" width="76" height="34" rx="3" fill="#2ea043" opacity="0.9"/><text x="44" y="-6" font-family="Consolas, monospace" font-size="9" fill="#7d8590" text-anchor="middle">[7,7]</text></g>
+  
+  <!-- DMA Ingress -->
+  <g>
+    <rect x="110" y="250" width="56" height="480" rx="6" fill="url(#dmaGrad)"/>
+    <text x="138" y="500" font-family="Consolas, monospace" font-size="14" fill="#0a0e14" text-anchor="middle" font-weight="bold" transform="rotate(-90, 138, 490)">DMA INGRESS</text>
+  </g>
+  
+  <!-- Config Interface -->
+  <g>
+    <rect x="920" y="150" width="70" height="280" rx="6" fill="#ffd93d"/>
+    <text x="955" y="190" font-family="Consolas, monospace" font-size="12" fill="#0a0e14" text-anchor="middle" font-weight="bold">CONFIG</text>
+    <rect x="928" y="210" width="54" height="30" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="230" font-family="Consolas, monospace" font-size="8" fill="#0a0e14" text-anchor="middle">tile_ctrl</text>
+    <rect x="928" y="250" width="54" height="30" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="270" font-family="Consolas, monospace" font-size="8" fill="#0a0e14" text-anchor="middle">cascade</text>
+    <rect x="928" y="290" width="54" height="30" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="310" font-family="Consolas, monospace" font-size="8" fill="#0a0e14" text-anchor="middle">H³ route</text>
+    <rect x="928" y="330" width="54" height="30" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="350" font-family="Consolas, monospace" font-size="8" fill="#0a0e14" text-anchor="middle">mode[3:0]</text>
+    <rect x="928" y="370" width="54" height="30" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="390" font-family="Consolas, monospace" font-size="8" fill="#0a0e14" text-anchor="middle">length</text>
+  </g>
+  
+  <!-- Status/IRQ Interface -->
+  <g>
+    <rect x="920" y="450" width="70" height="200" rx="6" fill="#ff7b72"/>
+    <text x="955" y="485" font-family="Consolas, monospace" font-size="12" fill="#0a0e14" text-anchor="middle" font-weight="bold">STATUS</text>
+    <rect x="928" y="500" width="54" height="25" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="517" font-family="Consolas, monospace" font-size="7" fill="#0a0e14" text-anchor="middle">done_bmap</text>
+    <rect x="928" y="530" width="54" height="25" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="547" font-family="Consolas, monospace" font-size="7" fill="#0a0e14" text-anchor="middle">busy_bmap</text>
+    <rect x="928" y="560" width="54" height="25" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="577" font-family="Consolas, monospace" font-size="7" fill="#0a0e14" text-anchor="middle">irq_done</text>
+    <rect x="928" y="590" width="54" height="25" rx="3" fill="#0a0e14" opacity="0.3"/>
+    <text x="955" y="607" font-family="Consolas, monospace" font-size="7" fill="#0a0e14" text-anchor="middle">irq_error</text>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(1010, 150)">
+    <text x="0" y="0" font-family="Consolas, monospace" font-size="11" fill="#7d8590" font-weight="bold">LEGEND</text>
+    <rect x="0" y="15" width="16" height="12" rx="2" fill="#00d4aa"/>
+    <text x="22" y="25" font-family="Consolas, monospace" font-size="9" fill="#e6edf3">Φ-RFT Core</text>
+    <rect x="0" y="35" width="16" height="12" rx="2" fill="#4a9eff"/>
+    <text x="22" y="45" font-family="Consolas, monospace" font-size="9" fill="#e6edf3">Scratchpad</text>
+    <rect x="0" y="55" width="16" height="12" rx="2" fill="#ff6b9d"/>
+    <text x="22" y="65" font-family="Consolas, monospace" font-size="9" fill="#e6edf3">Topo Memory</text>
+    <rect x="0" y="75" width="16" height="12" rx="2" fill="#2ea043"/>
+    <text x="22" y="85" font-family="Consolas, monospace" font-size="9" fill="#e6edf3">NoC Router</text>
+    <rect x="0" y="95" width="16" height="12" rx="2" fill="#ffd93d"/>
+    <text x="22" y="105" font-family="Consolas, monospace" font-size="9" fill="#e6edf3">Config I/F</text>
+    <rect x="0" y="115" width="16" height="12" rx="2" fill="#ff7b72"/>
+    <text x="22" y="125" font-family="Consolas, monospace" font-size="9" fill="#e6edf3">Status/IRQ</text>
+  </g>
+  
+  <!-- Architecture Specs -->
+  <g transform="translate(1010, 320)">
+    <text x="0" y="0" font-family="Consolas, monospace" font-size="11" fill="#7d8590" font-weight="bold">SPECS</text>
+    <text x="0" y="20" font-family="Consolas, monospace" font-size="9" fill="#7d8590">Tiles: <tspan fill="#e6edf3">64 (8×8)</tspan></text>
+    <text x="0" y="35" font-family="Consolas, monospace" font-size="9" fill="#7d8590">Sample: <tspan fill="#e6edf3">128-bit</tspan></text>
+    <text x="0" y="50" font-family="Consolas, monospace" font-size="9" fill="#7d8590">Digest: <tspan fill="#e6edf3">256-bit</tspan></text>
+    <text x="0" y="65" font-family="Consolas, monospace" font-size="9" fill="#7d8590">Latency: <tspan fill="#e6edf3">12 cyc</tspan></text>
+    <text x="0" y="80" font-family="Consolas, monospace" font-size="9" fill="#7d8590">Hop: <tspan fill="#e6edf3">2 cyc</tspan></text>
+    <text x="0" y="95" font-family="Consolas, monospace" font-size="9" fill="#7d8590">Inflight: <tspan fill="#e6edf3">64 max</tspan></text>
+    <text x="0" y="110" font-family="Consolas, monospace" font-size="9" fill="#7d8590">SCR: <tspan fill="#e6edf3">64 ent</tspan></text>
+    <text x="0" y="125" font-family="Consolas, monospace" font-size="9" fill="#7d8590">TOPO: <tspan fill="#e6edf3">64 ent</tspan></text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="600" y="960" font-family="Consolas, monospace" font-size="11" fill="#7d8590" text-anchor="middle">
+    8×8 WORMHOLE NoC MESH • 64 Φ-RFT PROCESSING TILES • 256-BIT SIS DIGEST PIPELINE
+  </text>
+  <text x="600" y="980" font-family="Consolas, monospace" font-size="10" fill="#4a5568" text-anchor="middle">
+    © 2025 Luis M. Minier / QuantoniumOS • USPTO Application #19/169,399
+  </text>
+</svg>

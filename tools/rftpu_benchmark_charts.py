@@ -124,9 +124,8 @@ def create_fpga_comparison_chart():
                'Intel\nAgilex F', 'Intel\nAgilex M']
     gops = [2386.4, 439.6, 942.0, 628.0, 1208.9]
     efficiency = [291.0, 5.9, 9.4, 7.4, 10.1]
-    price = [150, 15000, 25000, 18000, 35000]
     
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     
     colors = ['#e74c3c', '#3498db', '#9b59b6', '#1abc9c', '#f39c12']
     
@@ -145,14 +144,6 @@ def create_fpga_comparison_chart():
     axes[1].axvline(x=efficiency[0], color='#e74c3c', linestyle='--', alpha=0.5)
     for i, v in enumerate(efficiency):
         axes[1].text(v + 5, i, f'{v:.1f}', va='center', fontsize=10)
-    
-    # Price/Performance
-    perf_per_dollar = [g/p * 1000 for g, p in zip(gops, price)]  # GOPS per $1000
-    axes[2].barh(targets, perf_per_dollar, color=colors)
-    axes[2].set_xlabel('GOPS per $1000', fontsize=12)
-    axes[2].set_title('Price/Performance', fontsize=13, fontweight='bold')
-    for i, v in enumerate(perf_per_dollar):
-        axes[2].text(v + 0.2, i, f'{v:.1f}', va='center', fontsize=10)
     
     plt.suptitle('RFTPU ASIC vs FPGA Comparison', fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()

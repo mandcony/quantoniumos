@@ -1,7 +1,8 @@
 # QuantoniumOS: Quantum-Inspired Research Operating System
 
 [![RFT Framework DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17712905.svg)](https://doi.org/10.5281/zenodo.17712905)
-[![Coherence Paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://zenodo.org/records/17726611)
+[![Coherence Paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
+[![RFTPU Chip Papers DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17822056.svg)](https://doi.org/10.5281/zenodo.17822056)
 [![TechRxiv DOI](https://img.shields.io/badge/DOI-10.36227%2Ftechrxiv.175384307.75693850%2Fv1-8A2BE2.svg)](https://doi.org/10.36227/techrxiv.175384307.75693850/v1)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
 [![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-red.svg)](LICENSE-CLAIMS-NC.md)
@@ -194,6 +195,17 @@ QuantoniumOS/
 │  │  └─ rft_optimized.py          # Optimized fused-diagonal RFT ⚡
 │  ├─ compression/                 # Lossless & hybrid codecs
 │  └─ crypto/                      # RFT–SIS experiments & validators
+├─ hardware/
+│  ├─ rftpu_architecture.tlv       # 64-tile RFTPU TL-Verilog (Makerchip)
+│  ├─ quantoniumos_unified_engines.sv  # Unified RTL (RFT+SIS+Feistel)
+│  ├─ rftpu-3d-viewer/             # React + Three.js chip visualizer
+│  │  ├─ src/RFTPU3DChipDissect.jsx  # 3D chip component
+│  │  └─ package.json              # npm run dev
+│  ├─ tb/                          # Testbenches & formal props
+│  │  ├─ tb_rftpu_accelerator.sv   # Main accelerator testbench
+│  │  └─ rftpu_formal_props.sv     # SVA formal verification
+│  ├─ PHYSICAL_DESIGN_SPEC.md      # TSMC N7FF design spec
+│  └─ HW_TEST_RESULTS.md           # Simulation results
 ├─ src/
 │  ├─ rftmw_native/
 │  │  ├─ rftmw_core.hpp            # C++ RFT engine
@@ -280,6 +292,121 @@ python quantonium_os_src/frontend/quantonium_desktop.py
 # Standalone
 python -c "from src.apps.quantsounddesign.gui import QuantSoundDesign; from PyQt5.QtWidgets import QApplication; import sys; app = QApplication(sys.argv); w = QuantSoundDesign(); w.show(); app.exec_()"
 ```
+
+---
+
+## RFTPU: Hardware Accelerator Architecture
+
+**RFTPU** (Resonant Fourier Transform Processing Unit) is a synthesizable 64-tile hardware accelerator that implements the Φ-RFT transform in silicon. The architecture is defined in TL-Verilog for Makerchip simulation and includes a cycle-accurate NoC fabric.
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         RFTPU ACCELERATOR (TSMC N7FF)                       │
+│                           8×8 Tile Array = 64 Tiles                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐          │
+│  │ T00 │ │ T01 │ │ T02 │ │ T03 │ │ T04 │ │ T05 │ │ T06 │ │ T07 │  Row 0   │
+│  └──┬──┘ └──┬──┘ └──┬──┘ └──┬──┘ └──┬──┘ └──┬──┘ └──┬──┘ └──┬──┘          │
+│     │       │       │       │       │       │       │       │              │
+│  ┌──┴──┐ ┌──┴──┐ ┌──┴──┐ ┌──┴──┐ ┌──┴──┐ ┌──┴──┐ ┌──┴──┐ ┌──┴──┐          │
+│  │ T08 │ │ T09 │ │ ... │ │ ... │ │ ... │ │ ... │ │ ... │ │ T15 │  Row 1   │
+│  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘          │
+│                              ...                                            │
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐          │
+│  │ T56 │ │ T57 │ │ T58 │ │ T59 │ │ T60 │ │ T61 │ │ T62 │ │ T63 │  Row 7   │
+│  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  SPINE: │ SIS Hash Engine │ Feistel-48 Cipher │ Unified Controller │       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  DMA Ingress │ PLL Islands (×4) │ HBM2E Interface │ Global IRQ Aggregation │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Specifications
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| **Process** | TSMC N7FF | 7nm FinFET |
+| **Tile Array** | 8×8 = 64 tiles | Each tile: phi_rft_core + scratchpad |
+| **Peak Performance** | 2.39 TOPS | At 950 MHz tile clock |
+| **Efficiency** | 291 GOPS/W | Including NoC overhead |
+| **Tile Utilization** | 94.2% | Measured in simulation |
+| **NoC Bandwidth** | 460 GB/s | 8×8 mesh, 2-cycle hop latency |
+| **SIS Latency** | 142 cycles | N=512 hash computation |
+| **Feistel Throughput** | 3.2 Gb/s | 48-round cipher |
+| **Power** | <9W | All domains active |
+
+### Clock Domains
+
+| Domain | Frequency | Purpose |
+|--------|-----------|---------|
+| `clk_tile` | 950 MHz | Tile compute cores |
+| `clk_noc` | 1.2 GHz | Network-on-Chip fabric |
+| `clk_sis` | 475 MHz | SIS hash engine |
+| `clk_feistel` | 1.4 GHz | Feistel cipher |
+
+### RTL Modules
+
+| Module | File | Description |
+|--------|------|-------------|
+| `phi_rft_core` | `rftpu_architecture.tlv` | 8-point Φ-RFT with Q1.15 kernel ROM |
+| `rftpu_tile_shell` | `rftpu_architecture.tlv` | Tile wrapper + scratchpad + topo memory |
+| `rftpu_noc_fabric` | `rftpu_architecture.tlv` | Cycle-accurate 8×8 mesh NoC |
+| `rftpu_dma_ingress` | `rftpu_architecture.tlv` | Sample routing to tiles |
+| `rftpu_accelerator` | `rftpu_architecture.tlv` | Top-level 64-tile instantiation |
+
+### Simulation Results
+
+From `hardware/HW_TEST_RESULTS.md`:
+
+| Test | Status | Notes |
+|------|--------|-------|
+| **Mode 0 (RFT)** | ✅ PASS | Energy conserved |
+| **Mode 1 (SIS Hash)** | ✅ PASS | N=512 transform completed |
+| **Mode 2 (Feistel)** | ✅ PASS | 48 rounds, valid ciphertext |
+| **Mode 3 (Pipeline)** | ✅ PASS | Full integration verified |
+| **Makerchip TL-V** | ✅ READY | Pass @ 100+ cycles |
+
+### 3D Chip Viewer
+
+An interactive React + Three.js visualization of the RFTPU architecture:
+
+```bash
+# Launch the 3D viewer
+cd hardware/rftpu-3d-viewer
+npm install  # First time only
+npm run dev
+
+# Open http://localhost:5173/
+```
+
+**Features:**
+- 🎮 Interactive 3D chip die with all 64 tiles
+- 🔥 Real-time thermal wave visualization
+- ⚡ Power domain overlay (VDD_TILE, VDD_NOC, VDD_SIS, VDD_FEISTEL)
+- 📊 Live benchmark metrics panel
+- 🔬 Exploded view with layer controls
+- 📈 Comparison vs FFT accelerators
+
+**Files:**
+| File | Purpose |
+|------|---------|
+| `src/RFTPU3DChipDissect.jsx` | Main 3D visualization component |
+| `src/main.jsx` | React entry point |
+| `vite.config.js` | Vite bundler config |
+
+### Run Makerchip Simulation
+
+The TL-V architecture can be simulated in [Makerchip](https://makerchip.com):
+
+1. Open https://makerchip.com
+2. Copy contents of `hardware/rftpu_architecture.tlv`
+3. Paste and click "Compile"
+4. Observe waveforms for `tile_done_bitmap`, `global_irq_done`
+
+**Patent:** USPTO #19/169,399 covers the RFTPU hardware architecture.
 
 ---
 

@@ -393,28 +393,24 @@ def fpga_comparison_benchmark(base_cfg: RFTPUConfig) -> Dict:
             'tile_freq_mhz': 350,      # Realistic for complex DSP
             'max_tiles': 32,           # Resource-limited
             'power_w': 75,             # Typical FPGA power
-            'price_usd': 15000,
         },
         'xilinx_vp1902': {
             'name': 'Xilinx VP1902 (Versal Premium)',
             'tile_freq_mhz': 500,      # AI engines help
             'max_tiles': 48,
             'power_w': 100,
-            'price_usd': 25000,
         },
         'intel_agilex_f': {
             'name': 'Intel Agilex F-Series F1',
             'tile_freq_mhz': 400,
             'max_tiles': 40,
             'power_w': 85,
-            'price_usd': 18000,
         },
         'intel_agilex_m': {
             'name': 'Intel Agilex M-Series',
             'tile_freq_mhz': 550,      # HBM version
             'max_tiles': 56,
             'power_w': 120,
-            'price_usd': 35000,
         },
     }
     
@@ -425,7 +421,6 @@ def fpga_comparison_benchmark(base_cfg: RFTPUConfig) -> Dict:
             'gops_per_watt': asic_perf['gops_per_watt'],
             'latency_ns': asic_perf['single_block_latency_ns'],
             'power_w': base_cfg.total_power_w,
-            'estimated_price_usd': 150,  # At volume
         },
         'fpga_targets': {}
     }
@@ -446,7 +441,6 @@ def fpga_comparison_benchmark(base_cfg: RFTPUConfig) -> Dict:
             'gops_per_watt': gops_per_watt,
             'latency_ns': latency_ns,
             'power_w': fpga['power_w'],
-            'price_usd': fpga['price_usd'],
             'vs_asic_throughput': asic_perf['total_gops'] / gops,
             'vs_asic_efficiency': asic_perf['gops_per_watt'] / gops_per_watt,
             'vs_asic_latency': latency_ns / asic_perf['single_block_latency_ns'],
