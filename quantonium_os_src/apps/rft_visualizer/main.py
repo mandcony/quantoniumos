@@ -1,84 +1,332 @@
-#!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
-# Copyright (C) 2025 Luis M. Minier / quantoniumos
-# This file is listed in CLAIMS_PRACTICING_FILES.txt and is licensed
-# under LICENSE-CLAIMS-NC.md (research/education only). Commercial
-# rights require a separate patent license from the author.
-"""RFT Visualizer - Data Visualization Dashboard"""
+﻿#!/usr/bin/env python3
+"""
+RFT Visualizer - 2D Wave Pattern Engine
+Simple 2D visualization with real-time wave patterns
+"""
 
-from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                             QPushButton, QLabel, QComboBox, QGroupBox)
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+import sys
+import math
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QLabel, QSlider, QPushButton,
+    QTextEdit, QHBoxLayout, QVBoxLayout, QStatusBar
+)
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QPainter, QColor, QPen
 
-class MainWindow(QMainWindow):
-    """RFT Visualizer Application"""
-    
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("RFT Visualizer - QuantoniumOS")
-        self.setGeometry(100, 100, 1000, 700)
+
+class WaveCanvas(QWidget):
+    """Simple 2D wave visualization canvas"""
+    def __init__(self):
+        super().__init__()
+        self.time_step = 0.0
+        self.recursive_depth = 5
+        self.frequency = 1.0
+        self.amplitude = 100
+        self.wave_speed = 0.5
+        self.quantum_coupling = 0.618
+        self.dark_mode = False
         
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        
+        # Set background
+        bg_color = QColor(15, 18, 22) if self.dark_mode else QColor(250, 250, 250)
+        painter.fillRect(self.rect(), bg_color)
+        
+        # Draw wave patterns
+        width = self.width()
+        height = self.height()
+        center_y = height // 2
+        
+        # Generate multiple wave layers
+        for depth in range(self.recursive_depth):
+            # Calculate wave properties for this depth
+            freq_scale = self.frequency * (1 + depth * self.quantum_coupling)
+            amp_scale = self.amplitude / (1 + depth * 0.3)
+            phase_offset = depth * math.pi / 4
+            
+            # Set pen color with alpha based on depth
+            if self.dark_mode:
+                color = QColor(125, 196, 255, 255 - depth * 30)
+            else:
+                color = QColor(25, 118, 210, 255 - depth * 30)
+            
+            pen = QPen(color, 2)
+            painter.setPen(pen)
+            
+            # Draw wave
+            points = []
+            for x in range(0, width, 2):
+                # Normalized x position
+                norm_x = (x / width) * 6 - 3  # Map to -3 to 3
+                
+                # Wave calculation with quantum coupling
+                wave1 = math.sin(freq_scale * norm_x - self.wave_speed * self.time_step + phase_offset)
+                quantum_mod = math.sin(self.quantum_coupling * norm_x + self.time_step) * 0.2
+                
+                y_offset = amp_scale * (wave1 + quantum_mod)
+                y = center_y - y_offset
+                
+                if 0 <= y <= height:
+                    points.append((x, int(y)))
+            
+            # Draw the wave line
+            for i in range(len(points) - 1):
+                painter.drawLine(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
+        
+        # Draw center line
+        pen = QPen(QColor(100, 100, 100, 100), 1)
+        painter.setPen(pen)
+        painter.drawLine(0, center_y, width, center_y)
+
+
+class RFTVisualizer(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("RFT Visualizer")
+        self.setGeometry(100, 100, 1200, 700)
+
+        # State
+        self.dark_mode = False
+        
+        # Timer for animation
+        self.timer = QTimer(self)
+        self.timer.setInterval(50)
+        self.timer.timeout.connect(self.update_visualization)
+
+        # UI components
+        self.canvas = None
+        self.metrics_text = None
+        
+        self.init_ui()
+        self.apply_theme()
+        
+        # Start animation
+        self.timer.start()
+
+    def init_ui(self):
         central = QWidget()
         self.setCentralWidget(central)
-        layout = QVBoxLayout(central)
-        
-        title = QLabel("📊 RFT Data Visualizer")
-        title.setFont(QFont("Sans Serif", 16, QFont.Bold))
-        title.setStyleSheet("color: #00aaff; padding: 10px;")
-        layout.addWidget(title)
-        
-        # Visualization selection
-        viz_group = QGroupBox("Visualization Type")
-        viz_layout = QVBoxLayout()
-        
-        select_layout = QHBoxLayout()
-        select_layout.addWidget(QLabel("Select:"))
-        self.viz_combo = QComboBox()
-        self.viz_combo.addItems([
-            'Rate-Distortion Curve',
-            'Entropy Distribution',
-            'Compression Ratio',
-            'Transform Visualization',
-            'Scaling Laws',
-            'Performance Metrics'
-        ])
-        select_layout.addWidget(self.viz_combo)
-        viz_layout.addLayout(select_layout)
-        
-        self.generate_btn = QPushButton("📈 Generate Visualization")
-        self.generate_btn.clicked.connect(self.generate_viz)
-        viz_layout.addWidget(self.generate_btn)
-        
-        viz_group.setLayout(viz_layout)
-        layout.addWidget(viz_group)
-        
-        # Placeholder for matplotlib canvas
-        canvas_group = QGroupBox("Visualization Canvas")
-        canvas_layout = QVBoxLayout()
-        
-        self.canvas_label = QLabel("Select visualization type and click Generate")
-        self.canvas_label.setAlignment(Qt.AlignCenter)
-        self.canvas_label.setMinimumHeight(400)
-        self.canvas_label.setStyleSheet("border: 2px dashed #00aaff; background: #2a2a2a; color: #00aaff;")
-        canvas_layout.addWidget(self.canvas_label)
-        
-        canvas_group.setLayout(canvas_layout)
-        layout.addWidget(canvas_group)
-        
-        self.statusBar().showMessage("Ready - Select visualization type")
-        self.set_dark_theme()
-    
-    def set_dark_theme(self):
-        self.setStyleSheet("""
-            QMainWindow, QWidget { background-color: #1a1a1a; color: #ffffff; }
-            QGroupBox { border: 2px solid #00aaff; border-radius: 5px; margin-top: 10px; padding-top: 10px; color: #00aaff; font-weight: bold; }
-            QPushButton { background-color: #00aaff; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; }
-            QPushButton:hover { background-color: #00ffaa; }
-            QComboBox { background-color: #2a2a2a; color: #fff; border: 1px solid #00aaff; padding: 5px; }
+
+        root = QHBoxLayout(central)
+        root.setSpacing(0)
+        root.setContentsMargins(0, 0, 0, 0)
+
+        # Left panel
+        left = QWidget()
+        left.setFixedWidth(280)
+        left.setObjectName("LeftPanel")
+        lyt = QVBoxLayout(left)
+        lyt.setContentsMargins(20, 20, 20, 20)
+        lyt.setSpacing(15)
+
+        title = QLabel("RFT Visualizer")
+        title.setObjectName("Title")
+        lyt.addWidget(title)
+
+        subtitle = QLabel("2D Wave Pattern Engine")
+        subtitle.setObjectName("SubTitle")
+        lyt.addWidget(subtitle)
+
+        # Depth control
+        lyt.addWidget(QLabel("Recursive Depth:"))
+        self.depth_slider = QSlider(Qt.Horizontal)
+        self.depth_slider.setRange(1, 10)
+        self.depth_slider.setValue(5)
+        self.depth_slider.valueChanged.connect(self.update_depth)
+        lyt.addWidget(self.depth_slider)
+        self.depth_label = QLabel("Depth: 5")
+        lyt.addWidget(self.depth_label)
+
+        # Frequency control
+        lyt.addWidget(QLabel("Frequency:"))
+        self.freq_slider = QSlider(Qt.Horizontal)
+        self.freq_slider.setRange(1, 50)
+        self.freq_slider.setValue(10)
+        self.freq_slider.valueChanged.connect(self.update_frequency)
+        lyt.addWidget(self.freq_slider)
+        self.freq_label = QLabel("Freq: 1.0 Hz")
+        lyt.addWidget(self.freq_label)
+
+        # Control buttons
+        self.pause_btn = QPushButton("ΓÅ╕ Pause")
+        self.pause_btn.clicked.connect(self.toggle_animation)
+        lyt.addWidget(self.pause_btn)
+
+        self.theme_btn = QPushButton("≡ƒîÖ Dark Mode")
+        self.theme_btn.clicked.connect(self.toggle_theme)
+        lyt.addWidget(self.theme_btn)
+
+        # Metrics section
+        metrics_label = QLabel("Wave Metrics")
+        metrics_label.setStyleSheet("font-weight: bold; margin-top: 20px; font-size: 14px;")
+        lyt.addWidget(metrics_label)
+
+        self.metrics_text = QTextEdit()
+        self.metrics_text.setMaximumHeight(250)
+        self.metrics_text.setReadOnly(True)
+        self.metrics_text.setStyleSheet("""
+            QTextEdit {
+                font-family: 'Consolas', 'Monaco', monospace;
+                font-size: 10px;
+                line-height: 1.2;
+                padding: 8px;
+                border-radius: 6px;
+            }
         """)
-    
-    def generate_viz(self):
-        viz_type = self.viz_combo.currentText()
-        self.canvas_label.setText(f"📊 Generating: {viz_type}\n\n(Matplotlib integration placeholder)\n\nVisualization would appear here")
-        self.statusBar().showMessage(f"Generated {viz_type}")
+        lyt.addWidget(self.metrics_text)
+
+        lyt.addStretch()
+        root.addWidget(left)
+
+        # Right panel - Wave canvas
+        self.canvas = WaveCanvas()
+        root.addWidget(self.canvas, 1)
+
+        # Status bar
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+        self.status_bar.showMessage("RFT Engine Active - 2D Mode")
+
+    def apply_theme(self):
+        if self.dark_mode:
+            qss = """
+            QMainWindow, QWidget { background:#0f1216; color:#dfe7ef; font-family:'Segoe UI'; }
+            #Title { font-size:20px; font-weight:300; color:#dfe7ef; }
+            #SubTitle { font-size:11px; color:#8aa0b3; }
+            #LeftPanel { background:#12161b; border-right:1px solid #1f2a36; }
+            QSlider::groove:horizontal { border:1px solid #1f2a36; height:8px; background:#12161b; border-radius:4px; }
+            QSlider::handle:horizontal { background:#7dc4ff; width:18px; border-radius:9px; margin:-2px 0; }
+            QPushButton { background:#12161b; border:1px solid #2a3847; border-radius:6px; padding:8px 14px; color:#c8d3de; }
+            QPushButton:hover { background:#1d2b3a; }
+            QTextEdit { background:#0a0a0a; border:1px solid #1f2a36; color:#dfe7ef; }
+            QStatusBar { background:#12161b; border-top:1px solid #1f2a36; color:#8aa0b3; }
+            """
+            self.theme_btn.setText("ΓÿÇ Light Mode")
+        else:
+            qss = """
+            QMainWindow, QWidget { background:#fafafa; color:#243342; font-family:'Segoe UI'; }
+            #Title { font-size:20px; font-weight:300; color:#2c3e50; }
+            #SubTitle { font-size:11px; color:#8aa0b3; }
+            #LeftPanel { background:#f8f9fa; border-right:1px solid #dee2e6; }
+            QSlider::groove:horizontal { border:1px solid #dee2e6; height:8px; background:#e9ecef; border-radius:4px; }
+            QSlider::handle:horizontal { background:#1976d2; width:18px; border-radius:9px; margin:-2px 0; }
+            QPushButton { background:#f8f9fa; border:1px solid #dee2e6; border-radius:6px; padding:8px 14px; color:#495057; }
+            QPushButton:hover { background:#e9ecef; }
+            QTextEdit { background:#ffffff; border:1px solid #dee2e6; color:#243342; }
+            QStatusBar { background:#f8f9fa; border-top:1px solid #dee2e6; color:#6c757d; }
+            """
+            self.theme_btn.setText("≡ƒîÖ Dark Mode")
+
+        self.setStyleSheet(qss)
+        
+        # Update canvas theme
+        if self.canvas:
+            self.canvas.dark_mode = self.dark_mode
+            self.canvas.update()
+
+    def toggle_theme(self):
+        self.dark_mode = not self.dark_mode
+        self.apply_theme()
+
+    def update_depth(self, value):
+        if self.canvas:
+            self.canvas.recursive_depth = value
+        self.depth_label.setText(f"Depth: {value}")
+
+    def update_frequency(self, value):
+        freq = value / 10.0
+        if self.canvas:
+            self.canvas.frequency = freq
+        self.freq_label.setText(f"Freq: {freq:.1f} Hz")
+
+    def toggle_animation(self):
+        if self.timer.isActive():
+            self.timer.stop()
+            self.pause_btn.setText("Γû╢ Resume")
+        else:
+            self.timer.start()
+            self.pause_btn.setText("ΓÅ╕ Pause")
+
+    def update_visualization(self):
+        if self.canvas:
+            self.canvas.time_step += 0.1
+            self.canvas.update()
+            self.update_metrics()
+
+    def update_metrics(self):
+        if not self.canvas:
+            return
+            
+        # Calculate some basic wave metrics
+        time_step = self.canvas.time_step
+        depth = self.canvas.recursive_depth
+        freq = self.canvas.frequency
+        coupling = self.canvas.quantum_coupling
+        
+        # Simulate wave analysis
+        complexity = min(100, int(depth * 15))
+        coherence = max(0, min(100, int(100 - (freq * 10))))
+        interference = min(100, int(abs(math.sin(time_step)) * 100))
+        coupling_effect = min(100, int(coupling * 100))
+        phase_sync = max(0, min(100, int(75 + 25 * math.cos(time_step))))
+
+        metrics_text = f"""
+≡ƒîè WAVE FIELD ANALYSIS
+ΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöüΓöü
+
+≡ƒôè WAVE PROPERTIES:
+   ΓÇó Recursive Layers: {depth}
+   ΓÇó Base Frequency: {freq:.1f} Hz
+   ΓÇó Field Complexity: {complexity}%
+   ΓÇó Wave Amplitude: {self.canvas.amplitude}px
+
+≡ƒöä FIELD DYNAMICS:
+   ΓÇó Coherence Level: {coherence}%
+   ΓÇó Interference: {interference}%
+   ΓÇó Phase Sync: {phase_sync}%
+   ΓÇó Coupling Effect: {coupling_effect}%
+
+ΓÜ¢∩╕Å QUANTUM PARAMETERS:
+   ΓÇó Quantum Coupling: {coupling:.3f}
+   ΓÇó Time Evolution: {time_step:.1f}s
+   ΓÇó Wave Speed: {self.canvas.wave_speed}
+   ΓÇó Pattern Mode: 2D Recursive
+
+≡ƒôê FIELD EXPLANATION:
+   ΓÇó Multiple wave layers create depth
+   ΓÇó Quantum coupling adds complexity
+   ΓÇó Phase relationships show stability
+   ΓÇó Real-time frequency modulation
+
+≡ƒö¼ OBSERVED EFFECTS:
+   ΓÇó Layered wave interference
+   ΓÇó Recursive pattern generation
+   ΓÇó Dynamic phase evolution
+   ΓÇó Quantum-inspired coupling
+        """
+        
+        self.metrics_text.setText(metrics_text)
+
+
+def main():
+    app = QApplication.instance()
+    created = False
+    if app is None:
+        created = True
+        app = QApplication(sys.argv)
+        app.setApplicationName("RFT Visualizer")
+
+    win = RFTVisualizer()
+    win.show()
+    print("≡ƒîè RFT Visualizer launched!")
+
+    if created:
+        sys.exit(app.exec_())
+    return app, win
+
+
+if __name__ == "__main__":
+    main()
+

@@ -1,6 +1,26 @@
-# QuantoniumOS Mobile Neural Brain
+# QuantoniumOS Mobile App
 
-## Local Development
+> React Native / Expo mobile client for QuantoniumOS concepts.
+
+**Parent repo:** [quantoniumos](https://github.com/mandcony/quantoniumos)
+
+---
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start Expo dev server
+npx expo start
+```
+
+Use the Expo Go app on iOS/Android to scan the QR code.
+
+---
+
+## Neural Brain Integration
 
 1. **Build Neural Brain Packages**
    ```bash
@@ -21,7 +41,9 @@
 
 The client will show errors in-chat if the server is unreachable or no neural brain package exists for the requested domain.
 
-## Quick automation (Windows PowerShell)
+---
+
+## Quick Automation (Windows PowerShell)
 
 ```powershell
 tools/mobile/run_neural_brain_expo.ps1 `
@@ -32,3 +54,26 @@ tools/mobile/run_neural_brain_expo.ps1 `
 ```
 
 The script will (optionally) rebuild neural brain packages, start the Python server, export the Expo environment variables, and then run `npx expo start`. Change `ClientHost` to the LAN IP your device should target (use `127.0.0.1` for iOS Simulator, `10.0.2.2` for Android emulator). Pass `-SkipBuild` if you only need to restart the server.
+
+---
+
+## Project Structure
+
+```
+quantonium-mobile/
+├── App.tsx          # Root component
+├── index.ts         # Entry point
+├── src/             # App source (screens, components, hooks)
+├── assets/          # Images, fonts
+├── app.json         # Expo config
+├── package.json     # Dependencies
+└── tsconfig.json    # TypeScript config
+```
+
+---
+
+## See Also
+
+- [REPO_ORGANIZATION.md](../REPO_ORGANIZATION.md) — repo structure map
+- [quantonium_os_src/](../quantonium_os_src/) — desktop OS apps
+- [ui/](../ui/) — shared UI assets

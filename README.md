@@ -89,15 +89,20 @@ See `PHASE4_PLAN.md` for detailed roadmap.
 
 ---
 
-## Quick Start
+## 🚀 Start Here
 
-**New here?** → **[GETTING_STARTED.md](GETTING_STARTED.md)** (your first steps)
+| Step | Doc | Purpose |
+| --- | --- | --- |
+| 1 | **[README.md](README.md)** | Project summary, RFT update, quick install |
+| 2 | **[GETTING_STARTED.md](GETTING_STARTED.md)** | First run, examples, learning path |
+| 3 | **[SETUP_GUIDE.md](SETUP_GUIDE.md)** | Installation, native builds, troubleshooting |
+| 4 | **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** | Doc tree, task-based navigation |
+| 5 | **[REPO_ORGANIZATION.md](REPO_ORGANIZATION.md)** | Repo structure map (this is the source of truth) |
 
-**Documentation:**
-- **[GETTING_STARTED.md](GETTING_STARTED.md)** - First steps, examples, learning path
-- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Installation, troubleshooting, verification
+**More docs:**
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Technical deep dive (ASM → C → C++ → Python)
 - **[docs/ARCHITECTURE_QUICKREF.md](docs/ARCHITECTURE_QUICKREF.md)** - One-page cheat sheet
+- **[COMPONENT_INVENTORY.md](COMPONENT_INVENTORY.md)** - Per-path purpose & routes table
 
 **Quick installation:**
 ```bash

@@ -46,10 +46,20 @@ class TestUnifiedScheduler:
         n = 32
         tol = 1e-10
         
+        # 2D variants return (n², n²) matrices instead of (n, n)
+        _2d_variants = {"robust_manifold_2d"}
+        
         for variant_name in self.scheduler.variant_generators:
             basis = self.scheduler.get_basis(n, variant_name)
             identity = basis.conj().T @ basis
-            error = np.linalg.norm(identity - np.eye(n))
+            
+            # 2D variants produce (n², n²) matrices
+            if variant_name in _2d_variants:
+                expected_size = n * n
+            else:
+                expected_size = n
+            
+            error = np.linalg.norm(identity - np.eye(expected_size))
             
             assert error < tol, f"Variant {variant_name} not unitary: error={error:.2e}"
     

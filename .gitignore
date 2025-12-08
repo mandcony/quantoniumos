@@ -147,3 +147,4 @@ quantonium-mobile/.expo/
 algorithms/rft/kernels/compiled/
 
 hardware/tb/obj_phi_rft/
+hardware/rftpu-3d-viewer/node_modules/

@@ -1,7 +1,21 @@
 # QuantoniumOS - Documentation Index
 
-**Generated:** December 3, 2025  
+**Generated:** December 8, 2025  
 **Purpose:** Master index for all system documentation
+
+---
+
+## 🚀 Start Here (Onboarding Path)
+
+| Step | Doc | Purpose |
+| --- | --- | --- |
+| 1 | **[README.md](README.md)** | Project summary, RFT update, quick install |
+| 2 | **[GETTING_STARTED.md](GETTING_STARTED.md)** | First run, examples, learning path |
+| 3 | **[SETUP_GUIDE.md](SETUP_GUIDE.md)** | Installation, native builds, troubleshooting |
+| 4 | **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** | Doc tree, task-based navigation (this file) |
+| 5 | **[REPO_ORGANIZATION.md](REPO_ORGANIZATION.md)** | Repo structure map — source of truth |
+| 6 | **[COMPONENT_INVENTORY.md](COMPONENT_INVENTORY.md)** | Per-path purpose & routes table |
+| 7 | **[LICENSE_SPLIT.md](LICENSE_SPLIT.md)** | Licensing dual-structure summary |
 
 ---
 
