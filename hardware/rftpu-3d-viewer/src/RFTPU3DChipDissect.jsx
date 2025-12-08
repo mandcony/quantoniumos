@@ -32,6 +32,73 @@ const smoothDamp = (current, target, velocity, smoothTime, deltaTime) => {
 // Copyright (C) 2025 Luis M. Minier / QuantoniumOS
 // ===============================================
 
+// ===============================================
+// CHIP CONFIGURATIONS: WebFPGA vs ASIC TLV
+// ===============================================
+const CHIP_CONFIGS = {
+  webfpga: {
+    id: 'webfpga',
+    name: 'WebFPGA iCE40 HX8K',
+    subtitle: 'Synthesized & Proven',
+    status: 'REAL HARDWARE',
+    statusColor: '#00ff00',
+    process: 'Lattice iCE40 HX8K',
+    package: 'CT256 (256-pin)',
+    dimensions: '14×14mm',
+    clockActual: '21.9 MHz',  // Static timing
+    clockPlacement: '36.15 MHz',  // Placement
+    tiles: 1,  // Single RFT kernel
+    kernelModes: 12,  // 12 validated RFT modes
+    romEntries: 768,  // 12 kernels × 64 coefficients
+    luts: 1884,
+    lutsTotal: 5280,
+    lutPercent: 35.68,
+    flops: 599,
+    ios: 10,
+    logicCells: 2070,
+    features: [
+      '12 RFT kernel modes (Golden, Fibonacci, Harmonic...)',
+      '8×8 Q1.15 fixed-point coefficients',
+      '768-entry kernel ROM',
+      'Button-triggered or auto-start',
+      '8-LED frequency bin output',
+      'Unitarity error < 1e-13'
+    ],
+    power: {
+      total: '~50mW',
+      domains: { core: '35mW', io: '15mW' }
+    }
+  },
+  asic: {
+    id: 'asic',
+    name: 'RFTPU 64-Tile ASIC',
+    subtitle: 'Architecture Design (TLV)',
+    status: 'DESIGN ONLY',
+    statusColor: '#ffaa00',
+    process: 'TSMC 7nm FinFET (target)',
+    package: 'BGA-800 flip-chip',
+    dimensions: '8.5×8.5mm die, 25×25mm package',
+    clockTarget: '950 MHz (clk_tile)',
+    clockNoc: '1.2 GHz (clk_noc)',
+    tiles: 64,  // 8×8 mesh
+    kernelModes: 12,
+    nocTopology: '8×8 Mesh',
+    features: [
+      '64 parallel phi_rft_core tiles',
+      '8×8 wormhole NoC mesh',
+      'SIS-512 lattice hash engine',
+      'Feistel-48 cipher (1.4 GHz)',
+      'H³ graph cascade routing',
+      'DMA ingress controller'
+    ],
+    power: {
+      total: '8.2W (analytic estimate)',
+      domains: { tiles: '5.44W', noc: '0.62W', sis: '1.1W', feistel: '0.28W' }
+    },
+    warning: '⚠️ PPA projections are analytic upper-bounds, NOT silicon measurements'
+  }
+};
+
 const TILE_DIM = 8;  // From rftpu_pkg::TILE_DIM
 const TILE_COUNT = TILE_DIM * TILE_DIM;  // 64 tiles
 const SAMPLE_WIDTH = 16;  // From rftpu_pkg::SAMPLE_WIDTH
@@ -45,6 +112,24 @@ const HOP_LATENCY = 2;  // From rftpu_pkg::HOP_LATENCY
 // PHI constant from canonical_rft_core: 0x0001_9E37 in Q16.16 = 1.618034
 const PHI_Q16_16 = 0x00019E37;
 const PHI_DECIMAL = 1.618033988749895;
+
+// ===============================================
+// WEBFPGA KERNEL MODES (from fpga_top.sv)
+// ===============================================
+const WEBFPGA_KERNEL_MODES = [
+  { id: 0, name: 'RFT-Golden', desc: 'Golden ratio resonance (PRIMARY)', unitarity: '6.12e-15' },
+  { id: 1, name: 'RFT-Fibonacci', desc: 'Fibonacci frequency structure', unitarity: '1.09e-13' },
+  { id: 2, name: 'RFT-Harmonic', desc: 'Natural harmonic overtones', unitarity: '<1e-13' },
+  { id: 3, name: 'RFT-Geometric', desc: 'Self-similar φ^i frequencies', unitarity: '<1e-13' },
+  { id: 4, name: 'RFT-Beating', desc: 'Golden ratio interference', unitarity: '<1e-13' },
+  { id: 5, name: 'RFT-Phyllotaxis', desc: 'Golden angle 137.5° (bio)', unitarity: '<1e-13' },
+  { id: 6, name: 'RFT-Cascade', desc: 'H3 DCT+RFT blend', unitarity: '<1e-13' },
+  { id: 7, name: 'RFT-Hybrid-DCT', desc: 'Split DCT/RFT basis', unitarity: '<1e-13' },
+  { id: 8, name: 'RFT-Manifold', desc: 'Manifold projection (+47.9dB)', unitarity: '<1e-13' },
+  { id: 9, name: 'RFT-Euler', desc: 'Spherical geodesic', unitarity: '<1e-13' },
+  { id: 10, name: 'RFT-PhaseCoh', desc: 'Phase-space coherence', unitarity: '<1e-13' },
+  { id: 11, name: 'RFT-Entropy', desc: 'Entropy-modulated chaos', unitarity: '<1e-13' }
+];
 
 // ===============================================
 // BENCHMARK METRICS FROM PAPER (Table 2 & 3)
@@ -301,6 +386,60 @@ const EXPLANATIONS = {
   }
 };
 
+// ===============================================
+// WEBFPGA COMPONENT EXPLANATIONS (iCE40 HX8K)
+// ===============================================
+const WEBFPGA_EXPLANATIONS = {
+  fpga_package: {
+    name: "iCE40 HX8K FPGA Package",
+    simple: "The Lattice iCE40 HX8K FPGA in CT256 package (14×14mm). This is REAL synthesized hardware - not a simulation. Contains 7,680 logic cells and runs the 12-kernel RFT transform.",
+    technical: "Lattice Semiconductor iCE40HX8K-CT256. 7,680 LUT4 cells, 128Kb block RAM, 2 PLLs. WebFPGA synthesis achieved 21.9 MHz static timing (36.15 MHz placement).",
+    specs: "Package: CT256 (256-pin) • Logic Cells: 7,680 • Block RAM: 128Kb • PLLs: 2 • Used: 35.68% LUTs"
+  },
+  rft_core: {
+    name: "RFT Transform Core (fpga_top)",
+    simple: "Single RFT compute engine with 12 kernel modes. Performs 8-point transforms using golden ratio phase modulation. Button-triggered or auto-cycling computation.",
+    technical: "Module fpga_top: 8×8 kernel matrix multiply-accumulate. Q1.15 fixed-point. Manhattan distance magnitude. 768 ROM entries (12 modes × 64 coefficients). FSM: IDLE→COMPUTE→DONE.",
+    specs: "Modes: 12 • Points: 8 • Precision: Q1.15 • ROM: 768 entries • Freq: 21.9 MHz • Unitarity: <1e-13"
+  },
+  kernel_rom: {
+    name: "Kernel ROM (768 entries)",
+    simple: "Stores all 12 validated RFT kernel coefficient matrices. Each kernel is 8×8 = 64 Q1.15 fixed-point coefficients. Generated from Python reference implementation.",
+    technical: "case-based ROM: {current_mode[3:0], k_index[2:0], n_index[2:0]} → kernel_rom_out[15:0]. 768 total entries covering: Golden, Fibonacci, Harmonic, Geometric, Beating, Phyllotaxis, Cascade, Hybrid-DCT, Manifold, Euler, PhaseCoh, Entropy.",
+    specs: "Entries: 768 • Width: 16-bit signed • Modes: 12 • Size: ~12Kb • Source: operator_variants.py"
+  },
+  mac_unit: {
+    name: "Multiply-Accumulate Unit",
+    simple: "Performs the core RFT computation: multiplies input samples by kernel coefficients and accumulates results. Uses 32-bit accumulators for precision.",
+    technical: "mult_out = $signed(input_selected) × $signed(kernel_reg). Accumulated into acc[31:0]. 64 MAC operations per 8-point transform (8×8 kernel).",
+    specs: "Multiplier: 16×16→32 • Accumulator: 32-bit • Ops per transform: 64 • Latency: 64 cycles"
+  },
+  led_output: {
+    name: "LED Frequency Visualizer",
+    simple: "8 LEDs display the magnitude of each frequency bin after RFT. Brighter LEDs indicate stronger frequency components. Great for visual debugging.",
+    technical: "Manhattan distance: |Re| + |Im|. Bit selection maps 32-bit result to LED brightness. WF_LED[7:0] directly driven from rft_out magnitude.",
+    specs: "LEDs: 8 • Mapping: Frequency bins 0-7 • Update: Per-transform • Interface: WF_LED[7:0]"
+  },
+  state_machine: {
+    name: "FSM Controller",
+    simple: "Orchestrates the RFT computation sequence: IDLE (waiting), COMPUTE (processing 64 MACs), DONE (output ready). Triggered by button or auto-timer.",
+    technical: "3-state FSM: STATE_IDLE=0, STATE_COMPUTE=2, STATE_DONE=5. k_index and n_index iterate 0-7 for full 8×8 kernel sweep. Auto-cycle on counter overflow.",
+    specs: "States: 3 • Cycles per transform: ~80 • Trigger: Button edge or auto (24-bit counter)"
+  },
+  clock_pll: {
+    name: "Clock Generation",
+    simple: "Uses the WebFPGA's built-in oscillator (WF_CLK). Synthesis achieved 21.9 MHz timing closure with 21.9× margin over 1 MHz target.",
+    technical: "WF_CLK input from on-board oscillator. Reset counter holds reset for 10 cycles at startup. Button debounce uses 20-bit counter.",
+    specs: "Achieved: 21.9 MHz (static) / 36.15 MHz (placement) • Target: 1 MHz • Margin: 21.9×"
+  },
+  qlogo_fpga: {
+    name: "QuantoniumOS Logo (FPGA)",
+    simple: "QuantoniumOS brand identifier. This FPGA implementation proves the RFT algorithm works on real hardware - synthesis complete, bitstream generated.",
+    technical: "WebFPGA bitstream timestamp: Tue Nov 25 01:27:51 AM UTC 2025. Ready to flash to physical hardware via webfpga.io.",
+    specs: "Status: ✅ SYNTHESIZED • Bitstream: Ready • Platform: webfpga.io • Date: 2025-11-25"
+  }
+};
+
 const TOUR_STOPS = [
   { component: 'heatspreader', explode: 0, rotation: { x: -0.3, y: 0.4 }, zoom: 1.0, duration: 3000 },
   { component: 'heatspreader', explode: 2, rotation: { x: -0.3, y: 0.4 }, zoom: 1.0, duration: 2000 },
@@ -326,6 +465,10 @@ export default function RFTPU3DChipDissect() {
   const layersRef = useRef({});
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
+  
+  // CHIP SELECTOR STATE
+  const [activeChip, setActiveChip] = useState('asic'); // 'webfpga' or 'asic'
+  const [selectedKernelMode, setSelectedKernelMode] = useState(0); // For WebFPGA kernel modes
   
   const [rotation, setRotation] = useState({ x: -0.35, y: 0.4 });
   const [targetRotation, setTargetRotation] = useState(null);
@@ -1656,14 +1799,18 @@ export default function RFTPU3DChipDissect() {
         <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-4 border border-cyan-500/30 shadow-2xl shadow-cyan-500/20">
           <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-200 font-mono tracking-wide flex items-center gap-3">
             <span className="text-4xl text-cyan-300 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">Φ</span>
-            RFT-PROCESSOR
+            {activeChip === 'webfpga' ? 'WebFPGA RFT' : 'RFT-PROCESSOR'}
           </h1>
           <p className="text-sm text-gray-300 font-mono mt-2 flex items-center gap-2">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-            Resonant Fourier Transform Processor • 64 Tiles
+            <span className={`w-2 h-2 rounded-full animate-pulse ${activeChip === 'webfpga' ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
+            {activeChip === 'webfpga' 
+              ? 'Lattice iCE40 HX8K • 12 RFT Kernels • SYNTHESIZED' 
+              : 'Resonant Fourier Transform Processor • 64 Tiles'}
           </p>
           <p className="text-xs text-gray-400 font-mono mt-1">
-            USPTO Patent #19/169,399 • TSMC N7FF (7nm FinFET)
+            {activeChip === 'webfpga'
+              ? 'WebFPGA • 21.9 MHz Achieved • 35.68% LUT Usage'
+              : 'USPTO Patent #19/169,399 • TSMC N7FF (7nm FinFET) • DESIGN ONLY'}
           </p>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-cyan-400/70 font-mono">© 2025 Luis M. Minier</span>
@@ -1672,6 +1819,81 @@ export default function RFTPU3DChipDissect() {
               DOI: {PAPER_REFERENCES.doi}
             </a>
           </div>
+        </div>
+        
+        {/* CHIP SELECTOR */}
+        <div className="mt-3 bg-gray-900/90 backdrop-blur-xl rounded-xl p-3 border border-purple-500/30 shadow-xl">
+          <div className="text-xs text-purple-400 font-mono font-bold mb-2 flex items-center gap-2">
+            <span>🔄</span> SELECT CHIP VIEW
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveChip('webfpga')}
+              className={`flex-1 px-3 py-2 rounded-lg text-xs font-mono font-bold transition-all ${
+                activeChip === 'webfpga'
+                  ? 'bg-green-600 text-white shadow-lg shadow-green-500/30 ring-2 ring-green-400'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-lg">✅</span>
+                <div className="text-left">
+                  <div>WebFPGA</div>
+                  <div className="text-[10px] opacity-70">iCE40 HX8K • REAL</div>
+                </div>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveChip('asic')}
+              className={`flex-1 px-3 py-2 rounded-lg text-xs font-mono font-bold transition-all ${
+                activeChip === 'asic'
+                  ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/30 ring-2 ring-orange-400'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-lg">📐</span>
+                <div className="text-left">
+                  <div>ASIC TLV</div>
+                  <div className="text-[10px] opacity-70">64-Tile • DESIGN</div>
+                </div>
+              </div>
+            </button>
+          </div>
+          
+          {/* Chip Status Badge */}
+          <div className={`mt-2 p-2 rounded-lg text-center text-xs font-mono ${
+            activeChip === 'webfpga'
+              ? 'bg-green-900/50 border border-green-500/30 text-green-300'
+              : 'bg-orange-900/50 border border-orange-500/30 text-orange-300'
+          }`}>
+            {activeChip === 'webfpga' ? (
+              <span>✅ SYNTHESIZED & BITSTREAM READY</span>
+            ) : (
+              <span>⚠️ Architecture Design Only - No Silicon</span>
+            )}
+          </div>
+          
+          {/* WebFPGA Kernel Mode Selector */}
+          {activeChip === 'webfpga' && (
+            <div className="mt-3 p-2 bg-gray-800/50 rounded-lg">
+              <div className="text-[10px] text-gray-400 font-mono mb-1">Active Kernel Mode:</div>
+              <select 
+                value={selectedKernelMode}
+                onChange={(e) => setSelectedKernelMode(parseInt(e.target.value))}
+                className="w-full bg-gray-700 text-cyan-300 text-xs font-mono rounded px-2 py-1 border border-gray-600"
+              >
+                {WEBFPGA_KERNEL_MODES.map(mode => (
+                  <option key={mode.id} value={mode.id}>
+                    Mode {mode.id}: {mode.name}
+                  </option>
+                ))}
+              </select>
+              <div className="text-[10px] text-gray-500 mt-1 font-mono">
+                {WEBFPGA_KERNEL_MODES[selectedKernelMode]?.desc}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

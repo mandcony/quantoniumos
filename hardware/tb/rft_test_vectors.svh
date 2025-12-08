@@ -58,39 +58,39 @@ logic signed [15:0] rft_test_input_imag [NUM_RFT_TESTS][BLOCK_SIZE] = '{
 
 // Expected outputs (Q1.15 fixed-point)
 logic signed [15:0] rft_test_expected_real [NUM_RFT_TESTS][BLOCK_SIZE] = '{
-  '{16'sh7333, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh28BA, 16'shEEC9, 16'shD76E, 16'shDCBD, 16'shD7E5, 16'shE89E, 16'sh2755, 16'shE0D4},
-  '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh8E90, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'shCF4D, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'sh0000, 16'sh8D3E, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh9C42, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'shD33D, 16'shD2CC, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'sh41A0, 16'sh16D8, 16'sh108E, 16'sh18C1, 16'sh05E8, 16'shE133, 16'sh3A4C},
-  '{16'sh1CCC, 16'shFE38, 16'shE5D5, 16'sh2860, 16'shDEA0, 16'sh08D7, 16'sh1456, 16'shD92B},
+  '{16'shD436, 16'sh403C, 16'shBD3D, 16'shD2C4, 16'shE7ED, 16'sh095B, 16'shF884, 16'shFFA0},
+  '{16'shDAFD, 16'shD72C, 16'shD582, 16'shD5A9, 16'shD5A9, 16'shD582, 16'shD72C, 16'shDAFD},
+  '{16'shFFA0, 16'shF884, 16'sh095B, 16'shE7ED, 16'shD2C4, 16'shBD3D, 16'sh403C, 16'shD436},
+  '{16'sh013B, 16'shF0AC, 16'shEF14, 16'sh1416, 16'shEE27, 16'sh0899, 16'shDA1E, 16'shC1B4},
+  '{16'sh1ECE, 16'shDF1A, 16'shE8EF, 16'shE48A, 16'shE48A, 16'shE8EF, 16'shDF1A, 16'sh1ECE},
+  '{16'shC1B4, 16'shDA1E, 16'sh0899, 16'shEE27, 16'sh1416, 16'shEF14, 16'shF0AC, 16'sh013B},
+  '{16'sh0D44, 16'shE4F3, 16'shE75C, 16'sh07A5, 16'shE4C7, 16'shFED2, 16'shD038, 16'shD2E0},
+  '{16'shF456, 16'sh3039, 16'shF937, 16'sh56D8, 16'shFBD2, 16'shF887, 16'sh133A, 16'sh34B5},
+  '{16'sh2DDD, 16'sh0C78, 16'shD571, 16'shF9BA, 16'shC829, 16'shF6CB, 16'shEF01, 16'shDADC},
   '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh7333, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh8CCD, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh2B3F, 16'shF823, 16'sh0F56, 16'sh020A, 16'sh0816, 16'sh06E8, 16'shC64D, 16'shE9AA},
-  '{16'shF627, 16'shF3B9, 16'shEB67, 16'shDA17, 16'sh3BFD, 16'sh00DB, 16'sh1F56, 16'shF042},
-  '{16'sh3819, 16'sh151F, 16'sh0C08, 16'sh0194, 16'shE64C, 16'sh0A24, 16'sh3411, 16'sh0275}
+  '{16'shD436, 16'sh403C, 16'shBD3D, 16'shD2C4, 16'shE7ED, 16'sh095B, 16'shF884, 16'shFFA0},
+  '{16'sh2BCA, 16'shBFC4, 16'sh42C3, 16'sh2D3C, 16'sh1813, 16'shF6A5, 16'sh077C, 16'sh0060},
+  '{16'shDB62, 16'sh19A3, 16'shDF9D, 16'sh1189, 16'shFE99, 16'sh3733, 16'sh19E6, 16'shEFEC},
+  '{16'shF789, 16'shE3F7, 16'sh02A1, 16'shE670, 16'sh3271, 16'sh04A6, 16'shBE8A, 16'sh0B7E},
+  '{16'sh027F, 16'sh3002, 16'shDA88, 16'shF4E8, 16'shE076, 16'shD9E7, 16'shF581, 16'shF8AF}
 };
 
 logic signed [15:0] rft_test_expected_imag [NUM_RFT_TESTS][BLOCK_SIZE] = '{
   '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'shDB17, 16'sh038F, 16'sh1461, 16'sh0718, 16'shDEA7, 16'shF56E, 16'sh1A35},
-  '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh1410, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'sh979A, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'sh0000, 16'sh0A12, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh39A3, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'shA00B, 16'sh03F7, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh0000, 16'shFD21, 16'shE4C3, 16'shEA68, 16'shFBA0, 16'sh1A8F, 16'shEE40, 16'sh1E46},
-  '{16'sh1CCC, 16'shD750, 16'sh1F35, 16'shFAAB, 16'shE8A9, 16'sh27C2, 16'shDCB6, 16'sh0C48},
+  '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
+  '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
+  '{16'sh0CFF, 16'shEBD9, 16'sh0D55, 16'shC9D9, 16'sh0200, 16'sh30C0, 16'sh0ECE, 16'shED49},
+  '{16'sh120B, 16'sh2226, 16'sh1E44, 16'shE1D8, 16'sh1E28, 16'shE1BC, 16'shDDDA, 16'shEDF5},
+  '{16'sh12B7, 16'shF132, 16'shCF40, 16'shFE00, 16'sh3627, 16'shF2AB, 16'sh1427, 16'shF301},
+  '{16'sh130E, 16'shFAEE, 16'sh182D, 16'shC259, 16'sh0DB8, 16'sh20E2, 16'sh0027, 16'shE7B1},
+  '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
+  '{16'shF6BF, 16'sh24BD, 16'shF647, 16'sh06AB, 16'shF224, 16'sh0416, 16'sh1888, 16'shD45D},
   '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
   '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
   '{16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000, 16'sh0000},
-  '{16'sh191A, 16'sh0C76, 16'shD14E, 16'sh0844, 16'shC233, 16'sh0C11, 16'shFD8A, 16'sh0C53},
-  '{16'sh2E55, 16'sh0CAA, 16'sh06E9, 16'sh1EFC, 16'sh11D4, 16'shE52B, 16'sh2AEC, 16'sh0BAF},
-  '{16'sh1DED, 16'shFE0A, 16'shE8BF, 16'sh0DDC, 16'sh0CC9, 16'sh28B9, 16'sh2544, 16'sh22BC}
+  '{16'sh073D, 16'sh1491, 16'shEFCF, 16'shE921, 16'shECB0, 16'shC19F, 16'sh0F4A, 16'shF2A0},
+  '{16'shF784, 16'sh0FF0, 16'shCEFF, 16'shF046, 16'sh0735, 16'shFA28, 16'shE561, 16'sh1F9C},
+  '{16'sh1261, 16'shF5E8, 16'shBA4D, 16'sh0244, 16'shEE84, 16'shF9C4, 16'shFFF4, 16'sh2246}
 };
 
 string rft_test_names [NUM_RFT_TESTS] = '{

@@ -28,9 +28,11 @@ from typing import List, Tuple, Optional
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from algorithms.rft.core.closed_form_rft import (
-    rft_forward, rft_inverse, rft_phase_vectors, PHI
-)
+# Use canonical operator-based RFT (December 2025)
+from algorithms.rft.variants.operator_variants import generate_rft_golden
+
+# Golden ratio constant
+PHI = (1 + 5**0.5) / 2
 
 # =============================================================================
 # HARDWARE PARAMETERS (must match rftpu_pkg)
@@ -119,20 +121,33 @@ def complex_to_q15_pair(c: complex) -> Tuple[int, int]:
 # HARDWARE RFT KERNEL (matching phi_rft_core)
 # =============================================================================
 
-# Pre-computed kernel coefficients (matching kernel_real/kernel_imag in TLV)
-# These are 16-bit signed fixed-point (Q1.15)
+# Cache the kernel matrix
+_KERNEL_CACHE = {}
+
+def get_rft_kernel(n: int = BLOCK_SAMPLES) -> np.ndarray:
+    """Get canonical RFT kernel matrix (eigenbasis of resonance operator)"""
+    if n not in _KERNEL_CACHE:
+        _KERNEL_CACHE[n] = generate_rft_golden(n)
+    return _KERNEL_CACHE[n]
+
+
 def generate_rft_kernel_coefficients(n: int = BLOCK_SAMPLES) -> Tuple[np.ndarray, np.ndarray]:
     """Generate kernel coefficients matching hardware implementation"""
-    # Use closed-form RFT to generate exact coefficients
-    D_phi, C_sig = rft_phase_vectors(n, beta=RFT_BETA, sigma=RFT_SIGMA, phi=PHI)
-    
-    # DFT matrix normalized
-    W = np.exp(-2j * np.pi * np.outer(np.arange(n), np.arange(n)) / n) / np.sqrt(n)
-    
-    # Full kernel: Diag(D_phi) @ Diag(C_sig) @ W
-    kernel = np.diag(D_phi) @ np.diag(C_sig) @ W
-    
+    # Use canonical operator-based RFT (eigenbasis of K = T(R_phi * d))
+    kernel = get_rft_kernel(n)
     return kernel.real, kernel.imag
+
+
+def python_rft_forward(samples: np.ndarray) -> np.ndarray:
+    """Apply forward canonical RFT: y = Ψ @ x"""
+    kernel = get_rft_kernel(len(samples))
+    return kernel @ samples
+
+
+def python_rft_inverse(coeffs: np.ndarray) -> np.ndarray:
+    """Apply inverse canonical RFT: x = Ψ^H @ y (unitary inverse)"""
+    kernel = get_rft_kernel(len(coeffs))
+    return kernel.conj().T @ coeffs
 
 
 def python_rft_block(samples: np.ndarray, mode: int = 0) -> Tuple[np.ndarray, np.ndarray]:
@@ -141,17 +156,17 @@ def python_rft_block(samples: np.ndarray, mode: int = 0) -> Tuple[np.ndarray, np
     
     Args:
         samples: 8 complex samples (Q1.15 will be converted)
-        mode: Kernel variant (0 = standard)
+        mode: Kernel variant (0 = standard/golden)
         
     Returns:
-        (rft_real, rft_imag): 8 complex RFT coefficients as separate real/imag
+        (rft_real, rft_imag): 8 RFT coefficients as separate real/imag
     """
     x = np.asarray(samples, dtype=np.complex128)
     if len(x) != BLOCK_SAMPLES:
         raise ValueError(f"Expected {BLOCK_SAMPLES} samples, got {len(x)}")
     
-    # Apply RFT forward transform
-    y = rft_forward(x, beta=RFT_BETA, sigma=RFT_SIGMA, phi=PHI)
+    # Apply canonical RFT: y = Ψ @ x (matrix-vector multiply)
+    y = python_rft_forward(x)
     
     return y.real, y.imag
 
@@ -265,7 +280,7 @@ def generate_rft_test_vectors() -> List[RFTTestVector]:
         
         # Round-trip check
         y = rft_real + 1j * rft_imag
-        x_rec = rft_inverse(y, beta=RFT_BETA, sigma=RFT_SIGMA, phi=PHI)
+        x_rec = python_rft_inverse(y)
         rt_error = np.linalg.norm(samples - x_rec) / max(1e-16, norm)
         
         # Energy

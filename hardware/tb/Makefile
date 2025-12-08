@@ -113,6 +113,31 @@ test: run-tb-rft run-tb-rftpu
 	@echo ""
 	@echo "=== All Tests Complete ==="
 
+# Cross-validation testbench
+TB_CROSSVAL := $(TB_DIR)/tb_canonical_rft_crossval.sv
+CROSSVAL_PY := $(TB_DIR)/verify_rtl_vs_python.py
+
+.PHONY: build-crossval
+build-crossval: $(TEST_VEC_SVH)
+	@echo "=== Building Cross-Validation Testbench ==="
+	mkdir -p $(RESULTS_DIR)
+	$(VERILATOR) --binary -j 0 \
+		--Wno-IMPLICIT --Wno-WIDTHEXPAND --Wno-UNUSEDSIGNAL \
+		--Wno-DECLFILENAME --Wno-UNDRIVEN --Wno-BLKSEQ \
+		-I$(TB_DIR) \
+		--top-module tb_canonical_rft_crossval \
+		$(TB_CROSSVAL) \
+		-Mdir $(RESULTS_DIR)/obj_crossval
+	@echo "Built: $(RESULTS_DIR)/obj_crossval/Vtb_canonical_rft_crossval"
+
+.PHONY: run-crossval
+run-crossval: build-crossval
+	@echo "=== Running RTL Cross-Validation ==="
+	cd $(TB_DIR) && $(RESULTS_DIR)/obj_crossval/Vtb_canonical_rft_crossval
+	@echo ""
+	@echo "=== Verifying against Python reference ==="
+	cd $(TB_DIR) && $(PYTHON) verify_rtl_vs_python.py
+
 # Formal verification (requires SymbiYosys)
 .PHONY: formal
 formal:

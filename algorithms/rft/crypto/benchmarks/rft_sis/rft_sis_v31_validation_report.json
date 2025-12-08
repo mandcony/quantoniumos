@@ -1,0 +1,103 @@
+{
+  "unitarity": [
+    {
+      "N": 64,
+      "frobenius_error": 2.6536514489412538e-15,
+      "energy_ratio": 0.9999999999999999,
+      "roundtrip_error": 3.109225435237436e-16
+    },
+    {
+      "N": 128,
+      "frobenius_error": 5.052680879092766e-15,
+      "energy_ratio": 1.0,
+      "roundtrip_error": 4.707778543588553e-16
+    },
+    {
+      "N": 256,
+      "frobenius_error": 7.794059242683795e-15,
+      "energy_ratio": 1.0,
+      "roundtrip_error": 5.206297487661697e-16
+    },
+    {
+      "N": 512,
+      "frobenius_error": 1.3554684109171641e-14,
+      "energy_ratio": 0.9999999999999999,
+      "roundtrip_error": 7.069937316738096e-16
+    }
+  ],
+  "avalanche": {
+    "0.001": {
+      "mean": 0.4980078125,
+      "std": 0.03436831877542482,
+      "min": 0.40625,
+      "max": 0.59765625
+    },
+    "1e-06": {
+      "mean": 0.501796875,
+      "std": 0.033404353459962746,
+      "min": 0.4140625,
+      "max": 0.58203125
+    },
+    "1e-09": {
+      "mean": 0.5032421875,
+      "std": 0.03174921085848779,
+      "min": 0.4296875,
+      "max": 0.58984375
+    },
+    "1e-12": {
+      "mean": 0.4997265625,
+      "std": 0.02867440277515329,
+      "min": 0.42578125,
+      "max": 0.56640625
+    },
+    "1e-15": {
+      "mean": 0.503828125,
+      "std": 0.028710166868909433,
+      "min": 0.44140625,
+      "max": 0.59375
+    }
+  },
+  "collision_resistance": {
+    "num_points": 10000,
+    "collisions": 0,
+    "collision_rate": 0.0,
+    "unique_hashes": 10000
+  },
+  "bit_distribution": {
+    "mean_frequency": 0.49939453125,
+    "std_frequency": 0.016346964591102953,
+    "min_frequency": 0.457,
+    "max_frequency": 0.555,
+    "ideal": 0.5
+  },
+  "performance": {
+    "operations": 1000,
+    "total_time_sec": 1.9846500089988695,
+    "hashes_per_sec": 503.8671783265387,
+    "ms_per_hash": 1.9846500089988695
+  },
+  "3d_hashing": {
+    "diff_x": 0.53515625,
+    "diff_y": 0.50390625,
+    "diff_z": 0.4609375
+  },
+  "security": {
+    "n": 512,
+    "m": 1024,
+    "q": 3329,
+    "beta": 100,
+    "estimated_security_bits": 2589.1926862671558,
+    "root_hermite_delta": 1.0068696940140893,
+    "nist_level_1": true
+  },
+  "sis_bounds": {
+    "beta": 100,
+    "max_observed": 95,
+    "violations": 0
+  },
+  "summary": {
+    "tests_passed": 8,
+    "total_tests": 8,
+    "all_pass": true
+  }
+}

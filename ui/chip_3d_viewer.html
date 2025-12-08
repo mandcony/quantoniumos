@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFTPU 3D Chip Viewer - WebFPGA & ASIC</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a1a2a 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: rgba(0,0,0,0.4);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #4a9eff;
+        }
+        
+        .header h1 {
+            color: #4a9eff;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .header .subtitle {
+            color: #888;
+            font-size: 0.9em;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .chip-panel {
+            background: rgba(20,20,40,0.9);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            min-width: 500px;
+        }
+        
+        .chip-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .chip-title h2 {
+            color: #4a9eff;
+            font-size: 1.4em;
+        }
+        
+        .chip-title .specs {
+            color: #888;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        
+        .chip-3d-container {
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* WebFPGA iCE40 3D Chip */
+        .ice40-chip {
+            width: 280px;
+            height: 280px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(25deg) rotateY(-25deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .ice40-chip:hover {
+            transform: rotateX(15deg) rotateY(-15deg) scale(1.05);
+        }
+        
+        .ice40-package {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #1a1a2a, #0a0a15);
+            border-radius: 8px;
+            border: 2px solid #333;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.6),
+                inset 0 2px 10px rgba(255,255,255,0.05);
+        }
+        
+        .ice40-die {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(135deg, #2a3a4a, #1a2a3a);
+            border: 1px solid #4a6a8a;
+            border-radius: 3px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 2px;
+            padding: 5px;
+        }
+        
+        .logic-block {
+            background: linear-gradient(135deg, #3a5a7a, #2a4a6a);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            color: #8ac;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .logic-block:hover {
+            background: linear-gradient(135deg, #4a9eff, #2a6aaa);
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .logic-block.active {
+            background: linear-gradient(135deg, #00ff88, #00aa55);
+            animation: pulse 1s infinite;
+        }
+        
+        .logic-block.rom {
+            background: linear-gradient(135deg, #aa5500, #884400);
+        }
+        
+        .logic-block.io {
+            background: linear-gradient(135deg, #aa00aa, #660066);
+        }
+        
+        /* Pin ring */
+        .pin-ring {
+            position: absolute;
+            width: calc(100% + 40px);
+            height: calc(100% + 40px);
+            top: -20px;
+            left: -20px;
+        }
+        
+        .pin {
+            position: absolute;
+            width: 4px;
+            height: 12px;
+            background: linear-gradient(to bottom, #c0c0c0, #808080);
+            border-radius: 1px;
+        }
+        
+        .pin.top { transform-origin: bottom center; }
+        .pin.bottom { transform-origin: top center; transform: rotate(180deg); }
+        .pin.left { transform-origin: right center; transform: rotate(-90deg); }
+        .pin.right { transform-origin: left center; transform: rotate(90deg); }
+        
+        /* ASIC 8x8 Tile Array */
+        .asic-chip {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(25deg) rotateY(-25deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .asic-chip:hover {
+            transform: rotateX(15deg) rotateY(-15deg) scale(1.02);
+        }
+        
+        .asic-package {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #1a1520, #0a0510);
+            border-radius: 10px;
+            border: 3px solid #4a3a5a;
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.7),
+                inset 0 2px 15px rgba(255,255,255,0.03);
+        }
+        
+        .asic-die {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            height: 320px;
+            background: linear-gradient(135deg, #2a2040, #1a1030);
+            border: 2px solid #6a4a8a;
+            border-radius: 4px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 3px;
+            padding: 8px;
+        }
+        
+        .tile {
+            background: linear-gradient(135deg, #3a2a5a, #2a1a4a);
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: #a8a;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            border: 1px solid #4a3a6a;
+        }
+        
+        .tile:hover {
+            background: linear-gradient(135deg, #6a4a9a, #4a2a7a);
+            transform: scale(1.15) translateZ(10px);
+            z-index: 10;
+            box-shadow: 0 5px 20px rgba(100,50,150,0.5);
+        }
+        
+        .tile .tile-id {
+            font-weight: bold;
+            color: #c8c;
+        }
+        
+        .tile .tile-status {
+            font-size: 6px;
+            color: #888;
+        }
+        
+        .tile.processing {
+            background: linear-gradient(135deg, #00aa88, #006655);
+            animation: pulse 0.5s infinite;
+        }
+        
+        .tile.noc-active {
+            border-color: #ff0;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* NoC visualization */
+        .noc-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            height: 320px;
+            pointer-events: none;
+        }
+        
+        .noc-line {
+            stroke: rgba(255,200,0,0.3);
+            stroke-width: 1;
+            fill: none;
+        }
+        
+        .noc-line.active {
+            stroke: rgba(255,200,0,0.8);
+            stroke-width: 2;
+            animation: noc-flow 1s linear infinite;
+        }
+        
+        @keyframes noc-flow {
+            0% { stroke-dashoffset: 20; }
+            100% { stroke-dashoffset: 0; }
+        }
+        
+        /* Control panel */
+        .controls {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .controls h3 {
+            color: #4a9eff;
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3a5a7a, #2a4a6a);
+            border: 1px solid #4a6a8a;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #4a9eff, #2a6aaa);
+            transform: translateY(-2px);
+        }
+        
+        .btn.active {
+            background: linear-gradient(135deg, #00aa66, #008844);
+            border-color: #00ff88;
+        }
+        
+        .mode-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        /* Info panel */
+        .info-panel {
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.85em;
+        }
+        
+        .info-panel h4 {
+            color: #4a9eff;
+            margin-bottom: 10px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #888;
+        }
+        
+        .info-value {
+            color: #4a9eff;
+            font-family: monospace;
+        }
+        
+        .info-value.measured {
+            color: #00ff88;
+        }
+        
+        .info-value.projected {
+            color: #ffaa00;
+        }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8em;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            pointer-events: none;
+            z-index: 1000;
+            border: 1px solid #4a9eff;
+            max-width: 300px;
+            display: none;
+        }
+        
+        .tooltip.visible {
+            display: block;
+        }
+        
+        .tooltip h5 {
+            color: #4a9eff;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔬 RFTPU 3D Chip Viewer</h1>
+        <div class="subtitle">WebFPGA (iCE40 HX8K) & ASIC 64-Tile Architecture</div>
+    </div>
+    
+    <div class="container">
+        <!-- WebFPGA Panel -->
+        <div class="chip-panel">
+            <div class="chip-title">
+                <h2>📦 WebFPGA - iCE40 HX8K</h2>
+                <div class="specs">Lattice iCE40 HX8K-CT256 | 7,680 LUTs | 27.62 MHz (MEASURED)</div>
+            </div>
+            
+            <div class="chip-3d-container">
+                <div class="ice40-chip" id="ice40">
+                    <div class="ice40-package">
+                        <!-- Pin ring (simplified) -->
+                        <div class="pin-ring" id="pin-ring"></div>
+                        
+                        <!-- Die -->
+                        <div class="ice40-die" id="ice40-die">
+                            <!-- 16 logic blocks representing the FPGA structure -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <h3>Mode Selection</h3>
+                <div class="control-row">
+                    <button class="btn active" data-mode="0" onclick="setFPGAMode(0)">RFT-Golden</button>
+                    <button class="btn" data-mode="1" onclick="setFPGAMode(1)">RFT-Fibonacci</button>
+                    <button class="btn" data-mode="2" onclick="setFPGAMode(2)">RFT-Harmonic</button>
+                    <button class="btn" data-mode="3" onclick="setFPGAMode(3)">RFT-Geometric</button>
+                </div>
+                <div class="control-row">
+                    <button class="btn" data-mode="4" onclick="setFPGAMode(4)">RFT-Beating</button>
+                    <button class="btn" data-mode="5" onclick="setFPGAMode(5)">RFT-Phyllotaxis</button>
+                    <button class="btn" data-mode="6" onclick="setFPGAMode(6)">RFT-Cascade</button>
+                    <button class="btn" data-mode="7" onclick="setFPGAMode(7)">RFT-Hybrid-DCT</button>
+                </div>
+                <div class="control-row">
+                    <button class="btn" data-mode="8" onclick="setFPGAMode(8)">RFT-Manifold</button>
+                    <button class="btn" data-mode="9" onclick="setFPGAMode(9)">RFT-Euler</button>
+                    <button class="btn" data-mode="10" onclick="setFPGAMode(10)">RFT-PhaseCoh</button>
+                    <button class="btn" data-mode="11" onclick="setFPGAMode(11)">RFT-Entropy</button>
+                </div>
+                <div class="control-row">
+                    <span class="mode-indicator">Current Mode: <span id="fpga-mode">0 (RFT-Golden)</span></span>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <h4>📊 Measured Results (WebFPGA)</h4>
+                <div class="info-row">
+                    <span class="info-label">Target Clock</span>
+                    <span class="info-value measured">12 MHz</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Achieved Fmax</span>
+                    <span class="info-value measured">27.62 MHz ✓</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Timing Margin</span>
+                    <span class="info-value measured">2.3×</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">LUT4 Usage</span>
+                    <span class="info-value measured">2,160 (40.9%)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Flip-Flops</span>
+                    <span class="info-value measured">377 (7.1%)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Block RAMs</span>
+                    <span class="info-value measured">4</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Kernel ROM</span>
+                    <span class="info-value measured">768 entries (12×64)</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ASIC Panel -->
+        <div class="chip-panel" style="min-width: 550px;">
+            <div class="chip-title">
+                <h2>🏭 ASIC Blueprint - 64-Tile RFTPU</h2>
+                <div class="specs">TSMC N7 Target | 8×8 Mesh NoC | 950 MHz (PROJECTED)</div>
+            </div>
+            
+            <div class="chip-3d-container">
+                <div class="asic-chip" id="asic">
+                    <div class="asic-package">
+                        <!-- Die with 8x8 tiles -->
+                        <div class="asic-die" id="asic-die">
+                            <!-- 64 tiles will be generated -->
+                        </div>
+                        
+                        <!-- NoC overlay -->
+                        <svg class="noc-overlay" id="noc-svg">
+                            <!-- NoC mesh lines will be generated -->
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <h3>Tile Simulation</h3>
+                <div class="control-row">
+                    <button class="btn" onclick="simulateNoCTraffic()">🔄 Simulate NoC</button>
+                    <button class="btn" onclick="highlightH3Cascade()">🔺 H3 Cascade</button>
+                    <button class="btn" onclick="runAllTiles()">▶️ Run All</button>
+                    <button class="btn" onclick="resetTiles()">⏹️ Reset</button>
+                </div>
+                <div class="control-row">
+                    <span class="mode-indicator">Active Tiles: <span id="active-tiles">0</span>/64</span>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <h4>📊 Architectural Projections (NOT MEASURED)</h4>
+                <div class="info-row">
+                    <span class="info-label">Target Clock</span>
+                    <span class="info-value projected">950 MHz ⚠️</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Total Throughput</span>
+                    <span class="info-value projected">~2.39 TOPS ⚠️</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Power (est.)</span>
+                    <span class="info-value projected">~8.2 W ⚠️</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Efficiency (upper-bound)</span>
+                    <span class="info-value projected">~291 GOPS/W ⚠️</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Realistic Est.</span>
+                    <span class="info-value projected">~95-150 GOPS/W</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tile Count</span>
+                    <span class="info-value">64 (8×8)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Per-Tile Latency</span>
+                    <span class="info-value">12 cycles</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #3a5a7a, #2a4a6a);"></div>
+            <span>Logic Block</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #aa5500, #884400);"></div>
+            <span>ROM (Kernel)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #00aa88, #006655);"></div>
+            <span>Processing</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #aa00aa, #660066);"></div>
+            <span>I/O</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgba(255,200,0,0.5);"></div>
+            <span>NoC Active</span>
+        </div>
+    </div>
+    
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+    
+    <script>
+        // Mode names
+        const modeNames = [
+            'RFT-Golden', 'RFT-Fibonacci', 'RFT-Harmonic', 'RFT-Geometric',
+            'RFT-Beating', 'RFT-Phyllotaxis', 'RFT-Cascade', 'RFT-Hybrid-DCT',
+            'RFT-Manifold', 'RFT-Euler', 'RFT-PhaseCoh', 'RFT-Entropy',
+            'SIS Hash', 'Feistel-48', 'Quantum Sim', 'Roundtrip'
+        ];
+        
+        // Unitarity errors (from actual data)
+        const unitarityErrors = [
+            '6.12e-15', '1.09e-13', '1.96e-15', '2.84e-15',
+            '3.41e-15', '4.12e-15', '5.23e-15', '5.40e-15',
+            '2.11e-14', '3.89e-14', '4.67e-14', '5.12e-14'
+        ];
+        
+        let currentFPGAMode = 0;
+        let activeTiles = new Set();
+        
+        // Initialize iCE40 die
+        function initICE40Die() {
+            const die = document.getElementById('ice40-die');
+            const blocks = [
+                { type: 'io', label: 'I/O' },
+                { type: 'logic', label: 'MAC' },
+                { type: 'rom', label: 'ROM' },
+                { type: 'logic', label: 'FSM' },
+                { type: 'logic', label: 'MUL' },
+                { type: 'rom', label: 'ROM' },
+                { type: 'logic', label: 'ACC' },
+                { type: 'io', label: 'I/O' },
+                { type: 'logic', label: 'CTL' },
+                { type: 'logic', label: 'REG' },
+                { type: 'logic', label: 'REG' },
+                { type: 'logic', label: 'DBG' },
+                { type: 'io', label: 'LED' },
+                { type: 'logic', label: 'DEB' },
+                { type: 'logic', label: 'CLK' },
+                { type: 'io', label: 'BTN' }
+            ];
+            
+            blocks.forEach((block, i) => {
+                const div = document.createElement('div');
+                div.className = `logic-block ${block.type}`;
+                div.textContent = block.label;
+                div.dataset.index = i;
+                div.addEventListener('mouseenter', (e) => showBlockTooltip(e, block, i));
+                div.addEventListener('mouseleave', hideTooltip);
+                die.appendChild(div);
+            });
+        }
+        
+        // Initialize ASIC tile array
+        function initASICDie() {
+            const die = document.getElementById('asic-die');
+            
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const tileId = row * 8 + col;
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.id = `tile-${tileId}`;
+                    tile.innerHTML = `
+                        <div class="tile-id">${tileId}</div>
+                        <div class="tile-status">(${col},${row})</div>
+                    `;
+                    tile.dataset.row = row;
+                    tile.dataset.col = col;
+                    tile.dataset.id = tileId;
+                    tile.addEventListener('click', () => toggleTile(tileId));
+                    tile.addEventListener('mouseenter', (e) => showTileTooltip(e, tileId, row, col));
+                    tile.addEventListener('mouseleave', hideTooltip);
+                    die.appendChild(tile);
+                }
+            }
+            
+            // Draw NoC mesh
+            drawNoCMesh();
+        }
+        
+        // Draw NoC mesh lines
+        function drawNoCMesh() {
+            const svg = document.getElementById('noc-svg');
+            const tileSize = 37.5; // (320 - 20) / 8
+            const offset = 10;
+            
+            // Horizontal lines
+            for (let row = 0; row < 8; row++) {
+                const y = offset + row * tileSize + tileSize / 2;
+                for (let col = 0; col < 7; col++) {
+                    const x1 = offset + col * tileSize + tileSize;
+                    const x2 = offset + (col + 1) * tileSize;
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x1);
+                    line.setAttribute('y1', y);
+                    line.setAttribute('x2', x2);
+                    line.setAttribute('y2', y);
+                    line.setAttribute('class', 'noc-line');
+                    line.id = `noc-h-${row}-${col}`;
+                    svg.appendChild(line);
+                }
+            }
+            
+            // Vertical lines
+            for (let col = 0; col < 8; col++) {
+                const x = offset + col * tileSize + tileSize / 2;
+                for (let row = 0; row < 7; row++) {
+                    const y1 = offset + row * tileSize + tileSize;
+                    const y2 = offset + (row + 1) * tileSize;
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x);
+                    line.setAttribute('y1', y1);
+                    line.setAttribute('x2', x);
+                    line.setAttribute('y2', y2);
+                    line.setAttribute('class', 'noc-line');
+                    line.id = `noc-v-${row}-${col}`;
+                    svg.appendChild(line);
+                }
+            }
+        }
+        
+        // Set FPGA mode
+        function setFPGAMode(mode) {
+            currentFPGAMode = mode;
+            document.getElementById('fpga-mode').textContent = `${mode} (${modeNames[mode]})`;
+            
+            // Update button states
+            document.querySelectorAll('.chip-panel:first-child .btn[data-mode]').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.mode) === mode);
+            });
+            
+            // Animate logic blocks
+            const blocks = document.querySelectorAll('.logic-block');
+            blocks.forEach((block, i) => {
+                block.classList.remove('active');
+                setTimeout(() => {
+                    if (i === 2 || i === 5) { // ROM blocks
+                        block.classList.add('active');
+                    }
+                }, i * 50);
+            });
+            
+            setTimeout(() => {
+                blocks.forEach(block => block.classList.remove('active'));
+            }, 1000);
+        }
+        
+        // Toggle tile processing state
+        function toggleTile(tileId) {
+            const tile = document.getElementById(`tile-${tileId}`);
+            if (activeTiles.has(tileId)) {
+                activeTiles.delete(tileId);
+                tile.classList.remove('processing');
+            } else {
+                activeTiles.add(tileId);
+                tile.classList.add('processing');
+            }
+            updateActiveTileCount();
+        }
+        
+        function updateActiveTileCount() {
+            document.getElementById('active-tiles').textContent = activeTiles.size;
+        }
+        
+        // Simulate NoC traffic
+        function simulateNoCTraffic() {
+            const lines = document.querySelectorAll('.noc-line');
+            let index = 0;
+            
+            const interval = setInterval(() => {
+                if (index > 0) {
+                    lines[index - 1].classList.remove('active');
+                }
+                if (index < lines.length) {
+                    lines[index].classList.add('active');
+                    lines[index].style.strokeDasharray = '5,5';
+                    index++;
+                } else {
+                    clearInterval(interval);
+                    lines.forEach(line => {
+                        line.classList.remove('active');
+                        line.style.strokeDasharray = 'none';
+                    });
+                }
+            }, 30);
+        }
+        
+        // Highlight H3 cascade pattern
+        function highlightH3Cascade() {
+            // H3 cascade uses tiles in a hierarchical pattern
+            const cascadePattern = [0, 1, 8, 9, 2, 3, 10, 11, 16, 17, 24, 25];
+            resetTiles();
+            
+            cascadePattern.forEach((tileId, i) => {
+                setTimeout(() => {
+                    const tile = document.getElementById(`tile-${tileId}`);
+                    tile.classList.add('processing');
+                    activeTiles.add(tileId);
+                    updateActiveTileCount();
+                }, i * 100);
+            });
+        }
+        
+        // Run all tiles
+        function runAllTiles() {
+            for (let i = 0; i < 64; i++) {
+                setTimeout(() => {
+                    const tile = document.getElementById(`tile-${i}`);
+                    tile.classList.add('processing');
+                    activeTiles.add(i);
+                    updateActiveTileCount();
+                }, i * 20);
+            }
+        }
+        
+        // Reset all tiles
+        function resetTiles() {
+            for (let i = 0; i < 64; i++) {
+                const tile = document.getElementById(`tile-${i}`);
+                tile.classList.remove('processing');
+            }
+            activeTiles.clear();
+            updateActiveTileCount();
+        }
+        
+        // Tooltip functions
+        function showBlockTooltip(e, block, index) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.innerHTML = `
+                <h5>iCE40 Block ${index}</h5>
+                <div>Type: ${block.type.toUpperCase()}</div>
+                <div>Function: ${block.label}</div>
+                ${block.type === 'rom' ? '<div>Contains: 768 kernel entries</div>' : ''}
+            `;
+            positionTooltip(e);
+        }
+        
+        function showTileTooltip(e, tileId, row, col) {
+            const tooltip = document.getElementById('tooltip');
+            const mode = tileId % 12;
+            tooltip.innerHTML = `
+                <h5>RFTPU Tile ${tileId}</h5>
+                <div>Position: (${col}, ${row})</div>
+                <div>NoC Address: 0x${tileId.toString(16).padStart(2, '0')}</div>
+                <div>Default Mode: ${modeNames[mode]}</div>
+                <div>Latency: 12 cycles</div>
+                <div>Contains:</div>
+                <div style="font-size:0.9em;color:#888;">
+                  • Φ-RFT core<br>
+                  • SIS digest engine<br>
+                  • Local scratchpad<br>
+                  • NoC interface (N/S/E/W)
+                </div>
+            `;
+            positionTooltip(e);
+        }
+        
+        function positionTooltip(e) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+            tooltip.classList.add('visible');
+        }
+        
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('visible');
+        }
+        
+        // Mouse tracking for tooltip
+        document.addEventListener('mousemove', (e) => {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip.classList.contains('visible')) {
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initICE40Die();
+            initASICDie();
+        });
+    </script>
+</body>
+</html>

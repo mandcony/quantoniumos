@@ -528,6 +528,44 @@ The TL-V architecture can be simulated in [Makerchip](https://makerchip.com):
 
 ## RFT Validation & Experiments
 
+### 🧪 CLI Proof Runner (NEW)
+
+A unified command-line interface for running all mathematical proofs and validation tests:
+
+```bash
+# List all available proof tests
+python scripts/run_proofs.py --list
+
+# Quick validation suite (~2 min)
+python scripts/run_proofs.py --quick
+
+# Full validation suite (may take 5-10 min)
+python scripts/run_proofs.py --full
+
+# Run specific category
+python scripts/run_proofs.py --category unitarity
+python scripts/run_proofs.py --category hardware
+python scripts/run_proofs.py --category non-equivalence
+
+# Run specific proof by name
+python scripts/run_proofs.py --name unitarity-all-variants
+
+# Generate JSON report
+python scripts/run_proofs.py --quick --report results/proof_validation.json
+```
+
+**Available Proof Categories:**
+
+| Category | Description | Tests |
+|----------|-------------|-------|
+| `unitarity` | Verify Ψ^H Ψ = I for all variants | 2 |
+| `non-equivalence` | Prove RFT ≠ permuted DFT | 2 |
+| `sparsity` | Domain-specific sparsity advantage | 2 |
+| `coherence` | Zero-coherence cascade (H3/FH5) | 2 |
+| `hardware` | FPGA/TLV kernel validation | 2 |
+| `paper-claims` | Full paper claims validation | 3 |
+| `compression` | Compression BPP claims | 1 |
+
 ### Validated Claims
 
 All experiments are in `experiments/` and can be reproduced:

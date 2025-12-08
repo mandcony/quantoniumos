@@ -360,12 +360,23 @@ def comprehensive_validation():
     print("=" * 70)
     
     results['summary'] = {
-        'tests_passed': tests_passed,
-        'total_tests': total_tests,
-        'all_pass': tests_passed == total_tests
+        'tests_passed': int(tests_passed),
+        'total_tests': int(total_tests),
+        'all_pass': bool(tests_passed == total_tests)
     }
     
     return results
+
+
+def numpy_serializer(obj):
+    """JSON serializer for numpy types"""
+    if isinstance(obj, (np.integer, np.floating)):
+        return float(obj)
+    if isinstance(obj, np.bool_):
+        return bool(obj)
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    raise TypeError(f'Object of type {obj.__class__.__name__} is not JSON serializable')
 
 
 if __name__ == "__main__":
@@ -374,6 +385,6 @@ if __name__ == "__main__":
     # Save to JSON for records
     output_path = os.path.join(os.path.dirname(__file__), 'rft_sis_v31_validation_report.json')
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(results, f, indent=2, default=numpy_serializer)
     
     print(f"\nFull results saved to: {output_path}")
