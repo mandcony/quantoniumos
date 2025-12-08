@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/algorithms/rft/variants/patent_variants.py
+# hypothesis_version: 6.148.5
+
+[1e-10, 0.005, 0.01, 0.02, 0.1, 0.2, 0.3, 0.5, 1.0, 128, '=', 'RFT-Bloom-Hash', 'RFT-Complex-Exp', 'RFT-Euler-Sphere', 'RFT-Euler-Torus', 'RFT-Exp-Decay-Golden', 'RFT-Figure8-Knot', 'RFT-Hopf-Fibration', 'RFT-Hybrid-Phase', 'RFT-Klein', 'RFT-Kuramoto', 'RFT-Loxodrome', 'RFT-Mobius', 'RFT-Phase-Coherent', 'RFT-Polar-Golden', 'RFT-Spiral-Golden', 'RFT-Trefoil-Knot', 'RFT-Winding', '__main__', 'claim', 'description', 'fro', 'generator', 'name', 'rft_bloom_hash', 'rft_complex_exp', 'rft_euler_sphere', 'rft_euler_torus', 'rft_exp_decay_golden', 'rft_figure8_knot', 'rft_hopf_fibration', 'rft_hybrid_phase', 'rft_klein', 'rft_kuramoto', 'rft_loxodrome', 'rft_mobius', 'rft_phase_coherent', 'rft_polar_golden', 'rft_spiral_golden', 'rft_trefoil_knot', 'rft_winding', '✓', '✗']

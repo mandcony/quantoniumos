@@ -1,0 +1,75 @@
+======================================================================
+RESONANT FOURIER TRANSFORM - FORMAL MATHEMATICAL PROOFS
+======================================================================
+
+Transform Size: N = 256
+Golden Ratio: φ = 1.6180339887
+
+----------------------------------------------------------------------
+DEFINITION 1: The Resonance Operator K_φ
+----------------------------------------------------------------------
+
+    K_φ = T(R_φ ⊙ d)
+    
+    Where:
+        R_φ[k] = cos(2πf₀k/N) + cos(2πf₀φk/N)    (Golden autocorrelation)
+        d[k]   = exp(-αk)                         (Decay regularization)
+        T(·)   = Toeplitz matrix constructor
+        ⊙      = Element-wise product
+    
+
+----------------------------------------------------------------------
+THEOREM 1: K_φ is Hermitian
+----------------------------------------------------------------------
+
+    Proof: K_φ is a real symmetric Toeplitz matrix.
+           T[i,j] = R_φ[|i-j|] · d[|i-j|] = T[j,i]
+           For real matrices: Hermitian ⟺ Symmetric ✓
+    
+    Empirical Verification: ||K - K^H||_F = 0.00e+00
+    Result: PASS ✓
+
+----------------------------------------------------------------------
+THEOREM 2: Spectral Decomposition
+----------------------------------------------------------------------
+
+    By the Spectral Theorem for Hermitian matrices:
+    
+        K_φ = U_φ Λ U_φ^H
+        
+    Where:
+        U_φ ∈ ℝ^{N×N} : Orthonormal eigenvector matrix (RFT basis)
+        Λ = diag(λ₁, ..., λ_N) : Real eigenvalues
+        
+    The Resonant Fourier Transform is defined as:
+        Forward:  X = U_φ^T x
+        Inverse:  x = U_φ X
+    
+    Eigenvalue range: [-0.9897, 65.6192]
+    Condition number: -66.30
+
+----------------------------------------------------------------------
+THEOREM 3: U_φ is Unitary (Orthogonal for real case)
+----------------------------------------------------------------------
+
+    Proof: Eigenvectors of Hermitian matrices form an orthonormal basis.
+           Therefore U_φ^H U_φ = I and U_φ U_φ^H = I.
+    
+    ||U^H U - I||_F = 1.46e-13
+    ||U U^H - I||_F = 1.46e-13
+    Result: PASS ✓
+
+----------------------------------------------------------------------
+COROLLARY: Perfect Reconstruction
+----------------------------------------------------------------------
+
+    For any signal x ∈ ℝ^N:
+        x = U_φ (U_φ^T x) = U_φ U_φ^T x = I x = x
+        
+    Reconstruction is exact (up to numerical precision).
+    
+    Empirical: ||x - U_φ U_φ^T x|| / ||x|| = 2.05e-15
+
+======================================================================
+END OF FORMAL PROOFS
+======================================================================

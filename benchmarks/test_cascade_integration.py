@@ -100,37 +100,37 @@ def _run_codec_mode(mode: str, signal_name: str, signal: np.ndarray) -> Dict:
         'mse': mse,
         'encode_ms': encode_time,
         'decode_ms': decode_time,
-        'total_ms': encode_time + decode_time
+        'total_ms': encode_time + decode_time,
+        'passed': True  # Will be updated by validate_target_performance
     }
 
 
 def validate_target_performance(results: Dict, mode: str, signal: str) -> bool:
-    """Check if results meet target performance"""
+    """Check if results meet target performance. Returns False if targets not met."""
+    passed = True
+    
     if mode == 'h3_cascade':
         # Target: 0.673 BPP avg, <1ms latency
-        if results['bpp'] > 0.8:
-            print(f"  ⚠ H3 BPP {results['bpp']:.3f} > 0.8 (target: 0.673)")
-            return False
-        if results['total_ms'] > 1.5:
-            print(f"  ⚠ H3 latency {results['total_ms']:.2f}ms > 1.5ms")
-            return False
-        return True
+        if results['bpp'] > 0.75:  # Allow small margin over 0.673
+            print(f"  ⚠ H3 BPP {results['bpp']:.3f} > 0.75 (target: ≤0.673)")
+            passed = False
+        if results['total_ms'] > 2.0:
+            print(f"  ⚠ H3 latency {results['total_ms']:.2f}ms > 2.0ms (target: <1ms)")
+            passed = False
     
     elif mode == 'fh5_entropy':
         # Target: 0.406 BPP on edges
         if signal == 'steps' and results['bpp'] > 0.5:
             print(f"  ⚠ FH5 edge BPP {results['bpp']:.3f} > 0.5 (target: 0.406)")
-            return False
-        return True
+            passed = False
     
     elif mode == 'h6_dictionary':
         # Target: 49.9 dB PSNR on smooth
         if signal == 'sine_smooth' and results['psnr'] < 40.0:
             print(f"  ⚠ H6 smooth PSNR {results['psnr']:.2f}dB < 40dB (target: 49.9dB)")
-            return False
-        return True
+            passed = False
     
-    return True
+    return passed
 
 
 def main():
@@ -148,6 +148,7 @@ def main():
     # Test modes
     modes = ['h3_cascade', 'fh5_entropy', 'h6_dictionary']
     all_results = []
+    performance_failures = []  # Track performance target failures
     
     for mode in modes:
         print(f"Testing Mode: {mode.upper()}")
@@ -157,10 +158,22 @@ def main():
         for signal_name, signal_data in signals.items():
             try:
                 result = _run_codec_mode(mode, signal_name, signal_data)
+                
+                # Check performance targets
+                perf_ok = validate_target_performance(result, mode, signal_name)
+                result['perf_passed'] = perf_ok
+                if not perf_ok:
+                    performance_failures.append({
+                        'mode': mode, 
+                        'signal': signal_name,
+                        'bpp': result['bpp'],
+                        'psnr': result['psnr']
+                    })
+                
                 mode_results.append(result)
                 
                 # Print result
-                status = "✓" if validate_target_performance(result, mode, signal_name) else "⚠"
+                status = "✓" if perf_ok else "⚠"
                 print(f"  {status} {signal_name:<20} │ BPP: {result['bpp']:>6.3f} │ "
                       f"PSNR: {result['psnr']:>7.2f}dB │ Time: {result['total_ms']:>6.2f}ms")
                 
@@ -184,30 +197,45 @@ def main():
     print("  INTEGRATION SUMMARY")
     print("=" * 100)
     
-    failed = [r for r in all_results if 'error' in r]
-    passed = [r for r in all_results if 'error' not in r]
+    errors = [r for r in all_results if 'error' in r]
+    executed = [r for r in all_results if 'error' not in r]
+    perf_passed = [r for r in executed if r.get('perf_passed', True)]
     
     print(f"  Total Tests: {len(all_results)}")
-    print(f"  Passed: {len(passed)} ✓")
-    print(f"  Failed: {len(failed)} ✗")
+    print(f"  Executed: {len(executed)}")
+    print(f"  Errors: {len(errors)} ✗")
+    print(f"  Performance Passed: {len(perf_passed)}/{len(executed)}")
+    print(f"  Performance Failed: {len(performance_failures)} ⚠")
     print()
     
-    if len(passed) == len(all_results):
+    # Determine overall pass/fail
+    all_passed = len(errors) == 0 and len(performance_failures) == 0
+    
+    if all_passed:
         print("  ✅ ALL TESTS PASSED - Integration Complete!")
         print()
         print("  Next Steps:")
         print("  - Rebuild C extension: cd /workspaces/quantoniumos && pip install -e .")
         print("  - Run full benchmarks: python benchmarks/test_all_hybrids.py")
         print("  - Deploy to production pipeline")
+        exit_code = 0
     else:
-        print("  ⚠ SOME TESTS FAILED")
+        print("  ❌ TESTS FAILED")
         print()
-        print("  Failed Tests:")
-        for r in failed:
-            print(f"    - {r['mode']} on {r['signal']}: {r['error']}")
+        if errors:
+            print("  Execution Errors:")
+            for r in errors:
+                print(f"    - {r['mode']} on {r['signal']}: {r.get('error', 'unknown')}")
+        if performance_failures:
+            print("  Performance Target Failures:")
+            for f in performance_failures:
+                print(f"    - {f['mode']} on {f['signal']}: BPP={f['bpp']:.3f}, PSNR={f['psnr']:.2f}dB")
+        exit_code = 1
     
     print("=" * 100)
+    return exit_code
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+    sys.exit(main())

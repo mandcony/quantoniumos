@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/algorithms/rft/core/phi_phase_fft.py
+# hypothesis_version: 6.148.5
+
+[0.0, 1e-16, 0.5, 1.0, 2.0, 5.0, 5329322, 'ortho']

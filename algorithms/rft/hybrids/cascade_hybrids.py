@@ -45,9 +45,15 @@ class H3HierarchicalCascade:
         C = {DCT(x_structure), RFT(x_texture)}
         
     Properties:
-        1. Energy preservation: ||x||² = ||x_structure||² + ||x_texture||²
-        2. Zero coherence: η = 0 (no inter-basis competition)
+        1. Sequential decomposition: structure via moving average, texture as residual
+        2. Zero coherence: η = 0 (no inter-basis competition between DCT/RFT domains)
         3. Optimal sparsity: Each domain processes ideal characteristics
+        
+    Note on Energy Preservation:
+        This implementation uses moving average decomposition for efficiency.
+        For EXACT energy preservation ||x||² = ||x_struct||² + ||x_texture||² + ||x_residual||²,
+        use orthonormal basis projections as in Theorem 4.1 (PHI_RFT_PROOFS.tex).
+        The moving average approach gives near-orthogonal components but not exact Parseval identity.
     
     Usage:
         >>> cascade = H3HierarchicalCascade()
@@ -56,13 +62,13 @@ class H3HierarchicalCascade:
         >>> print(f"Compression: {result.bpp:.3f} BPP, Coherence: {result.coherence}")
     """
     
-    def __init__(self, kernel_size_ratio: float = 0.25):
+    def __init__(self, kernel_size_ratio: float = 1/32):
         """
         Initialize H3 cascade transform.
         
         Args:
             kernel_size_ratio: Ratio of signal length for moving average kernel.
-                             Default 0.25 (N/4) provides optimal structure extraction.
+                             Default 1/32 matches the original algorithm (N/32).
         """
         self.kernel_size_ratio = kernel_size_ratio
         self.variant_name = "H3_Hierarchical_Cascade"
@@ -96,6 +102,9 @@ class H3HierarchicalCascade:
         """
         Encode signal with H3 hierarchical cascade.
         
+        This implementation matches the original hypothesis3_hierarchical_cascade
+        algorithm from experiments/hypothesis_testing/hybrid_mca_fixes.py.
+        
         Args:
             signal: Input signal (1D array)
             sparsity: Target sparsity ratio (0-1). Higher = more compression.
@@ -110,42 +119,80 @@ class H3HierarchicalCascade:
         # Step 1: Decompose into structure and texture
         structure, texture = self._decompose(signal)
         
-        # Step 2: Transform each domain with optimal basis
-        # DCT for structure (smooth components)
-        C_dct = np.fft.rfft(structure, norm='ortho')
+        # Step 2: DCT for structure (smooth components)
+        C_dct_structure = np.fft.rfft(structure, norm='ortho')
         
-        # RFT for texture (edges/discontinuities)
+        # Keep top-k for structure (more coefficients since it's smoother)
+        # Original algorithm: 70% of budget goes to structure
+        k_structure = max(1, int(n * (1 - sparsity) * 0.7))
+        if len(C_dct_structure) > 0:
+            threshold_s = np.percentile(np.abs(C_dct_structure), 
+                                        max(0, (1 - k_structure/len(C_dct_structure)) * 100))
+            C_dct_sparse = C_dct_structure.copy()
+            C_dct_sparse[np.abs(C_dct_sparse) < threshold_s] = 0
+        else:
+            C_dct_sparse = C_dct_structure.copy()
+        
+        # Reconstruct structure
+        structure_recon = np.fft.irfft(C_dct_sparse, n=n, norm='ortho')
+        
+        # Step 3: RFT for texture residual
+        residual = texture - (structure_recon - structure)
         try:
             from algorithms.rft.core.closed_form_rft import rft_forward
-            C_rft = rft_forward(texture.astype(np.complex128))
+            C_rft_texture = rft_forward(residual.astype(np.complex128))
         except ImportError:
-            # Fallback to FFT if RFT not available
-            C_rft = np.fft.fft(texture)
+            C_rft_texture = np.fft.fft(residual)
         
-        # Step 3: Combine coefficients
-        # Pad DCT to full length and concatenate with RFT
-        C_structure_padded = np.pad(C_dct, (0, n - len(C_dct)))
-        C_all = np.concatenate([C_structure_padded, C_rft[:n//2]])
+        # Keep top-k for texture (30% of budget)
+        k_texture = max(1, int(n * (1 - sparsity) * 0.3))
+        if len(C_rft_texture) > 0:
+            threshold_t = np.percentile(np.abs(C_rft_texture), 
+                                        max(0, (1 - k_texture/len(C_rft_texture)) * 100))
+            C_rft_sparse = C_rft_texture.copy()
+            C_rft_sparse[np.abs(C_rft_sparse) < threshold_t] = 0
+        else:
+            C_rft_sparse = C_rft_texture.copy()
         
-        # Step 4: Apply sparsity threshold
-        threshold = np.percentile(np.abs(C_all), sparsity * 100)
-        C_sparse = C_all.copy()
-        C_sparse[np.abs(C_sparse) < threshold] = 0
+        # Step 4: Combine coefficients for storage/transmission
+        # Match original: concatenate DCT coeffs with first N//2 RFT coeffs
+        C_combined = np.concatenate([C_dct_sparse, C_rft_sparse[:n//2]])
         
-        # Step 5: Compute metrics
-        nonzero = np.count_nonzero(C_sparse)
-        bpp = (nonzero * 16) / len(C_sparse)  # Assume 16 bits per coefficient
-        sparsity_pct = (len(C_sparse) - nonzero) / len(C_sparse) * 100
+        # Step 5: Compute metrics using entropy-aware BPP calculation
+        # This matches compute_bpp from the original implementation
+        nonzero = np.count_nonzero(C_combined)
+        total = len(C_combined)
+        if nonzero == 0:
+            bpp = 0.0
+        else:
+            bits_per_nonzero = 16  # 16-bit quantization
+            bpp = (nonzero * bits_per_nonzero) / total
+        
+        # Compute combined sparsity
+        total_coeffs = len(C_dct_sparse) + len(C_rft_sparse)
+        zero_coeffs = np.sum(C_dct_sparse == 0) + np.sum(C_rft_sparse == 0)
+        sparsity_pct = zero_coeffs / total_coeffs * 100 if total_coeffs > 0 else 0.0
+        
+        # Compute reconstruction for PSNR
+        # Note: texture_recon is zero in original algorithm (simplified)
+        reconstructed = structure_recon
+        mse = np.mean((signal - reconstructed) ** 2)
+        if mse == 0:
+            psnr = float('inf')
+        else:
+            max_val = np.max(np.abs(signal))
+            psnr = 20 * np.log10(max_val / np.sqrt(mse)) if max_val > 0 else 0.0
         
         elapsed_ms = (time.perf_counter() - start_time) * 1000
         
         return CascadeResult(
-            coefficients=C_sparse,
+            coefficients=C_combined,
             bpp=bpp,
             coherence=0.0,  # Zero by construction (orthogonal decomposition)
             sparsity=sparsity_pct,
             variant=self.variant_name,
-            time_ms=elapsed_ms
+            time_ms=elapsed_ms,
+            psnr=psnr
         )
     
     def decode(self, coefficients: np.ndarray, original_length: int) -> np.ndarray:
@@ -160,16 +207,16 @@ class H3HierarchicalCascade:
             Reconstructed signal
         """
         n = original_length
-        kernel_size = int(n * self.kernel_size_ratio)
         
-        # Split back into structure and texture domains (same split as encode)
-        mid = kernel_size
-        C_structure = coefficients[:mid]
-        C_texture = coefficients[mid:]
+        # Split back into structure and texture domains
+        # Structure: first n//2+1 coefficients (DCT output size)
+        # Texture: remaining n//2 coefficients (RFT truncated)
+        dct_len = n // 2 + 1
+        C_structure = coefficients[:dct_len]
+        C_texture = coefficients[dct_len:]
         
-        # Pad structure coefficients to correct size for DCT
-        # DCT operates on real signals, so irfft expects n//2+1 coefficients
-        C_structure_padded = np.zeros(n//2 + 1, dtype=coefficients.dtype)
+        # Pad structure coefficients to correct size for DCT inverse
+        C_structure_padded = np.zeros(n//2 + 1, dtype=np.complex128)
         C_structure_padded[:min(len(C_structure), n//2+1)] = C_structure[:min(len(C_structure), n//2+1)]
         
         # Inverse DCT for structure (using irfft which is equivalent to DCT)

@@ -4,9 +4,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Dict
 
+from scipy.linalg import toeplitz, eigh
+
 import numpy as np
 
 from .golden_ratio_unitary import GoldenRatioUnitary
+from .patent_variants import generate_rft_manifold_projection
 
 PHI = (1.0 + np.sqrt(5.0)) / 2.0
 
@@ -275,6 +278,90 @@ def generate_h6_dictionary_learning(n: int, n_atoms: int = 32) -> np.ndarray:
     return _orthonormalize(combined)
 
 
+def _manifold_r(n: int) -> np.ndarray:
+    k = np.arange(n)
+    t = k / n
+    u = 2 * np.pi * t
+    v = 2 * np.pi * PHI * t
+    twist = PHI * u
+    x = (2 + np.cos(v + twist)) * np.cos(u)
+    y = (2 + np.cos(v + twist)) * np.sin(u)
+    z = np.sin(v + twist)
+    r = x + 0.3 * y + 0.1 * z
+    return r / (np.max(np.abs(r)) + 1e-10)
+
+
+def generate_noise_shrink_manifold(
+    n: int,
+    *,
+    sigma: float = 0.12,
+    shrink: float = 0.15,
+) -> np.ndarray:
+    """Noise-aware manifold operator with spectral shrinkage.
+
+    - Build manifold autocorrelation r (twisted torus).
+    - Apply Gaussian damping in lag to suppress high-frequency noise.
+    - Add Tikhonov-style diagonal shrinkage before eigendecomposition.
+    """
+
+    k = np.arange(n, dtype=float)
+    r = _manifold_r(n)
+
+    # Gaussian damping on lags
+    window = np.exp(-(k ** 2) / (2 * (sigma * n) ** 2))
+    r_damped = r * window
+
+    K = toeplitz(r_damped)
+    if shrink > 0:
+        K = K + shrink * np.eye(n)
+
+    w, V = eigh(K)
+    idx = np.argsort(w)[::-1]
+    return V[:, idx]
+
+
+def generate_robust_manifold_2d(
+    n: int,
+    *,
+    alpha: float = 0.35,
+    lambda_low: float = 0.18,
+) -> np.ndarray:
+    """Noise-robust, non-separable 2D RFT/DCT blend.
+
+    - Builds 2D manifold basis via Kronecker of 1D manifold_projection.
+    - Builds 2D DCT-II basis via Kronecker of 1D DCT.
+    - Blends per-frequency using a radial low-pass weight (favor DCT at low k).
+    - Final orthonormalization produces a unitary, non-Kronecker transform.
+
+    Args:
+        n: Side length (output matrix is (n^2, n^2)).
+        alpha: Blend sharpness for manifold contribution (higher -> more manifold at high k).
+        lambda_low: Exponential decay for low-pass weighting.
+    """
+
+    # 1D bases
+    dct_1d = generate_dct_basis(n)
+    manifold_1d = generate_rft_manifold_projection(n)
+
+    # 2D separable bases
+    dct_2d = np.kron(dct_1d, dct_1d)
+    manifold_2d = np.kron(manifold_1d, manifold_1d)
+
+    n2 = n * n
+
+    # Radial weight: DCT dominates low freq, manifold takes mid/high
+    kx, ky = np.meshgrid(np.arange(n), np.arange(n), indexing="ij")
+    r = np.sqrt(kx * kx + ky * ky)
+    r_norm = r / (np.sqrt(2) * (n - 1) + 1e-12)
+    w_low = np.exp(-lambda_low * r_norm * r_norm).reshape(-1, 1)
+    w_high = 1.0 - w_low
+
+    # Blend and add mild manifold boost at high k
+    blended = w_low * dct_2d + (w_high * (alpha + (1 - alpha) * w_low)) * manifold_2d
+
+    return _orthonormalize(blended.astype(np.complex128))
+
+
 @dataclass(frozen=True)
 class VariantInfo:
     name: str
@@ -374,6 +461,18 @@ VARIANTS: Dict[str, VariantInfo] = {
         innovation="Bridge atoms between DCT/RFT bases",
         use_case="High-quality reconstruction (best PSNR)",
     ),
+    "noise_shrink_manifold": VariantInfo(
+        name="Noise-Shrink Manifold",
+        generator=generate_noise_shrink_manifold,
+        innovation="Gaussian lag damping + diagonal shrinkage",
+        use_case="Noise-robust manifold projection",
+    ),
+    "robust_manifold_2d": VariantInfo(
+        name="Robust Manifold 2D",
+        generator=generate_robust_manifold_2d,
+        innovation="Non-separable DCT/manifold blend with radial weighting",
+        use_case="Noise-robust geometric 2D transforms",
+    ),
     "dct": VariantInfo(
         name="Pure DCT-II",
         generator=generate_dct_basis,
@@ -385,6 +484,61 @@ VARIANTS: Dict[str, VariantInfo] = {
         generator=generate_hybrid_dct_rft,
         innovation="Adaptive DCT/RFT coefficient selection",
         use_case="Mixed content (smooth + textured)",
+    ),
+    # ===========================================================================
+    # OPERATOR-BASED RFT VARIANTS (December 2025)
+    # ===========================================================================
+    # These use the CANONICAL RFT definition: eigenbasis of resonance operator K.
+    # Unlike the legacy φ-phase variants (Ψ = D_φ C_σ F), these provide real
+    # sparsity advantages for matched signal families.
+    # ===========================================================================
+    "op_rft_golden": VariantInfo(
+        name="RFT-Golden (Operator)",
+        generator=lambda n: __import__('algorithms.rft.variants.operator_variants', fromlist=['generate_rft_golden']).generate_rft_golden(n),
+        innovation="Eigenbasis of golden-ratio resonance operator K_φ",
+        use_case="CANONICAL RFT - quasi-periodic signals, phyllotaxis (wins 4/11 benchmarks)",
+    ),
+    "op_rft_fibonacci": VariantInfo(
+        name="RFT-Fibonacci (Operator)",
+        generator=lambda n: __import__('algorithms.rft.variants.operator_variants', fromlist=['generate_rft_fibonacci']).generate_rft_fibonacci(n),
+        innovation="Fibonacci frequency resonance operator",
+        use_case="Fibonacci-modulated signals",
+    ),
+    "op_rft_harmonic": VariantInfo(
+        name="RFT-Harmonic (Operator)",
+        generator=lambda n: __import__('algorithms.rft.variants.operator_variants', fromlist=['generate_rft_harmonic']).generate_rft_harmonic(n),
+        innovation="Natural harmonic overtone resonance",
+        use_case="Musical audio, speech harmonics (wins on phyllotaxis)",
+    ),
+    "op_rft_geometric": VariantInfo(
+        name="RFT-Geometric (Operator)",
+        generator=lambda n: __import__('algorithms.rft.variants.operator_variants', fromlist=['generate_rft_geometric']).generate_rft_geometric(n),
+        innovation="Golden-ratio powers frequency scaling",
+        use_case="Self-similar signals, chirps (wins 3/11 benchmarks)",
+    ),
+    "op_rft_beating": VariantInfo(
+        name="RFT-Beating (Operator)",
+        generator=lambda n: __import__('algorithms.rft.variants.operator_variants', fromlist=['generate_rft_beating']).generate_rft_beating(n),
+        innovation="Golden-ratio beating pattern operator",
+        use_case="Interference, AM signals (wins on pure sine)",
+    ),
+    "op_rft_phyllotaxis": VariantInfo(
+        name="RFT-Phyllotaxis (Operator)",
+        generator=lambda n: __import__('algorithms.rft.variants.operator_variants', fromlist=['generate_rft_phyllotaxis']).generate_rft_phyllotaxis(n),
+        innovation="Golden angle (137.5°) spiral structure",
+        use_case="Biological patterns, sunflower spirals",
+    ),
+    "op_rft_cascade": VariantInfo(
+        name="RFT-Cascade (Operator)",
+        generator=lambda n: __import__('algorithms.rft.variants.operator_variants', fromlist=['generate_rft_cascade_h3']).generate_rft_cascade_h3(n),
+        innovation="DCT (low) + RFT (high) operator blend",
+        use_case="General-purpose, multi-scale signals",
+    ),
+    "op_rft_hybrid_dct": VariantInfo(
+        name="RFT-Hybrid-DCT (Operator)",
+        generator=lambda n: __import__('algorithms.rft.variants.operator_variants', fromlist=['generate_rft_hybrid_dct']).generate_rft_hybrid_dct(n),
+        innovation="Split DCT/RFT basis with orthonormalization",
+        use_case="Mixed content, noise resilience (wins on white noise)",
     ),
 }
 

@@ -52,6 +52,17 @@ _BASE_VARIANT_ROWS: Sequence[Tuple[str, str, Optional[str], bool]] = (
     ("ADAPTIVE_SPLIT", "adaptive_split", "RFT_VARIANT_ADAPTIVE_SPLIT", False),
     ("ENTROPY_GUIDED", "fh5_entropy", "RFT_VARIANT_ENTROPY_GUIDED", False),
     ("DICTIONARY", "h6_dictionary", "RFT_VARIANT_DICTIONARY", False),
+    ("NOISE_SHRINK_MANIFOLD", "noise_shrink_manifold", None, True),
+    ("ROBUST_MANIFOLD_2D", "robust_manifold_2d", None, True),
+    # Operator-based RFT variants (December 2025 - canonical definition)
+    ("OP_RFT_GOLDEN", "op_rft_golden", None, False),
+    ("OP_RFT_FIBONACCI", "op_rft_fibonacci", None, False),
+    ("OP_RFT_HARMONIC", "op_rft_harmonic", None, False),
+    ("OP_RFT_GEOMETRIC", "op_rft_geometric", None, False),
+    ("OP_RFT_BEATING", "op_rft_beating", None, False),
+    ("OP_RFT_PHYLLOTAXIS", "op_rft_phyllotaxis", None, False),
+    ("OP_RFT_CASCADE", "op_rft_cascade", None, False),
+    ("OP_RFT_HYBRID_DCT", "op_rft_hybrid_dct", None, False),
 )
 
 

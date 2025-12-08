@@ -24,8 +24,8 @@ from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
 
 def hamming_distance(a: np.ndarray, b: np.ndarray) -> int:
     """Compute Hamming distance between two byte arrays."""
-    a_bytes = a.astype(np.float64).tobytes()
-    b_bytes = b.astype(np.float64).tobytes()
+    a_bytes = np.asarray(a, dtype=np.complex128).view(np.float64).tobytes()
+    b_bytes = np.asarray(b, dtype=np.complex128).view(np.float64).tobytes()
     
     # Count differing bits
     diff = 0

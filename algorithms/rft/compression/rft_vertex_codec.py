@@ -127,7 +127,8 @@ def _quantized_checksum(flat: np.ndarray, tolerance: float) -> str:
     if not np.isfinite(scale):
         raise ValueError("Invalid tolerance leading to non-finite scale")
     try:
-        quantized_int = np.rint(flat * scale).astype(np.int64)
+        clip_min, clip_max = np.iinfo(np.int64).min, np.iinfo(np.int64).max
+        quantized_int = np.rint(np.clip(flat * scale, clip_min, clip_max)).astype(np.int64)
         return hashlib.sha256(quantized_int.tobytes()).hexdigest()
     except (OverflowError, ValueError):
         decimals = max(0, int(round(-math.log10(tolerance))))

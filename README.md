@@ -10,6 +10,61 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](tests/)
 
+---
+
+## ⚠️ IMPORTANT: RFT Definition Update (December 2025)
+
+**Breaking Change:** The definition of "RFT" (Resonant Fourier Transform) has been corrected.
+
+### What Changed
+
+| Term | OLD (Deprecated) | NEW (Canonical) |
+|------|------------------|-----------------|
+| **RFT** | Ψ = D_φ C_σ F (phase-tilted FFT) | Eigenbasis of resonance operator K |
+| **Sparsity** | None vs FFT | **+15-20 dB PSNR** on target signals |
+| **Novelty** | Trivially equivalent to phased DFT | Genuine operator-eigenbasis transform |
+
+### The Canonical RFT Definition
+
+The **Resonant Fourier Transform (RFT)** is now defined as:
+
+$$
+K = T(R(k) \cdot d(k)), \quad K = U \Lambda U^T, \quad \text{RFT}(x) = U^T x
+$$
+
+Where:
+- $K$ is a Hermitian resonance operator (Toeplitz matrix of structured autocorrelation)
+- $U$ is the orthonormal eigenbasis of $K$
+- $\phi$, Fibonacci, and other patterns are **parameters** of $K$, not the definition of RFT
+
+### The φ-Phase FFT (Deprecated)
+
+The old formula Ψ = D_φ C_σ F is now called **φ-phase FFT** or **phase-tilted FFT**:
+- Has property: |(Ψx)_k| = |(Fx)_k| for all x
+- **No sparsity advantage** over standard FFT
+- Preserved for backwards compatibility only
+
+### File Changes
+
+| Old File | New File | Notes |
+|----------|----------|-------|
+| `closed_form_rft.py` | `phi_phase_fft.py` | Deprecated φ-phase FFT |
+| `rft_optimized.py` | `phi_phase_fft_optimized.py` | Deprecated optimized version |
+| (new) | `resonant_fourier_transform.py` | **Canonical RFT kernel** |
+| (new) | `README_RFT.md` | Authoritative RFT definition |
+
+### Validated Results
+
+| Benchmark | RFT Wins | Condition |
+|-----------|----------|-----------|
+| In-Family (Golden QP) | **82%** | N ≥ 256 |
+| Out-of-Family | 25% | Expected (domain-specific) |
+| PSNR Gain | **+15-20 dB** | At 10% coefficient retention |
+
+See `algorithms/rft/README_RFT.md` for the complete specification.
+
+---
+
 > **PATENT-PENDING RESEARCH PLATFORM.** QuantoniumOS bundles:
 > - the **Φ-RFT** (golden-ratio + chirp, **closed-form, fast** unitary transform),
 > - **compression** pipelines (lossless + hybrid learned),
@@ -154,21 +209,37 @@ python experiments/ascii_wall_paper.py
 
 ---
 
-## What’s New (TL;DR)
+## What's New (TL;DR)
 
-**Φ-RFT (closed-form, fast).** Let $F$ be the unitary DFT (`norm="ortho"`). Define diagonal phases:
+### Canonical RFT (Current Definition)
+
+The **Resonant Fourier Transform** is the eigenbasis of a Hermitian resonance operator:
+
+```python
+from algorithms.rft.kernels.resonant_fourier_transform import build_rft_kernel, rft_forward, rft_inverse
+
+# Build fixed RFT kernel (O(N³) one-time, cached)
+Phi = build_rft_kernel(N=256)
+
+# Transform (O(N²) per signal)
+X = rft_forward(signal, Phi)      # RFT(x) = Φ^T x
+rec = rft_inverse(X, Phi)         # RFT⁻¹(X) = Φ X
+```
+
+**Properties:**
+- **Unitary:** Φ^T Φ = I (proven via Spectral Theorem)
+- **Domain-Specific:** +15-20 dB PSNR on golden quasi-periodic signals
+- **Honest:** Loses to FFT/DCT on non-target signal families
+
+### Deprecated: φ-Phase FFT (Old "RFT")
+
+The original formula Ψ = D_φ C_σ F is preserved for backwards compatibility:
 
 *   $[C_\sigma]_{kk} = \exp(i\pi\sigma k^2/n)$
 *   $[D_\phi]_{kk} = \exp(2\pi i\,\beta\,\{k/\phi\})$
 
-with $\phi=(1+\sqrt5)/2$. Set $\Psi = D_\phi\,C_\sigma\,F$.
-
-- **Unitary by construction:** $\Psi^\dagger \Psi = I$.
-- **Exact complexity:** $\mathcal O(n\log n)$ (FFT/IFFT + two diagonal multiplies).
-- **Exact diagonalization:** twisted convolution $x\star_{\phi,\sigma}h=\Psi^\dagger\!\mathrm{diag}(\Psi h)\Psi x$ is **commutative**/**associative**, and $\Psi(x\star h)=(\Psi x)\odot(\Psi h)$.
-- **Not LCT/FrFT/DFT-equivalent:** golden-ratio phase is **provably non-quadratic** (via Sturmian sequence properties) for $\beta \notin \mathbb{Z}$; distinct from LCT/FrFT classes.
-
-For proofs and tests, see **`docs/validation/RFT_THEOREMS.md`** and **`tests/rft/`**.
+**WARNING:** This has NO sparsity advantage over FFT. It is a phase-only transform.
+See `algorithms/rft/core/phi_phase_fft.py` (formerly `closed_form_rft.py`).
 
 ---
 
@@ -177,12 +248,26 @@ For proofs and tests, see **`docs/validation/RFT_THEOREMS.md`** and **`tests/rft
 ```
 QuantoniumOS/
 ├─ algorithms/
-│  ├─ rft/core/
-│  │  ├─ canonical_true_rft.py     # Reference Φ-RFT (claims-practicing)
-│  │  ├─ closed_form_rft.py        # Original implementation
-│  │  └─ rft_optimized.py          # Optimized fused-diagonal RFT
+│  ├─ rft/
+│  │  ├─ README_RFT.md             # ⭐ AUTHORITATIVE RFT DEFINITION
+│  │  ├─ kernels/
+│  │  │  ├─ resonant_fourier_transform.py  # ⭐ Canonical RFT kernel
+│  │  │  ├─ operator_arft_kernel.py        # Adaptive RFT (signal-driven)
+│  │  │  └─ arft_kernel.py                 # QR-orthonormalized variant
+│  │  ├─ core/
+│  │  │  ├─ canonical_true_rft.py          # Reference implementation
+│  │  │  ├─ phi_phase_fft.py               # DEPRECATED: old Ψ=DφCσF
+│  │  │  └─ phi_phase_fft_optimized.py     # DEPRECATED: fused version
+│  │  ├─ theory/
+│  │  │  └─ formal_framework.py            # Formal proofs & theorems
+│  │  └─ hybrids/                          # Cascade codecs
 │  ├─ compression/                 # Lossless & hybrid codecs
 │  └─ crypto/                      # RFT–SIS experiments & validators
+├─ tests/
+│  ├─ benchmarks/
+│  │  ├─ honest_rft_benchmark.py   # ⭐ Canonical RFT vs FFT/DCT
+│  │  ├─ rft_multiscale_benchmark.py  # Multi-N scaling tests
+│  │  └─ rft_realworld_benchmark.py   # Real-world signal tests
 ├─ hardware/
 │  ├─ rftpu_architecture.tlv       # 64-tile RFTPU TL-Verilog (Makerchip)
 │  ├─ quantoniumos_unified_engines.sv  # Unified RTL (RFT+SIS+Feistel)
@@ -216,6 +301,44 @@ QuantoniumOS/
 ├─ REPRODUCING_RESULTS.md          # Reproducibility guide
 └─ README.md                       # This file
 ```
+
+---
+
+## 🏥 Medical Applications (NEW - December 2025)
+
+**Status:** 83 tests passing | Open Research Preview
+
+> 🆓 **FREE FOR HOSPITALS & MEDICAL RESEARCHERS** - This module is free for hospitals, healthcare institutions, medical researchers, and academics for testing and research purposes.
+
+QuantoniumOS includes a comprehensive medical applications test suite validating RFT for healthcare domains:
+
+| Domain | Tests | Key Metrics |
+|--------|-------|-------------|
+| **Medical Imaging** | MRI/CT/PET denoising | PSNR, SSIM vs DCT/Wavelet |
+| **Biosignals** | ECG/EEG/EMG compression | PRD < 9%, SNR, correlation |
+| **Genomics** | K-mer spectrum, contact maps | Compression ratio, F1 score |
+| **Clinical Security** | Waveform hashing, federated learning | Avalanche effect ~0.5, Byzantine resilience |
+| **Edge Devices** | Cortex-M4, ESP32, nRF52 | Memory fit, latency targets |
+
+### Quick Start
+
+```bash
+# Run all medical tests
+pytest tests/medical/ -v
+
+# Run benchmark with report
+python tests/medical/run_medical_benchmarks.py --report
+
+# Run specific domain
+python tests/medical/run_medical_benchmarks.py --imaging --quick
+```
+
+### Documentation
+
+- **[docs/medical/README.md](docs/medical/README.md)** - Full medical applications guide
+- **[tests/medical/](tests/medical/)** - Test suite source code
+
+> ⚠️ **Research Disclaimer:** NOT validated for clinical use. For research/education only.
 
 ---
 

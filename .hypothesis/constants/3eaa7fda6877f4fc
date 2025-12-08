@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/algorithms/rft/kernels/arft_kernel.py
+# hypothesis_version: 6.148.5
+
+[1e-09, 0.05, 0.5, 1.0, 'ij']

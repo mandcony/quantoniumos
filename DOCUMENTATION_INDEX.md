@@ -126,6 +126,7 @@ This comprehensive documentation scan resulted in 4 new master documents. Use th
 |----------|---------|----------|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical deep dive | Developers |
 | [docs/ARCHITECTURE_QUICKREF.md](docs/ARCHITECTURE_QUICKREF.md) | One-page cheat sheet | Everyone |
+| [docs/medical/README.md](docs/medical/README.md) | Medical applications guide | Medical researchers |
 | [ARCHITECTURE_VERIFICATION.md](ARCHITECTURE_VERIFICATION.md) | Architecture validation | Researchers |
 | [docs/validation/RFT_THEOREMS.md](docs/validation/RFT_THEOREMS.md) | Mathematical proofs | Researchers |
 
