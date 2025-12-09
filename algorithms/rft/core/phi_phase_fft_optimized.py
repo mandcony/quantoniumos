@@ -230,7 +230,7 @@ def verify_equivalence(n: int = 1024, trials: int = 5) -> dict:
     """
     Verify that optimized RFT produces identical results to original.
     """
-    from algorithms.rft.core.closed_form_rft import (
+    from algorithms.rft.core.phi_phase_fft import (
         rft_forward as rft_forward_orig,
         rft_inverse as rft_inverse_orig,
     )
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     print("Φ-RFT Optimized vs Original Comparison")
     print("=" * 60)
     
-    from algorithms.rft.core.closed_form_rft import (
+    from algorithms.rft.core.phi_phase_fft import (
         rft_forward as rft_forward_orig,
         rft_inverse as rft_inverse_orig,
     )

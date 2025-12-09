@@ -219,7 +219,11 @@ def rft_denoise_2d(noisy_image: np.ndarray,
         Denoised image
     """
     try:
-        from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+        # Canonical operator-based RFT (resonance eigenbasis)
+        from algorithms.rft.kernels.resonant_fourier_transform import (
+            rft_forward,
+            rft_inverse,
+        )
     except ImportError:
         pytest.skip("RFT core not available")
     
@@ -582,3 +586,143 @@ def run_comprehensive_imaging_benchmark():
 
 if __name__ == "__main__":
     run_comprehensive_imaging_benchmark()
+
+
+# =============================================================================
+# Real-Data Tests (FastMRI Knee Singlecoil)
+# =============================================================================
+
+from tests.medical.real_data_fixtures import (
+    skip_no_fastmri,
+    list_fastmri_slices,
+    load_fastmri_slice,
+    FASTMRI_AVAILABLE,
+)
+
+
+@skip_no_fastmri
+class TestRealFastMRI:
+    """
+    Tests using real FastMRI knee single-coil data.
+    
+    Requires:
+        - USE_REAL_DATA=1
+        - CC BY-NC 4.0 acceptance at https://fastmri.org/
+        - FASTMRI_KNEE_URL=<signed_url>
+        - bash data/fastmri_fetch.sh executed
+    
+    ⚠️ RESEARCH USE ONLY — NOT FOR CLINICAL USE ⚠️
+    """
+
+    @pytest.fixture(scope="class")
+    def fastmri_kspace(self):
+        """Load first available FastMRI slice."""
+        slices = list_fastmri_slices()
+        if not slices:
+            pytest.skip("No FastMRI slices found")
+        kspace, target = load_fastmri_slice(slices[0], slice_idx=0)
+        return kspace, target
+
+    def test_real_mri_zero_filled_reconstruction(self, fastmri_kspace):
+        """Test zero-filled reconstruction baseline on real MRI."""
+        kspace, target = fastmri_kspace
+        
+        # Zero-filled reconstruction
+        recon_zf = np.abs(np.fft.ifft2(kspace))
+        
+        # Normalize for comparison
+        recon_zf = (recon_zf - recon_zf.min()) / (recon_zf.max() - recon_zf.min() + 1e-10)
+        target_norm = (target - target.min()) / (target.max() - target.min() + 1e-10)
+        
+        psnr_zf = psnr(target_norm, recon_zf)
+        ssim_zf = ssim_simple(target_norm, recon_zf)
+        
+        print(f"✓ Real MRI zero-filled: PSNR={psnr_zf:.2f} dB, SSIM={ssim_zf:.4f}")
+        
+        # Zero-filled should have reasonable baseline
+        assert psnr_zf >= 15.0, f"Zero-filled PSNR too low: {psnr_zf:.2f}"
+
+    def test_real_mri_rft_denoising(self, fastmri_kspace):
+        """Test RFT denoising on real MRI reconstruction."""
+        kspace, target = fastmri_kspace
+        
+        # Reconstruct with noise
+        recon = np.abs(np.fft.ifft2(kspace))
+        
+        # Normalize
+        recon_norm = (recon - recon.min()) / (recon.max() - recon.min() + 1e-10)
+        target_norm = (target - target.min()) / (target.max() - target.min() + 1e-10)
+        
+        # Add simulated noise for denoising test
+        noisy = add_rician_noise(recon_norm, sigma=0.05)
+        
+        # Denoise with RFT
+        denoised = rft_denoise_2d(noisy, threshold_ratio=0.05)
+        
+        psnr_noisy = psnr(recon_norm, noisy)
+        psnr_denoised = psnr(recon_norm, denoised)
+        
+        print(f"Real MRI denoising: PSNR noisy={psnr_noisy:.2f} dB → denoised={psnr_denoised:.2f} dB")
+        
+        # Denoising should not degrade significantly
+        assert psnr_denoised >= psnr_noisy - 3.0, "RFT denoising degraded image too much"
+
+    def test_real_mri_undersampled_reconstruction(self, fastmri_kspace):
+        """Test reconstruction from undersampled real k-space."""
+        kspace, target = fastmri_kspace
+        
+        # Simulate 50% undersampling
+        mask = np.random.random(kspace.shape) < 0.5
+        # Keep center 20%
+        cy, cx = kspace.shape[0] // 2, kspace.shape[1] // 2
+        center = int(0.1 * min(kspace.shape))
+        mask[cy-center:cy+center, cx-center:cx+center] = True
+        
+        undersampled = kspace * mask
+        
+        # Zero-filled reconstruction
+        recon_us = np.abs(np.fft.ifft2(undersampled))
+        recon_full = np.abs(np.fft.ifft2(kspace))
+        
+        # Normalize
+        recon_us = (recon_us - recon_us.min()) / (recon_us.max() - recon_us.min() + 1e-10)
+        recon_full = (recon_full - recon_full.min()) / (recon_full.max() - recon_full.min() + 1e-10)
+        
+        psnr_us = psnr(recon_full, recon_us)
+        
+        print(f"✓ Real MRI 50% undersampled: PSNR={psnr_us:.2f} dB")
+        
+        # Undersampled should still have some structure
+        assert psnr_us >= 10.0, f"Undersampled reconstruction too degraded: {psnr_us:.2f}"
+
+
+@skip_no_fastmri
+def test_fastmri_multiple_slices():
+    """Test reconstruction across multiple FastMRI slices."""
+    slices = list_fastmri_slices()[:3]  # Test up to 3 volumes
+    
+    if len(slices) == 0:
+        pytest.skip("No FastMRI slices available")
+    
+    results = []
+    for h5_path in slices:
+        try:
+            kspace, target = load_fastmri_slice(h5_path, slice_idx=0)
+            recon = np.abs(np.fft.ifft2(kspace))
+            
+            # Normalize
+            recon_norm = (recon - recon.min()) / (recon.max() - recon.min() + 1e-10)
+            target_norm = (target - target.min()) / (target.max() - target.min() + 1e-10)
+            
+            psnr_val = psnr(target_norm, recon_norm)
+            results.append((h5_path.stem, psnr_val))
+        except Exception as e:
+            print(f"  Skipping {h5_path.stem}: {e}")
+    
+    if results:
+        print("\nFastMRI Multi-Slice Results:")
+        for name, p in results:
+            print(f"  {name}: PSNR={p:.2f} dB")
+        
+        avg_psnr = np.mean([r[1] for r in results])
+        assert avg_psnr >= 15.0, f"Average PSNR across slices too low: {avg_psnr:.2f}"

@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/algorithms/rft/variants/operator_variants.py
+# hypothesis_version: 6.148.5
+
+[1e-10, 0.01, 0.02, 0.5, 1.0, 4.0, 5.0, 10.0, 128, '=', 'Mixed content', 'RFT-Beating', 'RFT-Cascade (H3)', 'RFT-Euler-Sphere', 'RFT-Fibonacci', 'RFT-Geometric', 'RFT-Golden', 'RFT-Harmonic', 'RFT-Hybrid-DCT', 'RFT-Loxodrome', 'RFT-Phase-Coherent', 'RFT-Phyllotaxis', 'RFT-Polar-Golden', 'Self-similar signals', 'Split DCT/RFT basis', '__main__', 'description', 'fro', 'full', 'generator', 'name', 'ortho', 'rft_beating', 'rft_cascade_h3', 'rft_euler_sphere', 'rft_fibonacci', 'rft_geometric', 'rft_golden', 'rft_harmonic', 'rft_hybrid_dct', 'rft_loxodrome', 'rft_phase_coherent', 'rft_phyllotaxis', 'rft_polar_golden', 'use_case', '✓', '✗']

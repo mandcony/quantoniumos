@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-**🏆 BREAKTHROUGH: Hypothesis 3 (Hierarchical Cascade) solves the ASCII bottleneck!**
+**BREAKTHROUGH: Hypothesis 3 (Hierarchical Cascade) solves the ASCII bottleneck!**
 
 - **Result:** 0.672 BPP (beats DCT baseline by 86% / 4.83→0.67)
 - **Improvement:** 16.5% better than current greedy hybrid (0.805→0.672 BPP)
@@ -42,13 +42,13 @@ Traditional Greedy Hybrid:
 
 | Hypothesis | Strategy | BPP | PSNR | Time | Coherence | Status |
 |------------|----------|-----|------|------|-----------|--------|
-| **Baseline** | Current greedy | 0.805 | 10.06 | 156.6ms | 0.50 | ❌ Failed |
-| **H1: Coherence-Aware** | Group interfering bins | 0.805 | 10.06 | 623.4ms | 0.50 | ❌ No improvement |
-| **H2: Phase-Adaptive** | Modulate φ near edges | N/A | N/A | Error | N/A | ⚠️ Implementation bug |
-| **H3: Hierarchical Cascade** | Separate domains | **0.672** | **10.87** | **0.9ms** | **0.00** | ✅ **SUCCESS** |
-| **H4: Quantum Superposition** | SVD joint optimization | 8.008 | 13.58 | 277.9ms | 0.50 | ❌ Too dense |
-| **H5: Attention Gating** | Soft weighting | 0.805 | 11.90 | 1.0ms | 0.50 | ⚠️ Good PSNR, no BPP gain |
-| **H6: Dictionary Learning** | Bridge atoms | 0.806 | 11.96 | 93.4ms | 0.50 | ⚠️ Good PSNR, no BPP gain |
+| **Baseline** | Current greedy | 0.805 | 10.06 | 156.6ms | 0.50 | [X] Failed |
+| **H1: Coherence-Aware** | Group interfering bins | 0.805 | 10.06 | 623.4ms | 0.50 | [X] No improvement |
+| **H2: Phase-Adaptive** | Modulate φ near edges | N/A | N/A | Error | N/A | [!] Implementation bug |
+| **H3: Hierarchical Cascade** | Separate domains | **0.672** | **10.87** | **0.9ms** | **0.00** | [OK] **SUCCESS** |
+| **H4: Quantum Superposition** | SVD joint optimization | 8.008 | 13.58 | 277.9ms | 0.50 | [X] Too dense |
+| **H5: Attention Gating** | Soft weighting | 0.805 | 11.90 | 1.0ms | 0.50 | [!] Good PSNR, no BPP gain |
+| **H6: Dictionary Learning** | Bridge atoms | 0.806 | 11.96 | 93.4ms | 0.50 | [!] Good PSNR, no BPP gain |
 
 ## The Winning Solution: Hierarchical Cascade
 

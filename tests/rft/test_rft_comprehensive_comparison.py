@@ -16,7 +16,7 @@ from scipy.signal import hilbert
 import warnings
 warnings.filterwarnings('ignore')
 
-from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse, rft_matrix
+from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse, rft_matrix
 
 # ============================================================================
 # Transform Implementations

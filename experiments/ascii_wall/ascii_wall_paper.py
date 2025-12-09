@@ -63,8 +63,7 @@ from hybrid_mca_fixes import (
 )
 
 # Import transforms directly
-sys.path.insert(0, str(Path(__file__).parent.parent / "algorithms" / "rft" / "core"))
-from closed_form_rft import rft_forward, rft_inverse
+from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
 
 
 @dataclass

@@ -25,7 +25,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 
 import numpy as np
 from scipy.fftpack import dct, idct
-from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
+from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
 import json
 from typing import Dict, Tuple
 import gzip

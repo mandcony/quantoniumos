@@ -19,7 +19,7 @@ from numpy.testing import assert_allclose, assert_array_less
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-from algorithms.rft.core.closed_form_rft import (
+from algorithms.rft.core.phi_phase_fft import (
     rft_forward, rft_inverse, rft_matrix
 )
 

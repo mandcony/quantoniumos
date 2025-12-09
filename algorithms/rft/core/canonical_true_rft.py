@@ -17,8 +17,8 @@ from __future__ import annotations
 from typing import Optional
 import numpy as np
 
-# Closed-form implementation
-from .closed_form_rft import (
+# φ-phase FFT implementation (renamed from closed_form_rft)
+from .phi_phase_fft import (
     rft_forward,
     rft_inverse,
     rft_unitary_error,

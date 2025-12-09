@@ -20,10 +20,19 @@ of golden-ratio quasi-periodic signals.
 import numpy as np
 from scipy.linalg import toeplitz, eigh
 from functools import lru_cache
-from typing import Tuple
+from typing import Optional, Tuple
+
+# Optional operator-based variant support
+try:
+    from algorithms.rft.variants.operator_variants import get_operator_variant
+except Exception:  # pragma: no cover - fallback when variants package unavailable
+    get_operator_variant = None
 
 # The Golden Ratio
 PHI = (1 + np.sqrt(5)) / 2
+
+DEFAULT_VARIANT: Optional[str] = None
+
 
 @lru_cache(maxsize=16)
 def build_rft_kernel(N: int, f0: float = 10.0, decay_rate: float = 0.01) -> np.ndarray:
@@ -78,18 +87,26 @@ def build_rft_kernel(N: int, f0: float = 10.0, decay_rate: float = 0.01) -> np.n
     return Phi.astype(np.float64)
 
 
-def rft_forward(x: np.ndarray, Phi: np.ndarray = None) -> np.ndarray:
-    """Apply Resonant Fourier Transform."""
-    if Phi is None:
-        Phi = build_rft_kernel(len(x))
-    return Phi.T @ x
+def _select_basis(n: int, variant: Optional[str] = None, Phi: Optional[np.ndarray] = None) -> np.ndarray:
+    """Resolve which basis to use for forward/inverse transforms."""
+    if Phi is not None:
+        return Phi
+    chosen_variant = variant or DEFAULT_VARIANT
+    if chosen_variant and get_operator_variant is not None:
+        return get_operator_variant(chosen_variant, n)
+    return build_rft_kernel(n)
 
 
-def rft_inverse(X: np.ndarray, Phi: np.ndarray = None) -> np.ndarray:
-    """Apply Inverse Resonant Fourier Transform."""
-    if Phi is None:
-        Phi = build_rft_kernel(len(X))
-    return Phi @ X
+def rft_forward(x: np.ndarray, Phi: np.ndarray = None, variant: Optional[str] = None) -> np.ndarray:
+    """Apply Resonant Fourier Transform (optionally selecting a variant)."""
+    basis = _select_basis(len(x), variant=variant, Phi=Phi)
+    return basis.T @ x
+
+
+def rft_inverse(X: np.ndarray, Phi: np.ndarray = None, variant: Optional[str] = None) -> np.ndarray:
+    """Apply Inverse Resonant Fourier Transform (optionally selecting a variant)."""
+    basis = _select_basis(len(X), variant=variant, Phi=Phi)
+    return basis @ X
 
 
 def verify_unitarity(Phi: np.ndarray) -> Tuple[bool, float]:

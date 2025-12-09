@@ -19,7 +19,7 @@ from scipy import stats
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_PROJECT_ROOT))
 
-from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
+from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
 
 
 def hamming_distance(a: np.ndarray, b: np.ndarray) -> int:

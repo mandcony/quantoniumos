@@ -12,7 +12,7 @@
 
 ---
 
-## ⚠️ IMPORTANT: RFT Definition Update (December 2025)
+## IMPORTANT: RFT Definition Update (December 2025)
 
 **Breaking Change:** The definition of "RFT" (Resonant Fourier Transform) has been corrected.
 
@@ -89,7 +89,7 @@ See `PHASE4_PLAN.md` for detailed roadmap.
 
 ---
 
-## 🚀 Start Here
+## Start Here
 
 | Step | Doc | Purpose |
 | --- | --- | --- |
@@ -254,9 +254,9 @@ See `algorithms/rft/core/phi_phase_fft.py` (formerly `closed_form_rft.py`).
 QuantoniumOS/
 ├─ algorithms/
 │  ├─ rft/
-│  │  ├─ README_RFT.md             # ⭐ AUTHORITATIVE RFT DEFINITION
+│  │  ├─ README_RFT.md             # AUTHORITATIVE RFT DEFINITION
 │  │  ├─ kernels/
-│  │  │  ├─ resonant_fourier_transform.py  # ⭐ Canonical RFT kernel
+│  │  │  ├─ resonant_fourier_transform.py  # Canonical RFT kernel
 │  │  │  ├─ operator_arft_kernel.py        # Adaptive RFT (signal-driven)
 │  │  │  └─ arft_kernel.py                 # QR-orthonormalized variant
 │  │  ├─ core/
@@ -270,7 +270,7 @@ QuantoniumOS/
 │  └─ crypto/                      # RFT–SIS experiments & validators
 ├─ tests/
 │  ├─ benchmarks/
-│  │  ├─ honest_rft_benchmark.py   # ⭐ Canonical RFT vs FFT/DCT
+│  │  ├─ honest_rft_benchmark.py   # Canonical RFT vs FFT/DCT
 │  │  ├─ rft_multiscale_benchmark.py  # Multi-N scaling tests
 │  │  └─ rft_realworld_benchmark.py   # Real-world signal tests
 ├─ hardware/
@@ -309,11 +309,11 @@ QuantoniumOS/
 
 ---
 
-## 🏥 Medical Applications (NEW - December 2025)
+## Medical Applications (NEW - December 2025)
 
 **Status:** 83 tests passing | Open Research Preview
 
-> 🆓 **FREE FOR HOSPITALS & MEDICAL RESEARCHERS** - This module is free for hospitals, healthcare institutions, medical researchers, and academics for testing and research purposes.
+> **FREE FOR HOSPITALS & MEDICAL RESEARCHERS** - This module is free for hospitals, healthcare institutions, medical researchers, and academics for testing and research purposes.
 
 QuantoniumOS includes a comprehensive medical applications test suite validating RFT for healthcare domains:
 
@@ -343,7 +343,7 @@ python tests/medical/run_medical_benchmarks.py --imaging --quick
 - **[docs/medical/README.md](docs/medical/README.md)** - Full medical applications guide
 - **[tests/medical/](tests/medical/)** - Test suite source code
 
-> ⚠️ **Research Disclaimer:** NOT validated for clinical use. For research/education only.
+> **Research Disclaimer:** NOT validated for clinical use. For research/education only.
 
 ---
 
@@ -479,11 +479,11 @@ From `hardware/HW_TEST_RESULTS.md`:
 
 | Test | Status | Notes |
 |------|--------|-------|
-| **Mode 0 (RFT)** | ✅ PASS | Energy conserved |
-| **Mode 1 (SIS Hash)** | ✅ PASS | N=512 transform completed |
-| **Mode 2 (Feistel)** | ✅ PASS | 48 rounds, valid ciphertext |
-| **Mode 3 (Pipeline)** | ✅ PASS | Full integration verified |
-| **Makerchip TL-V** | ✅ READY | Pass @ 100+ cycles |
+| **Mode 0 (RFT)** | PASS | Energy conserved |
+| **Mode 1 (SIS Hash)** | PASS | N=512 transform completed |
+| **Mode 2 (Feistel)** | PASS | 48 rounds, valid ciphertext |
+| **Mode 3 (Pipeline)** | PASS | Full integration verified |
+| **Makerchip TL-V** | READY | Pass @ 100+ cycles |
 
 ### 3D Chip Viewer
 
@@ -499,12 +499,12 @@ npm run dev
 ```
 
 **Features:**
-- 🎮 Interactive 3D chip die with all 64 tiles
-- 🔥 Real-time thermal wave visualization
-- ⚡ Power domain overlay (VDD_TILE, VDD_NOC, VDD_SIS, VDD_FEISTEL)
-- 📊 Live benchmark metrics panel
-- 🔬 Exploded view with layer controls
-- 📈 Comparison vs FFT accelerators
+- Interactive 3D chip die with all 64 tiles
+- Real-time thermal wave visualization
+- Power domain overlay (VDD_TILE, VDD_NOC, VDD_SIS, VDD_FEISTEL)
+- Live benchmark metrics panel
+- Exploded view with layer controls
+- Comparison vs FFT accelerators
 
 **Files:**
 | File | Purpose |
@@ -827,7 +827,7 @@ See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 ## Key Paths
 
 ```
-algorithms/rft/core/rft_optimized.py           # Optimized Φ-RFT (fused diagonals) ⚡
+algorithms/rft/core/rft_optimized.py           # Optimized Φ-RFT (fused diagonals)
 algorithms/rft/core/canonical_true_rft.py      # Reference Φ-RFT (claims-practicing)
 algorithms/rft/core/closed_form_rft.py         # Original implementation
 src/rftmw_native/rft_fused_kernel.hpp          # AVX2/AVX512 SIMD kernels

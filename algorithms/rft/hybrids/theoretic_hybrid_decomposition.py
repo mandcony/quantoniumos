@@ -131,7 +131,7 @@ def theoretic_hybrid_decomposition(
     
     # RFT basis (unitary)
     try:
-        from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
+        from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
         # For basis matrix, we need column vectors of RFT
         # RFT of standard basis vectors gives us the basis
         Psi = np.zeros((n, n), dtype=np.complex128)

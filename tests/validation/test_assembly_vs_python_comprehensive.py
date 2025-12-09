@@ -40,7 +40,7 @@ except ImportError:
     print("⚠️  Assembly kernels not available - build with `make` in algorithms/rft/kernels/")
 
 # Import Python reference implementations
-from algorithms.rft.core.closed_form_rft import (
+from algorithms.rft.core.phi_phase_fft import (
     rft_forward, 
     rft_inverse, 
     rft_unitary_error,

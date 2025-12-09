@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025 Luis M. Minier / quantoniumos
 import numpy as np
-from algorithms.rft.core.closed_form_rft import rft_matrix
+from algorithms.rft.core.phi_phase_fft import rft_matrix
 
 # Fixed-point format: Q1.15 signed
 SCALE = 2**15 - 1  # 32767

@@ -1,0 +1,427 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.1, pytest-9.0.1, pluggy-1.6.0 -- /home/codespace/.python/current/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /workspaces/quantoniumos
+configfile: pytest.ini
+plugins: hypothesis-6.148.5, anyio-4.12.0
+collecting ... collected 83 items
+
+tests/medical/test_biosignal_compression.py::TestECGCompression::test_ecg_generation ✓ ECG generated: 3600 samples, range=[-0.11, 1.00]
+PASSED
+tests/medical/test_biosignal_compression.py::TestECGCompression::test_rft_vs_fft_compression[0.3] 
+  ECG Compression (keep_ratio=0.3):
+    RFT: SNR=38.20dB, PRD=1.23%, CR=3.37x, time=157.4ms
+    FFT: SNR=21.53dB, PRD=8.39%, CR=3.36x, time=0.7ms
+PASSED
+tests/medical/test_biosignal_compression.py::TestECGCompression::test_rft_vs_fft_compression[0.5] 
+  ECG Compression (keep_ratio=0.5):
+    RFT: SNR=51.47dB, PRD=0.27%, CR=2.00x, time=9.3ms
+    FFT: SNR=24.84dB, PRD=5.73%, CR=1.99x, time=0.6ms
+PASSED
+tests/medical/test_biosignal_compression.py::TestECGCompression::test_rft_vs_fft_compression[0.7] 
+  ECG Compression (keep_ratio=0.7):
+    RFT: SNR=61.30dB, PRD=0.09%, CR=1.43x, time=8.4ms
+    FFT: SNR=27.78dB, PRD=4.08%, CR=1.43x, time=0.6ms
+PASSED
+tests/medical/test_biosignal_compression.py::TestECGCompression::test_ecg_with_noise 
+  ECG with electrode noise:
+    Noisy SNR vs clean: 0.72 dB
+    Reconstructed SNR vs clean: 0.73 dB
+PASSED
+tests/medical/test_biosignal_compression.py::TestECGCompression::test_ecg_arrhythmia_detection 
+  Arrhythmia detection (30s, 10% arrhythmia rate):
+    Original: F1=0.819, Sens=0.729
+    After RFT compression: F1=0.819, Sens=0.729
+PASSED
+tests/medical/test_biosignal_compression.py::TestEEGProcessing::test_eeg_generation ✓ EEG generated: 2560 samples
+PASSED
+tests/medical/test_biosignal_compression.py::TestEEGProcessing::test_eeg_compression[0.3] 
+  EEG Compression (keep=0.3):
+    RFT: SNR=28.49dB, corr=0.9993
+    FFT: SNR=25.88dB, corr=0.9987
+PASSED
+tests/medical/test_biosignal_compression.py::TestEEGProcessing::test_eeg_compression[0.5] 
+  EEG Compression (keep=0.5):
+    RFT: SNR=35.53dB, corr=0.9999
+    FFT: SNR=31.10dB, corr=0.9996
+PASSED
+tests/medical/test_biosignal_compression.py::TestEEGProcessing::test_seizure_detection 
+  Seizure detection (60s, 5% seizure probability):
+    Original: F1=0.615, Sens=0.444
+    After compression: F1=0.615, Sens=0.444
+PASSED
+tests/medical/test_biosignal_compression.py::TestEMGProcessing::test_emg_compression 
+  EMG Compression:
+    SNR: 11.73 dB
+    Correlation: 0.9659
+    Compression ratio: 2.00x
+PASSED
+tests/medical/test_biosignal_compression.py::TestLatencyBenchmark::test_real_time_latency[ECG-360-100] 
+  ECG latency (100ms chunks, 36 samples):
+    Avg: 0.03ms, Max: 0.05ms
+    Real-time margin: 99.97ms
+PASSED
+tests/medical/test_biosignal_compression.py::TestLatencyBenchmark::test_real_time_latency[EEG-256-100] 
+  EEG latency (100ms chunks, 25 samples):
+    Avg: 0.03ms, Max: 0.05ms
+    Real-time margin: 99.97ms
+PASSED
+tests/medical/test_biosignal_compression.py::TestLatencyBenchmark::test_real_time_latency[EMG-1000-50] 
+  EMG latency (50ms chunks, 50 samples):
+    Avg: 0.04ms, Max: 0.04ms
+    Real-time margin: 49.96ms
+PASSED
+tests/medical/test_edge_wearable.py::TestMemoryFootprint::test_memory_estimation[64] 
+  Signal length 64:
+    Total: 2.25 KB
+PASSED
+tests/medical/test_edge_wearable.py::TestMemoryFootprint::test_memory_estimation[128] 
+  Signal length 128:
+    Total: 4.50 KB
+PASSED
+tests/medical/test_edge_wearable.py::TestMemoryFootprint::test_memory_estimation[256] 
+  Signal length 256:
+    Total: 9.00 KB
+PASSED
+tests/medical/test_edge_wearable.py::TestMemoryFootprint::test_memory_estimation[512] 
+  Signal length 512:
+    Total: 18.00 KB
+PASSED
+tests/medical/test_edge_wearable.py::TestMemoryFootprint::test_device_fit[cortex_m4] 
+  ARM Cortex-M4 (STM32F4) memory fit:
+    ✓ 64 samples: 1.7% RAM
+    ✓ 128 samples: 3.3% RAM
+    ✓ 256 samples: 6.7% RAM
+    ✓ 512 samples: 13.4% RAM
+    ✓ 1024 samples: 26.8% RAM
+PASSED
+tests/medical/test_edge_wearable.py::TestMemoryFootprint::test_device_fit[esp32] 
+  ESP32 memory fit:
+    ✓ 64 samples: 0.6% RAM
+    ✓ 128 samples: 1.2% RAM
+    ✓ 256 samples: 2.5% RAM
+    ✓ 512 samples: 4.9% RAM
+    ✓ 1024 samples: 9.9% RAM
+PASSED
+tests/medical/test_edge_wearable.py::TestMemoryFootprint::test_device_fit[nrf52] 
+  Nordic nRF52840 memory fit:
+    ✓ 64 samples: 1.3% RAM
+    ✓ 128 samples: 2.5% RAM
+    ✓ 256 samples: 5.0% RAM
+    ✓ 512 samples: 10.0% RAM
+    ✓ 1024 samples: 20.1% RAM
+PASSED
+tests/medical/test_edge_wearable.py::TestLatency::test_latency_measurement[64] 
+  Latency (64 samples):
+    Forward: 0.159 ± 0.676 ms
+    Roundtrip: 0.056 ms (P99: 0.081 ms)
+PASSED
+tests/medical/test_edge_wearable.py::TestLatency::test_latency_measurement[128] 
+  Latency (128 samples):
+    Forward: 0.074 ± 0.131 ms
+    Roundtrip: 0.320 ms (P99: 2.464 ms)
+PASSED
+tests/medical/test_edge_wearable.py::TestLatency::test_latency_measurement[256] 
+  Latency (256 samples):
+    Forward: 0.208 ± 0.168 ms
+    Roundtrip: 0.455 ms (P99: 0.482 ms)
+PASSED
+tests/medical/test_edge_wearable.py::TestLatency::test_latency_measurement[512] 
+  Latency (512 samples):
+    Forward: 0.652 ± 0.851 ms
+    Roundtrip: 1.253 ms (P99: 1.266 ms)
+PASSED
+tests/medical/test_edge_wearable.py::TestLatency::test_embedded_latency_estimation 
+  Estimated embedded latency (256 samples):
+    ✓ ARM Cortex-M4 (STM32F4): ~4.2ms (target: 50ms)
+    ✓ ESP32: ~2.9ms (target: 100ms)
+    ✓ Nordic nRF52840: ~10.9ms (target: 100ms)
+    ✓ Raspberry Pi Pico: ~5.3ms (target: 50ms)
+PASSED
+tests/medical/test_edge_wearable.py::TestBatteryImpact::test_power_estimation 
+  Power estimation (continuous ECG at 360 Hz):
+    Processing time: 0.23 ms
+    Collection time: 711.11 ms
+    Duty cycle: 0.0%
+    ARM Cortex-M4 (STM32F4):
+      Battery life: 56.2 days
+    ESP32:
+      Battery life: 3.1 days
+    Nordic nRF52840:
+      Battery life: 97.5 days
+    Raspberry Pi Pico:
+      Battery life: 29.9 days
+PASSED
+tests/medical/test_edge_wearable.py::TestPacketLoss::test_transmission_resilience[0.0] 
+  Packet loss 0%:
+    Lost: 0/96 packets
+    Status: success
+PASSED
+tests/medical/test_edge_wearable.py::TestPacketLoss::test_transmission_resilience[0.05] 
+  Packet loss 5%:
+    Lost: 5/96 packets
+    Status: crc_mismatch
+PASSED
+tests/medical/test_edge_wearable.py::TestPacketLoss::test_transmission_resilience[0.1] 
+  Packet loss 10%:
+    Lost: 11/96 packets
+    Status: crc_mismatch
+PASSED
+tests/medical/test_edge_wearable.py::TestPacketLoss::test_transmission_resilience[0.2] 
+  Packet loss 20%:
+    Lost: 21/96 packets
+    Status: incomplete
+PASSED
+tests/medical/test_edge_wearable.py::TestPacketLoss::test_compression_for_transmission 
+  Transmission compression (keep=0.2):
+    Compressed size: 2048 bytes
+    Compression ratio: 2.00x
+    Max error: 1.6788
+
+  Transmission compression (keep=0.3):
+    Compressed size: 3068 bytes
+    Compression ratio: 1.34x
+    Max error: 1.3625
+
+  Transmission compression (keep=0.5):
+    Compressed size: 5128 bytes
+    Compression ratio: 0.80x
+    Max error: 0.9410
+PASSED
+tests/medical/test_edge_wearable.py::TestStreaming::test_streaming_processor 
+  Streaming processing (3600 samples):
+    Total time: 8.5 ms
+    Output chunks: 28
+    Throughput: 424335 samples/s
+PASSED
+tests/medical/test_edge_wearable.py::TestStreaming::test_streaming_latency 
+  Streaming latency (256-sample chunks):
+    Average: 0.31 ms
+    Maximum: 0.32 ms
+PASSED
+tests/medical/test_genomics_transforms.py::TestKmerAnalysis::test_kmer_spectrum_generation ✓ K-mer spectrum: 256 bins, max=0.0058, entropy=7.98 bits
+PASSED
+tests/medical/test_genomics_transforms.py::TestKmerAnalysis::test_kmer_transform_comparison[3] 
+  K-mer transform comparison (k=3, spectrum size=64):
+    RFT: top-10 energy=0.985, time=0.027ms
+    FFT: top-10 energy=0.996, time=0.017ms
+    DCT: top-10 energy=0.997, time=14.876ms
+PASSED
+tests/medical/test_genomics_transforms.py::TestKmerAnalysis::test_kmer_transform_comparison[4] 
+  K-mer transform comparison (k=4, spectrum size=256):
+    RFT: top-10 energy=0.957, time=0.099ms
+    FFT: top-10 energy=0.976, time=0.013ms
+    DCT: top-10 energy=0.979, time=0.052ms
+PASSED
+tests/medical/test_genomics_transforms.py::TestKmerAnalysis::test_kmer_transform_comparison[5] 
+  K-mer transform comparison (k=5, spectrum size=1024):
+    RFT: top-10 energy=0.904, time=216.731ms
+    FFT: top-10 energy=0.916, time=0.037ms
+    DCT: top-10 energy=0.918, time=0.117ms
+PASSED
+tests/medical/test_genomics_transforms.py::TestContactMapCompression::test_contact_map_generation ✓ Contact map: (128, 128), density=26.58%
+PASSED
+tests/medical/test_genomics_transforms.py::TestContactMapCompression::test_contact_map_compression[0.3] 
+  Contact map compression (keep=0.3):
+    CR=3.33x, Accuracy=0.997, F1=0.995, time=25.3ms
+PASSED
+tests/medical/test_genomics_transforms.py::TestContactMapCompression::test_contact_map_compression[0.5] 
+  Contact map compression (keep=0.5):
+    CR=2.00x, Accuracy=1.000, F1=1.000, time=34.6ms
+PASSED
+tests/medical/test_genomics_transforms.py::TestContactMapCompression::test_contact_map_compression[0.7] 
+  Contact map compression (keep=0.7):
+    CR=1.43x, Accuracy=1.000, F1=1.000, time=36.7ms
+PASSED
+tests/medical/test_genomics_transforms.py::TestContactMapCompression::test_structure_specific_compression[helix] 
+  Helix structure: CR=2.00x, F1=1.000
+PASSED
+tests/medical/test_genomics_transforms.py::TestContactMapCompression::test_structure_specific_compression[sheet] 
+  Sheet structure: CR=2.00x, F1=1.000
+PASSED
+tests/medical/test_genomics_transforms.py::TestContactMapCompression::test_structure_specific_compression[random] 
+  Random structure: CR=2.00x, F1=1.000
+PASSED
+tests/medical/test_genomics_transforms.py::TestSequenceCompression::test_sequence_generation ✓ DNA sequence: 10000 bp, GC=49.4%
+PASSED
+tests/medical/test_genomics_transforms.py::TestSequenceCompression::test_rft_vs_gzip 
+  Sequence compression (10kb):
+    RFT: CR=2.00x, accuracy=89.19%, time=21.4ms
+    gzip: CR=3.12x, lossless, time=1.0ms
+PASSED
+tests/medical/test_genomics_transforms.py::TestSequenceCompression::test_throughput_scaling[1000] 
+  Throughput (1kb): 267.5 kb/s, accuracy=89.20%
+PASSED
+tests/medical/test_genomics_transforms.py::TestSequenceCompression::test_throughput_scaling[10000] 
+  Throughput (10kb): 316.0 kb/s, accuracy=89.97%
+PASSED
+tests/medical/test_genomics_transforms.py::TestSequenceCompression::test_throughput_scaling[50000] 
+  Throughput (50kb): 688.8 kb/s, accuracy=89.46%
+PASSED
+tests/medical/test_genomics_transforms.py::TestThroughputBenchmark::test_kmer_throughput 
+  K-mer analysis throughput (k=4):
+    10kb: 309.1 kb/s
+    50kb: 373.6 kb/s
+    100kb: 487.4 kb/s
+PASSED
+tests/medical/test_genomics_transforms.py::TestThroughputBenchmark::test_contact_map_throughput 
+  Contact map compression throughput:
+    64x64: 993.6 k entries/s
+    128x128: 776.2 k entries/s
+    256x256: 302.2 k entries/s
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_phantom_generation ✓ Phantom generated: shape=(128, 128), range=[0.000, 1.000]
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_rft_vs_dct_rician_noise[0.05] 
+  Rician noise σ=0.05:
+    Noisy PSNR: 24.30 dB
+    RFT: PSNR=15.53 dB, SSIM=0.792, time=41.1ms
+    DCT: PSNR=15.95 dB, SSIM=0.815, time=0.7ms
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_rft_vs_dct_rician_noise[0.1] 
+  Rician noise σ=0.1:
+    Noisy PSNR: 18.25 dB
+    RFT: PSNR=14.85 dB, SSIM=0.757, time=75.6ms
+    DCT: PSNR=14.73 dB, SSIM=0.745, time=0.7ms
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_rft_vs_dct_rician_noise[0.15] 
+  Rician noise σ=0.15:
+    Noisy PSNR: 14.78 dB
+    RFT: PSNR=13.61 dB, SSIM=0.681, time=40.1ms
+    DCT: PSNR=13.34 dB, SSIM=0.653, time=0.6ms
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_rft_vs_dct_poisson_noise[100] 
+  Poisson noise (scale=100):
+    Noisy PSNR: 25.57 dB
+    RFT: PSNR=15.94 dB
+    DCT: PSNR=16.89 dB
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_rft_vs_dct_poisson_noise[500] 
+  Poisson noise (scale=500):
+    Noisy PSNR: 32.56 dB
+    RFT: PSNR=15.94 dB
+    DCT: PSNR=16.89 dB
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_rft_vs_dct_poisson_noise[1000] 
+  Poisson noise (scale=1000):
+    Noisy PSNR: 35.66 dB
+    RFT: PSNR=15.99 dB
+    DCT: PSNR=16.89 dB
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_motion_artifact_reconstruction 
+  Motion artifact test:
+    Corrupted PSNR: 18.01 dB
+    RFT denoised: 13.83 dB
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestMRIReconstruction::test_undersampled_reconstruction 
+  50% undersampled reconstruction:
+    Zero-filled PSNR: 22.24 dB
+    RFT regularized: 17.32 dB
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestCTReconstruction::test_low_dose_ct_denoising 
+  Low-dose CT denoising (noisy PSNR=22.63 dB):
+    RFT: PSNR=14.69 dB, SSIM=0.745, time=19.7ms
+    DCT: PSNR=15.33 dB, SSIM=0.786, time=0.6ms
+    Wavelet: PSNR=23.89 dB, SSIM=0.976, time=0.5ms
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestReconstructionBenchmark::test_reconstruction_timing[64] 
+  Size 64x64:
+    RFT: 3.78 ms
+    DCT: 0.27 ms
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestReconstructionBenchmark::test_reconstruction_timing[128] 
+  Size 128x128:
+    RFT: 19.63 ms
+    DCT: 0.61 ms
+PASSED
+tests/medical/test_imaging_reconstruction.py::TestReconstructionBenchmark::test_reconstruction_timing[256] 
+  Size 256x256:
+    RFT: 139.22 ms
+    DCT: 2.01 ms
+PASSED
+tests/medical/test_medical_security.py::TestWaveformHashing::test_hash_determinism ✓ Hash determinism: a8456c6eb2885c93...
+PASSED
+tests/medical/test_medical_security.py::TestWaveformHashing::test_avalanche_effect 
+  Avalanche effect: 0.493 (ideal: 0.5)
+PASSED
+tests/medical/test_medical_security.py::TestWaveformHashing::test_collision_resistance_random 
+  Collision test (500 random waveforms):
+    Unique hashes: 500
+    Collisions: 0
+PASSED
+tests/medical/test_medical_security.py::TestWaveformHashing::test_hash_sizes[128] 
+  Hash size 128 bits: 16 bytes
+PASSED
+tests/medical/test_medical_security.py::TestWaveformHashing::test_hash_sizes[256] 
+  Hash size 256 bits: 32 bytes
+PASSED
+tests/medical/test_medical_security.py::TestWaveformHashing::test_hash_sizes[512] 
+  Hash size 512 bits: 64 bytes
+PASSED
+tests/medical/test_medical_security.py::TestWaveformHashing::test_salted_hash ✓ Salted hashing working correctly
+PASSED
+tests/medical/test_medical_security.py::TestFederatedLearning::test_honest_aggregation 
+  Aggregation error (all honest clients):
+    Mean: 0.0316
+    Median: 0.0369
+    Trimmed: 0.0325
+    RFT-Filter: 0.0316
+PASSED
+tests/medical/test_medical_security.py::TestFederatedLearning::test_byzantine_resilience[0.1] 
+  Byzantine resilience (10% malicious):
+    ✗ Mean: error=4.698
+    ✓ Median: error=0.029
+    ✓ Trimmed: error=0.026
+    ✓ RFT-Filter: error=0.482
+PASSED
+tests/medical/test_medical_security.py::TestFederatedLearning::test_byzantine_resilience[0.2] 
+  Byzantine resilience (20% malicious):
+    ✗ Mean: error=4.946
+    ✓ Median: error=0.038
+    ✓ Trimmed: error=0.039
+    ✗ RFT-Filter: error=1.075
+PASSED
+tests/medical/test_medical_security.py::TestFederatedLearning::test_byzantine_resilience[0.3] 
+  Byzantine resilience (30% malicious):
+    ✗ Mean: error=12.685
+    ✓ Median: error=0.039
+    ✗ Trimmed: error=1.417
+    ✗ RFT-Filter: error=12.685
+PASSED
+tests/medical/test_medical_security.py::TestFederatedLearning::test_rft_filter_detection 
+  Byzantine detection (30% malicious):
+    Mean aggregation error: 15.228
+    RFT-filtered error: 11.717
+    Improvement: 23.1%
+PASSED
+tests/medical/test_medical_security.py::TestSecureComparison::test_identical_waveforms 
+  Identical waveform comparison:
+    Similarity: 1.0000
+PASSED
+tests/medical/test_medical_security.py::TestSecureComparison::test_similar_waveforms 
+  Similar waveform comparison (1% noise):
+    Similarity: 0.9999
+    Magnitude correlation: 0.9999
+PASSED
+tests/medical/test_medical_security.py::TestSecureComparison::test_different_waveforms 
+  Different waveform comparison:
+    Similarity: 0.1115
+PASSED
+tests/medical/test_medical_security.py::TestHashPerformance::test_hash_throughput[256] 
+  Hash throughput (256 samples):
+    Avg time: 0.32 ms
+    Throughput: 793294 samples/s
+PASSED
+tests/medical/test_medical_security.py::TestHashPerformance::test_hash_throughput[1024] 
+  Hash throughput (1024 samples):
+    Avg time: 2.14 ms
+    Throughput: 478673 samples/s
+PASSED
+tests/medical/test_medical_security.py::TestHashPerformance::test_hash_throughput[4096] 
+  Hash throughput (4096 samples):
+    Avg time: 48.93 ms
+    Throughput: 83711 samples/s
+PASSED
+
+============================= 83 passed in 12.36s ==============================

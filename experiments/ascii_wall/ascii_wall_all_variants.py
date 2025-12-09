@@ -34,7 +34,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import the core RFT
-from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse
+from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
 
 # Import ANS for direct encoding
 from algorithms.rft.compression.ans import ans_encode, ans_decode, RANS_PRECISION_DEFAULT

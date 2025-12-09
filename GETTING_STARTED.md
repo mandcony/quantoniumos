@@ -4,19 +4,19 @@
 
 ---
 
-## ✅ Setup Complete!
+## [OK] Setup Complete!
 
 Your QuantoniumOS repository is configured and ready to use.
 
 **Current Status:**
 - ✓ Virtual environment active (`.venv/`)
 - ✓ Core dependencies installed (NumPy, SciPy, SymPy)
-- ✓ RFT core operational (unitarity error: 2.72e-16 ✨)
+- ✓ RFT core operational (unitarity error: 2.72e-16)
 - ⚠ Native extensions not built (optional for 10-40× speedup)
 
 ---
 
-## 🎯 Quick Verification
+## Quick Verification
 
 Test that everything works:
 
@@ -41,7 +41,7 @@ print(f'  Status: {"EXCELLENT" if error < 1e-12 else "GOOD"}')
 
 ---
 
-## 📚 Understanding the Architecture
+## Understanding the Architecture
 
 QuantoniumOS uses a **multi-layer stack** where each layer provides different performance:
 
@@ -77,9 +77,9 @@ See [SETUP_GUIDE.md](SETUP_GUIDE.md#step-4-build-native-extensions-optional) for
 
 ---
 
-## 🚀 Your First RFT Transform
+## Your First RFT Transform
 
-\`\`\`python
+```python
 from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT
 import numpy as np
 
@@ -107,7 +107,7 @@ print(f"Unitarity error: {unitarity_error:.2e}")  # Should be < 1e-12
 
 ---
 
-## 🔬 Explore the 7 Unitary Variants
+## Explore the 7 Unitary Variants
 
 The Φ-RFT framework includes 7 proven unitary transforms:
 
@@ -133,7 +133,7 @@ y = rft_harmonic.forward_transform(x)
 
 ---
 
-## 🎵 Try the Audio Demo (QuantSoundDesign)
+## Try the Audio Demo (QuantSoundDesign)
 
 **QuantSoundDesign** is a professional sound design studio built on Φ-RFT:
 
@@ -150,7 +150,7 @@ python main.py
 
 ---
 
-## 📊 Run Benchmarks
+## Run Benchmarks
 
 Compare RFT performance across all 7 variants:
 
@@ -162,7 +162,7 @@ python benchmarks/run_all_benchmarks.py
 
 ---
 
-## 🧪 Explore Experiments
+## Explore Experiments
 
 All research experiments are reproducible:
 
@@ -182,7 +182,7 @@ python validate_system.py
 
 ---
 
-## 🧑‍💻 Development Workflow
+## Development Workflow
 
 \`\`\`bash
 # Activate environment (always do this first!)
@@ -205,7 +205,7 @@ cd docs/
 
 ---
 
-## 📖 Documentation Map
+## Documentation Map
 
 | Document | Purpose | Audience |
 |:---------|:--------|:---------|
@@ -219,7 +219,7 @@ cd docs/
 
 ---
 
-## 🎓 Learning Path
+## Learning Path
 
 ### Beginner: Understanding RFT
 1. Read \`README.md\` (project overview)
@@ -241,7 +241,7 @@ cd docs/
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch: \`git checkout -b feature/my-feature\`
@@ -254,7 +254,7 @@ cd docs/
 
 ---
 
-## ❓ Common Questions
+## Common Questions
 
 ### Q: Do I need to compile anything?
 **A:** No! Pure Python mode works out of the box. Compilation is optional for 10-40× speedup.
@@ -273,7 +273,7 @@ cd docs/
 
 ---
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### "ModuleNotFoundError: No module named 'algorithms'"
 **Fix:** Run from repository root and ensure virtual environment is active:
@@ -295,7 +295,7 @@ x = np.random.randn(1024).astype(np.complex128)  # Not complex64
 
 ---
 
-## 📬 Support
+## Support
 
 - **Issues:** https://github.com/mandcony/quantoniumos/issues
 - **Discussions:** https://github.com/mandcony/quantoniumos/discussions
@@ -304,7 +304,7 @@ x = np.random.randn(1024).astype(np.complex128)  # Not complex64
 
 ---
 
-## 🎉 You're Ready!
+## You're Ready!
 
 Your QuantoniumOS setup is complete. Start exploring:
 
@@ -319,7 +319,7 @@ ls experiments/
 cat docs/ARCHITECTURE_QUICKREF.md
 \`\`\`
 
-**Happy researching! 🚀**
+**Happy researching!**
 
 ---
 

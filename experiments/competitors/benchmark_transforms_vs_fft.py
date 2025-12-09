@@ -43,7 +43,7 @@ from algorithms.rft.core.rft_optimized import (
     rft_inverse_optimized as rft_inverse,
 )
 # Also import original for comparison
-from algorithms.rft.core.closed_form_rft import (
+from algorithms.rft.core.phi_phase_fft import (
     rft_forward as rft_forward_orig,
     rft_inverse as rft_inverse_orig,
 )

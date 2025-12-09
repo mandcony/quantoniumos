@@ -5,7 +5,7 @@ DFT Non-Equivalence Test via Coefficient Correlation
 Tests that Ψ is NOT secretly a permuted/phased Fourier transform
 """
 import numpy as np
-from algorithms.rft.core.closed_form_rft import rft_forward
+from algorithms.rft.core.phi_phase_fft import rft_forward
 
 def test_max_dft_coeff_correlation_is_small():
     """

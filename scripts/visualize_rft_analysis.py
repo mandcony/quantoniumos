@@ -12,7 +12,7 @@ from scipy import fftpack
 import time
 from pathlib import Path
 
-from algorithms.rft.core.closed_form_rft import (
+from algorithms.rft.core.phi_phase_fft import (
     rft_forward, rft_inverse, rft_unitary_error, rft_matrix, PHI
 )
 

@@ -1,5 +1,15 @@
 # QuantoniumOS Medical Applications Guide
 
+> ## ⚠️  RESEARCH USE ONLY — NOT FOR CLINICAL OR DIAGNOSTIC USE  ⚠️
+>
+> This software is provided **strictly for research, educational, and experimental purposes**.
+> It has **NOT** been validated, approved, or cleared by any regulatory authority
+> (FDA, CE, etc.) for clinical, diagnostic, or therapeutic use.
+>
+> **DO NOT** use this software to make medical diagnoses, treatment decisions,
+> or process real patient data in clinical workflows. The authors and copyright
+> holders disclaim all liability for any harm arising from clinical or diagnostic use.
+
 [![Medical Tests](https://img.shields.io/badge/tests-83%20passed-brightgreen.svg)](../../tests/medical/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](../../pyproject.toml)
 [![Research Preview](https://img.shields.io/badge/status-research%20preview-orange.svg)](#safety-considerations)
@@ -11,16 +21,17 @@
 
 ---
 
-## 🏥 Free for Hospitals & Medical Researchers
+## Free for Hospitals & Medical Researchers
 
 > **This medical applications module is FREE for:**
-> - ✅ Hospitals and healthcare institutions
-> - ✅ Medical researchers and academics
-> - ✅ Non-profit healthcare organizations
-> - ✅ Educational institutions
-> - ✅ Open-source medical software projects
+> - Hospitals and healthcare institutions
+> - Medical researchers and academics
+> - Non-profit healthcare organizations
+> - Educational institutions
+> - Open-source medical software projects
 >
-> **For testing, validation, and research purposes only.**
+> **For research, testing, and validation purposes only.**
+> **NOT for clinical diagnostics or patient care decisions.**
 > 
 > Commercial medical device manufacturers: See [LICENSE-CLAIMS-NC.md](../../LICENSE-CLAIMS-NC.md) for licensing terms.
 
@@ -36,7 +47,7 @@ QuantoniumOS provides a novel signal processing framework based on the **Recipro
 - **Clinical Security**: Privacy-preserving hashing, federated learning
 - **Edge Devices**: Wearable and point-of-care processing
 
-> ⚠️ **Research Disclaimer**: This software is for research and educational purposes only. It has NOT been validated for clinical use and should NOT be used for medical diagnosis or treatment decisions. See [Safety Considerations](#safety-considerations) below.
+> **Research Disclaimer**: This software is for research and educational purposes only. It has NOT been validated for clinical use and should NOT be used for medical diagnosis or treatment decisions. See [Safety Considerations](#safety-considerations) below.
 
 ---
 
@@ -57,7 +68,7 @@ source .venv/bin/activate
 pip install -e .
 
 # Verify installation
-python -c "from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT; print('✓ RFT Core available')"
+python -c "from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT; print('RFT Core available')"
 ```
 
 ### Run Medical Test Suite
@@ -493,7 +504,7 @@ GENOMICS_CONFIG = {
 
 ## Safety Considerations
 
-### ⚠️ IMPORTANT DISCLAIMERS
+### IMPORTANT DISCLAIMERS
 
 1. **NOT FOR CLINICAL USE**: This software has not been validated, certified, or approved by any regulatory body (FDA, CE, etc.) for clinical or diagnostic use.
 
@@ -509,12 +520,12 @@ GENOMICS_CONFIG = {
 
 Before any clinical use, researchers should:
 
-1. ✅ Validate on de-identified clinical datasets with proper IRB approval
-2. ✅ Compare against established clinical standards (e.g., FDA-cleared methods)
-3. ✅ Document failure modes and edge cases
-4. ✅ Obtain appropriate regulatory clearances
-5. ✅ Implement proper quality management systems
-6. ✅ Conduct formal verification and validation
+1. Validate on de-identified clinical datasets with proper IRB approval
+2. Compare against established clinical standards (e.g., FDA-cleared methods)
+3. Document failure modes and edge cases
+4. Obtain appropriate regulatory clearances
+5. Implement proper quality management systems
+6. Conduct formal verification and validation
 
 ---
 

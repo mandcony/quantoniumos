@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # Python reference
-from algorithms.rft.core.closed_form_rft import rft_forward as py_rft_forward
+from algorithms.rft.core.phi_phase_fft import rft_forward as py_rft_forward
 from algorithms.rft.variants import PHI
 
 # Assembly version

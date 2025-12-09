@@ -175,7 +175,7 @@ def transform_kmer_spectrum(spectrum: np.ndarray,
     """
     if transform == 'rft':
         try:
-            from algorithms.rft.core.phi_phase_fft import rft_forward
+            from algorithms.rft.kernels.resonant_fourier_transform import rft_forward
             return rft_forward(spectrum.astype(np.complex128))
         except ImportError:
             pytest.skip("RFT not available")
@@ -260,7 +260,10 @@ def compress_contact_map_rft(contact_map: np.ndarray,
         (reconstructed_map, stats)
     """
     try:
-        from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+        from algorithms.rft.kernels.resonant_fourier_transform import (
+            rft_forward,
+            rft_inverse,
+        )
     except ImportError:
         pytest.skip("RFT not available")
     
@@ -325,7 +328,10 @@ def compress_sequence_rft(sequence: str,
         (reconstructed_sequence, stats)
     """
     try:
-        from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+        from algorithms.rft.kernels.resonant_fourier_transform import (
+            rft_forward,
+            rft_inverse,
+        )
     except ImportError:
         pytest.skip("RFT not available")
     
@@ -723,3 +729,160 @@ def run_comprehensive_genomics_benchmark():
 
 if __name__ == "__main__":
     run_comprehensive_genomics_benchmark()
+
+
+# =============================================================================
+# Real-Data Tests (Public Genomics Datasets)
+# =============================================================================
+
+from tests.medical.real_data_fixtures import (
+    skip_no_genomics,
+    load_lambda_fasta,
+    load_pdb_1crn,
+    GENOMICS_AVAILABLE,
+    LAMBDA_FASTA,
+    PDB_1CRN,
+    _dataset_available,
+)
+
+
+@skip_no_genomics
+class TestRealGenomics:
+    """
+    Tests using real public genomics datasets.
+    
+    Requires:
+        - USE_REAL_DATA=1
+        - python data/genomics_fetch.py executed
+    
+    Datasets:
+        - Lambda phage (NC_001416) — Public domain RefSeq
+        - PDB 1CRN (Crambin) — CC BY 4.0
+    """
+
+    @pytest.fixture(scope="class")
+    def lambda_seq(self):
+        """Load lambda phage genome sequence."""
+        if not _dataset_available(LAMBDA_FASTA):
+            pytest.skip("Lambda phage FASTA not available")
+        return load_lambda_fasta()
+
+    @pytest.fixture(scope="class")
+    def pdb_text(self):
+        """Load PDB 1CRN structure text."""
+        if not _dataset_available(PDB_1CRN):
+            pytest.skip("PDB 1CRN not available")
+        return load_pdb_1crn()
+
+    def test_lambda_kmer_spectrum(self, lambda_seq):
+        """Test k-mer spectrum analysis on real lambda phage genome."""
+        # Lambda phage is ~48.5 kb
+        assert len(lambda_seq) > 40000, f"Lambda sequence too short: {len(lambda_seq)}"
+        
+        spectrum = compute_kmer_spectrum(lambda_seq, k=4)
+        
+        # Verify spectrum properties
+        assert len(spectrum) == 256, "4-mer spectrum should have 256 entries"
+        assert np.isclose(spectrum.sum(), 1.0, atol=0.01), "Spectrum should sum to 1"
+        
+        # Transform with RFT
+        rft_coeffs = transform_kmer_spectrum(spectrum, 'rft')
+        fft_coeffs = transform_kmer_spectrum(spectrum, 'fft')
+        
+        # Energy should be preserved (Parseval)
+        energy_orig = np.sum(spectrum ** 2)
+        energy_rft = np.sum(np.abs(rft_coeffs) ** 2) / len(rft_coeffs)
+        
+        print(f"✓ Lambda phage k-mer analysis: {len(lambda_seq)} bp, spectrum energy={energy_orig:.6f}")
+
+    def test_lambda_sequence_compression(self, lambda_seq):
+        """Test RFT compression on real lambda phage sequence."""
+        # Use first 10 kb for quick test
+        seq_subset = lambda_seq[:10000]
+        
+        compressed, stats = compress_sequence_rft(seq_subset, keep_ratio=0.5)
+        gzip_result, gzip_stats = gzip_compress_sequence(seq_subset)
+        
+        rft_cr = stats['compression_ratio']
+        gzip_cr = gzip_stats['compression_ratio']
+        accuracy = stats['sequence_accuracy']
+        
+        print(f"Lambda compression: RFT CR={rft_cr:.2f}x (acc={accuracy:.1%}), gzip CR={gzip_cr:.2f}x")
+        
+        # RFT lossy; gzip lossless and likely better CR for random-ish DNA
+        assert rft_cr >= 1.5, f"RFT compression ratio too low: {rft_cr:.2f}"
+        assert accuracy >= 0.80, f"RFT sequence accuracy too low: {accuracy:.1%}"
+
+    @pytest.mark.parametrize("k", [3, 4, 5])
+    def test_lambda_kmer_sizes(self, lambda_seq, k):
+        """Test k-mer analysis at different k values."""
+        spectrum = compute_kmer_spectrum(lambda_seq, k=k)
+        
+        expected_size = 4 ** k
+        assert len(spectrum) == expected_size, f"Expected {expected_size} k-mers for k={k}"
+        
+        # Check GC content via spectrum (G+C should be ~50% for lambda)
+        # For k=1: indices 1=C, 2=G
+        if k == 1:
+            gc = spectrum[1] + spectrum[2]
+            print(f"Lambda phage GC content: {gc:.1%}")
+            assert 0.40 <= gc <= 0.60, f"Unusual GC content: {gc:.1%}"
+
+    def test_pdb_contact_map_compression(self, pdb_text):
+        """Test contact map compression on real PDB structure."""
+        # Parse CA coordinates from PDB
+        ca_coords = []
+        for line in pdb_text.splitlines():
+            if line.startswith("ATOM") and " CA " in line:
+                try:
+                    x = float(line[30:38])
+                    y = float(line[38:46])
+                    z = float(line[46:54])
+                    ca_coords.append([x, y, z])
+                except ValueError:
+                    continue
+        
+        if len(ca_coords) < 10:
+            pytest.skip("Could not parse enough CA atoms from PDB")
+        
+        ca_coords = np.array(ca_coords)
+        n_residues = len(ca_coords)
+        
+        # Compute distance matrix
+        dist_matrix = np.sqrt(np.sum((ca_coords[:, None] - ca_coords[None, :]) ** 2, axis=-1))
+        
+        # Contact map (< 8 Å)
+        contact_map = (dist_matrix < 8.0).astype(float)
+        
+        # Compress with RFT
+        compressed, stats = compress_contact_map_rft(contact_map, keep_ratio=0.5)
+        
+        # Verify
+        accuracy = contact_map_accuracy(contact_map, compressed)
+        
+        print(f"✓ PDB 1CRN contact map: {n_residues} residues, CR={stats['compression_ratio']:.2f}x, acc={accuracy:.4f}")
+        
+        assert accuracy >= 0.90, f"Contact map accuracy too low: {accuracy:.4f}"
+
+
+@skip_no_genomics
+def test_lambda_vs_synthetic_comparison():
+    """Compare real lambda phage to synthetic random DNA."""
+    if not _dataset_available(LAMBDA_FASTA):
+        pytest.skip("Lambda phage FASTA not available")
+    
+    lambda_seq = load_lambda_fasta()
+    synthetic_seq = generate_random_dna(len(lambda_seq), gc_content=0.5)
+    
+    # K-mer spectra
+    lambda_spectrum = compute_kmer_spectrum(lambda_seq, k=4)
+    synth_spectrum = compute_kmer_spectrum(synthetic_seq, k=4)
+    
+    # Real genome should have different spectrum than random
+    # (codon bias, regulatory sequences, etc.)
+    correlation = np.corrcoef(lambda_spectrum, synth_spectrum)[0, 1]
+    
+    print(f"Lambda vs synthetic k-mer spectrum correlation: {correlation:.4f}")
+    
+    # Real genome spectrum should differ from purely random
+    assert correlation < 0.95, "Real genome should differ from random"

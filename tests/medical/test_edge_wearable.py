@@ -177,7 +177,10 @@ def benchmark_rft_latency(signal_length: int,
         Latency statistics
     """
     try:
-        from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+        from algorithms.rft.kernels.resonant_fourier_transform import (
+            rft_forward,
+            rft_inverse,
+        )
     except ImportError:
         pytest.skip("RFT not available")
     
@@ -415,7 +418,7 @@ def rft_compress_for_transmission(signal: np.ndarray,
         Compressed bytes
     """
     try:
-        from algorithms.rft.core.phi_phase_fft import rft_forward
+        from algorithms.rft.kernels.resonant_fourier_transform import rft_forward
     except ImportError:
         pytest.skip("RFT not available")
     
@@ -447,7 +450,7 @@ def rft_decompress_from_transmission(data: bytes) -> np.ndarray:
         Reconstructed signal
     """
     try:
-        from algorithms.rft.core.phi_phase_fft import rft_inverse
+        from algorithms.rft.kernels.resonant_fourier_transform import rft_inverse
     except ImportError:
         pytest.skip("RFT not available")
     
@@ -511,7 +514,10 @@ class StreamingRFTProcessor:
             List of processed chunks (may be empty if not enough data)
         """
         try:
-            from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+            from algorithms.rft.kernels.resonant_fourier_transform import (
+                rft_forward,
+                rft_inverse,
+            )
         except ImportError:
             pytest.skip("RFT not available")
         
@@ -549,7 +555,10 @@ class StreamingRFTProcessor:
             chunk[:self.buffer_fill] = self.buffer[:self.buffer_fill]
             
             try:
-                from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+                from algorithms.rft.kernels.resonant_fourier_transform import (
+                    rft_forward,
+                    rft_inverse,
+                )
                 coeffs = rft_forward(chunk.astype(np.complex128))
                 return rft_inverse(coeffs).real[:self.buffer_fill]
             except ImportError:

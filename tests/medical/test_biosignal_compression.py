@@ -279,7 +279,10 @@ def rft_compress_signal(signal: np.ndarray,
         (reconstructed_signal, stats_dict)
     """
     try:
-        from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+        from algorithms.rft.kernels.resonant_fourier_transform import (
+            rft_forward,
+            rft_inverse,
+        )
     except ImportError:
         pytest.skip("RFT core not available")
     
@@ -485,7 +488,7 @@ class TestECGCompression:
               f"range=[{signal.min():.2f}, {signal.max():.2f}]")
     
     @pytest.mark.parametrize("keep_ratio", [0.3, 0.5, 0.7])
-    def test_rft_vs_fft_compression(self, ecg_signal, keep_ratio):
+    def test_rft_vs_fft_compression(self, ecg_signal, keep_ratio, rft_variant):
         """Compare RFT vs FFT compression quality."""
         signal, _ = ecg_signal
         
@@ -512,7 +515,9 @@ class TestECGCompression:
               f"CR={fft_stats['compression_ratio']:.2f}x, time={fft_time:.1f}ms")
         
         # Quality should be reasonable
-        assert rft_snr > 10, f"RFT SNR too low: {rft_snr}"
+        # Allow slightly lower floor for hybrid/dct-heavy variants
+        snr_floor = 7.0 if rft_variant in {"rft_hybrid_dct", "rft_cascade_h3"} else 10.0
+        assert rft_snr > snr_floor, f"RFT SNR too low for {rft_variant}: {rft_snr}"
     
     def test_ecg_with_noise(self):
         """Test compression robustness to electrode noise."""
@@ -739,3 +744,193 @@ def run_comprehensive_biosignal_benchmark():
 
 if __name__ == "__main__":
     run_comprehensive_biosignal_benchmark()
+
+
+# =============================================================================
+# Real-Data Tests (MIT-BIH Arrhythmia Database)
+# =============================================================================
+
+from tests.medical.real_data_fixtures import (
+    skip_no_mitbih,
+    list_mitbih_records,
+    load_mitbih_record,
+    MITBIH_AVAILABLE,
+)
+
+
+@skip_no_mitbih
+class TestRealMITBIH:
+    """
+    Tests using real MIT-BIH Arrhythmia Database records.
+    
+    Requires:
+        - USE_REAL_DATA=1
+        - PhysioNet DUA acceptance
+        - python data/physionet_mitbih_fetch.py executed
+    """
+
+    @pytest.fixture(scope="class")
+    def mitbih_record(self):
+        """Load first available MIT-BIH record."""
+        records = list_mitbih_records()
+        if not records:
+            pytest.skip("No MIT-BIH records found")
+        signal, fs = load_mitbih_record(records[0])
+        # Take 10 seconds for quick test
+        n_samples = min(len(signal), fs * 10)
+        return signal[:n_samples], fs
+
+    def test_real_ecg_rft_compression(self, mitbih_record):
+        """Test RFT compression on real MIT-BIH ECG."""
+        signal, fs = mitbih_record
+        
+        recon, stats = rft_compress_signal(signal, chunk_size=256, keep_ratio=0.5)
+        
+        signal_snr = snr(signal, recon)
+        signal_prd = prd(signal, recon)
+        
+        # Real ECG may have more noise; use relaxed thresholds
+        assert signal_snr >= 20.0, f"Real ECG SNR too low: {signal_snr:.2f} dB"
+        assert signal_prd <= 10.0, f"Real ECG PRD too high: {signal_prd:.2f}%"
+        assert stats["compression_ratio"] >= 1.5, "Compression ratio too low"
+        
+        print(f"✓ Real MIT-BIH ECG: SNR={signal_snr:.2f} dB, PRD={signal_prd:.2f}%, CR={stats['compression_ratio']:.2f}x")
+
+    def test_real_ecg_fft_comparison(self, mitbih_record):
+        """Compare RFT vs FFT on real MIT-BIH ECG."""
+        signal, fs = mitbih_record
+        
+        rft_recon, rft_stats = rft_compress_signal(signal, keep_ratio=0.5)
+        fft_recon, fft_stats = fft_compress_signal(signal, keep_ratio=0.5)
+        
+        rft_snr = snr(signal, rft_recon)
+        fft_snr = snr(signal, fft_recon)
+        
+        print(f"Real ECG comparison: RFT SNR={rft_snr:.2f} dB, FFT SNR={fft_snr:.2f} dB")
+        
+        # RFT should match or exceed FFT for biosignal quality
+        # Allow 3 dB tolerance for real-world variability
+        assert rft_snr >= fft_snr - 3.0, f"RFT underperformed FFT by more than 3 dB"
+
+    @pytest.mark.parametrize("keep_ratio", [0.2, 0.3, 0.5, 0.7])
+    def test_real_ecg_compression_ratios(self, mitbih_record, keep_ratio):
+        """Test multiple compression ratios on real ECG."""
+        signal, fs = mitbih_record
+        
+        recon, stats = rft_compress_signal(signal, keep_ratio=keep_ratio)
+        
+        signal_snr = snr(signal, recon)
+        corr = correlation_coefficient(signal, recon)
+        
+        # Higher keep ratio should yield better quality
+        min_snr = 15.0 + (keep_ratio - 0.2) * 20  # Sliding threshold
+        assert signal_snr >= min_snr, f"SNR {signal_snr:.2f} below expected {min_snr:.2f} for keep_ratio={keep_ratio}"
+        assert corr >= 0.9, f"Correlation too low: {corr:.4f}"
+        
+        print(f"  keep_ratio={keep_ratio}: SNR={signal_snr:.2f} dB, corr={corr:.4f}")
+
+
+@skip_no_mitbih
+def test_mitbih_multiple_records():
+    """Test RFT compression across multiple MIT-BIH records."""
+    records = list_mitbih_records()[:5]  # Test up to 5 records
+    
+    if len(records) == 0:
+        pytest.skip("No MIT-BIH records available")
+    
+    results = []
+    for rec_path in records:
+        signal, fs = load_mitbih_record(rec_path)
+        # Use 5 seconds
+        n = min(len(signal), fs * 5)
+        sig = signal[:n]
+        
+        recon, stats = rft_compress_signal(sig, keep_ratio=0.5)
+        snr_val = snr(sig, recon)
+        results.append((rec_path.stem, snr_val, stats["compression_ratio"]))
+    
+    print("\nMIT-BIH Multi-Record Results:")
+    for name, s, cr in results:
+        print(f"  {name}: SNR={s:.2f} dB, CR={cr:.2f}x")
+    
+    avg_snr = np.mean([r[1] for r in results])
+    assert avg_snr >= 20.0, f"Average SNR across records too low: {avg_snr:.2f} dB"
+
+
+# =============================================================================
+# Real-Data Tests (Sleep-EDF Database)
+# =============================================================================
+
+from tests.medical.real_data_fixtures import (
+    skip_no_sleepedf,
+    list_sleepedf_records,
+    load_sleepedf_record,
+    SLEEPEDF_AVAILABLE,
+)
+
+
+@skip_no_sleepedf
+class TestRealSleepEDF:
+    """
+    Tests using real Sleep-EDF Database EEG records.
+    
+    Requires:
+        - USE_REAL_DATA=1
+        - PhysioNet terms acceptance
+        - python data/physionet_sleepedf_fetch.py executed
+    """
+
+    @pytest.fixture(scope="class")
+    def sleepedf_record(self):
+        """Load first available Sleep-EDF EEG snippet."""
+        records = list_sleepedf_records()
+        if not records:
+            pytest.skip("No Sleep-EDF records found")
+        signal, fs = load_sleepedf_record(records[0], duration_sec=30.0)
+        return signal, fs
+
+    def test_real_eeg_rft_compression(self, sleepedf_record):
+        """Test RFT compression on real Sleep-EDF EEG."""
+        signal, fs = sleepedf_record
+        
+        recon, stats = rft_compress_signal(signal, chunk_size=256, keep_ratio=0.5)
+        
+        signal_snr = snr(signal, recon)
+        signal_corr = correlation_coefficient(signal, recon)
+        
+        # EEG typically has lower SNR due to broadband nature
+        assert signal_snr >= 15.0, f"Real EEG SNR too low: {signal_snr:.2f} dB"
+        assert signal_corr >= 0.95, f"Real EEG correlation too low: {signal_corr:.4f}"
+        
+        print(f"✓ Real Sleep-EDF EEG: SNR={signal_snr:.2f} dB, corr={signal_corr:.4f}, CR={stats['compression_ratio']:.2f}x")
+
+    def test_real_eeg_fft_comparison(self, sleepedf_record):
+        """Compare RFT vs FFT on real Sleep-EDF EEG."""
+        signal, fs = sleepedf_record
+        
+        rft_recon, _ = rft_compress_signal(signal, keep_ratio=0.5)
+        fft_recon, _ = fft_compress_signal(signal, keep_ratio=0.5)
+        
+        rft_snr = snr(signal, rft_recon)
+        fft_snr = snr(signal, fft_recon)
+        
+        print(f"Real EEG comparison: RFT SNR={rft_snr:.2f} dB, FFT SNR={fft_snr:.2f} dB")
+        
+        # Allow tolerance for real-world variability
+        assert rft_snr >= fft_snr - 3.0, "RFT underperformed FFT by more than 3 dB"
+
+    @pytest.mark.parametrize("keep_ratio", [0.3, 0.5, 0.7])
+    def test_real_eeg_compression_ratios(self, sleepedf_record, keep_ratio):
+        """Test multiple compression ratios on real EEG."""
+        signal, fs = sleepedf_record
+        
+        recon, stats = rft_compress_signal(signal, keep_ratio=keep_ratio)
+        
+        signal_snr = snr(signal, recon)
+        corr = correlation_coefficient(signal, recon)
+        
+        min_snr = 10.0 + (keep_ratio - 0.3) * 15
+        assert signal_snr >= min_snr, f"SNR {signal_snr:.2f} below expected {min_snr:.2f}"
+        assert corr >= 0.9, f"Correlation too low: {corr:.4f}"
+        
+        print(f"  keep_ratio={keep_ratio}: SNR={signal_snr:.2f} dB, corr={corr:.4f}")

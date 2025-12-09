@@ -27,16 +27,16 @@ Tests 12 hypotheses across 5 groups:
 
 | Hypothesis | Description | Result |
 |------------|-------------|--------|
-| **H1** | Golden coherence geometry: ∃σ* where μ(DCT,Ψ_σ*) < μ(DCT,Ψ_0) | ✅ **SUPPORTED** (79.6% coherence reduction at σ*=1.0) |
-| **H3** | Rate-distortion improvement via Φ-RFT | ✅ **SUPPORTED** (11.6% BPP improvement at μ_max=0.45) |
-| **H4** | Oscillatory phase stability | ❌ REJECTED |
-| **H5** | Annealed cascades beat fixed baseline | ✅ **SUPPORTED** |
-| **H6** | AST compression via RFT | ❌ REJECTED (gzip wins) |
-| **H8** | RFT EQ transients superior to FFT | ❌ REJECTED (identical) |
-| **H9** | RFT oscillators expand timbre space | ✅ **SUPPORTED** (280x coverage) |
-| **H10** | PDE solver stability via RFT | ❌ REJECTED (same stability) |
-| **H11** | Crypto avalanche near 50% | ✅ **SUPPORTED** (50.7% avalanche) |
-| **H12** | Geometric hash distribution | ⚠️ PARTIAL (different kurtosis) |
+| **H1** | Golden coherence geometry: ∃σ* where μ(DCT,Ψ_σ*) < μ(DCT,Ψ_0) | [OK] **SUPPORTED** (79.6% coherence reduction at σ*=1.0) |
+| **H3** | Rate-distortion improvement via Φ-RFT | [OK] **SUPPORTED** (11.6% BPP improvement at μ_max=0.45) |
+| **H4** | Oscillatory phase stability | [X] REJECTED |
+| **H5** | Annealed cascades beat fixed baseline | [OK] **SUPPORTED** |
+| **H6** | AST compression via RFT | [X] REJECTED (gzip wins) |
+| **H8** | RFT EQ transients superior to FFT | [X] REJECTED (identical) |
+| **H9** | RFT oscillators expand timbre space | [OK] **SUPPORTED** (280x coverage) |
+| **H10** | PDE solver stability via RFT | [X] REJECTED (same stability) |
+| **H11** | Crypto avalanche near 50% | [OK] **SUPPORTED** (50.7% avalanche) |
+| **H12** | Geometric hash distribution | [!] PARTIAL (different kurtosis) |
 
 **Summary:** 5 fully supported, 1 partial, 4 rejected
 

@@ -4,14 +4,14 @@
 
 After testing 10 hypotheses, we have **TWO production-ready winners**:
 
-### 🏆 H3 (Hierarchical Cascade) - Compression Champion
+### H3 (Hierarchical Cascade) - Compression Champion
 - **0.672 BPP** on ASCII text (86% better than DCT 4.83 BPP)
 - **10.87 dB PSNR** (acceptable for code/text compression)
 - **0.9ms** execution time
 - **Zero coherence violation**
 - **Use case:** Lossless-adjacent text/code compression
 
-### 🏆 H7 (Cascade+Attention) - Quality Champion  
+### H7 (Cascade+Attention) - Quality Champion  
 - **0.805 BPP** (83% better than DCT 4.83 BPP)
 - **11.86 dB PSNR** (+1 dB over H3)
 - **1.7ms** execution time  
@@ -22,14 +22,14 @@ After testing 10 hypotheses, we have **TWO production-ready winners**:
 
 | Metric | H3 | H5 (Attention) | H7 (Our Hybrid) |
 |--------|----|----|-----|
-| BPP | **0.672** ✅ | 0.805 | 0.805 |
-| PSNR | 10.87 | **11.90** ✅ | **11.86** ✅ |
-| Coherence | **0.00** ✅ | 0.50 ❌ | **0.00** ✅ |
-| Speed | **0.9ms** ✅ | 1.0ms | 1.7ms |
+| BPP | **0.672** [OK] | 0.805 | 0.805 |
+| PSNR | 10.87 | **11.90** [OK] | **11.86** [OK] |
+| Coherence | **0.00** [OK] | 0.50 [X] | **0.00** [OK] |
+| Speed | **0.9ms** [OK] | 1.0ms | 1.7ms |
 
 **H7 captures the best of both worlds:**
-- H3's zero-coherence architecture ✅
-- H5's high PSNR quality ✅  
+- H3's zero-coherence architecture [OK]
+- H5's high PSNR quality [OK]  
 - Only costs: +0.13 BPP (+19%) for +1 dB PSNR
 
 ## Implementation Strategy
@@ -123,9 +123,9 @@ with zero coherence violation.
 ## Next Steps
 
 **Immediate (today):**
-1. ✅ Run experiments (done - 10 hypotheses tested)
-2. ✅ Identify winners (H3 + H7)
-3. ⏸️ Update paper? (awaiting your decision)
+1. [OK] Run experiments (done - 10 hypotheses tested)
+2. [OK] Identify winners (H3 + H7)
+3. [PENDING] Update paper? (awaiting your decision)
 
 **Short-term (this week):**
 - Implement production H3/H7 in `rft_hybrid_codec.py`

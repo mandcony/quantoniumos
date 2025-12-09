@@ -27,7 +27,7 @@ import numpy as np
 from typing import Optional, Tuple, Dict, Any, List, Union
 from dataclasses import dataclass
 from algorithms.rft.variants.registry import VARIANTS, VariantInfo
-from algorithms.rft.core.closed_form_rft import rft_forward, rft_inverse, rft_matrix, PHI
+from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse, rft_matrix, PHI
 
 try:
     from algorithms.rft.kernels.python_bindings.unitary_rft import (

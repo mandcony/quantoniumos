@@ -139,7 +139,7 @@ class H3HierarchicalCascade:
         # Step 3: RFT for texture residual
         residual = texture - (structure_recon - structure)
         try:
-            from algorithms.rft.core.closed_form_rft import rft_forward
+            from algorithms.rft.core.phi_phase_fft import rft_forward
             C_rft_texture = rft_forward(residual.astype(np.complex128))
         except ImportError:
             C_rft_texture = np.fft.fft(residual)
@@ -228,7 +228,7 @@ class H3HierarchicalCascade:
         
         # Inverse RFT for texture
         try:
-            from algorithms.rft.core.closed_form_rft import rft_inverse
+            from algorithms.rft.core.phi_phase_fft import rft_inverse
             texture_recon = np.real(rft_inverse(C_texture_padded))
         except ImportError:
             texture_recon = np.real(np.fft.ifft(C_texture_padded))
@@ -412,7 +412,7 @@ class H6DictionaryLearning(H3HierarchicalCascade):
         C_dct = np.fft.rfft(signal, norm='ortho')
         
         try:
-            from algorithms.rft.core.closed_form_rft import rft_forward
+            from algorithms.rft.core.phi_phase_fft import rft_forward
             C_rft = rft_forward(signal.astype(np.complex128))
         except ImportError:
             C_rft = np.fft.fft(signal)

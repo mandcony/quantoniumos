@@ -19,7 +19,7 @@ from typing import List, Tuple, Dict, Optional
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from algorithms.rft.core.closed_form_rft import rft_forward, PHI
+from algorithms.rft.core.phi_phase_fft import rft_forward, PHI
 
 
 @dataclass

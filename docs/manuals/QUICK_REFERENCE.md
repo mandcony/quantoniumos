@@ -1,6 +1,6 @@
 # QuantoniumOS - Quick Reference Card
 
-## 🚀 30-Second Setup
+## 30-Second Setup
 ```bash
 git clone <repo> && cd quantoniumos
 python -m venv venv && source venv/bin/activate
@@ -9,7 +9,7 @@ pip install -r requirements.txt
 python quantonium_boot.py  # Launch OS
 ```
 
-## 📋 Essential Commands
+## Essential Commands
 
 ### Validation (20 min total)
 ```bash
@@ -32,7 +32,7 @@ cd algorithms/rft/kernels
 make all && make install
 ```
 
-## 🎯 Core Architecture
+## Core Architecture
 
 ```
 Applications (Quantum Sim, AI Compress, Crypto, Desktop Apps)
@@ -42,7 +42,7 @@ Applications (Quantum Sim, AI Compress, Crypto, Desktop Apps)
     Classical Hardware (x86-64 CPU, no quantum hardware)
 ```
 
-## ✅ Validated Claims (6/6 Pass)
+## Validated Claims (6/6 Pass)
 
 | Component | Result | Test Command |
 |-----------|--------|--------------|
@@ -53,7 +53,7 @@ Applications (Quantum Sim, AI Compress, Crypto, Desktop Apps)
 | Quantum Sim | 1-1000 qubits | `python -c "from quantonium_os_src.apps.quantum_simulator.quantum_core import QuantumSimulator; QuantumSimulator(100)"` |
 | Desktop Boot | 6.6s | `python quantonium_boot.py --test` |
 
-## 🏆 Competitive Benchmarks (Optional)
+## Competitive Benchmarks (Optional)
 
 | Comparison | Our Method | vs Baseline | Result |
 |------------|------------|-------------|--------|
@@ -72,7 +72,7 @@ python tools/competitive_benchmark_suite.py --quick        # 5 min
 cat results/patent_benchmarks/competitive_advantage_summary.csv
 ```
 
-## 🔬 Key Files
+## Key Files
 
 ### Core Algorithms
 - `algorithms/rft/core/canonical_true_rft.py` - RFT engine (300 lines)
@@ -96,7 +96,7 @@ cat results/patent_benchmarks/competitive_advantage_summary.csv
 - `MANUAL_SUMMARY.md` - Summary of the manual
 - `validate_all.sh` - One-command validation
 
-## 💡 Common Use Cases
+## Common Use Cases
 
 ### 1. Use RFT Middleware
 ```python
@@ -156,7 +156,7 @@ class MyApp(QMainWindow):
 4. **Tested on tiny-gpt2** (2.3M params) only
 5. **No GPU support** yet (CPU-only)
 
-## 🐛 Quick Troubleshooting
+## Quick Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
@@ -166,7 +166,7 @@ class MyApp(QMainWindow):
 | Desktop won't launch | `export QT_QPA_PLATFORM=offscreen` |
 | Tests timeout | `pytest -m "not slow"` |
 
-## 📚 Learning Path
+## Learning Path
 
 1. **5 min**: Read this card
 2. **30 min**: Read `MANUAL_SUMMARY.md`
@@ -174,7 +174,7 @@ class MyApp(QMainWindow):
 4. **20 min**: Run `./validate_all.sh`
 5. **1 hour**: Build your first app using RFT middleware
 
-## 🎓 Key Concepts
+## Key Concepts
 
 - **RFT**: Resonance Fourier Transform (φ-parameterized unitary)
 - **φ (phi)**: Golden ratio = (1+√5)/2 ≈ 1.618
@@ -184,14 +184,14 @@ class MyApp(QMainWindow):
 - **Vertex codec**: Graph compression via treewidth decomposition
 - **Middleware**: RFT layer bridging classical hardware ↔ quantum-like ops
 
-## 🔗 External Resources
+## External Resources
 
 - **Full Manual**: `docs/COMPLETE_DEVELOPER_MANUAL.md`
 - **Test Results**: `docs/research/benchmarks/VERIFIED_BENCHMARKS.md`
 - **Architecture**: `docs/technical/ARCHITECTURE_OVERVIEW_ACCURATE.md`
 - **Copilot Guide**: `.github/copilot-instructions.md`
 
-## ✅ Before You Start Coding
+## Before You Start Coding
 
 - [ ] Run `./validate_all.sh` (must pass 6/6)
 - [ ] Read limitations section
@@ -199,7 +199,7 @@ class MyApp(QMainWindow):
 - [ ] Check Python ≥3.8, NumPy ≥1.21
 - [ ] Optional: Build SIMD kernels for speedup
 
-## 🎯 TL;DR
+## TL;DR
 
 **QuantoniumOS is a hybrid middleware OS that provides quantum-like operations on classical hardware using RFT (golden ratio unitary transform).**
 
