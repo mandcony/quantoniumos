@@ -3,6 +3,7 @@
 [![RFT Framework DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17712905.svg)](https://doi.org/10.5281/zenodo.17712905)
 [![Coherence Paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
 [![RFTPU Chip Papers DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17822056.svg)](https://doi.org/10.5281/zenodo.17822056)
+[![RFT-Wavelet Medical Data DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17885350.svg)](https://doi.org/10.5281/zenodo.17885350)
 [![TechRxiv DOI](https://img.shields.io/badge/DOI-10.36227%2Ftechrxiv.175384307.75693850%2Fv1-8A2BE2.svg)](https://doi.org/10.36227/techrxiv.175384307.75693850/v1)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
 [![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-red.svg)](LICENSE-CLAIMS-NC.md)
@@ -311,7 +312,10 @@ QuantoniumOS/
 
 ## Medical Applications (NEW - December 2025)
 
-**Status:** 83 tests passing | Open Research Preview
+**Status:** 83 tests passing | Open Research Preview  
+**Dataset DOI:** [![RFT-Wavelet Medical Data](https://zenodo.org/badge/DOI/10.5281/zenodo.17885350.svg)](https://doi.org/10.5281/zenodo.17885350) - RFT-Wavelet Hybrid Denoising Results on Real Medical Data
+
+> **⚠️ RESEARCH USE ONLY** — NOT FOR CLINICAL OR DIAGNOSTIC APPLICATION
 
 > **FREE FOR HOSPITALS & MEDICAL RESEARCHERS** - This module is free for hospitals, healthcare institutions, medical researchers, and academics for testing and research purposes.
 
@@ -324,6 +328,24 @@ QuantoniumOS includes a comprehensive medical applications test suite validating
 | **Genomics** | K-mer spectrum, contact maps | Compression ratio, F1 score |
 | **Clinical Security** | Waveform hashing, federated learning | Avalanche effect ~0.5, Byzantine resilience |
 | **Edge Devices** | Cortex-M4, ESP32, nRF52 | Memory fit, latency targets |
+
+### Real-Data Validation Results (MIT-BIH & Sleep-EDF)
+
+Benchmark on real PhysioNet open-source medical data:
+
+| Method | Avg PSNR Δ | Avg Correlation | Best For |
+|--------|-----------|-----------------|----------|
+| **RFT (entropy_modulated)** | **+2.61 dB** | **0.859** | ECG waveform fidelity |
+| Wavelet (Haar) | -2.48 dB | 0.447 | EEG band preservation |
+| RFT-Wavelet Hybrid | -2.59 dB | 0.472 | Not recommended |
+
+**Key Findings:**
+- ✅ RFT outperforms wavelets for ECG morphology preservation (+2.20 dB, r=0.914)
+- ✅ RFT is noise-type agnostic (works on Gaussian, Rician, Poisson)
+- ⚠️ Wavelets still win for EEG band power preservation (+6.49 dB)
+- ❌ Hybrid cascading degrades performance (don't combine)
+
+> **Full Report:** [docs/reports/RFT_MEDICAL_BENCHMARK_REPORT.md](docs/reports/RFT_MEDICAL_BENCHMARK_REPORT.md)
 
 ### Quick Start
 

@@ -3,18 +3,35 @@ title: QuantoniumOS
 message: >
   If you use this software, please cite it as below.
 authors:
-  - family-names: Luis M. Minier
-    name: Luis M. Minier
+  - family-names: Minier
+    given-names: Luis M.
 version: 1.0.0-rft-paper
 date-released: 2025-11-25
 repository-code: https://github.com/mandcony/quantoniumos
 doi: 10.5281/zenodo.17712905
 url: https://zenodo.org/records/17712906
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.17712905"
+    description: "RFT Framework"
+  - type: doi
+    value: "10.5281/zenodo.17726611"
+    description: "Coherence Paper"
+  - type: doi
+    value: "10.5281/zenodo.17822056"
+    description: "RFTPU Chip Papers"
+  - type: doi
+    value: "10.5281/zenodo.17885350"
+    description: "RFT-Wavelet Medical Data Results (MIT-BIH, Sleep-EDF)"
+  - type: doi
+    value: "10.36227/techrxiv.175384307.75693850/v1"
+    description: "TechRxiv Preprint"
 preferred-citation:
   type: software
   title: "QuantoniumOS: Reciprocal Fibonacci Transform Framework"
   authors:
-    - name: Luis M. Minier
+    - family-names: Minier
+      given-names: Luis M.
   doi: 10.5281/zenodo.17712905
   url: https://zenodo.org/records/17712906
   version: 1.0.0-rft-paper
