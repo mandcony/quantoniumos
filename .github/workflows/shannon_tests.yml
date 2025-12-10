@@ -26,6 +26,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -35,8 +43,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest scipy matplotlib brotli zstandard
+          pip install numpy scipy sympy matplotlib pytest
+          pip install brotli zstandard
       
       - name: Run transform correctness tests
         run: |
@@ -54,6 +62,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          df -h
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -63,8 +78,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest scipy matplotlib brotli zstandard pillow
+          pip install numpy scipy sympy matplotlib pytest
+          pip install brotli zstandard pillow
       
       - name: Measure dataset entropy
         run: |
@@ -89,6 +104,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          df -h
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -98,8 +119,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install scipy matplotlib
+          pip install numpy scipy sympy matplotlib
       
       - name: Run runtime benchmarks
         run: |
@@ -120,6 +140,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          df -h
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -129,8 +155,8 @@ jobs:
       - name: Install all dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest scipy matplotlib brotli zstandard pillow
+          pip install numpy scipy sympy matplotlib pytest
+          pip install brotli zstandard pillow
       
       - name: Run full Shannon test suite
         run: |
@@ -159,6 +185,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          df -h
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -168,8 +200,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest scipy
+          pip install numpy scipy sympy pytest
       
       - name: Run coherence tests
         run: |
