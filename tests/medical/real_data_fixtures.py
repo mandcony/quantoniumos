@@ -130,9 +130,8 @@ def load_mitbih_record(record_path: Path) -> Tuple[np.ndarray, int]:
     except ImportError:
         pytest.skip("wfdb package not installed; run: pip install wfdb")
 
-    record_name = record_path.stem
-    record_dir = str(record_path.parent)
-    record = wfdb.rdrecord(record_name, pn_dir=None, sampfrom=0, sampto=None, channels=[0], pb_dir=record_dir)
+    record_name = str(record_path.parent / record_path.stem)
+    record = wfdb.rdrecord(record_name, sampfrom=0, sampto=None, channels=[0])
     signal = record.p_signal.flatten().astype(np.float64)
     fs = record.fs
     return signal, int(fs)
