@@ -19,7 +19,8 @@ from typing import List, Tuple, Dict, Optional
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from algorithms.rft.core.phi_phase_fft import rft_forward, PHI
+# Use operator-based canonical RFT (matches hardware kernel ROM)
+from hardware.tb.rftpu_test_vectors import python_rft_forward, BLOCK_SAMPLES
 
 
 @dataclass
@@ -177,13 +178,13 @@ def compute_golden_digest(samples_q15: List[int]) -> Tuple[str, bool]:
     Compute golden reference digest using Python RFT implementation.
     Matches the hardware compute_block function exactly.
     """
-    BLOCK_SAMPLES = 8
-    
     # Convert Q1.15 to float
     samples_float = np.array([s / 32768.0 for s in samples_q15], dtype=np.float64)
+    if len(samples_float) != BLOCK_SAMPLES:
+        raise ValueError(f"Expected {BLOCK_SAMPLES} samples, got {len(samples_float)}")
     
-    # Apply RFT forward transform
-    rft_out = rft_forward(samples_float, beta=1.0, sigma=1.0, phi=PHI)
+    # Apply operator-based RFT forward transform
+    rft_out = python_rft_forward(samples_float)
     
     # Quantize to match hardware (32-bit accumulator, take upper 16 bits)
     # Hardware does: rft_real[k] = sum(sample[n] * kernel_real[k,n])
@@ -301,7 +302,7 @@ def analyze_intermediate_values(captures: List[DigestCapture]):
             continue
         
         samples = np.array(cap.input_samples) / 32768.0
-        rft_out = rft_forward(samples, beta=1.0, sigma=1.0, phi=PHI)
+        rft_out = python_rft_forward(samples)
         
         print(f"\nTest {cap.test_idx} @ {cap.time_ns}ns:")
         print(f"  Input samples (Q1.15): {[hex(s & 0xFFFF) for s in cap.input_samples]}")

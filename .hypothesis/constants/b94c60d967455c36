@@ -1,0 +1,4 @@
+# file: /workspaces/quantoniumos/algorithms/rft/kernels/resonant_fourier_transform.py
+# hypothesis_version: 6.148.5
+
+[0.0, 1e-10, 0.01, 1.0, 10.0, 256, '=', '__main__', 'fro']

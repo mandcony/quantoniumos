@@ -95,7 +95,7 @@ module canonical_rft_core #(
     // Unpack input signal
     integer unpack_idx;
     always @(*) begin
-        for (unpack_idx <= 0; unpack_idx < N; unpack_idx <= unpack_idx + 1) begin
+        for (unpack_idx = 0; unpack_idx < N; unpack_idx = unpack_idx + 1) begin
             signal_in_unpacked[unpack_idx] = signal_in[unpack_idx*PRECISION +: PRECISION];
         end
     end
@@ -103,7 +103,7 @@ module canonical_rft_core #(
     // Pack output signal
     integer pack_idx;
     always @(*) begin
-        for (pack_idx <= 0; pack_idx < N; pack_idx <= pack_idx + 1) begin
+        for (pack_idx = 0; pack_idx < N; pack_idx = pack_idx + 1) begin
             signal_out[pack_idx*PRECISION +: PRECISION] = signal_out_unpacked[pack_idx];
         end
     end

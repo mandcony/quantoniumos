@@ -94,10 +94,14 @@ class EntangledVertexEngine:
         target[3] = 1 / np.sqrt(2)
 
         if QUTIP_AVAILABLE and qt is not None:
-            bell = qt.Qobj(target.reshape(-1, 1))
-            current = qt.Qobj(state.reshape(-1, 1))
-            overlap = (bell.dag() * current).full()[0, 0]
-            return float(np.abs(overlap) ** 2)
+            try:
+                bell = qt.Qobj(target.reshape(-1, 1))
+                current = qt.Qobj(state.reshape(-1, 1))
+                overlap = (bell.dag() * current).full()[0, 0]
+                return float(np.abs(overlap) ** 2)
+            except Exception:
+                # Fallback when QuTiP sparse indices are not int32-compatible
+                pass
 
         overlap = np.vdot(target, state)
         return float(np.abs(overlap) ** 2)
