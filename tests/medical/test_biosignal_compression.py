@@ -365,6 +365,107 @@ def fft_compress_signal(signal: np.ndarray,
     return reconstructed[:n], stats
 
 
+def wavelet_rft_hybrid_compress_signal(signal: np.ndarray,
+                                       levels: int = 3,
+                                       keep_ratio: float = 0.5) -> Tuple[np.ndarray, Dict]:
+    """
+    Wavelet-RFT hybrid compression for ECG signals.
+    
+    Uses multi-level Haar wavelet decomposition, then applies RFT-based
+    Wiener filtering to detail subbands before coefficient thresholding.
+    """
+    try:
+        from algorithms.rft.variants.operator_variants import get_operator_variant
+        use_rft = True
+    except ImportError:
+        use_rft = False
+    
+    # Pad to power of 2
+    n = len(signal)
+    n_pad = 2 ** int(np.ceil(np.log2(n)))
+    padded = np.zeros(n_pad)
+    padded[:n] = signal
+    
+    # Multi-level Haar wavelet decomposition
+    approx = padded.copy()
+    details = []
+    
+    for _ in range(levels):
+        n_curr = len(approx)
+        if n_curr % 2 != 0:
+            approx = np.append(approx, approx[-1])
+            n_curr += 1
+        low = (approx[0::2] + approx[1::2]) / np.sqrt(2)
+        high = (approx[0::2] - approx[1::2]) / np.sqrt(2)
+        details.append(high)
+        approx = low
+    
+    # Estimate noise from finest detail level
+    sigma = np.median(np.abs(details[0])) / 0.6745
+    noise_var = sigma ** 2
+    
+    # RFT filtering on detail subbands
+    filtered_details = []
+    total_coeffs = sum(len(d) for d in details) + len(approx)
+    coeffs_kept = len(approx)  # Always keep approximation
+    
+    for i, detail in enumerate(details):
+        n_d = len(detail)
+        level_noise_var = noise_var * (0.5 ** i)
+        
+        # Apply RFT Wiener filter if available and size sufficient
+        if use_rft and n_d >= 16:
+            try:
+                Phi = get_operator_variant('rft_harmonic', n_d)
+                rft_coeffs = Phi.T @ detail.astype(np.float64)
+                
+                # Wiener filter
+                power = np.abs(rft_coeffs) ** 2
+                wiener = power / (power + level_noise_var + 1e-10)
+                filtered_rft = rft_coeffs * wiener
+                
+                # Threshold in RFT domain
+                n_keep = int(keep_ratio * n_d)
+                magnitudes = np.abs(filtered_rft)
+                threshold = np.sort(magnitudes)[-n_keep] if n_keep > 0 else 0
+                compressed_rft = np.where(magnitudes >= threshold, filtered_rft, 0)
+                coeffs_kept += np.count_nonzero(compressed_rft)
+                
+                # Inverse RFT
+                filtered_detail = (Phi @ compressed_rft).real
+            except Exception:
+                # Fallback to simple thresholding
+                threshold = sigma * np.sqrt(2 * np.log(n_d)) * (0.8 ** i)
+                filtered_detail = np.sign(detail) * np.maximum(np.abs(detail) - threshold, 0)
+                coeffs_kept += np.count_nonzero(filtered_detail)
+        else:
+            # Simple wavelet shrinkage
+            threshold = sigma * np.sqrt(2 * np.log(n_d)) * (0.8 ** i)
+            filtered_detail = np.sign(detail) * np.maximum(np.abs(detail) - threshold, 0)
+            coeffs_kept += np.count_nonzero(filtered_detail)
+        
+        filtered_details.append(filtered_detail)
+    
+    # Reconstruct from coarsest to finest
+    current = approx
+    for i in range(len(filtered_details) - 1, -1, -1):
+        high = filtered_details[i]
+        n_out = len(high) * 2
+        reconstructed = np.zeros(n_out)
+        reconstructed[0::2] = (current + high) / np.sqrt(2)
+        reconstructed[1::2] = (current - high) / np.sqrt(2)
+        current = reconstructed
+    
+    stats = {
+        'compression_ratio': total_coeffs / coeffs_kept if coeffs_kept > 0 else float('inf'),
+        'coeffs_kept': coeffs_kept,
+        'total_coeffs': total_coeffs,
+        'keep_ratio_actual': coeffs_kept / total_coeffs
+    }
+    
+    return current[:n], stats
+
+
 # =============================================================================
 # Quality Metrics
 # =============================================================================
@@ -828,6 +929,67 @@ class TestRealMITBIH:
         assert corr >= 0.9, f"Correlation too low: {corr:.4f}"
         
         print(f"  keep_ratio={keep_ratio}: SNR={signal_snr:.2f} dB, corr={corr:.4f}")
+
+    def test_real_ecg_wavelet_rft_hybrid(self, mitbih_record):
+        """Test Wavelet-RFT hybrid compression on real MIT-BIH ECG."""
+        signal, fs = mitbih_record
+        
+        recon, stats = wavelet_rft_hybrid_compress_signal(signal, levels=3, keep_ratio=0.5)
+        
+        signal_snr = snr(signal, recon)
+        signal_prd = prd(signal, recon)
+        corr = correlation_coefficient(signal, recon)
+        
+        # Wavelet-RFT should achieve good quality
+        assert signal_snr >= 20.0, f"Wavelet-RFT SNR too low: {signal_snr:.2f} dB"
+        assert signal_prd <= 10.0, f"Wavelet-RFT PRD too high: {signal_prd:.2f}%"
+        assert corr >= 0.95, f"Wavelet-RFT correlation too low: {corr:.4f}"
+        
+        print(f"✓ Wavelet-RFT Hybrid: SNR={signal_snr:.2f} dB, PRD={signal_prd:.2f}%, "
+              f"corr={corr:.4f}, CR={stats['compression_ratio']:.2f}x")
+
+    def test_real_ecg_wavelet_vs_rft_comparison(self, mitbih_record):
+        """Compare Wavelet-RFT hybrid vs pure RFT on real ECG (informational)."""
+        signal, fs = mitbih_record
+        
+        # Pure RFT
+        rft_recon, rft_stats = rft_compress_signal(signal, keep_ratio=0.5)
+        rft_snr = snr(signal, rft_recon)
+        
+        # Wavelet-RFT hybrid
+        hybrid_recon, hybrid_stats = wavelet_rft_hybrid_compress_signal(signal, keep_ratio=0.5)
+        hybrid_snr = snr(signal, hybrid_recon)
+        
+        # FFT baseline
+        fft_recon, fft_stats = fft_compress_signal(signal, keep_ratio=0.5)
+        fft_snr = snr(signal, fft_recon)
+        
+        print(f"\n  Real ECG compression comparison (50% keep ratio):")
+        print(f"    Pure RFT:           SNR={rft_snr:.2f} dB, CR={rft_stats['compression_ratio']:.2f}x")
+        print(f"    Wavelet-RFT Hybrid: SNR={hybrid_snr:.2f} dB, CR={hybrid_stats['compression_ratio']:.2f}x")
+        print(f"    FFT Baseline:       SNR={fft_snr:.2f} dB, CR={fft_stats['compression_ratio']:.2f}x")
+        
+        # Informational test - shows relative performance
+        # Different methods work better for different signal characteristics
+        # Some variants (like rft_hybrid_dct) may underperform on specific signals
+        assert hybrid_snr > 15.0, "Wavelet hybrid should achieve reasonable quality"
+        # Note: Pure RFT quality varies by variant (some experimental variants may be lower)
+
+    @pytest.mark.parametrize("levels", [2, 3, 4])
+    def test_real_ecg_wavelet_hybrid_levels(self, mitbih_record, levels):
+        """Test different wavelet decomposition levels on real ECG."""
+        signal, fs = mitbih_record
+        
+        recon, stats = wavelet_rft_hybrid_compress_signal(signal, levels=levels, keep_ratio=0.5)
+        
+        signal_snr = snr(signal, recon)
+        corr = correlation_coefficient(signal, recon)
+        
+        # Should work across different decomposition levels
+        assert signal_snr >= 18.0, f"SNR too low for {levels} levels: {signal_snr:.2f} dB"
+        assert corr >= 0.93, f"Correlation too low: {corr:.4f}"
+        
+        print(f"  {levels} levels: SNR={signal_snr:.2f} dB, corr={corr:.4f}, CR={stats['compression_ratio']:.2f}x")
 
 
 @skip_no_mitbih
