@@ -3,6 +3,7 @@
 
 import sys
 import traceback
+import argparse
 
 def verify_imports():
     """Verify all medical test modules can be imported."""
@@ -68,6 +69,13 @@ def verify_key_functions():
     return True
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Quick verification that medical tests can be imported and run'
+    )
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Increase output verbosity')
+    args = parser.parse_args()
+    
     success = True
     
     if not verify_imports():

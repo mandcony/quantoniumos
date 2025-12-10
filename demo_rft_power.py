@@ -7,6 +7,7 @@ Shows RFT's unique spectral properties for resonant systems
 
 import numpy as np
 import time
+import argparse
 from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT
 from algorithms.rft.compression import rft_vertex_codec
 
@@ -192,4 +193,13 @@ RFT understands WHY the signal looks the way it does.
     """)
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Resonance Fourier Transform - Power Demonstration'
+    )
+    parser.add_argument('-d', '--duration', type=float, default=0.1,
+                        help='Signal duration in seconds (default: 0.1)')
+    parser.add_argument('-sr', '--sample-rate', type=int, default=44100,
+                        help='Sample rate in Hz (default: 44100)')
+    args = parser.parse_args()
+    
     main()
