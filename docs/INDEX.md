@@ -1,7 +1,19 @@
-# QuantoniumOS - Documentation Index
+# Φ-RFT Research Framework - Documentation Index
 
-**Generated:** December 8, 2025  
+**Generated:** December 14, 2025  
 **Purpose:** Master index for all system documentation
+
+---
+
+## ⚠️ Critical Reading (Start Here)
+
+| Doc | Purpose | Priority |
+|-----|---------|----------|
+| **[NON_CLAIMS.md](NON_CLAIMS.md)** | What Φ-RFT does NOT do | **REQUIRED** |
+| **[GLOSSARY.md](GLOSSARY.md)** | Precise term definitions | **REQUIRED** |
+| **[LIMITATIONS_AND_REVIEWER_CONCERNS.md](LIMITATIONS_AND_REVIEWER_CONCERNS.md)** | Pre-answered criticisms | **REQUIRED** |
+| **[../CANONICAL.md](../CANONICAL.md)** | Which code is claim-bearing | **REQUIRED** |
+| **[../BENCHMARK_PROTOCOL.md](../BENCHMARK_PROTOCOL.md)** | Benchmark methodology | **REQUIRED** |
 
 ---
 
@@ -16,6 +28,19 @@
 | 5 | **[REPO_ORGANIZATION.md](REPO_ORGANIZATION.md)** | Repo structure map — source of truth |
 | 6 | **[COMPONENT_INVENTORY.md](COMPONENT_INVENTORY.md)** | Per-path purpose & routes table |
 | 7 | **[LICENSE_SPLIT.md](LICENSE_SPLIT.md)** | Licensing dual-structure summary |
+
+---
+
+## Scientific Partition (Recommended Reading Order)
+
+These folders exist to keep scientific claims, empirical evaluation, exploratory work, and demos clearly separated.
+
+| Section | Path | What it is |
+| --- | --- | --- |
+| Core Science (PRIMARY ASSET) | **[rft-core/README.md](rft-core/README.md)** | Canonical definitions, operator spec, proofs, invariant tests, fairness-noted benchmarks |
+| Validation & Benchmarks (SUPPORT) | **[rft-validation/README.md](rft-validation/README.md)** | Reproducible empirical evaluation, sweeps, negative results, dataset citations |
+| Experimental Variants (NON-CANONICAL) | **[rft-experiments/README.md](rft-experiments/README.md)** | Exploratory variants with explicit disclaimer |
+| Demonstrations (UI/OS/Mobile) | **[demos/README.md](demos/README.md)** | Technology demos only; not scientific claims |
 
 ---
 

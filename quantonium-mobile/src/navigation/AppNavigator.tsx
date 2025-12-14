@@ -10,25 +10,13 @@ import { StatusBar } from 'expo-status-bar';
 
 // Import screens
 import LauncherScreen from '../screens/LauncherScreen';
-import QVaultScreen from '../screens/QVaultScreen';
-import QNotesScreen from '../screens/QNotesScreen';
-import QuantumSimulatorScreen from '../screens/QuantumSimulatorScreen';
-import RFTVisualizerScreen from '../screens/RFTVisualizerScreen';
-import ValidationScreen from '../screens/ValidationScreen';
-import SystemMonitorScreen from '../screens/SystemMonitorScreen';
-import QuantumCryptographyScreen from '../screens/QuantumCryptographyScreen';
 import AIChatScreen from '../screens/AIChatScreen';
+import StructuralHealthScreen from '../screens/StructuralHealthScreen';
 
 export type RootStackParamList = {
   Launcher: undefined;
-  QVault: undefined;
-  QNotes: undefined;
-  QuantumSimulator: undefined;
-  RFTVisualizer: undefined;
-  Validation: undefined;
-  SystemMonitor: undefined;
-  QuantumCryptography: undefined;
   AIChat: undefined;
+  StructuralHealth: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -62,44 +50,14 @@ export default function AppNavigator() {
             }}
           />
           <Stack.Screen
-            name="QVault"
-            component={QVaultScreen}
-            options={{ title: 'Q-Vault' }}
-          />
-          <Stack.Screen
-            name="QNotes"
-            component={QNotesScreen}
-            options={{ title: 'Q-Notes' }}
-          />
-          <Stack.Screen
-            name="QuantumSimulator"
-            component={QuantumSimulatorScreen}
-            options={{ title: 'Quantum Simulator' }}
-          />
-          <Stack.Screen
-            name="RFTVisualizer"
-            component={RFTVisualizerScreen}
-            options={{ title: 'RFT Visualizer' }}
-          />
-          <Stack.Screen
-            name="Validation"
-            component={ValidationScreen}
-            options={{ title: 'RFT Validation Suite' }}
-          />
-          <Stack.Screen
-            name="SystemMonitor"
-            component={SystemMonitorScreen}
-            options={{ title: 'System Monitor' }}
-          />
-          <Stack.Screen
-            name="QuantumCryptography"
-            component={QuantumCryptographyScreen}
-            options={{ title: 'Quantum Cryptography' }}
-          />
-          <Stack.Screen
             name="AIChat"
             component={AIChatScreen}
             options={{ title: 'AI Chat' }}
+          />
+          <Stack.Screen
+            name="StructuralHealth"
+            component={StructuralHealthScreen}
+            options={{ title: 'Structural Health Monitor' }}
           />
         </Stack.Navigator>
       </NavigationContainer>

@@ -18,7 +18,8 @@
       "buildNumber": "1.0.0",
       "infoPlist": {
         "UIBackgroundModes": ["fetch"],
-        "NSFaceIDUsageDescription": "QuantoniumOS uses Face ID for secure authentication"
+        "NSFaceIDUsageDescription": "QuantoniumOS uses Face ID for secure authentication",
+        "NSMotionUsageDescription": "QuantoniumOS uses the accelerometer to measure vibrations for structural health monitoring"
       }
     },
     "android": {

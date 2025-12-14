@@ -1,4 +1,4 @@
-# QuantoniumOS: Quantum-Inspired Research Operating System
+# Φ-RFT: Non-Orthogonal Signal Transform Research Framework
 
 [![RFT Framework DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17712905.svg)](https://doi.org/10.5281/zenodo.17712905)
 [![Coherence Paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
@@ -10,6 +10,43 @@
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](PATENT_NOTICE.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](tests/)
+
+> **Repository name "QuantoniumOS" is historical.** This is a classical signal processing research framework, not quantum computing or an operating system.
+
+---
+
+## ⚠️ Non-Claims (Read First)
+
+**What Φ-RFT does NOT do:**
+
+| Claim | Status | Reality |
+|-------|--------|---------|
+| Replaces FFT | ❌ FALSE | FFT remains better for most applications |
+| Faster than FFT | ❌ FALSE | O(N²) naive vs O(N log N) |
+| Quantum computing | ❌ FALSE | Purely classical mathematics |
+| Universally optimal | ❌ FALSE | Only specific signal classes benefit |
+| Production-ready | ❌ FALSE | Research framework only |
+
+**Where Φ-RFT loses:**
+- White noise → No advantage (expected)
+- High-entropy random signals → No advantage (information-theoretic limit)
+- Out-of-family signals → 25% win rate only
+
+📖 **Full details:** [docs/NON_CLAIMS.md](docs/NON_CLAIMS.md) | [docs/GLOSSARY.md](docs/GLOSSARY.md)
+
+---
+
+## What This Actually Is
+
+**Problem:** Existing data-independent transforms (FFT, DCT) are suboptimal for signals with golden-ratio quasi-periodic structure.
+
+**Method:** Φ-RFT derives basis functions from the eigenvectors of a structured autocorrelation operator with golden-ratio frequency pairs.
+
+**Where it works:** Signals with inherent φ-ratio frequency relationships (+15-20 dB PSNR at 10% coefficient retention).
+
+**Where it doesn't:** White noise, fully random signals, arbitrary waveforms.
+
+**Why it matters:** First data-independent transform with KLT-like compaction for a specific signal class, without covariance estimation.
 
 ---
 
@@ -24,6 +61,20 @@
 | **RFT** | Ψ = D_φ C_σ F (phase-tilted FFT) | Eigenbasis of resonance operator K |
 | **Sparsity** | None vs FFT | **+15-20 dB PSNR** on target signals |
 | **Novelty** | Trivially equivalent to phased DFT | Genuine operator-eigenbasis transform |
+
+### The Sharp Novelty Claim
+
+> **Φ-RFT is a closed-form, data-independent, unitary transform whose phase structure is non-quadratic and provably outside the LCT/FrFT family, yet empirically achieves KLT-like energy compaction in specific regimes without requiring covariance estimation.**
+
+| Property | KLT | FFT/DCT | LCT/FrFT | **Φ-RFT** |
+|----------|-----|---------|----------|-----------|
+| Data-independent | ❌ | ✅ | ✅ | ✅ |
+| Closed-form | ❌ | ✅ | ✅ | ✅ |
+| Non-quadratic phase | N/A | ❌ | ❌ | ✅ |
+| Outside LCT family | N/A | ❌ | ❌ | ✅ |
+| KLT-like compaction | ✅ | ❌ | ❌ | ⚠️ (regime-specific) |
+
+**This is not a claim of superiority. This is a new point in the design space.**
 
 ### The Canonical RFT Definition
 
@@ -66,17 +117,30 @@ See `algorithms/rft/README_RFT.md` for the complete specification.
 
 ---
 
-> **PATENT-PENDING RESEARCH PLATFORM.** QuantoniumOS bundles:
-> - the **Φ-RFT** (golden-ratio + chirp, **closed-form, fast** unitary transform),
-> - **compression** pipelines (lossless + hybrid learned),
-> - **cryptographic** experiments (RFT–SIS hashing),
-> - and **comprehensive validation** suites.  
-> All "quantum" modules are **classical simulations** or **quantum-inspired data structures** with explicit mathematical checks. They do not simulate physical quantum mechanics.
+> **RESEARCH FRAMEWORK.** This repository bundles:
+> - the **Φ-RFT** (non-orthogonal signal transform with phase-modulated basis functions),
+> - **compression** pipelines (transform-based, hybrid),
+> - **cryptographic** experiments (RFT–SIS hashing — **not production-ready**),
+> - and **validation** suites.  
+> All modules are **classical computation only**. The "quantum" in the historical project name refers to mathematical structure, not physics.
 
 **USPTO Application:** 19/169,399 (Filed 2025-04-03)  
 **Title:** *Hybrid Computational Framework for Quantum and Resonance Simulation*
 
 ---
+
+## Code Organization
+
+| Path | Status | Description |
+|------|--------|-------------|
+| `algorithms/rft/core/` | **CANONICAL** | Claim-bearing reference implementation |
+| `algorithms/rft/experiments/` | Exploratory | Non-claim-bearing research |
+| `benchmarks/` | **CANONICAL** | Reproducible validation |
+| `hardware/` | Feasibility study | Not fabricated |
+| `quantonium_os_src/` | Demonstration | UI demos only |
+| `quantonium-mobile/` | Demonstration | Mobile prototype |
+
+📖 **Full map:** [CANONICAL.md](CANONICAL.md) | [BENCHMARK_PROTOCOL.md](BENCHMARK_PROTOCOL.md)
 
 ## Current Status (Phase 4)
 
@@ -95,15 +159,16 @@ See `PHASE4_PLAN.md` for detailed roadmap.
 | Step | Doc | Purpose |
 | --- | --- | --- |
 | 1 | **[README.md](README.md)** | Project summary, RFT update, quick install |
-| 2 | **[GETTING_STARTED.md](GETTING_STARTED.md)** | First run, examples, learning path |
-| 3 | **[SETUP_GUIDE.md](SETUP_GUIDE.md)** | Installation, native builds, troubleshooting |
-| 4 | **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** | Doc tree, task-based navigation |
-| 5 | **[REPO_ORGANIZATION.md](REPO_ORGANIZATION.md)** | Repo structure map (this is the source of truth) |
+| 2 | **[Getting Started](docs/guides/GETTING_STARTED.md)** | First run, examples, learning path |
+| 3 | **[Setup Guide](docs/guides/SETUP_GUIDE.md)** | Installation, native builds, troubleshooting |
+| 4 | **[Documentation Index](docs/INDEX.md)** | Doc tree, task-based navigation |
+| 5 | **[Repo Organization](docs/project/REPO_ORGANIZATION.md)** | Repo structure map (source of truth) |
 
 **More docs:**
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Technical deep dive (ASM → C → C++ → Python)
 - **[docs/ARCHITECTURE_QUICKREF.md](docs/ARCHITECTURE_QUICKREF.md)** - One-page cheat sheet
-- **[COMPONENT_INVENTORY.md](COMPONENT_INVENTORY.md)** - Per-path purpose & routes table
+- **[Component Inventory](docs/project/COMPONENT_INVENTORY.md)** - Per-path purpose & routes table
+- **[Quick Reference](docs/guides/QUICK_REFERENCE.md)** - Developer commands
 
 **Quick installation:**
 ```bash

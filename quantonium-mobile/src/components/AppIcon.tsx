@@ -13,7 +13,7 @@ interface AppIconProps {
 }
 
 export default function AppIcon({ name, size = 48, color = '#ffffff' }: AppIconProps) {
-  const iconMap: { [key: string]: JSX.Element } = {
+  const iconMap: Record<string, React.ReactElement> = {
     'RFT Validation Suite': (
       <Svg width={size} height={size} viewBox="0 0 24 24">
         <Path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill={color} />
@@ -51,6 +51,13 @@ export default function AppIcon({ name, size = 48, color = '#ffffff' }: AppIconP
         <Rect x="3" y="7" width="18" height="14" rx="2" fill="none" stroke={color} strokeWidth="2" />
         <Path d="M7 7V5c0-1.66 1.34-3 3-3h4c1.66 0 3 1.34 3 3v2" fill="none" stroke={color} strokeWidth="2" />
         <Circle cx="12" cy="14" r="2" fill={color} />
+      </Svg>
+    ),
+    'Structural Health': (
+      <Svg width={size} height={size} viewBox="0 0 24 24">
+        <Path d="M4 20h16v2H4z" fill={color} />
+        <Path d="M6 18h3l2-6 2 6h3l-4-12z" fill={color} />
+        <Path d="M11 8h2l1-3h-4z" fill={color} opacity={0.7} />
       </Svg>
     ),
   };

@@ -37,11 +37,8 @@ export default function QuantumSimulatorScreen() {
 
   const showProbabilities = () => {
     const probs = simulator.getProbabilities();
-    const lines = probs.map((p, i) => {
-      const binary = i.toString(2).padStart(2, '0');
-      return `|${binary}⟩: ${(p * 100).toFixed(2)}%`;
-    });
-    appendOutput('State probabilities:\n' + lines.join('\n'));
+    const lines = probs.map((p) => `${p.state}: ${(p.probability * 100).toFixed(2)}%`);
+    appendOutput('State probabilities:\n' + (lines.length ? lines.join('\n') : 'All zero amplitudes'));
   };
 
   const applyHadamard = () => {
@@ -72,9 +69,8 @@ export default function QuantumSimulatorScreen() {
   };
 
   const measure = () => {
-    const result = simulator.measure();
-    const binary = result.toString(2).padStart(2, '0');
-    appendOutput(`Measured: |${binary}⟩`);
+    const result = simulator.measureAll();
+    appendOutput(`Measured: |${result.outcome}⟩`);
     appendOutput('State collapsed. System reset to measured state.');
   };
 
