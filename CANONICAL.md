@@ -1,6 +1,7 @@
 # Canonical Implementation Reference
 
 > **Purpose:** Define which code is claim-bearing and which is exploratory.
+> **Patent Reference:** USPTO Application 19/169,399
 
 ---
 
@@ -12,25 +13,42 @@ Everything else is exploratory, demonstrative, or historical.
 
 ---
 
+## USPTO Patent Claims Map
+
+| Claim | Title | Primary Implementation |
+|-------|-------|------------------------|
+| **1** | Symbolic Resonance Fourier Transform Engine | `BinaryRFT` in `resonant_fourier_transform.py` |
+| **2** | Resonance-Based Cryptographic Subsystem | `RFTSISHash` in `resonant_fourier_transform.py` |
+| **3** | Geometric Structures for Cryptographic Waveform Hashing | Topological hash functions |
+| **4** | Hybrid Mode Integration | Unified framework |
+
+---
+
 ## CANONICAL (Claim-Bearing)
 
-These files contain the authoritative implementation of Φ-RFT.
+These files contain the authoritative implementation of the RFT patent claims.
 
-### Core Transform
+### Core Transform (Claim 1)
 
 | File | Status | Description |
 |------|--------|-------------|
-| `algorithms/rft/core/canonical_true_rft.py` | **CANONICAL** | Reference RFT implementation |
-| `algorithms/rft/kernels/resonant_fourier_transform.py` | **CANONICAL** | Production kernel |
-| `algorithms/rft/theory/phi_rft_formal_spec.py` | **CANONICAL** | Mathematical specification |
+| `algorithms/rft/core/resonant_fourier_transform.py` | **CANONICAL** | Canonical RFT implementation |
+| `algorithms/rft/__init__.py` | **CANONICAL** | Package exports |
+| `algorithms/rft/core/__init__.py` | **CANONICAL** | Core module exports |
+
+### Cryptographic (Claim 2)
+
+| File | Status | Description |
+|------|--------|-------------|
+| `algorithms/rft/core/resonant_fourier_transform.py` | **CANONICAL** | RFTSISHash implementation |
 
 ### Validation
 
 | File | Status | Description |
 |------|--------|-------------|
-| `tests/rft/test_canonical_rft.py` | **CANONICAL** | Core correctness tests |
+| `tests/rft/test_canonical_rft.py` | **CANONICAL** | Core correctness tests (39 tests) |
+| `tests/crypto/test_rft_sis_hash.py` | **CANONICAL** | Cryptographic hash tests (20 tests) |
 | `tests/rft/test_variant_unitarity.py` | **CANONICAL** | Unitarity verification |
-| `tests/validation/test_rft_validation.py` | **CANONICAL** | Cross-validation suite |
 
 ### Benchmarks
 
@@ -45,9 +63,20 @@ These files contain the authoritative implementation of Φ-RFT.
 | File | Status | Description |
 |------|--------|-------------|
 | `algorithms/rft/README_RFT.md` | **CANONICAL** | Authoritative RFT definition |
+| `docs/patent/USPTO_ALGORITHM_SPECIFICATIONS.md` | **CANONICAL** | Full patent claim specs |
 | `docs/GLOSSARY.md` | **CANONICAL** | Term definitions |
 | `docs/NON_CLAIMS.md` | **CANONICAL** | Explicit non-claims |
 | `BENCHMARK_PROTOCOL.md` | **CANONICAL** | Benchmark methodology |
+
+---
+
+## DEPRECATED (Backwards Compatibility Only)
+
+These files are preserved for backwards compatibility but are NOT the canonical RFT.
+
+| File | Status | Replacement |
+|------|--------|-------------|
+| `algorithms/rft/core/phi_phase_fft.py` | DEPRECATED | `resonant_fourier_transform.py` |
 
 ---
 
@@ -71,7 +100,7 @@ These files are research explorations. Results are not peer-reviewed claims.
 | `algorithms/rft/applications/` | EXPLORATORY | Domain-specific research |
 | `examples/` | DEMONSTRATION | Usage examples only |
 
-### Crypto
+### Crypto (Non-Canonical)
 
 | Path | Status | Description |
 |------|--------|-------------|

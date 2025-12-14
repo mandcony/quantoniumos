@@ -1,71 +1,116 @@
 # Glossary of Terms
 
 > **Purpose:** Eliminate ambiguity. Every term has a precise mathematical definition.
+> **Patent Reference:** USPTO Application 19/169,399
 
 ---
 
 ## Core Terminology
 
-### Φ-RFT (Phi-RFT)
+### RFT (Resonant Fourier Transform)
 
-**Definition:** A non-orthogonal signal transform derived from the eigenbasis of a structured autocorrelation operator.
+**Definition:** A multi-carrier transform that maps discrete data into a continuous waveform domain using golden-ratio frequency and phase spacing.
 
-**Mathematical Definition:**
+**Canonical Mathematical Definition:**
 ```
-K = T(R(k) · d(k))        — Toeplitz matrix from autocorrelation model
-K = U Λ Uᵀ                — Eigendecomposition
-RFT(x) = Uᵀ x             — Transform application
-```
+Ψₖ(t) = exp(2πi × fₖ × t + i × θₖ)
 
 Where:
-- `R(k) = cos(2πf₀k) + cos(2πf₀φk)` — Golden-ratio frequency pair
-- `d(k) = exp(-αk)` — Exponential decay envelope
-- `φ = (1 + √5)/2` — Golden ratio (≈1.618)
+  fₖ = (k+1) × φ       — Resonant Frequency
+  θₖ = 2π × k / φ      — Golden Phase  
+  φ = (1+√5)/2         — Golden Ratio ≈ 1.618
+```
 
-**What it is:** A data-independent, closed-form basis derived from operator eigendecomposition.
+**Forward Transform:**
+```
+RFT(x)[t] = Σₖ x[k] × Ψₖ(t)
+```
+
+**What it is:** A φ-OFDM framework for wave-domain symbolic computation.
 
 **What it is NOT:**
-- Not quantum computing
 - Not a replacement for FFT
 - Not faster asymptotically
-- Not universally optimal
+- Not universally optimal for compression
 
 ---
 
-### Non-Orthogonal Signal Transform
+### BinaryRFT (Claim 1 Implementation)
 
-**Definition:** A linear transformation where basis vectors are not mutually perpendicular but maintain unitarity through eigendecomposition of a symmetric operator.
+**Definition:** The symbolic transformation engine for encoding binary data as amplitude-phase modulated waveforms and performing logic operations in the wave domain.
 
-**Contrast with FFT:** FFT uses uniformly-spaced sinusoidal basis; Φ-RFT uses eigenvectors of a golden-ratio autocorrelation model.
+**Key Operations:**
+- `encode(value)` — Binary → Wave (BPSK on RFT carriers)
+- `decode(wave)` — Wave → Binary (matched filter detection)
+- `xor(w1, w2)` — XOR in wave domain
+- `and_(w1, w2)` — AND in wave domain
+- `or_(w1, w2)` — OR in wave domain
+- `not_(w)` — NOT in wave domain (phase inversion)
 
 ---
 
-### Phase-Modulated Basis Functions
+### RFT-SIS Hash (Claim 2 Implementation)
 
-**Definition:** Basis functions with non-quadratic phase evolution, specifically:
+**Definition:** A post-quantum cryptographic hash combining RFT transform features with Short Integer Solution (SIS) lattice hardness.
 
+**Pipeline:**
 ```
-φ_k(n) = exp(i · 2π · (k·n/N + k·n·φ⁻¹ mod 1))
+Data → SHA3 Expansion → RFT Transform → SIS Quantization → Lattice Point → Final Hash
 ```
 
-The term "resonance" in older documentation refers to this phase structure, not acoustic or mechanical resonance.
+**Security Basis:** SIS lattice problem (believed quantum-resistant)
 
 ---
 
-### Research Framework (formerly "Operating System")
+### Topological Hashing (Claim 3)
 
-**Definition:** An experimental software scaffold for running RFT algorithms, benchmarks, and demonstrations.
+**Definition:** Extraction of waveform features into cryptographic signatures using geometric invariants including winding numbers and Euler characteristics.
 
-**What it is:** A Python package with optional native acceleration, desktop UI for demos, and mobile prototype.
+**Geometric Structures:**
+- Polar-to-Cartesian with golden ratio scaling
+- Complex exponential coordinate generation
+- Topological winding number computation
+- Manifold-based hash generation
 
-**What it is NOT:**
-- Not an operating system kernel
-- Not a replacement for Linux/Windows
-- Not production software
+---
+
+### Hybrid Mode Integration (Claim 4)
+
+**Definition:** Unified framework combining symbolic transform (Claim 1), cryptographic subsystem (Claim 2), and geometric structures (Claim 3) with coherent propagation across layers.
 
 ---
 
 ## Signal Processing Terms
+
+### BPSK (Binary Phase-Shift Keying)
+
+**Definition:** Modulation scheme where bit 0 → symbol -1, bit 1 → symbol +1.
+
+**In RFT context:** Each bit modulates a separate RFT carrier.
+
+### Golden Ratio (φ)
+
+**Definition:** The unique positive number satisfying φ² = φ + 1.
+
+**Value:** φ = (1 + √5)/2 ≈ 1.618033988749895
+
+**Properties:**
+- Self-similar: φ² = φ + 1
+- Fibonacci limit: F_{n+1}/F_n → φ
+- Golden angle: 2π/φ² ≈ 137.5° (most irrational angle)
+
+### Matched Filter Detection
+
+**Definition:** Correlation-based symbol extraction:
+```
+symbol[k] = sign(Re(⟨W, Ψₖ⟩))
+```
+
+### Wave-Domain Logic
+
+**Definition:** Logic operations (XOR, AND, OR, NOT) executed directly on waveforms without decoding to binary.
+
+---
 
 ### Energy Compaction
 
@@ -95,13 +140,33 @@ Lower is better.
 PSNR = 10 · log₁₀(MAX² / MSE) dB
 ```
 
-### Coherence
+### Avalanche Effect
 
-**Definition:** Maximum absolute inner product between transform basis vectors and measurement vectors.
+**Definition:** Cryptographic property where single-bit input change causes ~50% output bits to flip.
+
+**Target:** 50% ± 5%
+
+---
+
+## Cryptographic Terms
+
+### SIS (Short Integer Solution)
+
+**Definition:** Lattice problem: given matrix A, find short vector s such that As = 0 mod q.
+
+**Security:** Believed resistant to quantum computers (no known polynomial-time quantum algorithm).
+
+### Winding Number
+
+**Definition:** Topological invariant counting total phase rotations of a complex waveform.
 
 ```
-μ = max_{i,j} |⟨u_i, m_j⟩|
+winding = (phase_unwrapped[-1] - phase_unwrapped[0]) / (2π)
 ```
+
+### Euler Characteristic
+
+**Definition:** Topological invariant: χ = V - E + F (vertices minus edges plus faces).
 
 ---
 
@@ -111,47 +176,25 @@ PSNR = 10 · log₁₀(MAX² / MSE) dB
 
 **Definition:** The statistically optimal transform for a given signal class, derived from covariance eigendecomposition.
 
-**Relevance:** Φ-RFT achieves KLT-like compaction on specific signal classes without requiring covariance estimation.
-
 ### LCT (Linear Canonical Transform)
 
 **Definition:** A family of transforms including FFT, Fresnel, and fractional Fourier transforms, characterized by quadratic phase.
-
-**Relevance:** Φ-RFT has non-quadratic phase structure, placing it outside the LCT family.
 
 ### FrFT (Fractional Fourier Transform)
 
 **Definition:** A generalization of FFT with continuous rotation parameter in time-frequency space.
 
-**Relevance:** FrFT is a special case of LCT; Φ-RFT is distinct from both.
-
----
-
-## Standards and Metrics
-
-### DIN 4150-3
-
-**Definition:** German standard for structural vibration limits (Peak Particle Velocity in mm/s).
-
-### ISO 10816
-
-**Definition:** International standard for machine vibration severity (velocity in mm/s RMS).
-
-### ISO 2631
-
-**Definition:** Standard for human exposure to whole-body vibration.
-
 ---
 
 ## Deprecated Terms
 
-| Old Term | New Term | Reason |
-|----------|----------|--------|
-| "Quantum-inspired" | "Non-orthogonal signal transform" | Avoids quantum computing confusion |
-| "Resonance" | "Phase-modulated basis" | Avoids acoustic/mechanical confusion |
+| Old Term | Current Term | Reason |
+|----------|--------------|--------|
+| "Quantum-inspired" | "Symbolic waveform computation" | Avoids quantum computing confusion |
+| "Resonance" | "RFT" or "φ-OFDM" | Clearer technical description |
 | "Operating System" | "Research framework" | Accurate description |
+| "φ-phase FFT" | "BinaryRFT" | Old phase-tilted FFT, now deprecated |
 | "New paradigm" | (removed) | Empty marketing language |
-| "φ-phase FFT" | (deprecated) | No sparsity advantage; use Φ-RFT |
 
 ---
 
@@ -160,14 +203,28 @@ PSNR = 10 · log₁₀(MAX² / MSE) dB
 | Symbol | Meaning |
 |--------|---------|
 | φ | Golden ratio = (1 + √5)/2 ≈ 1.618 |
-| K | Resonance operator (Toeplitz matrix) |
-| U | Eigenvector matrix of K |
-| Λ | Eigenvalue matrix of K |
-| F | Standard DFT matrix |
-| N | Signal length |
-| f₀ | Base frequency parameter |
-| α | Decay rate parameter |
+| Ψₖ(t) | RFT basis function for carrier k |
+| fₖ | Resonant frequency = (k+1) × φ |
+| θₖ | Golden phase = 2πk / φ |
+| W(t) | Complex waveform |
+| N | Number of bits/carriers |
+| T | Number of time samples |
+| A | SIS lattice matrix |
+| q | SIS modulus (3329 = Kyber prime) |
+| β | Short vector bound |
+
+---
+
+## Patent Claims Reference
+
+| Claim | Title | Primary Implementation |
+|-------|-------|------------------------|
+| 1 | Symbolic Resonance Fourier Transform Engine | `BinaryRFT` class |
+| 2 | Resonance-Based Cryptographic Subsystem | `RFTSISHash` class |
+| 3 | Geometric Structures for Cryptographic Waveform Hashing | Topological hash functions |
+| 4 | Hybrid Mode Integration | `HybridRFTFramework` class |
 
 ---
 
 *Last updated: December 2025*
+*USPTO Application 19/169,399*

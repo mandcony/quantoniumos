@@ -3,28 +3,58 @@
 """
 Core RFT implementation subpackage.
 
-NOTE (December 2025): The canonical RFT is now defined as the eigenbasis
-of a resonance operator K. See algorithms/rft/README_RFT.md.
+CANONICAL DEFINITION (December 2025):
+=====================================
+The Resonant Fourier Transform (RFT) is a multi-carrier transform using
+golden-ratio frequency and phase spacing:
 
-The old φ-phase FFT (Ψ = D_φ C_σ F) is preserved for backwards compatibility
-but renamed to phi_phase_fft.py. It has NO sparsity advantage over FFT.
+    Ψₖ(t) = exp(2πi × fₖ × t + i × θₖ)
+    
+    where:
+        fₖ = (k+1) × φ       (Resonant Frequency)
+        θₖ = 2π × k / φ      (Golden Phase)  
+        φ = (1+√5)/2         (Golden Ratio ≈ 1.618)
+
+This enables:
+1. Binary → Wave encoding (BPSK on resonant carriers)
+2. Logic operations IN THE WAVE DOMAIN (XOR, AND, OR, NOT)
+3. Computation without decoding intermediate results
+
+See: algorithms/rft/core/resonant_fourier_transform.py
 """
 
-# Backwards compatibility: import from renamed file
-from .phi_phase_fft import rft_forward, rft_inverse
-
-# Canonical RFT (new, operator-based)
-try:
-    from ..kernels.resonant_fourier_transform import (
-        build_rft_kernel,
-        rft_forward as canonical_rft_forward,
-        rft_inverse as canonical_rft_inverse,
-    )
-except ImportError:
-    pass
+# CANONICAL RFT - Golden-ratio multi-carrier transform
+from .resonant_fourier_transform import (
+    # Constants
+    PHI,
+    PHI_INV,
+    
+    # Core functions
+    rft_frequency,
+    rft_phase,
+    rft_basis_function,
+    rft_basis_matrix,
+    
+    # Transform functions
+    rft_forward,
+    rft_inverse,
+    rft,
+    irft,
+    
+    # Binary RFT for wave-domain computation
+    BinaryRFT,
+)
 
 __all__ = [
-    "rft_forward",      # Deprecated φ-phase FFT
-    "rft_inverse",      # Deprecated φ-phase FFT
-    "build_rft_kernel", # Canonical RFT kernel builder
+    'PHI',
+    'PHI_INV',
+    'rft_frequency',
+    'rft_phase',
+    'rft_basis_function',
+    'rft_basis_matrix',
+    'rft_forward',
+    'rft_inverse',
+    'rft',
+    'irft',
+    'BinaryRFT',
 ]
