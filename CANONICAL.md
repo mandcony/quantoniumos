@@ -144,20 +144,29 @@ These exist for visualization and UI purposes only.
 The **canonical RFT** is defined by:
 
 ```python
-# Authoritative definition in canonical_true_rft.py
+# Authoritative definition in algorithms/rft/core/resonant_fourier_transform.py
 
-def build_resonance_operator(N, f0, decay_rate, phi=PHI):
-    """Build the Toeplitz autocorrelation matrix K."""
-    r = np.zeros(N)
-    for k in range(N):
-        t_k = k / N
-        r[k] = (np.cos(2*np.pi*f0*t_k) + np.cos(2*np.pi*f0*phi*t_k)) * np.exp(-decay_rate*k)
-    r[0] = 1.0
-    return toeplitz(r)
-
-def build_rft_basis(N, f0=10.0, decay_rate=0.05):
-    """Compute eigenbasis of resonance operator."""
-    K = build_resonance_operator(N, f0, decay_rate)
+def rft_basis_matrix(N, use_gram_normalization=True):
+    """
+    Compute the canonical Gram-normalized RFT basis.
+    
+    1. Construct raw irrational-frequency exponential basis Φ.
+    2. Apply Gram-matrix normalization (Loewdin orthogonalization) to enforce unitarity.
+    """
+    # 1. Raw exponential basis with golden-ratio frequencies
+    n = np.arange(N)
+    k = np.arange(N)
+    f = np.mod((k + 1.0) * PHI, 1.0)  # Folded golden frequencies
+    Phi = np.exp(1j * 2.0 * np.pi * np.outer(n, f)) / np.sqrt(N)
+    
+    # 2. Gram normalization: Φ̃ = Φ (Φᴴ Φ)⁻¹/²
+    if use_gram_normalization:
+        G = Phi.conj().T @ Phi
+        eigvals, eigvecs = np.linalg.eigh(G)
+        inv_sqrt = eigvecs @ np.diag(1.0 / np.sqrt(eigvals)) @ eigvecs.conj().T
+        Phi = Phi @ inv_sqrt
+        
+    return Phi
     eigenvalues, eigenvectors = np.linalg.eigh(K)
     idx = np.argsort(eigenvalues)[::-1]
     return eigenvectors[:, idx]

@@ -22,6 +22,15 @@ where the RFT BASIS FUNCTIONS are:
     θₖ = 2π × k / φ      (Golden Phase)
     φ = (1+√5)/2         (Golden Ratio ≈ 1.618034)
 
+FINITE-N CORRECTION (CANONICAL):
+===============================
+For finite discrete signals, the raw irrational basis Φ is not exactly unitary.
+The CANONICAL RFT applies Gram-matrix normalization (Loewdin orthogonalization):
+
+    Φ̃ = Φ (Φᴴ Φ)⁻¹/²
+
+This ensures Φ̃ is exactly unitary (Φ̃ᴴ Φ̃ = I) while preserving the resonance structure.
+
 Inverse RFT (Wave → Data):
     x[k] = ⟨W, Ψₖ⟩ = (1/T) ∫₀ᵀ W(t) × Ψₖ*(t) dt
 
@@ -54,6 +63,8 @@ The RFT enables COMPUTATION IN THE WAVE DOMAIN:
 import numpy as np
 from typing import Union, Tuple, Optional
 from functools import lru_cache
+
+from .gram_utils import gram_matrix, gram_inverse_sqrt
 
 # =============================================================================
 # CONSTANTS
@@ -110,33 +121,103 @@ def rft_basis_function(k: int, t: np.ndarray) -> np.ndarray:
 
 
 @lru_cache(maxsize=32)
-def rft_basis_matrix(N: int, T: int) -> np.ndarray:
+def rft_basis_matrix(
+    N: int,
+    T: Optional[int] = None,
+    use_gram_normalization: bool = False,
+) -> np.ndarray:
+    """Build an RFT basis matrix.
+
+    Backward-compatible behavior:
+    - If `T` is provided and `T != N`, this returns the historical *waveform* basis
+      Ψ of shape (N, T): Ψ[k,t] = exp(2πi f_k (t/T) + i θ_k).
+      This matches the original implementation used for data→wave synthesis.
+
+    Mathematically complete square-kernel behavior:
+    - If `T` is None (or `T == N`), this returns a square (N×N) φ-grid exponential
+      basis Φ with entries:
+
+          Φ[k,n] = exp(j 2π φ k n / N) / √N
+
+      If `use_gram_normalization=True`, the basis is orthonormalized via:
+
+          Φ̃ = Φ (ΦᴴΦ)^{-1/2}
+
+      yielding a unitary Φ̃ so that Φ̃ᴴ Φ̃ = I.
+
+    References (orientation):
+    - Oppenheim & Schafer, Discrete-Time Signal Processing (DFT orthogonality)
+    - Christensen, An Introduction to Frames and Riesz Bases (Gram/frame operators)
+    - Encyclopaedia Britannica, Fourier analysis
     """
-    Build the N×T RFT basis matrix Ψ.
-    
-    Ψ[k, t] = exp(2πi × fₖ × t/T + i × θₖ)
-    
-    Args:
-        N: Number of data points (rows)
-        T: Number of time samples (columns)
-    
-    Returns:
-        Complex matrix of shape (N, T)
-    """
+
+    if T is None:
+        T = int(N)
+    N = int(N)
+    T = int(T)
+
+    # Square φ-grid exponential basis for rigorous finite-N inversion.
+    #
+    # Important: for discrete-time exponentials, frequency is periodic (defined mod 1
+    # in cycles/sample). Folding to the fundamental band avoids severe finite-N
+    # ill-conditioning that occurs when using large unwrapped frequencies.
+    if T == N:
+        n = np.arange(N, dtype=np.float64)
+        k = np.arange(N, dtype=np.float64)
+        # Normalized frequencies in [0, 1): f_k = frac((k+1) φ)
+        f = np.mod((k + 1.0) * PHI, 1.0)
+        # Φ[n,k] = exp(j 2π f_k n) / √N
+        Phi = np.exp(1j * 2.0 * np.pi * np.outer(n, f)) / np.sqrt(float(N))
+        if use_gram_normalization:
+            G = gram_matrix(Phi)
+            Phi = Phi @ gram_inverse_sqrt(G)
+        return Phi.astype(np.complex128, copy=False)
+
+    # Legacy waveform basis (non-square synthesis operator).
     t = np.arange(T) / T  # Normalized time [0, 1)
     Psi = np.zeros((N, T), dtype=np.complex128)
-    
     for k in range(N):
         Psi[k, :] = rft_basis_function(k, t)
-    
     return Psi
+
+
+def rft_forward_frame(x: np.ndarray, Phi: np.ndarray) -> np.ndarray:
+    """Frame-correct coefficient extraction for a (generally non-orthogonal) basis.
+
+    Given a full-rank square basis Φ, the dual-frame (exact) coefficients are:
+
+        X = (Φᴴ Φ)^{-1} Φᴴ x
+
+    This reduces to X = Φᴴ x when Φ is unitary.
+
+    Reference: Christensen, An Introduction to Frames and Riesz Bases.
+    """
+
+    x = np.asarray(x, dtype=np.complex128)
+    Phi = np.asarray(Phi, dtype=np.complex128)
+    G = gram_matrix(Phi)
+    return np.linalg.solve(G, Phi.conj().T @ x)
+
+
+def rft_inverse_frame(X: np.ndarray, Phi: np.ndarray) -> np.ndarray:
+    """Synthesis for coefficients X given basis Φ: x = Φ X."""
+
+    X = np.asarray(X, dtype=np.complex128)
+    Phi = np.asarray(Phi, dtype=np.complex128)
+    return Phi @ X
 
 
 # =============================================================================
 # FORWARD AND INVERSE RFT
 # =============================================================================
 
-def rft_forward(x: np.ndarray, T: Optional[int] = None) -> np.ndarray:
+def rft_forward(
+    x: np.ndarray,
+    T: Optional[int] = None,
+    *,
+    use_gram_normalization: bool = False,
+    frame_correct: bool = False,
+) -> np.ndarray:
     """
     Forward Resonant Fourier Transform.
     
@@ -146,7 +227,12 @@ def rft_forward(x: np.ndarray, T: Optional[int] = None) -> np.ndarray:
     
     Args:
         x: Input data array of length N
-        T: Number of output time samples (default: N * 16)
+        T: Number of output time samples (default: N * 16) for waveform synthesis.
+           If `frame_correct` or `use_gram_normalization` is enabled and T is None,
+           a square (N×N) transform is used.
+        use_gram_normalization: If True (square mode), uses Φ̃ = Φ(ΦᴴΦ)^{-1/2}.
+        frame_correct: If True (square mode), uses dual-frame coefficients
+           X = (ΦᴴΦ)^{-1} Φᴴ x.
     
     Returns:
         Complex waveform of length T
@@ -154,14 +240,28 @@ def rft_forward(x: np.ndarray, T: Optional[int] = None) -> np.ndarray:
     x = np.asarray(x, dtype=np.complex128)
     N = len(x)
     
+    # Default behavior remains waveform synthesis unless the user explicitly
+    # requests mathematically complete square-kernel behavior.
+    if T is None and (use_gram_normalization or frame_correct):
+        Phi = rft_basis_matrix(N, N, use_gram_normalization=use_gram_normalization)
+        if frame_correct:
+            return rft_forward_frame(x, Phi)
+        return Phi.conj().T @ x
+
     if T is None:
         T = N * 16  # Oversample for smooth waveform
-    
+
     Psi = rft_basis_matrix(N, T)
     return x @ Psi
 
 
-def rft_inverse(W: np.ndarray, N: int) -> np.ndarray:
+def rft_inverse(
+    W: np.ndarray,
+    N: int,
+    *,
+    use_gram_normalization: bool = False,
+    frame_correct: bool = False,
+) -> np.ndarray:
     """
     Inverse Resonant Fourier Transform.
     
@@ -170,19 +270,25 @@ def rft_inverse(W: np.ndarray, N: int) -> np.ndarray:
     Recovers discrete data from a waveform.
     
     Args:
-        W: Complex waveform of length T
+        W: Complex waveform of length T (legacy waveform mode), or coefficient
+           vector of length N (square-kernel mode).
         N: Number of data points to recover
+        use_gram_normalization: If True (square mode), uses Φ̃ = Φ(ΦᴴΦ)^{-1/2}.
+        frame_correct: If True (square mode), treats W as dual-frame coefficients.
     
     Returns:
         Recovered data array of length N
     """
     W = np.asarray(W, dtype=np.complex128)
+
+    # Square-kernel reconstruction (coefficients → signal).
+    if W.shape[0] == int(N) and (use_gram_normalization or frame_correct):
+        Phi = rft_basis_matrix(int(N), int(N), use_gram_normalization=use_gram_normalization)
+        return rft_inverse_frame(W, Phi)
+
+    # Legacy waveform inverse via correlation.
     T = len(W)
-    
-    Psi = rft_basis_matrix(N, T)
-    
-    # Correlate waveform with each basis function
-    # x[k] = <W, Ψₖ> / T
+    Psi = rft_basis_matrix(int(N), int(T))
     return (Psi @ np.conj(W)) / T
 
 

@@ -22,8 +22,8 @@ Based on comprehensive analysis of the QuantoniumOS repository, this document id
 ### What Actually Works
 
 1. ✅ **Operator-based RFT** (December 2025) - Genuine eigenbasis transform
-2. ✅ **32% sparsity improvement** on in-family signals
-3. ✅ **+15-20 dB PSNR** at 10% coefficient retention
+2. ✅ **Sparsity improvement** on in-family signals (see [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md))
+3. ✅ **Domain-specific PSNR gains** at 10% coefficient retention
 4. ✅ **8 validated operator variants** (all unitary)
 5. ✅ **RFTPU TL-Verilog** simulation passing
 
@@ -56,10 +56,7 @@ RFT(x) = Uᵀ x         // Transform = eigenbasis projection
 
 **Key insight:** The eigenbasis U is NOT the DFT basis! Different signals produce different magnitude spectra.
 
-**Current results:**
-- In-family signals: RFT wins **82-100%** of benchmarks
-- PSNR improvement: **+15-20 dB** at 10% retention
-- Gini sparsity: **0.965 vs 0.730** (ARFT vs FFT)
+**Current results:** See [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md) for reproducible metrics.
 
 ---
 
@@ -100,9 +97,7 @@ Option C: Fixed Basis Library
 
 **Problem:** RFT only wins on "in-family" signals (golden QP, Fibonacci, harmonic).
 
-**Current benchmark:**
-- In-Family: **100% win rate**
-- Out-of-Family: **25% win rate** (loses to FFT/DCT on square wave, noise)
+**Current benchmark:** See [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md) for detailed metrics.
 
 **Solution Path:**
 
@@ -436,7 +431,7 @@ def adaptive_transform(x: np.ndarray) -> np.ndarray:
 
 1. **Novel Transform:** The operator-based RFT is a genuine eigenbasis transform, mathematically distinct from FFT/DCT/LCT.
 
-2. **Domain-Specific Sparsity:** For signals with golden-ratio quasi-periodic structure, RFT achieves **+15-20 dB PSNR** vs FFT at 10% coefficient retention.
+2. **Domain-Specific Sparsity:** For signals with golden-ratio quasi-periodic structure, RFT achieves improved PSNR vs FFT at 10% coefficient retention (see [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md)).
 
 3. **Unitarity:** All operator-RFT variants are strictly unitary (proven, tested to 1e-15).
 

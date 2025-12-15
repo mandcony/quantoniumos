@@ -16,9 +16,9 @@
 
 \geometry{margin=1in}
 
-\title{The $\Phi$-RFT Framework: Seven Unitary Transforms for Hybrid Discrete-Continuous Signal Processing}
+	itle{The Quantonium Resonance Fourier Transform: Deterministic Irrational-Frequency Frame Normalization and Empirical Validation}
 \author{Luis M. Minier \\ \textit{Independent Researcher} \\ \href{mailto:luisminier79@gmail.com}{luisminier79@gmail.com}}
-\date{November 24, 2025}
+\date{December 15, 2025}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
@@ -30,7 +30,9 @@
 \maketitle
 
 \begin{abstract}
-We present the $\Phi$-Resonant Fourier Transform ($\Phi$-RFT) framework, a family of seven rigorously unitary transforms derived from Golden Ratio phase modulation. The framework exactly diagonalizes systems governed by irrational resonances and, via Theorem~10, resolves the long-standing ``ASCII Bottleneck'' that prevented continuous spectral transforms from efficiently representing symbolic data. This manuscript consolidates the mathematical proofs, implementation architecture, verification test suite, and MATLAB-oriented figure generation pipeline that together establish enablement for the QuantoniumOS wave-computing stack.
+We present the Quantonium Resonance Fourier Transform (RFT) as a reproducible, unitary transform stack centered on deterministic Golden Ratio ($\phi$) structure. A key contribution is a mathematically complete treatment of an irrational-frequency exponential construction at finite transform size $N$: because irrationally spaced exponentials are generally non-orthogonal for finite $N$, correlation inversion is not valid without correction. We therefore introduce Gram-matrix normalization, $\widetilde{\Phi}=\Phi(\Phi^H\Phi)^{-1/2}$, which yields a unitary (Parseval/tight) basis at finite $N$, and we provide dual-frame coefficient extraction as an exact alternative.
+
+We further report empirical validation artifacts from the QuantoniumOS repository: (i) machine-precision unitarity tests, (ii) finite-$N$ reconstruction benchmarks for frame-corrected and Gram-normalized $\phi$-grid bases, and (iii) large-$N$ (up to $N=4096$) coherence and real-data coefficient diagnostics. Separately, we retain a closed-form $O(N\log N)$ $\phi$-phase FFT operator that is hardware-friendly; the paper distinguishes this fast unitary operator from the irrational-frequency frame-normalized construction.
 \end{abstract}
 
 \section{Introduction}
@@ -98,6 +100,39 @@ Empirically, the procedure in \texttt{scripts/irrevocable\_truths.py} sorts $|\h
 \end{proof}
 
 \subsection{Non-Equivalence to Linear Canonical Transforms}
+
+\subsection{Deterministic Irrational-Frequency Frame Normalization}
+
+Define a square exponential basis $\Phi\in\mathbb{C}^{N\times N}$ using deterministic irrational frequencies (folded into the discrete-time fundamental band). For example, with $f_k=\operatorname{frac}((k+1)\phi)$ and $n\in\{0,\dots,N-1\}$,
+\[
+\Phi[n,k]=\frac{1}{\sqrt{N}}e^{i2\pi f_k n}.
+\]
+At finite $N$, such irrational-frequency exponentials are generally not exactly orthogonal, i.e. $\Phi^H\Phi\neq I$.
+
+Let $G=\Phi^H\Phi$ denote the Gram matrix. If $\Phi$ is full rank, then $G$ is Hermitian positive definite and $G^{-1/2}$ exists.
+
+\begin{theorem}[Gram-normalized unitary basis]
+If $\Phi$ is full rank and $G=\Phi^H\Phi$, then $\widetilde{\Phi}=\Phi G^{-1/2}$ satisfies $\widetilde{\Phi}^H\widetilde{\Phi}=I$.
+\end{theorem}
+
+\begin{proof}
+\[
+\widetilde{\Phi}^H\widetilde{\Phi}=(G^{-1/2})^H\Phi^H\Phi G^{-1/2}=G^{-1/2}GG^{-1/2}=I.
+\]
+\end{proof}
+
+	extbf{Dual-frame coefficients.} If one keeps the raw basis $\Phi$, exact synthesis coefficients for $x=\Phi X$ are given by the square dual-frame solve
+\[
+X=(\Phi^H\Phi)^{-1}\Phi^H x.
+\]
+
+	extbf{Reproducibility hooks.} The QuantoniumOS repository includes:
+\begin{itemize}
+    \item Unitarity and reconstruction validation: \texttt{tests/validation/test\_phi\_frame\_normalization.py}
+    \item Finite-$N$ benchmark: \texttt{benchmarks/rft\_phi\_frame\_benchmark.py}
+    \item Large-$N$ ($N\le 4096$) coherence diagnostics: \texttt{benchmarks/rft\_phi\_frame\_asymptotics.py}
+    \item Large-$N$ real-data coefficient statistics (ECG): \texttt{benchmarks/rft\_phi\_nudft\_realdata\_eval.py}
+\end{itemize}
 
 \begin{theorem}[Non-LCT Nature]
 No Linear Canonical Transform (LCT) parameters $(a,b,c,d)$ with $ad-bc=1$ exist such that $\Psi$ equals the associated LCT matrix.

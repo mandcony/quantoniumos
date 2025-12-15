@@ -298,11 +298,19 @@ public:
         SIMD,      // Force C++ SIMD (AVX2/SSE)
         SCALAR     // Force scalar fallback
     };
+    
+    // RFT Variant - matches C kernel variants
+    enum class Variant {
+        LEGACY,     // Original phase-modulated FFT (deprecated)
+        CANONICAL,  // USPTO Patent 19/169,399 Claim 1: fₖ=(k+1)×φ, θₖ=2πk/φ
+        BINARY_WAVE // USPTO Patent 19/169,399: BinaryRFT wave-domain logic
+    };
 
 private:
     size_t max_size_;
     Normalization norm_;
     Backend backend_;
+    Variant variant_;
     RealVec phase_cache_;
     ComplexVec basis_cache_;  // For ASM kernel basis matrix
     bool use_simd_;
@@ -312,11 +320,13 @@ public:
     explicit RFTMWEngine(
         size_t max_size = 65536, 
         Normalization norm = Normalization::ORTHO,
-        Backend backend = Backend::AUTO
+        Backend backend = Backend::AUTO,
+        Variant variant = Variant::CANONICAL  // Default to canonical
     )
         : max_size_(max_size)
         , norm_(norm)
         , backend_(backend)
+        , variant_(variant)
         , phase_cache_(max_size)
         , use_simd_(RFTMW_HAS_AVX2)
         , use_asm_(RFTMW_ENABLE_ASM)
@@ -358,7 +368,13 @@ public:
     
     /**
      * Pre-compute RFT basis matrix for ASM kernel.
-     * Basis[i,j] = exp(i * 2π * φ^(i*j/n))
+     * 
+     * For CANONICAL variant (USPTO Patent 19/169,399):
+     *   Ψₖ(t) = exp(2πi × fₖ × t + i × θₖ)
+     *   where fₖ = (k+1) × φ, θₖ = 2πk/φ
+     * 
+     * For LEGACY variant:
+     *   Basis[i,j] = exp(i * 2π * φ^(i*j/n))
      * 
      * Note: Only precompute for small sizes to avoid memory explosion
      * (n×n matrix would be 64GB for n=65536)
@@ -376,13 +392,33 @@ public:
         }
         
         basis_cache_.resize(n * n);
-        const double inv_n2 = 1.0 / static_cast<double>(n * n);
+        const double inv_sqrt_n = 1.0 / std::sqrt(static_cast<double>(n));
         
-        for (size_t i = 0; i < n; ++i) {
-            for (size_t j = 0; j < n; ++j) {
-                double exponent = static_cast<double>(i * j) * inv_n2;
-                double phase = TWO_PI * std::pow(PHI, exponent);
-                basis_cache_[i * n + j] = Complex(std::cos(phase), std::sin(phase));
+        if (variant_ == Variant::CANONICAL || variant_ == Variant::BINARY_WAVE) {
+            // USPTO Patent 19/169,399 Claim 1: Canonical RFT
+            // Ψₖ(t) = exp(2πi × fₖ × t + i × θₖ)
+            for (size_t k = 0; k < n; ++k) {
+                double f_k = (static_cast<double>(k) + 1.0) * PHI;  // Resonant frequency
+                double theta_k = TWO_PI * static_cast<double>(k) / PHI;  // Golden phase
+                
+                for (size_t t_idx = 0; t_idx < n; ++t_idx) {
+                    double t = static_cast<double>(t_idx) / static_cast<double>(n);
+                    double angle = TWO_PI * f_k * t + theta_k;
+                    basis_cache_[k * n + t_idx] = Complex(
+                        std::cos(angle) * inv_sqrt_n,
+                        std::sin(angle) * inv_sqrt_n
+                    );
+                }
+            }
+        } else {
+            // Legacy phase-modulated FFT
+            const double inv_n2 = 1.0 / static_cast<double>(n * n);
+            for (size_t i = 0; i < n; ++i) {
+                for (size_t j = 0; j < n; ++j) {
+                    double exponent = static_cast<double>(i * j) * inv_n2;
+                    double phase = TWO_PI * std::pow(PHI, exponent);
+                    basis_cache_[i * n + j] = Complex(std::cos(phase), std::sin(phase));
+                }
             }
         }
     }
@@ -530,6 +566,79 @@ public:
         
         return demodulated;
     }
+    
+    /**
+     * Forward Canonical RFT (USPTO Patent 19/169,399 Claim 1)
+     * 
+     * X[k] = Σₙ x[n] × Ψₖ*(n/N)
+     * where Ψₖ(t) = exp(2πi × fₖ × t + i × θₖ)
+     *       fₖ = (k+1) × φ
+     *       θₖ = 2πk / φ
+     */
+    ComplexVec forward_canonical(const RealVec& input) {
+        size_t n = input.size();
+        if (n == 0) return {};
+        
+        ComplexVec result(n);
+        const double inv_sqrt_n = 1.0 / std::sqrt(static_cast<double>(n));
+        
+        for (size_t k = 0; k < n; ++k) {
+            double f_k = (static_cast<double>(k) + 1.0) * PHI;
+            double theta_k = TWO_PI * static_cast<double>(k) / PHI;
+            
+            Complex sum(0.0, 0.0);
+            for (size_t t_idx = 0; t_idx < n; ++t_idx) {
+                double t = static_cast<double>(t_idx) / static_cast<double>(n);
+                double angle = TWO_PI * f_k * t + theta_k;
+                // Conjugate for forward transform
+                Complex basis_conj(std::cos(angle), -std::sin(angle));
+                sum += input[t_idx] * basis_conj;
+            }
+            result[k] = sum * inv_sqrt_n;
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Inverse Canonical RFT (USPTO Patent 19/169,399 Claim 1)
+     * 
+     * x[n] = Σₖ X[k] × Ψₖ(n/N)
+     */
+    RealVec inverse_canonical(const ComplexVec& input) {
+        size_t n = input.size();
+        if (n == 0) return {};
+        
+        RealVec result(n);
+        const double inv_sqrt_n = 1.0 / std::sqrt(static_cast<double>(n));
+        
+        for (size_t t_idx = 0; t_idx < n; ++t_idx) {
+            double t = static_cast<double>(t_idx) / static_cast<double>(n);
+            
+            Complex sum(0.0, 0.0);
+            for (size_t k = 0; k < n; ++k) {
+                double f_k = (static_cast<double>(k) + 1.0) * PHI;
+                double theta_k = TWO_PI * static_cast<double>(k) / PHI;
+                double angle = TWO_PI * f_k * t + theta_k;
+                
+                Complex basis(std::cos(angle), std::sin(angle));
+                sum += input[k] * basis;
+            }
+            result[t_idx] = sum.real() * inv_sqrt_n;
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Get the current variant.
+     */
+    Variant variant() const { return variant_; }
+    
+    /**
+     * Set the variant (for runtime switching).
+     */
+    void set_variant(Variant v) { variant_ = v; }
     
     // Accessors
     bool has_simd() const { return use_simd_; }

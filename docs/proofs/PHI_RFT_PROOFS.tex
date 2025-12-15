@@ -218,31 +218,36 @@ The closed-form RFT $\Psi = D_\phi C_\sigma F$ is trivially equivalent to a phas
 This follows immediately from the factorization. Under the equivalence relation ``$A \sim B$ iff $A = \Lambda_1 P B \Lambda_2$ for diagonal unitaries $\Lambda_1, \Lambda_2$ and permutation $P$,'' the closed-form RFT is equivalent to the DFT. Its novelty is parametric and application-driven, not structural.
 \end{remark}
 
-\subsection{Canonical QR-Based RFT}
+\subsection{Canonical Gram-Normalized RFT}
 
-The \emph{canonical} RFT is constructed via QR decomposition of a golden-ratio weighted kernel.
+The \emph{canonical} RFT is constructed via Gram-matrix normalization (symmetric orthogonalization) of an irrational-frequency exponential basis.
 
-\begin{definition}[Golden Resonance Kernel]\label{def:kernel}
-The golden resonance kernel $K \in \R^{n \times n}$ is defined by:
+\begin{definition}[Irrational Frequency Basis]\label{def:kernel}
+The raw basis matrix $\Phi \in \C^{n \times n}$ is defined by:
 \begin{equation}
-K_{ij} = \phi^{|i-j|} \cdot \cos\left(\frac{\phi \cdot i \cdot j}{n}\right), \quad i,j \in \{0,\ldots,n-1\}
+\Phi_{tk} = \frac{1}{\sqrt{n}} \exp\left(j 2\pi f_k t\right), \quad t,k \in \{0,\ldots,n-1\}
 \end{equation}
-where $\phi = (1+\sqrt{5})/2$ is the golden ratio.
+where $f_k = \text{frac}((k+1)\phi)$ are golden-ratio frequencies folded to $[0,1)$.
 \end{definition}
 
 \begin{definition}[Canonical RFT Matrix]\label{def:canonical}
-The canonical RFT matrix $U \in \C^{n \times n}$ is the $Q$ factor from QR decomposition:
+The canonical RFT matrix $\widetilde{\Phi} \in \C^{n \times n}$ is obtained via Gram-matrix normalization:
 \begin{equation}
-K = UR \quad \text{where } U\dg U = I_n
+\widetilde{\Phi} = \Phi (\Phi\dg \Phi)^{-1/2}
 \end{equation}
+where $(\Phi\dg \Phi)^{-1/2}$ is the inverse square root of the Gram matrix $G = \Phi\dg \Phi$.
 \end{definition}
 
 \begin{theorem}[Canonical RFT Unitarity]\label{thm:canonical_unitary}
-The canonical RFT matrix $U$ is exactly unitary.
+The canonical RFT matrix $\widetilde{\Phi}$ is exactly unitary.
 \end{theorem}
 
 \begin{proof}
-By definition of QR decomposition, the $Q$ factor has orthonormal columns.
+Let $G = \Phi\dg \Phi$ be the Gram matrix. Since $\Phi$ is full-rank (generically true), $G$ is Hermitian positive definite.
+\begin{equation}
+\widetilde{\Phi}\dg \widetilde{\Phi} = (G^{-1/2})\dg \Phi\dg \Phi G^{-1/2} = G^{-1/2} G G^{-1/2} = I_n
+\end{equation}
+This construction (Loewdin orthogonalization) yields the unique unitary matrix closest to $\Phi$ in the Frobenius norm.
 \end{proof}
 
 \subsection{Numerical Observations on Structure}

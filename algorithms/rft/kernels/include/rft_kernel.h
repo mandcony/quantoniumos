@@ -55,8 +55,9 @@ typedef enum {
 #define RFT_FLAG_TOPOLOGICAL    0x0010  // Enable topological protection
 
 // RFT Variant Definitions - All Proven/Tested Variants
-// Group A: Core 7 Unitary Variants (machine-precision validated)
+// Group A: Core Unitary Variants (machine-precision validated)
 // Group B: Hybrid DCT-RFT Variants (hypothesis-tested)
+// Group C: Canonical USPTO Patent Variants (Claims 1-4)
 typedef enum {
     // === GROUP A: Core Unitary RFT Variants ===
     RFT_VARIANT_STANDARD = 0,       // Original Φ-RFT (k/φ fractional, k² chirp)
@@ -73,7 +74,13 @@ typedef enum {
     RFT_VARIANT_CASCADE = 9,        // H3: Hierarchical cascade (zero coherence)
     RFT_VARIANT_ADAPTIVE_SPLIT = 10,// FH2: Variance-based DCT/RFT routing (50% BPP win)
     RFT_VARIANT_ENTROPY_GUIDED = 11,// FH5: Entropy-based routing (50% BPP win)
-    RFT_VARIANT_DICTIONARY = 12     // H6: Dictionary learning bridge atoms (best PSNR)
+    RFT_VARIANT_DICTIONARY = 12,    // H6: Dictionary learning bridge atoms (best PSNR)
+    
+    // === GROUP C: Canonical USPTO Patent 19/169,399 Variants ===
+    // These implement the official patent claims
+    RFT_VARIANT_CANONICAL = 13,     // Canonical RFT: fₖ=(k+1)×φ, θₖ=2πk/φ (Claim 1)
+    RFT_VARIANT_BINARY_WAVE = 14,   // BinaryRFT: BPSK wave-domain logic (Claim 1)
+    RFT_VARIANT_CRYPTO_SIS = 15     // RFT-SIS: Post-quantum hash (Claim 2)
 } rft_variant_t;
 
 // DCT/Hybrid computation constants

@@ -10,8 +10,8 @@ This document provides a high-level overview of the complete documentation struc
 | Architecture | ✅ Complete | 100% | Oct 12, 2025 |
 | API Reference | ✅ Complete | 100% | Oct 12, 2025 |
 | Technical Guides | ✅ Complete | 100% | Oct 12, 2025 |
-| Research Docs | ✅ Complete | 100% | Oct 12, 2025 |
-| Benchmarks | ✅ Complete | 100% | Oct 12, 2025 |
+| Research Docs | ✅ Complete | 100% | Dec 15, 2025 |
+| Benchmarks | ✅ Complete | 100% | Dec 15, 2025 |
 | FAQ | ✅ Complete | 100% | Oct 12, 2025 |
 
 ## 🎯 Start Here Based on Your Goal
@@ -27,6 +27,12 @@ This document provides a high-level overview of the complete documentation struc
 **...see what's been verified vs. what's theoretical**
 → [Verified Benchmarks](./research/benchmarks/VERIFIED_BENCHMARKS.md)
 
+**...understand how the RFT math evolved (legacy → frame-corrected φ-grid)**
+→ [RFT Evolution Map](./project/RFT_EVOLUTION_MAP.md)
+
+**...strip the repo down to a publishable science-core**
+→ [Repo Strip + Vision Plan](./project/REPO_STRIP_VISION.md)
+
 **...use the RFT in my own code**
 → [Working with RFT Kernel](./technical/guides/WORKING_WITH_RFT_KERNEL.md)
 
@@ -35,6 +41,9 @@ This document provides a high-level overview of the complete documentation struc
 
 **...understand the mathematics**
 → [Mathematical Foundations](./research/MATHEMATICAL_FOUNDATIONS.md)
+
+**...read the tight-frame proof for φ-grid Gram normalization**
+→ [Frame Normalization Note](./theory/RFT_FRAME_NORMALIZATION.md)
 
 **...contribute code**
 → [Contributing Guidelines](./technical/guides/CONTRIBUTING.md)

@@ -7,6 +7,16 @@
 
 ---
 
+## Addendum (December 15, 2025)
+
+This report was generated on Dec 4, 2025. As of Dec 15, 2025 (current workspace run):
+
+- **Full test suite**: `pytest -q` completes successfully (1456 passed, 396 skipped).
+- **φ-grid finite-$N$ correction**: the repo includes Gram normalization / dual-frame inversion for the φ-grid exponential construction.
+- **Reproducible benchmark artifacts**: recent CSV outputs are generated under `results/patent_benchmarks/` (see `docs/research/benchmarks/VERIFIED_BENCHMARKS.md` for commands and interpretation).
+
+---
+
 ## Executive Summary
 
 QuantoniumOS implements a novel **Resonance Field Theory (Φ-RFT)** transform framework with 14 unitary variants, 17 hybrid architectures, and applications spanning quantum simulation, cryptography, compression, and audio processing.

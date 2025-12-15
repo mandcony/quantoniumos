@@ -183,17 +183,19 @@ $$\Psi = \Lambda_1 F \quad \text{with } \Lambda_1 = D_\phi C_\sigma$$
 
 This follows immediately from the factorization. The closed-form RFT is computationally efficient ($O(n \log n)$) but does not represent a structurally new transform class.
 
-### Canonical QR-Based RFT (Non-Trivial Structure)
+### Canonical Gram-Normalized RFT (Non-Trivial Structure)
 
-The *canonical* RFT is constructed via QR decomposition of a golden-ratio weighted kernel, yielding a unitary matrix with genuinely different structure.
+The *canonical* RFT is constructed via Gram-matrix normalization (symmetric orthogonalization) of an irrational-frequency exponential basis.
 
-**Definition 1.6 (Golden Resonance Kernel).**
-The golden resonance kernel $K \in \mathbb{R}^{n \times n}$ is defined by:
-$$K_{ij} = \phi^{|i-j|} \cdot \cos\left(\frac{\phi \cdot i \cdot j}{n}\right), \quad i,j \in \{0,\ldots,n-1\}$$
+**Definition 1.6 (Irrational Frequency Basis).**
+The raw basis matrix $\Phi \in \mathbb{C}^{n \times n}$ is defined by:
+$$\Phi_{tk} = \frac{1}{\sqrt{n}} \exp\left(j 2\pi f_k t\right), \quad t,k \in \{0,\ldots,n-1\}$$
+where $f_k = \text{frac}((k+1)\phi)$ are golden-ratio frequencies folded to $[0,1)$.
 
 **Definition 1.7 (Canonical RFT Matrix).**
-The canonical RFT matrix $U \in \mathbb{C}^{n \times n}$ is the $Q$ factor from QR decomposition:
-$$K = UR \quad \text{where } U^\dagger U = I_n$$
+The canonical RFT matrix $\widetilde{\Phi} \in \mathbb{C}^{n \times n}$ is obtained via Gram-matrix normalization:
+$$\widetilde{\Phi} = \Phi (\Phi^H \Phi)^{-1/2}$$
+where $(\Phi^H \Phi)^{-1/2}$ is the inverse square root of the Gram matrix $G = \Phi^H \Phi$.
 
 ---
 
@@ -267,47 +269,43 @@ The transform $\Psi x = D_\phi (C_\sigma (Fx))$ factors into three operations:
 Total: $O(n \log n) + O(n) + O(n) = O(n \log n)$. $\blacksquare$
 
 ---
-
-## Part II: Canonical QR-Derived RFT
+## Part II: Canonical Gram-Normalized RFT
 
 ### Section 2.1: Construction
 
-**Definition 2.1 (Golden Resonance Kernel).**
-The golden resonance kernel matrix $K \in \mathbb{C}^{n \times n}$ is defined by:
-$$K_{mn} = \frac{1}{n} \sum_{j=0}^{n-1} w_j C_{\sigma_j}(m,n) \exp\left(2\pi i \phi_j (m-n)/n\right)$$
-where:
-- $\phi_j = (j \cdot \phi) \mod 1$ (golden phase sequence)
-- $w_j = 1/n$ (uniform weights)
-- $C_{\sigma_j}(m,n) = \exp(-\frac{(d_{mn})^2}{2\sigma_j^2})$ with $\sigma_j = 1 + 0.1j$
-- $d_{mn} = \min(|m-n|, n-|m-n|)$ (circular distance)
+**Definition 2.1 (Irrational Frequency Basis).**
+The raw basis matrix $\Phi \in \mathbb{C}^{n \times n}$ is defined by:
+$$\Phi_{tk} = \frac{1}{\sqrt{n}} \exp\left(j 2\pi f_k t\right), \quad t,k \in \{0,\ldots,n-1\}$$
+where $f_k = \text{frac}((k+1)\phi)$ are golden-ratio frequencies folded to $[0,1)$.
 
 **Definition 2.2 (Canonical RFT).**
-The canonical RFT matrix $U_\phi$ is obtained via QR decomposition:
-$$K = U_\phi R$$
-where $U_\phi$ is unitary (the Q factor) and $R$ is upper triangular.
+The canonical RFT matrix $\widetilde{\Phi}$ is obtained via Gram-matrix normalization:
+$$\widetilde{\Phi} = \Phi (\Phi^H \Phi)^{-1/2}$$
+where $(\Phi^H \Phi)^{-1/2}$ is the inverse square root of the Gram matrix $G = \Phi^H \Phi$.
 
 ---
 
 **Theorem 2.1 (Canonical Unitarity).**
-The canonical RFT $U_\phi$ is exactly unitary: $U_\phi^\dagger U_\phi = I_n$.
+The canonical RFT $\widetilde{\Phi}$ is exactly unitary: $\widetilde{\Phi}^H \widetilde{\Phi} = I_n$.
 
 *Proof.*
-The QR decomposition guarantees that $U_\phi$ has orthonormal columns:
-$$U_\phi^\dagger U_\phi = I_n$$
-by construction. This is a fundamental property of QR factorization via Gram-Schmidt orthonormalization. $\blacksquare$
+Let $G = \Phi^H \Phi$ be the Gram matrix. Since $\Phi$ is full-rank (generically true for this construction), $G$ is Hermitian positive definite.
+$$\widetilde{\Phi}^H \widetilde{\Phi} = (G^{-1/2})^H \Phi^H \Phi G^{-1/2} = G^{-1/2} G G^{-1/2} = I_n$$
+This construction (Loewdin orthogonalization) yields the unique unitary matrix closest to $\Phi$ in the Frobenius norm. $\blacksquare$
 
 ---
 
 ### Section 2.2: Relationship to Closed Form
 
 **Observation 2.2 (Approximate Equivalence).**
-Let $U_\phi$ be the canonical QR-derived RFT and $\Psi = D_\phi C_\sigma F$ the closed-form RFT. We observe numerically:
-$$\|U_\phi^\dagger \Psi - \Lambda\|_F < 10^{-10}$$
+Let $\widetilde{\Phi}$ be the canonical Gram-normalized RFT and $\Psi = D_\phi C_\sigma F$ the closed-form RFT. We observe numerically:
+$$\|\widetilde{\Phi}^H \Psi - \Lambda\|_F < 10^{-10}$$
 for some diagonal unitary $\Lambda$, at sizes $n \leq 512$.
 
 **Status:** Numerical Observation, not a theorem.
 
 **Interpretation:**
+If this alignment holds exactly (not just numerically), then $\widetilde{\Phi} = \Psi \Lambda$ for diagonal $\Lambda$, which would mean $\widetilde{\Phi}
 If this alignment holds exactly (not just numerically), then $U_\phi = \Psi \Lambda$ for diagonal $\Lambda$, which would mean $U_\phi$ *is* equivalent to a phased DFT via Remark 1.5. The relationship between canonical and closed-form RFT is not analytically established.
 
 ---

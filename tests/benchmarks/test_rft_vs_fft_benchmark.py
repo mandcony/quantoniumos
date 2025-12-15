@@ -23,7 +23,15 @@ def test_rft_vs_fft_benchmark_runs(tmp_path):
     with out_csv.open("r", encoding="utf-8") as f:
         r = csv.DictReader(f)
         cols = r.fieldnames
-        assert cols == ["size", "signal", "metric", "rft_value", "fft_value", "better"]
+        assert cols == [
+            "size",
+            "signal",
+            "metric",
+            "rft_value",
+            "fft_value",
+            "better",
+            "rft_impl",
+        ]
         rows = list(r)
         assert len(rows) >= 8  # at least a couple of metrics across signals
         assert any(row["metric"] == "frobenius_U_minus_DFT" for row in rows)

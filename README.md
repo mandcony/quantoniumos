@@ -43,7 +43,7 @@
 **Where Φ-RFT loses:**
 - White noise → No advantage (expected)
 - High-entropy random signals → No advantage (information-theoretic limit)
-- Out-of-family signals → 25% win rate only
+- Out-of-family signals → typically loses; see `docs/research/benchmarks/VERIFIED_BENCHMARKS.md`
 
 📖 **Full details:** [docs/NON_CLAIMS.md](docs/NON_CLAIMS.md) | [docs/GLOSSARY.md](docs/GLOSSARY.md)
 
@@ -110,13 +110,15 @@ The old formula Ψ = D_φ C_σ F is now called **φ-phase FFT** or **phase-tilte
 
 ### Validated Results
 
-| Benchmark | RFT Wins | Condition |
-|-----------|----------|-----------|
-| In-Family (Golden QP) | **82%** | N ≥ 256 |
-| Out-of-Family | 25% | Expected (domain-specific) |
-| PSNR Gain | **+15-20 dB** | At 10% coefficient retention |
+For current, reproducible results and the exact commands used to generate them, see:
+- [docs/research/benchmarks/VERIFIED_BENCHMARKS.md](docs/research/benchmarks/VERIFIED_BENCHMARKS.md)
 
-See `algorithms/rft/README_RFT.md` for the complete specification.
+Recent runs in this workspace generated CSV artifacts under:
+- [results/patent_benchmarks](results/patent_benchmarks)
+
+See [docs/theory/RFT_FRAME_NORMALIZATION.md](docs/theory/RFT_FRAME_NORMALIZATION.md) for the finite-$N$ frame/Gram-normalization correction.
+
+See [algorithms/rft/README_RFT.md](algorithms/rft/README_RFT.md) for the authoritative RFT definition.
 
 ---
 
@@ -236,7 +238,7 @@ We have identified and validated a catalog of 14 Φ-RFT transforms: 7 **core uni
 |11 | H3 RFT Cascade | Zero-coherence routing | Universal compression (0.673 BPP) | `RFT_VARIANT_CASCADE` |
 |12 | FH2 Adaptive RFT Split | Variance-based DCT/RFT split | Structure vs texture | `RFT_VARIANT_ADAPTIVE_SPLIT` |
 |13 | FH5 Entropy-Guided RFT Cascade | Entropy routing | Edge-dominated signals (0.406 BPP) | `RFT_VARIANT_ENTROPY_GUIDED` |
-|14 | H6 RFT Dictionary | RFT↔DCT bridge atoms | Highest PSNR | `RFT_VARIANT_DICTIONARY` |
+|14 | H6 RFT Dictionary | RFT↔DCT bridge atoms | High PSNR (variant intent) | `RFT_VARIANT_DICTIONARY` |
 
 Every variant above is exposed through `algorithms.rft.variants.manifest`, routed through the codecs/benchmarks, and covered by `tests/rft/test_variant_unitarity.py`.
 
@@ -302,7 +304,7 @@ rec = rft_inverse(X, Phi)         # RFT⁻¹(X) = Φ X
 
 **Properties:**
 - **Unitary:** Φ^T Φ = I (proven via Spectral Theorem)
-- **Domain-Specific:** +15-20 dB PSNR on golden quasi-periodic signals
+- **Domain-Specific:** Performance depends on signal family; see `docs/research/benchmarks/VERIFIED_BENCHMARKS.md` for the current reproducible ledger
 - **Honest:** Loses to FFT/DCT on non-target signal families
 
 ### Deprecated: φ-Phase FFT (Old "RFT")
@@ -762,6 +764,29 @@ python experiments/competitors/benchmark_crypto_throughput.py --output-dir resul
 
 See **[REPRODUCING_RESULTS.md](REPRODUCING_RESULTS.md)** for complete reproducibility guide.
 
+### Reproduce today’s verified runs (tests + core benchmarks)
+
+```bash
+# Full test suite (current workspace run passes)
+pytest -q
+
+# RFT-vs-FFT comparison harness (CSV includes rft_impl column)
+python tools/benchmarking/rft_vs_fft_benchmark.py --sizes 16,32 --out /tmp/rft_vs_fft.csv
+
+# φ-grid finite-N frame/Gram-normalization benchmark
+python benchmarks/rft_phi_frame_benchmark.py
+
+# φ-grid asymptotic diagnostics (raw basis)
+python benchmarks/rft_phi_frame_asymptotics.py --sizes 256,512,1024,2048,4096 \
+    --out results/patent_benchmarks/phi_frame_asymptotics.csv
+
+# Large-N real-data coefficient diagnostics (requires datasets; see docs for fetch)
+USE_REAL_DATA=1 python benchmarks/rft_phi_nudft_realdata_eval.py --ecg --N 4096 --max-windows 4 \
+    --out results/patent_benchmarks/phi_nudft_ecg_N4096.csv
+USE_REAL_DATA=1 python benchmarks/rft_phi_nudft_realdata_eval.py --eeg --N 4096 --max-windows 2 \
+    --out results/patent_benchmarks/phi_nudft_eeg_N4096.csv
+```
+
 ### Run Tests
 
 ```bash
@@ -779,9 +804,18 @@ pytest tests/rft/ -v -m "not slow"
 
 ## Φ-RFT: Reference API
 
-### Optimized Implementation (Recommended)
+### Canonical kernels (what “RFT” refers to in this repo)
 
-The optimized RFT fuses the D_φ and C_σ diagonals into a single pass, achieving **O(n log n) complexity** like FFT. Benchmarks show approximately **1.3-4× slower than NumPy FFT** depending on signal size (see `COMPETITIVE_BENCHMARK_RESULTS.md`). The trade-off is the unique golden-ratio spectral properties used for compression and crypto.
+- Canonical implementation entrypoint: `algorithms/rft/core/resonant_fourier_transform.py`
+- Finite-$N$ frame/Gram correction note: [docs/theory/RFT_FRAME_NORMALIZATION.md](docs/theory/RFT_FRAME_NORMALIZATION.md)
+
+### φ-phase FFT (Deprecated baseline)
+
+The fast factorized form
+$$
+\Psi = D_\varphi\,C_\sigma\,F
+$$
+is preserved as a baseline (**φ-phase FFT / phase-tilted FFT**) and can be near-FFT speed, but it has **no sparsity advantage** over FFT in magnitude (see the non-claims and novelty audit).
 
 ```python
 from algorithms.rft.core.rft_optimized import (
@@ -847,7 +881,7 @@ def rft_twisted_conv(a, b, *, beta=1.0, sigma=1.0):
 | **RFT Optimized** | 21.4 µs | 43.7 µs | **1.06×** |
 | **RFT Original** | 85.4 µs | 296.9 µs | 4.97× |
 
-The optimized version achieves **4–7× speedup** by:
+The optimized φ-phase FFT version achieves **4–7× speedup** by:
 1. Fusing D_φ and C_σ into single diagonal E = D_φ ⊙ C_σ
 2. Precomputing and caching phase tables
 3. Using single `exp()` and multiply instead of two

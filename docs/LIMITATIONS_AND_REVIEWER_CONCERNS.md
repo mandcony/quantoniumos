@@ -48,10 +48,12 @@ The windowed FFT applies a multiplicative window to the signal before FFT. Φ-RF
 
 | Signal Class | Φ-RFT Win Rate | Comment |
 |--------------|----------------|---------|
-| Golden-ratio quasi-periodic | 82% | In-family (expected to win) |
+| Golden-ratio quasi-periodic | See ledger | In-family (expected to win) |
 | White noise | 0% | No structure (expected to lose) |
-| Out-of-family signals | 25% | Random chance baseline |
+| Out-of-family signals | Typically loses | Domain mismatch |
 | High-entropy random | 0% | Information-theoretic limit |
+
+> **Note**: See [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md) for reproducible metrics.
 
 We do not claim universal superiority. We claim narrow superiority on a specific signal class, with explicit documentation of where the method fails.
 
@@ -101,7 +103,7 @@ Wavelets excel at time-localized features. Φ-RFT excels at stationary quasi-per
 | Claim Level | Statement |
 |-------------|-----------|
 | **We claim** | A novel point in the transform design space |
-| **We claim** | +15-20 dB PSNR on in-family signals |
+| **We claim** | Domain-specific sparsity on in-family signals (see [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md)) |
 | **We claim** | Data-independent KLT-like compaction |
 | **We do NOT claim** | Universal superiority |
 | **We do NOT claim** | FFT replacement |

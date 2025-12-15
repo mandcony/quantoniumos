@@ -11,6 +11,7 @@
 
 ### Development
 - **docs/project/PROJECT_STRUCTURE.md** - Directory organization
+- **docs/project/REPO_STRIP_VISION.md** - What to keep/strip + vision alignment
 - **docs/validation/REPRODUCIBILITY.md** - How to reproduce results
 - **docs/validation/RFT_VALIDATION_GUIDE.md** - Testing the RFT algorithms
 - **docs/reports/CLOSED_FORM_RFT_VALIDATION.md** - Empirical evidence and novelty analysis for the closed-form Phi-RFT
@@ -51,6 +52,10 @@
 - **docs/validation/RFT_THEOREMS.md** - Mathematical theorems
 - **docs/research/theoretical_justifications.md** - Theoretical foundations
 - **docs/MATHEMATICAL_FOUNDATIONS.md** - Math background
+- **docs/theory/RFT_FRAME_NORMALIZATION.md** - Tight-frame proof + asymptotic orthogonality note (φ-grid)
+
+### RFT Lineage
+- **docs/project/RFT_EVOLUTION_MAP.md** - How the current φ-frame/Gram-corrected kernel emerged
 
 ### API/User Guides
 - **docs/api/README.md** - API documentation

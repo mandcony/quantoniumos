@@ -2,10 +2,10 @@
 Operator-Based RFT Variants
 ===========================
 
-These variants use the CANONICAL RFT definition: eigenbasis of a resonance operator K.
+These variants use the OPERATOR-BASED definition (Alternative/Legacy): eigenbasis of a resonance operator K.
 Each variant defines a different resonance autocorrelation function R(k).
 
-This replaces the old phase-warped approach (Ψ = D_φ C_σ F) which had no sparsity advantage.
+The Canonical RFT is now defined as the Gram-normalized exponential basis (see algorithms/rft/core/resonant_fourier_transform.py).
 
 December 2025: New implementation based on formal framework proofs.
 """

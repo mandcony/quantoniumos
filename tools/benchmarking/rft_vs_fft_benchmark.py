@@ -4,7 +4,7 @@
 """
 RFT vs FFT Benchmark
 
-This script evaluates CanonicalTrueRFT against a unitary FFT baseline across:
+This script evaluates a selectable RFT implementation against a unitary FFT baseline across:
 - Energy compaction (k for >= 99% energy)
 - Reconstruction error from top-k coefficients
 - Spectral leakage on off-bin sinusoid
@@ -36,6 +36,61 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT
+from algorithms.rft.core.resonant_fourier_transform import (
+    rft_basis_matrix as phi_frame_basis_matrix,
+    rft_forward_frame as phi_frame_forward_frame,
+)
+
+
+class _PhiFrameRFT:
+    """φ-frame RFT implementation for this benchmark.
+
+    Uses the square-kernel φ-grid basis from `algorithms.rft.core.resonant_fourier_transform`.
+
+    Implementations:
+    - `phi_frame_unitary`: Gram-normalized unitary basis; forward = Φᴴx, inverse = ΦX
+    - `phi_frame_frame`: raw basis with dual-frame solve; forward = (ΦᴴΦ)^{-1}Φᴴx
+    """
+
+    def __init__(self, size: int, impl: str):
+        self.size = int(size)
+        self.impl = str(impl)
+
+        if self.impl == "phi_frame_unitary":
+            self._Phi = phi_frame_basis_matrix(self.size, self.size, use_gram_normalization=True)
+        elif self.impl == "phi_frame_frame":
+            self._Phi = phi_frame_basis_matrix(self.size, self.size, use_gram_normalization=False)
+        else:
+            raise ValueError(f"Unsupported φ-frame impl: {self.impl}")
+
+    def forward_transform(self, x: np.ndarray) -> np.ndarray:
+        x = np.asarray(x, dtype=np.complex128)
+        if x.shape[0] != self.size:
+            raise ValueError(f"Input size {x.shape[0]} != RFT size {self.size}")
+
+        if self.impl == "phi_frame_unitary":
+            return self._Phi.conj().T @ x
+
+        # Dual-frame coefficients for exact reconstruction with non-orthogonal Φ.
+        return phi_frame_forward_frame(x, self._Phi)
+
+    def inverse_transform(self, y: np.ndarray) -> np.ndarray:
+        y = np.asarray(y, dtype=np.complex128)
+        if y.shape[0] != self.size:
+            raise ValueError(f"Input size {y.shape[0]} != RFT size {self.size}")
+        return self._Phi @ y
+
+    def get_rft_matrix(self) -> np.ndarray:
+        # Basis matrix used for synthesis (x = ΦX), consistent with CanonicalTrueRFT.get_rft_matrix().
+        return self._Phi
+
+
+def _make_rft_impl(n: int, rft_impl: str):
+    if rft_impl == "canonical_true":
+        return CanonicalTrueRFT(n)
+    if rft_impl in {"phi_frame_unitary", "phi_frame_frame"}:
+        return _PhiFrameRFT(n, rft_impl)
+    raise ValueError(f"Unknown rft_impl: {rft_impl}")
 
 
 def unitary_fft_matrix(n: int) -> np.ndarray:
@@ -132,6 +187,7 @@ class TrialResult:
     rft_value: float
     fft_value: float
     better: str  # "RFT", "FFT", or "TIE"
+    rft_impl: str
 
 
 def judge(rft_val: float, fft_val: float, higher_is_better: bool) -> str:
@@ -143,11 +199,11 @@ def judge(rft_val: float, fft_val: float, higher_is_better: bool) -> str:
         return "RFT" if rft_val < fft_val else "FFT"
 
 
-def run_benchmarks(sizes: List[int]) -> List[TrialResult]:
+def run_benchmarks(sizes: List[int], *, rft_impl: str) -> List[TrialResult]:
     results: List[TrialResult] = []
 
     for n in sizes:
-        rft = CanonicalTrueRFT(n)
+        rft = _make_rft_impl(n, rft_impl)
         # Add a per-size distinctness metric vs unitary DFT
         dft = unitary_fft_matrix(n)
         dft_distance = float(np.linalg.norm(rft.get_rft_matrix() - dft, ord='fro'))
@@ -158,7 +214,8 @@ def run_benchmarks(sizes: List[int]) -> List[TrialResult]:
                 metric="frobenius_U_minus_DFT",
                 rft_value=dft_distance,
                 fft_value=0.0,
-                better="RFT"  # not a competition metric; placeholder
+                better="RFT",  # not a competition metric; placeholder
+                rft_impl=rft_impl,
             )
         )
 
@@ -190,6 +247,7 @@ def run_benchmarks(sizes: List[int]) -> List[TrialResult]:
                     rft_value=float(k_rft),
                     fft_value=float(k_fft),
                     better=judge(float(k_rft), float(k_fft), higher_is_better=False),
+                    rft_impl=rft_impl,
                 )
             )
 
@@ -207,6 +265,7 @@ def run_benchmarks(sizes: List[int]) -> List[TrialResult]:
                     rft_value=err_rft,
                     fft_value=err_fft,
                     better=judge(err_rft, err_fft, higher_is_better=False),
+                    rft_impl=rft_impl,
                 )
             )
 
@@ -222,6 +281,7 @@ def run_benchmarks(sizes: List[int]) -> List[TrialResult]:
                         rft_value=leak_rft,
                         fft_value=leak_fft,
                         better=judge(leak_rft, leak_fft, higher_is_better=True),
+                        rft_impl=rft_impl,
                     )
                 )
 
@@ -240,6 +300,7 @@ def run_benchmarks(sizes: List[int]) -> List[TrialResult]:
                     rft_value=snr_rft,
                     fft_value=snr_fft,
                     better=judge(snr_rft, snr_fft, higher_is_better=True),
+                    rft_impl=rft_impl,
                 )
             )
 
@@ -265,6 +326,7 @@ def run_benchmarks(sizes: List[int]) -> List[TrialResult]:
                     rft_value=snr_denoise_rft,
                     fft_value=snr_denoise_fft,
                     better=judge(snr_denoise_rft, snr_denoise_fft, higher_is_better=True),
+                    rft_impl=rft_impl,
                 )
             )
 
@@ -276,7 +338,7 @@ def write_csv(path: str, rows: List[TrialResult]) -> None:
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(
             f,
-            fieldnames=["size", "signal", "metric", "rft_value", "fft_value", "better"],
+            fieldnames=["size", "signal", "metric", "rft_value", "fft_value", "better", "rft_impl"],
         )
         w.writeheader()
         for r in rows:
@@ -287,6 +349,16 @@ def main():
     parser = argparse.ArgumentParser(description="RFT vs FFT benchmark")
     parser.add_argument("--sizes", type=str, default="64,128", help="Comma-separated sizes")
     parser.add_argument(
+        "--rft-impl",
+        type=str,
+        default="phi_frame_unitary",
+        choices=["phi_frame_unitary", "phi_frame_frame", "canonical_true"],
+        help=(
+            "RFT implementation under test. Default uses the Gram-normalized φ-frame "
+            "basis (unitary). Use 'canonical_true' to benchmark CanonicalTrueRFT."
+        ),
+    )
+    parser.add_argument(
         "--out",
         type=str,
         default="results/patent_benchmarks/rft_vs_fft_benchmark.csv",
@@ -296,8 +368,10 @@ def main():
 
     sizes = [int(s.strip()) for s in args.sizes.split(",") if s.strip()]
 
+    print(f"Using RFT implementation: {args.rft_impl}")
+
     t0 = time.time()
-    rows = run_benchmarks(sizes)
+    rows = run_benchmarks(sizes, rft_impl=args.rft_impl)
     dt = time.time() - t0
     write_csv(args.out, rows)
 

@@ -2,7 +2,7 @@
 
 This document contains only **verified, reproducible benchmarks** from actual test runs on QuantoniumOS.
 
-**Last Updated**: October 12, 2025
+**Last Updated**: December 15, 2025
 
 ## Test Environment
 
@@ -198,6 +198,115 @@ Hybrid Codec (quality=0.5): ~1.5 seconds (67 arrays/sec)
 | RFT (256) | 10,000 items | 84 MB       | 8.4 KB      |
 | Vertex Encode | 10,000 items | 42 MB | 4.2 KB |
 | Hybrid Encode | 10,000 items | 128 MB | 12.8 KB |
+
+---
+
+## φ-Grid Frame Normalization (RFT) — Verified
+
+This benchmark verifies the mathematical correction for an irrationally-spaced exponential RFT at finite $N$:
+
+- **Raw φ-grid basis** is generally non-orthogonal: $\Phi^H\Phi \neq I$
+- **Frame-correct inversion** reconstructs exactly using the dual-frame solve: $(\Phi^H\Phi)^{-1}\Phi^H$
+- **Gram-normalized basis** becomes unitary: $\widetilde{\Phi} = \Phi(\Phi^H\Phi)^{-1/2}$ so $\widetilde{\Phi}^H\widetilde{\Phi} \approx I$
+
+**Command**:
+```bash
+python benchmarks/rft_phi_frame_benchmark.py
+```
+
+**Results (N=256)**:
+```
+cond(Gram(Phi_raw)) = 4.352e+02
+
+raw/naive reconstruction relerr:  4.836e-01
+raw/frame reconstruction relerr:  2.398e-15
+unitary reconstruction relerr:     1.096e-14
+fft reconstruction relerr:         2.644e-16
+```
+
+**Notes**:
+- The square-kernel φ-grid implementation folds frequencies into the fundamental discrete-time band (mod 1 in cycles/sample) to avoid severe ill-conditioning at larger N.
+- Validation tests: `pytest tests/validation/test_phi_frame_normalization.py`
+
+**Related comparison harness**:
+- `tools/benchmarking/rft_vs_fft_benchmark.py` now defaults to `--rft-impl phi_frame_unitary` (Gram-normalized φ-frame basis).
+- The CSV output includes an `rft_impl` column to make it explicit which kernel produced the results.
+
+### φ-Grid Asymptotic Orthogonality Diagnostics (Raw Basis)
+
+This benchmark measures **mutual coherence** and **average cross-energy** of the raw φ-grid exponential basis (before Gram normalization):
+
+- Mutual coherence: $\mu = \max_{k\neq\ell} |\langle\varphi_k,\varphi_\ell\rangle|$
+- Average cross-energy: mean of $|\langle\varphi_k,\varphi_\ell\rangle|^2$ over off-diagonals
+
+**Command**:
+```bash
+python benchmarks/rft_phi_frame_asymptotics.py --sizes 256,512,1024,2048,4096 --out results/patent_benchmarks/phi_frame_asymptotics.csv
+```
+
+**Results (this run)**:
+```
+N=256:  mu=6.476e-01, mean_offdiag_abs2=8.907e-04
+N=512:  mu=4.946e-01, mean_offdiag_abs2=4.646e-04
+N=1024: mu=6.817e-01, mean_offdiag_abs2=1.792e-04
+N=2048: mu=5.403e-01, mean_offdiag_abs2=1.242e-04
+N=4096: mu=3.557e-01, mean_offdiag_abs2=3.790e-05
+```
+
+**Interpretation**:
+- Average cross-energy decreases with $N$ (statistical orthogonality improves).
+- Worst-case coherence is not monotone in $N$ (consistent with Diophantine near-collisions in irrational frequency sets).
+- The verified unitarity claim remains the Gram-normalized basis $\widetilde{\Phi}=\Phi(\Phi^H\Phi)^{-1/2}$ at finite $N$.
+
+### Large-$N$ (4096) Real-Data Coefficient Diagnostics (NUDFT vs FFT)
+
+For very large $N$, dense Gram normalization ($N\times N$ eigendecomposition) is not practical in pure NumPy. This benchmark therefore evaluates **analysis-side** properties at $N=4096$ using a deterministic φ-grid NUDFT coefficient map versus unitary FFT coefficients:
+
+- **Energy compaction proxy**: $k_{99}$ (number of coefficients needed for 99% energy)
+- **Leakage proxy**: `peak/L1` on an off-bin tone (higher is less leakage)
+
+**ECG (MIT-BIH)**
+
+Command:
+```bash
+USE_REAL_DATA=1 python benchmarks/rft_phi_nudft_realdata_eval.py --ecg --N 4096 --max-windows 4 --out results/patent_benchmarks/phi_nudft_ecg_N4096.csv
+```
+
+Recorded CSV: `results/patent_benchmarks/phi_nudft_ecg_N4096.csv`
+
+**EEG (Sleep-EDF)**
+
+Command:
+```bash
+USE_REAL_DATA=1 python benchmarks/rft_phi_nudft_realdata_eval.py --eeg --N 4096 --max-windows 2 --out results/patent_benchmarks/phi_nudft_eeg_N4096.csv
+```
+
+Recorded CSV: `results/patent_benchmarks/phi_nudft_eeg_N4096.csv`
+
+**EEG results (excerpt, this run)**
+
+The EEG windows tested at $N=4096$ show **near-parity** on the $k_{99}$ energy-compaction proxy, and **worse** concentration on the synthetic off-bin tone leakage proxy (by the `peak/L1` metric, where higher is better):
+
+- Sleep-EDF EEG(SC4001E0-PSG.edf)@100Hz:
+  - `k_99_energy_mean`: RFT=2000.5 vs FFT=2025.5
+  - `leakage_peak_over_l1_offbin_tone`: RFT=0.1765 vs FFT=0.1059
+- Sleep-EDF EEG(SC4002E0-PSG.edf)@100Hz:
+  - `k_99_energy_mean`: RFT=2213.0 vs FFT=2252.0
+  - `leakage_peak_over_l1_offbin_tone`: RFT=0.1765 vs FFT=0.1059
+
+**Interpretation (honest)**
+
+- On these EEG segments, the φ-grid NUDFT coefficient map does **not** show a decisive energy-compaction advantage over FFT.
+- The off-bin tone leakage proxy is **worse** for the φ-grid map by this metric; this is a negative result and should remain recorded.
+
+**Speech/music audio (WAV)**
+
+This repo does not bundle audio. Provide your own WAV (speech or music) and run:
+```bash
+python benchmarks/rft_phi_nudft_realdata_eval.py --wav /path/to/audio.wav --N 4096
+```
+
+**Note on artifacts**: `results/` is treated as a generated-output area in this repo’s hygiene rules (see `.gitignore`). The CSVs above are reproducible artifacts produced by the commands shown; keep them as local run outputs or publish them as release/CI artifacts if you want a frozen appendix.
 
 ---
 

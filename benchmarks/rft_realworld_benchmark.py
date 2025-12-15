@@ -15,14 +15,14 @@ This tests whether RFT's domain-specific advantage translates to real data.
 
 import numpy as np
 from scipy.fft import fft, ifft, dct, idct
-from scipy.signal import chirp
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from algorithms.rft.kernels.resonant_fourier_transform import (
-    build_rft_kernel, rft_forward, rft_inverse, PHI
+from algorithms.rft.core.resonant_fourier_transform import (
+    PHI,
+    rft_basis_matrix,
 )
 
 
@@ -255,11 +255,12 @@ def run_test(signal: np.ndarray, Phi: np.ndarray, keep_frac: float = 0.1):
     """Run single signal test."""
     c_fft = fft(signal)
     c_dct = dct(signal, norm='ortho')
-    c_rft = rft_forward(signal, Phi)
+    # Φ is unitary in this benchmark (Gram-normalized square mode), so forward = Φᴴx.
+    c_rft = Phi.conj().T @ signal
     
     psnr_fft = compression_psnr(signal, c_fft, lambda c: np.real(ifft(c)), keep_frac)
     psnr_dct = compression_psnr(signal, c_dct, lambda c: idct(c, norm='ortho'), keep_frac)
-    psnr_rft = compression_psnr(signal, c_rft, lambda c: rft_inverse(c, Phi), keep_frac)
+    psnr_rft = compression_psnr(signal, c_rft, lambda c: np.real(Phi @ c), keep_frac)
     
     return psnr_fft, psnr_dct, psnr_rft
 
@@ -273,7 +274,8 @@ def main():
     print()
     
     N = 512
-    Phi = build_rft_kernel(N)
+    # Use Gram-normalized φ-grid basis for a mathematically rigorous unitary operator.
+    Phi = rft_basis_matrix(N, N, use_gram_normalization=True)
     keep_frac = 0.10
     
     # Define test signals

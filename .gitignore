@@ -32,6 +32,7 @@ personalAi/
 results/
 logs/
 .pytest_cache/
+.hypothesis/
 **/__pycache__/
 ai/
 encoded_models/

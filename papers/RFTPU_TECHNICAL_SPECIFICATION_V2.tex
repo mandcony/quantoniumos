@@ -331,22 +331,23 @@ Twisted conv & PHI\_RFT\_PROOFS.tex \S5 & \texttt{rft\_twisted\_conv()} & Mode 1
 
 \subsection{The Two RFT Constructions}
 
-\subsubsection{Canonical RFT (Eigenbasis-Based, $O(N^3)$)}
+\subsubsection{Canonical RFT (Gram-Normalized, $O(N^3)$)}
 
 \begin{definition}[Canonical RFT]
-The \textbf{canonical RFT} is defined as the eigenbasis of a Hermitian resonance operator:
+The \textbf{canonical RFT} is defined as the Gram-normalized irrational-frequency exponential basis:
 \begin{equation}
-K = T(R(k) \cdot d(k)), \quad K = U \Lambda U^\top
+\widetilde{\Phi} = \Phi (\Phi^H \Phi)^{-1/2}
 \end{equation}
+where $\Phi$ is the raw exponential basis with golden-ratio frequencies.
 The RFT of signal $x$ is:
 \begin{equation}
-\text{RFT}(x) = U^\top x
+\text{RFT}(x) = \widetilde{\Phi}^H x
 \end{equation}
 \end{definition}
 
 \textbf{Properties:}
 \begin{itemize}[noitemsep]
-    \item Unitarity: $U^\dagger U = I$ (by Spectral Theorem)
+    \item Unitarity: $\widetilde{\Phi}^\dagger \widetilde{\Phi} = I$ (by Loewdin orthogonalization)
     \item Domain-specific sparsity: +15--20 dB on resonance-structured signals
     \item Complexity: $O(N^3)$ for kernel construction (cached)
 \end{itemize}
@@ -415,7 +416,7 @@ All variants implemented in hardware with unitarity error $< 10^{-13}$:
 \textbf{Result} & \textbf{Statement} & \textbf{Source} & \textbf{Status} \\
 \midrule
 Theorem 1 & Closed-form RFT unitarity & PHI\_RFT\_PROOFS.tex \S3 & \proven \\
-Theorem 2 & Canonical RFT unitarity & QR construction & \proven \\
+Theorem 2 & Canonical RFT unitarity & Gram normalization & \proven \\
 Theorem 3 & $O(N \log N)$ complexity & PHI\_RFT\_PROOFS.tex \S5 & \proven \\
 Theorem 4 & Non-equivalence to permuted DFT & Coordinate analysis & \proven \\
 Theorem 5 & Twisted convolution diagonalization & PHI\_RFT\_PROOFS.tex \S5 & \proven \\

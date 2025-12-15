@@ -16,7 +16,7 @@ static inline double rft_frac(double x) {
 }
 
 static inline bool rft_variant_is_valid(rft_variant_t variant) {
-    return variant >= RFT_VARIANT_STANDARD && variant <= RFT_VARIANT_ENTROPY_GUIDED;
+    return variant >= RFT_VARIANT_STANDARD && variant <= RFT_VARIANT_CRYPTO_SIS;
 }
 
 // Fibonacci number generator for Fibonacci-Tilt variant
@@ -328,6 +328,19 @@ bool rft_build_basis(rft_engine_t* engine) {
                 }
                 chirp = RFT_PI * sigma * ((double)k * (double)k) / (double)N;
                 break;
+            
+            // === GROUP C: Canonical USPTO Patent 19/169,399 Variants ===
+            case RFT_VARIANT_CANONICAL:
+            case RFT_VARIANT_BINARY_WAVE:
+            case RFT_VARIANT_CRYPTO_SIS:
+                // Canonical RFT (USPTO Patent 19/169,399 Claim 1)
+                // Ψₖ(t) = exp(2πi × fₖ × t + i × θₖ)
+                // Where: fₖ = (k+1) × φ, θₖ = 2πk / φ
+                // NO chirp component in canonical definition
+                frac = (double)k / RFT_PHI;  // θₖ = 2π × k/φ (golden phase)
+                chirp = 0.0;  // No quadratic chirp in canonical RFT
+                break;
+            
             case RFT_VARIANT_STANDARD:
             default:
                 // Standard Golden Ratio RFT
@@ -342,12 +355,30 @@ bool rft_build_basis(rft_engine_t* engine) {
         double diag_imag = sin(diag_angle);
 
         for (size_t n = 0; n < N; ++n) {
-            double fft_angle = -RFT_2PI * ((double)k * (double)n) / (double)N;
-            double fft_real = cos(fft_angle) * inv_sqrt_n;
-            double fft_imag = sin(fft_angle) * inv_sqrt_n;
-
-            double real = diag_real * fft_real - diag_imag * fft_imag;
-            double imag = diag_real * fft_imag + diag_imag * fft_real;
+            double real, imag;
+            
+            // Check for canonical RFT variants (USPTO Patent 19/169,399)
+            if (engine->variant == RFT_VARIANT_CANONICAL ||
+                engine->variant == RFT_VARIANT_BINARY_WAVE ||
+                engine->variant == RFT_VARIANT_CRYPTO_SIS) {
+                // Canonical RFT: Ψₖ(t) = exp(2πi × fₖ × t + i × θₖ)
+                // Where: fₖ = (k+1) × φ, θₖ = 2πk / φ
+                double f_k = ((double)k + 1.0) * RFT_PHI;  // Resonant frequency
+                double theta_k = RFT_2PI * (double)k / RFT_PHI;  // Golden phase
+                double t = (double)n / (double)N;  // Normalized time
+                
+                double canonical_angle = RFT_2PI * f_k * t + theta_k;
+                real = cos(canonical_angle) * inv_sqrt_n;
+                imag = sin(canonical_angle) * inv_sqrt_n;
+            } else {
+                // Legacy variants: phase-modulated FFT
+                double fft_angle = -RFT_2PI * ((double)k * (double)n) / (double)N;
+                double fft_real = cos(fft_angle) * inv_sqrt_n;
+                double fft_imag = sin(fft_angle) * inv_sqrt_n;
+                
+                real = diag_real * fft_real - diag_imag * fft_imag;
+                imag = diag_real * fft_imag + diag_imag * fft_real;
+            }
 
             engine->basis[k * N + n].real = real;
             engine->basis[k * N + n].imag = imag;

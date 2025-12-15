@@ -93,7 +93,7 @@ The RFTPU architecture comprises an 8×8 grid of 64 processing tiles interconnec
 **Resolution:**
 - Defined *canonical* RFT as eigenbasis of resonance operator K
 - K = T(R(k)·d(k)) where R(k) is structured autocorrelation
-- This construction DOES provide domain-specific sparsity (+15-20 dB on target signals)
+- This construction provides domain-specific sparsity on target signals (see [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md))
 
 #### Discovery 2: Non-Equivalence Proof Structure
 
@@ -140,24 +140,22 @@ The proof that RFT ≠ permuted/phased DFT proceeds via:
 
 ### 2.1 The Two RFT Constructions
 
-#### Canonical RFT (Eigenbasis-Based, O(N³))
+#### Canonical RFT (Gram-Normalized, O(N³))
 
-The **canonical RFT** is defined as the eigenbasis of a Hermitian resonance operator:
+The **canonical RFT** is defined as the Gram-normalized irrational-frequency exponential basis:
 
 ```
-K = T(R(k) · d(k))
-K = U Λ Uᵀ
-RFT(x) = Uᵀ x
+Φ̃ = Φ (Φᴴ Φ)⁻¹/²
+RFT(x) = Φ̃ᴴ x
 ```
 
 Where:
-- K is Hermitian (ensures real eigenvalues)
-- U is orthonormal eigenbasis
-- φ, Fibonacci, etc. are **parameters** of K, not the definition
+- Φ is the raw exponential basis with golden-ratio frequencies
+- (Φᴴ Φ)⁻¹/² is the inverse square root of the Gram matrix
 
 **Properties:**
-- Unitarity: U†U = I (by Spectral Theorem)
-- Domain-specific sparsity: +15-20 dB on resonance-structured signals
+- Unitarity: Φ̃†Φ̃ = I (by Loewdin orthogonalization)
+- Domain-specific sparsity: see [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md)
 - Complexity: O(N³) for kernel construction (cached)
 
 #### Fast Φ-RFT (Phase-Based, O(N log N))
@@ -206,7 +204,7 @@ All variants implemented in hardware with unitarity error < 1e-13:
 | Result | Statement | Status | Source |
 |--------|-----------|--------|--------|
 | **Theorem 1** | Closed-form RFT unitarity | **PROVEN** | PHI_RFT_PROOFS.tex §3 |
-| **Theorem 2** | Canonical RFT unitarity | **PROVEN** | QR construction |
+| **Theorem 2** | Canonical RFT unitarity | **PROVEN** | Gram normalization |
 | **Theorem 3** | O(N log N) complexity | **PROVEN** | PHI_RFT_PROOFS.tex §5 |
 | **Theorem 4** | Non-equivalence to permuted DFT | **PROVEN** | Coordinate analysis |
 | **Theorem 5** | Twisted convolution diagonalization | **PROVEN** | PHI_RFT_PROOFS.tex §5 |

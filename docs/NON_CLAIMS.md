@@ -40,7 +40,7 @@ The project name is historical; the mathematics is purely classical.
 
 | Signal Type | Φ-RFT Performance | Better Alternative |
 |-------------|-------------------|-------------------|
-| Golden-ratio quasi-periodic | ✅ +15-20 dB PSNR | — |
+| Golden-ratio quasi-periodic | ✅ See [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md) | — |
 | Smooth piecewise signals | ⚠️ Comparable | DCT |
 | White noise | ❌ No advantage | Any transform |
 | High-entropy random | ❌ No advantage | Entropy coding |
@@ -109,7 +109,9 @@ We explicitly document where Φ-RFT loses:
 | White noise compression | 0% improvement | Tie | No structure to exploit |
 | Random permutation | No sparsity gain | FFT | Basis mismatch |
 | High-entropy text | 0.99 BPP | gzip | Entropy-limited |
-| Out-of-family signals | 25% win rate | FFT/DCT | Domain mismatch |
+| Out-of-family signals | Typically loses | FFT/DCT | Domain mismatch |
+
+> **Note**: For current reproducible metrics, see [VERIFIED_BENCHMARKS](research/benchmarks/VERIFIED_BENCHMARKS.md).
 
 **This is expected behavior, not a failure of the method.**
 

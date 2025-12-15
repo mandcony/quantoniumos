@@ -4,49 +4,66 @@
 
 ---
 
-## 1. The RFT Definition
+## 1. Canonical RFT (Gram-Normalized Exponential Basis)
 
-The **Resonant Fourier Transform (RFT)** is a multi-carrier transform that maps discrete data into a continuous waveform domain using **golden-ratio frequency and phase spacing**.
+In this repository, the **canonical Resonant Fourier Transform (RFT)** is defined as the **Gram-normalized irrational-frequency exponential basis**. This ensures exact unitarity at finite $N$ while capturing golden-ratio resonance structure.
 
-### 1.1 Basis Functions
+### 1.1 Basis Construction
 
-$$
-\Psi_k(t) = \exp\left(2\pi i \cdot f_k \cdot t + i \cdot \theta_k\right)
-$$
+1.  **Raw Exponential Basis ($\Phi$):**
+    Construct an $N \times N$ matrix using golden-ratio frequencies $f_k = \operatorname{frac}((k+1)\phi)$:
+    $$
+    \Phi_{tk} = \frac{1}{\sqrt{N}} \exp\left(j 2\pi f_k t\right)
+    $$
 
-Where:
-- $f_k = (k+1) \times \varphi$ — **Resonant Frequency**
-- $\theta_k = 2\pi k / \varphi$ — **Golden Phase**
-- $\varphi = \frac{1+\sqrt{5}}{2} \approx 1.618$ — **Golden Ratio**
+2.  **Gram Normalization ($\widetilde{\Phi}$):**
+    Apply symmetric orthogonalization (Loewdin) using the Gram matrix $G = \Phi^H \Phi$:
+    $$
+    \widetilde{\Phi} = \Phi\,(\Phi^H\Phi)^{-1/2}
+    $$
 
-### 1.2 Forward Transform (Data → Wave)
+### 1.2 Forward / Inverse
 
-$$
-\text{RFT}(x)[t] = \sum_k x[k] \cdot \Psi_k(t)
-$$
-
-Transforms discrete data $x$ into a continuous waveform $W(t)$.
-
-### 1.3 Inverse Transform (Wave → Data)
+Because $\widetilde{\Phi}^H\widetilde{\Phi} = I$ (unitary), the forward and inverse are:
 
 $$
-x[k] = \langle W, \Psi_k \rangle = \frac{1}{T} \int_0^T W(t) \cdot \Psi_k^*(t) \, dt
+X = \widetilde{\Phi}^H x,\qquad x = \widetilde{\Phi} X
 $$
 
-Recovers discrete data by correlating with basis functions.
+Implementation: `algorithms/rft/core/resonant_fourier_transform.py`
 
 ---
 
-## 2. Why "Resonant"?
+## 2. Legacy / Alternative: Resonance Operator Eigenbasis
 
-The golden ratio creates **resonance** because:
+Earlier versions defined RFT as the eigenbasis of a modeled autocorrelation operator (Toeplitz). This is preserved for comparison but is no longer the canonical definition.
 
-1. **Self-similarity**: $\varphi^2 = \varphi + 1$ — the ONLY number with this property
-2. **Fibonacci convergence**: $f_{k+1}/f_k \to \varphi$ for consecutive frequencies
-3. **Quasi-periodicity**: Golden spacing creates beating patterns that never exactly repeat
-4. **Optimal spreading**: The golden angle $2\pi/\varphi^2 \approx 137.5°$ is maximally irrational
+### 2.1 Resonance Operator (Modeled Autocorrelation)
 
-The RFT basis functions **resonate** with signals having golden-ratio structure, enabling superior compression for natural signals (phyllotaxis, music, biological rhythms).
+We model a signal family's expected autocorrelation sequence and build a Toeplitz operator:
+
+$$
+G = \Phi^H\Phi \neq I
+$$
+
+Two correct inversion paths used in this repo:
+
+1) **Dual-frame (least squares / pseudoinverse):**
+$$
+\hat{x} = (\Phi^H\Phi)^{-1}\Phi^H w
+$$
+
+2) **Gram-normalized unitary basis (when $K=N$ and $G$ is well-conditioned):**
+$$
+\widetilde{\Phi} = \Phi\,G^{-1/2}\quad\Rightarrow\quad \widetilde{\Phi}^H\widetilde{\Phi}=I
+$$
+
+Then correlation-inversion works: $\hat{x}=\widetilde{\Phi}^H w$.
+
+References in this repo:
+- `docs/theory/RFT_FRAME_NORMALIZATION.md`
+- `docs/theory/RFT_THEORY.md`
+- `tests/validation/test_phi_frame_normalization.py`
 
 ---
 
@@ -84,15 +101,14 @@ Complex expressions like `(A XOR B) AND (NOT C)` execute entirely in the wave do
 
 ---
 
-## 4. Comparison to FFT
+## 4. Comparison to FFT (High-Level)
 
-| Property | FFT | RFT |
+| Property | FFT | RFT (canonical kernel) |
 |----------|-----|-----|
-| **Frequencies** | $f_k = k$ (integers) | $f_k = k \times \varphi$ (irrational) |
-| **Periodicity** | Exactly periodic | Quasi-periodic |
-| **Aliasing** | At N boundaries | No exact aliasing |
-| **Basis** | $e^{2\pi i k n/N}$ | $e^{2\pi i f_k t + i\theta_k}$ |
-| **Computation** | O(N log N) | O(N²) naive, O(N) per coefficient |
+| **Basis** | Fixed DFT grid | Fixed unitary basis $\Phi$ from resonance operator |
+| **Periodicity** | Exactly periodic | Family-dependent (not a periodic grid assumption) |
+| **Leakage/Aliasing** | Grid/bin effects | Depends on the chosen operator/model and $N$ |
+| **Computation** | $O(N\log N)$ | Build $\Phi$: $O(N^3)$ (cached); apply: $O(N^2)$ |
 | **Wave computation** | ❌ | ✅ |
 
 ---
@@ -102,23 +118,31 @@ Complex expressions like `(A XOR B) AND (NOT C)` execute entirely in the wave do
 ### 5.1 Core Module
 
 ```python
-from algorithms.rft import rft, irft, BinaryRFT, PHI
+from algorithms.rft.kernels.resonant_fourier_transform import (
+  PHI,
+  build_rft_kernel,
+  rft_forward,
+  rft_inverse,
+)
+from algorithms.rft import BinaryRFT
 ```
 
 ### 5.2 Quick Usage
 
 ```python
 import numpy as np
-from algorithms.rft import rft_forward, rft_inverse, BinaryRFT
+from algorithms.rft.kernels.resonant_fourier_transform import build_rft_kernel, rft_forward, rft_inverse
+from algorithms.rft import BinaryRFT
 
-# Forward/Inverse RFT
-x = np.array([1, 0, 1, 1, 0, 0, 1, 0])
-wave = rft_forward(x)
-recovered = rft_inverse(wave, len(x))
+N = 256
+Phi = build_rft_kernel(N)
 
-# Binary RFT (wave-domain computation)
+x = np.random.randn(N)
+X = rft_forward(x, Phi)
+x_hat = rft_inverse(X, Phi)
+
 brft = BinaryRFT(num_bits=8)
-
+```
 # Encode binary → wave
 wave_a = brft.encode(0b10101010)
 wave_b = brft.encode(0b11001100)
@@ -137,9 +161,12 @@ print(f"XOR result: {result:08b}")  # 01100110
 
 | Purpose | File |
 |---------|------|
-| **Canonical RFT** | `algorithms/rft/core/resonant_fourier_transform.py` |
+| **Canonical RFT kernel** | `algorithms/rft/kernels/resonant_fourier_transform.py` |
 | **Package exports** | `algorithms/rft/__init__.py` |
 | **Wave-domain hash** | `algorithms/rft/core/symbolic_wave_computer.py` |
+| **φ-grid frame correction** | `docs/theory/RFT_FRAME_NORMALIZATION.md` |
+| **Verified benchmark ledger** | `docs/research/benchmarks/VERIFIED_BENCHMARKS.md` |
+| **Benchmark artifacts (CSV)** | `results/patent_benchmarks/` |
 
 ---
 

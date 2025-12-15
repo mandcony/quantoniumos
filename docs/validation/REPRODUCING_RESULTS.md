@@ -285,7 +285,7 @@ python experiments/proofs/sparsity_theorem.py
 python experiments/proofs/hybrid_benchmark.py
 ```
 
-**Expected output:** +15-20 dB PSNR on target signals, 82% win rate for in-family signals.
+**Expected output:** Domain-specific sparsity on target signals. For current metrics, see [VERIFIED_BENCHMARKS](../research/benchmarks/VERIFIED_BENCHMARKS.md).
 
 ### Zero-Coherence Cascade (Theorem 4)
 

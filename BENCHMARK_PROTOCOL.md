@@ -56,7 +56,7 @@ BENCHMARK_CONFIG = {
 | FFT | `numpy.fft.fft` | Reference baseline |
 | DCT | `scipy.fftpack.dct` | Type-II DCT |
 | DWT | `pywt.wavedec` | Daubechies-4 |
-| Φ-RFT | `canonical_true_rft` | This work |
+| Φ-RFT (selectable impl) | `tools/benchmarking/rft_vs_fft_benchmark.py --rft-impl ...` | This work; output labels `rft_impl` |
 
 ### Fair Comparison Rules
 
@@ -115,6 +115,13 @@ def generate_mixed_signal(N, seed=42):
 ## Required Output Format
 
 Every benchmark MUST output:
+
+**Minimum requirement:** results must be unambiguous and traceable to an implementation choice.
+
+This repo uses two common formats:
+
+1) **JSON** (for multi-metric, multi-class benchmark suites)
+2) **CSV** (for transform-vs-baseline harnesses). For CSV harnesses, include an explicit `rft_impl` column.
 
 ```json
 {
@@ -207,13 +214,9 @@ pip freeze > requirements-lock.txt
 
 ### Honest Reporting
 
-| Signal Class | RFT Wins | FFT Wins | DCT Wins | Tie |
-|--------------|----------|----------|----------|-----|
-| In-Family | **82%** | 5% | 8% | 5% |
-| Out-of-Family | 15% | 30% | 30% | **25%** |
-| Mixed | **45%** | 20% | 25% | 10% |
+See [VERIFIED_BENCHMARKS](docs/research/benchmarks/VERIFIED_BENCHMARKS.md) for the current reproducible metrics.
 
-**Interpretation:** RFT excels on golden-ratio structured signals, is comparable elsewhere.
+**Interpretation:** RFT excels on golden-ratio structured signals; performance on other families is mixed.
 
 ---
 
