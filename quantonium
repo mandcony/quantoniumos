@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function show_help {
+    echo "QuantoniumOS CLI"
+    echo "Usage: ./quantonium [command]"
+    echo ""
+    echo "Commands:"
+    echo "  verify      Run full system verification (build + tests + benchmarks)"
+    echo "  benchmark   Run specific benchmarks (e.g., 'benchmark A B')"
+    echo "  demo        Run the RFT power demonstration"
+    echo "  clean       Clean build artifacts"
+    echo "  help        Show this help message"
+}
+
+if [ "$1" == "verify" ]; then
+    ./reproduce_results.sh
+elif [ "$1" == "benchmark" ]; then
+    shift
+    python3 benchmarks/run_all_benchmarks.py "$@"
+elif [ "$1" == "demo" ]; then
+    ./run_demo.sh
+elif [ "$1" == "clean" ]; then
+    echo "Cleaning build artifacts..."
+    rm -rf src/rftmw_native/build
+    find . -name "__pycache__" -type d -exec rm -rf {} +
+    echo "Done."
+else
+    show_help
+fi

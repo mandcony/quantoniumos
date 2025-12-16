@@ -1,3 +1,14 @@
+# Copyright (c) 2025 QuantoniumOS
+#
+# This file is part of QuantoniumOS.
+#
+# This file practices claims of U.S. Patent Application 19/169,399.
+# It is licensed under the Non-Commercial Research License (LICENSE-CLAIMS-NC.md).
+# You may use this file for research and educational purposes only.
+# Commercial use requires a separate license.
+#
+# See LICENSE-CLAIMS-NC.md in the project root for details.
+
 """
 Resonant Fourier Transform (RFT) - Canonical Definition
 ========================================================

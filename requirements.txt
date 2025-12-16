@@ -43,3 +43,13 @@ xformers>=0.0.20  # Optional: memory efficient attention (NVIDIA only)
 # Note: Large trained model files (1.9GB) are stored locally in ai/training/models/
 # Contains: fixed_fine_tuned_model/ and quantum_fine_tuned_model/
 # These models are preserved but excluded from Git due to GitHub size limits
+
+# Benchmark Suite Dependencies
+pyfftw>=0.13.0
+librosa>=0.10.0
+sounddevice>=0.4.6
+zstandard>=0.22.0
+brotli>=1.1.0
+lz4>=4.3.0
+cryptography>=42.0.0
+pynacl>=1.5.0

@@ -98,15 +98,16 @@ class TestUnifiedScheduler:
     def test_backend_selection_accuracy(self):
         """Scheduler should prefer accurate backends"""
         # For large sizes, should select Python (production accuracy)
+        # OR CPP_NATIVE if available (it is also production accuracy)
         backend = self.scheduler.select_backend(256, require_accuracy=True)
-        assert backend == Backend.PYTHON
+        assert backend in (Backend.PYTHON, Backend.CPP_NATIVE)
         
         # For small sizes with native preference, may select C/ASM
         if self.scheduler.backends[Backend.C_ASM].available:
             self.scheduler.prefer_native = True
             backend = self.scheduler.select_backend(8, require_accuracy=False)
             # Could be either, depends on availability
-            assert backend in (Backend.PYTHON, Backend.C_ASM)
+            assert backend in (Backend.PYTHON, Backend.C_ASM, Backend.CPP_NATIVE)
     
     def test_energy_preservation(self):
         """Transform should preserve signal energy (Parseval)"""

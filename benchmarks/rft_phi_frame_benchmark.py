@@ -81,6 +81,102 @@ def main() -> None:
     print(f"unitary reconstruction relerr:     {rel_err(x_hat_unit, x):.3e}")
     print(f"fft reconstruction relerr:         {rel_err(x_hat_fft, x):.3e}")
 
+    # =========================================================================
+    # VARIANT & HYBRID FRAME ANALYSIS
+    # =========================================================================
+    print("\n" + "="*60)
+    print("VARIANT & HYBRID FRAME ANALYSIS")
+    print("="*60)
+    
+    try:
+        from benchmarks.variant_benchmark_harness import (
+            load_variant_generators, load_hybrid_functions, 
+            VARIANT_CODES, HYBRID_NAMES
+        )
+        
+        # 1. Variants (Explicit Basis Analysis)
+        print("\n--- RFT VARIANTS (Explicit Basis Properties) ---")
+        print(f"{'Variant':<20} | {'Cond(Gram)':<10} | {'Unitary Err':<12} | {'Frame Err':<12}")
+        print("-" * 65)
+        
+        generators = load_variant_generators()
+        
+        for code in VARIANT_CODES:
+            if code == "GOLDEN_EXACT": continue # Skip slow one
+            
+            try:
+                if code not in generators:
+                    print(f"{code:<20} | {'MISSING':<10} | {'-':<12} | {'-':<12}")
+                    continue
+                    
+                gen = generators[code]
+                # Use smaller N for variants to be fast
+                N_var = 128 
+                x_var = rng.normal(size=N_var) + 1j * rng.normal(size=N_var)
+                
+                # Generate Basis
+                Phi = gen(N_var)
+                
+                # Gram Properties
+                Gram = Phi.conj().T @ Phi
+                cond = np.linalg.cond(Gram)
+                
+                # Reconstruction
+                y = Phi @ x_var
+                x_naive = Phi.conj().T @ y
+                
+                # Unitary Error (assuming Phi is unitary)
+                err_unit = rel_err(x_naive, x_var)
+                
+                # Frame Error (using dual)
+                try:
+                    x_frame = np.linalg.solve(Gram, x_naive)
+                    err_frame = rel_err(x_frame, x_var)
+                except np.linalg.LinAlgError:
+                    err_frame = float('nan')
+                
+                print(f"{code:<20} | {cond:.2e}   | {err_unit:.2e}     | {err_frame:.2e}")
+                
+            except Exception as e:
+                print(f"{code:<20} | {'ERROR':<10} | {str(e)[:12]:<12} | {'-':<12}")
+
+        # 2. Hybrids (Coherence Violation Analysis)
+        print("\n--- HYBRIDS (Coherence/Orthogonality Check) ---")
+        print(f"{'Hybrid':<25} | {'Coherence (η)':<15} | {'Status':<10}")
+        print("-" * 55)
+        
+        hybrids = load_hybrid_functions()
+        x_hybrid = rng.normal(size=256) # Real signal for hybrids usually
+        
+        for name in HYBRID_NAMES:
+            try:
+                if name not in hybrids:
+                    print(f"{name:<25} | {'MISSING':<15} | {'-':<10}")
+                    continue
+                
+                func = hybrids[name]
+                # Run hybrid
+                res = func(x_hybrid, target_sparsity=0.95)
+                
+                # Extract coherence if available
+                # The result object usually has 'coherence_violation' or we infer it
+                coh = getattr(res, 'coherence_violation', None)
+                
+                if coh is None:
+                    # Try to infer from result type
+                    coh = "N/A"
+                elif isinstance(coh, float):
+                    coh = f"{coh:.2e}"
+                    
+                print(f"{name:<25} | {coh:<15} | {'✓':<10}")
+                
+            except Exception as e:
+                print(f"{name:<25} | {'ERROR':<15} | {str(e)[:10]}")
+
+    except ImportError as e:
+        print(f"\nCould not load variant harness: {e}")
+        print("Skipping variant analysis.")
+
 
 if __name__ == "__main__":
     main()

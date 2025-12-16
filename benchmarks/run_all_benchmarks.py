@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# Copyright (c) 2025 QuantoniumOS
+#
+# This file is part of QuantoniumOS.
+#
+# QuantoniumOS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# QuantoniumOS is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with QuantoniumOS.  If not, see <https://www.gnu.org/licenses/>.
+
 """
 QuantoniumOS Formal Benchmark Suite
 ====================================
@@ -219,7 +236,19 @@ def run_class_b():
     """Run Class B benchmark"""
     try:
         from class_b_transform_dsp import run_class_b_benchmark
-        return run_class_b_benchmark()
+        result = run_class_b_benchmark()
+        
+        # Add Phi Frame Benchmark (Gram & Asymptotics)
+        print("\n" + "━"*75)
+        print("  RUNNING PHI FRAME BENCHMARK (Gram & Asymptotics)")
+        print("━"*75)
+        try:
+            from rft_phi_frame_benchmark import main as run_frame
+            run_frame()
+        except Exception as e:
+            print(f"  Frame Benchmark Error: {e}")
+            
+        return result
     except Exception as e:
         print(f"  Error: {e}")
         return None

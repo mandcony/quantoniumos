@@ -117,6 +117,13 @@ hardware/*.log
 hardware/work/
 hardware/transcript
 hardware/vsim.wlf
+hardware/*.json
+hardware/tb/results/obj_crossval/
+
+# Large Data Files (Downloadable via scripts)
+data/physionet/
+data/mitbih/
+data/sleepedf/
 
 # Large trained models - preserved locally
 ai/training/models/
