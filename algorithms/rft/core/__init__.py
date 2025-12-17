@@ -45,6 +45,12 @@ from .resonant_fourier_transform import (
     BinaryRFT,
 )
 
+from .oscillator import Oscillator
+from .geometric_container import GeometricContainer, LinearRegion
+from .bloom_filter import SimplifiedBloomFilter, hash1, hash2
+from .shard import Shard
+from .vibrational_engine import VibrationalEngine
+
 __all__ = [
     'PHI',
     'PHI_INV',
@@ -57,4 +63,12 @@ __all__ = [
     'rft',
     'irft',
     'BinaryRFT',
+    'Oscillator',
+    'GeometricContainer',
+    'LinearRegion',
+    'SimplifiedBloomFilter',
+    'hash1',
+    'hash2',
+    'Shard',
+    'VibrationalEngine',
 ]

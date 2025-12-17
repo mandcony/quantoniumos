@@ -1,0 +1,70 @@
+VCD info: dumpfile full_coverage.vcd opened for output.
+
+================================================================
+   QUANTONIUMOS FPGA - RIGOROUS FULL COVERAGE TEST
+================================================================
+
+--- TEST SUITE 1: RESET BEHAVIOR ---
+[PASS] ounter completes
+[PASS] signal deasserts
+
+--- TEST SUITE 2: INITIAL STATE ---
+[PASS] E_RFT_GOLDEN (0)
+[PASS] al state is IDLE
+[PASS] unce initialized
+
+--- TEST SUITE 3: STATE MACHINE ---
+[PASS] tions to COMPUTE
+[PASS] nsitions to DONE
+[PASS]  returns to IDLE
+
+--- TEST SUITE 4: MODE CYCLING (ALL 16 MODES) ---
+[PASS] Mode 0: RFT-GOLDEN (Verified)
+[PASS] Mode 1: RFT-FIBONACCI
+[PASS] Mode 2: RFT-HARMONIC
+[PASS] Mode 3: RFT-GEOMETRIC
+[PASS] Mode 4: RFT-BEATING
+[PASS] Mode 5: RFT-PHYLLOTAXIS
+[PASS] Mode 6: RFT-CASCADE (Verified)
+[PASS] Mode 7: RFT-HYBRID-DCT
+[PASS] Mode 8: RFT-MANIFOLD
+[PASS] Mode 9: RFT-EULER
+[PASS] Mode 10: RFT-PHASE-COH
+[PASS] Mode 11: RFT-ENTROPY
+[PASS] Mode 12: SIS-HASH (Verified)
+[PASS] Mode 13: FEISTEL-48
+[PASS] Mode 14: QUANTUM-SIM (Verified)
+[PASS] Mode 15: ROUNDTRIP
+
+--- TEST SUITE 5: MODE WRAP-AROUND ---
+[PASS] aps from 15 to 0
+
+--- TEST SUITE 6: KERNEL ROM SPOT CHECKS ---
+[PASS] Kernel ROM is active and producing values
+
+--- TEST SUITE 7: LED OUTPUT ---
+[PASS] ows current mode
+
+--- TEST SUITE 8: COMPUTATION INTEGRITY ---
+[PASS] Accumulator is computing (ACC = f72ce000)
+[PASS] Computation completed, results stored
+
+--- TEST SUITE 9: RAPID MODE SWITCHING ---
+[PASS] Rapid switching: 5 presses advanced mode correctly
+
+--- TEST SUITE 10: STABILITY (1ms run) ---
+[PASS] System stable after extended run
+
+================================================================
+   TEST SUMMARY
+================================================================
+   Total Tests:  31
+   Passed:       31
+   Failed:       0
+   Pass Rate:    100%
+================================================================
+
+   *** ALL TESTS PASSED - FPGA VERIFIED ***
+
+================================================================
+hardware/full_coverage_tb.v:316: $finish called at 8161006510 (1ps)

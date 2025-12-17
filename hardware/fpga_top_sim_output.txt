@@ -1,0 +1,16 @@
+VCD info: dumpfile quantoniumos_sim.vcd opened for output.
+------------------------------------------------
+ QUANTONIUMOS FPGA SIMULATION START
+------------------------------------------------
+[Time 1000000] Internal Reset Complete.
+[Time 11000000] Mode 14 (Quantum Sim) Result LEDs: 00000000
+[Time 11000000] Pressing Button (Next Mode)...
+[Time 13500000] Button Released.
+[Time 23500000] Mode 15 (Roundtrip) Result LEDs: 00000001
+[Time 23500000] Pressing Button (Next Mode)...
+[Time 26000000] Button Released.
+[Time 36000000] Mode 0 (Golden) Result LEDs: 00000010
+------------------------------------------------
+ SIMULATION COMPLETE
+------------------------------------------------
+hardware/fpga_top_tb.v:69: $finish called at 36000000 (1ps)
