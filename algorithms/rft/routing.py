@@ -97,7 +97,7 @@ VARIANT_INFO = {
         'name': 'CASCADE',
         'formula': 'Multi-stage hierarchy',
         'properties': 'η=0 zero coherence',
-        'use_case': 'Universal compression (WINNER)',
+        'use_case': 'Best RFT Variant (Internal)',
         'latency_ms': 0.57,
         'bpp': 0.673,
         'psnr': 48.5,

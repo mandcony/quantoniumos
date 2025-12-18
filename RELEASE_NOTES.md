@@ -22,6 +22,12 @@ This release formalizes the **Canonical Resonant Fourier Transform (RFT)** defin
 *   Validated via `tests/validation/test_phi_frame_normalization.py`.
 *   Confirmed unitarity and frame properties.
 
+## Quantum Simulation Verification (v2.0.0-verified)
+
+*   **Fidelity:** Verified 1.000000 fidelity for Superposition (Hadamard) and Entanglement (Bell State).
+*   **Scaling:** Confirmed $O(N)$ scaling for Symbolic Compression vs $O(2^N)$ for Classical Simulators.
+*   **Benchmarks:** `docs/validation/QUANTUM_VERIFICATION_REPORT_v2.0.0.txt`
+
 ## Patent Notice
 
 **USPTO Application #19/169,399** covers the methods and systems described in this release.

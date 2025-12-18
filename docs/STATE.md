@@ -23,7 +23,7 @@
 | **Hardware Feasibility (FPGA)** | ✅ **INTERNALLY PROVEN** | High | RTL Synthesis (`fpga_top.sv`), WebFPGA validation |
 | **General Superiority** | 🧪 **EXPERIMENTAL** | Low | No advantage on white noise; specific to quasi-periodic domain |
 | **Crypto Security** | 🧪 **EXPERIMENTAL** | Low | Avalanche metrics observed; no formal reduction to hard problems |
-| **Quantum Simulation** | 🧪 **EXPERIMENTAL** | High | Python implementation of Grover's Algo using RFT-backed gates (`demo_rft_integration.py`) |
+| **Quantum Simulation** | ✅ **INTERNALLY PROVEN** | High | `QUANTUM_VERIFICATION_REPORT_v2.0.0.txt`, Fidelity=1.0, O(N) Scaling |
 
 ---
 

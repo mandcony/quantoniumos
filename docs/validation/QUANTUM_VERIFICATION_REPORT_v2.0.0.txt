@@ -1,0 +1,174 @@
+============================================================
+QuantoniumOS - Quantum Fidelity Verification
+============================================================
+
+[2] Testing Superposition Fidelity (Hadamard)
+    1-Qubit H|0> Fidelity: 1.0000000000 (Expected: 1.0)
+    [PASS] Superposition correct
+
+[3] Testing Entanglement Fidelity (Bell State)
+    Bell State Fidelity:   1.0000000000 (Expected: 1.0)
+    [PASS] Entanglement correct
+
+[1] Testing Scaling Limit (Naive State Vector)
+    Qubits | State Size | Memory (MB) | Time (s)
+    -------|------------|-------------|----------
+         2 | 2^2      |        0.00 |   0.0001
+         3 | 2^3      |        0.00 |   0.0001
+         4 | 2^4      |        0.00 |   0.0001
+         5 | 2^5      |        0.00 |   0.0001
+         6 | 2^6      |        0.12 |   0.0002
+         7 | 2^7      |        0.38 |   0.0005
+         8 | 2^8      |        1.00 |   0.0012
+         9 | 2^9      |        5.00 |   0.0034
+        10 | 2^10     |       19.75 |   0.0122
+        11 | 2^11     |       80.00 |   0.0478
+        12 | 2^12     |      256.01 |   0.2395
+        13 | 2^13     | SKIPPING (Matrix too large for naive dense representation)
+        14 | 2^14     | SKIPPING (Matrix too large for naive dense representation)
+        15 | 2^15     | SKIPPING (Matrix too large for naive dense representation)
+        16 | 2^16     | SKIPPING (Matrix too large for naive dense representation)
+        17 | 2^17     | SKIPPING (Matrix too large for naive dense representation)
+        18 | 2^18     | SKIPPING (Matrix too large for naive dense representation)
+        19 | 2^19     | SKIPPING (Matrix too large for naive dense representation)
+        20 | 2^20     | SKIPPING (Matrix too large for naive dense representation)
+        21 | 2^21     | SKIPPING (Matrix too large for naive dense representation)
+        22 | 2^22     | SKIPPING (Matrix too large for naive dense representation)
+        23 | 2^23     | SKIPPING (Matrix too large for naive dense representation)
+        24 | 2^24     | SKIPPING (Matrix too large for naive dense representation)
+===========================================================================
+  CLASS A: QUANTUM SIMULATION BENCHMARK
+  QuantoniumOS vs Classical Simulators (Qiskit, Cirq)
+===========================================================================
+
+  Available simulators:
+    Qiskit (IBM):      ✓
+    Cirq (Google):     ✓
+    QuantoniumOS QSC:  ✓
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  CLASSICAL SIMULATORS (Full Amplitude)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    Qubits │  Qiskit (ms) │    Cirq (ms) │      Amplitudes
+  ───────────────────────────────────────────────────────
+         4 │         0.48 │         1.86 │              16
+         6 │         0.38 │         1.41 │              64
+         8 │         0.46 │         1.66 │             256
+        10 │         0.66 │         1.99 │           1,024
+        12 │         1.00 │         2.53 │           4,096
+        14 │         5.43 │         4.54 │          16,384
+        16 │         9.40 │         7.04 │          65,536
+        18 │        56.50 │        15.80 │         262,144
+        20 │       194.53 │        42.81 │       1,048,576
+        22 │       942.98 │       134.75 │       4,194,304
+        24 │      3726.25 │       462.72 │      16,777,216
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  QUANTONIUMOS SYMBOLIC COMPRESSION (O(n) Scaling)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        Qubits │    Time (ms) │  Rate (Mq/s) │    Entropy │     Memory
+  ─────────────────────────────────────────────────────────────────
+            10 │         0.03 │          0.3 │   0.001389 │ ~64 complex
+           100 │         0.02 │          5.8 │   0.008813 │ ~64 complex
+         1,000 │         0.05 │         20.9 │   0.009751 │ ~64 complex
+        10,000 │         0.41 │         24.5 │   0.009771 │ ~64 complex
+       100,000 │         4.38 │         22.8 │   0.009818 │ ~64 complex
+     1,000,000 │        47.96 │         20.8 │   0.009867 │ ~64 complex
+    10,000,000 │       506.59 │         19.7 │   0.009857 │ ~64 complex
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SCALING COMPARISON SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │  Simulator              │ Max Qubits  │ Scaling   │ Memory         │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │  Qiskit (IBM)           │ ~30         │ O(2^n)    │ 2^n × 16 bytes │
+  │  Cirq (Google)          │ ~30         │ O(2^n)    │ 2^n × 16 bytes │
+  │  QuantoniumOS QSC       │ 10,000,000+ │ O(n)      │ 64 complex     │
+  └─────────────────────────────────────────────────────────────────────┘
+
+  HONEST FRAMING:
+  • Classical simulators compute EXACT amplitudes (2^n complex numbers)
+  • QSC compresses SYMBOLIC qubit configurations (different object)
+  • QSC reaches million-qubit regime where classical is impossible
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Φ-RFT VARIANT QUANTUM STATE COMPRESSION
+  Testing all 14 variants on quantum state vectors
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+INFO: Found 1 potential library paths
+INFO: Attempting to load: /workspaces/quantoniumos/algorithms/rft/kernels/python_bindings/../compiled/libquantum_symbolic.so
+SUCCESS: Assembly library loaded from /workspaces/quantoniumos/algorithms/rft/kernels/python_bindings/../compiled/libquantum_symbolic.so
+  Testing 4-qubit states (dim=16)...
+  Testing 6-qubit states (dim=64)...
+  Testing 8-qubit states (dim=256)...
+
+====================================================================================================
+  QUANTUM STATE VARIANT BENCHMARK (3 sizes × 14 variants)
+====================================================================================================
+
+  Variant              │  Avg BPP │   Avg PSNR │   Avg Time │  Coherence │ Status
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  STANDARD             │   11.000 │       nandB │      4.48ms │   1.12e-16 │ ✓
+  HARMONIC             │   11.000 │       nandB │      4.94ms │   9.95e-17 │ ✓
+  FIBONACCI            │   11.000 │       nandB │      4.07ms │   1.23e-16 │ ✓
+  CHAOTIC              │   10.986 │       nandB │      4.14ms │   1.02e-16 │ ✓
+  GEOMETRIC            │   11.000 │       nandB │      4.19ms │   1.08e-16 │ ✓
+  PHI_CHAOTIC          │   10.986 │       nandB │     10.71ms │   1.08e-16 │ ✓
+  HYPERBOLIC           │   11.000 │       nandB │      3.91ms │   1.00e-16 │ ✓
+  LOG_PERIODIC         │   11.000 │       nandB │      3.32ms │   1.14e-16 │ ✓
+  CONVEX_MIX           │   11.000 │       nandB │      3.30ms │   1.06e-16 │ ✓
+  GOLDEN_EXACT         │      N/A │        N/A │        N/A │        N/A │ ✗ All failed
+  CASCADE              │   10.943 │       nandB │      7.36ms │   1.18e-16 │ ✓
+  ADAPTIVE_SPLIT       │   11.000 │       nandB │      7.10ms │   1.15e-16 │ ✓
+  ENTROPY_GUIDED       │   10.986 │       nandB │      7.35ms │   1.09e-16 │ ✓
+  DICTIONARY           │   10.986 │       nandB │     15.90ms │   1.20e-16 │ ✓
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  HYBRID QUANTUM STATE COMPRESSION
+  Testing all hybrids on quantum amplitude distributions
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+====================================================================================================
+  QUANTUM STATE HYBRID BENCHMARK
+====================================================================================================
+
+  Hybrid                         │  Avg BPP │   Avg PSNR │   Avg Time │  Coherence │ Status
+  ───────────────────────────────────────────────────────────────────────────────────────────────
+  H0_Baseline_Greedy             │    1.000 │     11.67dB │      0.69ms │   5.00e-01 │ ✓
+  H1_Coherence_Aware             │    1.000 │     11.67dB │      5.56ms │   5.00e-01 │ ✓
+  H2_Phase_Adaptive              │    1.000 │     15.15dB │      0.72ms │   4.86e-01 │ ✓
+  H3_Hierarchical_Cascade        │    0.492 │     13.91dB │      0.50ms │        η=0 │ ✓
+  H4_Quantum_Superposition       │    8.250 │     15.35dB │      0.39ms │   5.00e-01 │ ✓
+  H5_Attention_Gating            │    1.000 │     14.31dB │      0.85ms │   5.00e-01 │ ✓
+  H6_Dictionary_Learning         │    1.143 │     14.19dB │      0.74ms │   5.00e-01 │ ✓
+  H7_Cascade_Attention           │    1.000 │     14.22dB │      1.10ms │        η=0 │ ✓
+  H8_Aggressive_Cascade          │   12.125 │     15.61dB │      0.73ms │        η=0 │ ✓
+  H9_Iterative_Refinement        │   16.000 │     14.22dB │      1.93ms │        η=0 │ ✓
+  H10_Quality_Cascade            │    1.000 │     13.67dB │      2.36ms │        η=0 │ ✓
+  FH1_MultiLevel_Cascade         │    1.000 │     15.44dB │      1.06ms │        η=0 │ ✓
+  FH2_Adaptive_Split             │    1.125 │     13.17dB │      0.70ms │        η=0 │ ✓
+  FH3_Frequency_Cascade          │    1.000 │     15.20dB │      0.44ms │        η=0 │ ✓
+  FH4_Edge_Aware                 │    1.125 │     12.61dB │      0.61ms │        η=0 │ ✓
+  FH5_Entropy_Guided             │    1.125 │     13.56dB │    236.09ms │        η=0 │ ✓
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  GROVER'S SEARCH BENCHMARK
+  Comparing Qiskit vs QuantoniumOS Geometric Search
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Items      | Qiskit (ms)     | Quantonium (ms) | Speedup   
+  ────────────────────────────────────────────────────────────
+  4          | 0.67            | 0.10            | 6.42x     
+  8          | 0.69            | 0.12            | 5.52x     
+  16         | 0.59            | 0.14            | 4.11x     
+  32         | 0.69            | 0.22            | 3.17x     
+  64         | 0.75            | 0.50            | 1.50x     

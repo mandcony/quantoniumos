@@ -417,7 +417,7 @@ VARIANTS: Dict[str, VariantInfo] = {
         name="Adaptive Φ-RFT",
         generator=generate_adaptive_phi,
         innovation="Meta selection",
-        use_case="Universal compression",
+        use_case="Broad-spectrum RFT",
     ),
     "log_periodic": VariantInfo(
         name="Log-Periodic Φ-RFT",
@@ -441,7 +441,7 @@ VARIANTS: Dict[str, VariantInfo] = {
         name="H3 RFT Cascade",
         generator=generate_h3_hierarchical_cascade,
         innovation="Zero-coherence structure/texture split (η=0)",
-        use_case="RECOMMENDED: Universal compression (0.673 BPP avg)",
+        use_case="RECOMMENDED: Best RFT Variant (0.673 BPP avg)",
     ),
     "adaptive_split": VariantInfo(
         name="FH2 Adaptive RFT Split",
