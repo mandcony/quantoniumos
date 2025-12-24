@@ -58,7 +58,7 @@ The old formula Ψ = D_φ C_σ F is now called **φ-phase FFT** or **phase-tilte
 
 | Benchmark | RFT Wins | Condition |
 |-----------|----------|-----------|
-| In-Family (Golden QP) | **82%** | N ≥ 256 |
+| In-Family (Golden QP) | **82%** | N >= 256 |
 | Out-of-Family | 25% | Expected (domain-specific) |
 | PSNR Gain | **+15-20 dB** | At 10% coefficient retention |
 
@@ -80,17 +80,45 @@ See `algorithms/rft/README_RFT.md` for the complete specification.
 
 ## Current Status (Phase 4)
 
-**December 3, 2025** - Production Optimization Phase  
-- Core RFT: 39/39 tests passing (100%)  
-- Hybrid Codecs: 16/17 working (94%)  
-- Performance Optimization: H1 (146ms→<10ms target), H10 (16ms→<5ms target)  
-- Documentation: Generating Sphinx API docs  
+**December 3, 2025** - Production Optimization Phase
+- Core RFT: 39/39 tests passing (100%)
+- Hybrid Codecs: 16/17 working (94%)
+- Performance Optimization: H1 (146ms -> <10ms target), H10 (16ms -> <5ms target)
+- Documentation: Generating Sphinx API docs
 
 See `PHASE4_PLAN.md` for detailed roadmap.
 
 ---
 
-## Start Here
+## Technical Value Proposition
+
+This repository represents a comprehensive research platform for "Quantum-Inspired" signal processing. While it does not perform actual quantum computation, it provides significant technical value in the following areas:
+
+1.  **Novel Signal Processing Basis**: The Canonical RFT provides a mathematically rigorous eigenbasis for analyzing quasi-periodic and Fibonacci-structured signals, offering 15-20 dB PSNR gains over FFT for these specific classes.
+2.  **Hybrid Compression Architecture**: The framework demonstrates a "coherence-free" hybrid codec that seamlessly switches between DCT (for structure) and RFT (for texture/resonance), solving the boundary artifact problem common in block-based transforms.
+3.  **Hardware IP Core**: The `hardware/` directory contains a synthesizable Verilog design for the RFTPU (Resonant Fourier Transform Processing Unit), a dedicated accelerator architecture with a custom NoC (Network-on-Chip), validated in simulation.
+4.  **Cryptographic Research**: Experimental implementations of RFT-SIS hashing and Feistel networks provide a testbed for chaos-based and lattice-based cryptography concepts.
+5.  **Medical & Scientific Applications**: Validated pipelines for denoising and compressing medical data (ECG, EEG) and genomic sequences, showing specific advantages in morphology preservation.
+
+**Note on Valuation:** This stack is a research asset. Its value lies in the intellectual property (patent pending), the validated algorithms, the hardware designs, and the comprehensive test suites that prove the claims. It is designed for researchers, hardware architects, and signal processing engineers.
+
+---
+
+## Reproducibility Scripts
+
+This repository includes a suite of scripts to verify the environment, reproduce benchmarks, and validate claims.
+
+| Script | Description |
+| --- | --- |
+| **`./reproduce_results.sh`** | **Master Reproducibility Script.** Runs the full verification pipeline: checks environment, builds native engines, runs unit tests, and executes the Class A-E benchmark suite. Use this to validate the entire stack. |
+| **`./verify_setup.sh`** | **Environment Health Check.** Verifies Python version, virtual environment status, and core dependencies (NumPy, SciPy, SymPy, Numba). Also performs a quick numerical check of the RFT core. |
+| **`./run_demo.sh`** | **Quick Demo.** Launches the `demo_rft_power.py` script to visualize the power spectral density advantages of RFT on a sample signal. |
+| **`scripts/run_full_suite.sh`** | **Full Benchmark Runner.** Executes the comprehensive set of experiments, including long-running compression and crypto benchmarks. |
+| **`quantoniumos-bootstrap.sh`** | **Initial Setup.** Automates the cloning, virtual environment creation, and dependency installation process for new users. |
+
+---
+
+## Documentation Index
 
 | Step | Doc | Purpose |
 | --- | --- | --- |
@@ -115,7 +143,7 @@ cd quantoniumos
 # Or manual setup (no compilation needed!)
 python3 -m venv .venv && source .venv/bin/activate
 pip install numpy scipy sympy numba
-python -c "from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT; print('✓ Setup complete!')"
+python -c "from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT; print('Setup complete!')"
 ```
 
 **Build native engines for 3-10× speedup (optional):**
@@ -315,7 +343,7 @@ QuantoniumOS/
 **Status:** 83 tests passing | Open Research Preview  
 **Dataset DOI:** [![RFT-Wavelet Medical Data](https://zenodo.org/badge/DOI/10.5281/zenodo.17885350.svg)](https://doi.org/10.5281/zenodo.17885350) - RFT-Wavelet Hybrid Denoising Results on Real Medical Data
 
-> **⚠️ RESEARCH USE ONLY** — NOT FOR CLINICAL OR DIAGNOSTIC APPLICATION
+> **RESEARCH USE ONLY** — NOT FOR CLINICAL OR DIAGNOSTIC APPLICATION
 
 > **FREE FOR HOSPITALS & MEDICAL RESEARCHERS** - This module is free for hospitals, healthcare institutions, medical researchers, and academics for testing and research purposes.
 
@@ -333,17 +361,17 @@ QuantoniumOS includes a comprehensive medical applications test suite validating
 
 Benchmark on real PhysioNet open-source medical data:
 
-| Method | Avg PSNR Δ | Avg Correlation | Best For |
+| Method | Avg PSNR Delta | Avg Correlation | Best For |
 |--------|-----------|-----------------|----------|
 | **RFT (entropy_modulated)** | **+2.61 dB** | **0.859** | ECG waveform fidelity |
 | Wavelet (Haar) | -2.48 dB | 0.447 | EEG band preservation |
 | RFT-Wavelet Hybrid | -2.59 dB | 0.472 | Not recommended |
 
 **Key Findings:**
-- ✅ RFT outperforms wavelets for ECG morphology preservation (+2.20 dB, r=0.914)
-- ✅ RFT is noise-type agnostic (works on Gaussian, Rician, Poisson)
-- ⚠️ Wavelets still win for EEG band power preservation (+6.49 dB)
-- ❌ Hybrid cascading degrades performance (don't combine)
+- RFT outperforms wavelets for ECG morphology preservation (+2.20 dB, r=0.914)
+- RFT is noise-type agnostic (works on Gaussian, Rician, Poisson)
+- Wavelets still win for EEG band power preservation (+6.49 dB)
+- Hybrid cascading degrades performance (don't combine)
 
 > **Full Report:** [docs/reports/RFT_MEDICAL_BENCHMARK_REPORT.md](docs/reports/RFT_MEDICAL_BENCHMARK_REPORT.md)
 
@@ -550,7 +578,7 @@ The TL-V architecture can be simulated in [Makerchip](https://makerchip.com):
 
 ## RFT Validation & Experiments
 
-### 🧪 CLI Proof Runner (NEW)
+### CLI Proof Runner (NEW)
 
 A unified command-line interface for running all mathematical proofs and validation tests:
 
@@ -659,7 +687,7 @@ pip install --upgrade pip
 pip install -e .
 
 # 4. Verify installation
-python -c "from algorithms.rft.core.rft_optimized import rft_forward; print('✓ RFT installed')"
+python -c "from algorithms.rft.core.rft_optimized import rft_forward; print('RFT installed')"
 ```
 
 ### Build Native SIMD Kernels (Optional)
@@ -674,7 +702,7 @@ make -j$(nproc)
 cd ../../..
 
 # Verify native module
-python -c "import rftmw_native; print('✓ Native module:', rftmw_native.has_simd())"
+python -c "import rftmw_native; print('Native module:', rftmw_native.has_simd())"
 ```
 
 ### Run Benchmarks
