@@ -11,7 +11,7 @@ import matplotlib.animation as animation
 from matplotlib.animation import PillowWriter
 from pathlib import Path
 
-from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse, rft_matrix, PHI
+from algorithms.rft.core.phi_phase_fft_optimized import rft_forward, rft_inverse, rft_matrix, PHI
 
 # Create output directory
 OUTPUT_DIR = Path("./figures/gifs")

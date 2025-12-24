@@ -12,7 +12,7 @@ import time
 from typing import Dict, List, Tuple
 
 # Import RFT modules
-from algorithms.rft.core.phi_phase_fft import (
+from algorithms.rft.core.phi_phase_fft_optimized import (
     rft_forward, rft_inverse, rft_matrix, PHI
 )
 from algorithms.rft.hybrid_basis import (

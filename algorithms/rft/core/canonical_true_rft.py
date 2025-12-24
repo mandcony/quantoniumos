@@ -18,7 +18,7 @@ from typing import Optional
 import numpy as np
 
 # φ-phase FFT implementation (renamed from closed_form_rft)
-from .phi_phase_fft import (
+from .phi_phase_fft_optimized import (
     rft_forward,
     rft_inverse,
     rft_unitary_error,

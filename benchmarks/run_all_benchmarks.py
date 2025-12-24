@@ -342,15 +342,15 @@ def print_summary(results):
     summary = []
     
     if 'A' in results:
-        summary.append("  CLASS A (Quantum):      QSC achieves O(n) symbolic compression")
+        summary.append("  CLASS A (Quantum):      QSC achieves O(n) symbolic compression (Not full statevector)")
     if 'B' in results:
-        summary.append("  CLASS B (Transform):    Φ-RFT provides golden-ratio decorrelation")
+        summary.append("  CLASS B (Transform):    Φ-RFT provides golden-ratio decorrelation (Slower than FFT)")
     if 'C' in results:
-        summary.append("  CLASS C (Compression):  RFTMW exploits entropy gap")
+        summary.append("  CLASS C (Compression):  RFTMW exploits entropy gap (Lower ratio than zstd)")
     if 'D' in results:
-        summary.append("  CLASS D (Crypto):       RFT-SIS offers lattice-based PQ security")
+        summary.append("  CLASS D (Crypto):       RFT-SIS implements lattice primitives (Research Prototype)")
     if 'E' in results:
-        summary.append("  CLASS E (Audio):        Φ-RFT spectral mixing for analysis")
+        summary.append("  CLASS E (Audio):        Φ-RFT spectral analysis (High latency, offline only)")
     
     for s in summary:
         print(s)
@@ -358,10 +358,11 @@ def print_summary(results):
     print()
     print("  HONEST FRAMING ACROSS ALL CLASSES:")
     print("  ┌─────────────────────────────────────────────────────────────────────┐")
-    print("  │  We do NOT claim to beat industry standards everywhere.            │")
-    print("  │  We show where QuantoniumOS physics-inspired transforms offer      │")
-    print("  │  unique properties: irrational spectral mixing, entropy gap        │")
-    print("  │  exploitation, and lattice-based post-quantum primitives.          │")
+    print("  │  SCIENTIFIC CONTEXT:                                              │")
+    print("  │  QuantoniumOS is a specialized 'microscope' for aperiodic order.   │")
+    print("  │  It is NOT a general-purpose replacement for FFT, gzip, or AES.    │")
+    print("  │  It excels at analyzing quasi-periodic structures (Class A/B)      │")
+    print("  │  but trades computational efficiency for structural precision.     │")
     print("  └─────────────────────────────────────────────────────────────────────┘")
     print()
 

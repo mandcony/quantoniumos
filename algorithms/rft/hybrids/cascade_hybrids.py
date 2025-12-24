@@ -17,6 +17,39 @@ from typing import Tuple, Optional
 from dataclasses import dataclass
 import time
 
+# Prefer native CASM→C++ optimized RFT; fall back to Python
+try:
+    from algorithms.rft.kernels.python_bindings.optimized_rft import (
+        OptimizedRFT, RFT_OPT_AVX2, RFT_OPT_PARALLEL,
+    )
+    _RFT_NATIVE = True
+except Exception:
+    _RFT_NATIVE = False
+    OptimizedRFT = None  # type: ignore
+
+
+def _next_power_of_2(n: int) -> int:
+    """Return smallest power of 2 >= n."""
+    if n <= 0:
+        return 1
+    return 1 << (n - 1).bit_length()
+
+
+def _pad_to_power_of_2(arr: np.ndarray) -> Tuple[np.ndarray, int]:
+    """
+    Pad array to next power of 2 for native RFT engine compatibility.
+    
+    Returns:
+        (padded_array, original_length)
+    """
+    orig_len = len(arr)
+    target_len = _next_power_of_2(orig_len)
+    if target_len == orig_len:
+        return arr, orig_len
+    padded = np.zeros(target_len, dtype=arr.dtype)
+    padded[:orig_len] = arr
+    return padded, orig_len
+
 
 @dataclass
 class CascadeResult:
@@ -72,6 +105,13 @@ class H3HierarchicalCascade:
         """
         self.kernel_size_ratio = kernel_size_ratio
         self.variant_name = "H3_Hierarchical_Cascade"
+        # Instantiate native RFT if available (uses CASM→C++ pipeline)
+        self.rft = None
+        if _RFT_NATIVE:
+            try:
+                self.rft = OptimizedRFT(opt_flags=RFT_OPT_AVX2 | RFT_OPT_PARALLEL)
+            except Exception:
+                self.rft = None
     
     def _decompose(self, signal: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -136,12 +176,19 @@ class H3HierarchicalCascade:
         # Reconstruct structure
         structure_recon = np.fft.irfft(C_dct_sparse, n=n, norm='ortho')
         
-        # Step 3: RFT for texture residual
+        # Step 3: RFT for texture residual (with power-of-2 padding for native engine)
         residual = texture - (structure_recon - structure)
         try:
-            from algorithms.rft.core.phi_phase_fft import rft_forward
-            C_rft_texture = rft_forward(residual.astype(np.complex128))
-        except ImportError:
+            if self.rft is not None:
+                # Pad to power-of-2 for native CASM engine compatibility
+                residual_padded, orig_len = _pad_to_power_of_2(residual.astype(np.complex128))
+                C_rft_full = self.rft.forward(residual_padded)
+                # Trim back to original length
+                C_rft_texture = C_rft_full[:orig_len]
+            else:
+                from algorithms.rft.core.phi_phase_fft_optimized import rft_forward
+                C_rft_texture = rft_forward(residual.astype(np.complex128))
+        except Exception:
             C_rft_texture = np.fft.fft(residual)
         
         # Keep top-k for texture (30% of budget)
@@ -226,11 +273,17 @@ class H3HierarchicalCascade:
         C_texture_padded = np.zeros(n, dtype=np.complex128)
         C_texture_padded[:min(len(C_texture), n)] = C_texture[:min(len(C_texture), n)]
         
-        # Inverse RFT for texture
+        # Inverse RFT for texture (with power-of-2 padding for native engine)
         try:
-            from algorithms.rft.core.phi_phase_fft import rft_inverse
-            texture_recon = np.real(rft_inverse(C_texture_padded))
-        except ImportError:
+            if self.rft is not None:
+                # Pad to power-of-2 for native CASM engine compatibility
+                C_texture_pow2, _ = _pad_to_power_of_2(C_texture_padded)
+                texture_full = self.rft.inverse(C_texture_pow2)
+                texture_recon = np.real(texture_full[:n])
+            else:
+                from algorithms.rft.core.phi_phase_fft_optimized import rft_inverse
+                texture_recon = np.real(rft_inverse(C_texture_padded))
+        except Exception:
             texture_recon = np.real(np.fft.ifft(C_texture_padded))
         
         # Ensure correct length
@@ -412,7 +465,7 @@ class H6DictionaryLearning(H3HierarchicalCascade):
         C_dct = np.fft.rfft(signal, norm='ortho')
         
         try:
-            from algorithms.rft.core.phi_phase_fft import rft_forward
+            from algorithms.rft.core.phi_phase_fft_optimized import rft_forward
             C_rft = rft_forward(signal.astype(np.complex128))
         except ImportError:
             C_rft = np.fft.fft(signal)

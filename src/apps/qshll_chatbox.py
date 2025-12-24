@@ -12,6 +12,8 @@ QuantoniumOS ΓÇó Chatbox (Futura Minimal)
 import os, sys, json, glob, time, datetime, re, logging
 from typing import Optional, Dict, Any, List
 
+import threading
+
 from PyQt5.QtCore import Qt, QTimer, QSize, QPoint, QEvent
 from PyQt5.QtGui import QFont, QColor, QPainter, QPen, QBrush, QTextOption
 from PyQt5.QtWidgets import (
@@ -228,6 +230,15 @@ class Chatbox(QMainWindow):
         self._learning_enabled = self._quantum_ai_enabled
         self._quantum_enabled = self._quantum_ai_enabled
 
+        # Local LLM fallback (on-device). Enabled by default when Quantum AI is unavailable.
+        # Set QUANTONIUM_LOCAL_LLM=0 to force pattern-only fallback.
+        env_llm = os.getenv("QUANTONIUM_LOCAL_LLM")
+        self._local_llm_enabled = (env_llm != "0") and (not self._quantum_ai_enabled)
+        # Local backend selector (when local LLM is enabled)
+        # - QUANTONIUM_LOCAL_BACKEND=ollama|hf (default: hf)
+        self._local_backend = os.getenv("QUANTONIUM_LOCAL_BACKEND", "hf").strip().lower()
+        self._chat_history: List[tuple[str, str]] = []
+
         print("Γ£ô Trainer initialized, building UI...")
         self._build_ui()
         print("Γ£ô UI built, applying styles...")
@@ -376,9 +387,21 @@ class Chatbox(QMainWindow):
             self.safety_badge.setText(f"≡ƒƒí SAFE MODE ΓÇó {when}")
         else:
             self.safety_badge.setText(f"{'≡ƒƒó' if ok else '≡ƒö┤'} Non-Agentic ΓÇó {when}")
-        self.info_text.setText(f"ΓÇó Mode: {'SAFE MODE' if os.getenv('QUANTONIUM_SAFE_MODE')=='1' else 'Reactive (non-agentic)'}\n"
-                               f"ΓÇó Safety: {'verified' if ok else 'check'}\n"
-                               f"ΓÇó Transcript: active")
+        if getattr(self, "_local_llm_enabled", False):
+            if getattr(self, "_local_backend", "hf") == "ollama":
+                local_model = os.getenv("QUANTONIUM_OLLAMA_MODEL", "llama3.2:3b")
+                local_line = f"ΓÇó Local LLM: ollama:{local_model}"
+            else:
+                local_model = os.getenv('QUANTONIUM_MODEL_ID', 'distilgpt2')
+                local_line = f"ΓÇó Local LLM: hf:{local_model}"
+        else:
+            local_line = "ΓÇó Local LLM: off"
+        self.info_text.setText(
+            f"ΓÇó Mode: {'SAFE MODE' if os.getenv('QUANTONIUM_SAFE_MODE')=='1' else 'Reactive (non-agentic)'}\n"
+            f"ΓÇó Safety: {'verified' if ok else 'check'}\n"
+            f"ΓÇó Transcript: active\n"
+            f"{local_line}"
+        )
 
     def _disable_input_for_safe_mode(self):
         self.input.setDisabled(True)
@@ -542,6 +565,45 @@ class Chatbox(QMainWindow):
                 # Fall back to pattern matching
 
         # Legacy pattern matching fallback
+        # Local LLM fallback (no network) if enabled.
+        if getattr(self, "_local_llm_enabled", False):
+            try:
+                system_prompt = (
+                    "You are a helpful, non-agentic assistant. "
+                    "Do not provide commands for downloads, system modification, or external access."
+                )
+
+                backend = getattr(self, "_local_backend", "hf")
+                if backend == "ollama":
+                    from src.apps.ollama_client import ollama_chat
+
+                    text = ollama_chat(
+                        user_text=prompt,
+                        history=self._chat_history,
+                        system_prompt=system_prompt,
+                        model=os.getenv("QUANTONIUM_OLLAMA_MODEL"),
+                        temperature=0.7,
+                        max_tokens=256,
+                    )
+                else:
+                    from src.apps.ai_model_wrapper import format_chat_prompt, generate_response
+
+                    full_prompt = format_chat_prompt(
+                        prompt,
+                        history=self._chat_history,
+                        system_prompt=system_prompt,
+                        max_turns=6,
+                    )
+                    text = generate_response(full_prompt, max_tokens=160)
+                # Light post-processing and conservative confidence
+                text = (text or "").strip()
+                if not text:
+                    raise RuntimeError("empty generation")
+                self._chat_history.append((prompt, text))
+                return text, 0.60
+            except Exception as e:
+                print(f"Local LLM fallback failed: {e}")
+
         return self._pattern_fallback_reply(prompt)
     
     def _pattern_fallback_reply(self, prompt: str) -> tuple[str, float]:

@@ -84,3 +84,32 @@ python tests/benchmarks/QUANTONIUM_BENCHMARK_SUITE.py
 **Apps don't launch**: Run `python quantonium_boot.py` for integrated environment
 
 **Performance issues**: Check `tests/benchmarks/` for optimization settings
+
+## Run AI Chat Fully Offline (No Network)
+
+Codespaces runs in a GitHub data center. To remove dependency on remote inference for day-to-day use, run the chatbox on your own machine and cache the model once.
+
+### 1) Cache the model (one-time, while online)
+
+```bash
+python src/apps/cache_local_llm.py --model distilgpt2 --cache-dir ai/hf_cache
+```
+
+### 2) Run offline
+
+```bash
+HF_HOME=ai/hf_cache QUANTONIUM_LOCAL_ONLY=1 QUANTONIUM_LOCAL_LLM=1 python src/apps/qshll_chatbox.py
+```
+
+Or use the convenience script:
+
+```bash
+scripts/run_local_chat_offline.sh
+```
+
+### Optional: load your LoRA adapter
+
+```bash
+HF_HOME=ai/hf_cache QUANTONIUM_LOCAL_ONLY=1 QUANTONIUM_LORA_PATH=ai/training/models/local_chat_lora \
+	QUANTONIUM_MODEL_ID=distilgpt2 QUANTONIUM_LOCAL_LLM=1 python src/apps/qshll_chatbox.py
+```

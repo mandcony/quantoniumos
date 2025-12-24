@@ -8,7 +8,7 @@ print("=" * 60)
 
 # Test 1: Import
 try:
-    from algorithms.rft.core.phi_phase_fft import (
+    from algorithms.rft.core.phi_phase_fft_optimized import (
         rft_forward, rft_inverse, rft_unitary_error, rft_matrix, PHI
     )
     print("✓ Import successful")

@@ -67,29 +67,37 @@ class OptimizedRFT:
         """Initialize optimized RFT processor.
         
         Args:
-            size: Transform size (must be power of 2)
+            size: Default transform size (can be overridden per-call)
             opt_flags: Optimization flags
         """
         self.size = size
+        self.opt_flags = opt_flags
+        self.lib = None
+        self.engine = None
+        self._rftmw = None
+        self._engines = {}  # Cache engines by size
+        self._is_mock = True
+        
+        # Try to load rftmw_native (CASM→C++→Python pipeline)
         try:
-            self.lib = self._load_optimized_library()
-            self.engine = OptimizedRFTEngine()
+            import sys
+            if '/workspaces/quantoniumos/src/rftmw_native/build' not in sys.path:
+                sys.path.insert(0, '/workspaces/quantoniumos/src/rftmw_native/build')
+            import rftmw_native
             
-            # Initialize the optimized engine
-            result = self.lib.rft_optimized_init(self.engine, size, opt_flags)
-            if result != 0:
-                raise RuntimeError(f"Failed to initialize optimized RFT engine: {result}")
-            
-            self.performance_stats = RFTPerformanceStats()
-            self._is_mock = False
-            print(f"Optimized RFT processor initialized: {size} points, flags: 0x{opt_flags:08X}")
-        except (RuntimeError, OSError, AttributeError):
-            # Fallback to mock implementation
-            self.lib = None
-            self.engine = None
-            self.performance_stats = None
-            self._is_mock = True
-            print(f"Warning: Using mock OptimizedRFT implementation for size {size}")
+            if rftmw_native.HAS_ASM_KERNELS:
+                self._rftmw = rftmw_native
+                self._is_mock = False
+                print(f"OptimizedRFT: Using rftmw_native.RFTKernelEngine (ASM={rftmw_native.HAS_ASM_KERNELS}, AVX2={rftmw_native.HAS_AVX2})")
+            else:
+                print(f"OptimizedRFT: rftmw_native loaded but no ASM kernels, using Python fallback")
+        except ImportError as e:
+            print(f"OptimizedRFT: rftmw_native not available ({e}), using Python fallback")
+        
+        # Legacy ctypes path (disabled - we use rftmw_native now)
+        # try:
+        #     self.lib = self._load_optimized_library()
+        #     ...
     
     def _load_optimized_library(self):
         """Load the optimized assembly library."""
@@ -147,8 +155,56 @@ class OptimizedRFT:
     
     def __del__(self):
         """Clean up optimized resources."""
-        if hasattr(self, 'lib') and hasattr(self, 'engine'):
-            self.lib.rft_optimized_cleanup(self.engine)
+        # rftmw_native handles its own cleanup; no action needed
+        pass
+    
+    def _get_engine(self, size: int):
+        """Get or create an engine for the given size."""
+        if size not in self._engines:
+            self._engines[size] = self._rftmw.RFTKernelEngine(size)
+        return self._engines[size]
+    
+    def forward(self, input_data: np.ndarray) -> np.ndarray:
+        """Forward RFT transform (convenience wrapper)."""
+        # Use rftmw_native.RFTKernelEngine if available (true CASM→C++ path)
+        if self._rftmw is not None:
+            try:
+                size = len(input_data)
+                engine = self._get_engine(size)
+                # Engine expects real input
+                real_input = np.real(input_data).astype(np.float64)
+                result = engine.forward(real_input)
+                return result
+            except Exception as e:
+                print(f"rftmw_native.RFTKernelEngine.forward failed: {e}, falling back")
+        
+        # Fallback: phi-modulated FFT
+        import math
+        phi = (1 + math.sqrt(5)) / 2
+        fft_result = np.fft.fft(input_data.astype(np.complex128))
+        phases = np.exp(1j * phi * np.arange(len(input_data)))
+        result = fft_result * phases / np.sqrt(len(input_data))
+        return result
+    
+    def inverse(self, input_data: np.ndarray) -> np.ndarray:
+        """Inverse RFT transform (convenience wrapper)."""
+        # Use rftmw_native.RFTKernelEngine if available (true CASM→C++ path)
+        if self._rftmw is not None:
+            try:
+                size = len(input_data)
+                engine = self._get_engine(size)
+                result = engine.inverse(input_data.astype(np.complex128))
+                return result
+            except Exception as e:
+                print(f"rftmw_native.RFTKernelEngine.inverse failed: {e}, falling back")
+        
+        # Fallback: phi-modulated IFFT
+        import math
+        phi = (1 + math.sqrt(5)) / 2
+        phases = np.exp(-1j * phi * np.arange(len(input_data)))
+        phased_data = input_data.astype(np.complex128) * phases
+        result = np.fft.ifft(phased_data) * np.sqrt(len(input_data))
+        return result
     
     def forward_optimized(self, input_data: np.ndarray) -> np.ndarray:
         """Perform optimized forward RFT transform.
@@ -162,22 +218,22 @@ class OptimizedRFT:
         if len(input_data) != self.size:
             raise ValueError(f"Input size must be {self.size}")
         
-        if self._is_mock:
-            # Mock implementation - use FFT with optimizations
-            import math
-            phi = (1 + math.sqrt(5)) / 2  # Golden ratio
-            
-            # Apply FFT
-            fft_result = np.fft.fft(input_data.astype(np.complex128))
-            
-            # Apply golden ratio phase modulation
-            phases = np.exp(1j * phi * np.arange(self.size))
-            result = fft_result * phases
-            
-            # Normalize and convert to float32 precision
-            result = result / np.sqrt(self.size)
-            
-            return result.astype(np.complex64)
+        # Use rftmw_native if available (true CASM→C++ path)
+        if self._rftmw is not None:
+            try:
+                result = self._rftmw.forward(input_data.astype(np.complex128))
+                return result.astype(np.complex64)
+            except Exception as e:
+                print(f"rftmw_native.forward failed: {e}, falling back")
+        
+        # Fallback: phi-modulated FFT
+        import math
+        phi = (1 + math.sqrt(5)) / 2  # Golden ratio
+        fft_result = np.fft.fft(input_data.astype(np.complex128))
+        phases = np.exp(1j * phi * np.arange(len(input_data)))
+        result = fft_result * phases
+        result = result / np.sqrt(len(input_data))
+        return result.astype(np.complex64)
         
         # Convert numpy array to optimized C structure
         input_c = (OptimizedRFTComplex * self.size)()
@@ -212,22 +268,22 @@ class OptimizedRFT:
         if len(input_data) != self.size:
             raise ValueError(f"Input size must be {self.size}")
         
-        if self._is_mock:
-            # Mock implementation - inverse of forward transform
-            import math
-            phi = (1 + math.sqrt(5)) / 2  # Golden ratio
-            
-            # Remove golden ratio phase modulation
-            phases = np.exp(-1j * phi * np.arange(self.size))
-            phased_data = input_data.astype(np.complex128) * phases
-            
-            # Apply inverse FFT
-            result = np.fft.ifft(phased_data)
-            
-            # Normalize
-            result = result * np.sqrt(self.size)
-            
-            return result.astype(np.complex64)
+        # Use rftmw_native if available (true CASM→C++ path)
+        if self._rftmw is not None:
+            try:
+                result = self._rftmw.inverse(input_data.astype(np.complex128))
+                return result.astype(np.complex64)
+            except Exception as e:
+                print(f"rftmw_native.inverse failed: {e}, falling back")
+        
+        # Fallback: phi-modulated IFFT
+        import math
+        phi = (1 + math.sqrt(5)) / 2  # Golden ratio
+        phases = np.exp(-1j * phi * np.arange(len(input_data)))
+        phased_data = input_data.astype(np.complex128) * phases
+        result = np.fft.ifft(phased_data)
+        result = result * np.sqrt(len(input_data))
+        return result.astype(np.complex64)
         
         # Convert numpy array to optimized C structure
         input_c = (OptimizedRFTComplex * self.size)()

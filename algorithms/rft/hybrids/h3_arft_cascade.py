@@ -123,3 +123,36 @@ class H3ARFTCascade(H3HierarchicalCascade):
             psnr=psnr
         )
 
+    def decode(self, coefficients: np.ndarray, original_length: int) -> np.ndarray:
+        """
+        Decode signal from cascade coefficients.
+        
+        Args:
+            coefficients: Concatenated structure + texture coefficients
+            original_length: Original signal length
+            
+        Returns:
+            Reconstructed signal
+        """
+        N = original_length
+        
+        # Split coefficients
+        # Note: encode() concatenates [final_struct, final_texture]
+        # Both are length N
+        struct_coeffs = coefficients[:N]
+        texture_coeffs = coefficients[N:]
+        
+        # Inverse DCT for structure
+        rec_struct = idct(struct_coeffs, norm='ortho')
+        
+        # Inverse ARFT for texture
+        if self.last_kernel is None:
+            # Fallback if kernel not available (e.g. cross-session decode)
+            # In a real codec, the kernel (or its parameters) would be transmitted
+            # For this prototype, we assume stateful decoding
+            raise RuntimeError("ARFT kernel missing. Cannot decode without kernel state.")
+            
+        rec_texture = self.last_kernel @ texture_coeffs
+        
+        return rec_struct + rec_texture
+

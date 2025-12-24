@@ -75,7 +75,7 @@ def test_ecg(verbose: bool = False) -> List[TestResult]:
         print("⚠ wfdb not installed. Run: pip install wfdb")
         return results
     
-    from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+    from algorithms.rft.core.phi_phase_fft_optimized import rft_forward, rft_inverse
     
     for rec_id in ["100", "101"]:
         rec_path = mitbih_dir / rec_id
@@ -132,7 +132,7 @@ def test_eeg(verbose: bool = False) -> List[TestResult]:
         print("⚠ pyedflib not installed. Run: pip install pyedflib")
         return results
     
-    from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+    from algorithms.rft.core.phi_phase_fft_optimized import rft_forward, rft_inverse
     
     for edf_file in sleepedf_dir.glob("*-PSG.edf"):
         f = pyedflib.EdfReader(str(edf_file))
@@ -179,7 +179,7 @@ def test_genomics(verbose: bool = False) -> List[TestResult]:
     results = []
     genomics_dir = DATA / "genomics"
     
-    from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+    from algorithms.rft.core.phi_phase_fft_optimized import rft_forward, rft_inverse
     
     # Lambda phage
     fasta = genomics_dir / "lambda_phage.fasta"

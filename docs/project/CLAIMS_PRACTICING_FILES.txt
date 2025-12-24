@@ -87,3 +87,8 @@ benchmarks/rft_realworld_benchmark.py
 # --- Documentation ---
 docs/patent/USPTO_ALGORITHM_SPECIFICATIONS.md
 algorithms/rft/README_RFT.md
+
+# --- New Compression Tools (Claim 4) ---
+tools/compression/rft_lossless_model_compressor.py
+tools/compression/rft_sparse_compressor.py
+tools/compression/compress_tinyllama.py

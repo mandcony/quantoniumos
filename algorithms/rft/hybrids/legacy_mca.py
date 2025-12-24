@@ -43,7 +43,7 @@ from scipy.stats import kurtosis
 
 # Import canonical closed-form RFT
 try:
-    from algorithms.rft.core.phi_phase_fft import (
+    from algorithms.rft.core.phi_phase_fft_optimized import (
         rft_forward as canonical_rft_forward,
         rft_inverse as canonical_rft_inverse,
         PHI as CANONICAL_PHI,

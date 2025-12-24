@@ -13,9 +13,12 @@ These reports represent the verified, code-backed reality of the QuantoniumOS pl
 - **[Verified Benchmarks](scientific_domains/VERIFIED_BENCHMARKS.md)** - 📈 **Performance**. Official results for all 5 benchmark classes.
 
 ## 📘 User Manuals
-- **[Getting Started](../manuals/GETTING_STARTED.md)** - Installation and basic usage.
-- **[Reproducing Results](../manuals/REPRODUCING_RESULTS.md)** - How to run the benchmarks.
-- **[Quick Reference](../manuals/QUICK_REFERENCE.md)** - API cheat sheet.
+- **[Getting Started](guides/GETTING_STARTED.md)** - Installation and basic usage.
+- **[Reproducing Results](validation/REPRODUCING_RESULTS.md)** - How to run the benchmarks.
+- **[Quick Reference](manuals/QUICK_REFERENCE.md)** - API cheat sheet.
+
+## 💬 Local AI (Apps)
+- **[Local LLM / CLI Chat](guides/LOCAL_LLM_CHAT.md)** - Run local chat models from the terminal.
 
 ## 🏛 Project Governance
 - **[Patent Notice](../project/PATENT_NOTICE.md)** - IP and Licensing details.

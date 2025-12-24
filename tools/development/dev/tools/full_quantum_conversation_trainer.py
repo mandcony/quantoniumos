@@ -94,6 +94,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+try:
     from vertex_quantum_rft import EnhancedVertexQuantumRFT
     ENGINE3_AVAILABLE = True
     print("✅ ENGINE 3 (EnhancedVertexQuantumRFT) loaded")

@@ -5,7 +5,7 @@
 Tests that Ψ†F has high-entropy columns (not monomial/permutation-like)
 """
 import numpy as np
-from algorithms.rft.core.phi_phase_fft import rft_forward
+from algorithms.rft.core.phi_phase_fft_optimized import rft_forward
 
 def _psi_mat(n: int, beta: float, sigma: float) -> np.ndarray:
     # Build Ψ by applying rft_forward to canonical basis (cost O(n^2 log n) but small n in test)

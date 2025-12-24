@@ -77,7 +77,7 @@ try:
     
     if not has_cpp and not has_c:
         print('⚠ Native engines not built (using pure Python mode)')
-        print('  To build: see SETUP_GUIDE.md Step 4')
+        print('  To build: see docs/guides/SETUP_GUIDE.md (Native build section)')
 except ImportError:
     print('⚠ Native engines not built (using pure Python mode)')
     print('  This is OK! Pure Python mode works fine.')
@@ -98,7 +98,7 @@ if [ $? -eq 0 ]; then
     echo "=========================================="
     echo ""
     echo "Next steps:"
-    echo "  • Read SETUP_GUIDE.md for detailed architecture"
+    echo "  • Read docs/guides/SETUP_GUIDE.md for detailed setup"
     echo "  • Run benchmarks: python benchmarks/run_all_benchmarks.py"
     echo "  • Run tests: pytest tests/"
     echo "  • Explore experiments: ls experiments/"

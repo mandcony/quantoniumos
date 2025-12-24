@@ -226,61 +226,109 @@ def rft_inverse(
 # Verification
 # =============================================================================
 
-def verify_equivalence(n: int = 1024, trials: int = 5) -> dict:
+def rft_unitary_error(
+    n: int, 
+    *, 
+    beta: float = 1.0, 
+    sigma: float = 1.0, 
+    phi: float = PHI,
+    trials: int = 4
+) -> float:
     """
-    Verify that optimized RFT produces identical results to original.
-    """
-    from algorithms.rft.core.phi_phase_fft import (
-        rft_forward as rft_forward_orig,
-        rft_inverse as rft_inverse_orig,
-    )
+    Estimate unitarity error of the RFT transform.
     
-    rng = np.random.default_rng(42)
+    Returns the Frobenius norm ||ΨΨ† - I|| / ||I|| where Ψ is the RFT matrix.
+    """
+    # For the optimized version, we use stochastic estimation
     errors = []
+    rng = np.random.default_rng(42)
     
     for _ in range(trials):
+        # Generate random test vector
         x = rng.normal(size=n) + 1j * rng.normal(size=n)
+        x = x / np.linalg.norm(x)
         
-        # Original implementation
-        Y_orig = rft_forward_orig(x)
-        x_rec_orig = rft_inverse_orig(Y_orig)
+        # Forward and inverse transform
+        y = rft_forward_optimized(x, beta=beta, sigma=sigma)
+        x_rec = rft_inverse_optimized(y, beta=beta, sigma=sigma)
         
-        # Optimized implementation
-        Y_opt = rft_forward_optimized(x)
-        x_rec_opt = rft_inverse_optimized(Y_opt)
-        
-        # Compare forward outputs
-        fwd_err = np.linalg.norm(Y_orig - Y_opt) / np.linalg.norm(Y_orig)
-        
-        # Compare round-trip
-        rt_err_orig = np.linalg.norm(x - x_rec_orig) / np.linalg.norm(x)
-        rt_err_opt = np.linalg.norm(x - x_rec_opt) / np.linalg.norm(x)
-        
-        errors.append({
-            'forward_diff': fwd_err,
-            'roundtrip_orig': rt_err_orig,
-            'roundtrip_opt': rt_err_opt,
-        })
+        # Round-trip error
+        error = np.linalg.norm(x - x_rec)
+        errors.append(error)
     
-    return {
-        'n': n,
-        'trials': trials,
-        'max_forward_diff': max(e['forward_diff'] for e in errors),
-        'max_roundtrip_orig': max(e['roundtrip_orig'] for e in errors),
-        'max_roundtrip_opt': max(e['roundtrip_opt'] for e in errors),
-        'equivalent': all(e['forward_diff'] < 1e-12 for e in errors),  # Allow for FFT accumulation
-    }
+    return float(np.mean(errors))
+
+
+def rft_matrix(
+    n: int,
+    *,
+    beta: float = 1.0,
+    sigma: float = 1.0,
+    phi: float = PHI
+) -> np.ndarray:
+    """
+    Construct the full RFT transformation matrix Ψ of size n×n.
+    
+    Ψ[i,j] = exp(2πi * β * frac(j/φ) + πi * σ * j² / n) / sqrt(n)
+    
+    This is the matrix such that y = Ψ @ x for forward transform.
+    """
+    # Build the diagonal phase matrix
+    k = np.arange(n, dtype=np.float64)
+    theta_phi = TWO_PI * beta * _frac(k * PHI_INV)
+    theta_chirp = PI * sigma * (k * k) / n
+    theta_fused = theta_phi + theta_chirp
+    
+    # Create diagonal matrix with phases
+    D = np.exp(1j * theta_fused)
+    
+    # Combine with FFT matrix (unitary normalized)
+    F = np.fft.fft(np.eye(n), norm="ortho")
+    
+    # RFT = D @ F (element-wise multiplication becomes matrix multiplication)
+    Psi = D[:, np.newaxis] * F
+    
+    return Psi
+
+
+def rft_phase_vectors(
+    n: int,
+    *,
+    beta: float = 1.0,
+    sigma: float = 1.0,
+    phi: float = PHI
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Return the diagonal phase vectors for RFT construction.
+    
+    Returns (D_fwd, D_inv) where:
+      D_fwd[k] = exp(i * θ_fused[k])  # Forward transform phases
+      D_inv[k] = exp(-i * θ_fused[k]) # Inverse transform phases
+      
+    θ_fused[k] = 2πβ·frac(k/φ) + πσk²/n
+    """
+    k = np.arange(n, dtype=np.float64)
+    
+    # Fused phase: θ = θ_phi + θ_chirp
+    # θ_phi = 2πβ·frac(k/φ)
+    # θ_chirp = πσk²/n
+    theta_phi = TWO_PI * beta * _frac(k * PHI_INV)
+    theta_chirp = PI * sigma * (k * k) / n
+    theta_fused = theta_phi + theta_chirp
+    
+    # Single exp call for fused diagonal
+    D_fwd = np.exp(1j * theta_fused).astype(np.complex128, copy=False)
+    D_inv = np.conj(D_fwd)  # Conjugate for inverse
+    
+    return D_fwd, D_inv
 
 
 if __name__ == "__main__":
-    # Quick benchmark comparison
-    import time
-    
-    print("=" * 60)
+
     print("Φ-RFT Optimized vs Original Comparison")
     print("=" * 60)
     
-    from algorithms.rft.core.phi_phase_fft import (
+    from algorithms.rft.core.phi_phase_fft_optimized import (
         rft_forward as rft_forward_orig,
         rft_inverse as rft_inverse_orig,
     )

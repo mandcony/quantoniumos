@@ -63,7 +63,7 @@ from hybrid_mca_fixes import (
 )
 
 # Import transforms directly
-from algorithms.rft.core.phi_phase_fft import rft_forward, rft_inverse
+from algorithms.rft.core.phi_phase_fft_optimized import rft_forward, rft_inverse
 
 
 @dataclass

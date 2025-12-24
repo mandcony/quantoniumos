@@ -280,7 +280,8 @@ def run_experiment():
     all_transforms = sorted(set(list(confusion.keys()) + 
                                [t for c in confusion.values() for t in c.keys()]))
     
-    print(f"{'Oracle \\ Router':<15}", end='')
+    header_label = "Oracle / Router"
+    print(f"{header_label:<15}", end='')
     for t in all_transforms:
         print(f"{t[:8]:<10}", end='')
     print()

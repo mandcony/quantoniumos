@@ -1,3 +1,7 @@
+echo "======================================="
+echo "  QuantoniumOS Fast Start"
+echo "======================================="
+echo "Tip: For fully-offline AI chat, see docs/manuals/QUICK_START.md (Run AI Chat Fully Offline)"
 #!/usr/bin/env bash
 set -euo pipefail
 
