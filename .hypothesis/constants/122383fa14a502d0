@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/core/canonical_true_rft.py
-# hypothesis_version: 6.148.5
-
-[0.0, 1e-12, 1e-10, 1.0, 128, 1337, '=', '__main__', 'dft_distance', 'fro', 'max_roundtrip_error', 'paper_validation', 'roundtrip_acceptable', 'size', 'unitarity_error', 'unitarity_meets_spec']

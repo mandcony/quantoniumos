@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: AGPL-3.0-or-later
-# Copyright (C) 2025 Luis M. Minier / quantoniumos
 """Report how much disk space your local AI stack is using.
 
 This is meant to answer: "how much space do we save" when serving locally with

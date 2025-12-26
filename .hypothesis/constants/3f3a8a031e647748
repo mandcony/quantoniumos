@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/variants/__init__.py
-# hypothesis_version: 6.148.5
-
-['EntropicUnitary', 'GoldenRatioUnitary', 'PATENT_VARIANTS', 'PHI', 'SymbolicUnitary', 'VARIANTS', 'VariantInfo', 'generate_chaotic_mix', 'generate_dct_basis', 'generate_rft_winding', 'get_patent_variant', 'list_patent_variants']

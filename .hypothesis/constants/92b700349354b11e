@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/unified_transform_scheduler.py
-# hypothesis_version: 6.148.5
-
-[0.0, 1e-10, 1e-05, 0.01, 1.0, 5.0, 100, 128, 256, 512, 1000, 1024, 65536, ' SUMMARY', '1.0', '=', 'Engine is None', 'N/A', 'Quick Sanity Check:', '__main__', '__version__', 'backends', 'build', 'c_asm', 'cpp', 'fh5_entropy', 'h3_cascade', 'limited', 'original', 'production', 'python', 'reconstruction', 'rftmw_native', 'sizes', 'speedup', 'src', 'times_ms', 'unitarity', 'variants', '⚠️', '✅', '❌']

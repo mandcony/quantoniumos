@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/rft_status.py
-# hypothesis_version: 6.148.5
-
-['RFT_FLAG_UNITARY', 'RFT_KERNEL_VERSION', 'RFT_VARIANT_HARMONIC', 'RFT_VARIANT_STANDARD', '__version__', '_is_mock', '_name', 'adaptive', 'chaotic', 'error', 'fibonacci', 'geometric', 'get_status', 'harmonic', 'hybrid', 'is_mock', 'is_unitary_available', 'kernel_version', 'lib', 'library_path', 'refresh_status', 'standard', 'unitary', 'variant']

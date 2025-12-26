@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/kernels/python_bindings/quantum_symbolic_engine.py
-# hypothesis_version: 6.148.5
-
-[1.0, 1.618033988749895, 3887.0, 1000, 1024, 10000, 100000, 1000000, 10000000, '..', '=', 'C', 'C/Assembly', '__main__', 'amplitudes', 'backend', 'build', 'compiled', 'compression_ratio', 'compression_size', 'compression_time_ms', 'entanglement_time_ms', 'imag', 'initialized', 'librftkernel.dll', 'librftkernel.so', 'memory_mb', 'metadata', 'norm', 'normalization', 'num_qubits', 'phi', 'qubits_simulated', 'real', 'size', 'total_time_ms', 'use_assembly', 'use_simd']

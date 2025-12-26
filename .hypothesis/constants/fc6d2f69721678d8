@@ -1,4 +1,0 @@
-# file: /workspaces/quantoniumos/algorithms/rft/hybrids/hybrid_residual_predictor.py
-# hypothesis_version: 6.148.5
-
-[0.0, 0.001, 1.0, 2.0, 123, 4096, 'PredictorConfig', 'W', 'activation', 'architecture', 'ascii', 'band_ids must be 1D', 'bands', 'checksum_sha256', 'data', 'epochs', 'fourier_features', 'hidden_dim', 'input_dim', 'loss', 'nan', 'num_hidden_layers', 'relu', 'samples', 'shape', 'state', 'tanh', 'training', 'type', 'use_fourier_features', 'utf-8', 'version']

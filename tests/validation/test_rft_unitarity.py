@@ -1,6 +1,6 @@
 import numpy as np
 
-from algorithms.rft.transform_core.resonant_fourier_transform import (
+from algorithms.rft.core.resonant_fourier_transform import (
     rft_basis_matrix,
     rft_forward,
     rft_inverse,
