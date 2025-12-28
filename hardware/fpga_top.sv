@@ -9,6 +9,9 @@
 // This chip embodies the VERIFIED computational stack of QuantoniumOS.
 // Modes are prioritized based on the Dec 2025 Benchmark Audit.
 //
+// NOTE: RFTPU v2.1 Systolic Array (SystemVerilog) is in rtl/systolic_array_v21.sv
+//       This file is Verilog-2001 compatible for StepFPGA synthesis.
+//
 // 🟢 VERIFIED BREAKTHROUGHS (Primary Cores):
 //   Mode 14: Quantum Sim    - 505 Mq/s Symbolic Engine (Class A)
 //   Mode 6:  RFT-Cascade    - H3 Hybrid Compression (Class B Winner)
