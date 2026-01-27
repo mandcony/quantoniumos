@@ -33,7 +33,7 @@ jobs:
           severity: 'CRITICAL,HIGH,MEDIUM'
           
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
           
@@ -95,7 +95,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
           
       - name: Upload container scan results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'container-trivy.sarif'
           category: 'container-security'
