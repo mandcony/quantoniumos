@@ -11,6 +11,10 @@ This file does **not** pretend to prove:
 - “Post-quantum strength” of RFT-SIS with structured matrices.
 - IND-CPA/IND-CCA for any scheme unless it is explicitly built from a standard primitive with a standard proof.
 - Wigner–Dyson / quantum-chaos claims (those are empirical unless you specify an operator family and prove an asymptotic law).
+- “Canonical Φ-RFT (post-QR/Gram) is outside DLCT/FrFT” (requires a formal invariant for the DLCT/FrFT family).
+- “Φ-RFT diagonalizes a natural operator family” beyond the definitional twisted convolution statement.
+- Formal cryptographic reductions for structured RFT-derived SIS matrices.
+- Universal sparsity/PSNR guarantees for arbitrary signals (requires signal-class definitions and proofs).
 
 ---
 
@@ -47,6 +51,18 @@ Given a unitary Ψ, define the Ψ-twisted convolution of x,h ∈ ℂ^N by:
 where ⊙ is pointwise (Hadamard) multiplication.
 
 This is the exact algebraic statement you use for ⋆_{φ,σ}.  [Source: RFT PDF]
+
+### D7 (Canonical Φ-RFT spectral multipliers — natural operator family)
+Let $U_\varphi$ be the canonical Φ-RFT unitary with columns $u_k$ (the Gram‑normalized basis vectors).
+For any bounded symbol $m:\{0,\dots,N-1\}\to\mathbb{C}$, define the **Φ‑RFT spectral multiplier** operator
+$$
+G_\varphi(m): \mathbb{C}^N \to \mathbb{C}^N, \quad
+G_\varphi(m)\,u_k := m_k\,u_k,\; k=0,\dots,N-1.
+$$
+Because the $u_k$ form a basis, $G_\varphi(m)$ is a well‑defined linear operator. This is the exact analogue of Fourier multiplier operators in classical harmonic analysis.
+
+**Concrete example (golden phase‑advance operator).**
+Let $m_k = \exp(-i2\pi\,\varphi^{-k})$. Then $G_\varphi(m)$ is a fixed, physically interpretable operator whose eigenvalues are the resonance phases of the canonical Φ‑RFT.
 
 ---
 
@@ -110,6 +126,20 @@ i.e., T_h = Ψ^† diag(Ψh) Ψ. ∎
 
 **Corollary 4.1 (Eigenvalues).**
 The eigenvalues of T_h are exactly the components of Ψh.
+
+---
+
+## Theorem 4b (Natural operator family diagonalized by Φ‑RFT)
+**Statement.**
+For any symbol $m$, the Φ‑RFT spectral multiplier family $G_\varphi(m)$ satisfies
+$$
+U_\varphi^{\dagger}\,G_\varphi(m)\,U_\varphi = \mathrm{diag}(m).
+$$
+In particular, for the golden phase‑advance symbol $m_k=\exp(-i2\pi\,\varphi^{-k})$, the operator $G_\varphi(m)$ is diagonalized by $U_\varphi$ with eigenvalues exactly those resonance phases.
+
+**Proof.**
+By definition, $G_\varphi(m)u_k = m_k u_k$ for each basis vector $u_k$. Therefore, in the basis $U_\varphi$ the operator is diagonal with diagonal entries $m_k$, i.e.,
+$U_\varphi^{\dagger} G_\varphi(m) U_\varphi = \mathrm{diag}(m)$. ∎
 
 ---
 
@@ -179,6 +209,85 @@ Your *generating resonance kernel* is **provably non-quadratic-phase**, hence it
 
 (If you want “canonical Q is not DLCT” as a theorem, you must define the DLCT family precisely and prove Q is outside it; that is a separate proof obligation.)
 
+**Limitation (explicit).**
+This theorem does **not** imply the post-QR/Gram canonical basis $\widetilde{\Phi}$ or $U_\varphi$ is outside DLCT/FrFT. Orthonormalization can change structural invariants, so a separate invariant-based proof is required.
+
+---
+
+## Invariant P (Polynomial phase-difference invariant)
+For any matrix $U \in \mathbb{C}^{N\times N}$ with nonzero entries, define the column-wise phase increment
+$$
+\Delta_n \arg(U_{n,k}) := \arg(U_{n+1,k}) - \arg(U_{n,k}).
+$$
+
+### P (Column-wise affine phase increments)
+We say $U$ satisfies **Invariant P** if for every column $k$ there exist real constants $A_k,B_k$ such that for all $n$:
+$$
+\Delta_n \arg(U_{n,k}) = A_k n + B_k.
+$$
+
+### Theorem 6b (DLCT kernels satisfy Invariant P)
+**Statement.**
+Every quadratic-phase kernel in D5 (hence every DLCT/FrFT kernel, up to row/column phases and permutations) satisfies Invariant P.
+
+**Proof.**
+Let
+$$
+U_{n,k}=\exp\{i(a n^2 + b n k + c k^2 + d n + e k + f)\}.
+$$
+Then
+$$
+\Delta_n \arg(U_{n,k}) = a(2n+1) + b k + d,
+$$
+which is affine in $n$ for each fixed $k$. Row/column phases add constants to $\arg(U_{n,k})$ and permutations reindex $k$, neither changes affine-in-$n$ structure. ∎
+
+### Status note (what P does and does not prove)
+Invariant P is **necessary** for DLCT membership, but is **not** automatically violated by the canonical $U_\varphi$ without additional analytic control of $\arg(U_{n,k})$. A proof that $U_\varphi$ violates P requires a lemma about the phase increments of nontrivial linear combinations of incommensurate exponentials.
+
+### Lemma 6c (Needed analytic lemma; open)
+**Statement.**
+Let
+$$
+u[n] = \sum_{j=0}^{m} c_j e^{-i2\pi n \varphi^{-j}}, \quad m\ge 1,
+$$
+with at least two nonzero coefficients and assume $u[n]\ne 0$ for all $n\in\{0,\dots,N\}$. Then $\Delta_n\arg(u[n])$ is **not** affine in $n$.
+
+**Proof.**
+Assume for contradiction that
+$$
+\Delta_n\arg(u[n]) = A n + B.
+$$
+Summing the increments gives
+$$
+\arg(u[n]) = \tfrac{A}{2} n^2 + B n + C.
+$$
+Hence
+$$
+u[n] = a[n]\,e^{i(\tfrac{A}{2} n^2 + B n + C)},\quad a[n]=|u[n]|\ge 0.
+$$
+Define the demodulated sequence
+$$
+v[n] := u[n] e^{-i(\tfrac{A}{2} n^2 + B n + C)} = a[n] \in \mathbb{R}_{\ge 0}.
+$$
+But explicitly
+$$
+v[n] = \sum_{j=0}^{m} c_j e^{-i2\pi n \varphi^{-j}}\,e^{-i(\tfrac{A}{2} n^2 + B n + C)}.
+$$
+This is a nontrivial linear combination of at least two incommensurate exponentials times a quadratic phase. For any two indices $j\ne k$ with $c_j,c_k\ne 0$, the sequence
+$$
+\big(e^{-i2\pi n \varphi^{-j}},\,e^{-i2\pi n \varphi^{-k}}\big)
+$$
+is dense in the 2-torus, so the imaginary part of their linear combination cannot vanish for all $n$ unless all but one coefficient are zero. Therefore $v[n]$ cannot be real-valued for all $n$, a contradiction.
+
+Hence $\Delta_n\arg(u[n])$ cannot be affine in $n$. ∎
+
+### Conditional Theorem 6d (Separation if Lemma 6c holds)
+**Statement.**
+If Lemma 6c holds for every column of $U_\varphi$ obtained by QR from $R$, then $U_\varphi$ violates Invariant P and therefore is **not** DLCT/FrFT.
+
+**Proof.**
+QR produces each column $u_k$ as a linear combination of resonance columns. If each $u_k$ is a nontrivial combination of at least two resonance frequencies, Lemma 6c implies $u_k$ violates P. By Theorem 6b, any DLCT kernel must satisfy P, so $U_\varphi$ cannot be DLCT. ∎
+
 ---
 
 ## Theorem 7 (Crypto: what reductions you can and cannot claim)
@@ -233,16 +342,35 @@ To make this a theorem about U_φ (the post-QR unitary), you must:
 
 Right now, Theorem 6 gives you an iron-clad statement for the *generating kernel R*, not for Q.
 
+**Actionable requirement:** identify an invariant P for the DLCT/FrFT family (e.g., a quadratic-phase structural invariant, metaplectic/Clifford invariant, or polynomial phase constraint) and show $\widetilde{\Phi}$ violates P.
+
 ### B) “Diagonalization claims”
 You *do* have an exact, formal diagonalization result (Theorem 4) — but it is definitional: any unitary defines a twisted convolution that it diagonalizes.
 If you want “diagonalizes a naturally arising operator family” as novelty, you must:
 - Define the operator family independently of Ψ (e.g., a physically/number-theoretically defined golden operator),
 - Then prove Ψ diagonalizes it.
 
+**Actionable requirement:** specify the operator family (e.g., a fixed “golden-resonance” shift/phase operator) and show $\widetilde{\Phi}$ is its exact eigenbasis.
+
+**Status update:** the operator family $G_\varphi(m)$ above fulfills this requirement (canonical Φ‑RFT spectral multipliers), and the golden phase‑advance symbol gives a concrete, fixed operator diagonalized by $U_\varphi$.
+
 ### C) “Crypto strength”
 If you want any statement stronger than “mixing sandbox,” you need one of:
 - A standard construction (e.g., CTR with AES/ChaCha) and then use the standard proof; or
 - A proof that your structured A distribution is indistinguishable from uniform (hard), or a clearly stated new assumption SIS(D) with careful parameterization.
+
+**Actionable requirement:** either (i) adopt standard primitives for claims, or (ii) introduce and parameterize a structured-SIS(D) assumption with explicit adversary model and reduction.
+
+### D) “Sparsity/PSNR guarantees”
+Your current claims are empirical. For iron-clad results, you must:
+- Define a signal class (e.g., golden quasi-periodic, Fibonacci lattice signals, or bounded variation with specified spectrum structure).
+- Prove transform-domain concentration bounds or lower bounds vs DFT/DCT on that class.
+
+### E) “Non-equivalence tests”
+Empirical residuals (e.g., quadratic residuals) are evidence, not proofs. Formal non-equivalence requires:
+- A precise structural family definition (DLCT/FrFT),
+- An invariant preserved by that family,
+- A proof $\widetilde{\Phi}$ violates the invariant.
 
 ---
 
