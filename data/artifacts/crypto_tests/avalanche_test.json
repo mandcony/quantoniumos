@@ -1,0 +1,13 @@
+{
+  "num_trials": 1000,
+  "seed": 42,
+  "total_output_bits": 128,
+  "mean_bits_changed": 63.966,
+  "std_bits_changed": 5.629995026640787,
+  "min_bits_changed": 49,
+  "max_bits_changed": 82,
+  "expected_for_ideal": 64.0,
+  "percentage_of_ideal": 99.946875,
+  "assessment": "FAIL",
+  "note": "Ideal avalanche = 50% bits change = 64 bits for 128-bit output"
+}

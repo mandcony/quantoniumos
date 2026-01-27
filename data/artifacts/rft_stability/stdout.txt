@@ -1,0 +1,33 @@
+Generating RFT stability artifacts to data/artifacts/rft_stability/
+Commit: 3bbe550d94f8f86dc66a9ec9e5ea34605bb6f952
+Seed: 42
+API: resonant_fourier_transform:rft_forward
+Inverse available: YES
+Generating RFT stability artifacts to data/artifacts/rft_stability/
+Commit: 3bbe550d94f8f86dc66a9ec9e5ea34605bb6f952
+Seed: 42
+API: resonant_fourier_transform:rft_forward
+Inverse available: YES
+N=64 has_inverse=True energy_ratio_mean=32.2369 rel_l2_err_mean=1.45609
+N=128 has_inverse=True energy_ratio_mean=45.2571 rel_l2_err_mean=1.42906
+N=256 has_inverse=True energy_ratio_mean=63.9122 rel_l2_err_mean=1.46121
+N=512 has_inverse=True energy_ratio_mean=90.7937 rel_l2_err_mean=1.4645
+N=1024 has_inverse=True energy_ratio_mean=127.836 rel_l2_err_mean=1.42623
+✓ Artifacts written:
+  - data/artifacts/rft_stability/manifest.json
+  - data/artifacts/rft_stability/results.json
+  - data/artifacts/rft_stability/stdout.txt
+Generating RFT stability artifacts to data/artifacts/rft_stability/
+Commit: 3bbe550d94f8f86dc66a9ec9e5ea34605bb6f952
+Seed: 42
+API: resonant_fourier_transform:rft_forward
+Inverse available: YES
+N=64 has_inverse=True energy_ratio_mean=1 rel_l2_err_mean=5.33608e-15
+N=128 has_inverse=True energy_ratio_mean=1 rel_l2_err_mean=6.95139e-15
+N=256 has_inverse=True energy_ratio_mean=1 rel_l2_err_mean=9.93999e-15
+N=512 has_inverse=True energy_ratio_mean=1 rel_l2_err_mean=2.0416e-14
+N=1024 has_inverse=True energy_ratio_mean=1 rel_l2_err_mean=2.59505e-14
+✓ Artifacts written:
+  - data/artifacts/rft_stability/manifest.json
+  - data/artifacts/rft_stability/results.json
+  - data/artifacts/rft_stability/stdout.txt

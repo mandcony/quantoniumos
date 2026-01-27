@@ -1,0 +1,115 @@
+{
+  "commit_sha": "3bbe550d94f8f86dc66a9ec9e5ea34605bb6f952",
+  "timestamp_utc": "2026-01-27T04:29:55Z",
+  "command": "/home/codespace/.python/current/bin/python scripts/archive_rft_stability.py --output data/artifacts/rft_stability --seed 42",
+  "seed": 42,
+  "api": "resonant_fourier_transform:rft_forward",
+  "env": {
+    "os": "Linux-6.8.0-1030-azure-x86_64-with-glibc2.39",
+    "python": "3.12.1",
+    "numpy": "1.26.4"
+  },
+  "dataset": {
+    "type": "synthetic_complex_vectors",
+    "trials_per_size": 10,
+    "sizes": [
+      64,
+      128,
+      256,
+      512,
+      1024
+    ]
+  },
+  "by_size": {
+    "64": {
+      "N": 64,
+      "trials": 10,
+      "energy_ratio_y_over_x": {
+        "mean": 1.0,
+        "std": 3.631634378508358e-16
+      },
+      "has_inverse": true,
+      "rel_l2_recon_error": {
+        "mean": 5.336080043086561e-15,
+        "std": 6.867257744061789e-16,
+        "max": 6.462506281384635e-15
+      },
+      "max_abs_recon_error": {
+        "mean": 1.7767287436248798e-14,
+        "max": 2.855863957433928e-14
+      }
+    },
+    "128": {
+      "N": 128,
+      "trials": 10,
+      "energy_ratio_y_over_x": {
+        "mean": 1.0,
+        "std": 2.0471501066083614e-16
+      },
+      "has_inverse": true,
+      "rel_l2_recon_error": {
+        "mean": 6.951394950765131e-15,
+        "std": 8.188192476524741e-16,
+        "max": 8.723362774075524e-15
+      },
+      "max_abs_recon_error": {
+        "mean": 2.5871899269384965e-14,
+        "max": 3.164271960422759e-14
+      }
+    },
+    "256": {
+      "N": 256,
+      "trials": 10,
+      "energy_ratio_y_over_x": {
+        "mean": 0.9999999999999998,
+        "std": 3.614624287906422e-16
+      },
+      "has_inverse": true,
+      "rel_l2_recon_error": {
+        "mean": 9.9399908883841e-15,
+        "std": 1.4493516208944971e-15,
+        "max": 1.3189775168143892e-14
+      },
+      "max_abs_recon_error": {
+        "mean": 5.6753431156860926e-14,
+        "max": 7.925112646224399e-14
+      }
+    },
+    "512": {
+      "N": 512,
+      "trials": 10,
+      "energy_ratio_y_over_x": {
+        "mean": 0.9999999999999994,
+        "std": 4.890025172686939e-16
+      },
+      "has_inverse": true,
+      "rel_l2_recon_error": {
+        "mean": 2.0415964634304194e-14,
+        "std": 4.1289015179501475e-15,
+        "max": 2.5378658897236696e-14
+      },
+      "max_abs_recon_error": {
+        "mean": 8.622855297340936e-14,
+        "max": 1.1090789053846218e-13
+      }
+    },
+    "1024": {
+      "N": 1024,
+      "trials": 10,
+      "energy_ratio_y_over_x": {
+        "mean": 1.0000000000000002,
+        "std": 5.219229170424792e-16
+      },
+      "has_inverse": true,
+      "rel_l2_recon_error": {
+        "mean": 2.5950541595562925e-14,
+        "std": 7.403889540476553e-15,
+        "max": 3.973722138249962e-14
+      },
+      "max_abs_recon_error": {
+        "mean": 2.9911427543438864e-13,
+        "max": 5.373234708573601e-13
+      }
+    }
+  }
+}

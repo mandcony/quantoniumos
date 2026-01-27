@@ -1,0 +1,44 @@
+[
+  {
+    "name": "All-zero",
+    "key_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+    "plaintext_hex": "00000000000000000000000000000000",
+    "ciphertext_hex": "efe8ee3bd757a1ce2665b8f6e5ff7296",
+    "decrypt_matches": true
+  },
+  {
+    "name": "All-one key",
+    "key_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "plaintext_hex": "00000000000000000000000000000000",
+    "ciphertext_hex": "8236e631d5ec6ba292f2957b84a16a5d",
+    "decrypt_matches": true
+  },
+  {
+    "name": "All-one plaintext",
+    "key_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+    "plaintext_hex": "ffffffffffffffffffffffffffffffff",
+    "ciphertext_hex": "d582da3e35d0cf35ac9a23fbfafc5d82",
+    "decrypt_matches": true
+  },
+  {
+    "name": "Counter pattern key",
+    "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "plaintext_hex": "00000000000000000000000000000000",
+    "ciphertext_hex": "22c1f84f0a0281ec63f989a2899da044",
+    "decrypt_matches": true
+  },
+  {
+    "name": "Counter pattern plaintext",
+    "key_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+    "plaintext_hex": "000102030405060708090a0b0c0d0e0f",
+    "ciphertext_hex": "b34f3148faee751291ed31b6f9023c61",
+    "decrypt_matches": true
+  },
+  {
+    "name": "Alternating bits",
+    "key_hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "plaintext_hex": "55555555555555555555555555555555",
+    "ciphertext_hex": "699a43eb4c1471f4ccded9cfd7fcd65b",
+    "decrypt_matches": true
+  }
+]

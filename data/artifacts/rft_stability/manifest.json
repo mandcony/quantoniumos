@@ -1,0 +1,28 @@
+{
+  "timestamp_utc": "2026-01-27T04:29:55Z",
+  "commit_sha": "3bbe550d94f8f86dc66a9ec9e5ea34605bb6f952",
+  "command": "/home/codespace/.python/current/bin/python scripts/archive_rft_stability.py --output data/artifacts/rft_stability --seed 42",
+  "seed": 42,
+  "env": {
+    "os": "Linux-6.8.0-1030-azure-x86_64-with-glibc2.39",
+    "python": "3.12.1",
+    "numpy": "1.26.4"
+  },
+  "dataset": {
+    "type": "synthetic_complex_vectors",
+    "trials_per_size": 10,
+    "sizes": [
+      64,
+      128,
+      256,
+      512,
+      1024
+    ]
+  },
+  "api": "resonant_fourier_transform:rft_forward",
+  "outputs": [
+    "manifest.json",
+    "results.json",
+    "stdout.txt"
+  ]
+}

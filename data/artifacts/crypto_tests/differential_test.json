@@ -1,0 +1,9 @@
+{
+  "num_trials": 1000,
+  "seed": 42,
+  "input_difference_hex": "01000000000000000000000000000000",
+  "unique_output_differences": 1000,
+  "uniqueness_ratio": 1.0,
+  "assessment": "PASS (diverse)",
+  "note": "This is a sanity check, NOT a security proof"
+}

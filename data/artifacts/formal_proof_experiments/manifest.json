@@ -1,0 +1,48 @@
+{
+  "commit_sha": "3bbe550d94f8",
+  "command": "python experiments/formal_proof_experiments.py",
+  "seed": 42,
+  "timestamp": "2026-01-27T05:02:46.429477+00:00",
+  "python_version": "3.12.1 (main, Nov 27 2025, 10:47:52) [GCC 13.3.0]",
+  "numpy_version": "1.26.4",
+  "model_params": {
+    "decorrelation": {
+      "sizes": [
+        64,
+        128,
+        256,
+        512
+      ],
+      "rhos": [
+        0.9,
+        0.95,
+        0.99
+      ],
+      "trials": 50
+    },
+    "sanity_checks": {
+      "num_queries": 1000
+    },
+    "rate_distortion": {
+      "sizes": [
+        256,
+        512,
+        1024
+      ],
+      "quantization_bits": [
+        2,
+        4,
+        6,
+        8
+      ]
+    },
+    "factorization": {
+      "sizes": [
+        16,
+        32,
+        64,
+        128
+      ]
+    }
+  }
+}

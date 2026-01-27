@@ -272,7 +272,30 @@ def run_class_c():
     """Run Class C benchmark"""
     try:
         from class_c_compression import run_class_c_benchmark
-        return run_class_c_benchmark()
+        result = run_class_c_benchmark()
+
+        # Add H3-ARFT Benchmark
+        print("\n" + "━"*75)
+        print("  RUNNING H3-ARFT BENCHMARK")
+        print("━"*75)
+        try:
+            from benchmark_h3_arft import benchmark_h3_vs_arft
+            benchmark_h3_vs_arft()
+        except Exception as e:
+            print(f"  ARFT Benchmark Error: {e}")
+
+        # Add Shannon Gap Tests
+        print("\n" + "━"*75)
+        print("  RUNNING SHANNON ENTROPY GAP ANALYSIS")
+        print("━"*75)
+        try:
+            script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../scripts/run_shannon_tests.py'))
+            cmd = [sys.executable, script_path, "--suites", "entropy_gap"]
+            subprocess.run(cmd, check=False)
+        except Exception as e:
+            print(f"  Shannon Gap Error: {e}")
+
+        return result
     except Exception as e:
         print(f"  Error: {e}")
         return None

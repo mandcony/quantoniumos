@@ -1,0 +1,12 @@
+{
+  "commit_sha": "3bbe550d94f8",
+  "timestamp": "2026-01-27T04:26:49.285022+00:00",
+  "seed": 42,
+  "command": "scripts/archive_crypto_tests.py --output data/artifacts/crypto_tests --seed 42",
+  "cipher": "EnhancedRFTCryptoV2 (ACTUAL implementation)",
+  "implementation_path": "algorithms/rft/crypto/enhanced_cipher.py",
+  "block_size_bits": 128,
+  "key_size_bits": 256,
+  "num_rounds": 48,
+  "warning": "These are sanity checks, NOT security validation"
+}

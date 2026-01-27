@@ -1,0 +1,33 @@
+{
+  "commit_sha": "3bbe550d94f8",
+  "timestamp": "2026-01-27T04:08:18.112745+00:00",
+  "seed": 42,
+  "command": "scripts/archive_codec_rd_curves.py --output data/artifacts/codec_benchmark",
+  "test_images": [
+    {
+      "seed": 42,
+      "shape": [
+        256,
+        256
+      ],
+      "sha256_prefix": "2adce71e0fb2b37f"
+    },
+    {
+      "seed": 43,
+      "shape": [
+        256,
+        256
+      ],
+      "sha256_prefix": "61da00ecd9f42249"
+    },
+    {
+      "seed": 44,
+      "shape": [
+        256,
+        256
+      ],
+      "sha256_prefix": "9f97a9ff2da75d7a"
+    }
+  ],
+  "note": "Synthetic test images. For publication, use Kodak/Tecnick datasets."
+}

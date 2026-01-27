@@ -1,0 +1,41 @@
+{
+  "commit_sha": "3bbe550d94f8",
+  "timestamp": "2026-01-27T06:10:31.893440+00:00",
+  "seed": 42,
+  "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "megabits": 1,
+  "blocks": 7812,
+  "cipher": "EnhancedRFTCryptoV2",
+  "files": {
+    "ctr_stream.bin": {
+      "mode": "CTR",
+      "bytes": 124992,
+      "stats": {
+        "total_bits": 999936,
+        "ones": 499732,
+        "zeros": 500204,
+        "proportion_ones": 0.49976398489503326,
+        "deviation_from_half": 0.00023601510496673583,
+        "frequency_assessment": "LIKELY PASS",
+        "runs": 499554,
+        "expected_runs": 499968.88860087044,
+        "runs_ratio": 0.9991701711639869
+      }
+    },
+    "random_encryption.bin": {
+      "mode": "random plaintext encryption",
+      "bytes": 124992,
+      "stats": {
+        "total_bits": 999936,
+        "ones": 499263,
+        "zeros": 500673,
+        "proportion_ones": 0.4992949548771121,
+        "deviation_from_half": 0.0007050451228878818,
+        "frequency_assessment": "LIKELY PASS",
+        "runs": 499841,
+        "expected_runs": 499968.0058863767,
+        "runs_ratio": 0.9997459719724434
+      }
+    }
+  }
+}
