@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
 # Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Resonant Fourier Transform (RFT)

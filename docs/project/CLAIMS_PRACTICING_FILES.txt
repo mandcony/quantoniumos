@@ -25,17 +25,16 @@ algorithms/rft/core/__init__.py
 
 # --- Core closed-form RFT & kernels (Claim 1) ---
 algorithms/rft/core/canonical_true_rft.py
-algorithms/rft/core/closed_form_rft.py
-algorithms/rft/core/phi_phase_fft.py
-algorithms/rft/core/rft_optimized.py
-algorithms/rft/core/quantum_kernel_implementation.py
-algorithms/rft/core/topological_quantum_kernel.py
-algorithms/rft/core/enhanced_topological_qubit.py
-algorithms/rft/core/quantum_gates.py
+algorithms/rft/core/phi_phase_fft_optimized.py
+algorithms/rft/core/rft_phi_legacy.py
+algorithms/rft/quantum/quantum_kernel_implementation.py
+algorithms/rft/quantum/topological_quantum_kernel.py
+algorithms/rft/quantum/enhanced_topological_qubit.py
+algorithms/rft/quantum/quantum_gates.py
 
 # --- Geometric Hashing (Claim 3) ---
-algorithms/rft/core/geometric_waveform_hash.py
-algorithms/rft/core/geometric_hashing.py
+algorithms/rft/quantum/geometric_waveform_hash.py
+algorithms/rft/quantum/geometric_hashing.py
 
 # --- Native C++/SIMD RFT implementations (Claim 1) ---
 src/rftmw_native/rftmw_core.hpp

@@ -53,6 +53,8 @@ wherein symbolic amplitude and phase-state transformations propagate coherently 
 
 ---
 
+<!-- SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC -->
+
 ## 🎯 **CANONICAL RFT DEFINITION**
 
 ### **The Resonant Fourier Transform**

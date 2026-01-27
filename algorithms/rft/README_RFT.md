@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC -->
+
 # Resonant Fourier Transform (RFT) - Canonical Definition
 
 **USPTO Patent 19/169,399: "Hybrid Computational Framework for Quantum and Resonance Simulation"**
