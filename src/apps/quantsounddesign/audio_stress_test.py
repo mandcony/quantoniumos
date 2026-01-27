@@ -27,6 +27,7 @@ import sys
 import time
 import argparse
 import numpy as np
+import warnings
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -90,6 +91,13 @@ class SyntheticDSP:
         # Oscillator state
         self.phases = np.random.random(num_oscillators) * 2 * np.pi
         self.frequencies = 220 * (PHI ** np.arange(num_oscillators))  # Phi-based harmonics
+        nyquist = sample_rate / 2
+        if np.any(self.frequencies >= nyquist):
+            warnings.warn(
+                "Nyquist guard: clamping stress-test oscillator frequencies to avoid aliasing.",
+                RuntimeWarning,
+            )
+            self.frequencies = np.minimum(self.frequencies, nyquist * 0.98)
         
         # Filter state (simple IIR)
         self.filter_state = np.zeros(2)

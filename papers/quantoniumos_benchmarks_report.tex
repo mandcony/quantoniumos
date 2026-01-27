@@ -51,7 +51,7 @@
 \maketitle
 
 \begin{abstract}
-This technical report presents comprehensive benchmark results for QuantoniumOS, a physics-inspired computational framework implementing the Recursive Fibonacci Transform (\ensuremath{\Phi}-RFT) with golden-ratio ($\phi = 1.618\ldots$) phase mixing. We evaluate QuantoniumOS across five benchmark classes (A-E) against industry-standard tools: quantum simulation (Qiskit, Cirq), transform/DSP (FFT ecosystem), compression (gzip, LZMA), cryptography (SHA-256, NIST PQ standards), and audio processing (DAW tools). Results show QuantoniumOS achieves O(n) symbolic quantum compression up to 10 million qubits (different computational model than classical simulators), $\phi$-spectral decorrelation for transform-based applications (1.3-3.9× slower than FFT), and experimental post-quantum lattice construction (no security proofs). Compression results show 2-3× ratios, dramatically underperforming industrial codecs (100-600×). Complete architecture verification confirms the ASM → C → C++ → Python stack with variant routing across 13 transform variants. All benchmarks conducted on Ubuntu 24.04 LTS with AVX2+FMA SIMD acceleration. \textit{This is research software; production systems should use established standards.}
+This technical report presents comprehensive benchmark results for QuantoniumOS, a physics-inspired computational framework implementing the Recursive Fibonacci Transform (\ensuremath{\Phi}-RFT) with golden-ratio ($\phi = 1.618\ldots$) phase mixing. We evaluate QuantoniumOS across five benchmark classes (A-E) against industry-standard tools: quantum simulation (Qiskit, Cirq), transform/DSP (FFT ecosystem), compression (gzip, LZMA), cryptography (SHA-256, NIST PQ standards), and audio processing (DAW tools). Results show QuantoniumOS achieves O(n) symbolic surrogate compression of qubit labels (different computational model than classical simulators), $\phi$-spectral decorrelation for transform-based applications (1.3-3.9× slower than FFT), and experimental post-quantum lattice construction (no security proofs). Compression results show 2-3× ratios, dramatically underperforming industrial codecs (100-600×). Complete architecture verification confirms the ASM → C → C++ → Python stack with variant routing across 13 transform variants. All benchmarks conducted on Ubuntu 24.04 LTS with AVX2+FMA SIMD acceleration. \textit{This is research software; production systems should use established standards.}
 \end{abstract}
 
 \tableofcontents
@@ -121,7 +121,7 @@ Evaluate quantum state compression scalability versus classical full-amplitude s
 \label{tab:quantum}
 \begin{tabular}{@{}rrrrr@{}}
 \toprule
-\textbf{Qubits} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Entropy} & \textbf{Memory} \\ 
+\textbf{Symbolic Qubit Labels} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Entropy} & \textbf{Memory} \\ 
 \midrule
 10 & 0.55 & 0.0 & 0.001389 & \textasciitilde 64 complex \\
 100 & 0.01 & 7.4 & 0.008813 & \textasciitilde 64 complex \\
@@ -137,8 +137,8 @@ Evaluate quantum state compression scalability versus classical full-amplitude s
 \subsection{Key Findings}
 
 \begin{itemize}
-    \item \textbf{Scalability}: QuantoniumOS achieves 10 million qubit compression where classical simulators require $2^{10,000,000}$ amplitudes (physically impossible)
-    \item \textbf{Throughput}: Sustained 19-23 Mq/s (million qubits per second)
+    \item \textbf{Scalability}: QuantoniumOS achieves 10 million symbolic-label compression where classical simulators require $2^{n}$ amplitudes for full-state simulation
+    \item \textbf{Throughput}: Sustained 19-23 Mq/s (million symbolic labels per second)
     \item \textbf{Memory}: Constant 64 complex numbers regardless of qubit count
     \item \textbf{Entropy}: $\sim$0.01 bits/amplitude (highly structured symbolic representation)
     \item \textbf{Complexity}: O(n) vs O($2^n$) for classical simulators
@@ -259,7 +259,7 @@ RFTMW exploits entropy gap = $8 - H(\text{data})$ bits/byte:
 \section{Benchmark Class D: Cryptography \& Post-Quantum}
 
 \subsection{Objective}
-Evaluate RFT-SIS lattice-based post-quantum hash and Feistel cipher against NIST standards.
+Evaluate RFT-SIS experimental lattice-style hash and Feistel cipher against NIST standards.
 
 \subsection{Results}
 
@@ -302,11 +302,11 @@ BLAKE2b & 50.2\% \\
     \item \textbf{Number of samples (m)}: 1024
     \item \textbf{Prime modulus (q)}: 3329 (NIST Kyber prime)
     \item \textbf{Short vector bound (\ensuremath{\beta})}: 100
-    \item \textbf{Security basis}: Short Integer Solution (SIS) problem
-    \item \textbf{Estimated security}: $\sim$128-bit equivalent (\textit{no formal security proofs, no peer-reviewed cryptanalysis})
+    \item \textbf{Security basis}: SIS-inspired lattice compression (no reduction)
+    \item \textbf{Estimated security}: Demo parameters only (\textit{no BKZ/SVP analysis})
 \end{itemize}
 
-\textbf{Security Disclaimer}: RFT-SIS parameters are inspired by NIST Kyber but have NOT undergone formal security reduction proofs or professional cryptanalysis. Security level estimates are extrapolations based on lattice dimensions. \textit{DO NOT use in production without expert cryptographic review.}
+\textbf{Security Disclaimer}: RFT-SIS parameters are inspired by NIST Kyber but have NOT undergone formal security reduction proofs, BKZ/SVP analysis, or professional cryptanalysis. \textit{DO NOT use in production without expert cryptographic review.}
 
 \subsection{Security Summary}
 
@@ -323,10 +323,10 @@ ChaCha20-Poly & 256-bit & 128-bit* & IETF standard \\
 SHA-256 & 256-bit & 128-bit* & NIST approved \\
 Kyber-512 & 128-bit & 128-bit & NIST PQ winner \\
 Dilithium-2 & 128-bit & 128-bit & NIST PQ winner \\
-\textbf{RFT-SIS+Feistel} & \textbf{$\sim$256-bit} & \textbf{$\sim$128-bit**} & \textbf{Research/Unproven} \\
+\textbf{RFT-SIS+Feistel} & \textbf{Demo} & \textbf{Demo**} & \textbf{Research/Unproven} \\
 \bottomrule
 \multicolumn{4}{l}{\small * Grover's algorithm halves symmetric key size} \\
-\multicolumn{4}{l}{\small ** Estimated only, no security proofs, no cryptanalysis performed}
+\multicolumn{4}{l}{\small ** Demo parameters only; no BKZ/SVP analysis, no security proofs}
 \end{tabular}
 \end{table}
 
@@ -340,7 +340,7 @@ Dilithium-2 & 128-bit & 128-bit & NIST PQ winner \\
     \item \textbf{AEAD Mode}: RFT-Feistel AEAD listed in codebase but NOT measured in this report
 \end{itemize}
 
-\textbf{Honest Framing}: Industry standards are NIST-approved and billion-device proven. RFT-SIS has NO formal security proofs, NO peer-reviewed cryptanalysis, and NO production readiness. The 128-bit security claim is an estimate based on parameter choice, not proven security. Production systems MUST use NIST-approved algorithms.
+\textbf{Honest Framing}: Industry standards are NIST-approved and billion-device proven. RFT-SIS has NO formal security proofs, NO peer-reviewed cryptanalysis, and NO production readiness. Security levels are demo-only without BKZ/SVP analysis. Production systems MUST use NIST-approved algorithms.
 
 \section{Benchmark Class E: Audio \& DAW}
 
@@ -578,7 +578,7 @@ Audio Analysis & HARMONIC (1) & Cubic chirp, natural harmonic structure \\
 \toprule
 \textbf{Class} & \textbf{Result} & \textbf{Key Finding} \\ 
 \midrule
-A (Quantum) & \textbf{10M qubits} & O(n) vs O($2^n$), 19.1 Mq/s sustained \\
+A (Quantum) & \textbf{10M symbolic labels} & O(n) vs O($2^n$) full-state, 19.1 Mq/s sustained \\
 B (Transform) & \textbf{1.3-3.9× slower} & $\phi$-decorrelation worth computational cost \\
 C (Compression) & \textbf{2-6× ratio} & Entropy gap exploitation on structured data \\
 D (Crypto) & \textbf{50\% avalanche} & Research-grade PQ lattice-based security \\
@@ -598,7 +598,7 @@ We do NOT claim to beat industry standards everywhere. We show where QuantoniumO
 This comprehensive benchmark suite demonstrates QuantoniumOS provides:
 
 \begin{enumerate}
-    \item \textbf{Quantum scalability}: O(n) symbolic compression reaching 10 million qubits
+    \item \textbf{Quantum scalability}: O(n) symbolic compression reaching 10 million labels (surrogate)
     \item \textbf{Golden-ratio transforms}: $\phi$-spectral mixing for decorrelation
     \item \textbf{Entropy exploitation}: Novel compression approach on structured data
     \item \textbf{Post-quantum security}: Lattice-based RFT-SIS with NIST Kyber parameters

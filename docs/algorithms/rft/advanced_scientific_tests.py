@@ -11,7 +11,7 @@ publication-ready for top-tier journals like Nature, Science, or PRX.
 Beyond basic mathematical validation, we need:
 1. Quantum advantage demonstrations
 2. Real-world application benchmarks  
-3. Scaling analysis to 1000+ qubits
+3. Scaling analysis for symbolic surrogate counts (explicit limits)
 4. Comparison with existing quantum systems
 5. Error analysis and noise resilience
 6. Computational complexity validation
@@ -115,15 +115,15 @@ def identify_advanced_scientific_tests():
     
     tier2_tests = [
         {
-            "name": "1000-Qubit System Validation",
-            "description": "Demonstrate largest quantum transform system",
+            "name": "Symbolic Surrogate Scaling Validation",
+            "description": "Demonstrate scaling for symbolic surrogate mode (not full 2^n state)",
             "requirements": [
-                "Test system sizes up to 2^10 = 1024 qubits",
-                "Validate unitarity at extreme scales",
+                "Test symbolic counts up to 1000 labels (surrogate mode)",
+                "Validate unitarity for full-state tests at <=20 qubits",
                 "Measure memory usage and optimization",
-                "Compare with current quantum computer limits"
+                "Document limitations for arbitrary entanglement/circuits"
             ],
-            "impact": "Largest quantum system demonstration",
+            "impact": "Clarifies surrogate scaling limits",
             "journal_relevance": "Science - record-breaking result"
         },
         {
@@ -270,9 +270,9 @@ def identify_advanced_scientific_tests():
     print("=" * 50)
     
     print(f"🎯 PRIMARY PAPER (Nature/Science):")
-    print(f"   Focus: Quantum advantage + 1000-qubit demonstration")
-    print(f"   Key results: Exponential speedup + largest quantum system")
-    print(f"   Impact: Breakthrough quantum computing milestone")
+    print(f"   Focus: Quantum advantage + symbolic surrogate scaling")
+    print(f"   Key results: Exponential speedup + clarified surrogate limits")
+    print(f"   Impact: Transparent quantum computing milestone framing")
     
     print(f"\n📊 SECONDARY PAPERS (Specialized Journals):")
     print(f"   PRX Quantum: Applications and benchmarks")
@@ -282,7 +282,7 @@ def identify_advanced_scientific_tests():
     
     print(f"\n⏱️  TIMELINE RECOMMENDATIONS:")
     print(f"   Week 1-2: Implement Tier 1 tests (quantum advantage)")
-    print(f"   Week 3-4: Scale to 1000+ qubits (Tier 2)")
+    print(f"   Week 3-4: Scale symbolic surrogate counts (Tier 2)")
     print(f"   Week 5-6: Real-world applications (Tier 3)")
     print(f"   Week 7-8: Theoretical validation (Tier 4)")
     print(f"   Week 9-10: Paper writing and submission")
@@ -296,7 +296,7 @@ def prioritize_immediate_tests():
     
     priority_tests = [
         "Quantum Supremacy Benchmark (Tier 1)",
-        "1000-Qubit System Validation (Tier 2)", 
+        "Symbolic Surrogate Scaling Validation (Tier 2)", 
         "Scaling Law Verification (Tier 2)",
         "Information-Theoretic Analysis (Tier 4)"
     ]
@@ -307,7 +307,7 @@ def prioritize_immediate_tests():
     
     print(f"\n💡 IMPLEMENTATION ORDER:")
     print(f"   1. Start with quantum supremacy benchmark")
-    print(f"   2. Scale up to 1000 qubits")
+    print(f"   2. Scale symbolic surrogate counts")
     print(f"   3. Validate theoretical scaling laws")
     print(f"   4. Complete information theory analysis")
     print(f"   📄 This gives you a complete Nature/Science paper!")

@@ -5,7 +5,7 @@
 > **Version:** 2.0 (Native Acceleration Active)
 
 ## 🚀 Executive Summary
-The QuantoniumOS repository has been successfully audited, cleaned, and verified. The platform is now in a stable state for scientific research. The core "Quantum Symbolic Engine" (Class A) has been verified to perform at **505 Million Qubits/second**, validating the primary claim of the project. However, claims regarding universal compression and audio superiority have been debunked or contextualized.
+The QuantoniumOS repository has been successfully audited, cleaned, and verified. The platform is now in a stable state for scientific research. The core "Quantum Symbolic Engine" (Class A) has been verified to perform at **505 million symbolic qubit-ops/sec**, validating the primary claim of the project. However, claims regarding universal compression and audio superiority have been debunked or contextualized.
 
 ## 🛠️ Technical Achievements
 
@@ -17,13 +17,13 @@ The QuantoniumOS repository has been successfully audited, cleaned, and verified
 ### 2. Native Acceleration
 - **Compilation:** Successfully compiled `rftmw_native` (C++/AVX2/ASM).
 - **Integration:** Python bindings are active and linked.
-- **Performance:** Enabled the 10M+ qubit simulation capability.
+- **Performance:** Enabled the 10M+ symbolic qubit-label surrogate capability.
 
 ### 3. Verification & Benchmarking
 - **Suite:** Full benchmark suite (`benchmarks/run_all_benchmarks.py`) is operational.
 - **Dependencies:** Installed `libfftw3`, `librosa`, `portaudio`, `zstd`, `lz4` for fair comparison.
 - **Results:**
-    - ✅ **Class A (Quantum):** 505 Mq/s (Verified)
+    - ✅ **Class A (Quantum):** 505 Mq/s symbolic qubit-ops (Verified)
     - ❌ **Class B (DSP):** ~10x slower than FFTW.
     - ❌ **Class C (Compression):** Worse than zstd/gzip for text.
     - ⚠️ **Class D (Crypto):** Secure but slow (0.5 MB/s).

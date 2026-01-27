@@ -12,8 +12,8 @@ The native C++ and Assembly extensions have been successfully built and integrat
 ## Performance Impact
 - **Quantum Simulation (Class A):**
   - **Before:** "Uncompiled" / Error
-  - **After:** **505 Million Qubits/sec** (Symbolic Rate)
-  - **Scaling:** Confirmed $O(N)$ scaling up to 10,000,000 qubits.
+  - **After:** **505 million symbolic qubit-ops/sec** (Symbolic Rate)
+  - **Scaling:** Confirmed $O(N)$ scaling up to 10,000,000 symbolic labels.
 
 ## Test Status
 - **Benchmarks:** `run_all_benchmarks.py` ✅ PASSED

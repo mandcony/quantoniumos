@@ -255,7 +255,7 @@ R_optimal = argmin_R Σ(i=1 to 4) λᵢ × Cost_i(R) + α × Coherence_penalty(R
 ## 📈 **COMMERCIAL SIGNIFICANCE**
 
 ### **Market Applications**
-- **Quantum Computing**: 1000+ qubit simulation on classical hardware
+- **Quantum Computing**: 1000+ symbolic surrogate labels on classical hardware
 - **Cryptography**: Geometric structure-preserving hash functions
 - **Data Compression**: AI model compression with bounded distortion
 - **Scientific Computing**: Novel transform methods for signal processing
@@ -267,7 +267,7 @@ R_optimal = argmin_R Σ(i=1 to 4) λᵢ × Cost_i(R) + α × Coherence_penalty(R
 
 ### **Competitive Advantages**
 - **No Hardware Dependencies**: Runs on standard classical computers
-- **Scalable Architecture**: Supports 1000+ symbolic qubits
+- **Scalable Architecture**: Supports 1000+ symbolic surrogate labels
 - **Integrated Framework**: Unified quantum-crypto-geometric processing
 - **Performance Benefits**: Measured advantages over existing methods
 

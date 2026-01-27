@@ -540,18 +540,18 @@ Status: PASSED with warnings ⚠️
 
 ---
 
-### Quantum Simulator - 1000 Qubit Capability
+### Quantum Simulator - Symbolic Surrogate Capability
 
-**Application**: Full quantum circuit simulator with desktop interface
+**Application**: Symbolic surrogate simulator with desktop interface
 
-**Location**: `os/apps/quantum_simulator/quantum_simulator.py`
+**Location**: `quantonium_os_src/apps/quantum_simulator/main.py`
 
 **Capabilities Verified**:
 
 | Qubit Range | Method | Status | Details |
 |-------------|--------|--------|---------|
 | 1-20 qubits | Full state vector | ✅ Verified | Complete quantum simulation |
-| 21-1000 qubits | RFT compression | ✅ Verified | Symbolic representation |
+| 21-1000 labels | RFT surrogate | ✅ Verified | Symbolic representation (not full 2^n state) |
 | Bell states | Perfect generation | ✅ Verified | Fidelity = 1.0 |
 | GHZ states | Multi-qubit entanglement | ✅ Verified | Maximum entanglement |
 | Measurements | Pauli operators | ✅ Verified | Arbitrary angles |
@@ -560,7 +560,7 @@ Status: PASSED with warnings ⚠️
 **RFT Engine Integration**:
 ```python
 # When RFT available (C kernels compiled)
-max_qubits = 1000  # Full RFT-compressed simulation
+max_qubits = 1000  # Symbolic surrogate UI range
 
 # Fallback (Python only)
 max_qubits = 10  # Classical simulation
@@ -570,7 +570,7 @@ max_qubits = 10  # Classical simulation
 - 5 qubits: Full simulation in desktop app
 - 10 qubits: GHZ states tested
 - 20 qubits: Full state vector (1M amplitudes)
-- 1000 qubits: Symbolic RFT representation
+- 1000 labels: Symbolic surrogate representation
 ```
 
 **Performance Metrics**:
@@ -594,7 +594,9 @@ max_qubits = 10  # Classical simulation
 - Entanglement verification: CHSH inequality tests
 - Measurement statistics: 10,000 shot validation
 
-**Status**: ✅ **VERIFIED** - Research-grade quantum simulator with symbolic 1000-qubit capability (additional validation required for deployment)
+**Status**: ✅ **VERIFIED** - Research-grade simulator with symbolic surrogate capability (additional validation required for deployment)
+
+**Limitation**: For >20 qubits, the simulator does **not** represent a full 2^n state vector. It is a compressed surrogate intended for specific structured demos, not arbitrary circuits or entanglement.
 
 ---
 

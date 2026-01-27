@@ -261,28 +261,37 @@ class QuantumCrypto(QMainWindow):
         alice_bases = rng.integers(0, 2, N, dtype=np.uint8)  # 0 rect (+), 1 diag (├ù)
         bob_bases   = rng.integers(0, 2, N, dtype=np.uint8)
 
-        # Intercept-resend (Eve): she measures in random bases, resends; mismatch introduces extra errors
-        effective_noise = baseline_noise
-        if eve:
-            # EveΓÇÖs random basis introduces ~25% extra errors on sifted portion in ideal BB84
-            effective_noise = min(0.5, baseline_noise + 0.25)
-
-        # BobΓÇÖs measurement:
-        # If bases match: Bob gets Alice's bit with prob (1 - noise), else flips with prob noise
-        # If bases mismatch: Bob's outcome random
+        # Explicit intercept-resend (Eve) model
         bob_bits = np.empty(N, dtype=np.uint8)
+        if eve:
+            eve_bases = rng.integers(0, 2, N, dtype=np.uint8)
+            eve_bits = np.empty(N, dtype=np.uint8)
+            eve_match = (eve_bases == alice_bases)
+            idx_em = np.where(eve_match)[0]
+            idx_eu = np.where(~eve_match)[0]
+            eve_bits[idx_em] = alice_bits[idx_em]
+            eve_bits[idx_eu] = rng.integers(0, 2, idx_eu.size, dtype=np.uint8)
+
+            bob_match_eve = (bob_bases == eve_bases)
+            idx_bm = np.where(bob_match_eve)[0]
+            idx_bu = np.where(~bob_match_eve)[0]
+            bob_bits[idx_bm] = eve_bits[idx_bm]
+            bob_bits[idx_bu] = rng.integers(0, 2, idx_bu.size, dtype=np.uint8)
+        else:
+            match = (alice_bases == bob_bases)
+            idx_m = np.where(match)[0]
+            idx_u = np.where(~match)[0]
+            bob_bits[idx_m] = alice_bits[idx_m]
+            bob_bits[idx_u] = rng.integers(0, 2, idx_u.size, dtype=np.uint8)
+
+        # Apply baseline channel noise on matched bases (Alice vs Bob)
         match = (alice_bases == bob_bases)
-
-        # matched positions
         idx_m = np.where(match)[0]
-        flips = rng.random(idx_m.size) < effective_noise
-        mbits = alice_bits[idx_m].copy()
-        mbits[flips] ^= 1
-        bob_bits[idx_m] = mbits
-
-        # mismatched positions ΓåÆ random
-        idx_u = np.where(~match)[0]
-        bob_bits[idx_u] = rng.integers(0, 2, idx_u.size, dtype=np.uint8)
+        if baseline_noise > 0 and idx_m.size > 0:
+            flips = rng.random(idx_m.size) < baseline_noise
+            mbits = bob_bits[idx_m].copy()
+            mbits[flips] ^= 1
+            bob_bits[idx_m] = mbits
 
         # Sifting: keep only where bases match
         sifted_alice = alice_bits[idx_m]
@@ -319,6 +328,7 @@ class QuantumCrypto(QMainWindow):
         report.append(f"Test sample size:        {test_n}")
         report.append(f"Estimated QBER:          {qber*100:.2f}% {'(Eve ON)' if eve else ''}")
         report.append(f"Channel noise set:       {baseline_noise*100:.1f}%")
+        report.append(f"Eve model:              {'intercept-resend (explicit)' if eve else 'none'}")
         report.append("")
         report.append(f"Final key length:        {final_key_bits.size} bits")
         report.append(f"Key (hex):               {key_hex[:128]}{'ΓÇª' if len(key_hex)>128 else ''}")

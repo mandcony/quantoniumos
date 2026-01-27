@@ -11,7 +11,7 @@
   - `rft_kernel.c` - Unitary RFT kernel with QR decomposition
   - `rft_kernel.h` - Header definitions and constants
 - `apps/` - PyQt5 desktop applications
-  - `quantum_simulator.py` - 1000+ qubit quantum simulator (artifact: results/QUANTUM_SCALING_BENCHMARK.json)
+  - `quantum_simulator.py` - symbolic surrogate quantum simulator (artifact: results/QUANTUM_SCALING_BENCHMARK.json)
   - `q_notes.py` - Note-taking application
   - `q_vault.py` - Secure storage application
   - Additional utility and monitoring applications
@@ -91,7 +91,7 @@ python src/core/canonical_true_rft.py
 
 ### 3. **Performance**
 - SIMD-optimized C kernels for critical operations
-- Vertex encoding for large-scale quantum simulation
+- Vertex encoding for large-scale symbolic surrogate simulation
 - Linear complexity algorithms where possible
 
 ### 4. **User Experience**

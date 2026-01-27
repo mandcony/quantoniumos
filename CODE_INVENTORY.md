@@ -13,7 +13,7 @@
 | Capability | Function | Input → Output | Performance |
 |:---|:---|:---|:---|
 | **Resonant Transform** | Converts signals to Golden Ratio frequency basis | `signal[N]` → `coefficients[N]` | O(N log N) |
-| **Quantum Simulation** | Simulates quantum state evolution classically | `circuit` → `state_vector[2^N]` | 505 Mq/s |
+| **Quantum Simulation** | Simulates quantum state evolution classically (symbolic surrogate for large N) | `circuit` → `state_vector[2^N]` | 505 Mq/s symbolic qubit-ops |
 | **Post-Quantum Crypto** | Encrypts data using lattice-hard problems | `plaintext + key` → `ciphertext` | 0.5 MB/s |
 | **Medical Denoising** | Removes noise from ECG/EEG preserving features | `noisy_signal` → `clean_signal` | PSNR +3-8 dB |
 | **Structural Health** | Detects damage via vibration analysis | `accelerometer_data` → `health_score` | Real-time |
@@ -182,7 +182,7 @@
 | File | Key Components | What It Does | Capability |
 |:---|:---|:---|:---|
 | `quantum_gates.py` | `PauliGates`, `HadamardGates`, `RotationGates`, `ControlledGates` | **Gate Library.** Defines all standard quantum gates as unitary matrices. X, Y, Z, H, CNOT, Toffoli, Rx, Ry, Rz. | Foundation for simulation |
-| `quantum_kernel_implementation.py` | `WorkingQuantumKernel` | **THE ENGINE.** Applies gate sequence to state vector. Uses RFT for efficient phase manipulation. | 505 Mq/s (million qubit-operations/sec) |
+| `quantum_kernel_implementation.py` | `WorkingQuantumKernel` | **THE ENGINE.** Applies gate sequence to state vector. Uses RFT for efficient phase manipulation. | 505 Mq/s (symbolic qubit-ops/sec) |
 | `quantum_search.py` | `GroverSearch` | Implements Grover's algorithm for unstructured search. O(√N) queries. | Quadratic speedup demonstration |
 | `symbolic_amplitude.py` | `SymbolicAmplitude` | Tracks amplitudes symbolically (as algebraic expressions) for formal verification. | Exact computation, no floating point |
 | `geometric_hashing.py` | `GeometricHash` | Hash function based on geometric phase accumulation. | Collision-resistant hash |

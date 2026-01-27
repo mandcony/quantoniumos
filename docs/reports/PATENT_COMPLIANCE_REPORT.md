@@ -45,7 +45,7 @@ for (size_t qubit_i = 0; qubit_i < num_qubits; qubit_i++) {
 ```
 
 **Verification**:
-- Supports 10M qubits @ 19.1 Mq/s throughput (benchmarked)
+- Supports 10M symbolic qubit labels @ 19.1 Mq/s throughput (surrogate; not full 2^n state)
 - Assembly-optimized kernels in `quantum_symbolic_compression.asm`
 - Python, C, and ASM implementations all validated
 
@@ -545,7 +545,7 @@ The following files from `CLAIMS_PRACTICING_FILES.txt` implement the claimed inv
 ## Performance Validation
 
 ### Claim 1 Performance:
-- [OK] 10M qubit simulation @ 19.1 Mq/s
+- [OK] 10M symbolic qubit labels @ 19.1 Mq/s (surrogate)
 - [OK] Unitarity error < 10⁻¹²
 - [OK] Phase coherence retention > 99.99%
 - [OK] Golden ratio parameterization: 15-25% improvement

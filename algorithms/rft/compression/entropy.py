@@ -11,7 +11,12 @@ from collections import Counter
 
 def uniform_quantizer(coeffs: np.ndarray, step_size: float) -> np.ndarray:
     """
-    Uniform scalar quantization with dead-zone at zero.
+    Uniform scalar quantization with a dead-zone at zero.
+
+    Behavior:
+    - Uses truncation toward zero: q = sign(x) * floor(|x| / step_size)
+    - No saturation/clipping is applied
+    - Complex inputs are quantized per real/imag component
     """
     if step_size <= 0:
         return coeffs

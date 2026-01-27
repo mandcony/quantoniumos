@@ -18,7 +18,7 @@ Click the Q logo in the center to access applications.
 ## Individual Applications
 
 ```bash
-# Quantum simulator (1000+ qubit vertex encoding)
+# Quantum simulator (symbolic surrogate; not full 2^n state)
 python src/apps/quantum_simulator.py
 
 # Secure note-taking
@@ -53,7 +53,7 @@ python tests/benchmarks/QUANTONIUM_BENCHMARK_SUITE.py
 ## Key Features to Try
 
 ### Quantum Simulator
-- Set qubit count up to 1000
+- Set symbolic qubit count (surrogate beyond 20)
 - Run Grover's search on vertex encoding
 - Test quantum algorithms with RFT acceleration
 - Compare classical vs RFT scaling

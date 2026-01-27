@@ -173,7 +173,7 @@ This manual provides exhaustive documentation for the QuantoniumOS quantum-inspi
 \begin{itemize}[noitemsep]
 \item \textbf{14 RFT Variants:} Unitary transforms with distinct spectral properties
 \item \textbf{RFTMW Middleware:} Binary$\leftrightarrow$Wave conversion for wave-space computation (not compression)
-\item \textbf{Quantum Engine:} 505 Mq/s classical simulation of quantum circuits
+\item \textbf{Quantum Engine:} 505 Mq/s symbolic qubit-ops (surrogate) for quantum circuits
 \item \textbf{Hybrid Codecs:} Hierarchical DCT+RFT cascade achieving 86\% improvement over greedy
 \item \textbf{Post-Quantum Crypto:} 48-round Feistel cipher (research only, no security proofs)
 \end{itemize}
@@ -227,7 +227,7 @@ Application $\to$ Transform Middleware $\to$ Wave-Space Processing $\to$ Inverse
 \textbf{Market}: Quantum software companies (Zapata, Xanadu, Rigetti) spend \$50K--\$200K/month on IBM/AWS quantum cloud time. QuantoniumOS enables:
 \begin{itemize}
 \item Local development at $O(n)$ memory cost
-\item 10M qubit simulations on commodity hardware
+\item 10M symbolic-label compression on commodity hardware
 \item Fast iteration without cloud billing
 \end{itemize}
 \begin{qnote}[Limitation]
@@ -329,7 +329,7 @@ Mathematicians & Transform analysis & \textbf{\color{green!50!black}Production-r
 
 \textbf{Use QuantoniumOS if:}
 \begin{itemize}
-\item You want to simulate 10M+ qubits without cloud costs.
+\item You want to simulate 10M+ symbolic labels without cloud costs.
 \item You want to explore novel $\phi$-harmonic audio timbres.
 \item You need a sandbox for lattice-based cryptography research.
 \end{itemize}
@@ -367,7 +367,7 @@ The core transform engine comprising:
 
 \begin{qdetail}[Implementation]
 \textbf{Files}: \code{algorithms/rft/kernels/kernel/quantum\_symbolic\_compression.c}, \code{algorithms/rft/quantum/quantum\_gates.py}\\
-\textbf{Performance}: 10M qubits simulated @ 19.1 Mq/s, unitarity error $< 10^{-12}$
+\textbf{Performance}: 10M symbolic labels @ 19.1 Mq/s (surrogate), unitarity error $< 10^{-12}$
 \end{qdetail}
 
 \subsubsection{Claim 2: Resonance-Based Cryptographic Subsystem}
@@ -2113,7 +2113,7 @@ The \texttt{WorkingQuantumKernel} in \texttt{algorithms/rft/quantum/quantum\_ker
 \toprule
 \textbf{Metric} & \textbf{Value} \\
 \midrule
-Throughput & 505 Mq/s (million qubit-operations/second) \\
+Throughput & 505 Mq/s (million symbolic qubit-ops/second) \\
 Max qubits (laptop) & 20 (limited by $2^n$ memory) \\
 Gate fidelity & $>0.9999$ (vs theoretical) \\
 Bell state fidelity & 1.0000 (exact) \\
@@ -5330,7 +5330,7 @@ Unknown/adaptive & ASSEMBLY\_UNITARY & ADAPTIVE\_SPLIT \\
 \begin{center}
 \begin{tabular}{@{}rrrr@{}}
 \toprule
-\textbf{Qubits} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Amplitudes} \\
+\textbf{Symbolic Labels} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Amplitudes} \\
 \midrule
 100 & 0.13 & 0.8 & 64 \\
 1,000 & 0.10 & 10.0 & 64 \\
@@ -5417,7 +5417,7 @@ CHAOTIC & 3.65e+00 & True & \checkmark{} \\
 \begin{center}
 \begin{tabular}{@{}rrrrr@{}}
 \toprule
-\textbf{Qubits} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Entropy} & \textbf{Memory} \\
+\textbf{Symbolic Labels} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Entropy} & \textbf{Memory} \\
 \midrule
 10 & 0.55 & 0.0 & 0.001389 & $\sim$64 complex \\
 100 & 0.01 & 7.4 & 0.008813 & $\sim$64 complex \\
@@ -5430,7 +5430,7 @@ CHAOTIC & 3.65e+00 & True & \checkmark{} \\
 \end{tabular}
 \end{center}
 
-\textbf{Key Achievement}: 10 million qubits at 19.1 Mq/s with O(n) complexity where classical simulators require O($2^n$) memory.
+\textbf{Key Achievement}: 10 million symbolic labels at 19.1 Mq/s (surrogate) with O(n) complexity; classical full-state simulators require O($2^n$) memory.
 
 \subsection{Class B: Transform \& DSP}
 
@@ -5784,7 +5784,7 @@ The updated architecture graphs illustrate the data flow and component interacti
     \node[metric] (loc) at (13.5, 0) {\textbf{\large 150K+}\\Lines of\\Code};
     
     % Row 2 - Performance Metrics
-    \node[metric, fill=green!10, draw=green!50!black] (qsim) at (0, -2.8) {\textbf{\large 505 Mq/s}\\Quantum\\Simulation};
+    \node[metric, fill=green!10, draw=green!50!black] (qsim) at (0, -2.8) {\textbf{\large 505 Mq/s}\\Symbolic\\Simulation};
     \node[metric, fill=orange!10, draw=orange!50!black] (crypto) at (4.5, -2.8) {\textbf{\large 48 rounds}\\Feistel\\Cipher};
     \node[metric, fill=purple!10, draw=purple!50!black] (fpga) at (9, -2.8) {\textbf{\large 8,412 LUTs}\\FPGA\\Resources};
     \node[metric, fill=cyan!10, draw=cyan!50!black] (tests) at (13.5, -2.8) {\textbf{\large 86}\\Test\\Cases};

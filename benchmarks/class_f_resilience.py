@@ -148,7 +148,7 @@ def nist_monobit_test(bits):
 
 def benchmark_crypto_randomness():
     print("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("  NIST RANDOMNESS CHECK (RFT-SIS Hash)")
+    print("  NIST RANDOMNESS CHECK (RFT-SIS Hash, empirical only)")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     
     # Generate bits using RFT-SIS Hash
@@ -175,10 +175,10 @@ def benchmark_crypto_randomness():
         
         print(f"  Generated: {len(bits)} bits")
         print(f"  Time:      {duration:.4f} s")
-        print(f"  P-Value:   {p_value:.6f} (Target > 0.01)")
+        print(f"  P-Value:   {p_value:.6f} (Target > 0.01; not a security proof)")
         
         if p_value > 0.01:
-            print("  [PASS] Sequence looks random (NIST Monobit).")
+            print("  [PASS] Sequence looks random (NIST Monobit; not a security claim).")
         else:
             print("  [FAIL] Sequence looks non-random.")
             

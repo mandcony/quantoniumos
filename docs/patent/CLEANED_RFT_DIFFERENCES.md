@@ -8,7 +8,7 @@ _Cleaned-up, mathematically honest comparison – safe for academic communicatio
 
 The closed-form Φ-RFT is defined as `Ψ = D_φ C_σ F`, where:
 
-* `F` is the unitary DFT (FFT-compatible)
+* `F` is the unitary DFT (FFT-compatible with $1/\sqrt{n}$ scaling, e.g. NumPy `norm="ortho"`)
 * `C_σ` is a quadratic chirp diagonal: `exp(iπσk²/n)`
 * `D_φ` is a golden-ratio diagonal with entries `exp(2πiβ{k/φ})`, with `φ = (1+√5)/2`
 

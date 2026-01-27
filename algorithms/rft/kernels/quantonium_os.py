@@ -231,7 +231,7 @@ class QuantoniumOS:
         print("\n⚛️  Running Quantum Engine Benchmark...")
         engine = self.engines['quantum']['engine']
         
-        # Test million qubit compression
+        # Test million symbolic label compression
         start_time = time.perf_counter()
         success, perf = engine.compress_million_qubits(1000000)
         total_time = time.perf_counter() - start_time
@@ -242,7 +242,7 @@ class QuantoniumOS:
             
             result = {
                 'success': True,
-                'qubits_simulated': 1000000,
+                'symbolic_labels_simulated': 1000000,
                 'compression_time_ms': perf['compression_time_ms'],
                 'total_time_ms': total_time * 1000,
                 'operations_per_second': perf['operations_per_second'],
@@ -253,7 +253,7 @@ class QuantoniumOS:
                 'backend': perf['backend']
             }
             
-            print(f"   ✅ Successfully simulated 1,000,000 qubits")
+            print(f"   ✅ Successfully simulated 1,000,000 symbolic labels")
             print(f"   ⏱️  Compression time: {result['compression_time_ms']:.1f}ms")
             print(f"   🔄 Operations/sec: {result['operations_per_second']:,}")
             print(f"   💾 Memory usage: {result['memory_mb']:.6f} MB")

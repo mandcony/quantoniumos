@@ -477,12 +477,12 @@ def irft(W: np.ndarray, N: int) -> np.ndarray:
 
 class RFTSISHash:
     """
-    Cryptographic hash using RFT + Short Integer Solution (SIS) lattice.
+    Experimental hash using RFT + SIS-style lattice compression.
     
-    Security:
-    - Avalanche: ~50% bit flip for 1-bit input change (down to 1e-12 precision)
-    - Post-quantum: Based on lattice hardness (SIS problem)
-    - Collision resistant: 256-bit output
+    Security (empirical only):
+    - Avalanche: ~50% bit flip for 1-bit input change (test observation)
+    - No formal security reduction or PQ claim
+    - Not an LWE/Ring-LWE sampler (no explicit noise distribution)
     
     Process:
     1. Expand input via SHA3 hash chain (amplifies tiny differences)

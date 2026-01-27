@@ -331,7 +331,7 @@ Legacy_Hybrid_Codec       | MISSING         | -
   liboqs not installed - cannot benchmark NIST PQ candidates
   Install: https://github.com/open-quantum-safe/liboqs-python
 
-  RFT-SIS (QuantoniumOS PQ lattice hash):
+  RFT-SIS (experimental lattice-style hash):
     Lattice n:  512
     Lattice m:  1024
     Prime q:    3329 (NIST Kyber prime)
@@ -351,11 +351,11 @@ Legacy_Hybrid_Codec       | MISSING         | -
   │  SHA-256          │ 256-bit   │ 128-bit*     │ NIST approved       │
   │  Kyber-512        │ 128-bit   │ 128-bit      │ NIST PQ winner      │
   │  Dilithium-2      │ 128-bit   │ 128-bit      │ NIST PQ winner      │
-  │  RFT-SIS+Feistel  │ ~256-bit  │ ~128-bit**   │ Research            │
+  │  RFT-SIS+Feistel  │ Demo      │ Demo**       │ Research            │
   └─────────────────────────────────────────────────────────────────────┘
 
   * Grover's algorithm halves effective symmetric key size
-  ** Based on SIS hardness with NIST Kyber parameters
+  ** Demo parameters only; no BKZ/SVP analysis or security proofs
 
   HONEST FRAMING:
   • Industry standards are NIST-approved, billion-device proven
@@ -462,7 +462,7 @@ Legacy_Hybrid_Codec       | MISSING         | -
   CLASS A (Quantum):      QSC achieves O(n) symbolic compression
   CLASS B (Transform):    Φ-RFT provides golden-ratio decorrelation
   CLASS C (Compression):  RFTMW exploits entropy gap
-  CLASS D (Crypto):       RFT-SIS offers lattice-based PQ security
+  CLASS D (Crypto):       RFT-SIS offers lattice-style experimental mixing
   CLASS E (Audio):        Φ-RFT spectral mixing for analysis
 
   HONEST FRAMING ACROSS ALL CLASSES:
@@ -470,7 +470,7 @@ Legacy_Hybrid_Codec       | MISSING         | -
   │  We do NOT claim to beat industry standards everywhere.            │
   │  We show where QuantoniumOS physics-inspired transforms offer      │
   │  unique properties: irrational spectral mixing, entropy gap        │
-  │  exploitation, and lattice-based post-quantum primitives.          │
+  │  exploitation, and lattice-style experimental primitives.          │
   └─────────────────────────────────────────────────────────────────────┘
 
 

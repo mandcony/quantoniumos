@@ -14,14 +14,14 @@ Added comprehensive new section documenting:
 - **5-Layer Stack Diagram**: ASM → C → C++ → Python → Applications
 - **13 Transform Variants**: Full taxonomy with descriptions
 - **Verified Tests**: 
-  - Quantum: 10M qubits @ 19.1 Mq/s, constant 64 amplitudes
+  - Quantum: 10M symbolic labels @ 19.1 Mq/s (surrogate), constant 64 amplitudes
   - Crypto: Feistel-48 @ 0.45-0.69 MB/s
   - Unitarity: All variants pass within 10^-8 tolerance
 
 #### 2. Five-Class Benchmark Results
 
 **Class A: Quantum Simulation**
-- 10 million qubits compressed in 524ms
+- 10 million symbolic labels compressed in 524ms
 - O(n) scaling vs O(2^n) for classical
 - Honest disclaimer: No Qiskit/Cirq timing (different models)
 

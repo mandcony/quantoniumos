@@ -99,7 +99,7 @@ def test_avalanche_effect(N=256):
     print("Measuring bit flips in the 'RFT-SIS' Lattice Hash construction.")
     print("We test the 'Transform + Lattice' mixing capability.")
     print("Note: We disable the SHA-3 pre-expansion to isolate the Transform's contribution.")
-    print("Ideal Avalanche = 50%.\n")
+    print("Ideal Avalanche = 50%. (Not a security proof.)\n")
     
     # SIS Parameters
     SIS_N = N

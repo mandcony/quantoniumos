@@ -8,17 +8,31 @@ Shows RFT's unique spectral properties for resonant systems
 """
 
 import numpy as np
+import warnings
 import time
 import argparse
 from algorithms.rft.core.canonical_true_rft import CanonicalTrueRFT
 from algorithms.rft.compression import rft_vertex_codec
 
 def generate_resonant_signal(duration=1.0, sr=44100):
-    """Generate a signal with rich harmonic resonance structure"""
-    t = np.linspace(0, duration, int(sr * duration))
-    
+    """Generate a signal with rich harmonic resonance structure."""
+    t = np.linspace(0, duration, int(sr * duration), endpoint=False)
+
     # Fundamental + harmonics (resonance series)
     f0 = 220  # A3
+    mod_freq = 5  # Hz
+    max_harmonic = 7
+    nyquist = sr / 2
+    max_component = f0 * max_harmonic + mod_freq
+    if max_component >= nyquist:
+        safe_f0 = (nyquist - mod_freq) / max_harmonic
+        if safe_f0 <= 0:
+            raise ValueError("Sample rate too low for requested harmonics/modulation.")
+        warnings.warn(
+            f"Nyquist guard: lowering f0 from {f0:.2f} Hz to {safe_f0:.2f} Hz to avoid aliasing.",
+            RuntimeWarning,
+        )
+        f0 = safe_f0
     signal = (
         1.0 * np.sin(2 * np.pi * f0 * t) +           # Fundamental
         0.5 * np.sin(2 * np.pi * f0 * 2 * t) +       # 2nd harmonic
@@ -28,7 +42,6 @@ def generate_resonant_signal(duration=1.0, sr=44100):
     )
     
     # Add amplitude modulation (creates sidebands/resonances)
-    mod_freq = 5  # Hz
     signal *= (1 + 0.3 * np.sin(2 * np.pi * mod_freq * t))
     
     return signal, sr

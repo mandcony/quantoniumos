@@ -33,14 +33,14 @@ Located in: `algorithms/rft/core/closed_form_rft.py`
 # Forward: y = D_φ * C_σ * FFT(x)
 D_phi = exp(i * 2π * β * {k/φ})      # Golden ratio phase
 C_sig = exp(i * π * σ * k²/n)        # Quadratic chirp  
-y = D_phi * (C_sig * FFT(x))
+y = D_phi * (C_sig * FFT(x, norm="ortho"))
 
 # Inverse: exact conjugate
-x = IFFT(conj(C_σ) * conj(D_φ) * y)
+x = IFFT(conj(C_σ) * conj(D_φ) * y, norm="ortho")
 ```
 
 **Properties:**
-- Provably unitary (diagonal phase × unitary FFT)
+- Provably unitary (diagonal phase × unitary FFT with `norm="ortho"`)
 - O(N log N) complexity via FFT backbone
 - Non-LCT (fractional part {k/φ} is non-quadratic)
 - Tested across N ∈ {8, 16, 32, 64, 128, 256}

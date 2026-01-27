@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
-CLASS D - Cryptography & Post-Quantum Security
+CLASS D - Cryptography & Experimental Security
 ===============================================
 
 Compares QuantoniumOS RFT-SIS + Feistel against:
@@ -471,7 +471,7 @@ def run_class_d_benchmark():
         print("  Install: https://github.com/open-quantum-safe/liboqs-python")
         print()
     
-    print("  RFT-SIS (QuantoniumOS PQ lattice hash):")
+    print("  RFT-SIS (experimental lattice-style hash):")
     print(f"    Lattice n:  512")
     print(f"    Lattice m:  1024")
     print(f"    Prime q:    3329 (NIST Kyber prime)")
@@ -493,16 +493,16 @@ def run_class_d_benchmark():
     print("  │  SHA-256          │ 256-bit   │ 128-bit*     │ NIST approved       │")
     print("  │  Kyber-512        │ 128-bit   │ 128-bit      │ NIST PQ winner      │")
     print("  │  Dilithium-2      │ 128-bit   │ 128-bit      │ NIST PQ winner      │")
-    print("  │  RFT-SIS+Feistel  │ ~256-bit  │ ~128-bit**   │ Research            │")
+    print("  │  RFT-SIS+Feistel  │ Demo      │ Demo**       │ Research            │")
     print("  └─────────────────────────────────────────────────────────────────────┘")
     print()
     print("  * Grover's algorithm halves effective symmetric key size")
-    print("  ** Based on SIS hardness with NIST Kyber parameters")
+    print("  ** Demo parameters only; no BKZ/SVP analysis or security proofs")
     print()
     print("  HONEST FRAMING:")
     print("  • Industry standards are NIST-approved, billion-device proven")
     print("  • RFT-SIS is research-grade, offers unique φ-phase properties")
-    print("  • We integrate lattice-based PQ into Feistel key derivation")
+    print("  • We integrate lattice-inspired mixing into Feistel key derivation")
     print("  • Production systems should use NIST-approved algorithms")
     print()
     

@@ -4,15 +4,17 @@
  */
 
 /**
- * RFT-SIS: Post-Quantum Lattice-Based Cryptographic Hash Implementation
+ * RFT-SIS: Experimental Lattice-Style Cryptographic Hash Implementation
  * =====================================================================
  * 
- * This implements a lattice-based hash function combining:
+ * This implements a lattice-style hash function combining:
  * 1. φ-RFT (Golden Ratio Recursive Fourier Transform) for diffusion
- * 2. SIS (Short Integer Solution) lattice problem for quantum resistance
+ * 2. SIS-style compression over Z_q
  * 
- * The SIS problem: Given random matrix A ∈ Z_q^{m×n}, find short s where As = 0 (mod q)
- * This is believed to be hard even for quantum computers.
+ * Notes:
+ * - No formal security reduction to SIS/LWE is claimed.
+ * - This is a research playground; do not treat as a PQC primitive.
+ * - Matrix A is sampled uniformly in Z_q via rejection sampling.
  */
 
 #include "rft_sis.h"
@@ -20,6 +22,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 
 // ============================================================================
 // Constants
@@ -42,40 +45,51 @@ static const uint8_t FIB_MOD256[32] = {
  * Deterministic PRNG for lattice matrix generation
  * Uses SHA-256 in counter mode
  */
-static void expand_seed(const uint8_t* seed, size_t seed_len,
-                       uint8_t* output, size_t output_len) {
-    uint8_t counter[4] = {0, 0, 0, 0};
-    uint8_t hash[32];
-    uint8_t block[36];  // seed chunk + counter
-    size_t offset = 0;
-    
-    // Copy seed to block (truncate if needed)
-    size_t seed_copy = (seed_len > 32) ? 32 : seed_len;
-    memcpy(block, seed, seed_copy);
-    if (seed_copy < 32) memset(block + seed_copy, 0, 32 - seed_copy);
-    
-    while (offset < output_len) {
-        // Append counter to block
-        memcpy(block + 32, counter, 4);
-        
-        // Hash block
-        sha256_hash(block, 36, hash);
-        
-        size_t copy_len = (output_len - offset < 32) ? (output_len - offset) : 32;
-        memcpy(output + offset, hash, copy_len);
-        offset += copy_len;
-        
-        // Increment counter
-        for (int i = 0; i < 4 && ++counter[i] == 0; i++);
+
+typedef struct {
+    uint8_t seed_block[32];
+    uint32_t counter;
+    uint8_t block[32];
+    size_t offset;
+} rft_prng_state_t;
+
+static void prng_refill(rft_prng_state_t* state) {
+    uint8_t block[36];
+    memcpy(block, state->seed_block, 32);
+    memcpy(block + 32, &state->counter, 4);
+    sha256_hash(block, 36, state->block);
+    state->offset = 0;
+    state->counter++;
+}
+
+static void prng_init(rft_prng_state_t* state, const uint8_t* seed, size_t seed_len) {
+    sha256_hash(seed, seed_len, state->seed_block);
+    state->counter = 0;
+    state->offset = 32;
+}
+
+static uint32_t prng_next_u32(rft_prng_state_t* state) {
+    if (state->offset + 4 > 32) {
+        prng_refill(state);
     }
+    uint32_t val = ((uint32_t)state->block[state->offset]) |
+                   ((uint32_t)state->block[state->offset + 1] << 8) |
+                   ((uint32_t)state->block[state->offset + 2] << 16) |
+                   ((uint32_t)state->block[state->offset + 3] << 24);
+    state->offset += 4;
+    return val;
 }
 
 /**
- * Generate random element in Z_q
+ * Generate uniform random element in Z_q via rejection sampling
  */
-static int32_t sample_zq(const uint8_t* bytes) {
-    // Take 2 bytes, interpret as uint16, reduce mod q
-    uint16_t val = ((uint16_t)bytes[0]) | (((uint16_t)bytes[1]) << 8);
+static int32_t sample_zq_uniform(rft_prng_state_t* state) {
+    const uint64_t limit = (uint64_t)UINT32_MAX + 1ULL;
+    const uint64_t bound = limit - (limit % RFT_SIS_Q);
+    uint32_t val;
+    do {
+        val = prng_next_u32(state);
+    } while ((uint64_t)val >= bound);
     return (int32_t)(val % RFT_SIS_Q);
 }
 
@@ -157,24 +171,14 @@ rft_sis_error_t rft_sis_init(rft_sis_ctx_t* ctx, const uint8_t* seed, rft_varian
         seed = default_seed;
     }
     
-    // Generate lattice matrix A from seed
-    // Need n*m*2 bytes for matrix elements
-    size_t matrix_bytes = RFT_SIS_N * RFT_SIS_M * 2;
-    uint8_t* random_bytes = (uint8_t*)malloc(matrix_bytes);
-    if (!random_bytes) return RFT_SIS_ERROR_INIT_FAILED;
-    
-    expand_seed(seed, strlen((const char*)seed), random_bytes, matrix_bytes);
-    
-    // Fill matrix A
-    size_t idx = 0;
+    // Generate lattice matrix A from seed (uniform in Z_q)
+    rft_prng_state_t prng;
+    prng_init(&prng, seed, strlen((const char*)seed));
     for (size_t i = 0; i < RFT_SIS_M; i++) {
         for (size_t j = 0; j < RFT_SIS_N; j++) {
-            ctx->A[i][j] = sample_zq(&random_bytes[idx]);
-            idx += 2;
+            ctx->A[i][j] = sample_zq_uniform(&prng);
         }
     }
-    
-    free(random_bytes);
     
     // Pre-compute RFT phases using golden ratio
     for (size_t k = 0; k < RFT_SIS_N; k++) {
@@ -421,5 +425,5 @@ rft_sis_error_t rft_sis_avalanche_test(const rft_sis_ctx_t* ctx,
 }
 
 const char* rft_sis_version(void) {
-    return "RFT-SIS v1.0 (Post-Quantum Lattice Hash)";
+    return "RFT-SIS v1.0 (Experimental Lattice Hash)";
 }

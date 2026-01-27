@@ -15,6 +15,7 @@ Provides:
 """
 
 import numpy as np
+import warnings
 from typing import Dict, List, Optional, Callable
 from dataclasses import dataclass, field
 from enum import Enum
@@ -76,6 +77,28 @@ def rft_additive_synthesis(freq: float, duration: float, sample_rate: int,
     Creates harmonics in RFT domain and transforms back.
     """
     samples = int(duration * sample_rate)
+
+    nyquist = sample_rate / 2
+    if freq <= 0:
+        return np.zeros(samples, dtype=np.float32)
+
+    # Guard against harmonics exceeding Nyquist (aliasing).
+    if num_harmonics > 1:
+        max_harmonic_freq = freq * (PHI ** (num_harmonics - 1))
+        if max_harmonic_freq >= nyquist and nyquist > freq:
+            max_harmonics_allowed = int(np.floor(np.log(nyquist / freq) / np.log(PHI))) + 1
+            max_harmonics_allowed = max(1, max_harmonics_allowed)
+            if max_harmonics_allowed < num_harmonics:
+                warnings.warn(
+                    "Nyquist guard: reducing harmonics to avoid aliasing.",
+                    RuntimeWarning,
+                )
+                num_harmonics = max_harmonics_allowed
+        elif freq >= nyquist:
+            warnings.warn(
+                "Fundamental exceeds Nyquist; output will alias.",
+                RuntimeWarning,
+            )
     
     # Pad to power of 2 for RFT
     n = 2 ** int(np.ceil(np.log2(max(samples, 64))))

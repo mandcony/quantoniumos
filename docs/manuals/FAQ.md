@@ -113,17 +113,17 @@ These benchmarks are needed to assess competitive advantage.
 - ✅ **CHSH Inequality**: Achieved maximum 2.828427 (Tsirelson bound)
 - ✅ **Quantum Entanglement**: Maximum entanglement validated
 - ✅ **Up to 20 qubits**: Full state vector simulation
-- ✅ **21-1000 qubits**: RFT-compressed symbolic simulation
+- ⚠️ **>20 qubits**: Symbolic surrogate with fixed-size representation (not full 2^n amplitudes)
 
 **Test Files:**
 - `tests/validation/direct_bell_test.py` - CHSH > 2.7 achieved
 - `tests/validation/test_bell_violations.py` - Comprehensive Bell tests
-- `os/apps/quantum_simulator/quantum_simulator.py` - 1000-qubit simulator
+- `quantonium_os_src/apps/quantum_simulator/main.py` - symbolic simulator UI
 - `docs/research/BELL_VIOLATION_ACHIEVEMENT.md` - Full results
 
 **Simulation Capabilities:**
 - Small circuits (<20 qubits): Full quantum simulation
-- Medium circuits (21-1000 qubits): RFT-compressed simulation
+- Larger qubit counts: Symbolic surrogate with capped amplitude vector
 - Bell states, GHZ states: Perfect generation verified
 - Measurement operators: Pauli measurements at arbitrary angles
 - Decoherence modeling: Depolarizing and amplitude damping noise
@@ -134,10 +134,10 @@ These benchmarks are needed to assess competitive advantage.
 - Quantum supremacy circuits: Beyond current scope
 
 **What's Unique:**
-The RFT kernel enables symbolic representation of quantum states for 1000+ qubits, verified through:
-- QuTiP benchmark comparisons (fidelity = 1.0)
-- Maximum CHSH violation (2.828427)
-- Unitarity preservation (<1e-12 error)
+The RFT kernel enables a symbolic surrogate for structured demos beyond full-state limits. Fidelity and CHSH benchmarks are validated for small, explicit state vectors; large-qubit UI modes do not represent general 2^n states.
+
+**Important Limitation:**
+For >20 qubits, this app does **not** represent the full 2^n state vector. It is a compressed surrogate intended for specific structured states and demos. It does **not** support arbitrary circuits, arbitrary entanglement, or general-purpose quantum algorithm simulation at n≫20.
 
 ---
 

@@ -89,7 +89,7 @@ Application → Transform Middleware → Wave-Space Processing →
 \subsubsection*{Use Case 1: Quantum Algorithm Development Without Quantum Hardware}
 
 \item Local development at O(n) memory cost
-\item 10M qubit simulations on commodity hardware
+\item 10M symbolic-label compression on commodity hardware
 \item Fast iteration without cloud billing
 \end{itemize}
 \textbf{Limitation}: Not exact simulation---symbolic compression for algorithm prototyping only.
@@ -4302,7 +4302,7 @@ Layer 1: ASM Kernels (x64 SIMD)
 \begin{center}
 \begin{tabular}{@{}rrrr@{}}
 \toprule
-\textbf{Qubits} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Amplitudes} \\
+\textbf{Symbolic Labels} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Amplitudes} \\
 \midrule
 100 & 0.13 & 0.8 & 64 \\
 1,000 & 0.10 & 10.0 & 64 \\
@@ -4388,7 +4388,7 @@ CHAOTIC & 3.65e+00 & True & \checkmark{} \\
 \begin{center}
 \begin{tabular}{@{}rrrrr@{}}
 \toprule
-\textbf{Qubits} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Entropy} & \textbf{Memory} \\
+\textbf{Symbolic Labels} & \textbf{Time (ms)} & \textbf{Rate (Mq/s)} & \textbf{Entropy} & \textbf{Memory} \\
 \midrule
 10 & 0.55 & 0.0 & 0.001389 & $\sim$64 complex \\
 100 & 0.01 & 7.4 & 0.008813 & $\sim$64 complex \\
@@ -4401,7 +4401,7 @@ CHAOTIC & 3.65e+00 & True & \checkmark{} \\
 \end{tabular}
 \end{center}
 
-\textbf{Key Achievement}: 10 million qubits at 19.1 Mq/s with O(n) complexity where classical simulators require O($2^n$) memory.
+\textbf{Key Achievement}: 10 million symbolic labels at 19.1 Mq/s (surrogate) with O(n) complexity; classical full-state simulators require O($2^n$) memory.
 
 \subsection{Class B: Transform \& DSP}
 

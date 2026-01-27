@@ -14,7 +14,7 @@ C++ Engine (rftmw_core.hpp, rftmw_compression.hpp)
     ↓
 ASM Kernels (from algorithms/rft/kernels/)
     ├── rft_kernel_asm.asm          - Unitary RFT transform
-    ├── quantum_symbolic_compression.asm - Million-qubit O(n) compression
+    ├── quantum_symbolic_compression.asm - Million symbolic-label O(n) compression (surrogate)
     ├── feistel_round48.asm         - 48-round Feistel cipher (9.2 MB/s)
     └── rft_transform.asm           - Orchestrator transform
 ```
@@ -54,11 +54,11 @@ Supported RFT variants:
 - `HYPERBOLIC` - Hyperbolic RFT
 
 ### 3. QuantumSymbolicCompressor (ASM-Accelerated)
-O(n) scaling for million+ qubit simulation.
+O(n) scaling for million+ symbolic qubit labels (surrogate; not full 2^n state).
 
 ```python
 compressor = rft.QuantumSymbolicCompressor()
-# Compress 1 million qubits to 64-dimensional representation
+# Compress 1 million symbolic labels to 64-dimensional representation
 compressed = compressor.compress(1000000, compression_size=64)
 entanglement = compressor.measure_entanglement()
 ```

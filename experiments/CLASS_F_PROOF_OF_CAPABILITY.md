@@ -7,7 +7,7 @@ Following the v2.0.1 release, we conducted a new class of benchmarks ("Class F")
 
 These tests go beyond standard signal processing metrics (SNR/Compression) to evaluate:
 1.  **Denoising Resilience:** Ability to recover quasi-periodic signals from noise.
-2.  **Cryptographic Quality:** Statistical randomness of the RFT-SIS hash function.
+2.  **Empirical Randomness:** Statistical randomness of the RFT-SIS hash function.
 
 ## 1. Denoising Benchmark (RFT vs FFT)
 We tested the ability to denoise a signal composed of Golden Ratio harmonics (simulating natural quasi-periodic phenomena) embedded in 0 dB white noise.
@@ -41,11 +41,11 @@ We evaluated the `RFTSISHash` implementation using the NIST SP 800-22 Frequency 
 -   **Status:** **PASS**
 
 **Conclusion:**
-The RFT-SIS hash function produces output that is statistically indistinguishable from true randomness according to the Monobit test. This validates its suitability for cryptographic applications and high-quality random number generation.
+The RFT-SIS hash function produces output that is statistically indistinguishable from true randomness according to the Monobit test. This is an empirical check only and does not validate cryptographic security or suitability for production RNG.
 
 ## Final Verdict
 The "Class F" benchmarks successfully demonstrate that QuantoniumOS possesses unique capabilities in:
 1.  **Signal Physics:** Superior handling of non-integer harmonic structures.
-2.  **Information Security:** High-quality entropy generation via lattice dynamics.
+2.  **Information Security:** Empirical entropy signals via lattice-style dynamics (not a security proof).
 
 These results further validate the theoretical claims of the RFT framework.

@@ -42,7 +42,7 @@ Let:
 
 **Transforms:**
 
-- $F$ – the standard unitary DFT (FFT implementation)
+- $F$ – the standard unitary DFT (FFT implementation with $1/\sqrt{N}$ scaling, e.g. NumPy `norm="ortho"`)
 - $C$ – a standard unitary DCT (e.g., DCT-II with orthonormal scaling)
 - $R_\phi$ – a **fixed Φ-RFT** transform: the unitary eigenbasis of a Hermitian Toeplitz "resonance kernel" $K_\phi$ constructed from a golden-ratio based autocorrelation pattern
 - $A_x$ – an **adaptive operator-based RFT (ARFT)**: the unitary eigenbasis of the empirical covariance/autocorrelation operator estimated from $x$ (or from a training ensemble)

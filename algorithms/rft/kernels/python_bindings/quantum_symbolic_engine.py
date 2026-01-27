@@ -384,25 +384,25 @@ def benchmark_assembly_vs_python():
     print(f"\n🏁 CONCLUSION:")
     print(f"   ✅ C/Assembly implementation provides significant speedup")
     print(f"   ✅ O(n) scaling maintained across all implementations") 
-    print(f"   ✅ Million+ qubit simulation achieved with sub-second performance")
+    print(f"   ✅ Million+ symbolic label compression achieved with sub-second performance")
 
 def main():
     """Main test and demonstration"""
     print("🔬 QUANTUM SYMBOLIC COMPRESSION ENGINE")
     print("=" * 45)
-    print("High-performance million+ qubit quantum simulation")
+    print("High-performance million+ symbolic label compression")
     print()
     
     try:
         # Initialize engine with assembly optimizations
         engine = QuantumSymbolicEngine(compression_size=64, use_assembly=True)
         
-        # Test million qubit compression
-        print("🚀 Testing Million Qubit Compression:")
+        # Test million symbolic label compression
+        print("🚀 Testing Million Symbolic Label Compression:")
         success, perf = engine.compress_million_qubits(1000000)
         
         if success:
-            print(f"   ✅ Successfully compressed 1,000,000 qubits")
+            print(f"   ✅ Successfully compressed 1,000,000 symbolic labels")
             print(f"   ⏱️  Compression time: {perf['compression_time_ms']:.3f} ms")
             print(f"   🔄 Operations/second: {perf['operations_per_second']:,}")
             print(f"   💾 Memory usage: {perf['memory_mb']:.6f} MB")
@@ -420,7 +420,7 @@ def main():
                 print(f"   📈 State vector norm: {np.linalg.norm(state):.12f}")
                 print(f"   🎯 Unitarity preserved: {'✅' if abs(np.linalg.norm(state) - 1.0) < 1e-10 else '❌'}")
         else:
-            print(f"   ❌ Million qubit compression failed")
+            print(f"   ❌ Million symbolic label compression failed")
         
         print()
         

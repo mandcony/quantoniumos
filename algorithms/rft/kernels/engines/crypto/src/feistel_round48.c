@@ -10,9 +10,9 @@
  * Enhanced RFT Crypto v2 - 48-Round Feistel Cipher Implementation
  * ================================================================
  * 
- * POST-QUANTUM SECURITY via RFT-SIS Integration:
- * - Key derivation uses RFT-SIS lattice-based KDF
- * - Authentication tags use RFT-SIS MAC (quantum-resistant)
+ * EXPERIMENTAL SECURITY via RFT-SIS Integration:
+ * - Key derivation uses RFT-SIS lattice-based KDF (no formal reduction)
+ * - Authentication tags use RFT-SIS MAC (experimental)
  * - Round function uses φ-RFT diffusion
  * 
  * High-Performance C Implementation targeting 9.2 MB/s
@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <math.h>
 
-// Global RFT-SIS context for post-quantum operations
+// Global RFT-SIS context for experimental operations
 static rft_sis_ctx_t g_rft_sis_ctx;
 static bool g_rft_sis_initialized = false;
 
@@ -130,10 +130,9 @@ static void xor_blocks(const uint8_t* a, const uint8_t* b, uint8_t* output, size
 static uint64_t get_time_ns(void);
 
 /**
- * Initialize Feistel cipher context with POST-QUANTUM key derivation
+ * Initialize Feistel cipher context with experimental key derivation
  * 
- * Uses RFT-SIS lattice-based KDF for quantum-resistant key expansion.
- * The SIS problem remains hard even against quantum computers.
+ * Uses RFT-SIS lattice-based KDF without any formal security claim.
  */
 feistel_error_t feistel_init(feistel_ctx_t* ctx, const uint8_t* master_key, 
                             size_t key_len, uint32_t flags, rft_variant_t variant) {
@@ -147,19 +146,19 @@ feistel_error_t feistel_init(feistel_ctx_t* ctx, const uint8_t* master_key,
     ctx->flags = flags;
     ctx->variant = variant;  // Store variant for round function
     
-    // Initialize RFT-SIS for post-quantum key derivation
+    // Initialize RFT-SIS for experimental key derivation
     if (ensure_rft_sis_init() != RFT_SIS_SUCCESS) {
         // Fall back to classical HKDF if RFT-SIS fails
         goto classical_kdf;
     }
     
-    // POST-QUANTUM KEY DERIVATION using RFT-SIS
+    // EXPERIMENTAL KEY DERIVATION using RFT-SIS
     // Derive round keys using RFT-SIS lattice-based KDF
     uint8_t info_buffer[32];
     for (int round = 0; round < FEISTEL_48_ROUNDS; round++) {
         snprintf((char*)info_buffer, sizeof(info_buffer), "RFT_SIS_ROUND_%02d", round);
         
-        // Use RFT-SIS KDF for post-quantum security
+        // Use RFT-SIS KDF (experimental)
         if (rft_sis_kdf(&g_rft_sis_ctx, master_key, key_len,
                        info_buffer, strlen((char*)info_buffer),
                        ctx->round_keys[round], FEISTEL_ROUND_KEY_SIZE) != RFT_SIS_SUCCESS) {
@@ -181,7 +180,7 @@ feistel_error_t feistel_init(feistel_ctx_t* ctx, const uint8_t* master_key,
                (uint8_t*)"RFT_SIS_POST_WHITEN_2025", 24,
                ctx->post_whiten_key, FEISTEL_ROUND_KEY_SIZE);
     
-    // Derive authentication key using RFT-SIS (quantum-resistant MAC key)
+    // Derive authentication key using RFT-SIS (experimental MAC key)
     rft_sis_kdf(&g_rft_sis_ctx, master_key, key_len,
                (uint8_t*)"RFT_SIS_AUTH_KEY_2025", 21,
                ctx->auth_key, FEISTEL_KEY_SIZE);
@@ -190,7 +189,7 @@ feistel_error_t feistel_init(feistel_ctx_t* ctx, const uint8_t* master_key,
     return FEISTEL_SUCCESS;
 
 classical_kdf:
-    // Classical fallback using HKDF (not post-quantum secure)
+    // Classical fallback using HKDF
     for (int round = 0; round < FEISTEL_48_ROUNDS; round++) {
         snprintf((char*)info_buffer, sizeof(info_buffer), "RFT_ROUND_%02d", round);
         

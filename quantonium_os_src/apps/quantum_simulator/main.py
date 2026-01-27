@@ -4,11 +4,10 @@
 """
 Quantum Simulator - QuantoniumOS RFT Foundation
 ==============================================
-1000-Qubit Quantum Simulator with RFT Kernel Integration
-- RFT-based quantum state simulation for massive scaling
-- Vertex-encoded quantum algorithms
-- Classical-quantum hybrid computation
-- Integrated within QuantoniumOS interface
+Symbolic Quantum Simulator (compressed surrogate; not full 2^n state)
+- RFT-based state surrogates for structured demos
+- Vertex-encoded quantum algorithms (educational)
+- Classical-quantum hybrid computation (research)
 """
 
 import sys, os, numpy as np
@@ -44,16 +43,16 @@ LIGHT_STROKE = "#e9ecef"
 
 
 class RFTQuantumSimulator(QMainWindow):
-    """1000-Qubit Quantum Simulator with RFT Kernel Foundation"""
+    """Symbolic quantum simulator (compressed surrogate; not full 2^n state)."""
     
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("RFT Quantum Simulator ΓÇö 1000 Qubits ΓÇö QuantoniumOS")
+        self.setWindowTitle("RFT Quantum Simulator ΓÇö Symbolic Surrogate ΓÇö QuantoniumOS")
         self.resize(1600, 1000)
         self._theme = "light"  # Start in light mode for toggle functionality
 
-        # RFT-based quantum state (supports up to 1000 qubits)
+        # RFT-based quantum state (symbolic surrogate; not full 2^n amplitudes)
         self.max_qubits = 1000 if RFT_AVAILABLE else 10
         self.num_qubits = 5  # Start with fewer qubits for faster startup
         self.rft_engine = None
@@ -65,15 +64,15 @@ class RFTQuantumSimulator(QMainWindow):
         self._build_ui()
 
     def _init_rft_quantum_state(self):
-        """Initialize RFT-based quantum state - FULL 1000 QUBIT SUPPORT"""
+        """Initialize RFT-based quantum state (symbolic surrogate)."""
         try:
             if RFT_AVAILABLE:
-                # Full-scale RFT kernel initialization for 1000 qubits
+                # RFT kernel initialization (full state for <=20 qubits; surrogate beyond)
                 if self.num_qubits <= 20:
                     rft_size = 2 ** self.num_qubits  # Full representation
                 else:
-                    # RFT compression for massive scale (21-1000 qubits)
-                    rft_size = 2 ** 20  # Use RFT's compression capabilities
+                    # Fixed-size surrogate for large qubit counts (not full 2^n state)
+                    rft_size = 2 ** 20
                 
                 try:
                     self.rft_engine = UnitaryRFT(rft_size, 
@@ -86,9 +85,9 @@ class RFTQuantumSimulator(QMainWindow):
                     # Use only available RFT methods
                     self.resonance_state = self.rft_engine.forward(self.quantum_state)
                     
-                    print(f"Γ£ô Full-scale RFT Engine: {self.num_qubits} qubits, {rft_size} dimensions")
+                    print(f"Γ£ô RFT Engine (surrogate): {self.num_qubits} qubits, {rft_size} dimensions")
                     if self.num_qubits > 20:
-                        print(f"Γ£ô Using RFT compression for {self.num_qubits}-qubit massive simulation")
+                        print(f"Γ£ô Using fixed-size surrogate for {self.num_qubits}-qubit demo")
                 except Exception as rft_error:
                     print(f"ΓÜá∩╕Å RFT engine failed: {rft_error}")
                     print("≡ƒôº Falling back to classical simulation...")
@@ -152,7 +151,7 @@ class RFTQuantumSimulator(QMainWindow):
 
         # Header row with RFT status
         header = QHBoxLayout()
-        self.title = QLabel("RFT QUANTUM SIMULATOR ΓÇö 1000 QUBITS")
+        self.title = QLabel("RFT QUANTUM SIMULATOR ΓÇö SYMBOLIC SURROGATE")
         self.title.setObjectName("HeaderTitle")
         header.addWidget(self.title)
         
@@ -309,10 +308,10 @@ class RFTQuantumSimulator(QMainWindow):
         w = QWidget(); grid = QGridLayout(w); grid.setHorizontalSpacing(14); grid.setVerticalSpacing(14)
 
         # Scaling controls
-        scale_card, scale_lay = self._mk_card(grid, "Classical-Quantum Scaling")
+        scale_card, scale_lay = self._mk_card(grid, "Classical-Quantum Scaling (Symbolic)")
         
         scale_row = QHBoxLayout()
-        scale_row.addWidget(QLabel("Target Qubits:"))
+        scale_row.addWidget(QLabel("Target Qubits (symbolic):"))
         self.target_qubits = QSpinBox()
         self.target_qubits.setRange(10, 1000)
         self.target_qubits.setValue(100)
@@ -394,24 +393,24 @@ class RFTQuantumSimulator(QMainWindow):
     # ===== RFT Quantum Core Methods =====
     
     def _update_qubit_count(self):
-        """Update vertex count safely - VERTEX OPERATIONS ONLY - Full 1000 qubit support"""
+        """Update vertex count safely - VERTEX OPERATIONS ONLY - symbolic surrogate."""
         try:
             new_qubits = self.qubit_spin.value()
             
-            # Validate qubit count for full 1000-qubit range
+            # Validate qubit count for symbolic range
             if new_qubits < 1:
                 new_qubits = 1
                 self.qubit_spin.setValue(1)
-            elif new_qubits > self.max_qubits:  # Allow full 1000 qubits
+            elif new_qubits > self.max_qubits:
                 new_qubits = self.max_qubits
                 self.qubit_spin.setValue(self.max_qubits)
             
             self.num_qubits = new_qubits
             
-            # RFT kernel can handle large scales efficiently
+            # RFT kernel uses fixed-size surrogate beyond full-state limits
             if RFT_AVAILABLE and hasattr(self, 'rft_engine'):
                 try:
-                    # Full scale vertex-based initialization
+                    # Vertex-based initialization (full-state <=20; surrogate beyond)
                     vertex_size = 2 ** min(self.num_qubits, 20)  # RFT can handle up to 2^20
                     
                     # Reinitialize RFT engine for large scale  
@@ -425,7 +424,7 @@ class RFTQuantumSimulator(QMainWindow):
                     # Apply RFT vertex transform
                     self.resonance_state = self.rft_engine.forward(self.quantum_state)
                     
-                    print(f"Γ£ô Full-scale vertex system: {self.num_qubits} qubits, {vertex_size} vertices")
+                    print(f"Γ£ô Vertex system (surrogate): {self.num_qubits} qubits, {vertex_size} vertices")
                     
                 except Exception as e:
                     print(f"ΓÜá Large-scale vertex update failed, using reduced scale: {e}")
@@ -444,9 +443,9 @@ class RFTQuantumSimulator(QMainWindow):
             self._init_large_classical_state()
 
     def _init_large_classical_state(self):
-        """Initialize large-scale classical simulation state"""
+        """Initialize large-scale classical simulation state (symbolic surrogate beyond full-state limits)."""
         try:
-            # Use larger classical limits for 1000-qubit simulation
+            # Use larger classical limits for symbolic qubit counts
             if self.num_qubits <= 20:
                 size = 2 ** self.num_qubits  # Full classical for small counts
             else:

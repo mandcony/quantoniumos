@@ -80,7 +80,7 @@ typedef enum {
     // These implement the official patent claims
     RFT_VARIANT_CANONICAL = 13,     // Canonical RFT: fₖ=(k+1)×φ, θₖ=2πk/φ (Claim 1)
     RFT_VARIANT_BINARY_WAVE = 14,   // BinaryRFT: BPSK wave-domain logic (Claim 1)
-    RFT_VARIANT_CRYPTO_SIS = 15     // RFT-SIS: Post-quantum hash (Claim 2)
+    RFT_VARIANT_CRYPTO_SIS = 15     // RFT-SIS: Experimental lattice-style hash (Claim 2)
 } rft_variant_t;
 
 // DCT/Hybrid computation constants

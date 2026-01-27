@@ -4,18 +4,13 @@
  */
 
 /**
- * RFT-SIS: Post-Quantum Lattice-Based Cryptographic Hash
+ * RFT-SIS: Experimental Lattice-Style Cryptographic Hash
  * ======================================================
  * 
- * Combines the φ-RFT transform with the Short Integer Solution (SIS) 
- * lattice problem to achieve post-quantum security.
+ * Combines the φ-RFT transform with a SIS-style compression over Z_q.
+ * This is a research-only construction with no formal security reduction.
  * 
- * Security basis:
- * - SIS problem is NP-hard and believed quantum-resistant
- * - Best known quantum algorithms (e.g., Grover) provide only √n speedup
- * - NIST PQC standards (Kyber, Dilithium) use similar lattice assumptions
- * 
- * Parameters (128-bit post-quantum security):
+ * Parameters (demo only; no BKZ/SVP analysis):
  * - n = 512 (lattice dimension)
  * - m = 1024 (number of samples)  
  * - q = 3329 (modulus, same as Kyber)
@@ -34,7 +29,7 @@
 extern "C" {
 #endif
 
-// SIS Parameters for 128-bit post-quantum security
+// SIS demo parameters (no security claim)
 #define RFT_SIS_N           512     // Lattice dimension
 #define RFT_SIS_M           1024    // Number of samples
 #define RFT_SIS_Q           3329    // Modulus (Kyber prime)
@@ -96,7 +91,7 @@ rft_sis_error_t rft_sis_hash(const rft_sis_ctx_t* ctx,
                             uint8_t* output);
 
 /**
- * Derive key material using RFT-SIS (for post-quantum key derivation)
+ * Derive key material using RFT-SIS (experimental KDF)
  * @param ctx Initialized context
  * @param master_key Master key input
  * @param master_key_len Length of master key
@@ -112,7 +107,7 @@ rft_sis_error_t rft_sis_kdf(const rft_sis_ctx_t* ctx,
                            uint8_t* output, size_t output_len);
 
 /**
- * Compute authentication tag using RFT-SIS (post-quantum MAC)
+ * Compute authentication tag using RFT-SIS (experimental MAC)
  * @param ctx Initialized context
  * @param key Authentication key
  * @param key_len Key length

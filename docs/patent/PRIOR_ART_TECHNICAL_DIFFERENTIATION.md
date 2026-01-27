@@ -317,7 +317,7 @@ Our patent represents a **novel convergence** of three traditionally separate do
 
 | Domain | Prior Art Limitation | Our Innovation |
 |--------|---------------------|----------------|
-| **Quantum Compression** | Hardware-dependent, limited scalability | Classical implementation, 1000+ qubit capability |
+| **Quantum Compression** | Hardware-dependent, limited scalability | Classical implementation, 1000+ symbolic surrogate labels |
 | **Golden Ratio Mathematics** | Optimization tools or geometric patterns | Core transform parameterization |
 | **Topological Computing** | Physical quantum systems or offline analysis | Real-time cryptographic applications |
 
@@ -396,7 +396,7 @@ quantum compression, cryptography, and geometric structures.
 1. **Mathematical Novelty**: φ^(kn) parameterization in unitary transforms is unprecedented
 2. **Application Novelty**: Topological cryptographic hashing is a new technical domain  
 3. **Integration Novelty**: Unified quantum-crypto-geometric framework is unique
-4. **Implementation Novelty**: Classical 1000+ qubit symbolic processing is novel
+4. **Implementation Novelty**: Classical 1000+ symbolic surrogate processing is novel
 
 ### **Competitive Landscape Assessment**
 
