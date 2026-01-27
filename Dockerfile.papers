@@ -19,7 +19,7 @@
 #   docker run --rm quantoniumos-papers python scripts/verify_scaling_laws.py
 #   docker run --rm quantoniumos-papers pytest tests/rft/ -v
 
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 LABEL maintainer="Luis M. Minier"
 LABEL description="QuantoniumOS Paper Validation Environment"
