@@ -246,7 +246,7 @@ class ZenodoFigureGenerator:
             ("Mode 2: RFT-Harmonic", "Natural overtones", 2),
             ("Mode 3: RFT-Geometric", "Self-similar φⁱ", 3),
             ("Mode 4: RFT-Beating", "Interference patterns", 4),
-            ("Mode 5: RFT-Phyllotaxis", "Golden angle 137.5°", 5),
+            ("Mode 5: RFT-Phyllotaxis", "Golden angle 137.5° (2π/φ²; complement 222.5°)", 5),
             ("Mode 6: RFT-Cascade", "H3 DCT+RFT blend", 6),
             ("Mode 7: RFT-Hybrid-DCT", "Split basis", 7),
             ("Mode 8: RFT-Manifold", "Manifold projection", 8),

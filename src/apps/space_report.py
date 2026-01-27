@@ -30,6 +30,8 @@ import os
 from pathlib import Path
 from typing import Dict, Optional
 
+from atomic_io import atomic_write_json
+
 
 def _bytes_dir(path: Path) -> int:
     total = 0
@@ -115,7 +117,7 @@ def main() -> None:
 
     out_path = Path(args.json)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    atomic_write_json(out_path, report, indent=2)
 
     print("Disk usage:")
     print(f"  HF cache     : {_human(int(report['hf_cache_bytes']))}  ({hf_dir})")

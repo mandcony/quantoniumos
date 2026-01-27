@@ -187,7 +187,7 @@ All variants implemented in hardware with unitarity error < 1e-13:
 | 2 | RFT-Harmonic | Natural overtones | Cubic phase | 1.30e-13 |
 | 3 | RFT-Geometric | Self-similar φ^i | Quadratic lattice | 1.55e-13 |
 | 4 | RFT-Beating | Interference patterns | Golden ratio beat | 6.74e-14 |
-| 5 | RFT-Phyllotaxis | Golden angle 137.5° | Biological growth | 1.06e-13 |
+| 5 | RFT-Phyllotaxis | Golden angle 137.5° (2π/φ²; complement 222.5°) | Golden-angle phase sequence | 1.06e-13 |
 | 6 | RFT-Cascade | H3 DCT+RFT blend | Hierarchical | 2.37e-13 |
 | 7 | RFT-Hybrid-DCT | Split basis | Mixed content | 5.40e-15 |
 | 8 | RFT-Manifold | Manifold projection | Patent variant | < 1e-10 |

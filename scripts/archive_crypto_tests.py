@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
 # Copyright (C) 2026 Luis M. Minier / quantoniumos
-# This file is listed in CLAIMS_PRACTICING_FILES.txt and is licensed
-# under LICENSE-CLAIMS-NC.md (research/education only). Commercial
-# rights require a separate patent license from the author.
 """
 Generate cryptographic test artifacts for EnhancedRFTCryptoV2.
 
@@ -18,6 +15,10 @@ Outputs:
 These are minimum sanity checks, not cryptographic validation.
 """
 
+# This file is listed in CLAIMS_PRACTICING_FILES.txt and is licensed
+# under LICENSE-CLAIMS-NC.md (research/education only). Commercial
+# rights require a separate patent license from the author.
+
 import json
 import os
 import sys
@@ -26,6 +27,8 @@ from datetime import datetime, timezone
 from typing import Dict, List, Tuple
 
 import numpy as np
+
+from atomic_io import atomic_write_json
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
@@ -233,8 +236,7 @@ def main():
         status = "✓" if v['decrypt_matches'] else "✗"
         print(f"  {status} {v['name']}: {v['ciphertext_hex'][:16]}...")
     
-    with open(os.path.join(args.output, "kat_vectors.json"), 'w') as f:
-        json.dump(kat_vectors, f, indent=2)
+    atomic_write_json(os.path.join(args.output, "kat_vectors.json"), kat_vectors, indent=2)
     
     # 2. Avalanche test
     print("\n[2/3] Testing avalanche effect...")
@@ -243,8 +245,7 @@ def main():
     print(f"  Percentage of ideal: {avalanche['percentage_of_ideal']:.1f}%")
     print(f"  Assessment: {avalanche['assessment']}")
     
-    with open(os.path.join(args.output, "avalanche_test.json"), 'w') as f:
-        json.dump(avalanche, f, indent=2)
+    atomic_write_json(os.path.join(args.output, "avalanche_test.json"), avalanche, indent=2)
     
     # 3. Basic differential
     print("\n[3/3] Basic differential test...")
@@ -256,8 +257,7 @@ def main():
         json.dump(differential, f, indent=2)
     
     # Write manifest
-    with open(os.path.join(args.output, "manifest.json"), 'w') as f:
-        json.dump(manifest, f, indent=2)
+    atomic_write_json(os.path.join(args.output, "manifest.json"), manifest, indent=2)
     
     print(f"\n✓ Artifacts written to {args.output}/")
     
@@ -265,8 +265,7 @@ def main():
     print("\n" + "="*60)
     print("SUMMARY")
     print("="*60)
-    print(f"  Decryption matches:    {'✓ PASS' if all_decrypt_ok else '✗ FAIL'}")
-    print(f"  Avalanche effect:      {avalanche['assessment']} ({avalanche['percentage_of_ideal']:.1f}% of ideal)")
+    atomic_write_json(os.path.join(args.output, "differential_test.json"), differential, indent=2)
     print(f"  Differential diversity: {differential['assessment']}")
 
 

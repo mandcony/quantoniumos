@@ -26,7 +26,7 @@ from typing import Tuple
 # Golden ratio constant
 PHI = (1 + np.sqrt(5)) / 2
 
-# Golden angle (phyllotaxis) - ~137.5 degrees
+# Golden angle (phyllotaxis): 2π/φ² ≈ 137.5° (complement 2π/φ ≈ 222.5°)
 GOLDEN_ANGLE = 2 * np.pi / (PHI ** 2)
 
 # Euler's number for complex exponential transforms

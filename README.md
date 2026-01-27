@@ -1,4 +1,4 @@
-# QuantoniumOS: Quantum-Inspired Research Operating System
+# QuantoniumOS: Quantum-Inspired Research Platform
 
 [![RFT Framework DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17712905.svg)](https://doi.org/10.5281/zenodo.17712905)
 [![Coherence Paper DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17726611.svg)](https://doi.org/10.5281/zenodo.17726611)
@@ -12,6 +12,8 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](tests/)
 
 ---
+
+**Scope note:** “QuantoniumOS” is a research branding name. This repository does **not** implement an OS kernel, scheduler, or filesystem. It provides a user‑space desktop UI and signal‑processing stack. Any OS‑level claims require explicit implementation and test evidence.
 
 ## IMPORTANT: RFT Definition Update (December 2025)
 

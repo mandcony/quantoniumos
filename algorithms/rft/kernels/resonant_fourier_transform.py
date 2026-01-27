@@ -159,8 +159,9 @@ def generate_fibonacci_modulated(N: int, f0: float = 10.0,
 
 def generate_phyllotaxis_signal(N: int, spirals: int = 8) -> np.ndarray:
     """
-    Generate signal based on phyllotaxis (golden angle) pattern.
-    Models the radial density variations in sunflower seed heads.
+    Generate signal based on a fixed golden-angle phase sequence.
+    Uses divergence angle 2π/φ² ≈ 137.5° (complement 2π/φ ≈ 222.5°).
+    This is an irrational-rotation sequence only (no packing/growth model).
     """
     golden_angle = 2 * np.pi / (PHI ** 2)  # ~137.5 degrees
     t = np.linspace(0, 1, N)

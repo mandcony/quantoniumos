@@ -94,17 +94,13 @@ class TopologicalQuantumKernel:
                 results[qid] = qubit.apply_error_correction()
             return results
 
-    def measure_topological_invariants(self, qubit_id: int) -> Dict[str, float]:
-        """Measure synthetic topology tags for a specific qubit."""
+    def measure_topological_invariants(self, qubit_id: int) -> Dict[str, Any]:
+        """Measure computed surface invariants for a specific qubit."""
         if qubit_id not in self.topological_qubits:
             raise ValueError(f"Topological qubit {qubit_id} not available")
         
         enhanced_qubit = self.topological_qubits[qubit_id]
-        return {
-            'synthetic_total_winding': enhanced_qubit.measure_topological_invariant('synthetic_total_winding'),
-            'synthetic_total_berry_phase': enhanced_qubit.measure_topological_invariant('synthetic_total_berry_phase'),
-            'synthetic_chern_tag': enhanced_qubit.measure_topological_invariant('synthetic_chern_tag')
-        }
+        return enhanced_qubit.get_surface_topology()
 
     def get_topological_kernel_status(self) -> Dict[str, Any]:
         """Get comprehensive status of the topological kernel."""

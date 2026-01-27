@@ -70,7 +70,7 @@ Based on the quasi-periodic signal benchmarks, RFT variants (especially ARFT) sh
 
 1. **Fibonacci sequences** — by design, RFT-Fibonacci captures these perfectly
 2. **Penrose tiling patterns** — quasi-periodic structures with golden-ratio relationships
-3. **Sunflower seed arrangements** — phyllotaxis patterns
+3. **Phyllotaxis-inspired phase sequences** — golden-angle rotations (no packing model)
 
 These are interesting mathematical results but have no obvious medical application.
 

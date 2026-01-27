@@ -41,7 +41,7 @@ modes = [
     ('Mode 2: RFT-Harmonic', 'Natural overtone series'),
     ('Mode 3: RFT-Geometric', 'Self-similar φ^i freqs'),
     ('Mode 4: RFT-Beating', 'Interference patterns'),
-    ('Mode 5: RFT-Phyllotaxis', '137.5° golden angle'),
+    ('Mode 5: RFT-Phyllotaxis', '137.5° golden angle (2π/φ²; complement 222.5°)'),
     ('Mode 6: RFT-Cascade', 'H3 Hybrid Winner'),
     ('Mode 7: RFT-Hybrid-DCT', 'Split DCT/RFT'),
     ('Mode 8: RFT-Manifold', 'Manifold projection'),

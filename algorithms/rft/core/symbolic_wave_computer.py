@@ -96,7 +96,7 @@ class SymbolicWaveComputer:
             # φ-frequency: non-integer, quasi-periodic
             freq_k = (k + 1) * PHI
             
-            # φ-phase: golden angle offset
+            # φ-phase: golden-angle complement offset (2π/φ)
             phase_k = 2 * np.pi * k / PHI
             
             carrier = np.exp(2j * np.pi * freq_k * self.t + 1j * phase_k)

@@ -179,7 +179,7 @@ data/artifacts/rft_stability/
 | **RFT-Harmonic** | [operator_variants.py](../algorithms/rft/variants/operator_variants.py) | Harmonic overtone `ω_k = ω₀·(1 + k/φ)` | Audio/music |
 | **RFT-Geometric** | [operator_variants.py](../algorithms/rft/variants/operator_variants.py) | Golden ratio powers `φ⁰, φ¹, φ², ...` | Self-similar patterns |
 | **RFT-Beating** | [operator_variants.py](../algorithms/rft/variants/operator_variants.py) | Golden-ratio beating patterns | Modulation analysis |
-| **RFT-Phyllotaxis** | [operator_variants.py](../algorithms/rft/variants/operator_variants.py) | Golden angle (137.5°) spiral | Natural patterns |
+| **RFT-Phyllotaxis** | [operator_variants.py](../algorithms/rft/variants/operator_variants.py) | Golden-angle phase sequence (2π/φ²; complement 2π/φ) | Phase-sequence patterns |
 
 ---
 

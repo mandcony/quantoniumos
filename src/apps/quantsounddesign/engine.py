@@ -988,6 +988,7 @@ class Session:
 import json
 from pathlib import Path
 from datetime import datetime
+from atomic_io import atomic_write_json
 
 
 class ProjectManager:
@@ -1032,8 +1033,7 @@ class ProjectManager:
             data = session.to_dict()
             data["saved_at"] = datetime.now().isoformat()
             
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=2)
+            atomic_write_json(filepath, data, indent=2)
             
             # Update recent projects
             self._add_to_recent(str(filepath), session.name)
@@ -1069,8 +1069,7 @@ class ProjectManager:
             data = session.to_dict()
             data["autosaved_at"] = datetime.now().isoformat()
             
-            with open(autosave_path, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=2)
+            atomic_write_json(autosave_path, data, indent=2)
         except Exception as e:
             print(f"Autosave failed: {e}")
     
@@ -1131,8 +1130,7 @@ class ProjectManager:
         """Save recent projects list"""
         try:
             recent_file = self.config_dir / self.RECENT_FILE
-            with open(recent_file, 'w', encoding='utf-8') as f:
-                json.dump(self.recent_projects, f, indent=2)
+            atomic_write_json(recent_file, self.recent_projects, indent=2)
         except Exception:
             pass
     

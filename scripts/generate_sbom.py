@@ -22,6 +22,8 @@ from pathlib import Path
 from typing import Dict, List, Any
 import uuid
 
+from atomic_io import atomic_write_json
+
 
 def get_installed_packages() -> List[Dict[str, str]]:
     """Get list of installed packages via pip."""
@@ -151,8 +153,7 @@ def main():
     
     # Write output
     output_path = Path(__file__).parent.parent / 'sbom.json'
-    with open(output_path, 'w') as f:
-        json.dump(sbom, f, indent=2)
+    atomic_write_json(output_path, sbom, indent=2)
     
     print(f"Written to: {output_path}")
     print()

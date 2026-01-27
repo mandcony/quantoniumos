@@ -60,7 +60,7 @@ Key Innovation: φ^(kn) parameterization not found in IBM literature
 **Our Innovation vs Their Approach**:
 | Aspect | Google MPS Approach | Our Geometric Structures Approach |
 |--------|-------------------|-----------------------------------|
-| **Topology** | 1D chain structures | Arbitrary topological manifolds |
+| **Topology** | 1D chain structures | Triangulated surfaces (torus/Klein bottle) |
 | **Compression Basis** | SVD rank reduction | RFT + projection mapping |
 | **Geometric Awareness** | Limited to bond dimensions | Full geometric coordinate preservation |  
 | **Cryptographic Integration** | None | Integrated waveform hashing |
@@ -69,7 +69,7 @@ Key Innovation: φ^(kn) parameterization not found in IBM literature
 **Technical Differentiation**:
 ```
 Google MPS: Ψ = Σᵢ λᵢ Aᵢ₁ Aᵢ₂ ... Aᵢₙ (1D chain)
-Our Method: Ψ → RFT → Manifold(φ) → Topological Hash (arbitrary topology)
+Our Method: Ψ → RFT → Projection(φ) → Hash (projection embedding)
 
 Unique Contribution: Geometric coordinate transformation with golden ratio scaling
 ```
@@ -228,7 +228,7 @@ Unique Contribution: Polar-to-Cartesian with φ-scaling for cryptographic featur
 | Aspect | Microsoft Anyons | Our Topological Embedding |
 |--------|-----------------|---------------------------|
 | **Physical Basis** | Requires exotic anyonic materials | Classical computation with topological mathematics |
-| **Braiding Operations** | Physical braiding in 3D space | Symbolic braiding in manifold space |
+| **Braiding Operations** | Physical braiding in 3D space | Symbolic braiding on a triangulated surface graph |
 | **Fault Tolerance** | Hardware-based topological protection | Software-based geometric structure preservation |
 | **Scalability** | Limited by material constraints | Scalable through classical computation |
 | **Integration** | Standalone quantum computing | Integrated with compression and cryptography |
@@ -236,10 +236,10 @@ Unique Contribution: Polar-to-Cartesian with φ-scaling for cryptographic featur
 **Technical Differentiation**:
 ```
 Microsoft: Physical anyons → Braiding operations → Topological gates
-Our Method: Data → RFT → Projection mapping → Synthetic tags → Hash
+Our Method: Data → RFT → Projection mapping → Embedding → Hash
 
 Fundamental Difference: Physical vs Mathematical topological operations
-Unique Innovation: Topological hashing without exotic quantum materials
+Unique Innovation: Projection-based hashing without exotic quantum materials
 ```
 
 #### **3.2 Quantum Error Correction with Toric Codes (Caltech Quantum Computing)**
@@ -251,18 +251,18 @@ Unique Innovation: Topological hashing without exotic quantum materials
 - Focus on quantum memory protection
 
 **Our Innovation vs Their Approach**:
-| Aspect | Caltech Toric Codes | Our Manifold-Based Hashing |
+| Aspect | Caltech Toric Codes | Our Projection-Based Hashing |
 |--------|-------------------|---------------------------|
 | **Purpose** | Error correction | Cryptographic feature extraction |
-| **Topology** | Fixed 2D torus | Arbitrary manifold dimensions |
-| **Invariants** | Homology groups | Phase-winding tags + synthetic scores |
+| **Topology** | Fixed 2D torus | Triangulated surface metadata in the topological kernel |
+| **Invariants** | Homology groups | Euler characteristic + orientability (kernel metadata; not hash input) |
 | **Computational Goal** | Preserve quantum information | Generate cryptographic hashes |
 | **Classical Integration** | Limited | Full classical-quantum hybrid |
 
 **Technical Differentiation**:
 ```
 Caltech: 2D lattice → Stabilizer codes → Error syndrome detection
-Our Method: Arbitrary manifold → Topological invariants → Hash features
+Our Method: Triangulated surface → Invariants (kernel metadata) → Optional analysis
 
 Key Innovation: Cryptographic application of topological mathematics
 ```
@@ -280,14 +280,14 @@ Key Innovation: Cryptographic application of topological mathematics
 |--------|-----------------|-------------------------------|
 | **Analysis Type** | Statistical classification | Real-time cryptographic hashing |
 | **Computational Goal** | Understand quantum datasets | Generate secure hash digests |
-| **Topological Tools** | Persistent homology | Phase-winding tags + projection mapping |
+| **Topological Tools** | Persistent homology | Projection embedding + geometric quantization |
 | **Integration Level** | Post-processing analysis | Core component of unified framework |
 | **Real-time Capability** | Not addressed | Optimized for real-time processing |
 
 **Technical Differentiation**:
 ```
 MIT TDA: Quantum states → Persistent homology → Statistical insights
-Our Method: Input data → RFT → Manifold → Topological hash → Security
+Our Method: Input data → RFT → Projection → Hash → Security
 
 Unique Application: Real-time topological cryptography vs offline analysis
 ```
@@ -304,7 +304,7 @@ Unique Application: Real-time topological cryptography vs offline analysis
 **Critical Technical Gaps**:
 1. **No existing work** applies topological mathematics to cryptographic waveform hashing
 2. **No prior research** combines projection mapping with RFT for hash generation
-3. **No published method** uses phase-winding tags for real-time cryptographic features
+3. **No published method** uses projection-embedded geometric quantization for real-time cryptographic features
 4. **No existing approach** integrates embedding with quantum compression
 
 ---

@@ -16,6 +16,8 @@ from typing import Optional, Dict, Any, List
 
 import threading
 
+from atomic_io import AtomicJsonlWriter, atomic_write_text
+
 from PyQt5.QtCore import Qt, QTimer, QSize, QPoint, QEvent
 from PyQt5.QtGui import QFont, QColor, QPainter, QPen, QBrush, QTextOption
 from PyQt5.QtWidgets import (
@@ -427,9 +429,10 @@ class Chatbox(QMainWindow):
     def _persist_feedback(self, thumbs_up: bool):
         os.makedirs('logs', exist_ok=True)
         try:
-            with open('logs/feedback.jsonl', 'a', encoding='utf-8') as f:
-                entry = {'ts': self._ts(), 'conversation': getattr(self, '_conversation_id', None), 'thumbs_up': bool(thumbs_up)}
-                f.write(json.dumps(entry) + '\n')
+            if not getattr(self, "_feedback_writer", None):
+                self._feedback_writer = AtomicJsonlWriter('logs/feedback.jsonl')
+            entry = {'ts': self._ts(), 'conversation': getattr(self, '_conversation_id', None), 'thumbs_up': bool(thumbs_up)}
+            self._feedback_writer.write(entry)
             # brief UI acknowledgement
             self.statusBar().showMessage('Feedback saved', 2000)
         except Exception as e:
@@ -439,8 +442,7 @@ class Chatbox(QMainWindow):
         path, _ = QFileDialog.getSaveFileName(self, "Save transcript", self._suggest_log_name(".txt"), "Text Files (*.txt)")
         if not path: return
         try:
-            with open(path, "w", encoding="utf-8") as f:
-                f.write(self._read_current_transcript())
+            atomic_write_text(path, self._read_current_transcript(), encoding="utf-8")
             QMessageBox.information(self, "Saved", f"Transcript saved to:\n{path}")
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e))
@@ -457,7 +459,7 @@ class Chatbox(QMainWindow):
     def _ensure_logfile(self):
         os.makedirs("logs", exist_ok=True)
         self._log_path = self._suggest_log_name(".jsonl")
-        self._log_fp = open(self._log_path, "a", encoding="utf-8")
+        self._log_writer = AtomicJsonlWriter(self._log_path)
         self._log_line({"type":"system","event":"open","ts":self._ts()})
 
     def _suggest_log_name(self, ext: str) -> str:
@@ -469,8 +471,7 @@ class Chatbox(QMainWindow):
 
     def _log_line(self, obj: Dict[str, Any]):
         try:
-            self._log_fp.write(json.dumps(obj, ensure_ascii=False) + "\n")
-            self._log_fp.flush()
+            self._log_writer.write(obj)
         except Exception:
             pass
 
@@ -805,7 +806,10 @@ What would you like to learn about? I'll design a learning path that works for y
     # ---------- cleanup ----------
     def closeEvent(self, ev):
         try:
-            if self._log_fp: self._log_fp.close()
+            if getattr(self, "_log_writer", None):
+                self._log_writer.close()
+            if getattr(self, "_feedback_writer", None):
+                self._feedback_writer.close()
         except Exception:
             pass
         super().closeEvent(ev)

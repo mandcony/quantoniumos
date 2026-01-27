@@ -23,6 +23,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 import torch
+from atomic_io import atomic_write_json
 
 
 @dataclass(frozen=True)
@@ -235,8 +236,7 @@ def run_model_sweep(
     except Exception as e:
         report.update({"status": "error", "error": f"{type(e).__name__}: {e}"})
 
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
+    atomic_write_json(out_path, report, indent=2)
 
     return report
 

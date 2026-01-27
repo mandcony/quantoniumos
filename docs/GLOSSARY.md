@@ -97,7 +97,7 @@ Data → SHA3 Expansion → RFT Transform → SIS Quantization → Lattice Point
 **Properties:**
 - Self-similar: φ² = φ + 1
 - Fibonacci limit: F_{n+1}/F_n → φ
-- Golden angle: 2π/φ² ≈ 137.5° (most irrational angle)
+- Golden angle: 2π/φ² ≈ 137.5° (complement 2π/φ ≈ 222.5°; same rotation opposite direction)
 
 ### Matched Filter Detection
 

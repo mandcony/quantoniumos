@@ -983,6 +983,8 @@ import json
 import os
 from pathlib import Path
 
+from atomic_io import atomic_write_json
+
 
 def get_config_dir() -> Path:
     """Get the QuantoniumOS config directory"""
@@ -1016,8 +1018,7 @@ def save_audio_config(settings: AudioSettings) -> bool:
         data['_version'] = 1
         data['_saved_at'] = time.strftime('%Y-%m-%d %H:%M:%S')
         
-        with open(config_path, 'w') as f:
-            json.dump(data, f, indent=2)
+        atomic_write_json(config_path, data, indent=2)
         
         print(f"✓ Audio config saved to {config_path}")
         return True

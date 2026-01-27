@@ -57,7 +57,7 @@ def gen_harmonic(N, f0=100.0):
 
 
 def gen_phyllotaxis(N, spirals=8):
-    """Phyllotaxis (golden angle) pattern."""
+    """Phyllotaxis phase sequence using 2π/φ² ≈ 137.5° (complement 2π/φ ≈ 222.5°)."""
     t = np.linspace(0, 1, N)
     x = np.zeros(N)
     for s in range(1, spirals + 1):

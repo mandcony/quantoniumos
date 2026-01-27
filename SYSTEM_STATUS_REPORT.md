@@ -7,6 +7,8 @@
 ## 🚀 Executive Summary
 The QuantoniumOS repository has been successfully audited, cleaned, and verified. The platform is now in a stable state for scientific research. The core "Quantum Symbolic Engine" (Class A) has been verified to perform at **505 million symbolic qubit-ops/sec**, validating the primary claim of the project. However, claims regarding universal compression and audio superiority have been debunked or contextualized.
 
+**Scope note:** This repository provides a user‑space research platform and desktop UI. It does not implement an OS kernel, scheduler, or filesystem. Any OS‑level claims require explicit implementation and test evidence.
+
 ## 🛠️ Technical Achievements
 
 ### 1. Repository Hygiene

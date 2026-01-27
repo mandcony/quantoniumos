@@ -25,6 +25,8 @@ from pathlib import Path
 
 import numpy as np
 
+from atomic_io import atomic_write_json
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
@@ -179,8 +181,7 @@ def main():
     }
     
     manifest_path = out_dir / "manifest.json"
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
+    atomic_write_json(manifest_path, manifest, indent=2)
     
     print(f"\n✓ Artifacts written to {args.output}/")
     print(f"  - ctr_stream.bin")

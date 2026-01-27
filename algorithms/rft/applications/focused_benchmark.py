@@ -23,7 +23,7 @@ We'll test:
 - EEG alpha rhythms with quasi-periodic modulation
 - Heart Rate Variability (HRV) with fractal structure
 - Musical textures with polyrhythmic content
-- Plant growth signals (phyllotaxis-related)
+- Phyllotaxis-inspired phase sequences (no packing/growth model)
 
 December 2025 - Track C
 """
@@ -138,9 +138,9 @@ def generate_polyrhythmic_texture(n: int, base_freq: float = 5.0) -> np.ndarray:
 
 def generate_phyllotaxis_signal(n: int) -> np.ndarray:
     """
-    Generate signal with phyllotaxis (golden angle) structure.
-    
-    Simulates radial sampling of a sunflower pattern.
+    Generate signal with a golden-angle phase sequence.
+    Uses 2π/φ² ≈ 137.5° (complement 2π/φ ≈ 222.5°).
+    This is a fixed rotation sequence only (no packing/growth model).
     """
     t = np.arange(n) / n
     golden_angle = 2 * np.pi / PHI**2  # ~137.5 degrees
@@ -418,7 +418,7 @@ RFT DOMAIN SPECIFICITY CONFIRMED:
 1. RFT-Golden wins on signals with golden-ratio quasi-periodic structure:
    - EEG alpha with attention-modulated amplitude
    - Polyrhythmic musical textures
-   - Phyllotaxis-patterned signals
+    - Phyllotaxis phase-sequence signals
 
 2. RFT provides +2-4 dB advantage when:
    - Golden-ratio modulation depth > 60%
@@ -433,7 +433,7 @@ RFT DOMAIN SPECIFICITY CONFIRMED:
 PRACTICAL APPLICATIONS:
 - EEG attention state detection (alpha rhythm analysis)
 - Musical texture synthesis with polyrhythmic content
-- Biological pattern recognition (phyllotaxis, spirals)
+- Phase-sequence pattern analysis (golden-angle rotations)
 
 PUBLICATION ANGLE:
 "Domain-Specific Transform for Quasi-Periodic Biomedical Signals"

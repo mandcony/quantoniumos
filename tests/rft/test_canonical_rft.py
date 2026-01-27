@@ -444,7 +444,7 @@ class TestGoldenRatioProperties:
         assert np.isclose(ratio, PHI, rtol=1e-10)
     
     def test_golden_angle(self):
-        """Golden angle is 2π/φ² ≈ 137.5°."""
+        """Golden angle is 2π/φ² ≈ 137.5° (complement 2π/φ ≈ 222.5°)."""
         golden_angle_rad = 2 * np.pi / (PHI ** 2)
         golden_angle_deg = np.degrees(golden_angle_rad)
         

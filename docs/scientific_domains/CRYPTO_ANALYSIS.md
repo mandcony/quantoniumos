@@ -9,7 +9,7 @@ Standard crypto relies on bitwise operations (XOR, S-Boxes) or modular arithmeti
 
 $$ \Psi(k) = \sum_{n=0}^{N-1} x[n] \cdot e^{-i \cdot 2\pi \cdot k \cdot n \cdot \phi} $$
 
-Because $\phi$ is the "most irrational number", this transform spreads information maximally across the spectrum, creating a high-quality "mixing" function.
+Because $\phi$ has continued-fraction $[1;1,1,1,\ldots]$, it is poorly approximated by rationals. This reduces periodic repetition in rotation sequences and can promote broad spectral mixing in practice.
 
 ## Benchmark Results
 
@@ -20,7 +20,7 @@ Because $\phi$ is the "most irrational number", this transform spreads informati
 | **RFT-Mixer** | ~15 MB/s | Good (49.8%) | Pass |
 
 ## Key Findings
-1. **High Quality Randomness:** The chaotic nature of the Golden Ratio ensures that small changes in input lead to global changes in the output spectrum (Avalanche Effect).
+1. **High Quality Randomness:** Quasi-periodic phase structure often yields strong diffusion in the output spectrum (Avalanche Effect).
 2. **Performance Bottleneck:** Floating-point math (even optimized) is much slower than bitwise integer math used in AES/SHA.
 3. **Lattice Potential:** The underlying math is related to Lattice-based cryptography (Shortest Vector Problem in irrational bases), suggesting potential post-quantum hardness, but this is **unproven**.
 

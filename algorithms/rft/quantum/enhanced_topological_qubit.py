@@ -20,6 +20,7 @@ from typing import Dict, List, Tuple, Any, Optional, Set
 from dataclasses import dataclass, field
 from enum import Enum
 import cmath
+from surface_topology import compute_surface_topology, triangulate_klein_bottle, triangulate_torus, SurfaceTopology
 
 class TopologyType(Enum):
     """Topological qubit types based on mathematical properties."""
@@ -27,14 +28,6 @@ class TopologyType(Enum):
     NON_ABELIAN_ANYON = "non_abelian_anyon"
     MAJORANA_FERMION = "majorana_fermion"
     FIBONACCI_ANYON = "fibonacci_anyon"
-
-@dataclass
-class SyntheticTopologyTags:
-    """Synthetic tags for visual/heuristic labeling (not topological invariants)."""
-    synthetic_winding: complex
-    synthetic_chern_tag: int
-    synthetic_berry_phase_tag: float
-    synthetic_braiding_signature: str
 
 @dataclass
 class VertexManifold:
@@ -47,9 +40,8 @@ class VertexManifold:
     local_curvature: float = 0.0
     geometric_phase: float = 0.0
     
-    # Topological properties (synthetic tags; not mathematical invariants)
+    # Topological properties (simulation metadata)
     topology_type: TopologyType = TopologyType.NON_ABELIAN_ANYON
-    invariants: SyntheticTopologyTags = field(default_factory=lambda: SyntheticTopologyTags(0+0j, 0, 0.0, ""))
     
     # Quantum state
     local_state: Optional[np.ndarray] = None
@@ -85,12 +77,12 @@ class EnhancedTopologicalQubit:
     """
     Enhanced qubit simulation with topological-style data structures.
     
-    This class manages a classical graph-based representation with synthetic
-    tags to simulate properties like braiding and error correction codes.
+    This class manages a classical graph-based representation with
+    simulation metadata for braiding and error correction codes.
     It is a 'Quantum-Inspired' data structure, not a physical qubit simulation.
     """
     
-    def __init__(self, qubit_id: int, num_vertices: int = 1000):
+    def __init__(self, qubit_id: int, num_vertices: int = 1000, surface_type: str = "torus"):
         self.qubit_id = qubit_id
         self.num_vertices = num_vertices
         
@@ -104,20 +96,16 @@ class EnhancedTopologicalQubit:
         self.code_distance: int = 5
         self.logical_qubits: int = 1
 
-        # Surface-level metadata (declared intent, not computed invariants)
-        self.surface_metadata = {
-            'surface_model': 'torus_parametric',
-            'orientable': True,
-            'surface_genus': 1,
-            'crosscap_number': None,
-            'notes': 'Parametric sampling only; no triangulation/cell complex.'
-        }
+        # Surface-level topology (computed from triangulation)
+        self.surface_topology: Optional[SurfaceTopology] = None
+        self.surface_metadata: Dict[str, Any] = {}
         
         # Mathematical constants
         self.phi = 1.618033988749894848204586834366  # Golden ratio
         self.e_ipi = cmath.exp(1j * np.pi)  # e^(iπ) = -1
         
         # Initialize topology
+        self._initialize_surface_topology(surface_type)
         self._initialize_topological_structure()
         self._initialize_surface_code()
         
@@ -127,8 +115,35 @@ class EnhancedTopologicalQubit:
         print(f"   Code distance: {self.code_distance}")
         print(f"   Surface code stabilizers: {len(self._get_stabilizers())}")
     
+    def _initialize_surface_topology(self, surface_type: str) -> None:
+        """Initialize surface topology using a triangulated cell complex."""
+        grid_size = max(3, int(np.sqrt(self.num_vertices)))
+
+        if surface_type == "torus":
+            surface = triangulate_torus(grid_size, grid_size)
+            surface_model = "torus_triangulated"
+        elif surface_type in {"klein", "klein_bottle"}:
+            surface = triangulate_klein_bottle(grid_size, grid_size)
+            surface_model = "klein_bottle_triangulated"
+        else:
+            raise ValueError(f"Unsupported surface_type: {surface_type}")
+
+        topology = compute_surface_topology(surface)
+        self.surface_topology = topology
+        self.surface_metadata = {
+            'surface_model': surface_model,
+            'triangulation_resolution': {'u': grid_size, 'v': grid_size},
+            'vertex_count': topology.vertex_count,
+            'edge_count': topology.edge_count,
+            'face_count': topology.face_count,
+            'euler_characteristic': topology.euler_characteristic,
+            'orientable': topology.orientable,
+            'genus': topology.genus,
+            'crosscap_number': topology.crosscap_number
+        }
+
     def _initialize_topological_structure(self):
-        """Initialize the structure with parametric geometry and synthetic tags."""
+        """Initialize the structure with parametric geometry and physical-style metadata."""
         # Create vertices with proper topological manifold structure
         for i in range(self.num_vertices):
             # Generate coordinates on a torus (genus 1 manifold)
@@ -143,18 +158,9 @@ class EnhancedTopologicalQubit:
                 r * np.sin(phi_angle)
             ])
             
-            # Calculate synthetic tags (heuristic, not invariants)
-            winding_number = cmath.exp(1j * theta) * cmath.exp(1j * phi_angle * self.phi)
-            chern_number = int((i * self.phi) % 3) - 1  # -1, 0, or 1
-            berry_phase = (theta + phi_angle) % (2 * np.pi)
-            braiding_sig = f"v{i}_w{abs(winding_number):.3f}_c{chern_number}"
-            
-            invariants = SyntheticTopologyTags(
-                synthetic_winding=winding_number,
-                synthetic_chern_tag=chern_number,
-                synthetic_berry_phase_tag=berry_phase,
-                synthetic_braiding_signature=braiding_sig,
-            )
+            # Phase winding used for simulation metadata
+            phase_winding = cmath.exp(1j * theta) * cmath.exp(1j * phi_angle * self.phi)
+            geometric_phase = (theta + phi_angle) % (2 * np.pi)
             
             # Create vertex manifold
             vertex = VertexManifold(
@@ -162,10 +168,9 @@ class EnhancedTopologicalQubit:
                 coordinates=coords,
                 local_hilbert_dim=2,
                 topology_type=TopologyType.NON_ABELIAN_ANYON,
-                invariants=invariants,
-                topological_charge=winding_number,
+                topological_charge=phase_winding,
                 local_curvature=np.sin(phi_angle),
-                geometric_phase=berry_phase
+                geometric_phase=geometric_phase
             )
             
             self.vertices[i] = vertex
@@ -294,7 +299,7 @@ class EnhancedTopologicalQubit:
         vertex_a_obj.topological_charge = vertex_b_obj.topological_charge * edge.holonomy
         vertex_b_obj.topological_charge = temp_charge * np.conj(edge.holonomy)
         
-        # Update Berry phases
+        # Update geometric phases
         phase_change = np.angle(edge.wilson_loop)
         vertex_a_obj.geometric_phase += phase_change
         vertex_b_obj.geometric_phase -= phase_change
@@ -304,22 +309,20 @@ class EnhancedTopologicalQubit:
         
         return braiding_matrix
     
-    def measure_topological_invariant(self, invariant_type: str) -> float:
-        """Measure synthetic tags across the entire qubit (heuristics only)."""
-        if invariant_type == "synthetic_total_winding":
-            total_winding = sum(abs(v.invariants.synthetic_winding) for v in self.vertices.values())
-            return total_winding
-        
-        elif invariant_type == "synthetic_total_berry_phase":
-            total_phase = sum(v.geometric_phase for v in self.vertices.values()) % (2 * np.pi)
-            return total_phase
-        
-        elif invariant_type == "synthetic_chern_tag":
-            total_chern = sum(v.invariants.synthetic_chern_tag for v in self.vertices.values())
-            return total_chern
-        
-        else:
-            raise ValueError(f"Unknown invariant tag: {invariant_type}")
+    def get_surface_topology(self) -> Dict[str, Any]:
+        """Return computed surface invariants from the triangulated complex."""
+        if self.surface_topology is None:
+            return {}
+
+        return {
+            'vertex_count': self.surface_topology.vertex_count,
+            'edge_count': self.surface_topology.edge_count,
+            'face_count': self.surface_topology.face_count,
+            'euler_characteristic': self.surface_topology.euler_characteristic,
+            'orientable': self.surface_topology.orientable,
+            'genus': self.surface_topology.genus,
+            'crosscap_number': self.surface_topology.crosscap_number
+        }
     
     def encode_data_on_edge(self, edge_id: str, data: np.ndarray) -> str:
         """Encode data on a topological edge using geometric waveform encoding."""
@@ -453,11 +456,7 @@ class EnhancedTopologicalQubit:
             'code_distance': self.code_distance,
             'global_state_norm': float(np.linalg.norm(self.global_state)),
             'surface_metadata': self.surface_metadata,
-            'synthetic_topology_tags': {
-                'synthetic_total_winding': self.measure_topological_invariant('synthetic_total_winding'),
-                'synthetic_total_berry_phase': self.measure_topological_invariant('synthetic_total_berry_phase'),
-                'synthetic_chern_tag': self.measure_topological_invariant('synthetic_chern_tag')
-            },
+            'surface_topology': self.get_surface_topology(),
             'surface_code_stabilizers': len(self._get_stabilizers()),
             'edges_with_data': sum(1 for e in self.edges.values() if e.stored_data is not None),
             'average_entanglement_entropy': np.mean([v.entanglement_entropy for v in self.vertices.values()])

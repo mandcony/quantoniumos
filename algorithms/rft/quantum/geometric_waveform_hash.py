@@ -5,7 +5,7 @@
 Geometric Waveform Hashing Pipeline
 Implements the structure-preserving hash pipeline described in the QuantoniumOS paper
 
-Pipeline: x → Ψ(x) → Projection Mapping → Topological Embedding → Digest
+Pipeline: x → Ψ(x) → Projection Mapping → Embedding → Digest
 """
 
 import hashlib
@@ -34,16 +34,19 @@ class GeometricWaveformHash:
     suitable for cryptographic applications (research purposes only).
     """
     
-    def __init__(self, size: int = 64, manifold_dim: int = 16):
+    def __init__(self, size: int = 64, embedding_dim: int = 16, manifold_dim: Optional[int] = None):
         """
         Initialize geometric hash pipeline.
         
         Args:
             size: RFT transform size
-            manifold_dim: Dimension of manifold projection
+            embedding_dim: Dimension of projection embedding
+            manifold_dim: Deprecated alias for embedding_dim
         """
         self.size = size
-        self.manifold_dim = manifold_dim
+        if manifold_dim is not None:
+            embedding_dim = manifold_dim
+        self.embedding_dim = embedding_dim
         
         # Initialize RFT if available
         if CanonicalTrueRFT is not None:
@@ -52,11 +55,11 @@ class GeometricWaveformHash:
             self.rft = None
             print("Warning: NumPy not available, using classical hash fallback")
         
-        # Precompute manifold projection matrix (deterministic)
-        self.manifold_matrix = self._generate_manifold_matrix()
+        # Precompute projection matrix (deterministic)
+        self.projection_matrix = self._generate_projection_matrix()
     
-    def _generate_manifold_matrix(self):
-        """Generate deterministic manifold projection matrix."""
+    def _generate_projection_matrix(self):
+        """Generate deterministic projection matrix."""
         if np is None:
             return None
         
@@ -66,10 +69,10 @@ class GeometricWaveformHash:
         np.random.seed(seed_value)
         
         # Random projection matrix
-        matrix = np.random.randn(self.manifold_dim, self.size)
+        matrix = np.random.randn(self.embedding_dim, self.size)
         
         # Normalize rows
-        for i in range(self.manifold_dim):
+        for i in range(self.embedding_dim):
             norm = np.linalg.norm(matrix[i])
             if norm > 0:
                 matrix[i] /= norm
@@ -98,8 +101,8 @@ class GeometricWaveformHash:
     
     def _projection_mapping(self, rft_coeffs: np.ndarray) -> np.ndarray:
         """Project RFT coefficients onto a lower-dimensional embedding."""
-        if self.manifold_matrix is None:
-            return rft_coeffs[:self.manifold_dim]
+        if self.projection_matrix is None:
+            return rft_coeffs[:self.embedding_dim]
         
         # Complex to real projection (amplitude and phase)
         real_coeffs = np.concatenate([
@@ -111,13 +114,13 @@ class GeometricWaveformHash:
         real_coeffs = real_coeffs[:self.size]
         
         # Project onto embedding
-        embedding_point = self.manifold_matrix @ real_coeffs
+        embedding_point = self.projection_matrix @ real_coeffs
         return embedding_point
     
-    def _topological_embedding(self, manifold_point: np.ndarray) -> bytes:
-        """Create topological embedding preserving geometric structure."""
-        # Quantize manifold coordinates
-        quantized = np.round(manifold_point * 1000).astype(int)
+    def _topological_embedding(self, embedding_point: np.ndarray) -> bytes:
+        """Create embedding bytes preserving geometric structure."""
+        # Quantize embedding coordinates
+        quantized = np.round(embedding_point * 1000).astype(int)
         
         # Convert to bytes with controlled avalanche
         embedding = b""
@@ -159,10 +162,10 @@ class GeometricWaveformHash:
         rft_coeffs = self.rft.forward_transform(signal)
         
         # Step 3: Projection mapping
-        manifold_point = self._projection_mapping(rft_coeffs)
+        embedding_point = self._projection_mapping(rft_coeffs)
         
-        # Step 4: Topological embedding
-        embedding = self._topological_embedding(manifold_point)
+        # Step 4: Embedding
+        embedding = self._topological_embedding(embedding_point)
         
         # Step 5: Final hash digest
         hasher = hashlib.sha256()
@@ -229,7 +232,7 @@ class GeometricWaveformHash:
             'target_avalanche': 0.5,
             'total_output_bits': total_bits,
             'rft_enabled': True,
-            'manifold_dimension': self.manifold_dim
+            'embedding_dimension': self.embedding_dim
         }
 
 
@@ -239,7 +242,7 @@ def validate_geometric_hashing() -> dict:
     """
     print("Validating Geometric Waveform Hashing...")
     
-    hasher = GeometricWaveformHash(size=64, manifold_dim=16)
+    hasher = GeometricWaveformHash(size=64, embedding_dim=16)
     
     # Test basic functionality
     test_message = b"QuantoniumOS Geometric Hash Test Vector"

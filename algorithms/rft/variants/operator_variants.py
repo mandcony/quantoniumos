@@ -176,8 +176,10 @@ def generate_rft_phyllotaxis(n: int) -> np.ndarray:
     """
     RFT-Phyllotaxis: Resonance operator for golden-angle patterns.
     
-    Based on the phyllotaxis angle (137.5°) found in sunflowers, pinecones, etc.
-    Optimal for signals with spiral/radial golden-angle structure.
+    Based on the phyllotaxis divergence angle 2π/φ² ≈ 137.5°
+    (complement 2π/φ ≈ 222.5°, depending on rotation direction).
+    This implements a fixed irrational rotation sequence; it does not model
+    packing/growth dynamics or visible parastichy counts.
     """
     golden_angle = 2 * np.pi / (PHI ** 2)  # ~137.5 degrees in radians
     
