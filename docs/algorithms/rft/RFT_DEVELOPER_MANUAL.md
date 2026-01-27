@@ -193,10 +193,10 @@ This section summarizes the 10 fundamental theorems that establish the Φ-RFT fr
 
 ### 3.1 Core Theorems (Unitary & Structural)
 
-> **Scientific Distinction:** The framework distinguishes between the **Canonical Form** (QR-derived, theoretical ideal) and the **Fast Form** (FFT-factorized, practical implementation).
+> **Scientific Distinction:** The framework distinguishes between the **Canonical Form** (Gram-normalized φ-grid basis, theoretical ideal) and the **Fast Form** (FFT-factorized, practical implementation).
 > *   **Canonical Form:** Used for Theorems 3, 4, 5, 6. Complexity $O(N^3)$.
 > *   **Fast Form:** Used for Theorems 1, 2, 8, 9. Complexity $O(N \log N)$.
-> *   **The Gap:** We do not yet have a formal proof that the Fast Form is a limit of the Canonical Form. They are currently distinct mathematical objects sharing the same phase philosophy.
+> *   **The Gap:** We do not yet have a formal proof that the Fast Form is a limit of the Canonical Form. They are currently distinct mathematical objects sharing the same phase philosophy. A legacy QR resonance-matrix basis exists for historical comparison only.
 
 #### Theorem 1: Unitarity (PROVEN - Fast Form)
 **Statement:** The Fast Φ-RFT factorization $\Psi = D_\phi C_\sigma F$ is exactly unitary: $\Psi^\dagger \Psi = I$.
@@ -208,7 +208,7 @@ This section summarizes the 10 fundamental theorems that establish the Φ-RFT fr
 **Implication:** $O(N)$ evolution complexity vs. $O(N^2)$ for generic methods.
 
 #### Theorem 3: Massive Sparsity (PROVEN - Canonical Form)
-**Statement:** For golden quasi-periodic signals, the Canonical (QR) basis achieves sparsity $S \geq 1 - 1/\phi \approx 0.618$.
+**Statement:** For golden quasi-periodic signals, the Canonical (Gram-normalized) basis achieves sparsity $S \geq 1 - 1/\phi \approx 0.618$.
 **Validation:** Empirical sparsity reaches **98.63% at $N=512$** (exceeds theory).
 
 #### Theorem 4: Non-Equivalence (PROVEN - Canonical Form)
@@ -227,7 +227,7 @@ This section summarizes the 10 fundamental theorems that establish the Φ-RFT fr
 
 #### Theorem 8: $O(N \log N)$ Complexity (PROVEN - Fast Form)
 **Statement:** The Fast variants admit $O(N \log N)$ implementations via FFT factorization.
-**Note:** This complexity applies to the `closed_form_rft.py` implementation, not the QR construction.
+**Note:** This complexity applies to the `phi_phase_fft_optimized.py` implementation, not the canonical Gram-normalized basis.
 
 #### Theorem 9: Twisted Convolution Algebra (PROVEN - Fast Form)
 **Statement:** $\Psi(x \star_{\phi,\sigma} h) = (\Psi x) \odot (\Psi h)$ (commutative/associative).
@@ -249,7 +249,7 @@ This section summarizes the 10 fundamental theorems that establish the Φ-RFT fr
 *   **10.2 Convex Mixed Φ-RFT:** Interpolates between standard and log-periodic phases.
 
 ### 3.3 Closed-Form Fast Φ-RFT (Implementation Note)
-The class `ClosedFormRFT` in `algorithms/rft/core/closed_form_rft.py` implements the fast Φ-RFT as:
+The fast Φ-RFT implementation lives in `algorithms/rft/core/phi_phase_fft_optimized.py` and implements:
 
 $$ \Psi = D_\phi C_\sigma F $$
 
@@ -257,7 +257,7 @@ where $F$ is the unitary FFT matrix (NumPy `norm="ortho"`), and $D_\phi, C_\sigm
 
 $$ \Psi^\dagger \Psi = F^\dagger C_\sigma^\dagger D_\phi^\dagger D_\phi C_\sigma F = F^\dagger I F = I $$
 
-The script `scripts/irrevocable_truths.py` verifies this numerically by checking $\max|\Psi^\dagger \Psi - I| < 10^{-15}$ for representative sizes $N$. This closed-form fast variant is the one used in benchmarks and hardware tests; it is distinct from the canonical QR-derived Φ-RFT, which serves as the mathematical reference but is not used in the performance path.
+The script `scripts/irrevocable_truths.py` verifies this numerically by checking $\max|\Psi^\dagger \Psi - I| < 10^{-15}$ for representative sizes $N$. This closed-form fast variant is the one used in benchmarks and hardware tests; it is distinct from the canonical Gram-normalized Φ-RFT, which serves as the mathematical reference but is not used in the performance path.
 
 ### 3.4 Comparison Table
 

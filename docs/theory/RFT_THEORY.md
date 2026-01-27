@@ -31,7 +31,7 @@ $$
 x = \Phi X
 $$
 
-Implementation note: in finite precision and finite $N$, exact unitarity can be enforced by orthonormalizing the raw exponential basis (see `algorithms/rft/transform_core/resonant_fourier_transform.py`).
+Implementation note: in finite precision and finite $N$, exact unitarity can be enforced by Gram-matrix normalization of the raw exponential basis (see `algorithms/rft/core/resonant_fourier_transform.py`).
 
 ---
 

@@ -211,7 +211,7 @@ This follows immediately from the factorization. Under the equivalence relation 
 
 ---
 
-### Canonical QR-Based RFT: Numerical Observations
+### Legacy QR-Based RFT: Numerical Observations
 
 **Observation 1.6 (Rank-1 Test for Equivalence).**
 
@@ -246,7 +246,7 @@ A rigorous non-equivalence theorem would require an analytic invariant that dist
 ## Open Conjectures
 
 **Conjecture 1.2 (Non-LCT Nature).** ⚠️ OPEN
-The canonical RFT matrix $U$ is not a Linear Canonical Transform, i.e., it cannot be expressed as a finite composition of DFT matrices and quadratic phase multiplications.
+The canonical RFT matrix $\widetilde{\Phi}$ is not a Linear Canonical Transform, i.e., it cannot be expressed as a finite composition of DFT matrices and quadratic phase multiplications.
 
 **Status:** Open. Requires characterization of the discrete metaplectic group.
 
@@ -618,7 +618,7 @@ This indicates "mixing" behavior characteristic of quantum chaotic systems.
 **What is proven:**
 - The closed-form RFT is unitary and computable in $O(n \log n)$ via FFT
 - The closed-form RFT is *trivially equivalent* to a phased DFT (Remark 1.5)
-- The canonical QR-based RFT is unitary by construction
+- The legacy QR-based RFT is unitary by construction
 - The hybrid decomposition gives exact energy accounting via Parseval
 
 **What is not proven:**

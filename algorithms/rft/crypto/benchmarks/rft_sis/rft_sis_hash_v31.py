@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
 # Copyright (C) 2025 Luis M. Minier / quantoniumos
 # This file is listed in CLAIMS_PRACTICING_FILES.txt and is licensed
 # under LICENSE-CLAIMS-NC.md (research/education only). Commercial
@@ -13,6 +13,8 @@ import hashlib
 import numpy as np
 from typing import Union
 from dataclasses import dataclass
+
+from algorithms.rft.core.resonant_fourier_transform import rft_basis_matrix
 
 @dataclass
 class Point2D:
@@ -28,35 +30,10 @@ class Point3D:
 class CanonicalTrueRFT:
     def __init__(self, N: int = 256):
         self.N = N
-        self.phi = (1 + np.sqrt(5)) / 2
-        self._rft_matrix = self._construct_rft_matrix()
-    
-    def _construct_rft_matrix(self) -> np.ndarray:
-        # Closed-Form Φ-RFT: Ψ = D_φ C_σ F
-        # 1. DFT Matrix F (normalized)
-        F = np.fft.fft(np.eye(self.N), norm="ortho")
-        
-        # 2. Diagonal Phase Matrices
-        k = np.arange(self.N)
-        
-        # D_φ: Golden ratio phase
-        # φ_k = {k/φ}
-        frac_k_phi = (k / self.phi) % 1.0
-        theta_phi = 2 * np.pi * 1.0 * frac_k_phi  # beta=1.0
-        D_phi = np.diag(np.exp(1j * theta_phi))
-        
-        # C_σ: Quadratic chirp
-        # θ_k = π σ k²/N
-        theta_sigma = np.pi * 1.0 * (k**2) / self.N  # sigma=1.0
-        C_sigma = np.diag(np.exp(1j * theta_sigma))
-        
-        # 3. Compose: Ψ = D C F
-        # Note: Since D and C are diagonal, this is equivalent to row-scaling F
-        Psi = D_phi @ C_sigma @ F
-        return Psi
+        self._rft_matrix = rft_basis_matrix(self.N, self.N, use_gram_normalization=True)
     
     def transform(self, signal: np.ndarray) -> np.ndarray:
-        return self._rft_matrix @ signal
+        return self._rft_matrix.conj().T @ signal
 
 
 class RFTSISHashV31:

@@ -7,7 +7,7 @@ Optimized φ-Phase FFT (DEPRECATED - NOT the canonical RFT)
 IMPORTANT: This is NOT the Resonant Fourier Transform (RFT).
 This implements the phase-tilted FFT: Ψ = D_φ C_σ F (fused version).
 
-The canonical RFT is defined as the eigenbasis of a resonance operator K.
+The canonical RFT is defined as the Gram-normalized φ-grid exponential basis.
 See algorithms/rft/README_RFT.md for the authoritative definition.
 
 This φ-phase FFT has the property:

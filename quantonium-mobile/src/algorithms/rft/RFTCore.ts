@@ -6,12 +6,14 @@
  */
 
 /**
- * Canonical True RFT Implementation - TypeScript
+ * Legacy QR-Based RFT (TypeScript Demo)
  *
- * Implements the unitary Resonance Fourier Transform (RFT) with
- * golden-ratio parameterization and proven unitarity.
+ * This mobile demo constructs a unitary basis via QR orthonormalization of a
+ * golden-ratio matrix. It is a legacy/alternative construction used for UI
+ * visualization only.
  *
- * Based on QuantoniumOS Research Paper
+ * Canonical definition (repo-wide): Gram-normalized φ-grid exponential basis
+ * in algorithms/rft/core/resonant_fourier_transform.py.
  */
 
 import { Complex, add, multiply, abs, exp, conj, sqrt, subtract, divide } from './Complex';

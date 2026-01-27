@@ -5,32 +5,30 @@
 # under LICENSE-CLAIMS-NC.md (research/education only). Commercial
 # rights require a separate patent license from the author.
 """
-Canonical True RFT API (backed by Closed-Form Φ-RFT)
+Canonical True RFT API (Gram-Normalized Φ-Grid Basis)
 
-This module preserves the CanonicalTrueRFT class API, but routes
-the implementation to the optimized closed-form Φ-RFT. This keeps
-the rest of the stack unchanged while upgrading performance and
-maintaining unitarity.
+This module preserves the CanonicalTrueRFT class API and implements
+the canonical RFT definition via Gram-matrix normalization of the
+φ-grid exponential basis. This is the mathematically exact reference
+implementation (O(N^3) basis build, O(N^2) transforms).
 """
 
 from __future__ import annotations
 from typing import Optional
 import numpy as np
 
-# φ-phase FFT implementation (renamed from closed_form_rft)
-from .phi_phase_fft_optimized import (
-    rft_forward,
-    rft_inverse,
-    rft_unitary_error,
-    rft_matrix,
+from .resonant_fourier_transform import (
     PHI,
+    rft_basis_matrix,
+    rft_forward_frame,
+    rft_inverse_frame,
 )
 
 
 class CanonicalTrueRFT:
     """
     Compatibility wrapper retaining the CanonicalTrueRFT API while
-    delegating to the closed-form Φ-RFT implementation.
+    implementing the canonical Gram-normalized Φ-grid basis.
     """
 
     def __init__(self, size: int, beta: float = 1.0, *, sigma: float = 1.0, phi: float = PHI,
@@ -51,10 +49,11 @@ class CanonicalTrueRFT:
         self.sigma = float(sigma)
         self.phi = float(phi)
 
+        # Canonical Gram-normalized basis (unitary).
+        self._basis = rft_basis_matrix(self.size, self.size, use_gram_normalization=True)
+
         if validate_unitarity:
-            err = rft_unitary_error(self.size, beta=self.beta, sigma=self.sigma, phi=self.phi,
-                                    trials=int(validation_trials))
-            # Keep same tolerance philosophy
+            err = self.get_unitarity_error()
             tol = 1e-12
             if err > tol:
                 raise ValueError(f"Φ-RFT unitarity error {err:.2e} exceeds tolerance {tol:.2e}")
@@ -64,7 +63,7 @@ class CanonicalTrueRFT:
         x = np.asarray(x, dtype=np.complex128)
         if x.shape[0] != self.size:
             raise ValueError(f"Input size {x.shape[0]} != RFT size {self.size}")
-        return rft_forward(x, beta=self.beta, sigma=self.sigma, phi=self.phi)
+        return rft_forward_frame(x, self._basis)
 
     def inverse_transform(self, y: np.ndarray) -> np.ndarray:
         """
@@ -79,15 +78,16 @@ class CanonicalTrueRFT:
         y = np.asarray(y, dtype=np.complex128)
         if y.shape[0] != self.size:
             raise ValueError(f"Input size {y.shape[0]} != RFT size {self.size}")
-        return rft_inverse(y, beta=self.beta, sigma=self.sigma, phi=self.phi)
+        return rft_inverse_frame(y, self._basis)
     
     def get_unitarity_error(self) -> float:
         """Return stochastic unitarity error estimate for current parameters."""
-        return float(rft_unitary_error(self.size, beta=self.beta, sigma=self.sigma, phi=self.phi, trials=4))
+        identity = np.eye(self.size, dtype=np.complex128)
+        return float(np.linalg.norm(self._basis.conj().T @ self._basis - identity))
     
     def get_rft_matrix(self) -> np.ndarray:
         """Construct and return the Φ-RFT basis matrix Ψ (nxn)."""
-        return rft_matrix(self.size, beta=self.beta, sigma=self.sigma, phi=self.phi)
+        return self._basis.copy()
 
 
 def validate_rft_properties(size: int = 64) -> dict:

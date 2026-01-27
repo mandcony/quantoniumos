@@ -23,6 +23,8 @@ This enables:
 See: algorithms/rft/core/resonant_fourier_transform.py
 """
 
+import numpy as np
+
 # CANONICAL RFT - Golden-ratio multi-carrier transform
 from .resonant_fourier_transform import (
     # Constants
@@ -38,12 +40,26 @@ from .resonant_fourier_transform import (
     # Transform functions
     rft_forward,
     rft_inverse,
+    rft_forward_frame,
+    rft_inverse_frame,
     rft,
     irft,
     
     # Binary RFT for wave-domain computation
     BinaryRFT,
 )
+
+
+def rft_forward_canonical(x: np.ndarray) -> np.ndarray:
+    """Canonical RFT forward transform using Gram-normalized φ-grid basis."""
+    phi = rft_basis_matrix(len(x), len(x), use_gram_normalization=True)
+    return rft_forward_frame(x, phi)
+
+
+def rft_inverse_canonical(X: np.ndarray) -> np.ndarray:
+    """Canonical RFT inverse transform using Gram-normalized φ-grid basis."""
+    phi = rft_basis_matrix(len(X), len(X), use_gram_normalization=True)
+    return rft_inverse_frame(X, phi)
 
 from .oscillator import Oscillator
 from .geometric_container import GeometricContainer, LinearRegion

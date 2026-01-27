@@ -120,7 +120,7 @@ RFT sits in this diagonalize-and-evolve tradition but changes the basis itself: 
 Within this landscape, RFT is not proposed as a universal replacement for FFT, DCT, wavelets, or standardized PQC. It is deliberately positioned as a \emph{lens}---a complementary basis that exposes different structure and mixing behavior:
 \begin{itemize}
   \item \textbf{Golden-ratio / irrational resonance-based bases.} Instead of integer frequencies $k$ on $S^1$, RFT uses golden-ratio--scaled, chirped phasors that wind irrationally on a torus $T^2$. This produces spectra that are often sparser for quasi-periodic, log-periodic, or Fibonacci-like content, and more ``dense/fractal'' for generic signals, which is exactly what you want from a mixer.
-  \item \textbf{Canonical vs.\ Fast forms.} The canonical $\Phi$-RFT is a QR-derived, mathematically clean unitary basis used to prove sparsity, non-equivalence to LCT/FrFT, and quantum-chaos-style level statistics. The closed-form fast $\Phi$-RFT is an $O(N\log N)$ factorization $\Psi = D_\phi C_\sigma F$ used in real compute paths, with unitarity and twisted-convolution algebra verified numerically. The gap between the two is explicit: they share the same phase philosophy but are treated as distinct objects.
+  \item \textbf{Canonical vs.\ Fast forms.} The canonical $\Phi$-RFT is the Gram-normalized $\phi$-grid exponential basis $\widetilde{\Phi} = \Phi(\Phi^H\Phi)^{-1/2}$, used to prove sparsity, non-equivalence to LCT/FrFT, and quantum-chaos-style level statistics. The closed-form fast $\Phi$-RFT is an $O(N\log N)$ factorization $\Psi = D_\phi C_\sigma F$ used in real compute paths, with unitarity and twisted-convolution algebra verified numerically. A legacy QR construction over a resonance matrix $R$ is retained for historical comparison but is not the canonical definition.
   \item \textbf{Hybrid DCT+RFT codec.} Instead of claiming that RFT supersedes DCT, the paper formalizes and implements a hybrid decomposition: DCT handles structural content (edges, low-frequency blocks), while RFT handles texture/quasi-periodic content. Empirically, this hybrid codec improves rate--distortion on mixed-structure signals relative to either basis alone, which is precisely the use case where neither DCT nor RFT is individually optimal.
   \item \textbf{RFT-SIS as an experimental mixing playground.} The RFT-SIS constructions are framed as experimental mixers that exploit RFT’s chaotic spectral behavior, braided permutations, and lattice-like embeddings to study avalanche and diffusion. They are explicitly non-standard and non-production: no SIS/LWE reductions, no claims of post-quantum security, just a well-instrumented sandbox sitting alongside standard PQC, not competing with it.
 \end{itemize}
@@ -152,25 +152,21 @@ v_0[1] & v_1[1] & \dots & v_{N-1}[1] \\
 v_0[N-1] & v_1[N-1] & \dots & v_{N-1}[N-1]
 \end{bmatrix},
 \]
-which is generally full-rank but neither orthogonal nor normalized. The canonical $\Phi$-RFT will be obtained by orthonormalizing the columns of $R$; the fast $\Phi$-RFT will instead enforce golden-phase structure via an explicit factorization built on top of the FFT.
+which is generally full-rank but neither orthogonal nor normalized. In this repository, the canonical $\Phi$-RFT is instead defined as the Gram-normalized $\phi$-grid exponential basis $\widetilde{\Phi} = \Phi(\Phi^H\Phi)^{-1/2}$. The QR-orthonormalized $R$ basis is retained as a legacy/alternative construction, while the fast $\Phi$-RFT enforces golden-phase structure via an explicit factorization built on top of the FFT.
 
-\subsection{Canonical $\Phi$-RFT (QR-Derived, $O(N^3)$)}
-The \emph{canonical} $\Phi$-RFT is constructed by applying a numerically stable QR / modified Gram--Schmidt procedure to the resonance matrix $R$. Let
+\subsection{Canonical $\Phi$-RFT (Gram-Normalized, $O(N^3)$)}
+The \emph{canonical} $\Phi$-RFT is constructed by Gram-matrix normalization (Loewdin orthogonalization) of the raw $\phi$-grid exponential basis $\Phi$. Let
 \[
-R = Q R_{\text{upper}},
-\]
-with $Q \in \mathbb{C}^{N \times N}$ unitary and $R_{\text{upper}}$ upper triangular. We denote
-\[
-U_\phi \;:=\; Q,
+\widetilde{\Phi} = \Phi(\Phi^H\Phi)^{-1/2},
 \]
 and define the canonical $\Phi$-RFT and its inverse as
 \[
-\widehat{x} \;=\; U_\phi^\dagger x,
+\widehat{x} \;=\; \widetilde{\Phi}^\dagger x,
 \qquad
-x \;=\; U_\phi \widehat{x}.
+x \;=\; \widetilde{\Phi} \widehat{x}.
 \]
 
-Because $U_\phi$ is exactly unitary by construction, this transform preserves $\ell_2$ energy and inner products to machine precision. The cost, however, is cubic: the QR construction scales as $O(N^3)$, making it a mathematical gold standard, not a production kernel.
+Because $\widetilde{\Phi}$ is exactly unitary by construction, this transform preserves $\ell_2$ energy and inner products to machine precision. The cost, however, is cubic: the Gram normalization scales as $O(N^3)$, making it a mathematical gold standard, not a production kernel.
 
 Several of the ``Irrevocable Theorems'' attach directly to this canonical form:
 \begin{itemize}
@@ -221,7 +217,7 @@ Key theorems:
   = F^\dagger C_\sigma^\dagger C_\sigma F
   = F^\dagger F = I.
   \]
-  Numerically, the implementation in \path{closed_form_rft.py} satisfies $\max_{i,j} \big|(\Psi^\dagger \Psi - I)_{ij}\big| \lesssim 10^{-14}$ for $N \leq 512$.
+  Numerically, the implementation in \path{algorithms/rft/core/phi_phase_fft_optimized.py} satisfies $\max_{i,j} \big|(\Psi^\dagger \Psi - I)_{ij}\big| \lesssim 10^{-14}$ for $N \leq 512$.
   \item \textbf{Approximate diagonalization (Theorem 2).} For a class of golden-resonance operators $H_\phi$, the fast transform approximately diagonalizes the evolution:
   \[
   \Psi^\dagger H_\phi \Psi = \Lambda + E,
@@ -252,13 +248,13 @@ This fast form is the workhorse used in the hybrid DCT+RFT codec, the unified C-
 It is crucial to be explicit about the relationship between the canonical and fast $\Phi$-RFTs:
 \begin{itemize}
   \item Both share the same design philosophy: encode irrational, golden-ratio--based resonances and braided phase structure into a unitary transform.
-  \item The canonical $\Phi$-RFT, $U_\phi$, is obtained by QR/Gram--Schmidt on the raw resonance vectors $\{v_k\}$, with no structural constraints other than orthonormality.
-  \item The fast $\Phi$-RFT, $\Psi = D_\phi C_\sigma F$, is engineered to be unitary by construction, FFT-class, and expressible as a composition of simple unitary factors.
+  \item The canonical $\Phi$-RFT is the Gram-normalized $\phi$-grid exponential basis $\widetilde{\Phi} = \Phi(\Phi^H\Phi)^{-1/2}$.
+  \item The fast $\Phi$-RFT, $\Psi = D_\phi C_\sigma F$, is engineered to be unitary by construction, FFT-class, and expressible as a composition of simple unitary factors. A QR/MGS resonance-matrix basis is retained as a legacy/alternative reference only.
 \end{itemize}
 
 At present, there is \emph{no theorem} that expresses $\Psi$ as a limit of $U_\phi$ under some parameter regime, or that shows they are related by a simple fixed unitary change of basis. In other words:
 \begin{itemize}
-  \item sparsity and chaos results (Theorems 3--6) are formally proven for the canonical basis $U_\phi$;
+  \item sparsity and chaos results (Theorems 3--6) are formally proven for the canonical basis $\widetilde{\Phi}$;
   \item unitarity, twisted convolution, and complexity results (Theorems 1, 2, 8, 9) are proven for the fast basis $\Psi$.
 \end{itemize}
 
@@ -281,7 +277,7 @@ A simple golden-phase diagonal $D_\phi$ and chirp $C_\sigma$ define $\Psi_4 = D_
 \langle \Psi_4 x, \Psi_4 y \rangle = \langle x, y \rangle.
 \]
 
-In practice, floating-point error introduces small deviations. For the current \path{closed_form_rft.py} implementation, a representative slice is:
+In practice, floating-point error introduces small deviations. For the current \path{algorithms/rft/core/phi_phase_fft_optimized.py} implementation, a representative slice is:
 
 \begin{table}[t]
 \centering
@@ -548,7 +544,7 @@ This section asks: does $\Phi$-RFT behave like an FFT-class workhorse, or just a
 \subsection{CPU Performance}
 CPU measurements use:
 \begin{itemize}
-  \item \path{closed_form_rft.py} (fast $\Phi$-RFT),
+  \item \path{algorithms/rft/core/phi_phase_fft_optimized.py} (fast $\Phi$-RFT),
   \item \path{unified_orchestrator.c} (middleware),
   \item \path{scripts/verify_performance_and_crypto.py} (harness).
 \end{itemize}
@@ -563,7 +559,7 @@ Observations:
 \end{itemize}
 
 \subsection{Sparsity and Unitarity Metrics}
-Comprehensive validation of the seven RFT variants (Standard, Harmonic, Fibonacci, Chaotic, Geometric, Hybrid, Adaptive) was performed using the canonical QR-derived construction. Table~\ref{tab:unitarity_validation} summarizes unitarity errors across transform sizes.
+Comprehensive validation of the seven RFT variants (Standard, Harmonic, Fibonacci, Chaotic, Geometric, Hybrid, Adaptive) was performed using the canonical Gram-normalized construction (with legacy QR runs retained for comparison). Table~\ref{tab:unitarity_validation} summarizes unitarity errors across transform sizes.
 
 \begin{table}[t]
 \centering
@@ -597,7 +593,7 @@ This operational summary validates that $\Phi$-RFT gives extremely sparse codes 
 \end{itemize}
 
 \subsection{Assembly/C Backend Implementation}
-To validate the mathematical correctness of the RFT variants at a low level, we implemented a high-performance C/Assembly backend (\path{libquantum_symbolic.so}). This backend implements the \emph{Canonical} $\Phi$-RFT construction via a Modified Gram-Schmidt (MGS) process, ensuring numerical stability and exact unitarity.
+To validate the mathematical correctness of the RFT variants at a low level, we implemented a high-performance C/Assembly backend (\path{libquantum_symbolic.so}). This backend implements a \emph{legacy QR/MGS reference} basis to ensure numerical stability and exact unitarity for comparison against the canonical Gram-normalized definition.
 
 \textbf{Implemented Variants:}
 The backend supports 7 distinct RFT variants, selectable via the \texttt{rft\_variant\_t} enum:
@@ -616,7 +612,7 @@ The C implementation was validated against Python ground truth using \path{test_
 \begin{itemize}
     \item \textbf{Unitarity:} All variants achieve unitarity error $< 10^{-14}$ (Standard/Harmonic/Fibonacci required rank-deficiency handling via random vector injection).
     \item \textbf{Performance:} The current C implementation uses an $O(N^2)$ matrix-vector multiplication approach for correctness verification, resulting in a $\sim 300-800\times$ slowdown compared to FFTW. This confirms the necessity of the Fast $\Phi$-RFT ($O(N \log N)$) for production workloads.
-    \item \textbf{Sparsity:} The Canonical MGS construction in C yields lower sparsity than the Fast $\Phi$-RFT for certain quasi-periodic signals, highlighting the structural difference between the QR-derived and closed-form bases.
+    \item \textbf{Sparsity:} The legacy MGS construction in C yields lower sparsity than the Fast $\Phi$-RFT for certain quasi-periodic signals, highlighting the structural difference between the legacy QR basis and the canonical/fast constructions.
 \end{itemize}
 
 \subsection{Hardware Validation}
@@ -637,8 +633,9 @@ Key artifacts:
 \begin{itemize}
   \item \textbf{Core transforms}
   \begin{itemize}
-    \item \path{algorithms/rft/core/closed_form_rft.py} --- fast $\Phi$-RFT ($\Psi = D_\phi C_\sigma F$). \emph{Stable}.
-    \item \path{algorithms/rft/core/canonical_true_rft.py} --- canonical QR-based $\Phi$-RFT. \emph{Stable}.
+    \item \path{algorithms/rft/core/phi_phase_fft_optimized.py} --- fast $\Phi$-RFT ($\Psi = D_\phi C_\sigma F$). \emph{Stable}.
+    \item \path{algorithms/rft/core/resonant_fourier_transform.py} --- canonical Gram-normalized $\Phi$-RFT. \emph{Stable}.
+    \item \path{algorithms/rft/core/canonical_true_rft.py} --- legacy QR reference basis. \emph{Legacy}.
   \end{itemize}
   \item \textbf{Hybrid compression}
   \begin{itemize}
@@ -730,7 +727,7 @@ RFT is a \emph{lens}---a way to probe structure, design auxiliary stages, and co
 \subsection{Canonical vs Fast: Scientific Interpretation}
 There are two transforms here:
 \begin{itemize}
-  \item \textbf{Canonical $\Phi$-RFT} ($U_\phi$): QR-derived, $O(N^3)$, home of sparsity, chaos, and non-equivalence theorems.
+  \item \textbf{Canonical $\Phi$-RFT} ($\widetilde{\Phi}$): Gram-normalized, $O(N^3)$, home of sparsity, chaos, and non-equivalence theorems.
   \item \textbf{Fast $\Phi$-RFT} ($\Psi = D_\phi C_\sigma F$): exactly unitary, FFT-class, used in compute paths and hardware.
 \end{itemize}
 
@@ -821,7 +818,7 @@ Forward directions:
 \end{itemize}
 
 \section{Conclusion}
-This work presents $\Phi$-RFT as a lens for regimes misaligned with classical integer-harmonic bases. We separated canonical $\Phi$-RFT (QR-derived, $O(N^3)$) from fast $\Phi$-RFT ($\Psi = D_\phi C_\sigma F$, $O(N \log N)$), deployed a C/FPGA stack, and validated end-to-end.
+This work presents $\Phi$-RFT as a lens for regimes misaligned with classical integer-harmonic bases. We separated canonical $\Phi$-RFT (Gram-normalized, $O(N^3)$) from fast $\Phi$-RFT ($\Psi = D_\phi C_\sigma F$, $O(N \log N)$), deployed a C/FPGA stack, and validated end-to-end.
 
 \textbf{Proven:} Unitarity (errors $1.78$--$3.62 \times 10^{-16}$), twisted convolution, $O(N \log N)$ complexity.
 

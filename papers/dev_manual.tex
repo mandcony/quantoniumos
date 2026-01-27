@@ -845,58 +845,26 @@ n=512: error = 4.89e-14
 
 \subsubsection{Technical Implementation}
 
-\paragraph{File:} \texttt{algorithms/rft/core/canonical\_true\_rft.py}
+\paragraph{File:} \texttt{algorithms/rft/core/resonant\_fourier\_transform.py}
 
-The canonical RFT constructs a mathematically pure unitary basis via QR decomposition of a resonance matrix. It serves as the mathematical reference implementation.
+The canonical RFT constructs a mathematically pure unitary basis via Gram-matrix normalization of the $\phi$-grid exponential basis. It serves as the mathematical reference implementation. (The QR resonance-matrix construction is legacy/alternative.)
 
 \begin{lstlisting}[language=Python, caption={Canonical RFT Construction}]
 import numpy as np
+from algorithms.rft.core.resonant_fourier_transform import (
+    rft_basis_matrix,
+    rft_forward_frame,
+    rft_inverse_frame,
+)
 
-PHI = (1.0 + np.sqrt(5.0)) / 2.0
+N = 256
 
-class CanonicalTrueRFT:
-    """
-    Reference RFT implementation using QR orthonormalization.
-    Slower than closed-form but mathematically exact.
-    """
-    
-    def __init__(self, N, variant='original'):
-        self.N = N
-        self.variant = variant
-        self.basis = self._generate_basis()
-    
-    def _generate_basis(self):
-        """Generate orthonormal RFT basis via QR."""
-        N = self.N
-        
-        # Golden-ratio phase progression
-        phi_k = PHI ** (-np.arange(N))
-        
-        # Build resonance matrix with golden-ratio phases
-        j = np.arange(N).reshape(-1, 1)
-        k = np.arange(N).reshape(1, -1)
-        R = np.exp(2j * np.pi * j * phi_k / N)
-        
-        # QR decomposition ensures orthonormality
-        Q, _ = np.linalg.qr(R)
-        return Q
-    
-    def forward(self, x):
-        """Apply forward transform: y = Q^H @ x"""
-        return self.basis.conj().T @ x
-    
-    def inverse(self, y):
-        """Apply inverse transform: x = Q @ y"""
-        return self.basis @ y
-    
-    def unitary_error(self):
-        """Measure deviation from perfect unitarity."""
-        Q = self.basis
-        return np.linalg.norm(Q.conj().T @ Q - np.eye(self.N))
-    
-    def get_matrix(self):
-        """Return the basis matrix for analysis."""
-        return self.basis.copy()
+# Canonical Gram-normalized basis (unitary)
+Phi = rft_basis_matrix(N, use_gram_normalization=True)
+
+# Forward / inverse (frame-correct)
+X = rft_forward_frame(signal, Phi)      # RFT(x) = \widetilde{\Phi}^H x
+rec = rft_inverse_frame(X, Phi)         # RFT^{-1}(X) = \widetilde{\Phi} X
 \end{lstlisting}
 
 \subsubsection{Why It's Different from LCT/FrFT}

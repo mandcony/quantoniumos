@@ -167,24 +167,18 @@ def rft_basis_matrix(N, use_gram_normalization=True):
         Phi = Phi @ inv_sqrt
         
     return Phi
-    eigenvalues, eigenvectors = np.linalg.eigh(K)
-    idx = np.argsort(eigenvalues)[::-1]
-    return eigenvectors[:, idx]
-
-def rft_transform(x, basis):
-    """Apply RFT: project onto eigenbasis."""
-    return basis.T @ x
-
-def rft_inverse(coeffs, basis):
-    """Inverse RFT: reconstruct from coefficients."""
-    return basis @ coeffs
 ```
+
+### Definition Map (Authoritative)
+
+- **Canonical RFT:** Gram-normalized φ-grid exponential basis ($\widetilde{\Phi}$). Implemented in `algorithms/rft/core/resonant_fourier_transform.py` via `rft_basis_matrix(..., use_gram_normalization=True)`.
+- **Legacy/Alternative:** Resonance-operator eigenbasis $U$ (Toeplitz/Hermitian operator). Implemented in `algorithms/rft/variants/operator_variants.py` for historical comparisons.
+- **QR Orthonormalization:** A construction method used by some variants; **not** the canonical definition.
 
 **Parameters:**
 - `N`: Signal length (power of 2 recommended)
-- `f0`: Base frequency (default: 10.0)
-- `decay_rate`: Autocorrelation decay (default: 0.05)
-- `phi`: Golden ratio (fixed: 1.618...)
+- `use_gram_normalization`: Enforce unitarity via Gram normalization
+- `T` (optional): Legacy waveform basis size (non-square synthesis)
 
 **This is the only authoritative definition.**
 

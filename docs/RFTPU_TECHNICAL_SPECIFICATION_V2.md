@@ -67,7 +67,7 @@ The RFTPU architecture comprises an 8×8 grid of 64 processing tiles interconnec
 |-------|------|----------|---------|
 | **Phase 1** | Nov 2025 | Initial RFT hypothesis | Closed-form Ψ = D_φ C_σ F |
 | **Phase 2** | Nov 2025 | Sparsity claims investigation | Finding: φ-phase FFT has NO sparsity advantage |
-| **Phase 3** | Dec 2025 | Operator-based reformulation | Canonical RFT via eigenbasis of K |
+| **Phase 3** | Dec 2025 | Operator-based reformulation | Legacy/alternative eigenbasis of K (not canonical) |
 | **Phase 4** | Dec 2025 | Hybrid codec development | H3 cascade achieves η=0 coherence |
 | **Phase 5** | Dec 2025 | Hardware implementation | 12 kernels in FPGA, WebFPGA validated |
 
