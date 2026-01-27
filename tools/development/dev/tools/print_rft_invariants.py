@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Print core invariants for the Unitary RFT:
   ‖Ψ†Ψ−I‖∞, δF=‖Ψ−F‖F, |det Ψ|, arg(det Ψ), ‖R−R†‖F for R=i·log(Ψ)

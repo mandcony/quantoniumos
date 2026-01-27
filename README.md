@@ -235,7 +235,7 @@ python experiments/ascii_wall_paper.py
 *   **Hybrid Status:** 14/16 hybrids working (H2, H10 have minor bugs).
 
 **Important Disclaimers:**
-- **Crypto:** All cryptographic constructions are **experimental** with no hardness proofs or third-party cryptanalysis. NOT production-ready.
+- **⚠️ Crypto:** All cryptographic constructions are **experimental research prototypes**. They are **NOT NIST-compliant**, have no hardness proofs, no third-party cryptanalysis, and use `numpy.random` instead of CSPRNG. See [experiments/crypto_prototypes/README.md](experiments/crypto_prototypes/README.md) for details. **DO NOT USE FOR REAL SECURITY.**
 - **Compression:** Does NOT beat entropy bounds. Competitive with classical transform codecs, not a "breakthrough."
 - **Quantum:** This is classical signal processing. "Symbolic qubit" representations are compressed encodings, not quantum computation.
 

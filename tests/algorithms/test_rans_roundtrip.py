@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 import random
 import pytest
 from algorithms.rft.compression import ans as ans_module

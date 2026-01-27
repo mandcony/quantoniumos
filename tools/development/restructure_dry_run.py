@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Dry-run restructure: prints planned moves/renames based on docs/RESTRUCTURE_PLAN.md.
 Non-destructive. Edit the PLAN to change the mapping rules.

@@ -1,6 +1,6 @@
 {
-  "timestamp": "2025-12-16 14:07:19",
-  "total_time_seconds": 0.5650825500488281,
+  "timestamp": "2026-01-27 01:46:37",
+  "total_time_seconds": 0.6720950603485107,
   "results": [
     {
       "hypothesis_id": "H1",
@@ -173,12 +173,12 @@
       "hypothesis_text": "AST + \u03a6-RFT compression beats raw gzip on Python code",
       "test_performed": "Parsed code to AST, encoded structure as RFT signal, compared to gzip",
       "metric_name": "BPP improvement vs gzip",
-      "primary_value": 5.304582210242588,
+      "primary_value": 5.146340452000829,
       "comparison_value": 4.483516483516484,
-      "improvement_pct": -18.312985571587127,
+      "improvement_pct": -14.783573806881236,
       "verdict": "REJECTED",
       "confidence": 0.5,
-      "details": "AST nodes: 102, k-sparse: 64",
+      "details": "AST nodes: 102, k-sparse: 61",
       "raw_data": null
     },
     {
@@ -186,8 +186,8 @@
       "hypothesis_text": "\u03a6-RFT EQ preserves transients better than FFT EQ",
       "test_performed": "Applied same EQ curve via FFT and RFT to drum transient, compared crest factors",
       "metric_name": "Crest factor improvement",
-      "primary_value": 11.351945958176406,
-      "comparison_value": 11.351945958176406,
+      "primary_value": 11.351945958176408,
+      "comparison_value": 11.351945958176408,
       "improvement_pct": 0.0,
       "verdict": "REJECTED",
       "confidence": 0.4,

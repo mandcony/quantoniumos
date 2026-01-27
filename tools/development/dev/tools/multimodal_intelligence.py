@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Multi-Modal Intelligence System for QuantoniumOS
 Combines image understanding, text analysis, and contextual reasoning

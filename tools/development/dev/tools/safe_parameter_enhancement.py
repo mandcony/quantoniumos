@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 QuantoniumOS Parameter Enhancement System
 Safe, gradual expansion of AI capabilities using legitimate methods

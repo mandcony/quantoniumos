@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Adaptive Resonant Fourier Transform (ARFT) Kernel Generator
 Implements the 'Resonant Fourier Transform' with adaptive amplitude feedback and phase coupling.

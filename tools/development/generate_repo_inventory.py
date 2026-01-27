@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Generate a structured inventory of the repository:
 - Classify files into categories (source, tests, docs, tools, data/models, artifacts, misc)

@@ -1,6 +1,6 @@
 # Φ-RFT Research Framework - Documentation Index
 
-**Generated:** December 14, 2025  
+**Generated:** December 14, 2025 | **Updated:** January 27, 2026  
 **Purpose:** Master index for all system documentation
 
 ---
@@ -14,6 +14,16 @@
 | **[LIMITATIONS_AND_REVIEWER_CONCERNS.md](LIMITATIONS_AND_REVIEWER_CONCERNS.md)** | Pre-answered criticisms | **REQUIRED** |
 | **[../CANONICAL.md](../CANONICAL.md)** | Which code is claim-bearing | **REQUIRED** |
 | **[../BENCHMARK_PROTOCOL.md](../BENCHMARK_PROTOCOL.md)** | Benchmark methodology | **REQUIRED** |
+| **[research/RESEARCH_SOURCES_AND_ANALYSIS_GUIDE.md](research/RESEARCH_SOURCES_AND_ANALYSIS_GUIDE.md)** | External validation sources | **RECOMMENDED** |
+
+---
+
+## 🔒 Security & Compliance (New)
+
+| Doc | Purpose | Status |
+|-----|---------|--------|
+| **[reports/PHASE5_COMPLIANCE_REPORT.md](reports/PHASE5_COMPLIANCE_REPORT.md)** | Standards compliance audit | ✅ Complete |
+| **[../experiments/crypto_prototypes/README.md](../experiments/crypto_prototypes/README.md)** | Crypto experimental warnings | ⚠️ Read before using crypto |
 
 ---
 

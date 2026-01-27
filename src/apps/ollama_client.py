@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """Minimal Ollama client (local OSS model server).
 
 Ollama runs a local HTTP server, typically at:

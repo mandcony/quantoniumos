@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 H3-ARFT Integration
 Extends the H3 Hierarchical Cascade to use the Operator-Based ARFT for the texture component.

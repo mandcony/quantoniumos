@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Operator-Based ARFT Kernel Generator
 Instead of warping the kernel directly, we define a Hermitian operator L that encodes

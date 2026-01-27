@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 # QuantSoundDesign - Φ-RFT Sound Design Studio
 """
 QuantSoundDesign: FL Studio/Ableton-class sound design studio powered by wave-native Φ-RFT engine.

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """Generate a detailed 3D visualization of the 64-tile RPU accelerator.
 
 The script renders the physical chip layout including:

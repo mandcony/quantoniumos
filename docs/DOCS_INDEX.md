@@ -12,6 +12,10 @@ These reports represent the verified, code-backed reality of the QuantoniumOS pl
 - **[Build Verification](scientific_domains/BUILD_VERIFICATION.md)** - 🛠 **System Check**. Confirmation that native engines are running.
 - **[Verified Benchmarks](scientific_domains/VERIFIED_BENCHMARKS.md)** - 📈 **Performance**. Official results for all 5 benchmark classes.
 
+## 📚 Research & Analysis
+- **[Research Sources Guide](research/RESEARCH_SOURCES_AND_ANALYSIS_GUIDE.md)** - 📖 **Reference**. Authoritative sources (arXiv, MIT, Stanford, etc.) and validation protocols.
+- **[Phase 5 Compliance Report](reports/PHASE5_COMPLIANCE_REPORT.md)** - ✅ **Audit**. Standards compliance status (NIST, FDA, SPDX).
+
 ## 📘 User Manuals
 - **[Getting Started](guides/GETTING_STARTED.md)** - Installation and basic usage.
 - **[Reproducing Results](validation/REPRODUCING_RESULTS.md)** - How to run the benchmarks.

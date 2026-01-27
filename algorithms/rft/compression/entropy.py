@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: LicenseRef-QuantoniumOS-Claims-NC
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
+# This file is listed in CLAIMS_PRACTICING_FILES.txt and is licensed
+# under LICENSE-CLAIMS-NC.md (research/education only). Commercial
+# rights require a separate patent license from the author.
 """
 Entropy estimation and quantization utilities for Rate-Distortion analysis.
 """

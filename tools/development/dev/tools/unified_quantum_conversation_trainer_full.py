@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 FULL 3-Engine Quantum Conversation Trainer
 Uses ALL your quantum engines: Optimized RFT, Unitary RFT, Vertex Quantum RFT

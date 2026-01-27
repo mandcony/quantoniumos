@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """Shared RFT variant manifest used by runtime and tests."""
 from __future__ import annotations
 

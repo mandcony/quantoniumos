@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Scan data/weights for numeric fields named 'parameter_count' or 'total_parameters'
 and print their occurrences and a small summary.

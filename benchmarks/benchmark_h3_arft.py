@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Benchmark Script: H3 vs H3-ARFT
 Compares the standard H3 cascade (DCT+RFT) against the new H3-ARFT (DCT+OperatorARFT).

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 TRUE Hybrid DCT+RFT vs Pure DCT Benchmark on Real Biomedical Data
 ==================================================================

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Optimization Script for ARFT Coupling
 Finds the optimal coupling parameter to maximize sparsity for golden quasi-periodic signals.

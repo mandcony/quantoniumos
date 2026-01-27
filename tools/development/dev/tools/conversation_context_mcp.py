@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Conversation Context Parser - MCP Integration
 Parses conversation history and maintains context for intelligent responses

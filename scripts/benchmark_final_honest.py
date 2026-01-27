@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 FINAL HONEST BENCHMARK: All RFT Variants vs DCT on Medical Data
 ================================================================

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """Φ-RFT variant generators and metadata registry."""
 from __future__ import annotations
 

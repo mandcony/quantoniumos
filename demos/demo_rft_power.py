@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """
 Resonance Fourier Transform - Power Demonstration
 Shows RFT's unique spectral properties for resonant systems

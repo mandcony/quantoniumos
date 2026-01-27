@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Luis M. Minier / quantoniumos
 """Scan repository for SPDX license identifiers in code files and flag incompatible ones.
 
 We only scan code-like extensions to avoid docs/data noise. If no SPDX tags are found,
