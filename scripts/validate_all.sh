@@ -245,7 +245,7 @@ test_desktop_boot() {
     # Set offscreen mode for CI
     export QT_QPA_PLATFORM=offscreen
     
-    timeout 30s python3 quantonium_boot.py --test > /tmp/desktop_test.out 2>&1 || true
+    timeout 30s python3 scripts/quantonium_boot.py --test > /tmp/desktop_test.out 2>&1 || true
     
     if grep -q "ready\|Desktop\|registered" /tmp/desktop_test.out; then
         echo "  Desktop boot: OK"
@@ -263,9 +263,9 @@ test_desktop_boot() {
 
 # Advanced Test 1: Compression vs. SOTA Quantization
 test_sota_compression() {
-    echo "Running benchmark: RFT vs. SOTA Quantization (GPTQ)..."
-    if [ -f "tests/benchmarks/compression_vs_quantization.py" ]; then
-        python3 tests/benchmarks/compression_vs_quantization.py || return 1
+    echo "Running benchmark: RFT vs. SOTA Compression (experimental)..."
+    if [ -f "tests/benchmarks/rft_sota_comparison.py" ]; then
+        python3 tests/benchmarks/rft_sota_comparison.py || return 1
     else
         echo "  Status: SKIPPED (test script not found)"
         return 0
@@ -285,9 +285,9 @@ test_downstream_performance() {
 
 # Advanced Test 3: Quantum Simulator vs. Qiskit
 test_qsim_comparison() {
-    echo "Running benchmark: Quantum Simulator vs. Qiskit..."
-    if [ -f "tests/benchmarks/quantum_simulator_comparison.py" ]; then
-        python3 tests/benchmarks/quantum_simulator_comparison.py || return 1
+    echo "Running benchmark: Quantum Simulator vs. Qiskit/Cirq..."
+    if [ -f "benchmarks/class_a_quantum_simulation.py" ]; then
+        python3 benchmarks/class_a_quantum_simulation.py || return 1
     else
         echo "  Status: SKIPPED (test script not found)"
         return 0

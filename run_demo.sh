@@ -10,4 +10,4 @@
 # ==============================================================================
 
 echo "Running RFT Power Demonstration..."
-python3 demo_rft_power.py
+python3 demos/demo_rft_power.py

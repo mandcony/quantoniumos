@@ -388,9 +388,9 @@ run_quick_validation() {
     
     cd "$PROJECT_ROOT"
     
-    if [ -f "validate_system.py" ]; then
+    if [ -f "scripts/validation/validate_system.py" ]; then
         log_info "Running system validation..."
-        python3 validate_system.py || log_warning "Some validation tests failed"
+        python3 scripts/validation/validate_system.py || log_warning "Some validation tests failed"
     fi
     
     log_success "Validation complete"
@@ -418,14 +418,14 @@ Quick Start Commands:
   • Activate venv:  source $VENV_DIR/bin/activate
   • Run tests:      pytest tests/ -v
   • Run benchmarks: python benchmarks/run_all_benchmarks.py
-  • Validate:       python validate_system.py
+    • Validate:       python scripts/validation/validate_system.py
   • Hardware sim:   cd hardware && bash verify_fixes.sh
 
 Next Steps:
   1. Review the documentation: docs/DOCS_INDEX.md
-  2. Run the benchmark suite: python benchmarks/run_all_benchmarks.py
-  3. Explore examples: experiments/README.md
-  4. Read validation reports: docs/validation/RFT_THEOREMS.md
+    2. Run the benchmark suite: python benchmarks/run_all_benchmarks.py
+    3. Explore examples: experiments/README.md
+    4. Read validation reports: docs/validation/RFT_THEOREMS.md
 
 For issues, see: docs/technical/guides/TROUBLESHOOTING.md
 

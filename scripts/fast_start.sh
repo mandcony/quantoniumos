@@ -54,6 +54,6 @@ else
 fi
 
 log "Running wiring check (non-fatal)"
-python "${PROJECT_ROOT}/verify_test_wiring.py" || log "Wiring check completed with issues"
+python "${PROJECT_ROOT}/scripts/validation/verify_test_wiring.py" || log "Wiring check completed with issues"
 
 log "Fast start complete. Activate venv: source ${VENV_DIR}/bin/activate"
