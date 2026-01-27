@@ -7,7 +7,7 @@
 [![TechRxiv DOI](https://img.shields.io/badge/DOI-10.36227%2Ftechrxiv.175384307.75693850%2Fv1-8A2BE2.svg)](https://doi.org/10.36227/techrxiv.175384307.75693850/v1)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE.md)
 [![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-red.svg)](LICENSE-CLAIMS-NC.md)
-[![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](PATENT_NOTICE.md)
+[![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](docs/project/PATENT_NOTICE.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](tests/)
 
@@ -19,24 +19,29 @@
 
 ### What Changed
 
-| Term | OLD (Deprecated) | NEW (Canonical) |
-|------|------------------|-----------------|
-| **RFT** | Ψ = D_φ C_σ F (phase-tilted FFT) | Eigenbasis of resonance operator K |
+| Term | OLD (Legacy/Alternative) | NEW (Canonical) |
+|------|--------------------------|-----------------|
+| **RFT** | Eigenbasis of resonance operator $K$ | Gram-normalized φ-grid exponential basis $\widetilde{\Phi}$ |
 | **Sparsity** | None vs FFT | **+15-20 dB PSNR** on target signals |
 | **Novelty** | Trivially equivalent to phased DFT | Genuine operator-eigenbasis transform |
 
 ### The Canonical RFT Definition
 
-The **Resonant Fourier Transform (RFT)** is now defined as:
+The **Resonant Fourier Transform (RFT)** is now defined as the **Gram-normalized φ-grid exponential basis**:
 
 $$
-K = T(R(k) \cdot d(k)), \quad K = U \Lambda U^T, \quad \text{RFT}(x) = U^T x
+\Phi_{n,k} = \frac{1}{\sqrt{N}} \exp\left(j 2\pi f_k n\right), \quad f_k = \operatorname{frac}((k+1)\phi)
+$$
+
+$$
+\widetilde{\Phi} = \Phi\,(\Phi^H\Phi)^{-1/2}, \quad \text{RFT}(x) = \widetilde{\Phi}^H x
 $$
 
 Where:
-- $K$ is a Hermitian resonance operator (Toeplitz matrix of structured autocorrelation)
-- $U$ is the orthonormal eigenbasis of $K$
-- $\phi$, Fibonacci, and other patterns are **parameters** of $K$, not the definition of RFT
+- $\Phi$ is the raw irrational-frequency exponential basis (φ-grid)
+- $\widetilde{\Phi}$ is the Gram-normalized (unitary) basis
+- The resonance-operator eigenbasis is **legacy/alternative**, kept for comparison in `algorithms/rft/variants/operator_variants.py`
+- QR-orthonormalized resonance-matrix variants live in `algorithms/rft/variants/registry.py` and are **not** the canonical definition
 
 ### The φ-Phase FFT (Deprecated)
 
@@ -49,7 +54,7 @@ The old formula Ψ = D_φ C_σ F is now called **φ-phase FFT** or **phase-tilte
 
 | Old File | New File | Notes |
 |----------|----------|-------|
-| `closed_form_rft.py` | `phi_phase_fft.py` | Deprecated φ-phase FFT |
+| `closed_form_rft.py` | `phi_phase_fft_optimized.py` | Deprecated φ-phase FFT |
 | `rft_optimized.py` | `phi_phase_fft_optimized.py` | Deprecated optimized version |
 | (new) | `resonant_fourier_transform.py` | **Canonical RFT kernel** |
 | (new) | `README_RFT.md` | Authoritative RFT definition |
@@ -112,7 +117,7 @@ This repository includes a suite of scripts to verify the environment, reproduce
 | --- | --- |
 | **`./reproduce_results.sh`** | **Master Reproducibility Script.** Runs the full verification pipeline: checks environment, builds native engines, runs unit tests, and executes the Class A-E benchmark suite. Use this to validate the entire stack. |
 | **`./verify_setup.sh`** | **Environment Health Check.** Verifies Python version, virtual environment status, and core dependencies (NumPy, SciPy, SymPy, Numba). Also performs a quick numerical check of the RFT core. |
-| **`./run_demo.sh`** | **Quick Demo.** Launches the `demo_rft_power.py` script to visualize the power spectral density advantages of RFT on a sample signal. |
+| **`./run_demo.sh`** | **Quick Demo.** Launches `demos/demo_rft_power.py` to visualize the power spectral density advantages of RFT on a sample signal. |
 | **`scripts/run_full_suite.sh`** | **Full Benchmark Runner.** Executes the comprehensive set of experiments, including long-running compression and crypto benchmarks. |
 | **`quantoniumos-bootstrap.sh`** | **Initial Setup.** Automates the cloning, virtual environment creation, and dependency installation process for new users. |
 
@@ -247,21 +252,25 @@ python experiments/ascii_wall_paper.py
 
 ### Canonical RFT (Current Definition)
 
-The **Resonant Fourier Transform** is the eigenbasis of a Hermitian resonance operator:
+The **Resonant Fourier Transform** is the Gram-normalized φ-grid exponential basis:
 
 ```python
-from algorithms.rft.kernels.resonant_fourier_transform import build_rft_kernel, rft_forward, rft_inverse
+from algorithms.rft.core.resonant_fourier_transform import (
+    rft_basis_matrix,
+    rft_forward_frame,
+    rft_inverse_frame,
+)
 
-# Build fixed RFT kernel (O(N³) one-time, cached)
-Phi = build_rft_kernel(N=256)
+# Build canonical RFT basis (O(N³) one-time, cached)
+Phi = rft_basis_matrix(N=256, use_gram_normalization=True)
 
 # Transform (O(N²) per signal)
-X = rft_forward(signal, Phi)      # RFT(x) = Φ^T x
-rec = rft_inverse(X, Phi)         # RFT⁻¹(X) = Φ X
+X = rft_forward_frame(signal, Phi)      # RFT(x) = Φ̃^H x
+rec = rft_inverse_frame(X, Phi)         # RFT⁻¹(X) = Φ̃ X
 ```
 
 **Properties:**
-- **Unitary:** Φ^T Φ = I (proven via Spectral Theorem)
+- **Unitary:** $\widetilde{\Phi}^H \widetilde{\Phi} = I$ (by Gram normalization)
 - **Domain-Specific:** +15-20 dB PSNR on golden quasi-periodic signals
 - **Honest:** Loses to FFT/DCT on non-target signal families
 
@@ -273,7 +282,7 @@ The original formula Ψ = D_φ C_σ F is preserved for backwards compatibility:
 *   $[D_\phi]_{kk} = \exp(2\pi i\,\beta\,\{k/\phi\})$
 
 **WARNING:** This has NO sparsity advantage over FFT. It is a phase-only transform.
-See `algorithms/rft/core/phi_phase_fft.py` (formerly `closed_form_rft.py`).
+See `algorithms/rft/core/phi_phase_fft_optimized.py` (formerly `closed_form_rft.py`).
 
 ---
 
@@ -290,7 +299,7 @@ QuantoniumOS/
 │  │  │  └─ arft_kernel.py                 # QR-orthonormalized variant
 │  │  ├─ core/
 │  │  │  ├─ canonical_true_rft.py          # Reference implementation
-│  │  │  ├─ phi_phase_fft.py               # DEPRECATED: old Ψ=DφCσF
+│  │  │  ├─ phi_phase_fft_optimized.py     # DEPRECATED: old Ψ=DφCσF
 │  │  │  └─ phi_phase_fft_optimized.py     # DEPRECATED: fused version
 │  │  ├─ theory/
 │  │  │  └─ formal_framework.py            # Formal proofs & theorems
@@ -687,7 +696,7 @@ pip install --upgrade pip
 pip install -e .
 
 # 4. Verify installation
-python -c "from algorithms.rft.core.rft_optimized import rft_forward; print('RFT installed')"
+python -c "from algorithms.rft.core.phi_phase_fft_optimized import rft_forward; print('RFT installed')"
 ```
 
 ### Build Native SIMD Kernels (Optional)
@@ -744,7 +753,7 @@ pytest tests/rft/ -v -m "not slow"
 The optimized RFT fuses the D_φ and C_σ diagonals into a single pass, achieving **O(n log n) complexity** like FFT. Benchmarks show approximately **1.3-4× slower than NumPy FFT** depending on signal size (see `COMPETITIVE_BENCHMARK_RESULTS.md`). The trade-off is the unique golden-ratio spectral properties used for compression and crypto.
 
 ```python
-from algorithms.rft.core.rft_optimized import (
+from algorithms.rft.core.phi_phase_fft_optimized import (
     rft_forward_optimized,
     rft_inverse_optimized,
     OptimizedRFTEngine,
@@ -870,16 +879,16 @@ See `tests/` and `algorithms/crypto/crypto_benchmarks/rft_sis/`.
 > Files explicitly listed in **`CLAIMS_PRACTICING_FILES.txt`** are licensed under **`LICENSE-CLAIMS-NC.md`** (research/education only) because they practice methods disclosed in **U.S. Patent Application No. 19/169,399**.  
 > **No non-commercial restriction applies to any files outside that list.**  
 > Commercial use of the claim-practicing implementations requires a separate patent license from **Luis M. Minier** (contact: **luisminier79@gmail.com**).  
-> See `PATENT_NOTICE.md` for details. Trademarks (“QuantoniumOS”, “RFT”) are not licensed.
+> See `docs/project/PATENT_NOTICE.md` for details. Trademarks (“QuantoniumOS”, “RFT”) are not licensed.
 
 ---
 
 ## Key Paths
 
 ```
-algorithms/rft/core/rft_optimized.py           # Optimized Φ-RFT (fused diagonals)
+algorithms/rft/core/phi_phase_fft_optimized.py # Optimized φ-phase FFT (legacy)
 algorithms/rft/core/canonical_true_rft.py      # Reference Φ-RFT (claims-practicing)
-algorithms/rft/core/closed_form_rft.py         # Original implementation
+algorithms/rft/core/rft_phi_legacy.py          # Legacy φ-spaced exponential basis
 src/rftmw_native/rft_fused_kernel.hpp          # AVX2/AVX512 SIMD kernels
 experiments/competitors/                       # Benchmark suite vs FFT/DCT/codecs
 results/competitors/                           # Benchmark output (JSON/CSV/MD)
@@ -896,7 +905,7 @@ Files listed in **`CLAIMS_PRACTICING_FILES.txt`** are licensed under **`LICENSE-
 (research/education only) because they practice methods in U.S. Patent Application
 No. 19/169,399. Commercial rights require a separate patent license from the author.
 
-See `PATENT_NOTICE.md` for details on the patent-pending technologies.
+See `docs/project/PATENT_NOTICE.md` for details on the patent-pending technologies.
 
 ---
 
