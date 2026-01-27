@@ -28,7 +28,7 @@ quantonium_os_src/apps/quantum_simulator/main.py   # symbolic surrogate simulato
 **Patent Elements Verified**:
 - ✅ Symbolic representation module: `symbolic_compression()` functions
 - ✅ Phase-space coherence retention: `resonance_state` preservation
-- ✅ Topological embedding layer: `vertex_encoding` with manifold mapping
+- ✅ Topological embedding layer: `vertex_encoding` with projection mapping
 - ✅ Symbolic gate propagation: Hadamard/Pauli-X without collapse
 
 ---
@@ -46,7 +46,7 @@ algorithms/rft/kernels/engines/crypto/src/feistel_round48.c   # Assembly crypto 
 
 # KEY EVIDENCE:
 - Waveform generation: _bytes_to_signal() → complex waveforms
-- Topological hashing: Bloom-like filters via manifold_mapping()
+- Topological hashing: Bloom-like filters via projection mapping
 - Dynamic entropy mapping: RFT-based key material modulation
 - Recursive modulation: Real-time waveform structure modification
 ```
@@ -61,7 +61,7 @@ algorithms/rft/kernels/engines/crypto/src/feistel_round48.c   # Assembly crypto 
 
 ### **CLAIM 3: Geometric Structures for RFT-Based Cryptographic Waveform Hashing** ✅ **IMPLEMENTED**
 
-**Patent Language**: *"geometric coordinate transformations map waveform features through manifold mappings"*
+**Patent Language**: *"geometric coordinate transformations map waveform features through projection mappings"*
 
 **Codebase Implementation**:
 ```python
@@ -72,15 +72,15 @@ src/core/enhanced_topological_qubit.py     # Topological coordinate systems
 # KEY EVIDENCE:
 - Coordinate transformations: polar-to-Cartesian with golden ratio scaling
 - Complex geometric generation: exponential transforms via np.exp(1j * phase)
-- Topological winding numbers: wilson_loop computations
-- Manifold-based hash generation: _manifold_mapping() preserves relationships
+- Phase-winding tags: heuristic phase summaries
+- Projection-based hash generation: `_projection_mapping()` preserves relationships
 ```
 
 **Patent Elements Verified**:
 - ✅ Polar-to-Cartesian with φ scaling: `phi_resonance = np.sum(np.cos(phases * self.phi))`
 - ✅ Complex geometric coordinate generation: `np.exp(1j * phase)` transforms
-- ✅ Topological winding number computation: Wilson loop calculations
-- ✅ Manifold-based hash generation: `_topological_embedding()` preserves structure
+- ✅ Phase-winding tag generation: heuristic labels
+- ✅ Projection-based hash generation: `_topological_embedding()` preserves structure
 
 ---
 

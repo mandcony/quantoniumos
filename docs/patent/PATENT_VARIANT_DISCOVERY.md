@@ -45,7 +45,7 @@ Created 20 new RFT variants aligned to USPTO patent claims. Benchmarked all 30 t
 - **vs Golden**: +15.5 dB
 - **Use Case**: Chirp signals, frequency sweeps
 
-#### RFT-Euler-Sphere (Claim 3)
+#### RFT-Sphere-Parametric (Claim 3)
 - **Signal**: phyllotaxis
 - **Use Case**: Biological patterns, spherical geodesics
 
@@ -78,13 +78,13 @@ Created 20 new RFT variants aligned to USPTO patent claims. Benchmarked all 30 t
 - `rft_merkle_lattice` - Lattice-based hash computation
 
 ### Claim 3: Geometric Structure Subsystem
-> A method of claim 1, further comprising: applying geometric structures including at least one of: topological winding numbers associated with Euler characteristics, manifold-based hash generation and verification...
+> A method of claim 1, further comprising: applying geometric structures including at least one of: phase-winding tags, projection-based hash generation and verification...
 
 **Aligned Variants**:
-- `rft_manifold_projection` - Manifold-based hash generation ★
-- `rft_euler_sphere` - Euler characteristics
-- `rft_euler_torus` - Torus topology
-- `rft_winding` - Topological winding numbers
+- `rft_manifold_projection` - Projection-based hash generation ★
+- `rft_sphere_parametric` - Sphere parametric resonance
+- `rft_torus_parametric` - Torus parametric resonance
+- `rft_winding` - Phase-winding tags
 - `rft_hopf_fibration` - Hopf fibration
 - `rft_trefoil_knot` - Knot invariants
 - `rft_loxodrome` - Rhumb line trajectory
@@ -108,8 +108,8 @@ All 20 patent variants verified unitary:
 ✓ RFT-Spiral-Golden       | err=8.9e-14
 ✓ RFT-Complex-Exp         | err=2.1e-14
 ✓ RFT-Winding            | err=4.8e-14
-✓ RFT-Euler-Torus        | err=1.3e-13
-✓ RFT-Euler-Sphere       | err=7.9e-14
+✓ RFT-Torus-Parametric   | err=1.3e-13
+✓ RFT-Sphere-Parametric  | err=7.9e-14
 ✓ RFT-Hopf-Fibration     | err=2.3e-13
 ✓ RFT-Manifold-Projection | err=1.6e-13
 ... (all 20 variants pass)

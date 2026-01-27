@@ -193,8 +193,8 @@ data/artifacts/rft_stability/
 | **RFT-Complex-Exp** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Complex exponential dual golden frequencies | Complex plane |
 | **RFT-Exp-Decay** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Damped resonance `e^(-t/φ)·cos(φωt)` | Damped oscillator |
 | **RFT-Möbius** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Möbius transformation with golden coefficients | Conformal mapping |
-| **RFT-Manifold** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Torus/spiral manifold projection | Torus topology |
-| **RFT-Euler-Sphere** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Euler sphere resonance | Spherical harmonics |
+| **RFT-Projection** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Torus/spiral projection mapping | Torus parametric |
+| **RFT-Sphere-Parametric** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Sphere parametric resonance | Spherical harmonics |
 | **RFT-Phase-Coherent** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Phase-coherent modulation | Chirp signals |
 | **RFT-Entropy-Modulated** | [patent_variants.py](../algorithms/rft/variants/patent_variants.py) | Entropy-based modulation | Medical/noise |
 

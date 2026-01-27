@@ -5,7 +5,7 @@
 Geometric Waveform Hashing Pipeline
 Implements the structure-preserving hash pipeline described in the QuantoniumOS paper
 
-Pipeline: x → Ψ(x) → Manifold Mapping → Topological Embedding → Digest
+Pipeline: x → Ψ(x) → Projection Mapping → Topological Embedding → Digest
 """
 
 import hashlib
@@ -28,7 +28,7 @@ except ImportError:
 
 class GeometricWaveformHash:
     """
-    Geometric waveform hashing with RFT-based manifold mapping.
+    Geometric waveform hashing with RFT-based projection mapping.
     
     Implements the research pipeline with controllable diffusion properties
     suitable for cryptographic applications (research purposes only).
@@ -96,8 +96,8 @@ class GeometricWaveformHash:
         
         return signal
     
-    def _manifold_mapping(self, rft_coeffs: np.ndarray) -> np.ndarray:
-        """Project RFT coefficients onto lower-dimensional manifold."""
+    def _projection_mapping(self, rft_coeffs: np.ndarray) -> np.ndarray:
+        """Project RFT coefficients onto a lower-dimensional embedding."""
         if self.manifold_matrix is None:
             return rft_coeffs[:self.manifold_dim]
         
@@ -110,9 +110,9 @@ class GeometricWaveformHash:
         # Truncate to transform size
         real_coeffs = real_coeffs[:self.size]
         
-        # Project onto manifold
-        manifold_point = self.manifold_matrix @ real_coeffs
-        return manifold_point
+        # Project onto embedding
+        embedding_point = self.manifold_matrix @ real_coeffs
+        return embedding_point
     
     def _topological_embedding(self, manifold_point: np.ndarray) -> bytes:
         """Create topological embedding preserving geometric structure."""
@@ -158,8 +158,8 @@ class GeometricWaveformHash:
         # Step 2: Apply RFT transform
         rft_coeffs = self.rft.forward_transform(signal)
         
-        # Step 3: Manifold mapping
-        manifold_point = self._manifold_mapping(rft_coeffs)
+        # Step 3: Projection mapping
+        manifold_point = self._projection_mapping(rft_coeffs)
         
         # Step 4: Topological embedding
         embedding = self._topological_embedding(manifold_point)

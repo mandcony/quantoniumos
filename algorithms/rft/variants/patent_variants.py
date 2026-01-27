@@ -201,15 +201,15 @@ def generate_rft_mobius(n: int) -> np.ndarray:
 
 
 # =============================================================================
-# PATENT CLAIM 3: Topological Winding Numbers and Euler Characteristics
+# PATENT CLAIM 3: Parametric Surfaces and Winding Sketches
 # =============================================================================
 
 @lru_cache(maxsize=32)
 def generate_rft_winding(n: int, num_winds: int = 3) -> np.ndarray:
     """
-    RFT-Winding: Topological winding number resonance.
+    RFT-Winding: Phase-winding resonance sketch.
     
-    Patent Claim 3: "topological winding number computation"
+    Parametric winding profile (no topological invariant computation).
     
     R[k] represents the phase accumulated over multiple complete rotations,
     with golden-ratio frequency modulation.
@@ -231,13 +231,12 @@ def generate_rft_winding(n: int, num_winds: int = 3) -> np.ndarray:
 
 
 @lru_cache(maxsize=32)
-def generate_rft_euler_torus(n: int) -> np.ndarray:
+def generate_rft_torus_parametric(n: int) -> np.ndarray:
     """
-    RFT-Euler-Torus: Torus surface resonance (Euler characteristic = 0).
-    
-    Patent Claim 3: "Euler characteristic approximation for cryptographic signatures"
+    RFT-Torus-Parametric: Torus surface resonance from parametric sampling.
     
     R[k] from torus parametrization with golden ratio major/minor radii.
+    (No Euler characteristic computation is performed.)
     """
     k = np.arange(n)
     t = 2 * np.pi * k / n
@@ -263,11 +262,12 @@ def generate_rft_euler_torus(n: int) -> np.ndarray:
 
 
 @lru_cache(maxsize=32)
-def generate_rft_euler_sphere(n: int) -> np.ndarray:
+def generate_rft_sphere_parametric(n: int) -> np.ndarray:
     """
-    RFT-Euler-Sphere: Sphere surface resonance (Euler characteristic = 2).
+    RFT-Sphere-Parametric: Sphere surface resonance from parametric sampling.
     
     Spherical coordinates with golden ratio latitude-longitude coupling.
+    (No Euler characteristic computation is performed.)
     """
     k = np.arange(n)
     t = k / n
@@ -294,7 +294,7 @@ def generate_rft_klein(n: int) -> np.ndarray:
     """
     RFT-Klein: Klein bottle-inspired non-orientable resonance.
     
-    Non-orientable topology (Euler characteristic = 0, like torus but different).
+    Non-orientable parametric surface sketch (no invariant computation).
     """
     k = np.arange(n)
     t = 2 * np.pi * k / n
@@ -617,26 +617,26 @@ PATENT_VARIANTS = {
     'rft_winding': {
         'name': 'RFT-Winding',
         'generator': generate_rft_winding,
-        'description': 'Topological winding number resonance',
-        'claim': 'Claim 3: topological winding number computation',
+        'description': 'Phase-winding resonance (parametric)',
+        'claim': 'Claim 3: geometric coordinate transformations',
     },
-    'rft_euler_torus': {
-        'name': 'RFT-Euler-Torus',
-        'generator': generate_rft_euler_torus,
-        'description': 'Torus surface (χ=0) resonance',
-        'claim': 'Claim 3: Euler characteristic approximation',
+    'rft_torus_parametric': {
+        'name': 'RFT-Torus-Parametric',
+        'generator': generate_rft_torus_parametric,
+        'description': 'Torus surface resonance (parametric sampling)',
+        'claim': 'Claim 3: geometric coordinate transformations',
     },
-    'rft_euler_sphere': {
-        'name': 'RFT-Euler-Sphere',
-        'generator': generate_rft_euler_sphere,
-        'description': 'Sphere surface (χ=2) resonance',
-        'claim': 'Claim 3: Euler characteristic approximation',
+    'rft_sphere_parametric': {
+        'name': 'RFT-Sphere-Parametric',
+        'generator': generate_rft_sphere_parametric,
+        'description': 'Sphere surface resonance (parametric sampling)',
+        'claim': 'Claim 3: geometric coordinate transformations',
     },
     'rft_klein': {
         'name': 'RFT-Klein',
         'generator': generate_rft_klein,
-        'description': 'Klein bottle non-orientable resonance',
-        'claim': 'Claim 3: topological invariants',
+        'description': 'Klein bottle non-orientable resonance (parametric)',
+        'claim': 'Claim 3: geometric coordinate transformations',
     },
     
     # Claim 1: Phase-Space Coherence

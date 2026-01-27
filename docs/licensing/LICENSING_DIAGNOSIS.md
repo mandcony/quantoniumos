@@ -26,20 +26,20 @@ Based on analysis of your patent claims, research documents, and codebase, this 
 **What's protected:**
 - φ^(kn) golden-ratio phase modulation in unitary transform
 - Symbolic amplitude decomposition (not amplitude-level simulation)
-- Topological embedding layer with manifold mapping
+- Topological embedding layer with projection mapping
 - Symbolic gate propagation without collapse
 
 ### Claim 2: Resonance-Based Cryptographic Subsystem
 **What's protected:**
 - Amplitude-phase modulated waveform generation using φ
 - Geometric coordinate transformations (polar-to-Cartesian with φ scaling)
-- Topological hashing via manifold mapping
+- Topological hashing via projection mapping
 - Dynamic entropy mapping with recursive modulation
 
 ### Claim 3: Geometric Structures for Waveform Hashing
 **What's protected:**
-- Topological winding number computation (Wilson loops)
-- Manifold-based hash generation preserving topological structure
+- Phase-winding tag generation (synthetic)
+- Projection-based hash generation preserving embedded structure
 - Complex geometric coordinate generation with φ
 
 ### Claim 4: Hybrid Mode Integration
@@ -216,7 +216,7 @@ Does the file IMPLEMENT (not just call) one of these?
 ├─ φ^(kn) phase modulation in transforms? → Claims-NC (Claim 1)
 ├─ Symbolic amplitude decomposition? → Claims-NC (Claim 1)
 ├─ Geometric waveform hashing with φ? → Claims-NC (Claims 2+3)
-├─ Topological manifold mapping? → Claims-NC (Claim 3)
+├─ Topological projection mapping? → Claims-NC (Claim 3)
 ├─ Unified RFT+Crypto hybrid orchestration? → Claims-NC (Claim 4)
 │
 └─ No to all above:

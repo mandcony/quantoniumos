@@ -24,7 +24,7 @@ sys.path.insert(0, '/workspaces/quantoniumos')
 
 from algorithms.rft.variants.patent_variants import (
     generate_rft_manifold_projection,
-    generate_rft_euler_torus,
+    generate_rft_torus_parametric,
     generate_rft_hopf_fibration,
     generate_rft_loxodrome,
     generate_rft_phase_coherent,

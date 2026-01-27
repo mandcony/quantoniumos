@@ -76,7 +76,7 @@ W[t] = A(t) × e^(iΦ(t)) where:
 - Φ(t) = Σ(k=0 to |D|-1) d[k] × 2πφ^k × t mod 2π
 
 Topological Hashing Pipeline:
-Data → RFT Features → Manifold Mapping → Topological Hash
+Data → RFT Features → Projection Mapping → Embedding → Hash
 ```
 
 #### **Performance Evidence**
@@ -99,16 +99,16 @@ x[k] = r[k] × cos(θ[k]) × φ^(k/N)
 y[k] = r[k] × sin(θ[k]) × φ^(k/N)
 z[k] = r[k] × cos(φ × θ[k])
 
-Topological Winding Number:
-W = (1/2π) × Σ(k=0 to N-1) arg(G[k+1]/G[k])
+Phase-Winding Tag (synthetic):
+W̃ = arg(Σ exp(iθ_k))  (heuristic label; not a topological invariant)
 
-Manifold Hash Generation:
-Preserves geometric relationships in cryptographic output space
+Projection-Based Hash Generation:
+Preserves geometric relationships in the embedded feature space
 ```
 
 #### **Performance Evidence**
 - **Geometric Preservation**: >95% correlation maintained after hashing
-- **Winding Number Stability**: Stable under small perturbations
+- **Phase-Winding Tag Stability**: Stable under small perturbations (heuristic)
 - **Hash Uniformity**: Chi-square test confirms randomness
 - **Implementation Status**: Integrated in geometric hash pipeline
 

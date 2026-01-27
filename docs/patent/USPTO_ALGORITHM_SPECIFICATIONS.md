@@ -16,7 +16,7 @@ A symbolic transformation engine for quantum amplitude decomposition, comprising
 
 - **a)** A symbolic representation module configured to express quantum state amplitudes as algebraic forms
 - **b)** A phase-space coherence retention mechanism for maintaining structural dependencies between symbolic amplitudes and phase interactions
-- **c)** A topological embedding layer that maps symbolic amplitudes into structured manifolds preserving winding numbers, node linkage, and transformation invariants
+- **c)** A topological embedding layer that maps symbolic amplitudes into structured embeddings preserving synthetic phase tags, node linkage, and transformation structure
 - **d)** A symbolic gate propagation subsystem adapted to support quantum logic operations including Hadamard and Pauli-X gates without collapsing symbolic entanglement structures
 
 ### **CLAIM 2: Resonance-Based Cryptographic Subsystem**
@@ -32,12 +32,12 @@ wherein the system is resistant to classical and quantum decryption algorithms d
 
 ### **CLAIM 3: Geometric Structures for RFT-Based Cryptographic Waveform Hashing**
 
-A data storage and cryptographic architecture comprising Resonance Fourier Transform (RFT)-based geometric feature extraction applied to waveform data, wherein geometric coordinate transformations map waveform features through manifold mappings to generate topological invariants for cryptographic waveform hashing, the geometric structures including:
+A data storage and cryptographic architecture comprising Resonance Fourier Transform (RFT)-based geometric feature extraction applied to waveform data, wherein geometric coordinate transformations map waveform features through projection mappings to generate synthetic tags for cryptographic waveform hashing, the geometric structures including:
 
 - **a)** Polar-to-Cartesian coordinate systems with golden ratio scaling applied to harmonic relationships
 - **b)** Complex geometric coordinate generation via exponential transforms
-- **c)** Topological winding number computation and Euler characteristic approximation for cryptographic signatures
-- **d)** Manifold-based hash generation that preserves geometric relationships in the cryptographic output space
+- **c)** Phase-winding tag generation and synthetic score computation for cryptographic signatures
+- **d)** Projection-based hash generation that preserves geometric relationships in the embedded feature space
 
 wherein said architecture integrates symbolic amplitude values with phase-path relationship encoding and resonance envelope representation for secure symbolic data storage, retrieval, and encryption.
 
@@ -145,27 +145,27 @@ def phase_coherence_mechanism(waveform: np.ndarray, carriers: list):
 
 #### **1c. Topological Embedding Layer**
 
-Maps symbolic amplitudes into structured manifolds preserving winding numbers:
+Maps symbolic amplitudes into structured embeddings preserving synthetic phase tags:
 
 ```python
 def topological_embedding(waveform: np.ndarray):
     """
-    Claim 1c: Topological embedding preserving winding numbers and invariants
+    Claim 1c: Topological embedding with synthetic phase tags
     """
     # Extract amplitude and phase components
     amplitude = np.abs(waveform)
     phase = np.angle(waveform)
     
-    # Compute winding number (topological invariant)
+    # Compute phase-winding tag (synthetic)
     phase_unwrapped = np.unwrap(phase)
     winding_number = (phase_unwrapped[-1] - phase_unwrapped[0]) / (2 * np.pi)
     
-    # Map to manifold coordinates
-    manifold_coords = amplitude * np.exp(1j * phase_unwrapped)
+    # Map to embedding coordinates
+    embedding_coords = amplitude * np.exp(1j * phase_unwrapped)
     
     return {
         'winding_number': winding_number,
-        'manifold_coords': manifold_coords,
+        'embedding_coords': embedding_coords,
         'node_linkage': np.sum(np.diff(np.sign(np.real(waveform))) != 0)
     }
 ```
@@ -266,7 +266,7 @@ def topological_hash(waveform: np.ndarray, filter_size: int = 256):
     amplitude_spectrum = np.abs(np.fft.fft(waveform))
     phase_spectrum = np.angle(np.fft.fft(waveform))
     
-    # Compute winding numbers at multiple scales
+    # Compute phase-winding tags at multiple scales
     for scale in range(1, 9):
         window = len(waveform) // (2 ** scale)
         if window < 2:
@@ -384,43 +384,42 @@ def exponential_coordinate_transform(waveform: np.ndarray):
     return coords
 ```
 
-#### **3c. Topological Winding Number and Euler Characteristic**
+#### **3c. Phase-Winding Tag and Synthetic Score**
 
 ```python
-def compute_topological_invariants(waveform: np.ndarray):
+def compute_synthetic_tags(waveform: np.ndarray):
     """
-    Claim 3c: Winding number and Euler characteristic for cryptographic signatures
+    Claim 3c: Phase-winding tag and synthetic score for cryptographic signatures
     """
-    # Winding number computation
+    # Phase-winding tag (heuristic)
     phase = np.angle(waveform)
     phase_unwrapped = np.unwrap(phase)
-    winding_number = (phase_unwrapped[-1] - phase_unwrapped[0]) / (2 * np.pi)
+    phase_winding_tag = (phase_unwrapped[-1] - phase_unwrapped[0]) / (2 * np.pi)
     
-    # Euler characteristic approximation
-    # χ = V - E + F for discrete representation
+    # Synthetic score (not Euler characteristic)
     vertices = len(np.where(np.diff(np.sign(np.real(waveform))))[0])
     edges = len(waveform) - 1
-    faces = max(1, int(abs(winding_number)))
-    euler_char = vertices - edges + faces
+    faces = max(1, int(abs(phase_winding_tag)))
+    synthetic_score = vertices - edges + faces
     
-    # Cryptographic signature from invariants
+    # Cryptographic signature from synthetic tags
     signature = {
-        'winding': winding_number,
-        'euler': euler_char,
+        'phase_winding_tag': phase_winding_tag,
+        'synthetic_score': synthetic_score,
         'signature_hash': hashlib.sha3_256(
-            struct.pack('ff', winding_number, euler_char)
+            struct.pack('ff', phase_winding_tag, synthetic_score)
         ).digest()
     }
     
     return signature
 ```
 
-#### **3d. Manifold-Based Hash Generation**
+#### **3d. Projection-Based Hash Generation**
 
 ```python
-def manifold_hash(waveform: np.ndarray):
+def projection_hash(waveform: np.ndarray):
     """
-    Claim 3d: Manifold-based hash preserving geometric relationships
+    Claim 3d: Projection-based hash preserving geometric relationships
     """
     phi = (1 + np.sqrt(5)) / 2
     n = 512
@@ -433,7 +432,7 @@ def manifold_hash(waveform: np.ndarray):
     coords = exponential_coordinate_transform(waveform)
     invariants = compute_topological_invariants(waveform)
     
-    # Build feature vector preserving manifold structure
+    # Build feature vector preserving embedded structure
     features = np.concatenate([
         np.abs(coords)[:n//4],
         np.angle(coords)[:n//4],
@@ -453,7 +452,7 @@ def manifold_hash(waveform: np.ndarray):
     y = A.astype(np.int64) @ s.astype(np.int64) % q
     
     # Final hash preserving geometric relationships
-    return hashlib.sha3_256(y.tobytes() + b"RFT_MANIFOLD_HASH").digest()
+    return hashlib.sha3_256(y.tobytes() + b"RFT_PROJECTION_HASH").digest()
 ```
 
 ---
@@ -515,7 +514,7 @@ class HybridRFTFramework:
         """Claim 2: Full cryptographic hash pipeline"""
         waveform = generate_crypto_waveform(data, self.num_bits)
         waveform = recursive_modulator(waveform)
-        return manifold_hash(waveform)
+        return projection_hash(waveform)
     
     def crypto_signature(self, data: bytes) -> dict:
         """Claim 2b: Topological signature"""
@@ -527,8 +526,8 @@ class HybridRFTFramework:
     
     # === Claim 3: Geometric Structures ===
     def geometric_hash(self, waveform: np.ndarray) -> bytes:
-        """Claim 3: Geometric manifold hash"""
-        return manifold_hash(waveform)
+        """Claim 3: Geometric projection hash"""
+        return projection_hash(waveform)
     
     def geometric_coordinates(self, waveform: np.ndarray) -> dict:
         """Claim 3a-b: Extract geometric coordinates"""
@@ -571,7 +570,7 @@ class HybridRFTFramework:
             },
             'geometric': {
                 'coordinates': geo_coords,
-                'manifold_hash': geo_hash
+                'projection_hash': geo_hash
             }
         }
 ```
@@ -591,8 +590,8 @@ class HybridRFTFramework:
 | Claim 1: Pauli-X Gate | ✓ | Bit flip = phase inversion |
 | Claim 2: Hash Avalanche | 50.2% ✓ | Target: 50% |
 | Claim 2: Hash Collisions | 0/10000 ✓ | No collisions |
-| Claim 3: Winding Numbers | ✓ | Topological invariant |
-| Claim 3: Euler Characteristic | ✓ | Computed correctly |
+| Claim 3: Phase-Winding Tags | ✓ | Synthetic tags |
+| Claim 3: Synthetic Score | ✓ | Heuristic metric |
 | Claim 4: Coherent Propagation | ✓ | All layers integrated |
 | Noise Floor | -7 dB ✓ | Very robust |
 
@@ -603,9 +602,9 @@ class HybridRFTFramework:
 | Frequency transform | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Symbolic amplitude | ✗ | ✗ | ✗ | ✗ | **✓** |
 | Wave-domain logic | ✗ | ✗ | ✗ | ✗ | **✓** |
-| Topological hashing | ✗ | ✗ | ✗ | ✗ | **✓** |
+| Topological hashing (synthetic tags) | ✗ | ✗ | ✗ | ✗ | **✓** |
 | Golden-ratio spacing | ✗ | ✗ | ✗ | ✗ | **✓** |
-| Manifold mapping | ✗ | ✗ | ✗ | ✗ | **✓** |
+| Projection mapping | ✗ | ✗ | ✗ | ✗ | **✓** |
 | Post-quantum hash | ✗ | ✗ | ✗ | ✗ | **✓** |
 
 ---
@@ -630,8 +629,8 @@ class HybridRFTFramework:
 ### **Novel Contributions**
 1. **Symbolic waveform computation** — Logic gates (XOR, AND, Hadamard) execute in wave domain
 2. **Golden-ratio phase coherence** — Unique fₖ = (k+1)×φ, θₖ = 2πk/φ structure
-3. **Topological hashing** — Winding numbers and Euler characteristics as cryptographic primitives
-4. **Manifold-preserving cryptography** — Geometric relationships maintained in hash space
+3. **Topological hashing** — Synthetic phase tags as cryptographic features
+4. **Projection-preserving cryptography** — Geometric relationships maintained in hash space
 5. **Hybrid coherent propagation** — Symbolic, cryptographic, and geometric layers unified
 
 ### **Prior Art Components (Not Claimed as Novel)**
@@ -646,7 +645,7 @@ The RFT framework is NOT claimed as a replacement for FFT. Rather, it is a **nov
 1. Uses golden-ratio structured carriers for **symbolic amplitude representation**
 2. Enables **wave-domain computation** without decoding
 3. Integrates **topological invariants** into cryptographic pipelines
-4. Provides **manifold-aware hashing** with geometric relationship preservation
+4. Provides **projection-aware hashing** with geometric relationship preservation
 
 ---
 

@@ -32,7 +32,7 @@ from .patent_variants import (
 	list_patent_variants,
 	# Top performers:
 	generate_rft_manifold_projection,  # 4 wins, best on torus/spiral
-	generate_rft_euler_sphere,         # 1 win, best on phyllotaxis  
+	generate_rft_sphere_parametric,    # 1 win, best on phyllotaxis  
 	generate_rft_phase_coherent,       # 1 win, best on chirp
 	generate_rft_entropy_modulated,    # 1 win, best on noise
 	generate_rft_loxodrome,            # +12 dB vs golden on sine
@@ -40,7 +40,7 @@ from .patent_variants import (
 	generate_rft_spiral_golden,        # Claim 3: golden spiral
 	generate_rft_complex_exp,          # Claim 3: complex exponential
 	generate_rft_winding,              # Claim 3: winding numbers
-	generate_rft_euler_torus,          # Claim 3: torus topology
+	generate_rft_torus_parametric,     # Claim 3: torus parametric
 	generate_rft_hopf_fibration,       # Claim 3: Hopf fibration
 	generate_rft_bloom_hash,           # Claim 2: Bloom filters
 	generate_rft_trefoil_knot,         # Claim 3: knot invariants
@@ -72,7 +72,7 @@ __all__ = [
 	"get_patent_variant",
 	"list_patent_variants",
 	"generate_rft_manifold_projection",
-	"generate_rft_euler_sphere",
+	"generate_rft_sphere_parametric",
 	"generate_rft_phase_coherent",
 	"generate_rft_entropy_modulated",
 	"generate_rft_loxodrome",
@@ -80,7 +80,7 @@ __all__ = [
 	"generate_rft_spiral_golden",
 	"generate_rft_complex_exp",
 	"generate_rft_winding",
-	"generate_rft_euler_torus",
+	"generate_rft_torus_parametric",
 	"generate_rft_hopf_fibration",
 	"generate_rft_bloom_hash",
 	"generate_rft_trefoil_knot",

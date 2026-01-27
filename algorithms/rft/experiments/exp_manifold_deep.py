@@ -22,7 +22,7 @@ sys.path.insert(0, '/workspaces/quantoniumos')
 
 from algorithms.rft.variants.patent_variants import (
     generate_rft_manifold_projection,
-    generate_rft_euler_torus,
+    generate_rft_torus_parametric,
     generate_rft_hopf_fibration,
     generate_rft_loxodrome,
 )
@@ -175,7 +175,7 @@ def run_experiments():
     # Generate transforms
     Phi_manifold = generate_rft_manifold_projection(n)
     Phi_golden = generate_rft_golden(n)
-    Phi_torus = generate_rft_euler_torus(n)
+    Phi_torus = generate_rft_torus_parametric(n)
     Phi_hopf = generate_rft_hopf_fibration(n)
     
     # =================================================================
@@ -273,7 +273,7 @@ def run_experiments():
     n = 256
     variants = {
         'manifold_proj': generate_rft_manifold_projection(n),
-        'euler_torus': generate_rft_euler_torus(n),
+        'torus_parametric': generate_rft_torus_parametric(n),
         'hopf_fibration': generate_rft_hopf_fibration(n),
         'loxodrome': generate_rft_loxodrome(n),
         'golden': generate_rft_golden(n),

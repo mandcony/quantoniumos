@@ -109,7 +109,7 @@ class VertexQuantumRFT:
         print(f"   ✅ Enhanced Hilbert space basis initialized with {len(basis_functions)} topological functions")
     
     def enhanced_geometric_waveform_encode(self, data: np.ndarray) -> Dict[str, Any]:
-        """Enhanced encoding using geometric waveform properties with topological invariants."""
+        """Enhanced encoding using geometric waveform properties with synthetic topology tags."""
         # Calculate basic geometric properties
         magnitude = np.linalg.norm(data)
         mean_val = np.mean(data)
@@ -125,14 +125,14 @@ class VertexQuantumRFT:
         # Golden ratio resonance detection
         phi_resonance = np.sum(np.cos(phases * self.phi)) / len(phases)
         
-        # Enhanced topological properties
+        # Synthetic topology tags (heuristic labels, not invariants)
         winding_contribution = np.sum(np.exp(1j * phases)) / len(phases)
-        berry_phase_estimate = np.angle(winding_contribution)
-        chern_number_estimate = int((np.sum(phases) / (2 * np.pi)) % 3) - 1
+        synthetic_berry_phase_tag = np.angle(winding_contribution)
+        synthetic_chern_tag = int((np.sum(phases) / (2 * np.pi)) % 3) - 1
         
-        # Topological invariant calculations
+        # Synthetic scores from phase summaries (not Euler characteristic)
         total_phase = np.sum(phases) % (2 * np.pi)
-        euler_characteristic_approx = 2 - len(dominant_frequencies) + 1  # V - E + F approximation
+        synthetic_euler_score = 2 - len(dominant_frequencies) + 1
         
         encoding = {
             'magnitude': float(magnitude),
@@ -143,10 +143,10 @@ class VertexQuantumRFT:
             'phi_resonance': float(phi_resonance),
             'winding_contribution_real': float(winding_contribution.real),
             'winding_contribution_imag': float(winding_contribution.imag),
-            'berry_phase_estimate': float(berry_phase_estimate),
-            'chern_number_estimate': int(chern_number_estimate),
+            'synthetic_berry_phase_tag': float(synthetic_berry_phase_tag),
+            'synthetic_chern_tag': int(synthetic_chern_tag),
             'total_phase': float(total_phase),
-            'euler_characteristic_approx': int(euler_characteristic_approx),
+            'synthetic_euler_score': int(synthetic_euler_score),
             'data_hash': hashlib.sha256(data.tobytes()).hexdigest()[:16]
         }
         
@@ -300,8 +300,8 @@ class VertexQuantumRFT:
                 if len(basis_func) == len(data):
                     # Enhanced coefficient calculation with topological weighting
                     coeff = np.vdot(basis_func, data) / np.vdot(basis_func, basis_func)
-                    # Apply topological phase factor
-                    topological_weight = np.exp(1j * encoding['berry_phase_estimate'])
+                    # Apply synthetic phase tag as a weighting factor
+                    topological_weight = np.exp(1j * encoding['synthetic_berry_phase_tag'])
                     coeff *= topological_weight
                     coefficients.append(complex(coeff))
             

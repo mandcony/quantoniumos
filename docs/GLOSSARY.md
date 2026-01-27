@@ -64,13 +64,13 @@ Data → SHA3 Expansion → RFT Transform → SIS Quantization → Lattice Point
 
 ### Topological Hashing (Claim 3)
 
-**Definition:** Extraction of waveform features into cryptographic signatures using geometric invariants including winding numbers and Euler characteristics.
+**Definition:** Extraction of waveform features into cryptographic signatures using geometric features and synthetic phase tags (heuristics).
 
 **Geometric Structures:**
 - Polar-to-Cartesian with golden ratio scaling
 - Complex exponential coordinate generation
-- Topological winding number computation
-- Manifold-based hash generation
+- Phase-winding tag generation (synthetic)
+- Projection-based hash generation
 
 ---
 

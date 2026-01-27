@@ -61,7 +61,7 @@ Key Innovation: φ^(kn) parameterization not found in IBM literature
 | Aspect | Google MPS Approach | Our Geometric Structures Approach |
 |--------|-------------------|-----------------------------------|
 | **Topology** | 1D chain structures | Arbitrary topological manifolds |
-| **Compression Basis** | SVD rank reduction | RFT + manifold mapping |
+| **Compression Basis** | SVD rank reduction | RFT + projection mapping |
 | **Geometric Awareness** | Limited to bond dimensions | Full geometric coordinate preservation |  
 | **Cryptographic Integration** | None | Integrated waveform hashing |
 | **Golden Ratio Enhancement** | Not present | Core φ-parameterization |
@@ -161,7 +161,7 @@ Unique Innovation: QR-decomposed unitary basis with golden ratio weighting
 | **Integration Level** | External optimization | Intrinsic mathematical structure |
 | **Transform Domain** | Not applicable | Frequency domain analysis |
 | **Cryptographic Extension** | None | Integrated resonance-based crypto |
-| **Geometric Structures** | Not addressed | Manifold mapping with φ-scaling |
+| **Geometric Structures** | Not addressed | Projection mapping with φ-scaling |
 
 **Technical Differentiation**:
 ```
@@ -185,7 +185,7 @@ Fundamental Difference: Tool vs Core Mathematical Innovation
 | **Application Domain** | Error correction lattices | Cryptographic waveform hashing |
 | **Mathematical Function** | Spatial arrangement | Transform parameterization |
 | **Compression Integration** | None | Core component of compression pipeline |
-| **Coordinate Transformation** | Static geometric patterns | Dynamic manifold mapping |
+| **Coordinate Transformation** | Static geometric patterns | Dynamic projection mapping |
 | **Cryptographic Purpose** | Not addressed | Waveform feature extraction |
 
 **Technical Differentiation**:
@@ -236,7 +236,7 @@ Unique Contribution: Polar-to-Cartesian with φ-scaling for cryptographic featur
 **Technical Differentiation**:
 ```
 Microsoft: Physical anyons → Braiding operations → Topological gates
-Our Method: Data → RFT → Manifold mapping → Topological invariants → Hash
+Our Method: Data → RFT → Projection mapping → Synthetic tags → Hash
 
 Fundamental Difference: Physical vs Mathematical topological operations
 Unique Innovation: Topological hashing without exotic quantum materials
@@ -255,7 +255,7 @@ Unique Innovation: Topological hashing without exotic quantum materials
 |--------|-------------------|---------------------------|
 | **Purpose** | Error correction | Cryptographic feature extraction |
 | **Topology** | Fixed 2D torus | Arbitrary manifold dimensions |
-| **Invariants** | Homology groups | Winding numbers + Euler characteristics |
+| **Invariants** | Homology groups | Phase-winding tags + synthetic scores |
 | **Computational Goal** | Preserve quantum information | Generate cryptographic hashes |
 | **Classical Integration** | Limited | Full classical-quantum hybrid |
 
@@ -280,7 +280,7 @@ Key Innovation: Cryptographic application of topological mathematics
 |--------|-----------------|-------------------------------|
 | **Analysis Type** | Statistical classification | Real-time cryptographic hashing |
 | **Computational Goal** | Understand quantum datasets | Generate secure hash digests |
-| **Topological Tools** | Persistent homology | Winding numbers + manifold mapping |
+| **Topological Tools** | Persistent homology | Phase-winding tags + projection mapping |
 | **Integration Level** | Post-processing analysis | Core component of unified framework |
 | **Real-time Capability** | Not addressed | Optimized for real-time processing |
 
@@ -303,9 +303,9 @@ Unique Application: Real-time topological cryptography vs offline analysis
 
 **Critical Technical Gaps**:
 1. **No existing work** applies topological mathematics to cryptographic waveform hashing
-2. **No prior research** combines manifold mapping with RFT for hash generation
-3. **No published method** uses winding numbers for real-time cryptographic features
-4. **No existing approach** integrates topological embedding with quantum compression
+2. **No prior research** combines projection mapping with RFT for hash generation
+3. **No published method** uses phase-winding tags for real-time cryptographic features
+4. **No existing approach** integrates embedding with quantum compression
 
 ---
 
@@ -338,7 +338,7 @@ parameterization for unitary transform construction.
 #### **2. Resonance-Based Cryptographic Waveform Generation**
 **Technical Innovation**:
 ```
-Novel Pipeline: Data → Symbolic waveforms → RFT features → Manifold mapping → Hash
+Novel Pipeline: Data → Symbolic waveforms → RFT features → Projection mapping → Hash
 
 Amplitude Modulation: A(t) = Σₖ d[k] × φ^k / √|D|
 Phase Modulation: Φ(t) = Σₖ d[k] × 2πφ^k × t mod 2π

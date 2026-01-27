@@ -20,7 +20,7 @@ from typing import Callable, Tuple
 # Import patent variants (USPTO 19/169,399)
 from .patent_variants import (
     generate_rft_manifold_projection,
-    generate_rft_euler_sphere,
+    generate_rft_sphere_parametric,
     generate_rft_phase_coherent,
     generate_rft_entropy_modulated,
     generate_rft_loxodrome,
@@ -335,13 +335,13 @@ OPERATOR_VARIANTS = {
     'rft_manifold_projection': {
         'name': 'RFT-Manifold-Projection',
         'generator': generate_rft_manifold_projection,
-        'description': 'Claim 3: Manifold-based hash generation (4 wins, +47.9 dB on torus)',
+        'description': 'Claim 3: Projection-based hash generation (4 wins, +47.9 dB on torus)',
         'use_case': 'Torus, spiral, helical signals - TOP PERFORMER',
     },
-    'rft_euler_sphere': {
-        'name': 'RFT-Euler-Sphere',
-        'generator': generate_rft_euler_sphere,
-        'description': 'Claim 3: Spherical geodesic resonance',
+    'rft_sphere_parametric': {
+        'name': 'RFT-Sphere-Parametric',
+        'generator': generate_rft_sphere_parametric,
+        'description': 'Claim 3: Spherical parametric resonance',
         'use_case': 'Phyllotaxis, biological patterns',
     },
     'rft_phase_coherent': {

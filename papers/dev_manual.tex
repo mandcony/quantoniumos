@@ -397,9 +397,9 @@ Novel geometric coordinate system for hash generation:
 \begin{itemize}
 \item \textbf{Polar-to-Cartesian transformations}: Golden ratio scaling applied to harmonic relationships: $x[k] = r[k] \times \cos(\theta[k]) \times \phi^{k/N}$
 \item \textbf{Complex geometric coordinate generation}: Exponential transforms creating quaternion-like representations
-\item \textbf{Topological winding number computation}: Discrete contour integration for cryptographic signatures
-\item \textbf{Euler characteristic approximation}: Genus estimation from winding number distribution
-\item \textbf{Manifold-based hash generation}: Preserves geometric relationships in cryptographic output space (>95\% correlation)
+\item \textbf{Phase-winding tag generation}: Discrete contour integration for heuristic signatures
+\item \textbf{Synthetic score}: Phase-summary heuristic (not Euler characteristic)
+\item \textbf{Projection-based hash generation}: Preserves geometric relationships in embedded feature space (>95\% correlation)
 \end{itemize}
 
 \begin{qdetail}[Implementation]
@@ -2097,7 +2097,7 @@ Nonlinear/curved & Harmonic-Phase & Preserves structure \\
 Audio/music & Harmonic-Phase & Harmonic preservation \\
 Text/ASCII & Log-Periodic & Mitigates repetition \\
 Cryptographic & Phi-Chaotic-Hybrid & Security + structure \\
-3D/spatial data & Euler-Sphere & Rotational invariance \\
+3D/spatial data & Sphere-Parametric & Rotational invariance \\
 Compression & Entropy-Modulated & Energy compaction \\
 Unknown/mixed & Convex-Mix & Adaptive \\
 \bottomrule

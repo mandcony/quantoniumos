@@ -29,14 +29,12 @@ class TopologyType(Enum):
     FIBONACCI_ANYON = "fibonacci_anyon"
 
 @dataclass
-class TopologicalInvariant:
-    """Mathematical invariants that characterize topological properties."""
-    winding_number: complex
-    chern_number: int
-    berry_phase: float
-    braiding_signature: str
-    genus: int = 0
-    euler_characteristic: int = 2
+class SyntheticTopologyTags:
+    """Synthetic tags for visual/heuristic labeling (not topological invariants)."""
+    synthetic_winding: complex
+    synthetic_chern_tag: int
+    synthetic_berry_phase_tag: float
+    synthetic_braiding_signature: str
 
 @dataclass
 class VertexManifold:
@@ -49,9 +47,9 @@ class VertexManifold:
     local_curvature: float = 0.0
     geometric_phase: float = 0.0
     
-    # Topological properties
+    # Topological properties (synthetic tags; not mathematical invariants)
     topology_type: TopologyType = TopologyType.NON_ABELIAN_ANYON
-    invariants: TopologicalInvariant = field(default_factory=lambda: TopologicalInvariant(0+0j, 0, 0.0, ""))
+    invariants: SyntheticTopologyTags = field(default_factory=lambda: SyntheticTopologyTags(0+0j, 0, 0.0, ""))
     
     # Quantum state
     local_state: Optional[np.ndarray] = None
@@ -85,10 +83,10 @@ class TopologicalEdge:
 
 class EnhancedTopologicalQubit:
     """
-    Enhanced qubit simulation with topological data structures.
+    Enhanced qubit simulation with topological-style data structures.
     
-    This class manages a classical graph-based representation of a topological
-    manifold to simulate properties like braiding and error correction codes.
+    This class manages a classical graph-based representation with synthetic
+    tags to simulate properties like braiding and error correction codes.
     It is a 'Quantum-Inspired' data structure, not a physical qubit simulation.
     """
     
@@ -105,6 +103,15 @@ class EnhancedTopologicalQubit:
         self.global_state: np.ndarray = np.array([1.0 + 0.0j, 0.0 + 0.0j])
         self.code_distance: int = 5
         self.logical_qubits: int = 1
+
+        # Surface-level metadata (declared intent, not computed invariants)
+        self.surface_metadata = {
+            'surface_model': 'torus_parametric',
+            'orientable': True,
+            'surface_genus': 1,
+            'crosscap_number': None,
+            'notes': 'Parametric sampling only; no triangulation/cell complex.'
+        }
         
         # Mathematical constants
         self.phi = 1.618033988749894848204586834366  # Golden ratio
@@ -121,7 +128,7 @@ class EnhancedTopologicalQubit:
         print(f"   Surface code stabilizers: {len(self._get_stabilizers())}")
     
     def _initialize_topological_structure(self):
-        """Initialize the complete topological structure with proper manifold geometry."""
+        """Initialize the structure with parametric geometry and synthetic tags."""
         # Create vertices with proper topological manifold structure
         for i in range(self.num_vertices):
             # Generate coordinates on a torus (genus 1 manifold)
@@ -136,19 +143,17 @@ class EnhancedTopologicalQubit:
                 r * np.sin(phi_angle)
             ])
             
-            # Calculate topological invariants
+            # Calculate synthetic tags (heuristic, not invariants)
             winding_number = cmath.exp(1j * theta) * cmath.exp(1j * phi_angle * self.phi)
             chern_number = int((i * self.phi) % 3) - 1  # -1, 0, or 1
             berry_phase = (theta + phi_angle) % (2 * np.pi)
             braiding_sig = f"v{i}_w{abs(winding_number):.3f}_c{chern_number}"
             
-            invariants = TopologicalInvariant(
-                winding_number=winding_number,
-                chern_number=chern_number,
-                berry_phase=berry_phase,
-                braiding_signature=braiding_sig,
-                genus=1,  # Torus
-                euler_characteristic=0  # Torus has χ = 0
+            invariants = SyntheticTopologyTags(
+                synthetic_winding=winding_number,
+                synthetic_chern_tag=chern_number,
+                synthetic_berry_phase_tag=berry_phase,
+                synthetic_braiding_signature=braiding_sig,
             )
             
             # Create vertex manifold
@@ -300,28 +305,21 @@ class EnhancedTopologicalQubit:
         return braiding_matrix
     
     def measure_topological_invariant(self, invariant_type: str) -> float:
-        """Measure a specific topological invariant across the entire qubit."""
-        if invariant_type == "total_winding":
-            total_winding = sum(abs(v.invariants.winding_number) for v in self.vertices.values())
+        """Measure synthetic tags across the entire qubit (heuristics only)."""
+        if invariant_type == "synthetic_total_winding":
+            total_winding = sum(abs(v.invariants.synthetic_winding) for v in self.vertices.values())
             return total_winding
         
-        elif invariant_type == "euler_characteristic":
-            # χ = V - E + F (for surface)
-            V = len(self.vertices)
-            E = len(self.edges)
-            F = 2  # Assuming sphere-like topology, adjust for actual surface
-            return V - E + F
-        
-        elif invariant_type == "total_berry_phase":
+        elif invariant_type == "synthetic_total_berry_phase":
             total_phase = sum(v.geometric_phase for v in self.vertices.values()) % (2 * np.pi)
             return total_phase
         
-        elif invariant_type == "chern_number":
-            total_chern = sum(v.invariants.chern_number for v in self.vertices.values())
+        elif invariant_type == "synthetic_chern_tag":
+            total_chern = sum(v.invariants.synthetic_chern_tag for v in self.vertices.values())
             return total_chern
         
         else:
-            raise ValueError(f"Unknown invariant type: {invariant_type}")
+            raise ValueError(f"Unknown invariant tag: {invariant_type}")
     
     def encode_data_on_edge(self, edge_id: str, data: np.ndarray) -> str:
         """Encode data on a topological edge using geometric waveform encoding."""
@@ -454,11 +452,11 @@ class EnhancedTopologicalQubit:
             'edge_count': len(self.edges),
             'code_distance': self.code_distance,
             'global_state_norm': float(np.linalg.norm(self.global_state)),
-            'topological_invariants': {
-                'total_winding': self.measure_topological_invariant('total_winding'),
-                'euler_characteristic': self.measure_topological_invariant('euler_characteristic'),
-                'total_berry_phase': self.measure_topological_invariant('total_berry_phase'),
-                'chern_number': self.measure_topological_invariant('chern_number')
+            'surface_metadata': self.surface_metadata,
+            'synthetic_topology_tags': {
+                'synthetic_total_winding': self.measure_topological_invariant('synthetic_total_winding'),
+                'synthetic_total_berry_phase': self.measure_topological_invariant('synthetic_total_berry_phase'),
+                'synthetic_chern_tag': self.measure_topological_invariant('synthetic_chern_tag')
             },
             'surface_code_stabilizers': len(self._get_stabilizers()),
             'edges_with_data': sum(1 for e in self.edges.values() if e.stored_data is not None),
