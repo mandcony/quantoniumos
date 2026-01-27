@@ -4,7 +4,7 @@ scipy>=1.7.0,<1.13.0
 matplotlib==3.9.0
 pandas==2.2.2
 sympy==1.12
-qutip==4.7.6
+qutip==5.0.4
 PyQt5
 qtawesome==1.3.1
 pytest==8.2.0
