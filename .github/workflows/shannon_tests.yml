@@ -90,7 +90,7 @@ jobs:
           python experiments/entropy/benchmark_entropy_gap.py --all --json --output-dir results/entropy_gap
       
       - name: Upload entropy results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: entropy-results
           path: results/entropy*/
@@ -126,7 +126,7 @@ jobs:
           python experiments/runtime/benchmark_transforms.py --iterations 50 --output-dir results/runtime
       
       - name: Upload runtime results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: runtime-results
           path: results/runtime/
@@ -163,7 +163,7 @@ jobs:
           python scripts/run_shannon_tests.py --verbose --output-dir results/shannon_tests
       
       - name: Upload test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: shannon-test-report
           path: results/shannon_tests/
