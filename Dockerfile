@@ -6,7 +6,7 @@ ile
 # Copyright (C) 2025 Luis M. Minier / quantoniumos
 
 # QuantoniumOS quick validation container
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
