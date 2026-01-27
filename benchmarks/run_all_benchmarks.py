@@ -142,7 +142,7 @@ def check_dependencies():
     try:
         import sounddevice
         deps['class_e']['sounddevice'] = sounddevice.__version__
-    except ImportError:
+    except (ImportError, OSError):
         deps['class_e']['sounddevice'] = None
     
     try:

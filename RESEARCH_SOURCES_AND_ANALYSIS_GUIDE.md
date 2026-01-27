@@ -7,7 +7,20 @@
 ## Table of Contents
 
 1. [Authoritative Research Sources by Domain](#authoritative-research-sources-by-domain)
-2. [Broad Scan Analysis Instructions](#broad-scan-analysis-instructions)
+2. [Broad Scan Analysis Instructions](#broad-scan-analysis-instructions)/usr/local/python/3.12.1/lib/python3.12/site-packages/oqs/__init__.py:1: UserWarning: liboqs version (major, minor) 0.15.0 differs from liboqs-python version 0.14.1
+  from oqs.oqs import (
+Traceback (most recent call last):
+  File "/workspaces/quantoniumos/benchmarks/run_all_benchmarks.py", line 484, in <module>
+    main()
+  File "/workspaces/quantoniumos/benchmarks/run_all_benchmarks.py", line 415, in main
+    deps = check_dependencies()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/quantoniumos/benchmarks/run_all_benchmarks.py", line 143, in check_dependencies
+    import sounddevice
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sounddevice.py", line 72, in <module>
+    raise OSError('PortAudio library not found')
+OSError: PortAudio library not found
+@mandcony ➜ /workspaces/quantoniumos (main) $ 
 3. [Domain-Specific Research Protocols](#domain-specific-research-protocols)
 4. [Validation Checklist](#validation-checklist)
 
