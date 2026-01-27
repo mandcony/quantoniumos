@@ -11,8 +11,16 @@ Usage:
 """
 
 import argparse, math, cmath, numpy as np
+import sys
+from pathlib import Path
 from numpy.linalg import svd, det, eigvalsh, norm
 from scipy.linalg import logm
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from algorithms.rft.core.resonant_fourier_transform import rft_basis_matrix
 
 # --- helpers ---------------------------------------------------------------
 
@@ -80,27 +88,8 @@ def reduced_density(psi: np.ndarray, dims: tuple[int,...], keep: list[int]) -> n
 # --- RFT loader (adjust import to your wrapper) ----------------------------
 
 def build_rft(size:int) -> np.ndarray:
-    """
-    Return the unitary RFT matrix Ψ of shape (size,size).
-    Modify this to call your actual kernel:
-        from ASSEMBLY.python_bindings.rft_python_wrapper import rft_matrix
-        return rft_matrix(size)
-    For now, we simulate by constructing a unitary from your components if available.
-    """
-    try:
-        # If your project exposes a direct constructor, use it here:
-        # from ASSEMBLY.python_bindings.rft_python_wrapper import rft_matrix
-        # return rft_matrix(size)
-        raise ImportError
-    except Exception:
-        # Placeholder demo: create a stable synthetic unitary close to (but not equal to) DFT
-        rng = np.random.default_rng(1234)
-        A = rng.normal(size=(size,size)) + 1j*rng.normal(size=(size,size))
-        U, _, Vh = svd(A, full_matrices=False)
-        # Mix with DFT to ensure Ψ ≠ F while staying unitary
-        F = unitary_dft(size)
-        Psi = project_to_nearest_unitary(0.6*U@Vh + 0.4*F)
-        return Psi
+    """Return the canonical unitary RFT matrix Ψ of shape (size,size)."""
+    return rft_basis_matrix(size, size, use_gram_normalization=True)
 
 # --- main ------------------------------------------------------------------
 

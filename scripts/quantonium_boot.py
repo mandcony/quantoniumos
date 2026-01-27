@@ -142,9 +142,20 @@ class QuantoniumBootSystem:
     
     def compile_python_engines(self):
         """Fallback: compile Python-based assembly engines"""
-        # This function is now a placeholder as C/ASM compilation is primary.
-        self.log("Skipping Python engine compilation; C/ASM is primary.", "INFO")
-        return True
+        try:
+            import numpy as np
+            from algorithms.rft.core.phi_phase_fft_optimized import rft_forward, rft_inverse
+
+            size = 64
+            signal = np.random.randn(size).astype(np.float64)
+            coeffs = rft_forward(signal)
+            recon = rft_inverse(coeffs)
+            err = float(np.linalg.norm(recon.real - signal))
+            self.log(f"Python RFT kernel sanity check error: {err:.3e}", "INFO")
+            return err < 1e-6
+        except Exception as e:
+            self.log(f"Python engine validation failed: {e}", "ERROR")
+            return False
     
     def validate_core_algorithms(self):
         """Quick validation of core algorithms"""

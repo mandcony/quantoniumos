@@ -204,7 +204,14 @@ def run_single_trial(
     )
     x_struct_hat = result.structural
     x_texture_hat = result.texture
-    weights = {"dct": 0.5, "rft": 0.5} # Placeholder
+    total_energy = np.linalg.norm(x_struct_hat) + np.linalg.norm(x_texture_hat)
+    if total_energy > 0:
+        weights = {
+            "dct": float(np.linalg.norm(x_struct_hat) / total_energy),
+            "rft": float(np.linalg.norm(x_texture_hat) / total_energy),
+        }
+    else:
+        weights = {"dct": 0.0, "rft": 0.0}
 
     # 3. Errors in component reconstruction
     err_s = l2_error(x_s_true, x_struct_hat)

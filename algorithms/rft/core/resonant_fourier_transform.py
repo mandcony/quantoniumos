@@ -140,7 +140,7 @@ def rft_basis_function(k: int, t: np.ndarray) -> np.ndarray:
 def rft_basis_matrix(
     N: int,
     T: Optional[int] = None,
-    use_gram_normalization: bool = False,
+    use_gram_normalization: bool = True,
 ) -> np.ndarray:
     """Build an RFT basis matrix.
 
@@ -231,7 +231,7 @@ def rft_forward(
     x: np.ndarray,
     T: Optional[int] = None,
     *,
-    use_gram_normalization: bool = False,
+    use_gram_normalization: bool = True,
     frame_correct: bool = False,
 ) -> np.ndarray:
     """
@@ -243,9 +243,9 @@ def rft_forward(
     
     Args:
         x: Input data array of length N
-        T: Number of output time samples (default: N * 16) for waveform synthesis.
-           If `frame_correct` or `use_gram_normalization` is enabled and T is None,
-           a square (N×N) transform is used.
+          T: Number of output time samples (default: N * 16) for waveform synthesis.
+              For a square (N×N) canonical transform, pass T=N and
+              set `use_gram_normalization=True` (or `frame_correct=True`).
         use_gram_normalization: If True (square mode), uses Φ̃ = Φ(ΦᴴΦ)^{-1/2}.
         frame_correct: If True (square mode), uses dual-frame coefficients
            X = (ΦᴴΦ)^{-1} Φᴴ x.
@@ -256,16 +256,14 @@ def rft_forward(
     x = np.asarray(x, dtype=np.complex128)
     N = len(x)
     
-    # Default behavior remains waveform synthesis unless the user explicitly
-    # requests mathematically complete square-kernel behavior.
-    if T is None and (use_gram_normalization or frame_correct):
+    if T is None:
+        T = N * 16
+
+    if T == N and (use_gram_normalization or frame_correct):
         Phi = rft_basis_matrix(N, N, use_gram_normalization=use_gram_normalization)
         if frame_correct:
             return rft_forward_frame(x, Phi)
         return Phi.conj().T @ x
-
-    if T is None:
-        T = N * 16  # Oversample for smooth waveform
 
     Psi = rft_basis_matrix(N, T)
     return x @ Psi
@@ -273,9 +271,9 @@ def rft_forward(
 
 def rft_inverse(
     W: np.ndarray,
-    N: int,
+    N: Optional[int] = None,
     *,
-    use_gram_normalization: bool = False,
+    use_gram_normalization: bool = True,
     frame_correct: bool = False,
 ) -> np.ndarray:
     """
@@ -288,7 +286,7 @@ def rft_inverse(
     Args:
         W: Complex waveform of length T (legacy waveform mode), or coefficient
            vector of length N (square-kernel mode).
-        N: Number of data points to recover
+        N: Number of data points to recover (defaults to len(W) in square mode)
         use_gram_normalization: If True (square mode), uses Φ̃ = Φ(ΦᴴΦ)^{-1/2}.
         frame_correct: If True (square mode), treats W as dual-frame coefficients.
     
@@ -296,6 +294,9 @@ def rft_inverse(
         Recovered data array of length N
     """
     W = np.asarray(W, dtype=np.complex128)
+
+    if N is None:
+        N = int(W.shape[0])
 
     # Square-kernel reconstruction (coefficients → signal).
     if W.shape[0] == int(N) and (use_gram_normalization or frame_correct):

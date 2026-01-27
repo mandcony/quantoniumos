@@ -223,9 +223,13 @@ def main() -> None:
 
     if args.train_residual and residual_samples_all:
         print(f"Training residual predictor on {len(residual_samples_all)} tensor sample groups ...")
+        bands = 1
+        for _, _, band_ids, _, _, _ in residual_samples_all:
+            if band_ids.size:
+                bands = max(bands, int(band_ids.max()) + 1)
         predictor_payload = train_residual_predictor(
             residual_samples_all,
-            bands= max((c.container['kept_coeff'] for c in []), default=1),  # placeholder band count not used (features include one-hot from samples)
+            bands=bands,
             hidden_dim=args.residual_hidden,
             epochs=args.residual_epochs,
             steps_cap=args.residual_steps_cap,

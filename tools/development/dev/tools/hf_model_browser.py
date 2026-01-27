@@ -10,10 +10,18 @@ Searches and downloads HF models with token authentication for QuantoniumOS inte
 import os
 import json
 import requests
+import sys
+from pathlib import Path
 from typing import Dict, List, Any, Optional
 from huggingface_hub import HfApi, snapshot_download, hf_hub_download
 from huggingface_hub import login as hf_login
 import time
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from tools.compression.real_hf_model_compressor import HuggingFaceRFTCompressor
 
 class HuggingFaceModelBrowser:
     """Browse and download Hugging Face models for QuantoniumOS"""
@@ -265,33 +273,24 @@ class HuggingFaceModelBrowser:
         """Encode downloaded model into QuantoniumOS format"""
         print(f"🔄 Encoding {model_id} for QuantoniumOS...")
         
-        # This would use your existing encoding pipeline
-        # For now, just create a placeholder
-        
         encoded_dir = os.path.join("data", "weights", "hf_encoded")
         os.makedirs(encoded_dir, exist_ok=True)
-        
         encoded_filename = f"hf_encoded_{model_id.replace('/', '_')}.json"
         encoded_path = os.path.join(encoded_dir, encoded_filename)
-        
-        # Placeholder encoding (would use your actual RFT compression)
-        encoded_data = {
-            'model_info': {
-                'model_id': model_id,
-                'encoding_timestamp': time.time(),
-                'quantonium_ready': True
-            },
-            'streaming_states': [],  # Would contain actual compressed parameters
-            'compression_stats': {
-                'original_params': 'TBD',
-                'compressed_params': 'TBD', 
-                'compression_ratio': 'TBD'
-            }
-        }
-        
+
+        # Ensure model is available locally
+        local_path = snapshot_download(
+            repo_id=model_id,
+            token=self.token,
+            resume_download=True
+        )
+
+        compressor = HuggingFaceRFTCompressor()
+        encoded_data = compressor.compress_huggingface_model(local_path, model_id)
+
         with open(encoded_path, 'w') as f:
             json.dump(encoded_data, f, indent=2)
-        
+
         print(f"✅ Encoded model saved: {encoded_path}")
         return True
 

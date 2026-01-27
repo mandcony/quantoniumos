@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
 Create an SVG icon for your application at `os/apps/my_new_app/resources/icon.svg`.
 
-You can use a simple placeholder:
+You can use a simple example icon:
 
 ```svg
 <?xml version="1.0" encoding="UTF-8"?>

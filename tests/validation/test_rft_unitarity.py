@@ -25,8 +25,8 @@ def test_rft_roundtrip_unitary_basis() -> None:
     N = 256
     x = rng.normal(size=N) + 1j * rng.normal(size=N)
 
-    X = rft_forward(x)
-    x_hat = rft_inverse(X)
+    X = rft_forward(x, T=N, use_gram_normalization=True)
+    x_hat = rft_inverse(X, N=N, use_gram_normalization=True)
 
     err = np.linalg.norm(x_hat - x) / np.linalg.norm(x)
     assert err < 1e-10

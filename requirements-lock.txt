@@ -1,4 +1,4 @@
-# Generated placeholder lock file. Use pip-compile to regenerate with hashes.
+# Minimal lock file for development. Use pip-compile to regenerate with hashes.
 numpy==1.26.4
 scipy==1.12.0
 matplotlib==3.9.0

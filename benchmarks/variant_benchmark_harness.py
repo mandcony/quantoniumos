@@ -417,7 +417,7 @@ def run_all_variants_benchmark(signals: Dict[str, np.ndarray], skip_slow: bool =
     for variant_code in VARIANT_CODES:
         # Skip slow variants unless explicitly requested
         if skip_slow and variant_code in SLOW_VARIANTS:
-            # Add placeholder result
+            # Add skipped result
             for signal_name in signals.keys():
                 results.append(VariantResult(
                     variant=variant_code,

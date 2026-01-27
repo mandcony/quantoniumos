@@ -214,7 +214,7 @@ def run_benchmarks(sizes: List[int], *, rft_impl: str) -> List[TrialResult]:
                 metric="frobenius_U_minus_DFT",
                 rft_value=dft_distance,
                 fft_value=0.0,
-                better="RFT",  # not a competition metric; placeholder
+                better="RFT",  # informational label (not a competition metric)
                 rft_impl=rft_impl,
             )
         )

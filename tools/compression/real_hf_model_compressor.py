@@ -9,7 +9,7 @@
 Real HuggingFace Model Compressor
 ================================
 Converts downloaded HuggingFace models to QuantoniumOS compressed format using RFT.
-This replaces the placeholder database entries with actual compressed models.
+This replaces stub database entries with actual compressed models.
 """
 
 import os
@@ -215,11 +215,17 @@ class HuggingFaceRFTCompressor:
             # RFT compress block
             rft_engine = CanonicalTrueRFT(len(block))
             compressed_block = rft_engine.forward_transform(block)
+            reconstructed_block = rft_engine.inverse_transform(compressed_block)
+            block_norm = np.linalg.norm(block)
+            if block_norm == 0:
+                fidelity = 1.0
+            else:
+                fidelity = 1.0 - np.linalg.norm(block - reconstructed_block) / block_norm
             
             blocks.append({
                 'states': compressed_block[:100].tolist(),  # Store first 100 states
                 'size': len(compressed_block),
-                'fidelity': 0.95  # Placeholder - will compute actual fidelity
+                'fidelity': float(fidelity)
             })
             
             total_compressed_size += len(compressed_block)

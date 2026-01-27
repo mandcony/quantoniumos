@@ -17,6 +17,7 @@ processing on structured states, NOT general quantum simulation.
 import os
 import sys
 import ctypes
+import time
 import numpy as np
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
@@ -131,8 +132,28 @@ class QuantumSymbolicEngine(AssemblyEngine):
         return error < tolerance
 
     def benchmark_scaling(self, min_size: int, max_size: int) -> float:
-        """Placeholder scaling benchmark (delegated elsewhere)."""
-        return float(max_size - min_size)
+        """Estimate scaling exponent via log-log fit of compression time."""
+        if min_size < 2:
+            min_size = 2
+        sizes = []
+        times = []
+        # Use powers of two within range for stability
+        start_pow = int(np.ceil(np.log2(min_size)))
+        end_pow = int(np.floor(np.log2(max_size)))
+        if end_pow < start_pow:
+            end_pow = start_pow
+        for p in range(start_pow, end_pow + 1):
+            n = 2 ** p
+            data = np.zeros(n, dtype=np.float64)
+            start = time.perf_counter()
+            _ = self.compress_structured_states(data)
+            elapsed = time.perf_counter() - start
+            sizes.append(n)
+            times.append(max(elapsed, 1e-9))
+        if len(sizes) < 2:
+            return 0.0
+        slope, _ = np.polyfit(np.log(sizes), np.log(times), 1)
+        return float(slope)
 
     def create_bell_state(self, size: int) -> np.ndarray:
         """Create Bell state using your proven mathematical construction."""
@@ -213,11 +234,24 @@ class CryptoEngine(AssemblyEngine):
         print("✅ PROVEN ASSEMBLY: Crypto engine initialized")
     
     def feistel_encrypt(self, plaintext: bytes, key: bytes) -> bytes:
-        """Encrypt using proven Feistel assembly (placeholder - needs implementation)."""
-        # This would call the proven assembly Feistel implementation
-        # For now, indicate it's available but needs function setup
-        print("🔐 PROVEN ASSEMBLY: Feistel crypto functions ready")
-        return plaintext  # Placeholder
+        """Encrypt using proven Feistel assembly or a validated Python fallback."""
+        # Prefer assembly symbols if available
+        if self.lib is not None:
+            for symbol in ("feistel_encrypt", "feistel_encrypt_block"):
+                if hasattr(self.lib, symbol):
+                    func = getattr(self.lib, symbol)
+                    func.argtypes = [c_void_p, c_void_p]
+                    func.restype = None
+                    pt = (ctypes.c_ubyte * 16).from_buffer_copy(plaintext[:16].ljust(16, b"\x00"))
+                    out = (ctypes.c_ubyte * 16)()
+                    func(ctypes.byref(pt), ctypes.byref(out))
+                    return bytes(out)
+
+        # Fallback to Python reference cipher
+        from algorithms.rft.crypto.enhanced_cipher import EnhancedRFTCryptoV2
+        key = key.ljust(32, b"\x00")[:32]
+        cipher = EnhancedRFTCryptoV2(key)
+        return cipher._feistel_encrypt(plaintext[:16].ljust(16, b"\x00"))
 
 class ProvenAssemblyManager:
     """Manager for all proven assembly engines - NO MOCKS ALLOWED."""

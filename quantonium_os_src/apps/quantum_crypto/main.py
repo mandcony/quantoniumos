@@ -12,6 +12,22 @@ Quantum Crypto ΓÇö Futura Minimal
 
 import sys, os, math, hashlib, secrets
 import numpy as np
+def _toeplitz_hash(bits: np.ndarray, out_len: int, rng: np.random.Generator) -> np.ndarray:
+    """Universal hashing via a random Toeplitz matrix over GF(2)."""
+    n = bits.size
+    if out_len <= 0 or n == 0:
+        return np.zeros(0, dtype=np.uint8)
+    seed = rng.integers(0, 2, size=out_len + n - 1, dtype=np.uint8)
+    col = seed[:n]
+    row = seed[n - 1:]
+    out = np.zeros(out_len, dtype=np.uint8)
+    for i in range(out_len):
+        acc = 0
+        for j in range(n):
+            t = col[j - i] if j >= i else row[i - j]
+            acc ^= (t & bits[j])
+        out[i] = acc
+    return out
 
 from PyQt5.QtCore import Qt, QTimer, QRectF, QPointF
 from PyQt5.QtGui import QFont, QPainter, QPen, QBrush, QColor, QGuiApplication
@@ -311,10 +327,14 @@ class QuantumCrypto(QMainWindow):
         test_idx = rng.choice(L_eff, test_n, replace=False)
         qber = float(np.mean(sifted_alice[test_idx] != sifted_bob[test_idx])) if L_eff else 0.0
 
-        # Final key (privacy amplification placeholder): drop tested bits, keep the rest
+        # Privacy amplification via universal hashing (Toeplitz)
         keep_mask = np.ones(L_eff, dtype=bool)
         keep_mask[test_idx] = False
-        final_key_bits = sifted_alice[keep_mask]
+        sifted_bits = sifted_alice[keep_mask].astype(np.uint8)
+        leak_ec = int(np.ceil(sifted_bits.size * (0.1 + 2.0 * qber)))
+        security_margin = 40  # ~2*log2(1/1e-6)
+        out_len = max(0, sifted_bits.size - leak_ec - security_margin)
+        final_key_bits = _toeplitz_hash(sifted_bits, out_len, rng)
         self.current_key_bits = final_key_bits  # store for encryption
 
         # Pretty print

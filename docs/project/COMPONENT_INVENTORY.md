@@ -23,7 +23,7 @@ Concise map of key paths → purpose → primary routes/links. Scope: top-level 
 | `LICENSE.md` | AGPL-3.0-or-later for non-claim files | Mentions split with claims list |
 | `LICENSE-CLAIMS-NC.md` | Research-only license for claim files | Contact for commercial license |
 | `pyproject.toml` | Project metadata, deps, package include/exclude | Runtime deps pinned; dev/ai/image extras |
-| `requirements*.txt|in|lock` | Dependency pins/ranges | `requirements.in` roots; `lock` placeholder exacts |
+| `requirements*.txt|in|lock` | Dependency pins/ranges | `requirements.in` roots; `lock` minimal pins (regenerate with pip-compile for hashes) |
 | `pytest.ini` | Pytest config/markers | `integration`, `slow` markers |
 | `Dockerfile` | Quick validation container | Installs dev extras; builds kernels; runs `pytest -m "not slow"` |
 | `Dockerfile.papers` | Paper validation container | Minimal deps; curated validation script |

@@ -193,9 +193,15 @@ def rft_hybrid_pipeline(data: np.ndarray, target_rate_bpv: float) -> Tuple[np.nd
         # Estimate rate from compressed bitstream
         n = len(data)
         if isinstance(compressed, dict):
-            # Estimate from dictionary size
-            # This is a placeholder; actual hybrid codec would have 'bitstream'
-            actual_bpv = target_rate_bpv 
+            if compressed.get("type") == "rft_hybrid_tensor":
+                kept = int(compressed.get("kept_coeff", 0))
+                bitrate_coeff = float(compressed.get("bitrate_coeff", 0.0))
+                bits_total = kept * (32.0 + bitrate_coeff)
+                actual_bpv = bits_total / max(n, 1)
+            elif compressed.get("type") == "rft_cascade_tensor":
+                actual_bpv = float(compressed.get("compressed", {}).get("bpp", target_rate_bpv))
+            else:
+                actual_bpv = target_rate_bpv
         else:
             # Fallback estimate
             actual_bpv = target_rate_bpv

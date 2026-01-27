@@ -20,6 +20,7 @@ import os
 import sys
 import json
 import numpy as np
+import gzip
 from pathlib import Path
 import traceback
 from datetime import datetime
@@ -35,6 +36,13 @@ try:
 except ImportError as e:
     print(f"⚠️  QuantoniumOS modules not available: {e}")
     HF_STREAMING_AVAILABLE = False
+
+try:
+    from tools.compression.real_hf_model_compressor import HuggingFaceRFTCompressor
+    RFT_COMPRESSOR_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️  HF RFT compressor not available: {e}")
+    RFT_COMPRESSOR_AVAILABLE = False
 
 class DownloadedModelsQuantumIntegrator:
     """Integrates freshly downloaded Hugging Face models with QuantoniumOS quantum compression."""
@@ -217,17 +225,13 @@ class DownloadedModelsQuantumIntegrator:
         }
         
         try:
-            if not HF_STREAMING_AVAILABLE:
-                print("⚠️  Streaming encoder not available, creating simulation...")
-                # Create a simulation of the encoding process
-                results["phases_completed"] = [p["phase"] for p in plan["compression_phases"]]
-                results["total_compression_achieved"] = plan["target_compression_ratio"]
-                results["status"] = "simulated"
-                results["note"] = "Encoding simulated - actual RFT modules not available"
-                return results
-                
+            if not (HF_STREAMING_AVAILABLE or RFT_COMPRESSOR_AVAILABLE):
+                raise RuntimeError("No QuantoniumOS compression backends available")
+
             # Execute each phase
-            encoder = HuggingFaceStreamingEncoder()
+            encoder = HuggingFaceStreamingEncoder() if HF_STREAMING_AVAILABLE else None
+            compressor = HuggingFaceRFTCompressor() if RFT_COMPRESSOR_AVAILABLE else None
+            encoded_model_once = False
             
             for phase in plan["compression_phases"]:
                 print(f"  🔄 Phase {phase['phase']}: {phase['name']}")
@@ -242,26 +246,44 @@ class DownloadedModelsQuantumIntegrator:
                 
                 for file_info in phase["target_files"]:
                     file_path = model_path / file_info["relative_path"]
-                    if file_path.exists():
-                        print(f"    📄 Processing: {file_info['name']} ({file_info['size_mb']:.1f} MB)")
-                        
-                        # Create encoded version (simulation for now)
-                        encoded_path = self.quantonium_models_dir / plan["model_name"].replace("/", "_") / f"encoded_{file_info['name']}.qrft"
-                        encoded_path.parent.mkdir(parents=True, exist_ok=True)
-                        
-                        # Simulate encoding by creating a smaller placeholder file
-                        simulated_size = int(file_info["size_bytes"] * phase["compression_ratio"])
-                        with open(encoded_path, 'wb') as f:
-                            f.write(b'QUANTONIUM_RFT_ENCODED_DATA' + b'0' * max(0, simulated_size - 26))
-                            
+                    if not file_path.exists():
+                        continue
+
+                    print(f"    📄 Processing: {file_info['name']} ({file_info['size_mb']:.1f} MB)")
+
+                    encoded_dir = self.quantonium_models_dir / plan["model_name"].replace("/", "_")
+                    encoded_dir.mkdir(parents=True, exist_ok=True)
+
+                    if phase["method"] == "rft_stream_encoding":
+                        if compressor is None:
+                            raise RuntimeError("RFT compressor not available for parameter encoding")
+                        if not encoded_model_once:
+                            encoded_data = compressor.compress_huggingface_model(str(model_path), plan["model_name"])
+                            encoded_path = encoded_dir / "encoded_model.json"
+                            with open(encoded_path, "w", encoding="utf-8") as f:
+                                json.dump(encoded_data, f, indent=2)
+                            encoded_size_mb = round(encoded_path.stat().st_size / (1024 * 1024), 2)
+                            results["encoded_files"].append({
+                                "original_file": str(file_path),
+                                "encoded_file": str(encoded_path),
+                                "original_size_mb": file_info["size_mb"],
+                                "encoded_size_mb": encoded_size_mb,
+                                "compression_ratio": encoded_size_mb / max(file_info["size_mb"], 1e-9),
+                            })
+                            encoded_model_once = True
+                            phase_result["files_processed"] += 1
+                    else:
+                        encoded_path = encoded_dir / f"{file_info['name']}.gz"
+                        with open(file_path, "rb") as src, gzip.open(encoded_path, "wb", compresslevel=9) as dst:
+                            dst.write(src.read())
+                        encoded_size_mb = round(encoded_path.stat().st_size / (1024 * 1024), 2)
                         results["encoded_files"].append({
                             "original_file": str(file_path),
                             "encoded_file": str(encoded_path),
                             "original_size_mb": file_info["size_mb"],
-                            "encoded_size_mb": round(simulated_size / (1024*1024), 2),
-                            "compression_ratio": phase["compression_ratio"]
+                            "encoded_size_mb": encoded_size_mb,
+                            "compression_ratio": encoded_size_mb / max(file_info["size_mb"], 1e-9),
                         })
-                        
                         phase_result["files_processed"] += 1
                         
                 phase_result["compression_achieved"] = phase["compression_ratio"]

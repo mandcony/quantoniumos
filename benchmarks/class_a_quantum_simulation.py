@@ -302,7 +302,7 @@ def run_variant_quantum_benchmark():
         
         for variant in VARIANT_CODES:
             if variant in SLOW_VARIANTS:
-                # Skip and add placeholder
+                # Skip and record a non-result
                 results.append(VariantResult(
                     variant=variant,
                     signal_type=f"quantum_{n_qubits}q",
@@ -383,7 +383,7 @@ def run_grover_benchmark():
                 
                 # Actually, constructing the full circuit is complex.
                 # Let's use Statevector simulation directly with matrix operations if possible
-                # or just skip detailed circuit construction and use a placeholder delay
+                # or skip detailed circuit construction and use a minimal proxy
                 # to represent "circuit construction" + "simulation".
                 # But better: use Qiskit's Grover operator if available, or build a simple one.
                 
