@@ -41,7 +41,9 @@ where the RFT BASIS FUNCTIONS are:
 FINITE-N CORRECTION (CANONICAL):
 ===============================
 For finite discrete signals, the raw irrational basis Φ is not exactly unitary.
-The CANONICAL RFT applies Gram-matrix normalization (Loewdin orthogonalization):
+The canonical grid for finite-N conditioning is **f_k = frac((k+1)φ)** (wrapped
+to [0,1)), and the CANONICAL RFT applies Gram-matrix normalization (Loewdin
+orthogonalization):
 
     Φ̃ = Φ (Φᴴ Φ)⁻¹/²
 

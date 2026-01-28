@@ -56,6 +56,11 @@ Note: The "65+" figure previously stated was a rough upper bound. The **verified
 where φ = (1 + √5) / 2 ≈ 1.618033988749895 (golden ratio)
 ```
 
+**Canonical node definition (frozen for conditioning claims):**
+For the finite‑$N$ conditioning analysis, the canonical φ‑grid frequencies are
+$$f_k = \operatorname{frac}((k+1)\phi).$$
+The inverse‑modulation grid $f_k = \operatorname{frac}(\phi^{-k})$ is a **separate, non‑canonical variant** and should not be conflated with the canonical grid in claims or tables.
+
 **Definition 1.2 (Resonant Fourier Transform)**:
 For input x ∈ ℂ^N, the RFT is defined as:
 ```
@@ -167,6 +172,38 @@ data/artifacts/rft_stability/
 | **φ-Phase FFT Optimized** | [phi_phase_fft_optimized.py](../algorithms/rft/core/phi_phase_fft_optimized.py) | Fused `D_φ C_σ F` | O(N²) |
 | **Golden Ratio Unitary** | [golden_ratio_unitary.py](../algorithms/rft/core/golden_ratio_unitary.py) | QR orthonormalization | **O(N³)** |
 | **Symbolic Wave Computer** | [symbolic_wave_computer.py](../algorithms/rft/core/symbolic_wave_computer.py) | Wave-domain logic | O(N×bits) |
+
+### 1.6 φ‑Grid Conditioning Study (Finite‑N)
+
+**Artifact**: [data/artifacts/conditioning/phi_grid_metrics.json](../data/artifacts/conditioning/phi_grid_metrics.json)  
+**Script**: [experiments/conditioning/compare_node_sets.py](../experiments/conditioning/compare_node_sets.py)
+
+**Canonical grid**: $f_k = \operatorname{frac}((k+1)\phi)$  
+**Non‑canonical variant**: $f_k = \operatorname{frac}(\phi^{-k})$ (catastrophic conditioning; excluded from canonical claims)
+
+**Key result (finite‑$N$, defensible):** The canonical φ‑grid yields **non‑catastrophic** Gram conditioning across $N=5\ldots256$ (κ in the $10^2$–$10^3$ range by $N=256$), **avoiding extreme spikes** seen in some irrationals (notably $\pi$, $e$) and in unconstrained random grids. This does **not** assert uniform superiority over $\sqrt{2}$ or jittered grids; φ is competitive and often better, but not consistently so at every $N$. Log‑log slope fits are **indicative** (not asymptotic guarantees); non‑monotonic dips are consistent with Diophantine/Fibonacci‑scale resonances.
+
+**Condition number κ(G) by grid (rounded):**
+
+| Grid | N=5 | N=10 | N=20 | N=32 | N=64 | N=128 | N=256 |
+|------|-----|------|------|------|------|-------|-------|
+| Equispaced | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| φ‑modulated (canonical) | 2.64 | 11.77 | 32.79 | 40.97 | 149.14 | 103.48 | 435.24 |
+| √2‑modulated | 2.08 | 9.70 | 47.60 | 86.48 | 116.40 | 24.13 | 120.11 |
+| e‑modulated | 10.05 | 48.62 | 151.13 | 3.11 | 16.23 | 1322.06 | 5364.12 |
+| π‑modulated | 39.18 | 8233.20 | 34265.80 | 2.02e7 | 4.15e6 | 1.01e9 | 2.39e15 |
+| Random (avg, 5 trials) | 8.89e2 | 1.15e10 | 1.35e14 | 2.48e16 | 3.94e16 | 6.99e16 | 1.54e17 |
+| Jittered (avg, 5 trials) | 8.39 | 16.13 | 47.40 | 68.89 | 293.73 | 1426.46 | 310.83 |
+
+**Minimum separation (Δmin) correlation:** φ‑grid maintains larger minimum angular separations than unconstrained random grids across $N$, aligning with higher $\sigma_{\min}$ and smaller κ(G). This supports the Diophantine spacing → conditioning chain. Jittered grids are sometimes competitive, sometimes worse.
+
+**Numerical caveats (addressed in method):**
+1) **PSD eigenvalues:** $G=\Phi^H\Phi$ is PSD. Any negative `eig_min_raw` is numerical noise; report both raw and clamped minima and compute κ(G) from singular values of $\Phi$ (primary) and clamped eigenvalues (secondary).
+2) **Circular min‑sep:** min‑sep is computed on the unit circle using sorted gaps **plus wrap‑around** gap to avoid underestimating separation.
+
+**Method update (2026‑01‑28):** κ(G) is now computed from SVD of $\Phi$; eigen‑based κ is reported separately as `kappa_eig` using clamped eigenvalues. The Gram matrix is symmetrized before eigendecomposition.
+
+**Interpretation note:** The φ‑grid does **not** claim superiority over FFT (equispaced). It provides a structured non‑uniform grid with reliably non‑catastrophic finite‑$N$ conditioning versus several irrational and random alternatives.
 
 ---
 

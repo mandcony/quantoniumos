@@ -25,7 +25,7 @@
 |------|--------------------------|-----------------|
 | **RFT** | Eigenbasis of resonance operator $K$ | Gram-normalized φ-grid exponential basis $\widetilde{\Phi}$ |
 | **Sparsity** | None vs FFT | **+15-20 dB PSNR** on target signals |
-| **Novelty** | Trivially equivalent to phased DFT | Genuine operator-eigenbasis transform |
+| **Novelty** | Trivially equivalent to phased DFT | Empirically stable φ-modulated NUDFT grid (finite‑N conditioning) |
 
 ### The Canonical RFT Definition
 
@@ -42,6 +42,8 @@ $$
 Where:
 - $\Phi$ is the raw irrational-frequency exponential basis (φ-grid)
 - $\widetilde{\Phi}$ is the Gram-normalized (unitary) basis
+- **Canonical node definition (frozen):** $f_k = \operatorname{frac}((k+1)\phi)$
+- **Variant (explicit, non-canonical):** $f_k = \operatorname{frac}(\phi^{-k})$ (documented separately as an inverse‑modulation grid)
 - The resonance-operator eigenbasis is **legacy/alternative**, kept for comparison in `algorithms/rft/variants/operator_variants.py`
 - QR-orthonormalized resonance-matrix variants live in `algorithms/rft/variants/registry.py` and are **not** the canonical definition
 
@@ -68,6 +70,8 @@ The old formula Ψ = D_φ C_σ F is now called **φ-phase FFT** or **phase-tilte
 | In-Family (Golden QP) | **82%** | N >= 256 |
 | Out-of-Family | 25% | Expected (domain-specific) |
 | PSNR Gain | **+15-20 dB** | At 10% coefficient retention |
+
+**Finite‑N conditioning note:** Log‑log slope fits are indicative (not asymptotic guarantees). Non‑monotonic dips can occur from Diophantine resonances at Fibonacci‑related sizes while the overall trend remains polynomial.
 
 See `algorithms/rft/README_RFT.md` for the complete specification.
 
@@ -101,7 +105,7 @@ See `PHASE4_PLAN.md` for detailed roadmap.
 
 This repository represents a comprehensive research platform for "Quantum-Inspired" signal processing. While it does not perform actual quantum computation, it provides significant technical value in the following areas:
 
-1.  **Novel Signal Processing Basis**: The Canonical RFT provides a mathematically rigorous eigenbasis for analyzing quasi-periodic and Fibonacci-structured signals, offering 15-20 dB PSNR gains over FFT for these specific classes.
+1.  **Structured Non‑Uniform Basis (Empirical Stability)**: While Gram/QR orthonormalization is standard, the canonical φ‑modulated grid $f_k=\operatorname{frac}((k+1)\phi)$ yields empirically better finite‑$N$ conditioning and numerical stability than generic irrational, random, or jittered NUDFT grids for quasi‑periodic signal families.
 2.  **Hybrid Compression Architecture**: The framework demonstrates a "coherence-free" hybrid codec that seamlessly switches between DCT (for structure) and RFT (for texture/resonance), solving the boundary artifact problem common in block-based transforms.
 3.  **Hardware IP Core**: The `hardware/` directory contains a synthesizable Verilog design for the RFTPU (Resonant Fourier Transform Processing Unit), a dedicated accelerator architecture with a custom NoC (Network-on-Chip), validated in simulation.
 4.  **Cryptographic Research**: Experimental implementations of RFT-SIS hashing and Feistel networks provide a testbed for chaos-based and lattice-based cryptography concepts.
@@ -122,6 +126,7 @@ This repository includes a suite of scripts to verify the environment, reproduce
 | **`./run_demo.sh`** | **Quick Demo.** Launches `demos/demo_rft_power.py` to visualize the power spectral density advantages of RFT on a sample signal. |
 | **`scripts/run_full_suite.sh`** | **Full Benchmark Runner.** Executes the comprehensive set of experiments, including long-running compression and crypto benchmarks. |
 | **`quantoniumos-bootstrap.sh`** | **Initial Setup.** Automates the cloning, virtual environment creation, and dependency installation process for new users. |
+| **`experiments/conditioning/compare_node_sets.py`** | **Conditioning Audit.** Generates JSON metrics for Gram conditioning, coherence, and minimum separation across φ‑grid and baseline node sets. |
 
 ---
 

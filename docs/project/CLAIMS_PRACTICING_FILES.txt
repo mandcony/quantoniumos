@@ -78,6 +78,13 @@ algorithms/rft/kernels/resonant_fourier_transform.py
 # --- Test files for claims validation ---
 tests/rft/test_canonical_rft.py
 tests/crypto/test_rft_sis_hash.py
+tests/test_patent_variants.py
+
+# --- Validation & archiving scripts (claim-bearing evidence) ---
+scripts/archive_crypto_tests.py
+scripts/archive_codec_rd_curves.py
+scripts/archive_rft_stability.py
+experiments/conditioning/compare_node_sets.py
 
 # --- Benchmark files ---
 benchmarks/class_a_quantum_simulation.py
